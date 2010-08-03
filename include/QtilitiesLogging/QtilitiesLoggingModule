@@ -1,0 +1,23 @@
+#ifndef QTILITIES_LOGGING_MODULE_H
+#define QTILITIES_LOGGING_MODULE_H
+
+#include "Qtilities.h"
+
+#include "AbstractFormattingEngine.h"
+#include "AbstractLoggerEngine.h"
+#include "FormattingEngines.h"
+#include "ILoggerExportable.h"
+#include "Logger.h"
+#include "LoggerEngines.h"
+#include "LoggerFactory.h"
+#include "Logging_global.h"
+#include "LoggingConstants.h"
+
+//! Namespace which encapsulates all namespaces and sub namespaces for the Logging module.
+namespace QtilitiesLoggingModule { 
+	using namespace Qtilities::Logging; 
+	using namespace Qtilities::Logging::Constants; 
+	using namespace Qtilities::Logging::Interfaces; 
+} 
+
+#endif

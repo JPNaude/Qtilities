@@ -1,0 +1,5 @@
+#include <QtilitiesLogging/QtilitiesLogging>
+#include <QtilitiesCore/QtilitiesCore>
+#include <QtilitiesCoreGui/QtilitiesCoreGui>
+#include <QtilitiesProjectManagement/QtilitiesProjectManagement>
+#include <QtilitiesExtensionSystem/QtilitiesExtensionSystem>

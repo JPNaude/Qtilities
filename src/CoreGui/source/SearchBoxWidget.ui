@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SearchBoxWidget</class>
+ <widget class="QWidget" name="SearchBoxWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>52</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>52</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>52</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>1</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="widgetSearch" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="txtSearchString">
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>212</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Find:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnFindPrevious">
+        <property name="toolTip">
+         <string>Find Previous</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::LeftArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnFindNext">
+        <property name="toolTip">
+         <string>Find Next</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::RightArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnSearchOptions">
+        <property name="toolTip">
+         <string>Search Options</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::NoArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="spacerTop">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>207</width>
+          <height>17</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnClose">
+        <property name="toolTip">
+         <string>Close</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::DownArrow</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widgetReplace" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="txtReplaceString">
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>212</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Replace with:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnReplacePrevious">
+        <property name="toolTip">
+         <string>Replace Previous</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::LeftArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="btnReplaceNext">
+        <property name="toolTip">
+         <string>Replace Next</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+        <property name="arrowType">
+         <enum>Qt::RightArrow</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="spacerBottom">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>236</width>
+          <height>15</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

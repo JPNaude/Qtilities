@@ -1,0 +1,73 @@
+/**
+\page page_object_management Object management using observers and the object manager
+
+\section object_management_overview Overview
+
+%Qtilities provides an Object Manager class which provides many object management features. The object manager 
+is also responsible to provide a global object pool to the developer. This allows the registration of objects
+in the global object pool where other objects can access them or the interfaces they implement. This article
+will provide information on the different features of the object manager and global object pool.
+
+Table of contents:
+- \ref accessing
+- \ref features
+	- \ref object_pool
+	- \ref observer_features
+	- \ref meta_type_object_management
+	.
+
+\section accessing Accessing the object manager
+
+The object manager implements the Qtilities::Core::Interfaces::IObjectManager interface and can be accessed directly through 
+the Qtilities::Core::QtilitiesCore singleton or using the object manager macro as shown below:
+
+\code
+#include <QtilitiesCore.h>
+
+QObject* my_object = new QObject();
+OBJECT_MANAGER->registerObject(my_object);
+\endcode
+
+\section features Object Management Features
+
+\subsection object_pool The global object pool
+
+A global object pool is a powerful object management feature in an application, especially when the application
+is extensible through plugins. It allows objects to be registered in the pool and can then be searched for and used in 
+other parts of the application. The example below shows some example usages of the global object pool.
+
+\code
+#include <QtilitiesCore.h>
+#include <IMyIFace.h>
+
+// Register an object in the global object pool:
+// This will emit the newObjectAdded(QObject*) signal on the object manager.
+QObject* my_object = new QObject();
+OBJECT_MANAGER->registerObject(my_object);
+
+// Check which objects in the global object pool implements a specific interface (called "IMyIFace" in this example):
+QList<QObject *> iface_list;
+iface_list = OBJECT_MANAGER->registeredInterfaces("IMyIFace");
+foreach (QObject* obj, iface_list) {
+	IMyIFace* my_iface = qobject_cast<IMyIFace*> (obj);
+	if (my_iface) {
+		// Now you can access your interface.
+	}
+}
+\endcode
+
+A good example of using the global object pool is the methodology behind how plugins work in the %Qtilities extension system
+where plugins register objects in which the rest of the application might be interested in during plugin initialization. Once 
+all plugins were initialized, the plugins initializes their dependencies in which it will inspect the global object pool
+for registered objects my other plugins and/or the main application.
+
+\subsection observer_features Observer object management features
+
+When attaching objects to observers, it is possible to specify the way the object should be managed in the observer context.
+The possible management options are defined in the Qtilities::Core::Observer::ObjectOwnership enumeration. See the \ref object_lifetimes section of the \ref page_observers article for more information.
+
+\subsection meta_type_object_management Global object activity management
+
+The object manager provides functionality to manage global active objects in an application. Active objects can be set on a meta-type basis where the meta type is a simple QString used to identify the set of active objects. Active objects for a meta-type can be set using the Qtilities::Core::Interfaces::IObjectManager::setMetaTypeActiveObjects() function. When this function is called the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal is emitted with the new set of active objects for the specified meta-type. The active objects for a meta-type can be accessed at any time using the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjects() function.
+
+ */

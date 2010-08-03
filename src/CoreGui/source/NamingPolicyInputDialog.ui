@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NamingPolicyInputDialog</class>
+ <widget class="QDialog" name="NamingPolicyInputDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>486</width>
+    <height>323</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Naming Problem Detected</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QLabel" name="lblHeading">
+     <property name="text">
+      <string>A naming problem has been detected with the name of the following object:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Context:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="lblContext">
+       <property name="text">
+        <string>Context not specified</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Object Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="lblOriginalName">
+       <property name="text">
+        <string>Object Name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="lblProblemDescription">
+       <property name="text">
+        <string>Problem description</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>If you want to continue, please select how you want to resolve this:</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="radioDifferentName">
+        <property name="text">
+         <string>Use a different name.</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>17</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Please specify a new name:</string>
+          </property>
+          <property name="buddy">
+           <cstring>txtDifferentName</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtDifferentName"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btnDifferentNameValidityIndicator">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioAutoRename">
+        <property name="text">
+         <string>Auto-rename the object for me.</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>17</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>The following name will be used:</string>
+          </property>
+          <property name="buddy">
+           <cstring>txtAutoGeneratedName</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="txtAutoGeneratedName">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="btnGenerateNewName">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Generate again</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioReplaceConflicting">
+        <property name="text">
+         <string>Replace the existing (conflicting) object with the new object.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioReject">
+        <property name="text">
+         <string>Reject (Cancel this operation)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QCheckBox" name="chkAllInThisCycle">
+       <property name="text">
+        <string>All in this cycle</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>168</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>radioDifferentName</tabstop>
+  <tabstop>txtDifferentName</tabstop>
+  <tabstop>radioAutoRename</tabstop>
+  <tabstop>txtAutoGeneratedName</tabstop>
+  <tabstop>btnGenerateNewName</tabstop>
+  <tabstop>radioReplaceConflicting</tabstop>
+  <tabstop>radioReject</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>btnDifferentNameValidityIndicator</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>NamingPolicyInputDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>475</x>
+     <y>312</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>NamingPolicyInputDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>475</x>
+     <y>312</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioAutoRename</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txtAutoGeneratedName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>434</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioDifferentName</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>txtDifferentName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>118</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>218</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioAutoRename</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>btnGenerateNewName</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>412</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioDifferentName</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>95</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>102</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioAutoRename</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>53</x>
+     <y>200</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioDifferentName</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>btnDifferentNameValidityIndicator</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>450</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>454</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

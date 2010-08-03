@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ObjectManagementModeWidget</class>
+ <widget class="QWidget" name="ObjectManagementModeWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>457</width>
+    <height>357</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Qtilities Library - Object Managment Example</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QWidget" name="collectionDetailsWidget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAdd_Example_Objects">
+   <property name="text">
+    <string>Add Example Objects</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

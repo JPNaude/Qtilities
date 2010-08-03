@@ -1,0 +1,20 @@
+#ifndef QTILITIES_EXTENSION_SYSTEM_MODULE_H
+#define QTILITIES_EXTENSION_SYSTEM_MODULE_H
+
+#include <QtilitiesLogging/QtilitiesLoggingModule>
+#include <QtilitiesCore/QtilitiesCoreModule>
+#include <QtilitiesCoreGui/QtilitiesCoreGuiModule>
+
+#include "ExtensionSystem_global.h"
+#include "ExtensionSystemConfig.h"
+#include "ExtensionSystemConstants.h"
+#include "ExtensionSystemCore.h"
+#include "IPlugin.h"
+
+//! Namespace which encapsulates all namespaces and sub namespaces for the Extension System module.
+namespace QtilitiesExtensionSystemModule { 
+	using namespace Qtilities::ExtensionSystem; 
+	using namespace Qtilities::ExtensionSystem::Interfaces; 
+} 
+
+#endif

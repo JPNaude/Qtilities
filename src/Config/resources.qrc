@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/environments_22x22.png</file>
+        <file>icons/environments_64x64.png</file>
+        <file>icons/session_log_22x22.png</file>
+        <file>icons/session_log_64x64.png</file>
+        <file>icons/shortcuts_22x22.png</file>
+        <file>images/about_logo.png</file>
+        <file>icons/view_remove_16x16.png</file>
+        <file>icons/view_new_16x16.png</file>
+        <file>icons/launchpad_22x22.png</file>
+        <file>icons/launchpad_64x64.png</file>
+        <file>icons/scripting_22x22.png</file>
+        <file>icons/scripting_64x64.png</file>
+    </qresource>
+</RCC>
