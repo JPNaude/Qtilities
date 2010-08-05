@@ -47,3 +47,4 @@ doc/sources/images
 Makefile
 *.pro.user*
 *.vsd
+gitKey*
