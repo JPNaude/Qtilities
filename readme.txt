@@ -14,7 +14,7 @@ The source archive consists of the following folders
 
 For information on how to get started with Qtilities, please see http://www.qtilities.org/docs/page_getting_started.html. Alternatively you can also compile the documentation from the sources by providing Doxygen with the /doc/doxyfile_website input file. On Windows you can run the /doc/win32_website.bat file directly if doxygen is in your path.
 
-For any questions or comments, please use any of the resouces below:
+For any questions or comments, please use any of the resources below:
 Support: support@qtilities.org
 Website: http://www.qtilities.org
 Feedback: http://qtilities.userecho.com/
