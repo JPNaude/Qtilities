@@ -16,7 +16,7 @@ equals(BUILD_MODE, release) {
     TARGET = ProjectManagementPlugind
 }
 
-DESTDIR += $$QTILITIES_BIN/Examples/ProjectManagementPlugin
+DESTDIR += $$QTILITIES_BIN/Plugins/ProjectManagementPlugin
 TEMPLATE = lib
 DEFINES += PROJECT_MANAGEMENT_PLUGIN_LIBRARY
 CONFIG += plugin

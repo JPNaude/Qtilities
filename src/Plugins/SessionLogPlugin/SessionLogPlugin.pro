@@ -15,7 +15,7 @@ equals(BUILD_MODE, release) {
     TARGET = SessionLogPlugind
 }
 
-DESTDIR += $$QTILITIES_BIN/Examples/SessionLogPlugin
+DESTDIR += $$QTILITIES_BIN/Plugins/SessionLogPlugin
 TEMPLATE = lib
 DEFINES += SESSION_LOG_PLUGIN_LIBRARY
 CONFIG += plugin
