@@ -40,6 +40,7 @@ qtpropertybrowser-2.5-opensource
 build_files
 output
 bin/Examples
+bin/Plugins
 doc/output
 doc/sources/images
 *.Debug
