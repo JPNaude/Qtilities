@@ -5,7 +5,7 @@
 #
 # ***************************************************************************
 #
-# Qtilities Libraries Examples
+# Qtilities Libraries Plugins
 #
 #****************************************************************************
 
@@ -13,9 +13,8 @@ TARGET      = Qtilities
 TEMPLATE    = subdirs
 CONFIG     += ordered
 
-# Example Applications:
-SUBDIRS    += ConsoleLogging
-SUBDIRS    += ObjectManagement
-SUBDIRS    += BuildingTreeStructures
-SUBDIRS	   += ObserverWidgetExample
-SUBDIRS	   += MainWindowExample
+# Plugins:
+SUBDIRS    += PluginTemplate
+SUBDIRS    += SessionLogPlugin
+SUBDIRS    += ProjectManagementPlugin
+
