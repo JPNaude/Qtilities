@@ -354,12 +354,10 @@ namespace Qtilities {
                 CopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
                 CutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
                 PasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
-                MergeItems = 32768,         /*!< Allow merging of selected items. */
-                SplitItems = 65536,         /*!< Allow splitting of selected item. */
                 FindItem = 131072,          /*!< Allow finding/searching in the observer context presented to the user. */
                 ScopeDuplicate = 262144,    /*!< Allow duplication of selected object in the observer context presented to the user. */
                 // Split is not included in the AllActionsHint.
-                AllActionsHint = RemoveItem | RemoveAll | DeleteItem | DeleteAll | NewItem | RefreshView | PushUp | PushUpNew | PushDown | PushDownNew | SwitchView | CopyItem | CutItem | PasteItem | MergeItems | FindItem | ScopeDuplicate /*!< All actions, except the SplitItems action. */
+                AllActionsHint = RemoveItem | RemoveAll | DeleteItem | DeleteAll | NewItem | RefreshView | PushUp | PushUpNew | PushDown | PushDownNew | SwitchView | CopyItem | CutItem | PasteItem | FindItem | ScopeDuplicate /*!< All actions. */
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem);
             Q_FLAGS(ActionHints);            
