@@ -94,7 +94,6 @@ namespace Qtilities {
                 // IModificationNotifier Implemenation
                 // --------------------------------
                 bool isModified() const;
-                QObject* modifierBase() { return this; }
             public slots:
                 void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false);
             signals:
