@@ -42,54 +42,56 @@
 
 namespace Qtilities {
     namespace Plugins {
-        using namespace Qtilities::ExtensionSystem::Interfaces;
-        using namespace Qtilities::ProjectManagement::Interfaces;
+            namespace ProjectManagement {
+            using namespace Qtilities::ExtensionSystem::Interfaces;
+            using namespace Qtilities::ProjectManagement::Interfaces;
 
-        /*!
-          \struct ProjectManagementPluginData
-          \brief The ProjectManagementPluginData struct stores private data used by the ProjectManagementPlugin class.
-         */
-        struct ProjectManagementPluginData;
+            /*!
+              \struct ProjectManagementPluginData
+              \brief The ProjectManagementPluginData struct stores private data used by the ProjectManagementPlugin class.
+             */
+            struct ProjectManagementPluginData;
 
-        /*!
-          \class ProjectManagementPlugin
-          \brief A plugin which adds project management capabilities to the application.
-         */
-        class PROJECT_MANAGEMENT_PLUGIN_SHARED_EXPORT ProjectManagementPlugin : public IPlugin
-        {
-            Q_OBJECT
-            Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
+            /*!
+              \class ProjectManagementPlugin
+              \brief A plugin which adds project management capabilities to the application.
+             */
+            class PROJECT_MANAGEMENT_PLUGIN_SHARED_EXPORT ProjectManagementPlugin : public IPlugin
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
 
-        public:
-            ProjectManagementPlugin(QObject* parent = 0);
-            ~ProjectManagementPlugin();
+            public:
+                ProjectManagementPlugin(QObject* parent = 0);
+                ~ProjectManagementPlugin();
 
-            // --------------------------------------------
-            // IPlugin Implementation
-            // --------------------------------------------
-            bool initialize(const QStringList &arguments, QString *errorString);
-            bool initializeDependancies(QString *errorString);
-            void finalize();
-            double pluginVersion();
-            QStringList pluginCompatibilityVersions();
-            QString pluginPublisher();
-            QString pluginPublisherWebsite();
-            QString pluginPublisherContact();
-            QString pluginDescription();
-            QString pluginCopyright();
-            QString pluginLicense();
+                // --------------------------------------------
+                // IPlugin Implementation
+                // --------------------------------------------
+                bool initialize(const QStringList &arguments, QString *errorString);
+                bool initializeDependancies(QString *errorString);
+                void finalize();
+                double pluginVersion();
+                QStringList pluginCompatibilityVersions();
+                QString pluginPublisher();
+                QString pluginPublisherWebsite();
+                QString pluginPublisherContact();
+                QString pluginDescription();
+                QString pluginCopyright();
+                QString pluginLicense();
 
-        public slots:
-            void handle_actionProjectNew();
-            void handle_actionProjectOpen();
-            void handle_actionProjectClose();
-            void handle_actionProjectSave();
-            void handle_actionProjectSaveAs();
-            void handle_projectStateChanged();
+            public slots:
+                void handle_actionProjectNew();
+                void handle_actionProjectOpen();
+                void handle_actionProjectClose();
+                void handle_actionProjectSave();
+                void handle_actionProjectSaveAs();
+                void handle_projectStateChanged();
 
-        private:
-            ProjectManagementPluginData* d;
-        };
+            private:
+                ProjectManagementPluginData* d;
+            };
+        }
     }
 }
 

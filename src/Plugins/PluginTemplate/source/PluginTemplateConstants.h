@@ -35,12 +35,14 @@
 #define PLUGIN_TEMPLATE_CONSTANTS_H
 
 namespace Qtilities {
-    /*!
-      */
     namespace Plugins {
-        namespace Constants {
-            #define PLUGIN_TEMPLATE_VERSION_MAJOR 0
-            #define PLUGIN_TEMPLATE_VERSION_MINOR 1
+        //! Namespace containing all classes which is part of the Template plugin.
+        namespace Template {
+            //! Namespace containing constants defined in the Template plugin.
+            namespace Constants {
+                #define PLUGIN_TEMPLATE_VERSION_MAJOR 0
+                #define PLUGIN_TEMPLATE_VERSION_MINOR 1
+            }
         }
     }
 }

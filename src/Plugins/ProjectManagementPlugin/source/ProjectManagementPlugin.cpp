@@ -56,9 +56,9 @@ using namespace Qtilities::CoreGui;
 using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::ProjectManagement;
-using namespace Qtilities::Plugins::Constants;
+using namespace Qtilities::Plugins::ProjectManagement::Constants;
 
-struct Qtilities::Plugins::ProjectManagementPluginData {
+struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
     ProjectManagementPluginData() : actionProjectNew(0),
     actionProjectOpen(0),
     actionProjectClose(0),
@@ -74,19 +74,19 @@ struct Qtilities::Plugins::ProjectManagementPluginData {
     QString         appended_project_name;
 };
 
-Qtilities::Plugins::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : IPlugin(parent)
+Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : IPlugin(parent)
 {
     d = new ProjectManagementPluginData;
     setObjectName("Project Management Plugin");
     connect(PROJECT_MANAGER,SIGNAL(modificationStateChanged(bool)),SLOT(handle_projectStateChanged()));
 }
 
-Qtilities::Plugins::ProjectManagementPlugin::~ProjectManagementPlugin()
+Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::~ProjectManagementPlugin()
 {
     delete d;
 }
 
-bool Qtilities::Plugins::ProjectManagementPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(const QStringList &arguments, QString *errorString) {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
@@ -148,7 +148,7 @@ bool Qtilities::Plugins::ProjectManagementPlugin::initialize(const QStringList &
     return true;
 }
 
-bool Qtilities::Plugins::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
+bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
 
     // Get a list of all the project items in the system.
@@ -177,49 +177,49 @@ bool Qtilities::Plugins::ProjectManagementPlugin::initializeDependancies(QString
     return success;
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::finalize() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::finalize() {
 
 }
 
-double Qtilities::Plugins::ProjectManagementPlugin::pluginVersion() {
+double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() {
     return (QString("%1.%2").arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR).arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::ProjectManagementPlugin::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCore::instance()->version();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginPublisher() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisher() {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginPublisherWebsite() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherWebsite() {
     return "";
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginPublisherContact() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherContact() {
     return "naude.jaco@gmail.com";
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginDescription() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginDescription() {
     return tr("A plugin which adds project management capabilities to the application.");
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginCopyright() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCopyright() {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::ProjectManagementPlugin::pluginLicense()  {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginLicense()  {
     return tr("See the Qtilities Libraries license");
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectNew() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectNew() {
     PROJECT_MANAGER->newProject();
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectOpen() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectOpen() {
     QString filter = QString(tr("Project File (*%1)")).arg(FILE_EXT_PROJECT);
     QString project_path;
     if (PROJECT_MANAGER->useCustomProjectsPath())
@@ -235,11 +235,11 @@ void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectOpen() {
     }
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectClose() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectClose() {
     PROJECT_MANAGER->closeProject();
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectSave() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectSave() {
     if (!PROJECT_MANAGER->currentProject())
         return;
 
@@ -250,7 +250,7 @@ void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectSave() {
     }
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectSaveAs() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectSaveAs() {
     if (!PROJECT_MANAGER->currentProject())
         return;
 
@@ -269,7 +269,7 @@ void Qtilities::Plugins::ProjectManagementPlugin::handle_actionProjectSaveAs() {
     }
 }
 
-void Qtilities::Plugins::ProjectManagementPlugin::handle_projectStateChanged() {
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_projectStateChanged() {
     IProject* project = PROJECT_MANAGER->currentProject();
 
     if (project) {
@@ -348,5 +348,5 @@ void Qtilities::Plugins::ProjectManagementPlugin::handle_projectStateChanged() {
     }
 }
 
-using namespace Qtilities::Plugins;
+using namespace Qtilities::Plugins::ProjectManagement;
 Q_EXPORT_PLUGIN2(ProjectManagementPlugin, ProjectManagementPlugin);

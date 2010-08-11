@@ -45,71 +45,71 @@
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
 
-struct Qtilities::Plugins::PluginTemplateData {
+struct Qtilities::Plugins::Template::PluginTemplateData {
     PluginTemplateData() {}
 };
 
-Qtilities::Plugins::PluginTemplate::PluginTemplate(QObject* parent) : IPlugin(parent)
+Qtilities::Plugins::Template::PluginTemplate::PluginTemplate(QObject* parent) : IPlugin(parent)
 {
     d = new PluginTemplateData;
     setObjectName("Qtilities Libraries Plugin Template");
 }
 
-Qtilities::Plugins::PluginTemplate::~PluginTemplate()
+Qtilities::Plugins::Template::PluginTemplate::~PluginTemplate()
 {
     delete d;
 }
 
-bool Qtilities::Plugins::PluginTemplate::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::Template::PluginTemplate::initialize(const QStringList &arguments, QString *errorString) {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
     return true;
 }
 
-bool Qtilities::Plugins::PluginTemplate::initializeDependancies(QString *errorString) {
+bool Qtilities::Plugins::Template::PluginTemplate::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
 
     return true;
 }
 
-void Qtilities::Plugins::PluginTemplate::finalize() {
+void Qtilities::Plugins::Template::PluginTemplate::finalize() {
 
 }
 
-double Qtilities::Plugins::PluginTemplate::pluginVersion() {
+double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() {
     return (QString("%1.%2").arg(PLUGIN_TEMPLATE_VERSION_MAJOR).arg(PLUGIN_TEMPLATE_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::PluginTemplate::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCore::instance()->version();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginPublisher() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginPublisherWebsite() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherWebsite() {
     return "";
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginPublisherContact() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherContact() {
     return "naude.jaco@gmail.com";
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginDescription() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginDescription() {
     return tr("An example Qtilities Extension System plugin.");
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginCopyright() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginCopyright() {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::PluginTemplate::pluginLicense()  {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense()  {
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins;
+using namespace Qtilities::Plugins::Template;
 Q_EXPORT_PLUGIN2(PluginTemplate, PluginTemplate);

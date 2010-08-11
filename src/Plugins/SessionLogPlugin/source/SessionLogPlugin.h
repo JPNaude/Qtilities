@@ -41,45 +41,47 @@
 
 namespace Qtilities {
     namespace Plugins {
-        using namespace ExtensionSystem::Interfaces;
+        namespace SessionLog {
+            using namespace ExtensionSystem::Interfaces;
 
-        /*!
-          \struct SessionLogPluginData
-          \brief The SessionLogPluginData struct stores private data used by the SessionLogPlugin class.
-         */
-        struct SessionLogPluginData;
+            /*!
+              \struct SessionLogPluginData
+              \brief The SessionLogPluginData struct stores private data used by the SessionLogPlugin class.
+             */
+            struct SessionLogPluginData;
 
-        /*!
-          \class SessionLogPlugin
-          \brief A plugin which provides a session log mode to the application.
-         */
-        class SESSION_LOG_PLUGIN_SHARED_EXPORT SessionLogPlugin : public IPlugin
-        {
-            Q_OBJECT
-            Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
+            /*!
+              \class SessionLogPlugin
+              \brief A plugin which provides a session log mode to the application.
+             */
+            class SESSION_LOG_PLUGIN_SHARED_EXPORT SessionLogPlugin : public IPlugin
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
 
-        public:
-            SessionLogPlugin(QObject* parent = 0);
-            ~SessionLogPlugin();
+            public:
+                SessionLogPlugin(QObject* parent = 0);
+                ~SessionLogPlugin();
 
-            // --------------------------------------------
-            // IPlugin Implementation
-            // --------------------------------------------
-            bool initialize(const QStringList &arguments, QString *errorString);
-            bool initializeDependancies(QString *errorString);
-            void finalize();
-            double pluginVersion();
-            QStringList pluginCompatibilityVersions();
-            QString pluginPublisher();
-            QString pluginPublisherWebsite();
-            QString pluginPublisherContact();
-            QString pluginDescription();
-            QString pluginCopyright();
-            QString pluginLicense();
+                // --------------------------------------------
+                // IPlugin Implementation
+                // --------------------------------------------
+                bool initialize(const QStringList &arguments, QString *errorString);
+                bool initializeDependancies(QString *errorString);
+                void finalize();
+                double pluginVersion();
+                QStringList pluginCompatibilityVersions();
+                QString pluginPublisher();
+                QString pluginPublisherWebsite();
+                QString pluginPublisherContact();
+                QString pluginDescription();
+                QString pluginCopyright();
+                QString pluginLicense();
 
-        private:
-            SessionLogPluginData* d;
-        };
+            private:
+                SessionLogPluginData* d;
+            };
+        }
     }
 }
 

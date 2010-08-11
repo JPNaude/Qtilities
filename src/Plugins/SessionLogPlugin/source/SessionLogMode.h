@@ -46,42 +46,44 @@ using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
     namespace Plugins {
-        /*!
-          \struct SessionLogModeData
-          \brief The SessionLogModeData struct stores private data used by the SessionLogMode class.
-         */
-        struct SessionLogModeData;
+        namespace SessionLog {
+            /*!
+              \struct SessionLogModeData
+              \brief The SessionLogModeData struct stores private data used by the SessionLogMode class.
+             */
+            struct SessionLogModeData;
 
-        /*!
-        \class SessionLogMode
-        \brief The session log mode is used to display output from the Qtilities Logging Library as a mode in the QtilitiesMainWindow.
-          */
-        class SessionLogMode : public QObject, public IMode
-        {
-            Q_OBJECT
-            Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
+            /*!
+            \class SessionLogMode
+            \brief The session log mode is used to display output from the %Qtilities %Logging module as a mode in the Qtilities::CoreGui::QtilitiesMainWindow.
+              */
+            class SessionLogMode : public QObject, public IMode
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
 
-            public:
-                SessionLogMode(QObject* parent = 0);
-                ~SessionLogMode();
+                public:
+                    SessionLogMode(QObject* parent = 0);
+                    ~SessionLogMode();
 
-                // --------------------------------------------
-                // IMode Implementation
-                // --------------------------------------------
-                QWidget* widget();
-                void initialize() {}
-                QIcon icon() const;
-                QString text() const;
-                QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
-                QString contextHelpId() const { return QString(); }
-                int modeID() const { return MODE_SESSION_LOG_ID; }
+                    // --------------------------------------------
+                    // IMode Implementation
+                    // --------------------------------------------
+                    QWidget* widget();
+                    void initialize() {}
+                    QIcon icon() const;
+                    QString text() const;
+                    QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
+                    QString contextHelpId() const { return QString(); }
+                    int modeID() const { return MODE_SESSION_LOG_ID; }
 
-            public slots:
-                void handle_dockVisibilityChanged(bool visible);
+                public slots:
+                    void handle_dockVisibilityChanged(bool visible);
 
-            private:
-                SessionLogModeData* d;
-        };
+                private:
+                    SessionLogModeData* d;
+            };
+        }
     }
 }
 

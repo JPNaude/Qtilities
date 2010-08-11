@@ -35,13 +35,18 @@
 #define SESSION_LOG_PLUGIN_CONSTANTS_H
 
 namespace Qtilities {
+    //! Namespace containing all available plugins.
     namespace Plugins {
-        namespace Constants {
-            #define SESSION_LOG_PLUGIN_VERSION_MAJOR 0
-            #define SESSION_LOG_PLUGIN_VERSION_MINOR 1
+        //! Namespace containing all classes which is part of the SessionLogPlugin.
+        namespace SessionLog {
+            //! Namespace containing constants defined in the SessionLogPlugin.
+            namespace Constants {
+                #define SESSION_LOG_PLUGIN_VERSION_MAJOR 0
+                #define SESSION_LOG_PLUGIN_VERSION_MINOR 1
 
-            // Icons
-            const char * const SESSION_LOG_MODE_ICON_64x64    = ":/icons/session_log_64x64.png";
+                // Icons
+                const char * const SESSION_LOG_MODE_ICON_64x64    = ":/icons/session_log_64x64.png";
+            }
         }
     }
 }

@@ -45,20 +45,20 @@
 #include <QDockWidget>
 #include <QMainWindow>
 
-using namespace Qtilities::Plugins::Constants;
+using namespace Qtilities::Plugins::SessionLog::Constants;
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
-struct Qtilities::Plugins::SessionLogModeData {
+struct Qtilities::Plugins::SessionLog::SessionLogModeData {
     SessionLogModeData() : session_mode_widget(0) {}
 
     QMainWindow* session_mode_widget;
 };
 
-Qtilities::Plugins::SessionLogMode::SessionLogMode(QObject* parent) : QObject(parent)
+Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) : QObject(parent)
 {
     d = new SessionLogModeData;
     setObjectName(tr("Session Log"));
@@ -88,23 +88,23 @@ Qtilities::Plugins::SessionLogMode::SessionLogMode(QObject* parent) : QObject(pa
 }
 
 
-Qtilities::Plugins::SessionLogMode::~SessionLogMode() {
+Qtilities::Plugins::SessionLog::SessionLogMode::~SessionLogMode() {
     delete d;
 }
 
-QWidget* Qtilities::Plugins::SessionLogMode::widget() {
+QWidget* Qtilities::Plugins::SessionLog::SessionLogMode::widget() {
     return d->session_mode_widget;
 }
 
-QIcon Qtilities::Plugins::SessionLogMode::icon() const {
+QIcon Qtilities::Plugins::SessionLog::SessionLogMode::icon() const {
     return QIcon(SESSION_LOG_MODE_ICON_64x64);
 }
 
-QString Qtilities::Plugins::SessionLogMode::text() const {
+QString Qtilities::Plugins::SessionLog::SessionLogMode::text() const {
     return tr("Session Log");
 }
 
-void Qtilities::Plugins::SessionLogMode::handle_dockVisibilityChanged(bool visible) {
+void Qtilities::Plugins::SessionLog::SessionLogMode::handle_dockVisibilityChanged(bool visible) {
     QDockWidget* dock = qobject_cast<QDockWidget*> (sender());
     if (dock && visible) {
         WidgetLoggerEngineFrontend* front_end = qobject_cast<WidgetLoggerEngineFrontend*> (dock->widget());

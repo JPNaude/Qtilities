@@ -46,22 +46,22 @@
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 
-struct Qtilities::Plugins::SessionLogPluginData {
+struct Qtilities::Plugins::SessionLog::SessionLogPluginData {
     SessionLogPluginData() {}
 };
 
-Qtilities::Plugins::SessionLogPlugin::SessionLogPlugin(QObject* parent) : IPlugin(parent)
+Qtilities::Plugins::SessionLog::SessionLogPlugin::SessionLogPlugin(QObject* parent) : IPlugin(parent)
 {
     d = new SessionLogPluginData;
     setObjectName("Session Log Plugin");
 }
 
-Qtilities::Plugins::SessionLogPlugin::~SessionLogPlugin()
+Qtilities::Plugins::SessionLog::SessionLogPlugin::~SessionLogPlugin()
 {
     delete d;
 }
 
-bool Qtilities::Plugins::SessionLogPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringList &arguments, QString *errorString) {
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
@@ -78,49 +78,49 @@ bool Qtilities::Plugins::SessionLogPlugin::initialize(const QStringList &argumen
     return true;
 }
 
-bool Qtilities::Plugins::SessionLogPlugin::initializeDependancies(QString *errorString) {
+bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
 
     return true;
 }
 
-void Qtilities::Plugins::SessionLogPlugin::finalize() {
+void Qtilities::Plugins::SessionLog::SessionLogPlugin::finalize() {
 
 }
 
-double Qtilities::Plugins::SessionLogPlugin::pluginVersion() {
+double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() {
     return (QString("%1.%2").arg(SESSION_LOG_PLUGIN_VERSION_MAJOR).arg(SESSION_LOG_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::SessionLogPlugin::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCore::instance()->version();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginPublisher() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginPublisherWebsite() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherWebsite() {
     return "";
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginPublisherContact() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherContact() {
     return "naude.jaco@gmail.com";
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginDescription() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() {
     return tr("A plugin which adds a session log mode and a configuration page for the logger.");
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginCopyright() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCopyright() {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::SessionLogPlugin::pluginLicense()  {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense()  {
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins;
+using namespace Qtilities::Plugins::SessionLog;
 Q_EXPORT_PLUGIN2(SessionLogPlugin, SessionLogPlugin);

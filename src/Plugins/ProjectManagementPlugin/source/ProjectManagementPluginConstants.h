@@ -36,16 +36,20 @@
 
 namespace Qtilities {
     namespace Plugins {
-        namespace Constants {
-            #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR 0
-            #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR 1
+        //! Namespace containing all classes which is part of the ProjectManagement plugin.
+        namespace ProjectManagement {
+            //! Namespace containing constants defined in the ProjectManagement plugin.
+            namespace Constants {
+                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR 0
+                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR 1
 
-            // Actions & Action Containers
-            const char * const MENU_PROJECTS_NEW        = "Projects.New";
-            const char * const MENU_PROJECTS_OPEN       = "Projects.Open";
-            const char * const MENU_PROJECTS_CLOSE      = "Projects.Close";
-            const char * const MENU_PROJECTS_SAVE       = "Projects.Save";
-            const char * const MENU_PROJECTS_SAVE_AS    = "Projects.SaveAs";
+                // Actions & Action Containers
+                const char * const MENU_PROJECTS_NEW        = "Projects.New";
+                const char * const MENU_PROJECTS_OPEN       = "Projects.Open";
+                const char * const MENU_PROJECTS_CLOSE      = "Projects.Close";
+                const char * const MENU_PROJECTS_SAVE       = "Projects.Save";
+                const char * const MENU_PROJECTS_SAVE_AS    = "Projects.SaveAs";
+            }
         }
     }
 }

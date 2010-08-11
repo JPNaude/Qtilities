@@ -41,49 +41,51 @@
 
 namespace Qtilities {
     namespace Plugins {
-        using namespace ExtensionSystem::Interfaces;
+        namespace Template {
+            using namespace ExtensionSystem::Interfaces;
 
-        /*!
-          \struct PluginTemplateData
-          \brief The PluginTemplateData struct stores private data used by the PluginTemplate class.
-         */
-        struct PluginTemplateData;
+            /*!
+              \struct PluginTemplateData
+              \brief The PluginTemplateData struct stores private data used by the PluginTemplate class.
+             */
+            struct PluginTemplateData;
 
-        /*!
-          \class PluginTemplate
-          \brief A template which can is a starting point to creating plugins to be used with the Qtilities extension system.
+            /*!
+              \class PluginTemplate
+              \brief A template which can is a starting point to creating plugins to be used with the Qtilities extension system.
 
-          This plugin provides a template which can be used to create plugins based on the Qtilities
-          extension system. The plugin uses the version of the Extension System library as the defaul
-          compatible version returned using the pluginCompatibilityVersions() function.
-         */
-        class PLUGIN_TEMPLATE_SHARED_EXPORT PluginTemplate : public IPlugin
-        {
-            Q_OBJECT
-            Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
+              This plugin provides a template which can be used to create plugins based on the Qtilities
+              extension system. This class is the entry point into the plugin and is an implementation of the
+              Qtilities::ExtensionSystem::Interfaces::IPlugin interface.
+             */
+            class PLUGIN_TEMPLATE_SHARED_EXPORT PluginTemplate : public IPlugin
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
 
-        public:
-            PluginTemplate(QObject* parent = 0);
-            ~PluginTemplate();
+            public:
+                PluginTemplate(QObject* parent = 0);
+                ~PluginTemplate();
 
-            // --------------------------------------------
-            // IPlugin Implementation
-            // --------------------------------------------
-            bool initialize(const QStringList &arguments, QString *errorString);
-            bool initializeDependancies(QString *errorString);
-            void finalize();
-            double pluginVersion();
-            QStringList pluginCompatibilityVersions();
-            QString pluginPublisher();
-            QString pluginPublisherWebsite();
-            QString pluginPublisherContact();
-            QString pluginDescription();
-            QString pluginCopyright();
-            QString pluginLicense();
+                // --------------------------------------------
+                // IPlugin Implementation
+                // --------------------------------------------
+                bool initialize(const QStringList &arguments, QString *errorString);
+                bool initializeDependancies(QString *errorString);
+                void finalize();
+                double pluginVersion();
+                QStringList pluginCompatibilityVersions();
+                QString pluginPublisher();
+                QString pluginPublisherWebsite();
+                QString pluginPublisherContact();
+                QString pluginDescription();
+                QString pluginCopyright();
+                QString pluginLicense();
 
-        private:
-            PluginTemplateData* d;
-        };
+            private:
+                PluginTemplateData* d;
+            };
+        }
     }
 }
 
