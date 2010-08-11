@@ -54,7 +54,7 @@ using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 
 struct Qtilities::Core::ObjectManagerData {
-    ObjectManagerData() : object_pool(GLOBAL_OBJECT_POOL,"Pool of exposed global objects."),
+    ObjectManagerData() : object_pool(GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
     id(1)  { }
 
     QMap<int,QPointer<Observer> >       observer_map;
