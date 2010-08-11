@@ -122,6 +122,9 @@ namespace Qtilities {
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.
+            /*!
+              Note that this function only works in Table View mode at present. Tree views will support this function in a future version.
+              */
             void setActiveSubjects(QList<QObject*> objects);
 
         signals:
