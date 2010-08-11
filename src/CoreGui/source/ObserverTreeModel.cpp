@@ -37,6 +37,7 @@
 #include <SubjectTypeFilter.h>
 #include <QtilitiesCoreConstants.h>
 #include <Observer.h>
+#include <ActivityPolicyFilter.h>
 #include <Logger.h>
 
 #include <QIcon>
@@ -147,27 +148,37 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return getItem(index)->data(index.column());
         } else if (role == Qt::CheckStateRole) {
-            if (d_activity_display == Observer::CheckboxActivityDisplay || d_activity_control == Observer::CheckboxTriggered) {
-                ObserverTreeItem* item = getItem(index);
-                Q_ASSERT(item);
-                ObserverTreeItem* parent_item = item->parent();
-                QObject* obj = item->getObject();
-                Observer* parent_observer = 0;
+            ObserverTreeItem* item = getItem(index);
+            Q_ASSERT(item);
+            ObserverTreeItem* parent_item = item->parent();
+            QObject* obj = item->getObject();
+            Observer* parent_observer = 0;
 
-                if (parent_item)
-                    parent_observer = qobject_cast<Observer*> (parent_item->getObject());
-                QVariant subject_activity;
+            if (parent_item)
+                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
 
-                if (parent_observer)
-                    subject_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-                else
+            QVariant subject_activity;
+            if (parent_observer) {
+                if (parent_observer->activityDisplayHint() == Observer::CheckboxActivityDisplay) {
+                    // Now we need to check if the observer has an activity policy filter installed
+                    ActivityPolicyFilter* activity_filter = 0;
+                    for (int i = 0; i < parent_observer->subjectFilters().count(); i++) {
+                        activity_filter = qobject_cast<ActivityPolicyFilter*> (parent_observer->subjectFilters().at(i));
+                        if (activity_filter) {
+                            subject_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                        }
+                    }
+
+                }
+            } else {
+                if (d_observer->activityDisplayHint() == Observer::CheckboxActivityDisplay)
                     subject_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-
-                if (subject_activity.isValid())
-                    return subject_activity.toBool();
-                else
-                    return QVariant();
             }
+
+            if (subject_activity.isValid())
+                return subject_activity.toBool();
+            else
+                return QVariant();
         } else if (role == Qt::DecorationRole) {
             ObserverTreeItem* item = getItem(index);
             Q_ASSERT(item);
@@ -400,30 +411,48 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &index, co
             }
 
             return true;
-        } else if (role == Qt::CheckStateRole) {         
-            if (d_activity_display == Observer::CheckboxActivityDisplay && d_activity_control == Observer::CheckboxTriggered) {
-                ObserverTreeItem* item = getItem(index);
-                Q_ASSERT(item);
-                ObserverTreeItem* parent_item = item->parent();
-                QObject* obj = item->getObject();
-                Observer* parent_observer = 0;
+        } else if (role == Qt::CheckStateRole) {
+            ObserverTreeItem* item = getItem(index);
+            Q_ASSERT(item);
+            ObserverTreeItem* parent_item = item->parent();
+            QObject* obj = item->getObject();
+            Observer* parent_observer = 0;
 
-                if (parent_item)
-                    parent_observer = qobject_cast<Observer*> (parent_item->getObject());
+            if (parent_item)
+                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
 
-                if (!parent_observer)
-                    parent_observer = d_observer;
+            if (parent_observer) {
+                if (parent_observer->activityControlHint() == Observer::CheckboxTriggered) {
+                    // Now we need to check if the observer has an activity policy filter installed
+                    ActivityPolicyFilter* activity_filter = 0;
+                    for (int i = 0; i < parent_observer->subjectFilters().count(); i++) {
+                        activity_filter = qobject_cast<ActivityPolicyFilter*> (parent_observer->subjectFilters().at(i));
+                        if (activity_filter) {
+                            // The value comming in here is always Qt::Checked
+                            // We get the current check state from the OBJECT_ACTIVITY property and change that
+                            QVariant current_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                            if (current_activity.toBool()) {
+                                parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
+                            } else {
+                                parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+                            }
+                        }
+                    }
 
-                // The value comming in here is always Qt::Checked
-                // We get the current check state from the OBJECT_ACTIVITY property and change that
-                QVariant current_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-                if (current_activity.toBool()) {
-                    parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
-                } else {
-                    parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
                 }
-                return true;
+            } else {
+                if (d_observer->activityControlHint() == Observer::CheckboxTriggered) {
+                    // The value comming in here is always Qt::Checked
+                    // We get the current check state from the OBJECT_ACTIVITY property and change that
+                    QVariant current_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                    if (current_activity.toBool()) {
+                        parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
+                    } else {
+                        parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+                    }
+                }
             }
+            return true;
         }
     }
     return false;
