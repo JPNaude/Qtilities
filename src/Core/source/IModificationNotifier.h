@@ -82,10 +82,8 @@ namespace Qtilities {
                   Instead you need to connect to the signal on the base object implementing this interface as follows:
 
                   \code
-                  connect(iface->modifierBase(),SIGNAL(modificationStateChanged(bool)),SLOT(yourSlot(bool)));
+                  connect(iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(yourSlot(bool)));
                   \endcode
-
-                  \sa modifierBase()
                   */
                 virtual void modificationStateChanged(bool is_modified) const = 0;
                 //! Signal which can be used to indicate that a specific part of the object implementing the interface changed.
