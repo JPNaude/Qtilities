@@ -42,52 +42,60 @@ namespace Ui {
     class ExampleMode;
 }
 
-using namespace Qtilities::CoreGui::Interfaces;
+namespace Qtilities {
+    //! Namespace containing all the %Qtilities examples.
+    namespace Examples {
+        //! Namespace containing all the classes which forms part of the Main Window Example.
+        namespace MainWindow {
+            using namespace Qtilities::CoreGui::Interfaces;
 
-// Object Management Mode Parameters
-#define MODE_EXAMPLE_ID                   998
-const char * const CONTEXT_EXAMPLE_MODE   = "Context.ObjectManagementMode";
+            // Object Management Mode Parameters
+            #define MODE_EXAMPLE_ID                   998
+            const char * const CONTEXT_EXAMPLE_MODE   = "Context.ObjectManagementMode";
 
-/*!
-  \struct ExampleModeData
-  \brief The ExampleModeData class stores private data used by the ExampleMode class.
- */
-struct ExampleModeData;
+            /*!
+              \struct ExampleModeData
+              \brief The ExampleModeData class stores private data used by the ExampleMode class.
+             */
+            struct ExampleModeData;
 
-/*!
-\class ExampleMode
-\brief An example mode widget which demonstrates the dynamic side widget architecture..
-  */
-class ExampleMode : public QMainWindow, public IMode {
-    Q_OBJECT
-    Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
-public:
-    ExampleMode(QWidget *parent = 0);
-    ~ExampleMode();
-    bool eventFilter(QObject *object, QEvent *event);
+            /*!
+            \class ExampleMode
+            \brief An example mode widget which demonstrates the dynamic side widget architecture..
+              */
+            class ExampleMode : public QMainWindow, public IMode {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
+            public:
+                ExampleMode(QWidget *parent = 0);
+                ~ExampleMode();
+                bool eventFilter(QObject *object, QEvent *event);
 
-    // --------------------------------------------
-    // IMode Implementation
-    // --------------------------------------------
-    QWidget* widget();
-    void initialize();
-    QIcon icon() const;
-    QString text() const;
-    QString contextString() const { return CONTEXT_EXAMPLE_MODE; }
-    QString contextHelpId() const { return QString(); }
-    int modeID() const { return MODE_EXAMPLE_ID; }
+                // --------------------------------------------
+                // IMode Implementation
+                // --------------------------------------------
+                QWidget* widget();
+                void initialize();
+                QIcon icon() const;
+                QString text() const;
+                QString contextString() const { return CONTEXT_EXAMPLE_MODE; }
+                QString contextHelpId() const { return QString(); }
+                int modeID() const { return MODE_EXAMPLE_ID; }
 
-public slots:
-    void toggleDock(bool toggle);
-    //! Loads file into text editor.
-    void loadFile(const QString& file_name);
+            public slots:
+                void toggleDock(bool toggle);
+                //! Loads file into text editor.
+                void loadFile(const QString& file_name);
 
-protected:
-    void changeEvent(QEvent *e);
+            protected:
+                void changeEvent(QEvent *e);
 
-private:
-    Ui::ExampleMode *ui;
-    ExampleModeData* d;
-};
+            private:
+                Ui::ExampleMode *ui;
+                ExampleModeData* d;
+            };
+        }
+    }
+}
 
 #endif // EXAMPLE_MODE_H

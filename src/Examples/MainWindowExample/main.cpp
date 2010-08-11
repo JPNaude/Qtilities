@@ -42,6 +42,7 @@
 using namespace QtilitiesCoreModule;
 using namespace QtilitiesCoreGuiModule;
 using namespace QtilitiesExtensionSystemModule;
+using namespace Qtilities::Examples::MainWindow;
 
 int main(int argc, char *argv[])
 {

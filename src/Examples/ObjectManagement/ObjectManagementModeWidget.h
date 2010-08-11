@@ -46,44 +46,54 @@ namespace Ui
     class ObjectManagementModeWidget;
 }
 
-struct ObjectManagementModeWidgetData;
-
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 using namespace Qtilities::Core::Interfaces;
 
-/*!
-\class ObjectManagementModeWidget
-\brief The ObjectManagementModeWidget is a mode widget which allows management of an Observer class instance using the ObserverWidget class.
-  */
-class ObjectManagementModeWidget : public QWidget, public IFactory
-{
-    Q_OBJECT
-    Q_INTERFACES(Qtilities::Core::Interfaces::IFactory)
+namespace Qtilities {
+    namespace Examples {
+        namespace ObjectManagement {
+            /*!
+              \struct ObjectManagementModeWidgetData
+              \brief The ObjectManagementModeWidgetData struct stores private data used by the ObjectManagementModeWidget class.
+             */
+            struct ObjectManagementModeWidgetData;
 
-    public:
-        ObjectManagementModeWidget(QWidget *parent = 0);
-        ~ObjectManagementModeWidget();
+            /*!
+            \class ObjectManagementModeWidget
+            \brief The ObjectManagementModeWidget is a mode widget which allows management of an Observer class instance using the ObserverWidget class.
+              */
+            class ObjectManagementModeWidget : public QWidget, public IFactory
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::Core::Interfaces::IFactory)
 
-        // -----------------------------------------
-        // IFactory Implementation
-        // -----------------------------------------
-        QStringList factoryTags() const;
-        QObject* createInstance(const IFactoryData& ifactory_data);
+                public:
+                    ObjectManagementModeWidget(QWidget *parent = 0);
+                    ~ObjectManagementModeWidget();
 
-    private slots:
-        void addExampleObjects();
-        void addObject_triggered(QObject* observer = 0);
-        void selectionChanged(QList<QObject*> new_selection);
-        void handle_newObserverWidgetCreated(ObserverWidget* new_widget);
+                    // -----------------------------------------
+                    // IFactory Implementation
+                    // -----------------------------------------
+                    QStringList factoryTags() const;
+                    QObject* createInstance(const IFactoryData& ifactory_data);
 
-        void handle_actionShowWidget();
-        void handle_actionHideWidget();
-        void handle_sliderWidgetOpacity(int value);
+                private slots:
+                    void addExampleObjects();
+                    void addObject_triggered(QObject* observer = 0);
+                    void selectionChanged(QList<QObject*> new_selection);
+                    void handle_newObserverWidgetCreated(ObserverWidget* new_widget);
 
-    private:
-        Ui::ObjectManagementModeWidget *ui;
-        ObjectManagementModeWidgetData* d;
-};
+                    void handle_actionShowWidget();
+                    void handle_actionHideWidget();
+                    void handle_sliderWidgetOpacity(int value);
+
+                private:
+                    Ui::ObjectManagementModeWidget *ui;
+                    ObjectManagementModeWidgetData* d;
+            };
+        }
+    }
+}
 
 #endif // OBJECT_MANAGEMENT_MODE_WIDGET

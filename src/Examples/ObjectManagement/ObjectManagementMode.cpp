@@ -37,37 +37,37 @@
 #include <Logger.h>
 #include <QLabel>
 
-struct ObjectManagementModeData {
+struct Qtilities::Examples::ObjectManagement::ObjectManagementModeData {
     ObjectManagementModeData() : widget(0) {}
 
     QPointer<ObjectManagementModeWidget> widget;
 };
 
-ObjectManagementMode::ObjectManagementMode(QObject* parent) : QObject(parent)
+Qtilities::Examples::ObjectManagement::ObjectManagementMode::ObjectManagementMode(QObject* parent) : QObject(parent)
 {
     d = new ObjectManagementModeData;
     setObjectName(tr("Object Management Mode"));
 }
 
-ObjectManagementMode::~ObjectManagementMode() {
+Qtilities::Examples::ObjectManagement::ObjectManagementMode::~ObjectManagementMode() {
     delete d;
 }
 
-QWidget* ObjectManagementMode::widget() {
+QWidget* Qtilities::Examples::ObjectManagement::ObjectManagementMode::widget() {
     if (!d->widget)
         d->widget = new ObjectManagementModeWidget();
     return d->widget;
 }
 
-void ObjectManagementMode::initialize() {
+void Qtilities::Examples::ObjectManagement::ObjectManagementMode::initialize() {
     if (!d->widget)
         d->widget = new ObjectManagementModeWidget();
 }
 
-QIcon ObjectManagementMode::icon() const {
+QIcon Qtilities::Examples::ObjectManagement::ObjectManagementMode::icon() const {
     return QIcon(":/object_management_mode_64x64.png");
 }
 
-QString ObjectManagementMode::text() const {
+QString Qtilities::Examples::ObjectManagement::ObjectManagementMode::text() const {
     return tr("Object Management");
 }

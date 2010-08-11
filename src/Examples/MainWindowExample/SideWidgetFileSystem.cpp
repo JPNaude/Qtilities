@@ -42,13 +42,13 @@
 #include <QSettings>
 
 
-struct SideWidgetFileSystemData {
+struct Qtilities::Examples::MainWindow::SideWidgetFileSystemData {
     SideWidgetFileSystemData(): model(0) {}
 
     QFileSystemModel *model;
 };
 
-SideWidgetFileSystem::SideWidgetFileSystem(QWidget *parent) :
+Qtilities::Examples::MainWindow::SideWidgetFileSystem::SideWidgetFileSystem(QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui::SideWidgetFileSystem)
 {
@@ -68,17 +68,17 @@ SideWidgetFileSystem::SideWidgetFileSystem(QWidget *parent) :
     connect(m_ui->treeView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClicked(QModelIndex)));
 }
 
-void SideWidgetFileSystem::handleRootPathChanged(const QString& newPath) {
+void Qtilities::Examples::MainWindow::SideWidgetFileSystem::handleRootPathChanged(const QString& newPath) {
     QDir::setCurrent(newPath);
 }
 
-void SideWidgetFileSystem::handleBtnBrowse() {
+void Qtilities::Examples::MainWindow::SideWidgetFileSystem::handleBtnBrowse() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select Path"),QDir::currentPath(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     m_ui->treeView->setRootIndex(d->model->index(dir));
     m_ui->txtCurrentPath->setText(dir);
 }
 
-void SideWidgetFileSystem::handleDoubleClicked(const QModelIndex & index) {
+void Qtilities::Examples::MainWindow::SideWidgetFileSystem::handleDoubleClicked(const QModelIndex & index) {
     if (!index.isValid())
         return;
 
@@ -92,23 +92,23 @@ void SideWidgetFileSystem::handleDoubleClicked(const QModelIndex & index) {
     emit requestEditor(file_path);
 }
 
-QWidget* SideWidgetFileSystem::widget() {
+QWidget* Qtilities::Examples::MainWindow::SideWidgetFileSystem::widget() {
     return this;
 }
 
-QString SideWidgetFileSystem::text() const {
+QString Qtilities::Examples::MainWindow::SideWidgetFileSystem::text() const {
     return tr("File System");
 }
 
-bool SideWidgetFileSystem::showOnStartup() const {
+bool Qtilities::Examples::MainWindow::SideWidgetFileSystem::showOnStartup() const {
     return true;
 }
 
-Qtilities::CoreGui::Interfaces::IActionProvider* SideWidgetFileSystem::actionProvider() const {
+Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::Examples::MainWindow::SideWidgetFileSystem::actionProvider() const {
     return 0;
 }
 
-QList<int> SideWidgetFileSystem::destinationModes() const {
+QList<int> Qtilities::Examples::MainWindow::SideWidgetFileSystem::destinationModes() const {
     QList<int> modes;
     modes << MODE_EXAMPLE_ID;
     return modes;

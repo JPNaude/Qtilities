@@ -57,7 +57,7 @@ using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::ProjectManagement;
 
-struct ObjectManagementModeWidgetData {
+struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
      ObjectManagementModeWidgetData() : top_level_observer(0),
      observer_widget(0),
      scope_widget(0),
@@ -82,7 +82,7 @@ struct ObjectManagementModeWidgetData {
     Factory<QObject> string_subject_factory;
 };
 
-ObjectManagementModeWidget::ObjectManagementModeWidget(QWidget *parent)
+Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagementModeWidget(QWidget *parent)
     : QWidget(parent), ui(new Ui::ObjectManagementModeWidget)
 {
     ui->setupUi(this);
@@ -179,13 +179,13 @@ ObjectManagementModeWidget::ObjectManagementModeWidget(QWidget *parent)
     d->observer_widget->show();
 }
 
-ObjectManagementModeWidget::~ObjectManagementModeWidget()
+Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::~ObjectManagementModeWidget()
 {
     delete ui;
     delete d;
 }
 
-void ObjectManagementModeWidget::addObject_triggered(QObject* object) {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObject_triggered(QObject* object) {
     Observer* observer = qobject_cast<Observer*> (object);
     if (observer) {
         QStringList items;
@@ -249,7 +249,7 @@ void ObjectManagementModeWidget::addObject_triggered(QObject* object) {
     }
 }
 
-void ObjectManagementModeWidget::addExampleObjects() {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExampleObjects() {
     // Add a QObject observer
     Observer* new_observer_1 = new Observer("QObject Manager 1","Example observer which manages QObject instances in a categorized manner.");
     NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
@@ -383,7 +383,7 @@ void ObjectManagementModeWidget::addExampleObjects() {
     new_child_widget->show();*/
 }
 
-void ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection) {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection) {
     // Enable / disable widget related toolbar
     if (new_selection.count() == 1) {
         QWidget* widget = qobject_cast<QWidget*> (d->observer_widget->selectedObjects().front());
@@ -407,11 +407,11 @@ void ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection)
     }
 }
 
-void ObjectManagementModeWidget::handle_newObserverWidgetCreated(ObserverWidget* new_widget) {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_newObserverWidgetCreated(ObserverWidget* new_widget) {
     connect(new_widget,SIGNAL(addNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
 }
 
-void ObjectManagementModeWidget::handle_actionShowWidget() {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_actionShowWidget() {
     if (d->observer_widget->selectedObjects().count() == 1) {
         QWidget* widget = qobject_cast<QWidget*> (d->observer_widget->selectedObjects().front());
         if (widget) {
@@ -423,7 +423,7 @@ void ObjectManagementModeWidget::handle_actionShowWidget() {
     }
 }
 
-void ObjectManagementModeWidget::handle_actionHideWidget() {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_actionHideWidget() {
     if (d->observer_widget->selectedObjects().count() == 1) {
         QWidget* widget = qobject_cast<QWidget*> (d->observer_widget->selectedObjects().front());
         if (widget) {
@@ -435,7 +435,7 @@ void ObjectManagementModeWidget::handle_actionHideWidget() {
     }
 }
 
-void ObjectManagementModeWidget::handle_sliderWidgetOpacity(int value) {
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_sliderWidgetOpacity(int value) {
     if (d->observer_widget->selectedObjects().count() == 1) {
         QWidget* widget = qobject_cast<QWidget*> (d->observer_widget->selectedObjects().front());
         if (widget) {
@@ -446,13 +446,13 @@ void ObjectManagementModeWidget::handle_sliderWidgetOpacity(int value) {
 }
 
 
-QStringList ObjectManagementModeWidget::factoryTags() const {
+QStringList Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::factoryTags() const {
     QStringList tags;
     tags << "Example IFactory";
     return tags;
 }
 
-QObject* ObjectManagementModeWidget::createInstance(const IFactoryData& ifactory_data) {
+QObject* Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createInstance(const IFactoryData& ifactory_data) {
     if (ifactory_data.d_factory_tag == QString("Example IFactory")) {
         QObject* obj = d->string_subject_factory.createInstance(ifactory_data.d_instance_tag);
         if (obj) {

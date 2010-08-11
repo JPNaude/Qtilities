@@ -41,72 +41,78 @@
 #include <QObject>
 #include <QString>
 
-using namespace Qtilities::Core::Interfaces;
+namespace Qtilities {
+    namespace Examples {
+        namespace ObjectManagement {
+            using namespace Qtilities::Core::Interfaces;
 
-/*!
-  \struct ObserverStringSubjectData
-  \brief The ObserverStringSubjectData struct stores private data used by the ObserverStringSubject class.
- */
-struct ObserverStringSubjectData;
+            /*!
+              \struct ObserverStringSubjectData
+              \brief The ObserverStringSubjectData struct stores private data used by the ObserverStringSubject class.
+             */
+            struct ObserverStringSubjectData;
 
-/*!
-\class ObserverStringSubject
-\brief Provides an observer subject which can be used to build simple trees.
+            /*!
+            \class ObserverStringSubject
+            \brief Provides an observer subject which can be used to build simple trees.
 
-ObserverStringSubject classes can be used to build simple & exportable trees using the Observer architecture.
-Each instance can only be attach to a single observer at a time. The string is usually set in the constructor, or
-can be set using setString(). The current displayed string is retreived using string().
-  */
-class ObserverStringSubject : public QObject, public IExportable, public IModificationNotifier
-{
-    Q_OBJECT
-    Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
-    Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
+            ObserverStringSubject classes can be used to build simple & exportable trees using the Observer architecture.
+            Each instance can only be attach to a single observer at a time. The string is usually set in the constructor, or
+            can be set using setString(). The current displayed string is retreived using string().
+              */
+            class ObserverStringSubject : public QObject, public IExportable, public IModificationNotifier
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
+                Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
-    Q_PROPERTY(bool Modified READ isModified());
+                Q_PROPERTY(bool Modified READ isModified());
 
-public:
-    explicit ObserverStringSubject(const QString& string = QString(), QObject *parent = 0);
-    ~ObserverStringSubject();
+            public:
+                explicit ObserverStringSubject(const QString& string = QString(), QObject *parent = 0);
+                ~ObserverStringSubject();
 
-    //! Sets the string to be displayed.
-    void setString(const QString& string);
-    //! Gets the string that is displayed.
-    QString string() const;
+                //! Sets the string to be displayed.
+                void setString(const QString& string);
+                //! Gets the string that is displayed.
+                QString string() const;
 
-    // --------------------------------
-    // IObjectBase Implemenation
-    // --------------------------------
-    QObject* objectBase() { return this; }
+                // --------------------------------
+                // IObjectBase Implemenation
+                // --------------------------------
+                QObject* objectBase() { return this; }
 
-    // --------------------------------
-    // IExportable Implemenation
-    // --------------------------------
-    ExportModeFlags supportedFormats() const;
-    IFactoryData factoryData() const;
-    IExportable::Result exportBinary(QDataStream& stream) const;
-    IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+                // --------------------------------
+                // IExportable Implemenation
+                // --------------------------------
+                ExportModeFlags supportedFormats() const;
+                IFactoryData factoryData() const;
+                IExportable::Result exportBinary(QDataStream& stream) const;
+                IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
 
-    // --------------------------------
-    // IModificationNotifier Implemenation
-    // --------------------------------
-    bool isModified() const;
-    QObject* modifierBase() { return this; }
-public slots:
-    void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false);
-signals:
-    void modificationStateChanged(bool is_modified) const;
-    void partialStateChanged(const QString& part_name) const;
+                // --------------------------------
+                // IModificationNotifier Implemenation
+                // --------------------------------
+                bool isModified() const;
+                QObject* modifierBase() { return this; }
+            public slots:
+                void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false);
+            signals:
+                void modificationStateChanged(bool is_modified) const;
+                void partialStateChanged(const QString& part_name) const;
 
-public:
-    // --------------------------------
-    // Factory Interface Implemenation
-    // --------------------------------
-    static FactoryItem<QObject, ObserverStringSubject> factory;
+            public:
+                // --------------------------------
+                // Factory Interface Implemenation
+                // --------------------------------
+                static FactoryItem<QObject, ObserverStringSubject> factory;
 
-private:
-    ObserverStringSubjectData* d;
+            private:
+                ObserverStringSubjectData* d;
 
-};
+            };
+        }
+    }
+}
 
 #endif // OBSERVERSTRINGSUBJECT_H

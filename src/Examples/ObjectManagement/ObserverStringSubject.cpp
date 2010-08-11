@@ -37,16 +37,16 @@
 
 using namespace Qtilities::Core::Interfaces;
 
-FactoryItem<QObject, ObserverStringSubject> ObserverStringSubject::factory;
+FactoryItem<QObject, Qtilities::Examples::ObjectManagement::ObserverStringSubject> Qtilities::Examples::ObjectManagement::ObserverStringSubject::factory;
 
-struct ObserverStringSubjectData {
+struct Qtilities::Examples::ObjectManagement::ObserverStringSubjectData {
     ObserverStringSubjectData() : is_modified(false) {}
 
     QString subject_string;
     bool is_modified;
 };
 
-ObserverStringSubject::ObserverStringSubject(const QString& string, QObject *parent) :
+Qtilities::Examples::ObjectManagement::ObserverStringSubject::ObserverStringSubject(const QString& string, QObject *parent) :
     QObject(parent)
 {
     d = new ObserverStringSubjectData;
@@ -54,28 +54,28 @@ ObserverStringSubject::ObserverStringSubject(const QString& string, QObject *par
     setObjectName(string);
 }
 
-ObserverStringSubject::~ObserverStringSubject() {
+Qtilities::Examples::ObjectManagement::ObserverStringSubject::~ObserverStringSubject() {
     delete d;
 }
 
-void ObserverStringSubject::setString(const QString& string) {
+void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setString(const QString& string) {
     d->subject_string = string;
 }
 
-QString ObserverStringSubject::string() const {
+QString Qtilities::Examples::ObjectManagement::ObserverStringSubject::string() const {
     return d->subject_string;
 }
 
-Qtilities::Core::Observer::ExportModeFlags ObserverStringSubject::supportedFormats() const {
+Qtilities::Core::Observer::ExportModeFlags Qtilities::Examples::ObjectManagement::ObserverStringSubject::supportedFormats() const {
     return IExportable::Binary;
 }
 
-Qtilities::Core::Interfaces::IFactoryData ObserverStringSubject::factoryData() const {
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Examples::ObjectManagement::ObserverStringSubject::factoryData() const {
     IFactoryData factoryData("Example IFactory","Observer String Subject",objectName());
     return factoryData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result ObserverStringSubject::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::exportBinary(QDataStream& stream) const {
     // Create IFactoryData
     IFactoryData factory_data = factoryData();
     factory_data.exportBinary(stream);
@@ -83,16 +83,16 @@ Qtilities::Core::Interfaces::IExportable::Result ObserverStringSubject::exportBi
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result ObserverStringSubject::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     stream >> d->subject_string;
     return IExportable::Complete;
 }
 
-bool ObserverStringSubject::isModified() const {
+bool Qtilities::Examples::ObjectManagement::ObserverStringSubject::isModified() const {
     return d->is_modified;
 }
 
-void ObserverStringSubject::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
+void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
     if (d->is_modified != new_state) {
         d->is_modified = new_state;
         if (notify_listeners)

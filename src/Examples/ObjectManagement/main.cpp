@@ -40,6 +40,7 @@
 using namespace QtilitiesCoreModule;
 using namespace QtilitiesCoreGuiModule;
 using namespace QtilitiesExtensionSystemModule;
+using namespace Qtilities::Examples::ObjectManagement;
 
 int main(int argc, char *argv[])
 {
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 
     // Get the standard context.
     QList<int> std_context;
-    std_context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD));
+    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
 
     // Register action place holders for this application. This allows control of your menu structure.
     // File Menu

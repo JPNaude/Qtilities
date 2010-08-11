@@ -38,44 +38,51 @@
 
 #include <QObject>
 
-// Object Management Mode Parameters
-#define MODE_OBJECT_MANAGEMENT_ID                   999
-const char * const CONTEXT_OBJECT_MANAGEMENT_MODE   = "Context.ObjectManagementMode";
+namespace Qtilities {
+    namespace Examples {
+        //! Namespace containing all the classes which forms part of the Object Management Example.
+        namespace ObjectManagement {
+            // Object Management Mode Parameters
+            #define MODE_OBJECT_MANAGEMENT_ID                   999
+            const char * const CONTEXT_OBJECT_MANAGEMENT_MODE   = "Context.ObjectManagementMode";
 
-using namespace Qtilities::CoreGui::Interfaces;
+            using namespace Qtilities::CoreGui::Interfaces;
 
-/*!
-  \struct ObjectManagementModeData
-  \brief The ObjectManagementModeData struct stores private data used by the ObjectManagementMode class.
- */
-struct ObjectManagementModeData;
+            /*!
+              \struct ObjectManagementModeData
+              \brief The ObjectManagementModeData struct stores private data used by the ObjectManagementMode class.
+             */
+            struct ObjectManagementModeData;
 
-/*!
-\class ObjectManagementMode
-\brief A mode which allows you to manage the objects in an observer.
-  */
-class ObjectManagementMode : public QObject, public IMode
-{
-    Q_OBJECT
-    Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
+            /*!
+            \class ObjectManagementMode
+            \brief A mode which allows you to manage the objects in an observer.
+              */
+            class ObjectManagementMode : public QObject, public IMode
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
 
-    public:
-        ObjectManagementMode(QObject* parent = 0);
-        ~ObjectManagementMode();
+                public:
+                    ObjectManagementMode(QObject* parent = 0);
+                    ~ObjectManagementMode();
 
-        // --------------------------------------------
-        // IMode Implementation
-        // --------------------------------------------
-        QWidget* widget();
-        void initialize();
-        QIcon icon() const;
-        QString text() const;
-        QString contextString() const { return CONTEXT_OBJECT_MANAGEMENT_MODE; }
-        QString contextHelpId() const { return QString(); }
-        int modeID() const { return MODE_OBJECT_MANAGEMENT_ID; }   
+                    // --------------------------------------------
+                    // IMode Implementation
+                    // --------------------------------------------
+                    QWidget* widget();
+                    void initialize();
+                    QIcon icon() const;
+                    QString text() const;
+                    QString contextString() const { return CONTEXT_OBJECT_MANAGEMENT_MODE; }
+                    QString contextHelpId() const { return QString(); }
+                    int modeID() const { return MODE_OBJECT_MANAGEMENT_ID; }
 
-    private:
-        ObjectManagementModeData* d;
-};
+                private:
+                    ObjectManagementModeData* d;
+            };
+        }
+    }
+}
 
 #endif // OBJECT_MANAGEMENT_MODE_H

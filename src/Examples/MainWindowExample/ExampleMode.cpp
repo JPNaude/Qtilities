@@ -46,7 +46,7 @@ using namespace Qtilities::CoreGui;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
 
-struct ExampleModeData {
+struct Qtilities::Examples::MainWindow::ExampleModeData {
     ExampleModeData() : initialized(false),
     side_viewer_dock(0),
     side_viewer_widget(0),
@@ -62,7 +62,7 @@ struct ExampleModeData {
     QTextEdit* text_editor;
 };
 
-ExampleMode::ExampleMode(QWidget *parent) :
+Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ExampleMode)
 {
@@ -109,7 +109,7 @@ ExampleMode::ExampleMode(QWidget *parent) :
     view_menu->addAction(command);
 }
 
-bool ExampleMode::eventFilter(QObject *object, QEvent *event) {
+bool Qtilities::Examples::MainWindow::ExampleMode::eventFilter(QObject *object, QEvent *event) {
     if (object == d->side_viewer_dock && event->type() == QEvent::Close) {
         d->actionShowDock->setChecked(false);
     }
@@ -117,7 +117,7 @@ bool ExampleMode::eventFilter(QObject *object, QEvent *event) {
     return false;
 }
 
-void ExampleMode::toggleDock(bool toggle) {
+void Qtilities::Examples::MainWindow::ExampleMode::toggleDock(bool toggle) {
     if (toggle) {
         d->side_viewer_dock->show();
     } else {
@@ -125,7 +125,7 @@ void ExampleMode::toggleDock(bool toggle) {
     }
 }
 
-void ExampleMode::loadFile(const QString& file_name) {
+void Qtilities::Examples::MainWindow::ExampleMode::loadFile(const QString& file_name) {
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
@@ -134,16 +134,16 @@ void ExampleMode::loadFile(const QString& file_name) {
     d->text_editor->setText(file_string);
 }
 
-ExampleMode::~ExampleMode()
+Qtilities::Examples::MainWindow::ExampleMode::~ExampleMode()
 {
     delete ui;
 }
 
-QWidget* ExampleMode::widget() {
+QWidget* Qtilities::Examples::MainWindow::ExampleMode::widget() {
     return this;
 }
 
-void ExampleMode::initialize() {
+void Qtilities::Examples::MainWindow::ExampleMode::initialize() {
     if (d->initialized)
         return;
 
@@ -162,15 +162,15 @@ void ExampleMode::initialize() {
     d->initialized = true;
 }
 
-QIcon ExampleMode::icon() const {
+QIcon Qtilities::Examples::MainWindow::ExampleMode::icon() const {
     return QIcon(ICON_QTILITIES_SYMBOL_64x64);
 }
 
-QString ExampleMode::text() const {
+QString Qtilities::Examples::MainWindow::ExampleMode::text() const {
     return tr("Example Mode");
 }
 
-void ExampleMode::changeEvent(QEvent *e)
+void Qtilities::Examples::MainWindow::ExampleMode::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
     switch (e->type()) {

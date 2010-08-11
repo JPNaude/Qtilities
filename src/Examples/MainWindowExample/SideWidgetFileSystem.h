@@ -43,47 +43,54 @@ namespace Ui {
     class SideWidgetFileSystem;
 }
 
-using namespace Qtilities::CoreGui::Interfaces;
 
-/*!
-\struct SideWidgetFileSystemData
-\brief Structure used by the SideWidgetFileSystem class to store private data.
-  */
-struct SideWidgetFileSystemData;
+namespace Qtilities {
+    namespace Examples {
+        namespace MainWindow {
+            using namespace Qtilities::CoreGui::Interfaces;
 
-/*!
-\class SideWidgetFileSystem
-\brief A widget which provides access to the file system as a side widget.
-  */
-class SideWidgetFileSystem : public QWidget, public ISideViewerWidget
-{
-    Q_OBJECT
-    Q_INTERFACES(Qtilities::CoreGui::Interfaces::ISideViewerWidget)
+            /*!
+            \struct SideWidgetFileSystemData
+            \brief Structure used by the SideWidgetFileSystem class to store private data.
+              */
+            struct SideWidgetFileSystemData;
 
-public:
-    explicit SideWidgetFileSystem(QWidget *parent = 0);
-    virtual ~SideWidgetFileSystem() {}
+            /*!
+            \class SideWidgetFileSystem
+            \brief A widget which provides access to the file system as a side widget.
+              */
+            class SideWidgetFileSystem : public QWidget, public ISideViewerWidget
+            {
+                Q_OBJECT
+                Q_INTERFACES(Qtilities::CoreGui::Interfaces::ISideViewerWidget)
 
-    // --------------------------------------------
-    // ISideViewerWidget Implementation
-    // --------------------------------------------
-    QWidget* widget();
-    QString text() const;
-    bool showOnStartup() const;
-    IActionProvider* actionProvider() const;
-    QList<int> destinationModes() const;
+            public:
+                explicit SideWidgetFileSystem(QWidget *parent = 0);
+                virtual ~SideWidgetFileSystem() {}
 
-private slots:
-    void handleRootPathChanged(const QString& newPath);
-    void handleBtnBrowse();
-    void handleDoubleClicked(const QModelIndex& index);
+                // --------------------------------------------
+                // ISideViewerWidget Implementation
+                // --------------------------------------------
+                QWidget* widget();
+                QString text() const;
+                bool showOnStartup() const;
+                IActionProvider* actionProvider() const;
+                QList<int> destinationModes() const;
 
-signals:
-    void requestEditor(const QString& file_name);
+            private slots:
+                void handleRootPathChanged(const QString& newPath);
+                void handleBtnBrowse();
+                void handleDoubleClicked(const QModelIndex& index);
 
-protected:
-    Ui::SideWidgetFileSystem *m_ui;
-    SideWidgetFileSystemData* d;
-};
+            signals:
+                void requestEditor(const QString& file_name);
+
+            protected:
+                Ui::SideWidgetFileSystem *m_ui;
+                SideWidgetFileSystemData* d;
+            };
+        }
+    }
+}
 
 #endif // SCRIPTINGFILESYSTEMWIDGET_H
