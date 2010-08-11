@@ -204,10 +204,6 @@ namespace Qtilities {
             void handle_actionCut_triggered();
             //! Handle the paste action.
             void handle_actionPaste_triggered();
-            //! Handle the merge items action.
-            void handle_actionMergeItems_triggered();
-            //! Handle the split items action.
-            void handle_actionSplitItems_triggered();
             //! Handle the find item action.
             void handle_actionFindItem_triggered();
             //! Handle the collapse tree view action. Only usefull in TreeView display mode.
@@ -229,10 +225,6 @@ namespace Qtilities {
             void addNewItem_triggered(QObject* object, Observer* parent_observer = 0);
             //! Signal which is emitted when the user double clicks on an item in the observer widget.
             void doubleClickRequest(QObject* object, Observer* parent_observer = 0);
-            //! Signal which is emitted when the merge items action is triggered.
-            void mergeItems_triggered();
-            //! Signal which is emitted when the split items action is triggered.
-            void splitItems_triggered();
             //! Signal which is emitted when object selection changes.
             void selectedObjectsChanged(QList<QObject*> selected_objects, Observer* selection_parent = 0);
             //! Signal which is emitted when the user pushes up/down in a new observer widget. The new widget is passed as a paramater.

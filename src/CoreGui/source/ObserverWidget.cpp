@@ -91,8 +91,6 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionSwitchView(0),
     actionExpandAll(0),
     actionCollapseAll(0),
-    actionMergeItems(0),
-    actionSplitItems(0),
     actionFindItem(0),
     proxy_model(0),
     activity_filter(0),
@@ -112,8 +110,6 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionSwitchView;
     QAction* actionExpandAll;
     QAction* actionCollapseAll;
-    QAction* actionMergeItems;
-    QAction* actionSplitItems;
     QAction* actionFindItem;
 
     QStack<int> navigation_stack;
@@ -407,6 +403,7 @@ void Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     ObserverAwareBase::setObserverContext(observer);
 
     // Check if the observer has a FollowSelection actity policy
+    // In that case the observer widget, in tree mode must select objects which are active and adapt to changes in the activity filter.
     if (d_observer->activityControlHint() == Qtilities::Core::Observer::FollowSelection) {
         // Check if the observer has a activity filter, which it should have with this hint
         ActivityPolicyFilter* filter = 0;
@@ -416,6 +413,7 @@ void Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
                 d->activity_filter = filter;
 
                 // Connect to the activity change signal (to update activity on observer widget side)
+                // This only works in table mode...
                 connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectSubjectsByRef(QList<QObject*>)));
                 selectSubjectsByRef(d->activity_filter->activeSubjects());
             }
@@ -1076,20 +1074,6 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(handle_actionDeleteItem_triggered()));
     QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_SELECTION_DELETE,d->actionDeleteItem,context);
     // ---------------------------
-    // Merge Items
-    // ---------------------------
-    d->actionMergeItems = new QAction(QIcon(ICON_MERGE),tr("Merge Items"),this);
-    d->action_provider->addAction(d->actionMergeItems,QStringList(tr("Items")));
-    connect(d->actionMergeItems,SIGNAL(triggered()),SLOT(handle_actionMergeItems_triggered()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_SELECTION_MERGE_ITEMS,d->actionMergeItems,context);
-    // ---------------------------
-    // Split Items
-    // ---------------------------
-    d->actionSplitItems = new QAction(QIcon(ICON_SPLIT),tr("Split Item"),this);
-    d->action_provider->addAction(d->actionSplitItems,QStringList(tr("Items")));
-    connect(d->actionSplitItems,SIGNAL(triggered()),SLOT(handle_actionSplitItems_triggered()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_SELECTION_SPLIT_ITEMS,d->actionSplitItems,context);
-    // ---------------------------
     // Find Item
     // ---------------------------
     d->actionFindItem = new QAction(QIcon(ICON_MAGNIFY),tr("Find"),this);
@@ -1161,16 +1145,6 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     else
         d->actionSwitchView->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::MergeItems)
-        d->actionMergeItems->setVisible(true);
-    else
-        d->actionMergeItems->setVisible(false);
-
-    if (d->action_hints & Qtilities::Core::Observer::SplitItems)
-        d->actionSplitItems->setVisible(true);
-    else
-        d->actionSplitItems->setVisible(false);
-
     if (d->action_hints & Qtilities::Core::Observer::FindItem)
         d->actionFindItem->setVisible(true);
     else
@@ -1216,22 +1190,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     if (selectedObjects().count() == 0) {
         d->actionDeleteItem->setEnabled(false);
         d->actionRemoveItem->setEnabled(false);
-        d->actionSplitItems->setEnabled(false);
-        d->actionMergeItems->setEnabled(false);
-
         if (d->display_mode == TableView) {
             d->actionPushDown->setEnabled(false);
             d->actionPushDownNew->setEnabled(false);
         }
     } else {
-        d->actionSplitItems->setEnabled(true);
-
-        if (selectedObjects().count() > 1) {
-            d->actionMergeItems->setEnabled(true);
-        } else {
-            d->actionMergeItems->setEnabled(false);
-        }
-
         if (d->display_mode == TableView) {
             d->actionDeleteItem->setEnabled(true);
             d->actionRemoveItem->setEnabled(true);
@@ -1729,20 +1692,6 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionMergeItems_triggered() {
-    if (!d->initialized)
-        return;
-
-    emit mergeItems_triggered();
-}
-
-void Qtilities::CoreGui::ObserverWidget::handle_actionSplitItems_triggered() {
-    if (!d->initialized)
-        return;
-
-    emit splitItems_triggered();
-}
-
 void Qtilities::CoreGui::ObserverWidget::handle_actionFindItem_triggered() {
     if (!d->initialized)
         return;
@@ -1863,18 +1812,28 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         disconnectClipboard();
     }
 
-    if (d->update_selection_activity) {
-        // Check if the observer has a FollowSelection actity policy
-        if ((d_observer->activityControlHint() == Qtilities::Core::Observer::FollowSelection) && d->activity_filter) {
-            d->activity_filter->setActiveSubjects(object_list);
-        }
-    }
-
+    // Check if selection control activity must be executed:
     Observer* selection_parent = 0;
-    // Calculate selection parent if necessary
     if (d->display_mode == TreeView && d->tree_model) {
         selection_parent = d->tree_model->calculateSelectionParent(selectedIndexes());
         d->tree_name_column_delegate->setObserverContext(selection_parent);
+
+        // We need to look at the current selection parent if in tree mode, otherwise in table mode we use d_observer:
+        if (d->update_selection_activity) {
+            // Check if the observer has a FollowSelection activity policy
+            if (selection_parent->activityControlHint() == Qtilities::Core::Observer::FollowSelection) {
+                // Check if the observer has a activity filter, which it should have with this hint
+                ActivityPolicyFilter* filter = 0;
+                for (int i = 0; i < selection_parent->subjectFilters().count(); i++) {
+                    filter = qobject_cast<ActivityPolicyFilter*> (selection_parent->subjectFilters().at(i));
+                    if (filter) {
+                        // Bug here: When an object becomes inactive, the view does not update yet. We can refresh the
+                        // observer context or reset the model but this loses the current selection in tree view. Need to fix.
+                        filter->setActiveSubjects(object_list);
+                    }
+                }
+            }
+        }
     } else if (d->display_mode == TableView) {
         selection_parent = d_observer;
     }
