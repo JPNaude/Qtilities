@@ -288,7 +288,7 @@ bool Qtilities::CoreGui::ActionManager::importShortcutMapping(const QString& fil
         QDomElement e = n.toElement();
         if(!e.isNull()) {
             QString attribute = e.attribute("KeySequence");
-            if (!attribute.isEmpty()) {
+            if (!attribute.isEmpty() && d->id_command_map.contains(e.tagName())) {
                 Command* command = d->id_command_map[e.tagName()];
                 if (command)
                     command->setKeySequence(QKeySequence(attribute));
