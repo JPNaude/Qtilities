@@ -4,7 +4,7 @@
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
 # ***************************************************************************
-QTILITIES += core
+QTILITIES += logging
 include(../../Qtilities.pri)
 
 QT       += core

@@ -33,8 +33,7 @@
 
 #include <QtCore/QCoreApplication>
 
-#include <QtilitiesCoreModule>
-using namespace QtilitiesCoreModule;
+#include <QtilitiesLoggingModule>
 using namespace QtilitiesLoggingModule;
 
 int main(int argc, char *argv[])
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("Jaco Naude");
     QCoreApplication::setOrganizationDomain("Qtilities");
     QCoreApplication::setApplicationName("Console Logging Example");
-    QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
+    QCoreApplication::setApplicationVersion("0.1");
 
     // Initialize the logger.
     LOG_INITIALIZE(false);
