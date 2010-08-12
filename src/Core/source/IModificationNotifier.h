@@ -65,17 +65,25 @@ namespace Qtilities {
                 IModificationNotifier() : d_isModified(false) {}
                 virtual ~IModificationNotifier() {}
 
+                //! The targets which should be notified when the state of the object implementing this interface changes.
+                enum NotificationTarget {
+                    NotifyNone      = 0,  /*!< No targets will be notified about the modification state change. */
+                    NotifyListeners = 1,  /*!< Notify all listeners connected to the modification state change signals. \sa modificationStateChanged(), partialStateChanged() */
+                    NotifySubjects  = 2,  /*!< Notify all subjects about the new state. The new state will be set on all subjects as well. */
+                };
+                Q_DECLARE_FLAGS(NotificationTargets, NotificationTarget);
+                Q_FLAGS(NotificationTargets);
+
                 //! Indicates the modification state of the object.
                 virtual bool isModified() const = 0;
                 //! Sets the modification state of the object. Returns true if it was successfull.
                 /*!
-                  \param notify_listeners Indicates if listeners to this interface (objects connected to the modificationStateChanged() signal)
-                  must be notified, thus it controls if the signal is emitted or not.
-                  \param notify_subjects Indicates if objects which this object is listening to must be updated.
+                   When implementing this interface, the setModificationState() function must be declared as a slot.
+                  \param notification_targets Indicates which targets must be notified of the change in modification state. By default all listeners are notified.
 
-                    When implementing this interface, the setModificationState() function must be declared as a slot.
+                  \sa NotificationTarget
                   */
-                virtual void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false) = 0;
+                virtual void setModificationState(bool new_state, NotificationTargets notification_targets = NotifyListeners) = 0;
                 //! Implement this function as a signal when implementing the object.
                 /*!
                   Because this interface does not use the Q_OBJECT macro, you cannot connect to this signal directly.
