@@ -63,10 +63,11 @@ namespace Qtilities {
                 Q_FLAGS(ExportModeFlags);
 
                 //! The possible results of an export/import operation.
-                enum Result { Complete,     /*!< Complete when all the information was successfully exported/imported. */
-                              Incomplete,   /*!< Incomplete when some information could not be exported/imported. An example of this is when an Observer exports itself. When only a subset of the subjets observed by the observer implements the IExportable interface the Observer will return Partial because it was only exported partially. */
-                              Failed        /*!< Failed when an error occured. The operation must be aborted in this case. */
-                          };
+                enum Result {
+                    Complete,     /*!< Complete when all the information was successfully exported/imported. */
+                    Incomplete,   /*!< Incomplete when some information could not be exported/imported. An example of this is when an Observer exports itself. When only a subset of the subjets observed by the observer implements the IExportable interface the Observer will return Partial because it was only exported partially. */
+                    Failed        /*!< Failed when an error occured. The operation must be aborted in this case. */
+                };
                 Q_ENUMS(Result)
 
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
