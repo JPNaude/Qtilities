@@ -92,10 +92,10 @@ bool Qtilities::Examples::ObjectManagement::ObserverStringSubject::isModified() 
     return d->is_modified;
 }
 
-void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
+void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
     if (d->is_modified != new_state) {
         d->is_modified = new_state;
-        if (notify_listeners)
+        if (notification_targets & IModificationNotifier::NotifyListeners)
             emit modificationStateChanged(new_state);
     }
 }
