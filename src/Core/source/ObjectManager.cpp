@@ -343,6 +343,12 @@ bool Qtilities::Core::ObjectManager::importObjectProperties(QObject* new_instanc
             // Create a new property with the observer property.
             // At this stage, the session IDs will be wrong when importing in a different application session.
             // This is fixed in the relational observer table's constructRelationships() function.
+
+            // Important: We must check if a property with the same name already exists. If so, we just
+            // print an error message for now:
+            if (Observer::propertyExists(new_instance,observer_property.propertyName()))
+                LOG_ERROR(QString(tr("While importing properties on object \"%1\", property (%2) which was found in the import binary already existed on the object. This property will be replaced.")).arg(new_instance->objectName()).arg(observer_property.propertyName()));
+
             QVariant property = qVariantFromValue(observer_property);
             new_instance->setProperty(observer_property.propertyName(),property);
         } else {
@@ -375,7 +381,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     }
 
     // Fill in all the session ID fields with the current session information
-    // and populate the previous session ID filed.
+    // and populate the previous session ID field.
     LOG_TRACE("Populating current session ID fields.");
     for (int i = 0; i < objects.count(); i++) {
         int visitor_id = ObserverRelationalTable::getVisitorID(objects.at(i));
@@ -391,6 +397,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
         }
 
         if (obs) {
+            LOG_DEBUG(QString("Doing session ID mapping on observer \"%1\": Previous ID: %2, Current ID: %3").arg(obs->observerName()).arg(entry->d_sessionID).arg(obs->observerID()));
             entry->d_previousSessionID = entry->d_sessionID;
             entry->d_sessionID = obs->observerID();
         } else {
@@ -423,7 +430,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
         // -) Loop through all properties.
         // -) For each property, get each observer ID (previous session ID) in the observer map.
         // -) Find the object with the previous session ID in the table.
-        // -) Gets its current observer ID by casting it to an observer.
+        // -) Get its current observer ID by casting it to an observer.
         // -) Create a new property with current observer ID and values from current property.
         // -) Lastly replace the property with the new property.
         for (int p = 0; p < observer_property_count; p++) {
@@ -600,11 +607,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
     QtilitiesCore::instance()->objectManager()->exportObjectProperties(obs,stream);
 
     // Check result
+    IModificationNotifier::NotificationTargets notify_targets = 0;
+    notify_targets |= IModificationNotifier::NotifyListeners;
+    notify_targets |= IModificationNotifier::NotifySubjects;
     if (result == IExportable::Complete) {
-        obs->setModificationState(false,true,true);
+        obs->setModificationState(false, notify_targets);
     } else if (result == IExportable::Incomplete) {
         LOG_WARNING(tr("Observer (") + obs->objectName() + tr(") was only partially saved. Saved project will be incomplete."));
-        obs->setModificationState(false,true,true);
+        obs->setModificationState(false, notify_targets);
     }
 
     return result;
@@ -642,8 +652,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // Cross-check the constructed table:
     ObserverRelationalTable constructed_table(obs,true);
-    if (verbose_output)
+    if (verbose_output) {
+        LOG_INFO(QString(tr("Relational verification completed on observer: %1. Here is the contents of the reconstructed table.")).arg(obs->observerName()));
         constructed_table.dumpTableInfo();
+    }
     if (!constructed_table.compare(readback_table)) {
         LOG_WARNING(QString(tr("Relational verification failed on observer: %1")).arg(obs->observerName()));
         result = IExportable::Incomplete;
