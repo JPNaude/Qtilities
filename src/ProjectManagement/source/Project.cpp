@@ -67,7 +67,10 @@ bool Qtilities::ProjectManagement::Project::newProject() {
         d->project_items.at(i)->newProjectItem();
     }
 
-    setModificationState(false,true,true);
+    IModificationNotifier::NotificationTargets notify_targets = 0;
+    notify_targets |= IModificationNotifier::NotifyListeners;
+    notify_targets |= IModificationNotifier::NotifySubjects;
+    setModificationState(false,notify_targets);
     return true;
 }
 
@@ -122,7 +125,10 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QString file_name_only = fi.fileName().split(".").front();
         d->project_name = file_name_only;
 
-        setModificationState(false,true,true);
+        IModificationNotifier::NotificationTargets notify_targets = 0;
+        notify_targets |= IModificationNotifier::NotifyListeners;
+        notify_targets |= IModificationNotifier::NotifySubjects;
+        setModificationState(false,notify_targets);
         LOG_INFO(tr("Successfully saved current project to file: ") + d->project_file);
     } else {
         LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
@@ -214,7 +220,10 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         // setModificationState() call below, it might change the modification state again.
         QCoreApplication::processEvents();
 
-        setModificationState(false,true,true);
+        IModificationNotifier::NotificationTargets notify_targets = 0;
+        notify_targets |= IModificationNotifier::NotifyListeners;
+        notify_targets |= IModificationNotifier::NotifySubjects;
+        setModificationState(false,notify_targets);
         LOG_INFO(tr("Successfully loaded project from file: ") + file_name);
     } else {
         LOG_ERROR(tr("Failed to load project from file: ") + file_name);
@@ -229,7 +238,10 @@ bool Qtilities::ProjectManagement::Project::closeProject() {
         d->project_items.at(i)->closeProjectItem();
     }
 
-    setModificationState(false,true,true);
+    IModificationNotifier::NotificationTargets notify_targets = 0;
+    notify_targets |= IModificationNotifier::NotifyListeners;
+    notify_targets |= IModificationNotifier::NotifySubjects;
+    setModificationState(false,notify_targets);
     return true;
 }
 
@@ -254,8 +266,12 @@ void Qtilities::ProjectManagement::Project::setProjectItems(QList<IProjectItem*>
 
     if (inherit_modification_state)
         emit modificationStateChanged(isModified());
-    else
-        setModificationState(false,false,true);
+    else {
+        IModificationNotifier::NotificationTargets notify_targets = 0;
+        notify_targets |= IModificationNotifier::NotifyListeners;
+        notify_targets |= IModificationNotifier::NotifySubjects;
+        setModificationState(false,notify_targets);
+    }
 }
 
 void Qtilities::ProjectManagement::Project::addProjectItem(IProjectItem* project_item, bool inherit_modification_state) {
@@ -265,9 +281,9 @@ void Qtilities::ProjectManagement::Project::addProjectItem(IProjectItem* project
         connect(project_item->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         // Check if project item is modified. If so we need to update the project.
         if (inherit_modification_state)
-            setModificationState(project_item->isModified(),true,false);
+            setModificationState(project_item->isModified());
         else
-            setModificationState(is_modified,false,true);
+            setModificationState(is_modified,IModificationNotifier::NotifySubjects);
     }
 }
 
@@ -302,12 +318,12 @@ bool Qtilities::ProjectManagement::Project::isModified() const {
     return false;
 }
 
-void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
-    if (notify_listeners) {
+void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
     }
-    if (notify_subjects) {
+    if (notification_targets & IModificationNotifier::NotifySubjects) {
         for (int i = 0; i < d->project_items.count(); i++)
-            d->project_items.at(i)->setModificationState(new_state,false,true);
+            d->project_items.at(i)->setModificationState(new_state,notification_targets);
     }
 }

@@ -86,7 +86,7 @@ namespace Qtilities {
             // --------------------------------
             bool isModified() const;
         public slots:
-            void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false);
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners);
         signals:
             void modificationStateChanged(bool is_modified) const;
             void partialStateChanged(const QString& part_name) const;

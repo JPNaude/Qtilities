@@ -163,7 +163,10 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
 
     addRecentProject(d->current_project);
     // Still not sure why we need to call it again here:
-    setModificationState(false,true,true);
+    IModificationNotifier::NotificationTargets notify_targets = 0;
+    notify_targets |= IModificationNotifier::NotifyListeners;
+    notify_targets |= IModificationNotifier::NotifySubjects;
+    setModificationState(false,notify_targets);
     QApplication::restoreOverrideCursor();
     return true;
 }
@@ -431,12 +434,12 @@ bool Qtilities::ProjectManagement::ProjectManager::isModified() const {
     return false;
 }
 
-void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
-    if (notify_listeners) {
+void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
     }
-    if (notify_subjects) {
-        d->current_project->setModificationState(new_state,false,true);
+    if (notification_targets & IModificationNotifier::NotifySubjects) {
+        d->current_project->setModificationState(new_state,notification_targets);
     }
 }
 
