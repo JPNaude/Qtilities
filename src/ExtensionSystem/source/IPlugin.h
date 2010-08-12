@@ -68,7 +68,7 @@ namespace Qtilities {
                 //! The possible states in which a plugin can be.
                 enum PluginState {
                     Functional,             /*!< The plugin is fully functional. */
-                    CompatabilityError,     /*!< The plugin is loaded, but a compatibility error was detected. The plugin might not work as intended with the current version of the application. */
+                    CompatibilityError,     /*!< The plugin is loaded, but a compatibility error was detected. The plugin might not work as intended with the current version of the application. */
                     InitializationError,    /*!< The plugin detected an error during initialization. \sa initialize(). */
                     DependancyError         /*!< The plugin detected an error during depedancy initialization. \sa initializeDependancies(). */
                 };
