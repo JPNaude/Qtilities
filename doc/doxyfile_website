@@ -104,7 +104,9 @@ INPUT                  = sources \
 						../include/QtilitiesCore \
 						../include/QtilitiesCoreGui \
 						../include/QtilitiesProjectManagement \
-						../include/QtilitiesExtensionSystem
+						../include/QtilitiesExtensionSystem \
+						../src/Plugins \
+						../src/Examples
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cpp \
