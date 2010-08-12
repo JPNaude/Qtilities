@@ -157,9 +157,8 @@ namespace Qtilities {
             // IModificationNotifier Implemenation
             // --------------------------------
             bool isModified() const;
-            QObject* modifierBase() { return this; }
         public slots:
-            void setModificationState(bool new_state, bool notify_listeners = true, bool notify_subjects = false);
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
         signals:
             void modificationStateChanged(bool is_modified) const;
             void partialStateChanged(const QString& part_name) const;
@@ -327,7 +326,7 @@ namespace Qtilities {
               */
             enum DisplayFlag {
                 NoDisplayFlagsHint = 0,     /*!< No display flags hint. Uses ItemView by default. */
-                ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). */
+                ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
                 NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
                 PropertyBrowser = 4,        /*!< Display the property browser. */
                 AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser
@@ -371,16 +370,39 @@ namespace Qtilities {
               */
             QStringList monitoredProperties() const;
             //! Will attempt to attach the specified object to the observer. The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the object to be attached.
-            Q_SCRIPTABLE virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool broadcast = true);
+            /*!
+              \param obj The object to be attached.
+              \param ownership The ownership that the observer should use to manage the object. \sa Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \returns True is succesfull, false otherwise.
+
+              \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
+              */
+            Q_SCRIPTABLE virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! Will attempt to attach the specified objects to the observer.
             /*!
-              The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the objects to be attached.
+              This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
 
-              \return True if ALL objects attached succesfully. False if none or only a sub set of objects was attached succesfully.
+              \param objects A list of objects which must be attached.
+              \param ownership The ownership that the observer should use to manage the objects in the list. \sa Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+
+              \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            Q_SCRIPTABLE virtual bool attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool broadcast = true);
+            Q_SCRIPTABLE virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! Will attempt to attach the specified objects in a ObserverMimeData object.
-            Q_SCRIPTABLE virtual bool attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool broadcast = true);
+            /*!
+              This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
+
+              \param obj The object to be attached.
+              \param ownership The ownership that the observer should use to manage the object. \sa Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+
+              \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
+              */
+            Q_SCRIPTABLE virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! A function which checks if the new object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
             Q_SCRIPTABLE Observer::EvaluationResult canAttach(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership) const;
             //! A function which checks if the objects in the ObserverMimeData object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
@@ -389,14 +411,16 @@ namespace Qtilities {
         public slots:
             //! Will attempt to detach the specified object from the observer.
             /*!
-              \param broadcast If true, the detachment will be broadcast by emitting the numberOfSubjectsChanged(SubjectRemoved) signal.
+              \param obj The object to be detached.
+              \returns True if successful, false otherwise.
               */
-            virtual bool detachSubject(QObject* obj, bool broadcast = true);
+            virtual bool detachSubject(QObject* obj);
             //! Will attempt to detach the specified object objects in the list from the observer.
             /*!
-              \param broadcast If true, the detachment will be broadcast by emitting the numberOfSubjectsChanged(SubjectRemoved) signal.
+              \param objects A list of objects which must be detached.
+              \returns A list of objects which was succesfully detached.
               */
-            virtual bool detachSubjects(QList<QObject*> objects, bool broadcast = true);
+            virtual QList<QObject*> detachSubjects(QList<QObject*> objects);
             //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
             Observer::EvaluationResult canDetach(QObject* obj) const;
             //! Function to detach all currently observed subjects.

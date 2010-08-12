@@ -48,7 +48,6 @@
 #include <QDynamicPropertyChangeEvent>
 #include <QCoreApplication>
 #include <QMutableListIterator>
-#include <QtDebug>
 
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
@@ -161,7 +160,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
 
     // Register this observer with the observer manager
     if (observer_name != QString(GLOBAL_OBJECT_POOL))
-        observerData->observer_id = QtilitiesCore::instance()->objectManager()->registerObserver(this);
+        observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
     else
         observerData->observer_id = 0;
 
@@ -304,7 +303,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             // If the event should not be filtered, we need to post a user event on the object which will indicate that the
             // property change was valid and succesfull.
             if (!filter_event) {
-                if ((!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_VISITOR_ID)) ||
+                if ((!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_VISITOR_ID)) &&
                    (!strcmp(propertyChangeEvent->propertyName().data(),OBJECT_LIMITED_EXPORTS))) {
                     // Filter any changes to these properties. They are read-only.
                     QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
@@ -329,7 +328,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                 if (observer_list.isValid()) {
                     Observer* tmp_observer;
                     for (int i = 0; i < observer_list.observerMap().count(); i++) {
-                        tmp_observer = QtilitiesCore::instance()->objectManager()->observerReference(observer_list.observerMap().keys().at(i));
+                        tmp_observer = OBJECT_MANAGER->observerReference(observer_list.observerMap().keys().at(i));
                         if (tmp_observer) {
                             for (int r = 0; r < tmp_observer->subjectFilters().count(); r++) {
                                 NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (tmp_observer->subjectFilters().at(r));
@@ -443,6 +442,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
     // Now check all subjects for the IExportable interface.
     for (int i = 0; i < exportable_list.count(); i++) {
+        QCoreApplication::processEvents();
         IExportable* iface = exportable_list.at(i);
         QObject* obj = iface->objectBase();
         LOG_TRACE(QString("%1/%2: Exporting \"%3\"...").arg(i).arg(iface_count).arg(subjectNameInContext(obj)));
@@ -450,9 +450,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
         // Now export the needed properties about this subject
         if (result == IExportable::Complete) {
-            QtilitiesCore::instance()->objectManager()->exportObjectProperties(obj,stream);
+            OBJECT_MANAGER->exportObjectProperties(obj,stream);
         } else if (result == IExportable::Incomplete) {
-            QtilitiesCore::instance()->objectManager()->exportObjectProperties(obj,stream);
+            OBJECT_MANAGER->exportObjectProperties(obj,stream);
             complete = false;
         } else if (result == IExportable::Failed)
             success = false;
@@ -509,6 +509,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
     // Now check all subjects for the IExportable interface.
     for (int i = 0; i < iface_count; i++) {
+        QCoreApplication::processEvents();
         if (!success)
             break;
 
@@ -519,13 +520,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
             LOG_TRACE(QString(tr("%1/%2: Importing a standard observer...")).arg(i+1).arg(iface_count));
             Observer* new_obs = new Observer(factoryData.d_instance_name,QString());
             new_obs->setObjectName(factoryData.d_instance_name);
-            success = attachSubject(new_obs,Observer::ManualOwnership);
+            success = attachSubject(new_obs,Observer::ManualOwnership,true);
             import_list.append(new_obs);
             IExportable::Result result = new_obs->importBinary(stream, import_list);
             if (result == IExportable::Complete) {
-                QtilitiesCore::instance()->objectManager()->importObjectProperties(new_obs,stream);
+                OBJECT_MANAGER->importObjectProperties(new_obs,stream);
             } else if (result == IExportable::Incomplete) {
-                QtilitiesCore::instance()->objectManager()->importObjectProperties(new_obs,stream);
+                OBJECT_MANAGER->importObjectProperties(new_obs,stream);
                 complete = false;
             } else if (result == IExportable::Failed) {
                 success = false;
@@ -533,7 +534,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         } else {
             LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-            IFactory* ifactory = QtilitiesCore::instance()->objectManager()->factoryReference(factoryData.d_factory_tag);
+            IFactory* ifactory = OBJECT_MANAGER->factoryReference(factoryData.d_factory_tag);
             if (ifactory) {
                 factoryData.d_instance_context = observerData->observer_id;
                 QObject* new_instance = ifactory->createInstance(factoryData);
@@ -544,11 +545,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     if (exp_iface) {
                         IExportable::Result result = exp_iface->importBinary(stream, import_list);
                         if (result == IExportable::Complete) {
-                            QtilitiesCore::instance()->objectManager()->importObjectProperties(new_instance,stream);
-                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership);
+                            OBJECT_MANAGER->importObjectProperties(new_instance,stream);
+                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,true);
                         } else if (result == IExportable::Incomplete) {
-                            QtilitiesCore::instance()->objectManager()->importObjectProperties(new_instance,stream);
-                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership);
+                            OBJECT_MANAGER->importObjectProperties(new_instance,stream);
+                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,true);
                             complete = false;
                         } else if (result == IExportable::Failed) {
                             success = false;
@@ -589,8 +590,17 @@ bool Qtilities::Core::Observer::isModified() const {
     if (observerData->is_modified)
         return true;
 
+    // Check if any subjects were modified.
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
+        if (mod_iface) {
+            if (mod_iface->isModified())
+                return true;
+        }
+    }
+    // Check if any subject filters were modified.
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
         if (mod_iface) {
             if (mod_iface->isModified())
                 return true;
@@ -599,26 +609,24 @@ bool Qtilities::Core::Observer::isModified() const {
     return false;
 }
 
-void Qtilities::Core::Observer::setModificationState(bool new_state, bool notify_listeners, bool notify_subjects) {
+void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
     observerData->is_modified = new_state;
-    /*QString sender_name = "No Sender";
-    if (sender()) {
-        sender_name = sender()->objectName();
-        if (new_state) {
-            LOG_WARNING(QString("Observer: %1, New State: True, Sender: %2").arg(observerName()).arg(sender_name));
-            if (sender_name == "DFE1_PROC_NULL" && observerName() == "OPEN DESIGNS")
-                int i = 5;
-        } else
-            LOG_WARNING(QString("Observer: %1, New State: False, Sender: %2").arg(observerName()).arg(sender_name));
-    }*/
-    if (notify_listeners && !observerData->process_cycle_active) {
+    if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
         emit modificationStateChanged(new_state);
     }
-    if (notify_subjects) {
+    if (notification_targets & IModificationNotifier::NotifySubjects) {
+        // First notify all objects in this context.
         for (int i = 0; i < observerData->subject_list.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,false,true);
+                mod_iface->setModificationState(new_state,notification_targets);
+            }
+        }
+        // Also notify all subject filters.
+        for (int i = 0; i < observerData->subject_filters.count(); i++) {
+            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
+            if (mod_iface) {
+                mod_iface->setModificationState(new_state,notification_targets);
             }
         }
     }
@@ -640,7 +648,7 @@ void Qtilities::Core::Observer::endProcessingCycle() {
         return;
 
     observerData->process_cycle_active = false;
-    refreshViews();
+    emit partialStateChanged("Hierarchy");
 }
 
 void Qtilities::Core::Observer::setFactoryData(IFactoryData factory_data) {
@@ -653,7 +661,7 @@ Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData
     return observerData->factory_data;
 }
 
-bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, bool broadcast) {
+bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(obj != 0);
     #endif
@@ -668,7 +676,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     // Pass new object through all installed subject filters
     bool passed_filters = true;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        bool result = observerData->subject_filters.at(i)->initializeAttachment(obj);
+        bool result = observerData->subject_filters.at(i)->initializeAttachment(obj,import_cycle);
         if (passed_filters)
             passed_filters = result;
     }
@@ -676,7 +684,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     if (!passed_filters) {
         LOG_DEBUG(QString("Observer (%1): Object (%2) attachment failed, attachment was rejected by one or more subject filter.").arg(objectName()).arg(obj->objectName()));
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
-            observerData->subject_filters.at(i)->finalizeAttachment(obj,false);
+            observerData->subject_filters.at(i)->finalizeAttachment(obj,false,import_cycle);
         }
         removeObserverProperties(obj);
         return false;
@@ -835,7 +843,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         obj->installEventFilter(this);
 
         // Check if the new subject implements the IModificationNotifier interface. If so we connect
-        // to the modification changed signal:
+        // to the modification changed signals:
         bool has_mod_iface = false;
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
         if (mod_iface) {
@@ -847,7 +855,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         // Emit neccesarry signals
         QList<QObject*> objects;
         objects << obj;
-        if (broadcast && !observerData->process_cycle_active) {
+        if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
             emit partialStateChanged("Hierarchy");
             setModificationState(true);
@@ -861,7 +869,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         #endif
 
         // Register object in global object pool
-        QtilitiesCore::instance()->objectManager()->registerObject(obj);
+        OBJECT_MANAGER->registerObject(obj);
     } else {
         // If it is the global object manager it will get here.
         observerData->subject_list.append(obj);
@@ -875,7 +883,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         // Emit neccesarry signals
         QList<QObject*> objects;
         objects << obj;
-        if (broadcast && !observerData->process_cycle_active) {
+        if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
             emit partialStateChanged("Hierarchy");
             setModificationState(true);
@@ -886,46 +894,42 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
     // Finalize the attachment in all subject filters, indicating that the attachment was succesfull.
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        observerData->subject_filters.at(i)->finalizeAttachment(obj,true);
+        observerData->subject_filters.at(i)->finalizeAttachment(obj,true,import_cycle);
     }
 
     return true;
 }
 
-bool Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, bool broadcast) {
-    bool success = true;
+QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, bool import_cycle) {
+    QList<QObject*> success_list;
+    startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
-        if (i == objects.count()-1) {
-            if (!attachSubject(objects.at(i), ownership, broadcast) && success)
-                success = false;
-        } else {
-            if (!attachSubject(objects.at(i), ownership, false) && success)
-                success = false;
-        }
+        if (attachSubject(objects.at(i), ownership, import_cycle))
+            success_list << objects.at(i);
     }
-    if (success && !observerData->process_cycle_active) {
+    endProcessingCycle();
+    if (success_list.count() > 0) {
+        emit numberOfSubjectsChanged(SubjectAdded, success_list);
         emit partialStateChanged("Hierarchy");
         setModificationState(true);
     }
-    return success;
+    return success_list;
 }
 
-bool Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, bool broadcast) {
-    bool success = true;
+QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, bool import_cycle) {
+    QList<QObject*> success_list;
+    startProcessingCycle();
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
-        if (i == mime_data_object->subjectList().count()-1) {
-            if (!attachSubject(mime_data_object->subjectList().at(i), ownership, broadcast) && success)
-                success = false;
-        } else {
-            if (!attachSubject(mime_data_object->subjectList().at(i), ownership, false) && success)
-                success = false;
-        }
+        if (attachSubject(mime_data_object->subjectList().at(i), ownership, import_cycle))
+            success_list << mime_data_object->subjectList().at(i);
     }
-    if (success && !observerData->process_cycle_active) {
+    endProcessingCycle();
+    if (success_list.count() > 0) {
+        emit numberOfSubjectsChanged(SubjectAdded, success_list);
         emit partialStateChanged("Hierarchy");
         setModificationState(true);
     }
-    return success;
+    return success_list;
 }
 
 Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(QObject* obj, Observer::ObjectOwnership) const {
@@ -1072,7 +1076,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     }
 }
 
-bool Qtilities::Core::Observer::detachSubject(QObject* obj, bool broadcast) {
+bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(obj != 0);
     #endif
@@ -1146,7 +1150,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, bool broadcast) {
         obj->disconnect(this);
 
     // Broadcast if neccesarry
-    if (broadcast && !observerData->process_cycle_active) {
+    if (!observerData->process_cycle_active) {
         QList<QObject*> objects;
         objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
@@ -1158,25 +1162,21 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, bool broadcast) {
     return true;
 }
 
-bool Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects, bool broadcast) {
-    bool success = true;
-
+QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects) {
     QList<QObject*> success_list;
+    startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
-        if (!detachSubject(objects.at(i), false) && success)
-            success = false;
-        else
+        if (detachSubject(objects.at(i)))
             success_list << objects.at(i);
     }
-
+    endProcessingCycle();
     // Broadcast if neccesarry
-    if (broadcast && !observerData->process_cycle_active) {
+    if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
         emit partialStateChanged("Hierarchy");
         setModificationState(true);
     }
-
-    return success;
+    return success_list;
 }
 
 Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach(QObject* obj) const {
@@ -1239,19 +1239,9 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
 }
 
 void Qtilities::Core::Observer::detachAll() {
-    int total = observerData->subject_list.count();
-    startProcessingCycle();
-    QList<QObject*> objects;
-    objects << subjectReferences();
-    for (int i = 0; i < total; i++) {
-        detachSubject(observerData->subject_list.at(0), false);
-    }
+    detachSubjects(subjectReferences());
     // Make sure everything is gone
     observerData->subject_list.clear();
-    observerData->process_cycle_active = false;
-    emit numberOfSubjectsChanged(SubjectRemoved, objects);
-    emit partialStateChanged("Hierarchy");
-    setModificationState(true);
 }
 
 void Qtilities::Core::Observer::deleteAll() {
@@ -1383,7 +1373,7 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
 
     bool is_parent = false;
     for (int i = 0; i < observer_count; i++) {
-        Observer* parent = QtilitiesCore::instance()->objectManager()->observerReference(observer_map_prop.observerMap().keys().at(i));
+        Observer* parent = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
 
         if (parent != obj_to_check) {
             is_parent = isParentInHierarchy(obj_to_check,parent);
@@ -1458,7 +1448,7 @@ QString Qtilities::Core::Observer::observerName(int parent_id) const {
     if (parent_id == -1)
         return objectName();
     else {
-        const Observer* obs = QtilitiesCore::instance()->objectManager()->observerReference(parent_id);
+        const Observer* obs = OBJECT_MANAGER->observerReference(parent_id);
         if (obs) {
             if (obs->contains(obs))
                 return obs->subjectNameInContext(this);
@@ -1686,6 +1676,13 @@ void Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
     // Set the observer context of the filter
     subject_filter->setObserverContext(this);
     subject_filter->setParent(this);
+
+    // Check if the new subject filter implements the IModificationNotifier interface. If so we connect
+    // to the modification changed signal:
+    IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (subject_filter);
+    if (mod_iface) {
+        connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+    }
 
     // Connect signals
     Q_ASSERT(connect(subject_filter,SIGNAL(notifyDirtyProperty(const char*)),SIGNAL(propertyBecameDirty(const char*))) == true);
