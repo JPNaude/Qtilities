@@ -196,11 +196,11 @@ QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPu
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherWebsite() {
-    return "";
+    return "http://www.qtilities.org";
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherContact() {
-    return "naude.jaco@gmail.com";
+    return "support@qtilities.org";
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginDescription() {

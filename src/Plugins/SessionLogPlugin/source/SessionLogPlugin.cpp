@@ -103,11 +103,11 @@ QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() {
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherWebsite() {
-    return "";
+    return "http://www.qtilities.org";
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherContact() {
-    return "naude.jaco@gmail.com";
+    return "support@qtilities.org";
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() {

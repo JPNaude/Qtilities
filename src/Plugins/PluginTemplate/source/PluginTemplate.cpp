@@ -92,11 +92,11 @@ QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() {
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherWebsite() {
-    return "";
+    return "http://www.qtilities.org";
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherContact() {
-    return "naude.jaco@gmail.com";
+    return "support@qtilities.org";
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginDescription() {
