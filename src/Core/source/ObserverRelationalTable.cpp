@@ -208,7 +208,7 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() {
         LOG_INFO(QString(QObject::tr("> Session ID:             %1")).arg(entry->d_sessionID));
         LOG_INFO(QString(QObject::tr("> Previous Session ID:    %1")).arg(entry->d_previousSessionID));
         LOG_INFO(QString(QObject::tr("> Owner Visitor ID:       %1")).arg(entry->d_parentVisitorID));
-        LOG_INFO(QString(QObject::tr("> Child count: %1")).arg(entry->d_children.count()));
+        LOG_INFO(QString(QObject::tr("> Child count:            %1")).arg(entry->d_children.count()));
         for (int c = 0; c < entry->d_children.count(); c++) {
             RelationalTableEntry* child = d->entries[entry->d_children.at(c)];
             if (child) {
@@ -217,7 +217,7 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() {
                 LOG_INFO(QString(QObject::tr(">> Visitor ID  %1")).arg(child->d_visitorID));
                 LOG_INFO(QString(QObject::tr(">> Ownership   %1")).arg(child->d_ownership));
             } else
-                LOG_INFO(QObject::tr("Null child found..."));
+                LOG_WARNING(QObject::tr("Null child found..."));
         }
         LOG_INFO(QString(QObject::tr("> Parent count: %1")).arg(entry->d_parents.count()));
         for (int c = 0; c < entry->d_parents.count(); c++) {
@@ -227,7 +227,7 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() {
                 LOG_INFO(QString(QObject::tr(">> Name        %1")).arg(parent->d_name));
                 LOG_INFO(QString(QObject::tr(">> Visitor ID  %1")).arg(parent->d_visitorID));
             } else
-                LOG_INFO(QObject::tr("Null parent found..."));
+                LOG_WARNING(QObject::tr("Null parent found..."));
         }
         LOG_INFO("> -------------------------------------");
         LOG_INFO(QString(QObject::tr("> Table Entry %1 END:")).arg(i));
