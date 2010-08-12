@@ -75,8 +75,8 @@ namespace Qtilities {
             static FactoryItem<AbstractSubjectFilter, SubjectTypeFilter> factory;
 
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
-            bool initializeAttachment(QObject* obj);
-            void finalizeAttachment(QObject* obj, bool attachment_successful);
+            bool initializeAttachment(QObject* obj, bool import_cycle);
+            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
             AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
             bool initializeDetachment(QObject* obj, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);

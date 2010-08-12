@@ -64,7 +64,7 @@ Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::Subjec
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj) {
+bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -103,7 +103,7 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj) {
     return is_known_type;
 }
 
-void Qtilities::Core::SubjectTypeFilter::finalizeAttachment(QObject* obj, bool attachment_successful) {
+void Qtilities::Core::SubjectTypeFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
     Q_UNUSED(obj);
     Q_UNUSED(attachment_successful);
 }
