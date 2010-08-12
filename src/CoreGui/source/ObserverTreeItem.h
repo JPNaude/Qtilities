@@ -55,7 +55,11 @@ namespace Qtilities {
             Q_ENUMS(TreeItemType)
 
         public:
-            enum TreeItemType { ObjectItem, CategoryItem };
+            //! The possible types of items which can be part of the constructed observer tree.
+            enum TreeItemType {
+                ObjectItem,         /*!< An object item. */
+                CategoryItem        /*!< A category item. */
+            };
 
             ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = ObjectItem);
             ~ObserverTreeItem();
