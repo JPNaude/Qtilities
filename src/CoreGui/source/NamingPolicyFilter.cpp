@@ -65,22 +65,38 @@ namespace Qtilities {
     }
 }
 
+struct Qtilities::CoreGui::NamingPolicyFilterData {
+    NamingPolicyFilterData() : is_modified(false) { }
+
+    bool is_modified;
+    QValidator* validator;
+    NamingPolicyInputDialog* name_dialog;
+
+    QString rollback_name;
+    bool validation_cycle_active;
+    NamingPolicyFilter::UniquenessPolicy uniqueness_policy;
+    NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy;
+    NamingPolicyFilter::ResolutionPolicy validity_resolution_policy;
+};
+
+
 Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
-    d_uniqueness_policy = NamingPolicyFilter::ProhibitDuplicateNames;
-    d_uniqueness_resolution_policy = NamingPolicyFilter::PromptUser;
-    d_validity_resolution_policy = NamingPolicyFilter::PromptUser;
+    d = new NamingPolicyFilterData;
+    d->uniqueness_policy = NamingPolicyFilter::ProhibitDuplicateNames;
+    d->uniqueness_resolution_policy = NamingPolicyFilter::PromptUser;
+    d->validity_resolution_policy = NamingPolicyFilter::PromptUser;
     const QRegExp default_expression(".{1,100}",Qt::CaseInsensitive);
     QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
-    validator = default_validator;
-    name_dialog = new NamingPolicyInputDialog();
-    name_dialog->setNamingPolicyFilter(this);
+    d->validator = default_validator;
+    d->name_dialog = new NamingPolicyInputDialog();
+    d->name_dialog->setNamingPolicyFilter(this);
 
-    validation_cycle_active = false;
+    d->validation_cycle_active = false;
 }
 
 Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
-    if (validator)
-        delete validator;
+    if (d->validator)
+        delete d->validator;
 
     // Check if this policy filter was the object name manager
     for (int i = 0; i < observer->subjectCount(); i++) {
@@ -91,41 +107,53 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
 void Qtilities::CoreGui::NamingPolicyFilter::setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy uniqueness_policy) {
     // Only change policy if the observer context is not defined for the subject filter.
     if (!observer) {
-        d_uniqueness_policy = uniqueness_policy;
+        d->uniqueness_policy = uniqueness_policy;
     } else {
         if (observer->subjectCount() == 0)
-            d_uniqueness_policy = uniqueness_policy;
+            d->uniqueness_policy = uniqueness_policy;
     }
 }
 
+Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::NamingPolicyFilter::uniquenessNamingPolicy() const {
+    return d->uniqueness_policy;
+}
+
 void Qtilities::CoreGui::NamingPolicyFilter::setUniquenessResolutionPolicy(NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy) {
-    d_uniqueness_resolution_policy = uniqueness_resolution_policy;
+    d->uniqueness_resolution_policy = uniqueness_resolution_policy;
+}
+
+Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::uniquenessResolutionPolicy() const {
+    return d->uniqueness_resolution_policy;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy validity_resolution_policy) {
     // Q_ASSERT(validity_resolution_policy != Replace);
     // Note that replace is not a valid option for invalid names. This resolution will reappear in a future release.
 
-    d_validity_resolution_policy = validity_resolution_policy;
+    d->validity_resolution_policy = validity_resolution_policy;
+}
+
+Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::validityResolutionPolicy() const {
+    return d->validity_resolution_policy;
 }
 
 Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingPolicyFilter::evaluateName(QString name) const {
     NamingPolicyFilter::NameValidity result = Acceptable;
 
     // Check uniqueness of name
-    if (observer->subjectNames().contains(name) && d_uniqueness_policy == ProhibitDuplicateNames)
+    if (observer->subjectNames().contains(name) && d->uniqueness_policy == ProhibitDuplicateNames)
         result |= Duplicate;
 
     // Validate name using QValidator
     int pos;
-    if (validator->validate(name,pos) != QValidator::Acceptable)
+    if (d->validator->validate(name,pos) != QValidator::Acceptable)
         result |= Invalid;
 
     return result;
 }
 
 QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(QString name) const {
-    if (observer->subjectNames().contains(name) && d_uniqueness_policy == ProhibitDuplicateNames) {
+    if (observer->subjectNames().contains(name) && d->uniqueness_policy == ProhibitDuplicateNames) {
         for (int i = 0; i < observer->subjectCount(); i++) {
             if (observer->subjectNames().at(i) == name)
                 return observer->subjectAt(i);
@@ -139,22 +167,22 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
     // Check the validity of obj's name
     NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName());
 
-    if ((validity_result & Invalid) && d_validity_resolution_policy == Reject) {
+    if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
         return AbstractSubjectFilter::Rejected;
-    } else if ((validity_result & Invalid) && d_validity_resolution_policy == PromptUser) {
+    } else if ((validity_result & Invalid) && d->validity_resolution_policy == PromptUser) {
         return AbstractSubjectFilter::Conditional;
     }
 
-    if ((validity_result & Duplicate) && d_uniqueness_resolution_policy == Reject) {
+    if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == Reject) {
         return AbstractSubjectFilter::Rejected;
-    } else if ((validity_result & Duplicate) && d_uniqueness_resolution_policy == PromptUser) {
+    } else if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == PromptUser) {
         return AbstractSubjectFilter::Conditional;
     }
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj) {
+bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -168,7 +196,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj) 
         return false;
     }
 
-    rollback_name = obj->objectName();
+    d->rollback_name = obj->objectName();
 
     // Get name of new subject/object
     // New names are extracted in the following order
@@ -205,7 +233,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj) 
     // Check if an instance name must be created.
     // The object manager uses OBJECT_NAME, thus we don't create an instance for it ever, only do it if this observer is not the manager.
     if (!isObjectNameManager(obj)) {
-        if (d_uniqueness_policy == ProhibitDuplicateNames) {
+        if (d->uniqueness_policy == ProhibitDuplicateNames) {
             ObserverProperty current_instance_names_property = observer->getObserverProperty(obj,INSTANCE_NAMES);
             if (current_instance_names_property.isValid()) {
                 // Thus, the property already exists
@@ -238,15 +266,15 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj) 
     return validation_result;
 }
 
-void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful) {
+void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
     if (!attachment_successful) {
         // Undo possible name changes that happened in initializeAttachment()
         if (isObjectNameManager(obj))
-            observer->setObserverPropertyValue(obj,OBJECT_NAME,QVariant(rollback_name));
+            observer->setObserverPropertyValue(obj,OBJECT_NAME,QVariant(d->rollback_name));
         else {
             // First check if the object has a instance names property then
-            if (d_uniqueness_policy == ProhibitDuplicateNames)
-                observer->setObserverPropertyValue(obj,INSTANCE_NAMES,QVariant(rollback_name));
+            if (d->uniqueness_policy == ProhibitDuplicateNames)
+                observer->setObserverPropertyValue(obj,INSTANCE_NAMES,QVariant(d->rollback_name));
         }
     }
 }
@@ -287,6 +315,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
             if (return_value) {
                 QString new_name = observer->getObserverPropertyValue(obj,OBJECT_NAME).toString();
                 if (!new_name.isEmpty()) {
+                    setModificationState(true);
                     LOG_DEBUG("Sync'ed objectName() with OBJECT_NAME property -> " + new_name);
                     obj->setObjectName(new_name);
                 }
@@ -306,6 +335,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
         if (instance_property.lastChangedContext() == observer->observerID()) {
             bool return_value = validateNamePropertyChange(obj,INSTANCE_NAMES);
             if (return_value) {
+                setModificationState(true);
                 LOG_DEBUG(QString("Detected and handled INSTANCE_NAMES property change to \"%1\" within context \"%2\"").arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()).arg(observer->observerName()));
             } else {
                 LOG_WARNING(QString(tr("Aborted INSTANCE_NAMES property change event (attempted change to \"%1\" within context \"%2\").")).arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()).arg(observer->observerName()));
@@ -324,24 +354,24 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::exportFilterSpecificBinary(QDataStream& stream) const {
-    stream << rollback_name;
-    stream << (quint32) d_uniqueness_policy;
-    stream << (quint32) d_uniqueness_resolution_policy;
-    stream << (quint32) d_validity_resolution_policy;
+    stream << d->rollback_name;
+    stream << (quint32) d->uniqueness_policy;
+    stream << (quint32) d->uniqueness_resolution_policy;
+    stream << (quint32) d->validity_resolution_policy;
 
     return true;
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::importFilterSpecificBinary(QDataStream& stream) {
-    stream >> rollback_name;
+    stream >> d->rollback_name;
 
     quint32 ui32;
     stream >> ui32;
-    d_uniqueness_policy = (UniquenessPolicy) ui32;
+    d->uniqueness_policy = (UniquenessPolicy) ui32;
     stream >> ui32;
-    d_uniqueness_resolution_policy = (ResolutionPolicy) ui32;
+    d->uniqueness_resolution_policy = (ResolutionPolicy) ui32;
     stream >> ui32;
-    d_validity_resolution_policy = (ResolutionPolicy) ui32;
+    d->validity_resolution_policy = (ResolutionPolicy) ui32;
 
     return true;
 }
@@ -357,69 +387,65 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
 
     // Ok invalid names must be handled first
     if (validity_result & Invalid) {
-        if (d_validity_resolution_policy == PromptUser) {
-            if (validation_cycle_active && name_dialog->useCycleResolution()) {
-                if (name_dialog->selectedResolution() == Reject)
+        if (d->validity_resolution_policy == PromptUser) {
+            if (d->validation_cycle_active && d->name_dialog->useCycleResolution()) {
+                if (d->name_dialog->selectedResolution() == Reject)
                     return_value = false;
                 else {
-                    name_dialog->setObject(obj);
-                    name_dialog->setContext(observer->observerID(),observer->observerName());
+                    d->name_dialog->setObject(obj);
+                    d->name_dialog->setContext(observer->observerID(),observer->observerName());
                     // The initialize call will recalculate a valid name if needed.
-                    name_dialog->initialize(validity_result);
-                    // Next we set the name of the object using the name_dialog
-                    name_dialog->setName(name_dialog->autoGeneratedName());
+                    d->name_dialog->initialize(validity_result);
+                    // Next we set the name of the object using the d->name_dialog
+                    d->name_dialog->setName(d->name_dialog->autoGeneratedName());
                     return_value = true;
                 }
             } else {
-                name_dialog->setObject(obj);
-                name_dialog->setContext(observer->observerID(),observer->observerName());
-                name_dialog->initialize(validity_result);
-                if (name_dialog->exec()) {
-                    if (name_dialog->selectedResolution() == Reject)
+                d->name_dialog->setObject(obj);
+                d->name_dialog->setContext(observer->observerID(),observer->observerName());
+                d->name_dialog->initialize(validity_result);
+                if (d->name_dialog->exec()) {
+                    if (d->name_dialog->selectedResolution() == Reject)
                         return_value = false;
                     else
                         return_value = true;
                 } else
                     return_value = false;
             }
-        } else if (d_validity_resolution_policy == AutoRename) {
+        } else if (d->validity_resolution_policy == AutoRename) {
             QString valid_name = generateValidName(changed_name);
             if (valid_name.isEmpty())
                 return_value = false;
             observer->setObserverPropertyValue(obj,property_name,QVariant(valid_name));
             return_value = true;
-        } else if (d_validity_resolution_policy == Reject) {
+        } else if (d->validity_resolution_policy == Reject) {
             return_value = false;
         }
-    } else if ((validity_result & Duplicate) && (d_uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(changed_name) != obj)) {
-        if (d_uniqueness_resolution_policy == PromptUser) {
-            name_dialog->setObject(obj);
-            name_dialog->setContext(observer->observerID(),observer->observerName());
-            name_dialog->initialize(validity_result);
-            if (name_dialog->exec()) {
-                if (name_dialog->selectedResolution() == Reject)
+    } else if ((validity_result & Duplicate) && (d->uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(changed_name) != obj)) {
+        if (d->uniqueness_resolution_policy == PromptUser) {
+            d->name_dialog->setObject(obj);
+            d->name_dialog->setContext(observer->observerID(),observer->observerName());
+            d->name_dialog->initialize(validity_result);
+            if (d->name_dialog->exec()) {
+                if (d->name_dialog->selectedResolution() == Reject)
                     return_value = false;
                 else
                     return_value = true;
             } else
                 return_value = false;
-        } else if (d_uniqueness_resolution_policy == AutoRename) {
+        } else if (d->uniqueness_resolution_policy == AutoRename) {
             QString valid_name = generateValidName(changed_name);
             if (valid_name.isEmpty())
                 return_value = false;
             observer->setObserverPropertyValue(obj,property_name,QVariant(valid_name));
             return_value = true;
-        } else if (d_uniqueness_resolution_policy == Reject) {
+        } else if (d->uniqueness_resolution_policy == Reject) {
             return_value = false;
         }
     }
     return return_value;
 }
 
-//! Sets the QValidator to be used to determine valid subject names.
-/*!
-  \note NamingPolicyFilter takes ownership of the new validator after this call.
-  */
 void Qtilities::CoreGui::NamingPolicyFilter::setValidator(QValidator* valid_naming_validator) {
     if (!valid_naming_validator)
         return;
@@ -427,12 +453,11 @@ void Qtilities::CoreGui::NamingPolicyFilter::setValidator(QValidator* valid_nami
     if (observer->subjectCount() > 0)
         return;
 
-    validator = valid_naming_validator;
+    d->validator = valid_naming_validator;
 }
 
-//! Gets the QValidator which is used to determine valid subject names.
 QValidator* const Qtilities::CoreGui::NamingPolicyFilter::getValidator() {
-    return validator;
+    return d->validator;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
@@ -487,7 +512,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
     QString new_managed_name;
 
     // If this filter has a unique policy, we need to get the new name from the instance name list and remove this context
-    if (d_uniqueness_policy == ProhibitDuplicateNames) {
+    if (d->uniqueness_policy == ProhibitDuplicateNames) {
         ObserverProperty current_instance_names_property = observer->getObserverProperty(obj,INSTANCE_NAMES);
         if (current_instance_names_property.isValid()) {
             new_managed_name = current_instance_names_property.value(observer->observerID()).toString();
@@ -503,16 +528,27 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::startValidationCycle() {
-    validation_cycle_active = true;
+    d->validation_cycle_active = true;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::endValidationCycle() {
-    validation_cycle_active = false;
-    name_dialog->endValidationCycle();
+    d->validation_cycle_active = false;
+    d->name_dialog->endValidationCycle();
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::isValidationCycleActive() const {
-    return validation_cycle_active;
+    return d->validation_cycle_active;
+}
+
+bool Qtilities::CoreGui::NamingPolicyFilter::isModified() const {
+    return d->is_modified;
+}
+
+void Qtilities::CoreGui::NamingPolicyFilter::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    d->is_modified = new_state;
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
+    }
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) {
@@ -581,7 +617,7 @@ QString Qtilities::CoreGui::NamingPolicyFilter::generateValidName(QString input_
 
     // If it's invalid try to fix up the string using QValidator
     if (validity_result & Invalid) {
-        validator->fixup(input_name);
+        d->validator->fixup(input_name);
         validity_result = evaluateName(input_name);
         if (validity_result == Acceptable) {
             // Ok, fixup fixed it. Send back the fixed value

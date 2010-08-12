@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 
 #include <AbstractSubjectFilter.h>
+#include <IModificationNotifier>
 #include <Factory.h>
 
 #include <QItemDelegate>
@@ -45,7 +46,14 @@
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
+        using namespace Qtilities::Core::Interfaces;
         class NamingPolicyInputDialog;
+
+        /*!
+        \struct NamingPolicyFilterData
+        \brief A structure storing private data in the NamingPolicyFilter class.
+          */
+        struct NamingPolicyFilterData;
 
         /*!
         \class Qtilities::CoreGui::NamingPolicyFilter
@@ -92,9 +100,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         - Wishlist: Allowing control over unique name comparisons might be usefull in the future.
         - Wishlist: Implement a Replace resolution policy. There need to be decided how this should be done: Should the old subject be deleted, or just detached? If it is deleted do we add the new subject to all the observer's which observed the old subject? Also, the validity resolution policy cannot use replace so that must be handled correctly.
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT NamingPolicyFilter : public AbstractSubjectFilter
+        class QTILITIES_CORE_GUI_SHARED_EXPORT NamingPolicyFilter : public AbstractSubjectFilter, public IModificationNotifier
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_ENUMS(UniquenessPolicy)
             Q_ENUMS(ResolutionPolicy)
             Q_ENUMS(ValidityCheckResult)
@@ -143,21 +152,21 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Sets the naming uniqueness policy of this subject filter.
             void setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy naming_uniqueness_policy);
             //! Gets the naming uniqueness policy used by this subject filter.
-            NamingPolicyFilter::UniquenessPolicy uniquenessNamingPolicy() const { return d_uniqueness_policy; }
+            NamingPolicyFilter::UniquenessPolicy uniquenessNamingPolicy() const;
 
             //! Sets the naming uniqueness conflict policy used by this subject filter.
             void setUniquenessResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_uniqueness_resolution_policy);
             //! Gets the naming uniqueness conflict policy used by this subject filter.
-            NamingPolicyFilter::ResolutionPolicy niquenessResolutionPolicy() const { return d_uniqueness_resolution_policy; }
+            NamingPolicyFilter::ResolutionPolicy uniquenessResolutionPolicy() const;
 
             //! Sets the naming validity conflict policy used by this subject filter.
             void setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_validity_resolution_policy);
             //! Gets the naming validity conflict policy used by this subject filter.
-            NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const { return d_validity_resolution_policy; }
+            NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
 
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
-            bool initializeAttachment(QObject* obj);
-            void finalizeAttachment(QObject* obj, bool attachment_successful);
+            bool initializeAttachment(QObject* obj, bool import_cycle);
+            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
             AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
             bool initializeDetachment(QObject* obj, bool subject_deleted = false) { return true; }
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
@@ -173,6 +182,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Gets the object which conflicts with the specified name. If no object conflicts, returns 0.
             QObject* getConflictingObject(QString name) const;
             //! Function to set the validator used to validate names.
+            /*!
+              \note The validator can only be set when the context to which this filter is attached to has no objects attached to it.
+              \note NamingPolicyFilter takes ownership of the new validator after this call.
+              */
             void setValidator(QValidator* valid_naming_validator);
             //! Gets the validator used to validate names.
             QValidator* const getValidator();
@@ -204,6 +217,21 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Returns true if a validation cycle is active at present.
             bool isValidationCycleActive() const;
 
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
+            void partialStateChanged(const QString& part_name) const;
+
         private:
             //! Attempt to assign a new name manager to the object, other than this filter.
             void assignNewNameManager(QObject* obj);
@@ -233,14 +261,8 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               */
             QString generateValidName(QString input_name = QString(), bool force_change = false);
             bool validateNamePropertyChange(QObject* obj, const char* property_name);
-            QValidator* validator;
-            NamingPolicyInputDialog* name_dialog;
 
-            QString rollback_name;
-            bool validation_cycle_active;
-            NamingPolicyFilter::UniquenessPolicy d_uniqueness_policy;
-            NamingPolicyFilter::ResolutionPolicy d_uniqueness_resolution_policy;
-            NamingPolicyFilter::ResolutionPolicy d_validity_resolution_policy;
+            NamingPolicyFilterData* d;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(NamingPolicyFilter::NameValidity)
