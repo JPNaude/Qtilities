@@ -125,7 +125,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
     d->pluginsDir.cd("plugins");
     emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(d->pluginsDir.path()));
     LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(d->pluginsDir.path()));
-    //QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 
     foreach (QString fileName, d->pluginsDir.entryList(QDir::Files)) {
         QFileInfo file_info(fileName);
@@ -140,17 +140,20 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                 if (pluginIFace) {
                     emit newProgressMessage(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
                     LOG_INFO(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
-                    //QCoreApplication::processEvents();
+                    QCoreApplication::processEvents();
 
                     // Do a plugin version check here:
                     pluginIFace->pluginVersion();
                     if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
                         LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
+                        pluginIFace->setPluginState(IPlugin::CompatibilityError);
+                        pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
+                    } else {
+                        pluginIFace->setPluginState(IPlugin::Functional);
+                        pluginIFace->setErrorString(tr("No errors detected"));
                     }
 
                     d->plugins.attachSubject(obj);
-                    pluginIFace->setPluginState(IPlugin::Functional);
-                    pluginIFace->setErrorString(tr("No errors detected"));
 
                     QString error_string;
                     if (!pluginIFace->initialize(QStringList(), &error_string)) {
@@ -173,7 +176,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
         if (pluginIFace) {
             QString error_string;
             emit newProgressMessage(QString(tr("Initializing dependancies in plugin: %1")).arg(pluginIFace->objectName()));
-            //QCoreApplication::processEvents();
+            QCoreApplication::processEvents();
             if (!pluginIFace->initializeDependancies(&error_string)) {
                 LOG_ERROR(error_string);
                 pluginIFace->setPluginState(IPlugin::DependancyError);
@@ -184,7 +187,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
     }
 
     emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(d->pluginsDir.path()));
-    //QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
 }
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
