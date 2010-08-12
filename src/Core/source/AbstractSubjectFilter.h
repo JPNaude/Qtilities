@@ -57,8 +57,7 @@ namespace Qtilities {
           will automatically be set. On the other hand, Qtilities::Core::Observer::uninstallSubjectFilter() will set the observer
           context to 0.
 
-          For a detailed overview of subject filters, see the Subject Filters section of the following article:
-          \ref page_observers
+          For a detailed overview of subject filters, see the \ref subject_filters section of the \ref page_observers article.
           */
         class QTILIITES_CORE_SHARED_EXPORT AbstractSubjectFilter : public QObject
         {
@@ -86,14 +85,18 @@ namespace Qtilities {
             virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const = 0;
             //! Initialize the attachment of a new subject to the filter's observer context.
             /*!
+              \param obj The object to be added.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
               \return Return true if the attachment is allowed, false otherwise.
               */
-            virtual bool initializeAttachment(QObject* obj) = 0;
+            virtual bool initializeAttachment(QObject* obj, bool import_cycle = false) = 0;
             //! Finalize the attachment of a the subject to the filter's observer context.
             /*!
+              \param obj The object to be added.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
               \param attachment_successful True if the attachment was successfull, false otherwise.
               */
-            virtual void finalizeAttachment(QObject* obj, bool attachment_successful) = 0;
+            virtual void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false) = 0;
             //! Evaluates the detachment of a subject from the filter's observer context. Use this function to check how an detachment will be handled.
             virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const = 0;
             //! Initialize the detachment of a subject from the filter's observer context.
