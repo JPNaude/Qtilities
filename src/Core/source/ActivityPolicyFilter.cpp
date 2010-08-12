@@ -51,28 +51,50 @@ namespace Qtilities {
     }
 }
 
+struct Qtilities::Core::ActivityPolicyFilterData {
+    ActivityPolicyFilterData() : is_modified(false) { }
+
+    bool is_modified;
+    ActivityPolicyFilter::ActivityPolicy activity_policy;
+    ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy;
+    ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy;
+};
+
 Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
-    d_activity_policy = ActivityPolicyFilter::UniqueActivity;
-    d_minimum_activity_policy = ActivityPolicyFilter::ProhibitNoneActive;
-    d_new_subject_activity_policy = ActivityPolicyFilter::SetNewActive;
+    d = new ActivityPolicyFilterData;
+    d->activity_policy = ActivityPolicyFilter::UniqueActivity;
+    d->minimum_activity_policy = ActivityPolicyFilter::ProhibitNoneActive;
+    d->new_subject_activity_policy = ActivityPolicyFilter::SetNewActive;
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setActivityPolicy(ActivityPolicyFilter::ActivityPolicy activity_policy) {
     // Only change the policy if the observer context is not defined for the subject filter.
     if (!observer)
-        d_activity_policy = activity_policy;
+        d->activity_policy = activity_policy;
+}
+
+Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityPolicyFilter::activityPolicy() const {
+    return d->activity_policy;
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setMinimumActivityPolicy(ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy) {
     // Only change the policy if the observer context is not defined for the subject filter.
     if (!observer)
-        d_minimum_activity_policy = minimum_activity_policy;
+        d->minimum_activity_policy = minimum_activity_policy;
+}
+
+Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicy() const {
+    return d->minimum_activity_policy;
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {
     // Only change the policy if the observer context is not defined for the subject filter.
     if (!observer)
-        d_new_subject_activity_policy = new_subject_activity_policy;
+        d->new_subject_activity_policy = new_subject_activity_policy;
+}
+
+Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicy() const {
+    return d->new_subject_activity_policy;
 }
 
 int Qtilities::Core::ActivityPolicyFilter::numActiveSubjects() const {
@@ -109,9 +131,9 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::exportFilterSpecificBinary(QDataStream& stream) const {
-    stream << (quint32) d_activity_policy;
-    stream << (quint32) d_minimum_activity_policy;
-    stream << (quint32) d_new_subject_activity_policy;
+    stream << (quint32) d->activity_policy;
+    stream << (quint32) d->minimum_activity_policy;
+    stream << (quint32) d->new_subject_activity_policy;
 
     return true;
 }
@@ -119,13 +141,24 @@ bool Qtilities::Core::ActivityPolicyFilter::exportFilterSpecificBinary(QDataStre
 bool Qtilities::Core::ActivityPolicyFilter::importFilterSpecificBinary(QDataStream& stream) {
     quint32 ui32;
     stream >> ui32;
-    d_activity_policy = (ActivityPolicy) ui32;
+    d->activity_policy = (ActivityPolicy) ui32;
     stream >> ui32;
-    d_minimum_activity_policy = (MinimumActivityPolicy) ui32;
+    d->minimum_activity_policy = (MinimumActivityPolicy) ui32;
     stream >> ui32;
-    d_new_subject_activity_policy = (NewSubjectActivityPolicy) ui32;
+    d->new_subject_activity_policy = (NewSubjectActivityPolicy) ui32;
 
     return true;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::isModified() const {
+    return d->is_modified;
+}
+
+void Qtilities::Core::ActivityPolicyFilter::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    d->is_modified = new_state;
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
+    }
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> objects) {
@@ -149,11 +182,11 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 
     // Check the number of objects in the list against the policies of this filter.
     if (objects.count() == 0) {
-        if (d_minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive)
+        if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive)
             return;
     }
     if (objects.count() > 1) {
-        if (d_activity_policy == ActivityPolicyFilter::UniqueActivity)
+        if (d->activity_policy == ActivityPolicyFilter::UniqueActivity)
             return;
     }
 
@@ -188,13 +221,14 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 
     // Emit needed signals
     emit activeSubjectsChanged(objects,inactiveSubjects());
+    setModificationState(true);
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj) const {
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj) {
+bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -210,7 +244,7 @@ bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj) {
         return true;
 }
 
-void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful) {
+void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -227,56 +261,58 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
     if (!attachment_successful)
         return;
 
-    // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
-    filter_mutex.tryLock();
+    if (!import_cycle) {
+        // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
+        filter_mutex.tryLock();
 
-    bool new_activity;
-    // First determine the activity of the new subject
-    // At this stage the object is not yet attached to the observer, thus dynamic property changes are not handled, we need
-    // to do everyhing manually here.
-    if (observer->subjectCount() == 1) {
-        if (d_minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive || d_new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
-            new_activity = true;
-        } else {
-            new_activity = false;
-        }
-    } else {
-        if (d_new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
-            if (d_activity_policy == ActivityPolicyFilter::UniqueActivity) {
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    if (observer->subjectAt(i) != obj)
-                        observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY,QVariant(false));
-                }
+        bool new_activity;
+        // First determine the activity of the new subject
+        // At this stage the object is not yet attached to the observer, thus dynamic property changes are not handled, we need
+        // to do everyhing manually here.
+        if (observer->subjectCount() == 1) {
+            if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive || d->new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
+                new_activity = true;
+            } else {
+                new_activity = false;
             }
-            new_activity = true;
         } else {
-            new_activity = false;
+            if (d->new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
+                if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
+                    for (int i = 0; i < observer->subjectCount(); i++) {
+                        if (observer->subjectAt(i) != obj)
+                            observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY,QVariant(false));
+                    }
+                }
+                new_activity = true;
+            } else {
+                new_activity = false;
+            }
         }
-    }
 
-    ObserverProperty subject_activity_property = observer->getObserverProperty(obj,OBJECT_ACTIVITY);
-    if (subject_activity_property.isValid()) {
-        // Thus, the property already exists
-        subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
-        observer->setObserverProperty(obj,subject_activity_property);
-    } else {
-        // We need to create the property and add it to the object
-        ObserverProperty new_subject_activity_property(OBJECT_ACTIVITY);
-        new_subject_activity_property.setIsExportable(false);
-        new_subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
-        observer->setObserverProperty(obj,new_subject_activity_property);
-    }
+        ObserverProperty subject_activity_property = observer->getObserverProperty(obj,OBJECT_ACTIVITY);
+        if (subject_activity_property.isValid()) {
+            // Thus, the property already exists
+            subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
+            observer->setObserverProperty(obj,subject_activity_property);
+        } else {
+            // We need to create the property and add it to the object
+            ObserverProperty new_subject_activity_property(OBJECT_ACTIVITY);
+            new_subject_activity_property.setIsExportable(true);
+            new_subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
+            observer->setObserverProperty(obj,new_subject_activity_property);
+        }
 
-    if (new_activity) {
-        QList<QObject*> active_subjects = activeSubjects();
-        active_subjects.push_back(obj);
-        // Note that the object which is attached is not yet in the observer context, thus we must add it to the active subject list.
-        emit activeSubjectsChanged(active_subjects,inactiveSubjects());
-        // Emit dirty property signal
-        // emit notifyDirtyProperty(OBJECT_ACTIVITY);
+        if (new_activity) {
+            QList<QObject*> active_subjects = activeSubjects();
+            active_subjects.push_back(obj);
+            // Note that the object which is attached is not yet in the observer context, thus we must add it to the active subject list.
+            emit activeSubjectsChanged(active_subjects,inactiveSubjects());
+            // Emit dirty property signal
+            // emit notifyDirtyProperty(OBJECT_ACTIVITY);
+            setModificationState(true);
+        }
+        filter_mutex.unlock();
     }
-
-    filter_mutex.unlock();
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateDetachment(QObject* obj) const {
@@ -311,7 +347,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     filter_mutex.tryLock();
 
     if (observer->subjectCount() >= 1) {
-        if (d_minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
+        if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
             bool is_active = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
             if (is_active && (numActiveSubjects() == 0)) {
@@ -326,6 +362,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
     // Unlock the filter mutex.
     filter_mutex.unlock();
+    setModificationState(true);
 }
 
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() {
@@ -343,7 +380,7 @@ bool Qtilities::Core::ActivityPolicyFilter::monitoredPropertyChanged(QObject* ob
 
     bool new_activity = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
     if (new_activity) {
-        if (d_activity_policy == ActivityPolicyFilter::UniqueActivity) {
+        if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
             for (int i = 0; i < observer->subjectCount(); i++) {
                 if (observer->subjectAt(i) != obj) {
                     observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY, QVariant(false));
@@ -351,7 +388,7 @@ bool Qtilities::Core::ActivityPolicyFilter::monitoredPropertyChanged(QObject* ob
             }
         }
     } else {
-        if (d_minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive && (numActiveSubjects() == 0)) {
+        if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive && (numActiveSubjects() == 0)) {
             // In this case, we allow the change to go through but we change the value here.
             // To update GUIs monitoring OBJECT_ACTIVITY, we need to restore the property manually and emit that
             // the property is dirty. Perhaps a better way of doing this will be thought out and used in the future.
@@ -364,6 +401,7 @@ bool Qtilities::Core::ActivityPolicyFilter::monitoredPropertyChanged(QObject* ob
 
     // Emit active subjects changed signal
     emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+    setModificationState(true);
 
     filter_mutex.unlock();
     return false;

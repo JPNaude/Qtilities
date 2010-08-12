@@ -35,19 +35,29 @@
 #define ACTIVITYPOLICYFILTER_H
 
 #include "AbstractSubjectFilter.h"
+#include "IModificationNotifier"
 #include "Factory.h"
 
 namespace Qtilities {
     namespace Core {
+        using namespace Qtilities::Core::Interfaces;
+
+        /*!
+        \struct ActivityPolicyFilterData
+        \brief A structure storing private data in the ActivityPolicyFilter class.
+          */
+        struct ActivityPolicyFilterData;
+
         /*!
             \class Qtilities::Core::ActivityPolicyFilter
             \brief The ActivityPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over activity of objects within the context of an Observer.
 
             It is usefull when you need to control the activity of subjects within the context of an observer.
         */
-        class QTILIITES_CORE_SHARED_EXPORT ActivityPolicyFilter : public AbstractSubjectFilter
+        class QTILIITES_CORE_SHARED_EXPORT ActivityPolicyFilter : public AbstractSubjectFilter, public IModificationNotifier
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_ENUMS(ActivityPolicy)
             Q_ENUMS(MinimumActivityPolicy)
             Q_ENUMS(NewSubjectActivityPolicy)
@@ -88,17 +98,26 @@ namespace Qtilities {
             };
 
             //! Sets the activity policy used by this subject filter.
+            /*!
+             The policy can only be changed if no observer context has been set yet.
+             */
             void setActivityPolicy(ActivityPolicyFilter::ActivityPolicy naming_policy);
             //! Gets the activity policy used by this subject filter.
-            ActivityPolicyFilter::ActivityPolicy activityPolicy() const { return d_activity_policy; }
+            ActivityPolicyFilter::ActivityPolicy activityPolicy() const;
             //! Sets the minimum activity policy used by this subject filter.
+            /*!
+             The policy can only be changed if no observer context has been set yet.
+             */
             void setMinimumActivityPolicy(ActivityPolicyFilter::MinimumActivityPolicy minimum_naming_policy);
             //! Gets the minumum activity policy used by this subject filter.
-            ActivityPolicyFilter::MinimumActivityPolicy minimumActivityPolicy() const { return d_minimum_activity_policy; }
+            ActivityPolicyFilter::MinimumActivityPolicy minimumActivityPolicy() const;
             //! Sets the new subject activity policy used by this subject filter.
+            /*!
+             The policy can only be changed if no observer context has been set yet.
+             */
             void setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy);
             //! Gets the new subject activity policy used by this subject filter.
-            ActivityPolicyFilter::NewSubjectActivityPolicy newSubjectActivityPolicy() const { return d_new_subject_activity_policy; }
+            ActivityPolicyFilter::NewSubjectActivityPolicy newSubjectActivityPolicy() const;
 
             //! Gets the number of active subjects in the current observer context.
             int numActiveSubjects() const;
@@ -108,8 +127,8 @@ namespace Qtilities {
             QList<QObject*> inactiveSubjects() const;
 
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
-            bool initializeAttachment(QObject* obj);
-            void finalizeAttachment(QObject* obj, bool attachment_successful);
+            bool initializeAttachment(QObject* obj, bool import_cycle);
+            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
             AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
             bool initializeDetachment(QObject* obj, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
@@ -119,6 +138,21 @@ namespace Qtilities {
 
             bool exportFilterSpecificBinary(QDataStream& stream) const;
             bool importFilterSpecificBinary(QDataStream& stream);
+
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
+            void partialStateChanged(const QString& part_name) const;
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.
@@ -132,9 +166,7 @@ namespace Qtilities {
             void activeSubjectsChanged(QList<QObject*> active_objects, QList<QObject*> inactive_objects);
 
         private:
-            ActivityPolicyFilter::ActivityPolicy d_activity_policy;
-            ActivityPolicyFilter::MinimumActivityPolicy d_minimum_activity_policy;
-            ActivityPolicyFilter::NewSubjectActivityPolicy d_new_subject_activity_policy;
+            ActivityPolicyFilterData* d;
         };
     }
 }
