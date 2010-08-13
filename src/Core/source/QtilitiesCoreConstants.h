@@ -34,14 +34,20 @@
 #ifndef QTILITIESCORECONSTANTS_H
 #define QTILITIESCORECONSTANTS_H
 
+#include <QObject>
+
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the Core Module.
     namespace Core {
         //! Namespace containing constants used inside the Core Module.
         namespace Constants {
 
-            //! The name of the global object pool observer
+            //! The name of the global object pool observer.
             const char * const GLOBAL_OBJECT_POOL     = "Qtilities.Core.ObjectPool";
+            //! The string used by observers to indicate that their hierarhcy changed. This string is used during the emission of the Qtilities::Core::IModificationNotifier::partialStateChanged() signal.
+            const char * const OBSERVER_PARTIAL_CHANGE_HIERARCHY    = "Observer.Hierarhcy";
+            //! The string used by observers to group uncategorized subjects in the case where the observer has a hierarchical display hint.
+            const char * const OBSERVER_UNCATEGORIZED_CATEGORY      = "Uncategorized";
             //! %Factory tag for activity policy filters.
             const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "FactoryTag.ActivityPolicyFilter";
             //! %Factory tag for subject type filters.
