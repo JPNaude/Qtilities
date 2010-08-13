@@ -110,17 +110,17 @@ INPUT                  = sources \
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cpp \
-						 *.html \
-						 QtilitiesLoggingModule \
-						 QtilitiesCoreModule \
-						 QtilitiesCoreGuiModule \
-						 QtilitiesProjectManagementModule \
-						 QtilitiesExtensionSystemModule
+                         *.html \
+                         QtilitiesLoggingModule \
+                         QtilitiesCoreModule \
+                         QtilitiesCoreGuiModule \
+                         QtilitiesProjectManagementModule \
+                         QtilitiesExtensionSystemModule
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = *ui_*
-EXCLUDE_SYMBOLS        = 
+EXCLUDE_SYMBOLS        = *CategorizedStringTreeWidget* *ObjectInfoTreeWidget* *::*Data *TopToBottomList*
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = YES
