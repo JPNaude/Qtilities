@@ -57,7 +57,9 @@ HEADERS += source/QtilitiesCore_global.h \
     source/IContext.h \
     source/IContextManager.h \
     source/ContextManager.h \
-    source/IObjectBase.h
+    source/IObjectBase.h \
+    source/ObserverHints.h \
+    source/SubjectFilterTemplate.h
 
 SOURCES += source/Observer.cpp \
     source/ActivityPolicyFilter.cpp \
@@ -68,4 +70,6 @@ SOURCES += source/Observer.cpp \
     source/ObserverData.cpp \
     source/ObserverProperty.cpp \
     source/ObserverRelationalTable.cpp \
-    source/ContextManager.cpp
+    source/ContextManager.cpp \
+    source/ObserverHints.cpp \
+    source/SubjectFilterTemplate.cpp
