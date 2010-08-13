@@ -36,16 +36,20 @@
 
 #include <QListWidget>
 
-/*!
-\class TopToBottomList
-\brief A list widget which shows items in a top to bottom view, centered in the middle of the view.
-  */
-class TopToBottomList : public QListWidget
-{
-public:
-    TopToBottomList(QWidget*&);
-    virtual QSize sizeHint() const;
-    QSize itemSizeHint() const;
-};
+namespace Qtilities {
+    namespace CoreGui {
+        /*!
+        \class TopToBottomList
+        \brief A list widget which shows items in a top to bottom view, centered in the middle of the view.
+          */
+        class TopToBottomList : public QListWidget
+        {
+        public:
+            TopToBottomList(QWidget*&);
+            virtual QSize sizeHint() const;
+            QSize itemSizeHint() const;
+        };
+    }
+}
 
 #endif // TOPTOBOTTOMLIST_H
