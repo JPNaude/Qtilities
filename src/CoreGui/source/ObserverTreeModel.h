@@ -68,13 +68,9 @@ namespace Qtilities {
             ObserverTreeModel(const QStringList &headers = QStringList(), QObject *parent = 0);
             virtual ~ObserverTreeModel() {}
 
-            enum ColumnIDs {
-                NameColumn = 0,
-                ChildCountColumn = 1,
-                AccessColumn = 2,
-                TypeInfoColumn = 3
-            };
-
+            // --------------------------------
+            // ObserverTableModel Implementation
+            // --------------------------------
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
             virtual QVariant data(const QModelIndex &index, int role) const;
@@ -84,29 +80,49 @@ namespace Qtilities {
             QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
             QModelIndex parent(const QModelIndex &index) const;
 
-            //! Implement the virtual function to get references to known filters.
+            // --------------------------------
+            // AbstractObserverItemModel Implementation
+            // --------------------------------
             void setObserverContext(Observer* observer);
-
-            //! Returns a QStack with the parent hierarchy (in terms of observer IDs) for the object at the given index.
-            QStack<int> getParentHierarchy(const QModelIndex& index) const;
-
-            //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
-            void toggleUseObserverHints(bool toggle);
-
+            virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
             QObject* getObject(const QModelIndex &index) const;
 
+            // --------------------------------
+            // ObserverTreeModel Implementation
+            // --------------------------------
+            //! Returns a QStack with the parent hierarchy (in terms of observer IDs) for the object at the given index.
+            QStack<int> getParentHierarchy(const QModelIndex& index) const;
             //! Returns the parent observer of the current selection, it only works if a single item is selected, otherwise returns 0.
+            /*!
+              The selection parent is calculated using the calculateSelectionParent() function. This function return
+              the parent identified the last time that function was called.
+              */
             Observer* selectionParent() const;
             //! Returns the parent observer of the item at the specified index.
+            /*!
+              \returns The parent observer of the current index, or 0 if the index is invalid.
+              \note For the root item the parent will also be 0.
+              */
             Observer* parentOfIndex(const QModelIndex& index) const;
-            //! Get hints from the specified observer. When observer is null, the hints of the root item observer will be restored and used. When toggleUseObserverHints(false) was called, this function does nothing.
-            void useObserverHints(const Observer* observer);
+            //! Returns the ObserverTreeItem at a the specified index.
+            /*!
+              \returns The ObserverTreeItem at the current index, or 0 if the index is invalid.
+              */
+            ObserverTreeItem* getItem(const QModelIndex &index) const;
 
         public slots:
+            //! Function which will rebuild the complete tree structure under the top level observer.
+            /*!
+              \param partial_modification_notifier This notifier is the string which is passed to this function using the Qtilities::Core::IModificationNotifier::partialStateChanged() signal. The tree will only rebuild its structure when the modifier is equal to \p Hierarchy.
+              */
             void rebuildTreeStructure(const QString& partial_modification_notifier = QString());
+            //! Function which will calculate the selection parent of a selected object.
+            /*!
+              \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.
+              */
             Observer* calculateSelectionParent(QModelIndexList index_list);
-            void resetModel();
+            //! This slot will clean up the tree and refresh the view when the top level observer is deleted.
             void handleObserverContextDeleted();
 
         signals:
@@ -118,13 +134,14 @@ namespace Qtilities {
             void deleteRootItem();
             //! Function called by rebuildTreeStructure during recursive building of the tree.
             void setupChildData(ObserverTreeItem* item);
-            //void disconnectObserver(Observer* observer);
-            ObserverTreeItem* getItem(const QModelIndex &index) const;
-             void printStructure(ObserverTreeItem* item = 0, int level = 0);
+            //! Prints the structure of the tree as trace messages.
+            /*!
+              \sa LOG_TRACE
+              */
+            void printStructure(ObserverTreeItem* item = 0, int level = 0);
 
         protected:
             ObserverTreeModelData* d;
-
         };
     }
 }

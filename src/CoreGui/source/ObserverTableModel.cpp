@@ -46,77 +46,62 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
+using namespace Qtilities::Core::Constants;
+
+struct Qtilities::CoreGui::ObserverTableModelData {
+    ObserverTableModelData() : type_grouping_name(QString()) { }
+
+    QString type_grouping_name;
+};
 
 Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(const QStringList &headers, QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
 {
     // Headers
-    d_headers = headers;
-    d_type_grouping_name = QString();
-
-    // Init pointers
-    d_naming_filter = 0;
-    d_activity_filter = 0;
-
-    d_manual_mode = false;
+    d = new ObserverTableModelData();
+    setHorizontalHeaders(headers);
 }
 
-void Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer)
-{
+void Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer) {
     if (d_observer)
         d_observer->disconnect(this);
 
     AbstractObserverItemModel::setObserverContext(observer);
 
-    d_naming_filter = 0;
-    d_activity_filter = 0;
+    connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication)),SIGNAL(layoutChanged()));
+    connect(d_observer,SIGNAL(destroyed()),SIGNAL(layoutChanged()));
+    connect(d_observer,SIGNAL(propertyBecameDirty(const char*, QObject*)),SLOT(handleDirtyProperty(const char*)));
+    handleDataChange();
 
-    if (observer) {
-        // Look which known subject filters are installed in this observer
-        for (int i = 0; i < observer->subjectFilters().count(); i++) {
-            // Check if it is a naming policy subject filter
-            NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
-            if (naming_filter)
-                d_naming_filter = naming_filter;
-
-            // Check if it is an activity policy subject filter
-            ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
-            if (activity_filter)
-                d_activity_filter = activity_filter;
-        }
-
-        connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication)),SIGNAL(layoutChanged()));
-        connect(d_observer,SIGNAL(destroyed()),SIGNAL(layoutChanged()));
-        connect(d_observer,SIGNAL(propertyBecameDirty(const char*, QObject*)),SLOT(handleDirtyProperty(const char*)));
-        handleDataChange();
-
-        if (!d_manual_mode) {
-            // Check if this observer provides hints for this model
-            if (observer->namingControlHint() != Observer::NoNamingControlHint)
-                d_naming_control = observer->namingControlHint();
-            if (observer->activityDisplayHint() != Observer::NoActivityDisplayHint)
-                d_activity_display = observer->activityDisplayHint();
-            if (observer->activityControlHint() != Observer::NoActivityControlHint)
-                d_activity_control = observer->activityControlHint();
-            if (observer->hierarchicalDisplayHint() != Observer::NoHierarhicalDisplayHint)
-                d_hierachical_display_hint = observer->hierarchicalDisplayHint();
-            if (observer->itemSelectionControlHint() != Observer::NoItemSelectionControlHint)
-                d_item_selection_control = observer->itemSelectionControlHint();
-            if (observer->itemViewColumnFlags() != Observer::NoItemViewColumnHint)
-                d_item_view_column_flags = observer->itemViewColumnFlags();
-        }
-
-        // Check if this observer has a subject type filter installed
-        for (int i = 0; i < observer->subjectFilters().count(); i++) {
-            SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
-            if (subject_type_filter) {
-                if (!subject_type_filter->groupName().isEmpty()) {
-                    d_type_grouping_name = subject_type_filter->groupName();
-                }
-                break;
+    // Check if this observer has a subject type filter installed
+    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+        SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
+        if (subject_type_filter) {
+            if (!subject_type_filter->groupName().isEmpty()) {
+                d->type_grouping_name = subject_type_filter->groupName();
             }
+            break;
         }
-
     }
+}
+
+int Qtilities::CoreGui::ObserverTableModel::columnPosition(AbstractObserverItemModel::ColumnID column_id) const {
+    if (column_id == AbstractObserverItemModel::ColumnSubjectID) {
+        return 0;
+    } else if (column_id == AbstractObserverItemModel::ColumnName) {
+        return 1;
+    } else if (column_id == AbstractObserverItemModel::ColumnCategory) {
+        return 2;
+    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
+        return 3;
+    } else if (column_id == AbstractObserverItemModel::ColumnAccess) {
+        return 4;
+    } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
+        return 5;
+    } else if (column_id == AbstractObserverItemModel::ColumnLast) {
+        return 6;
+    }
+
+    return -1;
 }
 
 QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, int role) const {
@@ -126,16 +111,16 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     if (!d_observer)
         return QVariant();
 
-    if (index.column() == IdColumn) {
+    if (index.column() == columnPosition(ColumnSubjectID)) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return d_observer->subjectID(index.row());
         }
-    } else if (index.column() == NameColumn) {
+    } else if (index.column() == columnPosition(ColumnName)) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return d_observer->subjectNames().at(index.row());
         } else if (role == Qt::CheckStateRole) {
-            if (d_activity_filter) {
-                if (d_activity_display == Observer::CheckboxActivityDisplay || d_activity_control == Observer::CheckboxTriggered) {
+            if (model->activity_filter) {
+                if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay || activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
                     QVariant subject_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
 
@@ -159,16 +144,16 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                 return tooltip.value();
             }
         }
-    } else if (index.column() == CategoryColumn && (d_hierachical_display_hint && Observer::CategorizedHierarchy)) {
+    } else if (index.column() == columnPosition(ColumnCategory) && (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy)) {
         if (role == Qt::DisplayRole) {
             // Get the OBJECT_CATEGORY property.
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             QString category = d_observer->getObserverPropertyValue(obj,OBJECT_CATEGORY).toString();
             if (category.isEmpty())
-                category = tr("Uncategorized");
+                category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
             return category;
         }
-    } else if (index.column() == ChildCountColumn && (d_item_view_column_flags && Observer::ChildCountColumn)) {
+    } else if (index.column() == columnPosition(ColumnChildCount) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             Observer* observer = qobject_cast<Observer*> (obj);
@@ -190,7 +175,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
             }
 
         }
-    } else if (index.column() == TypeInfoColumn && (d_item_view_column_flags && Observer::TypeInfoColumn)) {
+    } else if (index.column() == columnPosition(ColumnTypeInfo) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             if (obj->metaObject()) {
@@ -198,7 +183,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
             }
             return QVariant();
         }
-    } else if (index.column() == AccessColumn && (d_item_view_column_flags && Observer::AccessColumn)) {
+    } else if (index.column() == columnPosition(ColumnAccess) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)) {
         if (role == Qt::DecorationRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             Observer* observer = qobject_cast<Observer*> (obj);
@@ -237,17 +222,17 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTableModel::flags(const QModelIndex &i
 
      Qt::ItemFlags item_flags = Qt::ItemIsEnabled;
 
-     if (d_naming_control == Observer::EditableNames)
+     if (activeHints()->namingControlHint() == ObserverHints::EditableNames)
          item_flags |= Qt::ItemIsEditable;
      else
          item_flags &= ~Qt::ItemIsEditable;
 
-     if (d_item_selection_control == Observer::SelectableItems)
+     if (activeHints()->itemSelectionControlHint() == ObserverHints::SelectableItems)
          item_flags |= Qt::ItemIsSelectable;
      else
          item_flags &= ~Qt::ItemIsSelectable;
 
-     if (d_activity_control == Observer::CheckboxTriggered)
+     if (activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered)
          item_flags |= Qt::ItemIsUserCheckable;
      else
          item_flags &= ~Qt::ItemIsUserCheckable;
@@ -255,37 +240,36 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTableModel::flags(const QModelIndex &i
      return item_flags;
 }
 
-
 QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if ((section == NameColumn) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
-        if (d_type_grouping_name.isEmpty())
+    if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        if (d->type_grouping_name.isEmpty())
             return tr("Items");
         else
-            return d_type_grouping_name;
-    } else if ((section == CategoryColumn) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
-        if (d_item_view_column_flags & Observer::CategoryColumn)
+            return d->type_grouping_name;
+    } else if ((section == columnPosition(ColumnCategory)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint)
             return tr("Category");
-    } else if ((section == CategoryColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::CategoryColumn)
+    } else if ((section == columnPosition(ColumnCategory)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint)
             return tr("Category");
-    } else if ((section == ChildCountColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::ChildCountColumn)
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
             return QIcon(ICON_CHILD_COUNT);
-    } else if ((section == ChildCountColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::ChildCountColumn)
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
             return tr("Child Count");
-    } else if ((section == TypeInfoColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::TypeInfoColumn)
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
             return QIcon(ICON_TYPE_INFO);
-    } else if ((section == TypeInfoColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::TypeInfoColumn)
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
             return tr("Type");
-    } else if ((section == AccessColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::AccessColumn)
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return QIcon(ICON_ACCESS);
-    } else if ((section == AccessColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::AccessColumn)
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return tr("Access");
     }
 
@@ -294,9 +278,9 @@ QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Ori
 
 bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.column() == IdColumn) {
+    if (index.column() == columnPosition(ColumnSubjectID)) {
         return false;
-    } else if (index.column() == NameColumn) {
+    } else if (index.column() == columnPosition(ColumnName)) {
         if (role == Qt::EditRole || role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             // Check if the object has an OBJECT_NAME property, if not we set the name using setObjectName()
@@ -312,8 +296,8 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
             }
             return true;
         } else if (role == Qt::CheckStateRole) {
-            if (d_activity_filter) {
-                if (d_activity_display == Observer::CheckboxActivityDisplay && d_activity_control == Observer::CheckboxTriggered) {
+            if (model->activity_filter) {
+                if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay && activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
                     // The value comming in here is always Qt::Checked
                     // We get the current check state from the OBJECT_ACTIVITY property and change that:
@@ -343,7 +327,7 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
     if (!d_observer)
         return 0;
     else
-        return TypeInfoColumn+1;
+        return columnPosition(ColumnLast);
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChange() {
@@ -416,8 +400,8 @@ QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj) const
 
     // Now look for the id in the ID_COLUMN of the table model
     for (int i = 0; i < rowCount(); i++) {
-        if (data(index(i,IdColumn),Qt::DisplayRole).toInt() == id) {
-            return index(i,IdColumn);
+        if (data(index(i,columnPosition(ColumnSubjectID)),Qt::DisplayRole).toInt() == id) {
+            return index(i,columnPosition(ColumnSubjectID));
         }
     }
 

@@ -49,8 +49,13 @@
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
-
         class NamingPolicyFilter;
+
+        /*!
+        \struct ObserverTableModelData
+        \brief Structure used by ObserverTableModel to store private data.
+          */
+        struct ObserverTableModelData;
 
         //! The ObserverTableModel class provides an ready-to-use model that can be used to show the contents of an Observer in a QTableView.
         /*!
@@ -63,25 +68,17 @@ namespace Qtilities {
           When you develop your own subject filters and want to make information controlled by these filters visible through ObserverTableModel,
           you would need to subclassing from ObserverTableModel and implement the needed virtual functions.
         */
-
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTableModel : public QAbstractTableModel, public AbstractObserverItemModel
         {
             Q_OBJECT
-            Q_ENUMS(ColumnIDs)
 
         public:
             ObserverTableModel(const QStringList &headers = QStringList(), QObject* parent = 0);
             virtual ~ObserverTableModel() {}
 
-            enum ColumnIDs {
-                IdColumn = 0,
-                CategoryColumn = 1,
-                NameColumn = 2,
-                ChildCountColumn = 3,
-                AccessColumn = 4,
-                TypeInfoColumn = 5
-            };
-
+            // --------------------------------
+            // QAbstractTableModel Implementation
+            // --------------------------------
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
             virtual QVariant data(const QModelIndex &index, int role) const;
@@ -89,37 +86,41 @@ namespace Qtilities {
             virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-            //! Implement the virtual function to get references to known filters.
+            // --------------------------------
+            // AbstractObserverItemModel Implementation
+            // --------------------------------
             void setObserverContext(Observer* observer);
-
-            //! A function which allows you to set up the widget explicitly, causing it not to follow the hints provided by the observer.
-            /*!
-              \note This function must be set before calling setItemModel() and initialize() to work. If you want to use manual configuration on
-              a widget which was already initialized, you need to call this function, set up your flags and then call initialize again.
-              */
-            inline void setUseManualConfiguration(bool toggle) { d_manual_mode = toggle; }
-            //! Returns true if the widget is set up to use manual configuration.
-            /*!
-              \sa setUseManualConfiguration()
-              */
-            inline bool usingManualConfiguration() const { return d_manual_mode; }
-
+            virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
-            int getSubjectID(int row) const;
-            QObject* getObject(const QModelIndex &index) const;
-            QObject* getObject(int row) const;
+             QObject* getObject(const QModelIndex &index) const;
+
+            // --------------------------------
+            // ObserverTableModel Implementation
+            // --------------------------------
+            //! Convenience function to get the QModelIndex of an object in the table.
+            /*!
+               \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
+             */
             QModelIndex getIndex(QObject* obj) const;
+            //! Convenience function to get the QObject at a specific row.
+            /*!
+               \returns The the object at the specified row. If the row is invalid, 0 is returned.
+             */
+            QObject* getObject(int row) const;
+            //! Convenience function to get the subject ID of a QObject at a specific row.
+            /*!
+               \returns The the subject ID of the object at the specified row. If the row is invalid, -1 is returned.
+             */
+            int getSubjectID(int row) const;
 
         public slots:
+            //! Slot which will emit the correct signals in order for the view using the model to refresh.
             virtual void handleDataChange();
+            //! Slot which handles
             void handleDirtyProperty(const char* property_name);
 
         protected:
-            ActivityPolicyFilter*   d_activity_filter;
-            NamingPolicyFilter*     d_naming_filter;
-
-            bool                    d_manual_mode;
-            QString                 d_type_grouping_name;
+            ObserverTableModelData* d;
         };
     }
 }

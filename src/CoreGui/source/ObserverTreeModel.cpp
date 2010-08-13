@@ -46,9 +46,9 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
+using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::ObserverTreeModelData {
-    bool                use_observer_hints;
     ObserverTreeItem*   rootItem;
     Observer*           selection_parent;
 };
@@ -58,15 +58,14 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(const QStringList &head
     d = new ObserverTreeModelData;
 
     // Headers
-    d_headers = headers;
+    setHorizontalHeaders(headers);
 
     // Init root data
     d->rootItem = new ObserverTreeItem();
     d->selection_parent = 0;
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer)
-{
+void Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer) {
     if (!observer)
         return;
 
@@ -80,23 +79,29 @@ void Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     if (d_observer) {
         rebuildTreeStructure();
 
-        if (d->use_observer_hints) {
-            // Check if this observer provides hints for this model
-            if (observer->namingControlHint() != Observer::NoNamingControlHint)
-                d_naming_control = observer->namingControlHint();
-            if (observer->activityDisplayHint() != Observer::NoActivityDisplayHint)
-                d_activity_display = observer->activityDisplayHint();
-            if (observer->activityControlHint() != Observer::NoActivityControlHint)
-                d_activity_control = observer->activityControlHint();
-            if (observer->itemSelectionControlHint() != Observer::NoItemSelectionControlHint)
-                d_item_selection_control = observer->itemSelectionControlHint();
-            if (observer->itemViewColumnFlags() != Observer::NoItemViewColumnHint)
-                d_item_view_column_flags = observer->itemViewColumnFlags();
-        }
-
         connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
         connect(d_observer,SIGNAL(partialStateChanged(QString)),SLOT(rebuildTreeStructure(QString)));
     }
+}
+
+int Qtilities::CoreGui::ObserverTreeModel::columnPosition(AbstractObserverItemModel::ColumnID column_id) const {
+    if (column_id == AbstractObserverItemModel::ColumnName) {
+        return 0;
+    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
+        return 1;
+    } else if (column_id == AbstractObserverItemModel::ColumnAccess) {
+        return 2;
+    } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
+        return 3;
+    } else if (column_id == AbstractObserverItemModel::ColumnCategory) {
+        return -1;
+    } else if (column_id == AbstractObserverItemModel::ColumnSubjectID) {
+        return -1;
+    } else if (column_id == AbstractObserverItemModel::ColumnLast) {
+        return 4;
+    }
+
+    return -1;
 }
 
 QStack<int> Qtilities::CoreGui::ObserverTreeModel::getParentHierarchy(const QModelIndex& index) const {
@@ -133,10 +138,6 @@ QStack<int> Qtilities::CoreGui::ObserverTreeModel::getParentHierarchy(const QMod
     return parent_hierarchy;
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::toggleUseObserverHints(bool toggle) {
-    d->use_observer_hints = toggle;
-}
-
 QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
@@ -144,35 +145,32 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
     if (!d_observer)
         return QVariant();
 
-    if (index.column() == NameColumn) {
+    if (index.column() == columnPosition(ColumnName)) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return getItem(index)->data(index.column());
         } else if (role == Qt::CheckStateRole) {
-            ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
-            ObserverTreeItem* parent_item = item->parent();
-            QObject* obj = item->getObject();
-            Observer* parent_observer = 0;
+            // In here we need to manually get the top level of each index since the active context is
+            // not representitive of all indexes we get in here:
+            QObject* obj = getObject(index);
+            QVariant subject_activity = QVariant();
+            Observer* local_selection_parent = parentOfIndex(index);
 
-            if (parent_item)
-                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
-
-            QVariant subject_activity;
-            if (parent_observer) {
-                if (parent_observer->activityDisplayHint() == Observer::CheckboxActivityDisplay) {
-                    // Now we need to check if the observer has an activity policy filter installed
-                    ActivityPolicyFilter* activity_filter = 0;
-                    for (int i = 0; i < parent_observer->subjectFilters().count(); i++) {
-                        activity_filter = qobject_cast<ActivityPolicyFilter*> (parent_observer->subjectFilters().at(i));
-                        if (activity_filter) {
-                            subject_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+            // Once we have the local parent, we can check if it must display activity and if so, we return
+            // the activity of obj in that context.
+            if (local_selection_parent) {
+                if (local_selection_parent->displayHints()) {
+                    if (local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
+                        // Now we need to check if the observer has an activity policy filter installed
+                        ActivityPolicyFilter* activity_filter = 0;
+                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                            activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
+                            if (activity_filter) {
+                                subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                            }
                         }
-                    }
 
+                    }
                 }
-            } else {
-                if (d_observer->activityDisplayHint() == Observer::CheckboxActivityDisplay)
-                    subject_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
             }
 
             if (subject_activity.isValid())
@@ -185,7 +183,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ICON);
+            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ICON);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -194,12 +192,12 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             ObserverTreeItem* item = getItem(index);
             Q_ASSERT(item);
             QObject* obj = item->getObject();
-            SharedObserverProperty tooltip = d_observer->getSharedProperty(obj,OBJECT_TOOLTIP);
+            SharedObserverProperty tooltip = Observer::getSharedProperty(obj,OBJECT_TOOLTIP);
             if (tooltip.isValid()) {
                 return tooltip.value();
             }
         }
-    } else if (index.column() == ChildCountColumn) {
+    } else if (index.column() == columnPosition(ColumnChildCount)) {
         if (role == Qt::DisplayRole) {
             // Check if it is an observer, in that case we return childCount() on the observer
             Observer* observer = qobject_cast<Observer*> (getItem(index)->getObject());
@@ -228,7 +226,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     return count;
             }
         }
-    } else if (index.column() == TypeInfoColumn && (d_item_view_column_flags && Observer::TypeInfoColumn)) {
+    } else if (index.column() == columnPosition(ColumnTypeInfo) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = getObject(index);
             if (obj) {
@@ -239,7 +237,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             }
             return QVariant();
         }
-    } else if (index.column() == AccessColumn && (d_item_view_column_flags && Observer::AccessColumn)) {
+    } else if (index.column() == columnPosition(ColumnAccess) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)) {
         if (role == Qt::DecorationRole) {
             QObject* obj = getObject(index);
             Observer* observer = qobject_cast<Observer*> (obj);
@@ -289,30 +287,55 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
 
      Qt::ItemFlags item_flags = Qt::ItemIsEnabled;
      ObserverTreeItem* item = getItem(index);
+     if (!item)
+         return item_flags;
 
-     if (item->itemType() == ObserverTreeItem::CategoryItem) {
-         item_flags &= ~Qt::ItemIsEditable;
-         item_flags &= ~Qt::ItemIsUserCheckable;
-
-         if (d_item_selection_control == Observer::SelectableItems)
+     // Selectable Items hint always uses the top level observer for good reason. Otherwise
+     // we end up in situation where one part of tree can be selected and other part not.
+     // When we select a part which is not selectable then, we can't select the part which must
+     // be selectable.
+     if (model->hints_top_level_observer) {
+         if (model->hints_top_level_observer->itemSelectionControlHint() == ObserverHints::SelectableItems)
              item_flags |= Qt::ItemIsSelectable;
          else
              item_flags &= ~Qt::ItemIsSelectable;
      } else {
-         if (d_naming_control == Observer::EditableNames)
+         if (model->hints_default->itemSelectionControlHint() == ObserverHints::SelectableItems)
+             item_flags |= Qt::ItemIsSelectable;
+         else
+             item_flags &= ~Qt::ItemIsSelectable;
+     }
+
+     // Handle category items
+     if (item->itemType() == ObserverTreeItem::CategoryItem) {
+         item_flags &= ~Qt::ItemIsEditable;
+         item_flags &= ~Qt::ItemIsUserCheckable;
+     }
+
+     // Handle object items
+     if (item->itemType() == ObserverTreeItem::ObjectItem) {
+         // The naming control hint we get from the active hints since the user must click
+         // in order to edit the name. The click will update activeHints() for us.
+         if (activeHints()->namingControlHint() == ObserverHints::EditableNames)
              item_flags |= Qt::ItemIsEditable;
          else
              item_flags &= ~Qt::ItemIsEditable;
 
-         if (d_item_selection_control == Observer::SelectableItems)
-             item_flags |= Qt::ItemIsSelectable;
-         else
-             item_flags &= ~Qt::ItemIsSelectable;
-
-         if (d_activity_control == Observer::CheckboxTriggered)
-             item_flags |= Qt::ItemIsUserCheckable;
-         else
+         // For the activity display we need to manually get the top level of each index
+         // since the active context is not representitive of all indexes we get in here:
+         Observer* local_selection_parent = parentOfIndex(index);
+         if (local_selection_parent) {
+             if (local_selection_parent->displayHints()) {
+                 if (local_selection_parent->displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered)
+                     item_flags |= Qt::ItemIsUserCheckable;
+                 else
+                     item_flags &= ~Qt::ItemIsUserCheckable;
+             } else {
+                 item_flags &= ~Qt::ItemIsUserCheckable;
+             }
+         } else {
              item_flags &= ~Qt::ItemIsUserCheckable;
+         }
      }
 
      return item_flags;
@@ -320,26 +343,25 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
 
 QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-
-    if ((section == NameColumn) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+    if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         return d->rootItem->data(section);
-    } else if ((section == ChildCountColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::ChildCountColumn)
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
             return QIcon(ICON_CHILD_COUNT);
-    } else if ((section == ChildCountColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::ChildCountColumn)
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
             return tr("Child Count");
-    } else if ((section == TypeInfoColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::TypeInfoColumn)
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
             return QIcon(ICON_TYPE_INFO);
-    } else if ((section == TypeInfoColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::TypeInfoColumn)
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
             return tr("Type");
-    } else if ((section == AccessColumn) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (d_item_view_column_flags & Observer::AccessColumn)
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return QIcon(ICON_ACCESS);
-    } else if ((section == AccessColumn) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (d_item_view_column_flags & Observer::AccessColumn)
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return tr("Access");
     }
 
@@ -387,68 +409,62 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &index, co
     if (index.column() == 0) {
         if (role == Qt::EditRole || role == Qt::DisplayRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return true;
             ObserverTreeItem* parent_item = item->parent();
+            if (!parent_item)
+                return true;
             QObject* obj = item->getObject();
             Observer* parent_observer = 0;
 
-            if (parent_item)
-                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
+            if (parent_item->itemType() == ObserverTreeItem::ObjectItem)
+                parent_observer = qobject_cast<Observer*> (obj);
+            else if (parent_item->itemType() == ObserverTreeItem::CategoryItem) {
+                // In this case we must get the parent of the category item which is stored as the contained observer.
+                parent_observer = qobject_cast<Observer*> (parent_item->containedObserver());
+            }
 
             if (!parent_observer)
                 parent_observer = d_observer;
 
             // Check if the object has an OBJECT_NAME property, if not we set the name using setObjectName()
-            if (parent_observer->getSharedProperty(obj, OBJECT_NAME).isValid()) {
-                // Now check if this observer uses an instance name
-                ObserverProperty instance_names = parent_observer->getObserverProperty(obj,INSTANCE_NAMES);
-                if (instance_names.isValid() && instance_names.hasContext(d_observer->observerID()))
-                    parent_observer->setObserverPropertyValue(obj,INSTANCE_NAMES,value);
-                else
-                    parent_observer->setObserverPropertyValue(obj,OBJECT_NAME,value);
-            } else {
-                obj->setObjectName(value.toString());
+            if (obj) {
+                if (parent_observer->getSharedProperty(obj, OBJECT_NAME).isValid()) {
+                    // Now check if this observer uses an instance name
+                    ObserverProperty instance_names = parent_observer->getObserverProperty(obj,INSTANCE_NAMES);
+                    if (instance_names.isValid() && instance_names.hasContext(d_observer->observerID()))
+                        parent_observer->setObserverPropertyValue(obj,INSTANCE_NAMES,value);
+                    else
+                        parent_observer->setObserverPropertyValue(obj,OBJECT_NAME,value);
+                } else {
+                    obj->setObjectName(value.toString());
+                }
             }
 
             return true;
         } else if (role == Qt::CheckStateRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
-            ObserverTreeItem* parent_item = item->parent();
             QObject* obj = item->getObject();
-            Observer* parent_observer = 0;
+            Observer* local_selection_parent = parentOfIndex(index);
 
-            if (parent_item)
-                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
-
-            if (parent_observer) {
-                if (parent_observer->activityControlHint() == Observer::CheckboxTriggered) {
-                    // Now we need to check if the observer has an activity policy filter installed
-                    ActivityPolicyFilter* activity_filter = 0;
-                    for (int i = 0; i < parent_observer->subjectFilters().count(); i++) {
-                        activity_filter = qobject_cast<ActivityPolicyFilter*> (parent_observer->subjectFilters().at(i));
-                        if (activity_filter) {
-                            // The value comming in here is always Qt::Checked
-                            // We get the current check state from the OBJECT_ACTIVITY property and change that
-                            QVariant current_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-                            if (current_activity.toBool()) {
-                                parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
-                            } else {
-                                parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+            if (local_selection_parent) {
+                if (local_selection_parent->displayHints()) {
+                    if (local_selection_parent->displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered && local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
+                        // Now we need to check if the observer has an activity policy filter installed
+                        ActivityPolicyFilter* activity_filter = 0;
+                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                            activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
+                            if (activity_filter) {
+                                // The value comming in here is always Qt::Checked
+                                // We get the current check state from the OBJECT_ACTIVITY property and change that
+                                QVariant current_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                                if (current_activity.toBool()) {
+                                    local_selection_parent->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
+                                } else {
+                                    local_selection_parent->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+                                }
                             }
                         }
-                    }
-
-                }
-            } else {
-                if (d_observer->activityControlHint() == Observer::CheckboxTriggered) {
-                    // The value comming in here is always Qt::Checked
-                    // We get the current check state from the OBJECT_ACTIVITY property and change that
-                    QVariant current_activity = parent_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-                    if (current_activity.toBool()) {
-                        parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
-                    } else {
-                        parent_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
                     }
                 }
             }
@@ -473,8 +489,7 @@ int Qtilities::CoreGui::ObserverTreeModel::rowCount(const QModelIndex &parent) c
 
 int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent) const {
      if (parent.isValid())
-         return TypeInfoColumn+1;
-         //return static_cast<ObserverTreeItem*>(parent.internalPointer())->columnCount();
+         return columnPosition(ColumnLast);
      else
          return d->rootItem->columnCount();
 }
@@ -484,7 +499,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(const QString& 
     if (sender())
         sender_name = sender()->objectName();
 
-    if (!(partial_modification_notifier.isEmpty() || partial_modification_notifier == "Hierarchy"))
+    if (!(partial_modification_notifier.isEmpty() || partial_modification_notifier == QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY)))
         return;
 
     reset();
@@ -505,30 +520,19 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(const QString& 
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
     if (index_list.count() == 1) {
-        d->selection_parent = 0;
-        ObserverTreeItem* item = getItem(index_list.front());
-        if (!item)
-            return 0;
+        d->selection_parent = parentOfIndex(index_list.front());
 
-        if (item->itemType() != ObserverTreeItem::CategoryItem) {
-            ObserverTreeItem* item_parent = item->parent();
-            Q_ASSERT(item_parent);
-            d->selection_parent = qobject_cast<Observer*> (item_parent->getObject());
-
-            // Handle the cases where the parent is a category item
-            if (!d->selection_parent) {
-                if (item_parent->itemType() == ObserverTreeItem::CategoryItem) {
-                    d->selection_parent = item_parent->containedObserver();
-                }
-            }
-        } else {
-            d->selection_parent = item->containedObserver();
-        }
+        // Get the hints from the observer
+        if (d->selection_parent)
+            inheritObserverHints(d->selection_parent);
 
         emit selectionParentChanged(d->selection_parent);
         return d->selection_parent;
-    } else
+    } else {
+        // Get the hints from the observer
+        //model->;
         return 0;
+    }
 }
 
 int Qtilities::CoreGui::ObserverTreeModel::getSubjectID(const QModelIndex &index) const {
@@ -589,47 +593,54 @@ void Qtilities::CoreGui::ObserverTreeModel::setupChildData(ObserverTreeItem* ite
     if (observer) {
         // If this observer is locked we don't show its children
         if (observer->accessMode() != Observer::LockedAccess) {
+            bool flat_structure = true;
             // Check the HierarhicalDisplay hint of the observer
-            if (observer->hierarchicalDisplayHint() == Observer::CategorizedHierarchy) {
-                // Create items for each each category
-                foreach (QString category, observer->subjectCategories()) {
-                    // Check the category against the displayed category list
-                    bool valid_category = true;
-                    if (observer->categoryFilterEnabled()) {
-                        if (observer->hasInversedCategoryDisplay()) {
-                            if (!observer->displayedCategories().contains(category))
-                                valid_category = true;
-                            else
-                                valid_category = false;
-                        } else {
-                            if (observer->displayedCategories().contains(category))
-                                valid_category = true;
-                            else
-                                valid_category = false;
+            if (observer->displayHints()) {
+                QString observer_name = observer->observerName();
+                if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
+                    // Create items for each each category
+                    foreach (QString category, observer->subjectCategories()) {
+                        // Check the category against the displayed category list
+                        bool valid_category = true;
+                        if (observer->displayHints()->categoryFilterEnabled()) {
+                            if (observer->displayHints()->hasInversedCategoryDisplay()) {
+                                if (!observer->displayHints()->displayedCategories().contains(category))
+                                    valid_category = true;
+                                else
+                                    valid_category = false;
+                            } else {
+                                if (observer->displayHints()->displayedCategories().contains(category))
+                                    valid_category = true;
+                                else
+                                    valid_category = false;
+                            }
+                        }
+
+                        // Only add valid categories
+                        if (valid_category) {
+                            QVector<QVariant> category_columns;
+                            category_columns << category;
+                            QObject* category_item = new QObject();
+                            SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ICON);
+                            observer->setSharedProperty(category_item,icon_property);
+                            SharedObserverProperty access_mode_property((int) observer->accessMode(category),OBJECT_ACCESS_MODE);
+                            observer->setSharedProperty(category_item,access_mode_property);
+                            if (category.isEmpty())
+                                category == QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+                            category_item->setObjectName(category);
+                            new_item = new ObserverTreeItem(category_item,item,category_columns,ObserverTreeItem::CategoryItem);
+                            new_item->setContainedObserver(observer);
+                            new_item->setCategory(category);
+                            item->appendChild(new_item);
+                            if (observer->accessMode(category) != Observer::LockedAccess)
+                                setupChildData(new_item);
+                            flat_structure = false;
                         }
                     }
-
-                    // Only add valid categories
-                    if (valid_category) {
-                        QVector<QVariant> category_columns;
-                        category_columns << category;
-                        QObject* category_item = new QObject();
-                        SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ICON);
-                        observer->setSharedProperty(category_item,icon_property);
-                        SharedObserverProperty access_mode_property((int) observer->accessMode(category),OBJECT_ACCESS_MODE);
-                        observer->setSharedProperty(category_item,access_mode_property);
-                        if (category.isEmpty())
-                            category == tr("Uncategorized");
-                        category_item->setObjectName(category);
-                        new_item = new ObserverTreeItem(category_item,item,category_columns,ObserverTreeItem::CategoryItem);
-                        new_item->setContainedObserver(observer);
-                        new_item->setCategory(category);
-                        item->appendChild(new_item);
-                        if (observer->accessMode(category) != Observer::LockedAccess)
-                            setupChildData(new_item);
-                    }
                 }
-            } else {
+            }
+
+            if (flat_structure) {
                 for (int i = 0; i < observer->subjectCount(); i++) {
                     // Storing all information in the data vector here can improve performance
                     QVector<QVariant> column_data;
@@ -648,48 +659,38 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::selectionParen
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(const QModelIndex &index) const {
+    Observer* local_selection_parent = 0;
     ObserverTreeItem* item = getItem(index);
     if (!item)
         return 0;
 
-    ObserverTreeItem* parent_item = item->parent();
-    Observer* parent_observer = 0;
+    if (item->itemType() != ObserverTreeItem::CategoryItem) {
+        ObserverTreeItem* item_parent = item->parent();
+        if (!item_parent)
+            return 0;
+        local_selection_parent = qobject_cast<Observer*> (item_parent->getObject());
 
-    if (parent_item)
-        parent_observer = qobject_cast<Observer*> (parent_item->getObject());
+        if (!local_selection_parent) {
+            // Handle the cases where the parent is a category item
+            if (item_parent->itemType() == ObserverTreeItem::CategoryItem) {
+                local_selection_parent = item_parent->containedObserver();
+            }
 
-    return parent_observer;
-}
-
-void Qtilities::CoreGui::ObserverTreeModel::useObserverHints(const Observer* observer) {
-    if (!d->use_observer_hints)
-        return;
-
-    if (observer) {
-        // Check if the specified observer provides any hints
-        if (observer->namingControlHint() != Observer::NoNamingControlHint)
-            d_naming_control = observer->namingControlHint();
-        if (observer->activityDisplayHint() != Observer::NoActivityDisplayHint)
-            d_activity_display = observer->activityDisplayHint();
-        if (observer->activityControlHint() != Observer::NoActivityControlHint)
-            d_activity_control = observer->activityControlHint();
-        if (observer->itemSelectionControlHint() != Observer::NoItemSelectionControlHint)
-            d_item_selection_control = observer->itemSelectionControlHint();
-        if (observer->itemViewColumnFlags() != Observer::NoItemViewColumnHint)
-            d_item_view_column_flags = observer->itemViewColumnFlags();
-    } else if (d_observer) {
-        // Check if the specified observer provides any hints
-        if (d_observer->namingControlHint() != Observer::NoNamingControlHint)
-            d_naming_control = d_observer->namingControlHint();
-        if (d_observer->activityDisplayHint() != Observer::NoActivityDisplayHint)
-            d_activity_display = d_observer->activityDisplayHint();
-        if (d_observer->activityControlHint() != Observer::NoActivityControlHint)
-            d_activity_control = d_observer->activityControlHint();
-        if (d_observer->itemSelectionControlHint() != Observer::NoItemSelectionControlHint)
-            d_item_selection_control = d_observer->itemSelectionControlHint();
-        if (d_observer->itemViewColumnFlags() != Observer::NoItemViewColumnHint)
-            d_item_view_column_flags = d_observer->itemViewColumnFlags();
+            // Handle the cases where the parent is an object which has this object's parent observer as its child.
+            if (!local_selection_parent) {
+                if (item_parent->getObject()) {
+                    for (int i = 0; i < item_parent->getObject()->children().count(); i++) {
+                        local_selection_parent = qobject_cast<Observer*> (item_parent->getObject()->children().at(i));
+                        if (local_selection_parent)
+                            break;
+                    }
+                }
+            }
+        }
+    } else {
+        local_selection_parent = item->containedObserver();
     }
+    return local_selection_parent;  
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
@@ -699,27 +700,6 @@ void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
     delete d->rootItem;
     d->rootItem = 0;
 }
-
-/*!void Qtilities::CoreGui::ObserverTreeModel::disconnectObserver(Observer* observer) {
-    if (!observer)
-        return;
-
-    Observer* child_observer;
-    observer->disconnect(this);
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
-        if (child_observer)
-            disconnectObserver(child_observer);
-        else {
-            // Handle the case where a child is the parent of an observer
-            foreach (QObject* child, observer->subjectAt(i)->children()) {
-                child_observer = qobject_cast<Observer*> (child);
-                if (child_observer)
-                    disconnectObserver(child_observer);
-            }
-        }
-    }
-}*/
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::getItem(const QModelIndex &index) const
 {
@@ -732,15 +712,10 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::get
     return 0;
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::resetModel() {
+void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
     reset();
     rebuildTreeStructure();
     emit layoutChanged();
-}
-
-void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
-   d_observer = 0;
-   resetModel();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::printStructure(ObserverTreeItem* item, int level) {
