@@ -40,6 +40,7 @@
 #include <SubjectTypeFilter.h>
 #include <QtilitiesCoreConstants.h>
 #include <Observer.h>
+#include <ObserverHints.h>
 #include <QtilitiesPropertyChangeEvent.h>
 #include <QtilitiesCore.h>
 
@@ -53,6 +54,7 @@ using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
+using namespace Qtilities::Core::Constants;
 
 QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::currentWidget;
 QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::actionContainerWidget;
@@ -122,7 +124,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
     // which are observing this object
     ObserverProperty observer_map_prop = getObserverProperty(OBSERVER_SUBJECT_IDS);
     for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
-        Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(observer_map_prop.observerMap().keys().at(i));
+        Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
         if (observer) {
             Q_ASSERT(connect(observer,SIGNAL(nameChanged(QString)),SLOT(updateContents())));
             Q_ASSERT(connect(observer,SIGNAL(destroyed()),SLOT(updateContents())));
@@ -217,7 +219,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
 
     for (int i = 0; i < observer_count; i++) {
         int id = observer_map_prop.observerMap().keys().at(i);
-        Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(id);
+        Observer* observer = OBJECT_MANAGER->observerReference(id);
         Q_ASSERT(observer);
 
         // Observer Name
@@ -240,9 +242,14 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         // Context Category
         ObserverProperty category_prop = getObserverProperty(OBJECT_CATEGORY);
         QString category_string;
-        category_string = tr("Uncategorized");
-        if (category_prop.isValid())
-            category_string = category_prop.value(observer->observerID()).toString();
+        if (category_prop.isValid()) {
+            if (category_prop.observerMap().keys().contains(observer->observerID()))
+                category_string = category_prop.value(observer->observerID()).toString();
+            else
+                category_string = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+        } else {
+            category_string = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+        }
         tooltip_string.append(QString(tr("<br><b>Context Category</b>: %1")).arg(category_string));
 
         // Attributes
@@ -409,22 +416,24 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
 
     if (m_ui->observerTable->selectedItems().count() > 0) {
         int id = currentWidget->m_ui->observerTable->currentItem()->type();
-        Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(id);
+        Observer* observer = OBJECT_MANAGER->observerReference(id);
         if (observer) {
-            if (m_ui->observerTable->rowCount() > 1)
-                actionContainerWidget->d->actionDetachToSelection->setEnabled(true);
-            else
-                actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
+            if (observer->displayHints()) {
+                if (m_ui->observerTable->rowCount() > 1)
+                    actionContainerWidget->d->actionDetachToSelection->setEnabled(true);
+                else
+                    actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
 
-            if (observer->actionHints() & Observer::ScopeDuplicate)
-                actionContainerWidget->d->actionDuplicateInScope->setEnabled(true);
-            else
-                actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
+                if (observer->displayHints()->actionHints() & ObserverHints::ScopeDuplicate)
+                    actionContainerWidget->d->actionDuplicateInScope->setEnabled(true);
+                else
+                    actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
 
-            if (observer->actionHints() & Observer::RemoveItem)
-                actionContainerWidget->d->actionRemoveContext->setEnabled(true);
-            else
-                actionContainerWidget->d->actionRemoveContext->setEnabled(false);
+                if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem)
+                    actionContainerWidget->d->actionRemoveContext->setEnabled(true);
+                else
+                    actionContainerWidget->d->actionRemoveContext->setEnabled(false);
+            }
         } else {
             actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
             actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
@@ -483,17 +492,19 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionRemoveContext_triggered
 
     // Get the current selected observer
     int id = currentWidget->m_ui->observerTable->currentItem()->type();
-    Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(id);
+    Observer* observer = OBJECT_MANAGER->observerReference(id);
     if (!observer)
         return;
 
-    // Check if a detach operation is supported by this observer.
-    if (observer->actionHints() & Observer::RemoveItem)
-        observer->detachSubject(d->obj);
-    else {
-        QMessageBox msgBox;
-        msgBox.setText(tr("The selected context does not support removing of child items. The operation cannot continue."));
-        msgBox.exec();
+    if (observer->displayHints()) {
+        // Check if a detach operation is supported by this observer.
+        if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem)
+            observer->detachSubject(d->obj);
+        else {
+            QMessageBox msgBox;
+            msgBox.setText(tr("The selected context does not support removing of child items. The operation cannot continue."));
+            msgBox.exec();
+        }
     }
 }
 
@@ -511,11 +522,15 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
 
     QStringList unsupported_items;
     for (int i = 0; i < other_ids.count(); i++) {
-        Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(other_ids.at(i));
+        Observer* observer = OBJECT_MANAGER->observerReference(other_ids.at(i));
         if (!observer)
             break;
 
-        if (!(observer->actionHints() & Observer::RemoveItem)) {
+        if (observer->displayHints()) {
+            if (!(observer->displayHints()->actionHints() & ObserverHints::RemoveItem)) {
+                unsupported_items << observer->observerName();
+            }
+        } else {
             unsupported_items << observer->observerName();
         }
     }
@@ -537,12 +552,14 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
     }
 
     for (int i = 0; i < other_ids.count(); i++) {
-        Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(other_ids.at(i));
+        Observer* observer = OBJECT_MANAGER->observerReference(other_ids.at(i));
         if (!observer)
             break;
 
-        if (observer->actionHints() & Observer::RemoveItem) {
-            observer->detachSubject(d->obj);
+        if (observer->displayHints()) {
+            if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem) {
+                observer->detachSubject(d->obj);
+            }
         }
     }
 }
