@@ -36,6 +36,7 @@
 #include "ObserverProperty.h"
 #include "QtilitiesCoreConstants.h"
 #include "Observer.h"
+#include "ObserverHints.h"
 #include "SubjectTypeFilter.h"
 #include "AbstractSubjectFilter.h"
 #include "Factory.h"
@@ -69,16 +70,6 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 {
     d = new ObjectManagerData;
     d->object_pool.startProcessingCycle();
-
-    Observer::ActionHints action_hints = 0;
-    action_hints |= Observer::RefreshView;
-    action_hints |= Observer::PushDown;
-    action_hints |= Observer::PushDownNew;
-    action_hints |= Observer::PushUp;
-    action_hints |= Observer::PushUpNew;
-    action_hints |= Observer::SwitchView;
-    d->object_pool.setActionHints(action_hints);
-
     setObjectName("Object Manager");
 
     // Give the manager an icon TRACK
