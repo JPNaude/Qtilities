@@ -72,6 +72,9 @@ namespace Qtilities {
             // --------------------------------
             static FactoryItem<AbstractSubjectFilter, ActivityPolicyFilter> factory;
 
+            // --------------------------------
+            // ActivityPolicyFilter Implemenation
+            // --------------------------------
             //! Policy to control if only one, or multiple subjects can be active at any time.
             /*!
               \sa setActivityPolicy(), activityPolicy()
@@ -126,6 +129,12 @@ namespace Qtilities {
             //! Returns a list with references to all the inactive subjects in the current observer context.
             QList<QObject*> inactiveSubjects() const;
 
+            bool exportFilterSpecificBinary(QDataStream& stream) const;
+            bool importFilterSpecificBinary(QDataStream& stream);
+
+            // --------------------------------
+            // AbstractSubjectFilter Implemenation
+            // --------------------------------
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
             bool initializeAttachment(QObject* obj, bool import_cycle);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
@@ -135,9 +144,6 @@ namespace Qtilities {
 
             QStringList monitoredProperties();
             bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
-
-            bool exportFilterSpecificBinary(QDataStream& stream) const;
-            bool importFilterSpecificBinary(QDataStream& stream);
 
             // --------------------------------
             // IObjectBase Implemenation

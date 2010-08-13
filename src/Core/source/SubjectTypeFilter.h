@@ -74,6 +74,9 @@ namespace Qtilities {
             // --------------------------------
             static FactoryItem<AbstractSubjectFilter, SubjectTypeFilter> factory;
 
+            // --------------------------------
+            // AbstractSubjectFilter Implemenation
+            // --------------------------------
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
             bool initializeAttachment(QObject* obj, bool import_cycle);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
@@ -84,6 +87,9 @@ namespace Qtilities {
             QStringList monitoredProperties();
             bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+            // --------------------------------
+            // SubjectTypeFilter Implemenation
+            // --------------------------------
             bool exportFilterSpecificBinary(QDataStream& stream) const;
             bool importFilterSpecificBinary(QDataStream& stream);
 
