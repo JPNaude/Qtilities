@@ -47,8 +47,11 @@ int main(int argc, char *argv[])
 
     // Create the observers
     Observer* observerA = new Observer("Observer A","Top level observer");
+    observerA->useDisplayHints();
     Observer* observerB = new Observer("Observer B","Child observer");
+    observerB->useDisplayHints();
     Observer* observerC = new Observer("Observer C","Child observer");
+    observerC->useDisplayHints();
 
     // Create the objects
     QObject* object1 = new QObject();

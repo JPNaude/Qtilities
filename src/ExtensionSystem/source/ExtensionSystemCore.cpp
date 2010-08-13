@@ -40,6 +40,7 @@
 #include <QtilitiesCoreConstants.h>
 #include <Logger.h>
 #include <SubjectTypeFilter.h>
+#include <ObserverHints.h>
 
 #include <ObserverWidget.h>
 #include <ObjectPropertyBrowser.h>
@@ -85,21 +86,21 @@ Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::Ext
 Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* parent) : QObject(parent)
 {
     d = new ExtensionSystemCoreData;
+    d->plugins.useDisplayHints();
+
     d->plugins.startProcessingCycle();
 
     // Setup the plugin pool observer
-    Observer::DisplayFlags display_flags = 0;
-    display_flags |= Observer::ItemView;
-    display_flags |= Observer::PropertyBrowser;
-    d->plugins.setDisplayFlagsHint(display_flags);
-    d->plugins.setActionHints(Observer::FindItem);
-    d->plugins.setItemSelectionControlHint(Observer::SelectableItems);
+    ObserverHints::DisplayFlags display_flags = 0;
+    display_flags |= ObserverHints::ItemView;
+    display_flags |= ObserverHints::PropertyBrowser;
+    d->plugins.displayHints()->setDisplayFlagsHint(display_flags);
+    d->plugins.displayHints()->setActionHints(ObserverHints::FindItem);
+    d->plugins.displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     SubjectTypeFilter* type_filter = new SubjectTypeFilter(tr("Loaded Plugins"));
     type_filter->addSubjectType(SubjectTypeInfo("Qtilities::ExtensionSystem::Interfaces::IPlugin",tr("Plugins")));
     d->plugins.installSubjectFilter(type_filter);
-    Observer::ItemViewColumnFlags column_flags = 0;
-    column_flags |= Observer::NoItemViewColumnHint;
-    d->plugins.setItemViewColumnFlags(column_flags);
+    d->plugins.displayHints()->setItemViewColumnHint(ObserverHints::ColumnNoHint);
 
     d->plugins.endProcessingCycle();
 }

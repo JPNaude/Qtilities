@@ -48,59 +48,66 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
 
     Observer* observerA = new Observer("Observer A","Top level observer");
+    observerA->useDisplayHints();
     // Naming policy filter
     NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     observerA->installSubjectFilter(naming_filter);
-    observerA->setNamingControlHint(Observer::EditableNames);
+    observerA->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Activty policy filter
     ActivityPolicyFilter* activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
     activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
     observerA->installSubjectFilter(activity_filter);
-    observerA->setActivityControlHint(Observer::CheckboxTriggered);
-    observerA->setActivityDisplayHint(Observer::CheckboxActivityDisplay);
+    observerA->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+    observerA->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     // Set observer hints
-    Observer::ActionHints action_hints = 0;
-    action_hints |= Observer::PushDown;
-    action_hints |= Observer::PushUp;
-    action_hints |= Observer::SwitchView;
-    observerA->setActionHints(action_hints);
-    observerA->setItemViewColumnFlags(Observer::AllColumnsHint);
-    Observer::DisplayFlags display_flags = 0;
-    display_flags |= Observer::ItemView;
-    display_flags |= Observer::NavigationBar;
-    //display_flags |= Observer::PropertyBrowser;
-    observerA->setDisplayFlagsHint(display_flags);
+    ObserverHints::ActionHints action_hints = 0;
+    action_hints |= ObserverHints::PushDown;
+    action_hints |= ObserverHints::PushUp;
+    action_hints |= ObserverHints::SwitchView;
+    action_hints |= ObserverHints::RefreshView;
+    observerA->displayHints()->setActionHints(action_hints);
+    observerA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHint);
+    ObserverHints::DisplayFlags display_flags = 0;
+    display_flags |= ObserverHints::ItemView;
+    display_flags |= ObserverHints::NavigationBar;
+    //display_flags |= ObserverHints::PropertyBrowser;
+    observerA->displayHints()->setDisplayFlagsHint(display_flags);
 
     Observer* observerB = new Observer("Observer B","Child observer");
+    observerB->useDisplayHints();
     // Activty policy filter
     activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
     activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
     observerB->installSubjectFilter(activity_filter);
-    observerB->setActivityControlHint(Observer::FollowSelection);
-    observerB->setActivityDisplayHint(Observer::NoActivityDisplay);
+    observerB->displayHints()->setNamingControlHint(ObserverHints::ReadOnlyNames);
+    observerB->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
+    observerB->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     // Set observer hints
-    observerB->setActionHints(action_hints);
-    observerB->setItemViewColumnFlags(Observer::AllColumnsHint);
-    observerB->setDisplayFlagsHint(display_flags);
+    observerB->displayHints()->setActionHints(action_hints);
+    observerB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHint);
+    //observerB->displayHints()->setDisplayFlagsHint(display_flags);
 
     Observer* observerC = new Observer("Observer C","Child observer");
+    observerC->useDisplayHints();
     // Naming policy filter
     /*naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     observerC->installSubjectFilter(naming_filter);
-    observerC->setNamingControlHint(Observer::EditableNames);*/
-    observerC->setActionHints(action_hints);
-    //observerC->setItemViewColumnFlags(Observer::AllColumnsHint);
-    observerC->setItemViewColumnFlags(Observer::CategoryColumn);
-    observerC->setDisplayFlagsHint(display_flags);
-    //observerC->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
+    observerC->displayHints()->setNamingControlHint(Observer::EditableNames);*/
+    observerC->displayHints()->setActionHints(action_hints);
+    //observerC->displayHints()->setItemViewColumnFlags(Observer::AllColumnsHint);
+    observerC->displayHints()->setItemSelectionControlHint(ObserverHints::NonSelectableItems);
+    observerC->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
+    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnCategoryHint);
+    observerC->displayHints()->setDisplayFlagsHint(display_flags);
+    observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QStringList displayed_categories;
     displayed_categories << "Category 2";
-    observerC->setDisplayedCategories(displayed_categories);
-    observerC->setCategoryFilterEnabled(true);
+    observerC->displayHints()->setDisplayedCategories(displayed_categories);
+    //observerC->displayHints()->setCategoryFilterEnabled(true);
 
     // Create the objects
     QObject* object1 = new QObject();
@@ -134,8 +141,8 @@ int main(int argc, char *argv[])
     observerC->attachSubject(object3);
 
     // Set access modes only now after all subjects were attached
-    observerB->setAccessMode(Observer::ReadOnlyAccess);
-    observerC->setAccessMode(Observer::LockedAccess);
+    //observerB->setAccessMode(Observer::ReadOnlyAccess);
+    //observerC->setAccessMode(Observer::LockedAccess);
 
     // Create the observer widget in tree mode
     ObserverWidget* observer_widget = new ObserverWidget();
@@ -154,11 +161,11 @@ int main(int argc, char *argv[])
     //observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::ButtonBrowser);
 
     // We need to tell all three observers that they should provide an action hint for the search action as well.
-    action_hints = observerA->actionHints();
-    action_hints |= Observer::FindItem;
-    observerA->setActionHints(action_hints);
-    observerB->setActionHints(action_hints);
-    observerC->setActionHints(action_hints);
+    action_hints = observerA->displayHints()->actionHints();
+    action_hints |= ObserverHints::FindItem;
+    observerA->displayHints()->setActionHints(action_hints);
+    observerB->displayHints()->setActionHints(action_hints);
+    //observerC->displayHints()->setActionHints(action_hints);
 
     observer_widget->initialize();
 
@@ -182,10 +189,10 @@ int main(int argc, char *argv[])
     search_box_widget->show();*/
 
     // Create the object scope widget and set it's object to object3:
-    /*ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
+    ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
     scope_widget->resize(300,300);
     scope_widget->setObject(object3);
-    scope_widget->show();*/
+    scope_widget->show();
 
     return a.exec();
 }

@@ -89,7 +89,8 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
 
     d = new ObjectManagementModeWidgetData;
     d->top_level_observer= new Observer("Example Top Level","");
-    d->top_level_observer->setActionHints(Observer::AllActionsHint);
+    d->top_level_observer->useDisplayHints();
+    d->top_level_observer->displayHints()->setActionHints(ObserverHints::AllActionsHint);
 
     // ---------------------------
     // Setup the top level observer
@@ -97,30 +98,30 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     d->top_level_observer->installSubjectFilter(naming_filter);
-    d->top_level_observer->setNamingControlHint(Observer::EditableNames);
+    d->top_level_observer->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
 
     // ---------------------------
     // Factory and Project Item Stuff
     // ---------------------------
-    QtilitiesCore::instance()->objectManager()->registerIFactory(this);
+    OBJECT_MANAGER->registerIFactory(this);
     FactoryInterfaceData observer_string_subject_data("Observer String Subject",QStringList(),QStringList());
     d->string_subject_factory.registerFactoryInterface(&ObserverStringSubject::factory,observer_string_subject_data);
 
     d->project_item = new ObserverProjectItemWrapper(this);
     d->project_item->setObserverContext(d->top_level_observer);
-    QtilitiesCore::instance()->objectManager()->registerObject(d->project_item);
+    OBJECT_MANAGER->registerObject(d->project_item);
 
     QList<int> context;
-    context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
 
     // ---------------------------
     // Add Example Objects
     // ---------------------------
     d->actionAddExampleObjects = new QAction("Populate With Example Objects",this);
     connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
-    Command* command = QtilitiesCoreGui::instance()->actionManager()->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
+    Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
 
-    ActionContainer* file_menu = QtilitiesCoreGui::instance()->actionManager()->menu(MENU_FILE);
+    ActionContainer* file_menu = ACTION_MANAGER->menu(MENU_FILE);
     Q_ASSERT(file_menu);
 
     file_menu->addAction(command,MENU_FILE_EXIT);
@@ -200,12 +201,14 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                 if (ok && !subject_name.isEmpty()) {
                     ObserverStringSubject* new_subject = new ObserverStringSubject(subject_name);
                     QString subject_category;
-                    if (observer->hierarchicalDisplayHint() & Observer::CategorizedHierarchy) {
-                        subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
-                        ObserverProperty object_category(OBJECT_CATEGORY);
-                        object_category.setValue(QVariant(subject_category),observer->observerID());
-                        QVariant object_category_variant = qVariantFromValue(object_category);
-                        new_subject->setProperty(object_category.propertyName(),object_category_variant);
+                    if (observer->displayHints()) {
+                        if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
+                            subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
+                            ObserverProperty object_category(OBJECT_CATEGORY);
+                            object_category.setValue(QVariant(subject_category),observer->observerID());
+                            QVariant object_category_variant = qVariantFromValue(object_category);
+                            new_subject->setProperty(object_category.propertyName(),object_category_variant);
+                        }
                     }
                     QStringList management_options;
                     management_options << tr("Manual Ownership") << tr("Auto Ownership") << tr("Specific Observer Ownership") << tr("Observer Scope Ownership") << tr("Owned By Subject Ownership");
@@ -252,6 +255,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExampleObjects() {
     // Add a QObject observer
     Observer* new_observer_1 = new Observer("QObject Manager 1","Example observer which manages QObject instances in a categorized manner.");
+    new_observer_1->useDisplayHints();
     NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::PromptUser);
@@ -260,11 +264,11 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     ActivityPolicyFilter* activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
     new_observer_1->installSubjectFilter(activity_filter);
-    new_observer_1->setActivityControlHint(Observer::CheckboxTriggered);
-    new_observer_1->setActivityDisplayHint(Observer::CheckboxActivityDisplay);
-    new_observer_1->setItemSelectionControlHint(Observer::SelectableItems);
-    new_observer_1->setNamingControlHint(Observer::EditableNames);
-    new_observer_1->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
+    new_observer_1->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+    new_observer_1->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    new_observer_1->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
+    new_observer_1->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
     Observer* selected_observer = 0;
     if (d->observer_widget->selectedObjects().count() == 1)
@@ -289,6 +293,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Add a QObject observer
     Observer* new_observer_2 = new Observer("QObject Manager 2","Example observer which manages QObject instances");
+    new_observer_2->useDisplayHints();
     naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::PromptUser);
@@ -297,10 +302,10 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
     new_observer_2->installSubjectFilter(activity_filter);
-    new_observer_2->setActivityControlHint(Observer::CheckboxTriggered);
-    new_observer_2->setActivityDisplayHint(Observer::CheckboxActivityDisplay);
-    new_observer_2->setItemSelectionControlHint(Observer::SelectableItems);
-    new_observer_2->setNamingControlHint(Observer::EditableNames);
+    new_observer_2->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+    new_observer_2->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    new_observer_2->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
 
     if (!selected_observer)
         d->top_level_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
@@ -321,6 +326,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Add a QWidget observer
     Observer* new_observer_3 = new Observer("QWidget Manager","Example observer which manages QWidget instances");
+    new_observer_3->useDisplayHints();
     naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
     naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::AutoRename);
@@ -329,10 +335,10 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
     new_observer_3->installSubjectFilter(activity_filter);
-    new_observer_3->setActivityControlHint(Observer::CheckboxTriggered);
-    new_observer_3->setActivityDisplayHint(Observer::CheckboxActivityDisplay);
-    new_observer_3->setItemSelectionControlHint(Observer::SelectableItems);
-    new_observer_3->setNamingControlHint(Observer::EditableNames);
+    new_observer_3->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+    new_observer_3->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    new_observer_3->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
 
     if (!selected_observer)
         d->top_level_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
