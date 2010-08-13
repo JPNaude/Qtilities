@@ -41,6 +41,7 @@
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
+using namespace Qtilities::Core::Constants;
 
 Qtilities::CoreGui::ObserverTableModelCategoryFilter::ObserverTableModelCategoryFilter(QObject* parent) : QSortFilterProxyModel(parent) {
 
@@ -55,39 +56,41 @@ bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int 
 {
     ObserverTableModel* table_model = qobject_cast<ObserverTableModel*> (sourceModel());
 
-    QModelIndex name_index = sourceModel()->index(sourceRow, ObserverTableModel::NameColumn, sourceParent);
-    if (!sourceModel()->data(name_index).toString().contains(filterRegExp()))
-        return false;
-
     if (table_model) {
+        QModelIndex name_index = sourceModel()->index(sourceRow, table_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);
+        if (!sourceModel()->data(name_index).toString().contains(filterRegExp()))
+            return false;
+
         Observer* observer = table_model->observerContext();
         if (observer) {
-            if (observer->hierarchicalDisplayHint() == Observer::CategorizedHierarchy) {
-                QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-                QObject* object_at_index = table_model->getObject(index);
-                if (object_at_index) {
-                    QVariant category_variant = observer->getObserverPropertyValue(object_at_index,OBJECT_CATEGORY);
-                    QString category = category_variant.toString();
-                    if (!category.isEmpty())
-                        category = tr("Uncategorized");
+            if (observer->displayHints()) {
+                if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
+                    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+                    QObject* object_at_index = table_model->getObject(index);
+                    if (object_at_index) {
+                        QVariant category_variant = observer->getObserverPropertyValue(object_at_index,OBJECT_CATEGORY);
+                        QString category = category_variant.toString();
+                        if (!category.isEmpty())
+                            category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
 
-                    if (observer->categoryFilterEnabled()) {
-                        if (observer->hasInversedCategoryDisplay()) {
-                            if (!observer->displayedCategories().contains(category))
-                                return true;
-                            else
-                                return false;
+                        if (observer->displayHints()->categoryFilterEnabled()) {
+                            if (observer->displayHints()->hasInversedCategoryDisplay()) {
+                                if (!observer->displayHints()->displayedCategories().contains(category))
+                                    return true;
+                                else
+                                    return false;
+                            } else {
+                                if (observer->displayHints()->displayedCategories().contains(category))
+                                    return true;
+                                else
+                                    return false;
+                            }
                         } else {
-                            if (observer->displayedCategories().contains(category))
-                                return true;
-                            else
-                                return false;
+                            return true;
                         }
-                    } else {
-                        return true;
-                    }
-                } else
-                    return false;
+                    } else
+                        return false;
+                }
             }
         }
     }
