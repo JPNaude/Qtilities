@@ -33,13 +33,13 @@
 
 #include "TopToBottomList.h"
 
-Qtilities::CoreGui::TopToBottomList::TopToBottomList(QWidget* &parent) :
+TopToBottomList::TopToBottomList(QWidget* &parent) :
     QListWidget(parent)
 {
 
 }
 
-QSize Qtilities::CoreGui::TopToBottomList::sizeHint() const
+QSize TopToBottomList::sizeHint() const
 {
   QSize maxSize = QSize(0,0);
   for ( int i = 0; i < this->count(); i++ ) {
@@ -54,7 +54,7 @@ QSize Qtilities::CoreGui::TopToBottomList::sizeHint() const
 
   return QSize( maxSize.width() + rect().width() - contentsRect().width(), this->height());
 }
-QSize Qtilities::CoreGui::TopToBottomList::itemSizeHint() const
+QSize TopToBottomList::itemSizeHint() const
 {
   QSize maxSize = QSize(0,0);
   for ( int i = 0; i < this->count(); i++ ) {
