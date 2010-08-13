@@ -38,6 +38,7 @@
 #include "ActivityPolicyFilter.h"
 #include "QtilitiesPropertyChangeEvent.h"
 #include "ObserverMimeData.h"
+#include "ObserverHints.h"
 
 #include <Logger.h>
 
@@ -52,101 +53,9 @@
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 
-struct Qtilities::Core::ObserverHints {
-public:
-    ObserverHints() :
-            naming_control(Observer::NoNamingControlHint),
-            activity_display(Observer::NoActivityDisplayHint),
-            activity_control(Observer::NoActivityControlHint),
-            item_selection_control(Observer::SelectableItems),
-            hierarhical_display(Observer::NoHierarhicalDisplayHint),
-            display_flags(Observer::ItemView | Observer::NavigationBar),
-            item_view_column_hint(Observer::NoItemViewColumnHint),
-            action_hints(Observer::None),
-            category_list(QStringList()),
-            inverse_categories(true),
-            category_filter_enabled(false) {}
-    ObserverHints(const ObserverHints& other) {
-        naming_control = other.naming_control;
-        activity_display = other.activity_display;
-        activity_control = other.activity_control;
-        item_selection_control = other.item_selection_control;
-        hierarhical_display = other.hierarhical_display;
-        display_flags = other.display_flags;
-        item_view_column_hint = other.item_view_column_hint;
-        action_hints = other.action_hints;
-        category_list = other.category_list;
-        inverse_categories = other.inverse_categories;
-        category_filter_enabled = other.category_filter_enabled;
-    }
-    void operator=(const ObserverHints& other) {
-        naming_control = other.naming_control;
-        activity_display = other.activity_display;
-        activity_control = other.activity_control;
-        item_selection_control = other.item_selection_control;
-        hierarhical_display = other.hierarhical_display;
-        display_flags = other.display_flags;
-        item_view_column_hint = other.item_view_column_hint;
-        action_hints = other.action_hints;
-        category_list = other.category_list;
-        inverse_categories = other.inverse_categories;
-        category_filter_enabled = other.category_filter_enabled;
-    }
-
-    bool exportBinary(QDataStream& stream) const {
-        stream << (quint32) naming_control;
-        stream << (quint32) activity_display;
-        stream << (quint32) activity_control;
-        stream << (quint32) item_selection_control;
-        stream << (quint32) hierarhical_display;
-        stream << (quint32) display_flags;
-        stream << (quint32) item_view_column_hint;
-        stream << (quint32) action_hints;
-        stream << category_list;
-        stream << inverse_categories;
-        stream << category_filter_enabled;
-        return true;
-    }
-    bool importBinary(QDataStream& stream) {
-        quint32 qi32;
-        stream >> qi32;
-        naming_control = Observer::NamingControl (qi32);
-        stream >> qi32;
-        activity_display = Observer::ActivityDisplay (qi32);
-        stream >> qi32;
-        activity_control = Observer::ActivityControl (qi32);
-        stream >> qi32;
-        item_selection_control = Observer::ItemSelectionControl (qi32);
-        stream >> qi32;
-        hierarhical_display = Observer::HierarhicalDisplay (qi32);
-        stream >> qi32;
-        display_flags = Observer::DisplayFlags (qi32);
-        stream >> qi32;
-        item_view_column_hint = Observer::ItemViewColumnFlags (qi32);
-        stream >> qi32;
-        action_hints = Observer::ActionHints (qi32);
-        stream >> category_list;
-        stream >> inverse_categories;
-        stream >> category_filter_enabled;
-        return true;
-    }
-
-    Observer::NamingControl         naming_control;
-    Observer::ActivityDisplay       activity_display;
-    Observer::ActivityControl       activity_control;
-    Observer::ItemSelectionControl  item_selection_control;
-    Observer::HierarhicalDisplay    hierarhical_display;
-    Observer::DisplayFlags          display_flags;
-    Observer::ItemViewColumnFlags   item_view_column_hint;
-    Observer::ActionHints           action_hints;
-    QStringList                     category_list;
-    bool                            inverse_categories;
-    bool                            category_filter_enabled;
-};
-
 Qtilities::Core::Observer::Observer(const QString& observer_name, const QString& observer_description, QObject* parent) : QObject(parent) {
     // Initialize observer data
-    observerData = new ObserverData;
+    observerData = new ObserverData();
     setObjectName(observer_name);
     observerData->observer_description = observer_description;
     observerData->access_mode_scope = GlobalScope;
@@ -156,7 +65,6 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     observerData->subject_id_counter = 0;
     observerData->subject_list.setObjectName(QString("%1 Pointer List").arg(observer_name));
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
-    observerData->display_hints = new ObserverHints;
 
     // Register this observer with the observer manager
     if (observer_name != QString(GLOBAL_OBJECT_POOL))
@@ -229,9 +137,6 @@ Qtilities::Core::Observer::~Observer() {
             removeObserverProperties(observerData->subject_list.at(i));
         }
     }
-
-    if (observerData->display_hints)
-        delete observerData->display_hints;
 
     LOG_DEBUG(QString("Done with destruction of observer \"%1\".").arg(objectName()));
 }
@@ -388,8 +293,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     // It also excludes the factory data which was stream above.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     stream << MARKER_OBSERVER_SECTION;
-    stream << *(observerData.data());
-    success = observerData->display_hints->exportBinary(stream);
+    stream << observerData->exportBinary(stream);
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
@@ -490,8 +394,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
-    stream >> *(observerData.data());
-    success = observerData->display_hints->importBinary(stream);
+    success = observerData->importBinary(stream);
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after observer data. Import will fail.");
@@ -633,7 +536,7 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
 }
 
 void Qtilities::Core::Observer::refreshViews() const {
-    emit partialStateChanged("Hierarchy");
+    emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
 }
 
 void Qtilities::Core::Observer::startProcessingCycle() {
@@ -648,7 +551,11 @@ void Qtilities::Core::Observer::endProcessingCycle() {
         return;
 
     observerData->process_cycle_active = false;
-    emit partialStateChanged("Hierarchy");
+    emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+}
+
+bool Qtilities::Core::Observer::isProcessingCycleActive() const {
+    return observerData->process_cycle_active;
 }
 
 void Qtilities::Core::Observer::setFactoryData(IFactoryData factory_data) {
@@ -657,8 +564,9 @@ void Qtilities::Core::Observer::setFactoryData(IFactoryData factory_data) {
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData() const {
-    observerData->factory_data.d_instance_name = observerName();
-    return observerData->factory_data;
+    IFactoryData factory_data = observerData->factory_data;
+    factory_data.d_instance_name = observerName();
+    return factory_data;
 }
 
 bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, bool import_cycle) {
@@ -857,7 +765,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit partialStateChanged("Hierarchy");
+            emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
             setModificationState(true);
         }
 
@@ -885,7 +793,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit partialStateChanged("Hierarchy");
+            emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
             setModificationState(true);
         }
 
@@ -910,7 +818,7 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> object
     endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit partialStateChanged("Hierarchy");
+        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
         setModificationState(true);
     }
     return success_list;
@@ -926,7 +834,7 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime
     endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit partialStateChanged("Hierarchy");
+        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
         setModificationState(true);
     }
     return success_list;
@@ -1071,7 +979,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     objects << obj;
     if (!observerData->process_cycle_active) {
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
-        emit partialStateChanged("Hierarchy");
+        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
         setModificationState(true);
     }
 }
@@ -1154,7 +1062,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         QList<QObject*> objects;
         objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
-        emit partialStateChanged("Hierarchy");
+        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
         setModificationState(true);
     }
 
@@ -1173,7 +1081,7 @@ QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> object
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
-        emit partialStateChanged("Hierarchy");
+        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
         setModificationState(true);
     }
     return success_list;
@@ -1324,7 +1232,7 @@ bool Qtilities::Core::Observer::setObserverPropertyValue(QObject* obj, const cha
     return false;
 }
 
-void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) const {
+void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(obj != 0);
     #endif
@@ -1539,7 +1447,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QString& cat
                     subject_names << observerData->subject_list.at(i)->objectName();
             }
         } else {
-            if (category == tr("Uncategorized")) {
+            if (category == (QString(OBSERVER_UNCATEGORIZED_CATEGORY))) {
                 // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
                 QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
                 if (instance_name.isValid())
@@ -1562,8 +1470,8 @@ QStringList Qtilities::Core::Observer::subjectCategories() const {
             if (!subject_names.contains(category_property.value(observerID()).toString()))
                 subject_names << category_property.value(observerID()).toString();
         } else {
-            if (!subject_names.contains(tr("Uncategorized")))
-                subject_names << tr("Uncategorized");
+            if (!subject_names.contains(QString(OBSERVER_UNCATEGORIZED_CATEGORY)))
+                subject_names << QString(OBSERVER_UNCATEGORIZED_CATEGORY);
         }
     }
 
@@ -1607,7 +1515,7 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const QSt
             if (category_property.value(observerID()).toString() == category)
                 list << subjectAt(i);
         } else {
-            if (category == tr("Uncategorized"))
+            if (category == QString(OBSERVER_UNCATEGORIZED_CATEGORY))
                 list << subjectAt(i);
         }
     }
@@ -1710,103 +1618,30 @@ QList<Qtilities::Core::AbstractSubjectFilter*> Qtilities::Core::Observer::subjec
     return observerData->subject_filters;
 }
 
-void Qtilities::Core::Observer::setNamingControlHint(Observer::NamingControl naming_control) {
-    observerData->display_hints->naming_control = naming_control;
-    setModificationState(true);
+Qtilities::Core::ObserverHints* const Qtilities::Core::Observer::displayHints() const {
+    return observerData->display_hints;
 }
 
-Qtilities::Core::Observer::NamingControl Qtilities::Core::Observer::namingControlHint() const {
-    return observerData->display_hints->naming_control;
-}
+bool Qtilities::Core::Observer::setDisplayHints(ObserverHints* display_hints) {
+    if (observerData->subject_list.count() > 0 || !display_hints)
+        return false;
 
-void Qtilities::Core::Observer::setActivityDisplayHint(Observer::ActivityDisplay activity_display) {
-    observerData->display_hints->activity_display = activity_display;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::ActivityDisplay Qtilities::Core::Observer::activityDisplayHint() const {
-    return observerData->display_hints->activity_display;
-}
-
-void Qtilities::Core::Observer::setActivityControlHint(Observer::ActivityControl activity_control) {
-    observerData->display_hints->activity_control = activity_control;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::ActivityControl Qtilities::Core::Observer::activityControlHint() const {
-    return observerData->display_hints->activity_control;
-}
-
-void Qtilities::Core::Observer::setItemSelectionControlHint(Observer::ItemSelectionControl item_selection_control) {
-    observerData->display_hints->item_selection_control = item_selection_control;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::ItemSelectionControl Qtilities::Core::Observer::itemSelectionControlHint() const {
-    return observerData->display_hints->item_selection_control;
-}
-
-void Qtilities::Core::Observer::setHierarchicalDisplayHint(Observer::HierarhicalDisplay hierarhical_display) {
-    observerData->display_hints->hierarhical_display = hierarhical_display;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::HierarhicalDisplay Qtilities::Core::Observer::hierarchicalDisplayHint() const {
-    return observerData->display_hints->hierarhical_display;
-}
-
-void Qtilities::Core::Observer::setDisplayFlagsHint(Observer::DisplayFlags display_flags) {
-    observerData->display_hints->display_flags = display_flags;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::DisplayFlags Qtilities::Core::Observer::displayFlagsHint() const {
-    return observerData->display_hints->display_flags;
-}
-
-void Qtilities::Core::Observer::setItemViewColumnFlags(Observer::ItemViewColumnFlags item_view_column_hint) {
-    observerData->display_hints->item_view_column_hint = item_view_column_hint;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::ItemViewColumnFlags Qtilities::Core::Observer::itemViewColumnFlags() const {
-    return observerData->display_hints->item_view_column_hint;
-}
-
-void Qtilities::Core::Observer::setActionHints(Observer::ActionHints action_hints) {
-    observerData->display_hints->action_hints = action_hints;
-    setModificationState(true);
-}
-
-Qtilities::Core::Observer::ActionHints Qtilities::Core::Observer::actionHints() const {
-    return observerData->display_hints->action_hints;
-}
-
-void Qtilities::Core::Observer::setDisplayedCategories(const QStringList& category_list, bool inversed) {
-    observerData->display_hints->category_list = category_list;
-    observerData->display_hints->inverse_categories = inversed;
-
-    // Will update views connected to this signal.
-    if (!observerData->process_cycle_active) {
-        setModificationState(true);
+    if (observerData->display_hints) {
+        delete observerData->display_hints;
+        observerData->display_hints = 0;
     }
+
+    observerData->display_hints = display_hints;
+    return true;
 }
 
-QStringList Qtilities::Core::Observer::displayedCategories() {
-    return observerData->display_hints->category_list;
-}
-
-bool Qtilities::Core::Observer::hasInversedCategoryDisplay() {
-    return observerData->display_hints->inverse_categories;
-}
-
-bool Qtilities::Core::Observer::categoryFilterEnabled() {
-    return observerData->display_hints->category_filter_enabled;
-}
-
-void Qtilities::Core::Observer::setCategoryFilterEnabled(bool enabled) {
-    if (enabled != observerData->display_hints->category_filter_enabled) {
-        observerData->display_hints->category_filter_enabled = enabled;
-        setModificationState(true);
+Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
+    if (!observerData->display_hints) {
+        observerData->display_hints = new ObserverHints(this);
+        return observerData->display_hints;
     }
+
+    return 0;
 }
+
+

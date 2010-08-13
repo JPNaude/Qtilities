@@ -49,7 +49,7 @@
 #include <QPointer>
 #include <QList>
 #include <QStringList>
-#include <QExplicitlySharedDataPointer>
+#include <QSharedDataPointer>
 
 namespace Qtilities {
     namespace Core {
@@ -57,14 +57,6 @@ namespace Qtilities {
         class ObserverMimeData;
 
         using namespace Qtilities::Core::Interfaces;
-
-        /*!
-        \struct ObserverHints
-        \brief A struture used by Observer classes to store hints about how the observer should be displayed.
-
-        Item views uses these display hints to customize their display of the observer.
-          */
-        struct ObserverHints;
 
         /*!
         \class Observer
@@ -82,15 +74,8 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_ENUMS(SubjectChangeIndication);
-            Q_ENUMS(ObjectOwnership);
-            Q_ENUMS(DisplayFlag)
-            Q_ENUMS(NamingControl)
-            Q_ENUMS(ActivityDisplay)
-            Q_ENUMS(ActivityControl)
-            Q_ENUMS(ItemSelectionControl)
-            Q_ENUMS(HierarhicalDisplay)
+            Q_ENUMS(ObjectOwnership);            
             Q_ENUMS(EvaluationResult)
-            Q_ENUMS(ItemViewColumn)
             Q_ENUMS(AccessMode)
 
             Q_PROPERTY(QString Name READ observerName);
@@ -100,18 +85,64 @@ namespace Qtilities {
             Q_PROPERTY(AccessMode Access READ accessMode);
             Q_PROPERTY(int ID READ observerID);
             Q_PROPERTY(bool Modified READ isModified());
-            //Q_PROPERTY(QStringList AllCategories READ subjectCategories());
-            //Q_PROPERTY(QStringList DisplayedCategories READ displayedCategories());
-            /*Q_PROPERTY(NamingControl NamingControlHint READ namingControlHint);
-            Q_PROPERTY(ActivityDisplay ActivityDisplayHint READ activityDisplayHint);
-            Q_PROPERTY(ActivityControl ActivityControlHint READ activityControlHint);
-            Q_PROPERTY(ItemSelectionControl ItemSelectionControlHint READ itemSelectionControlHint);
-            Q_PROPERTY(DisplayFlags DisplayFlagsHint READ displayFlagsHint);
-            Q_PROPERTY(ActionHints SupportedActions READ actionHints);
-            Q_PROPERTY(HierarhicalDisplay HierachicalDisplay READ hierarchicalDisplayHint);*/
 
         public:
+            // --------------------------------
+            // Enumerations
+            // --------------------------------
+            //! This enumeration is used to return results when validating attaching and detaching of subjects.
+            /*!
+              \sa canAttach(), canDetach()
+              */
+            enum EvaluationResult {
+                Allowed,                    /*!< Indicates that the attachment/detachment operation will be valid. */
+                Conditional,                /*!< Indicates that the attachment/detachment operation's validity will be dependant on the user input. An example of this is when the object's name is not valid in the context and the naming policy filter is set to prompt the user for the action to take (Reject, Rename etc.). */
+                Rejected,                   /*!< Indicates that the attachment/detachment operation will be invalid. */
+                IsParentObserver,           /*!< Only used during detachment. Indicates that the observer is the parent of the object. This result takes priority over the other possible results. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
+                LastScopedObserver          /*!< Only used during detachment. Indicates that the observer is the last scoped parent of the object. This result takes priority over the other possible results except IsParentObserver. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
+            };
+            //! The possible indications that can be returned when the number of subjects in the observer changes.
+            /*!
+              \sa numberOfSubjectsChanged()
+              */
+            enum SubjectChangeIndication {
+                SubjectAdded,               /*!< Indicates that subjects were added. */
+                SubjectRemoved,             /*!< Indicates that subjects were removed. */
+                CycleProcess                /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle()*/
+            };
+            //! The possible ownerships with which subjects can be attached to an observer.
+            enum ObjectOwnership {
+                ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If parent() = 0, it will not be managed, if parent() is an QObject, the subject will be deleted when its parent is deleted. */
+                AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so ManualOwnership is used. If no parent() is specified yet, the observer will attach the subject using ObserverScopeOwnership. */
+                SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. */
+                ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
+                OwnedBySubjectOwnership     /*!< The observer is dependant on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using OwnedBySubjectOwnership it is attached to all other contexts after that using OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
+            };
+            //! The possible access modes of the observer.
+            /*!
+              \sa setAccessMode(), accessMode()
+              */
+            enum AccessMode {
+                FullAccess = 0,             /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
+                ReadOnlyAccess = 1,         /*!< The observer is read only to the user. */
+                LockedAccess = 2            /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
+            };
+            //! The access mode scope of the observer.
+            /*! When using categories in an observer, access modes can be set for each individual category.
+              Categories which does not have access modes set will use the global access mode.
+              \sa setAccessMode(), setAccessModeScope(), accessModeScope()
+              */
+            enum AccessModeScope {
+                GlobalScope = 0,            /*!< The global access mode is used for all categories when categories are used. */
+                CategorizedScope = 1        /*!< Access modes are category specific. */
+            };
+
+            // --------------------------------
+            // Core Functions
+            // --------------------------------
+            //! Default constructor.
             Observer(const QString& observer_name, const QString& observer_description, QObject* parent = 0);
+            //! Copy constructor.
             Observer(const Observer &other);
             virtual ~Observer();
             bool eventFilter(QObject *object, QEvent *event);
@@ -211,155 +242,11 @@ namespace Qtilities {
               \sa startProcessingCycle();
               */
             void endProcessingCycle();
-
-        public:
-            //! This enumeration is used to return results when validating attaching and detaching of subjects.
+            //! Indicates if a processing cycle is active.
             /*!
-              \sa canAttach(), canDetach()
+              \sa startProcessingCycle(), endProcessingCycle()
               */
-            enum EvaluationResult {
-                Allowed,                    /*!< Indicates that the attachment/detachment operation will be valid. */
-                Conditional,                /*!< Indicates that the attachment/detachment operation's validity will be dependant on the user input. An example of this is when the object's name is not valid in the context and the naming policy filter is set to prompt the user for the action to take (Reject, Rename etc.). */
-                Rejected,                   /*!< Indicates that the attachment/detachment operation will be invalid. */
-                IsParentObserver,           /*!< Only used during detachment. Indicates that the observer is the parent of the object. This result takes priority over the other possible results. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
-                LastScopedObserver          /*!< Only used during detachment. Indicates that the observer is the last scoped parent of the object. This result takes priority over the other possible results except IsParentObserver. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
-            };
-            //! The possible indications that can be returned when the number of subjects in the observer changes.
-            /*!
-              \sa numberOfSubjectsChanged()
-              */
-            enum SubjectChangeIndication {
-                SubjectAdded,               /*!< Indicates that subjects were added. */
-                SubjectRemoved,             /*!< Indicates that subjects were removed. */
-                CycleProcess                /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle()*/
-            };
-            //! The possible ownerships with which subjects can be attached to an observer.
-            enum ObjectOwnership {
-                ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If parent() = 0, it will not be managed, if parent() is an QObject, the subject will be deleted when its parent is deleted. */
-                AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so ManualOwnership is used. If no parent() is specified yet, the observer will attach the subject using ObserverScopeOwnership. */
-                SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. */
-                ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
-                OwnedBySubjectOwnership     /*!< The observer is dependant on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using OwnedBySubjectOwnership it is attached to all other contexts after that using OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
-            };
-            //! The possible access modes of the observer.
-            /*!
-              \sa setAccessMode(), accessMode()
-              */
-            enum AccessMode {
-                FullAccess = 0,             /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
-                ReadOnlyAccess = 1,         /*!< The observer is read only to the user. */
-                LockedAccess = 2            /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
-            };
-            //! The access mode scope of the observer.
-            /*! When using categories in an observer, access modes can be set for each individual category.
-              Categories which does not have access modes set will use the global access mode.
-              \sa setAccessMode(), setAccessModeScope(), accessModeScope()
-              */
-            enum AccessModeScope {
-                GlobalScope = 0,            /*!< The global access mode is used for all categories when categories are used. */
-                CategorizedScope = 1        /*!< Access modes are category specific. */
-            };
-            //! The possible naming control hints of the observer.
-            /*!
-              \sa setNamingControlHint(), namingControlHint()
-              */
-            enum NamingControl {
-                NoNamingControlHint = 0,    /*!< No naming control hint. Uses ReadOnlyNames by default. */
-                ReadOnlyNames = 1,          /*!< Names cannot be edited in item views viewing this observer. */
-                EditableNames = 2           /*!< Names are editable in item views viewing this observer. */
-            };
-            //! The possible activity display hints of the observer.
-            /*!
-              \sa setActivityDisplayHint(), activityDisplayHint()
-              */
-            enum ActivityDisplay {
-                NoActivityDisplayHint = 0,  /*!< No activity display hint. Uses NoActivityDisplay by default. */
-                NoActivityDisplay = 1,      /*!< The activity of items are not displayed in item views viewing this observer. */
-                CheckboxActivityDisplay = 2 /*!< If the observer has an ActivityPolicyFilter subject filter installed, a check box which shows the activity of subjects are shown in item views viewing this observer. */
-            };
-            //! The possible activity control hints of the observer.
-            /*!
-              \sa setActivityControlHint(), activityControlHint()
-              */
-            enum ActivityControl {
-                NoActivityControlHint = 0,  /*!< No activity control hint. Uses NoActivityControl by default. */
-                NoActivityControl = 1,      /*!< The activity of subjects cannot be changed by the user in item views viewing this observer. */
-                FollowSelection = 2,        /*!< The activity of subjects follows the selection of the user in item views viewing this observer. To use this option, ItemSelectionControl must be set to SelectableItems. */
-                CheckboxTriggered = 3       /*!< The activity of subjects can be changed by checking or unchecking the checkbox appearing next to subject in item views viewing this observer. To use this option, ActivityDisplay must be set to CheckboxActivityDisplay. */
-            };
-            //! The possible item selection control hints of the observer.
-            /*!
-              \sa setItemSelectionControlHint(), itemSelectionControlHint()
-              */
-            enum ItemSelectionControl {
-                NoItemSelectionControlHint = 0, /*!< No item selection control hint. Uses NonSelectableItems by default. */
-                SelectableItems = 1,        /*!< Items are selectable by the user in item views viewing this observer. */
-                NonSelectableItems = 2      /*!< Items are not selectable by the user in item views viewing this observer. */
-            };
-            //! The possible hierarchical display hints of the observer.
-            /*!
-              \sa setHierarchicalDisplayHint(), hierarchicalDisplayHint()
-              */
-            enum HierarhicalDisplay {
-                NoHierarhicalDisplayHint = 0,   /*!< No hierachical display hint. Uses FlatHierarhcy by default. */
-                FlatHierarhcy = 1,          /*!< The hierarhcy of items under an observer is flat. Thus categories are not displayed. */
-                CategorizedHierarchy = 2    /*!< Item are grouped by their category. Items which do not have a category associated with them are grouped under an category called "Uncategorized". */
-            };
-            //! The possible item view column hints of the observer.
-            /*!
-              \sa setItemViewColumnFlags(), itemViewColumnFlags()
-              */
-            enum ItemViewColumn {
-                NoItemViewColumnHint = 0,   /*!< No item view column hint. Only the name column is shown in item views viewing this observer. */
-                IdColumn = 1,               /*!< Shows a column with the subject IDs of subjects in item views viewing this observer. */
-                ChildCountColumn = 2,       /*!< Shows a column with the cumulative count (counts items under each subject recusively) of subjects under each subject in item views viewing this observer. */
-                TypeInfoColumn = 4,         /*!< Shows a column with information about the type of subject in item views viewing this observer. */
-                AccessColumn = 8,           /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
-                CategoryColumn = 16,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
-                AllColumnsHint = ChildCountColumn | TypeInfoColumn | AccessColumn | CategoryColumn
-            };
-            Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn);
-            Q_FLAGS(ItemViewColumnFlags);
-            //! The possible display flags of the observer.
-            /*!
-              \sa setDisplayFlagsHint(), displayFlagsHint()
-              */
-            enum DisplayFlag {
-                NoDisplayFlagsHint = 0,     /*!< No display flags hint. Uses ItemView by default. */
-                ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
-                NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
-                PropertyBrowser = 4,        /*!< Display the property browser. */
-                AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser
-            };
-            Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
-            Q_FLAGS(DisplayFlags);
-            //! The possible actions which views can perform on an observer. The ObserverWidget class provides the applicable actions through an IActionProvider interface and handles all these actions already.
-            /*!
-              \sa setActionHints(), actionHints()
-              */
-            enum ActionItem {
-                None = 0,                   /*!< No actions are allowed. */
-                RemoveItem = 1,             /*!< Allow detachment of subjects from the observer context presented to the user. */
-                RemoveAll = 2,              /*!< Allow detachment of all subjects from the observer context presented to the user. */
-                DeleteItem = 4,             /*!< Allow deleting subjects from the observer context presented to the user. */
-                DeleteAll = 8,              /*!< Allow deleting of all subjects from the observer context presented to the user. */
-                NewItem = 32,               /*!< Allow new items to be added to the observer context presented to the user. */
-                RefreshView = 64,           /*!< Allow refreshing of views. */
-                PushUp = 128,               /*!< Allow pushing up in the hierarhcy of the displayed observer context in TableViews. */
-                PushUpNew = 256,            /*!< Allow pushing up into a new window in the hierarhcy of the displayed observer context in TableViews. */
-                PushDown = 512,             /*!< Allow pushing down in the hierarhcy of the displayed observer context in TableViews. */
-                PushDownNew = 1024,         /*!< Allow pushing down into a new window in the hierarhcy of the displayed observer context in TableViews. */
-                SwitchView = 2048,          /*!< Allow switching between different view modes (TableView and TreeView) for example. */
-                CopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
-                CutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
-                PasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
-                FindItem = 131072,          /*!< Allow finding/searching in the observer context presented to the user. */
-                ScopeDuplicate = 262144,    /*!< Allow duplication of selected object in the observer context presented to the user. */
-                // Split is not included in the AllActionsHint.
-                AllActionsHint = RemoveItem | RemoveAll | DeleteItem | DeleteAll | NewItem | RefreshView | PushUp | PushUpNew | PushDown | PushDownNew | SwitchView | CopyItem | CutItem | PasteItem | FindItem | ScopeDuplicate /*!< All actions. */
-            };
-            Q_DECLARE_FLAGS(ActionHints, ActionItem);
-            Q_FLAGS(ActionHints);            
+            bool isProcessingCycleActive() const;
 
             // --------------------------------
             // Functions to attach / detach subjects
@@ -550,7 +437,7 @@ namespace Qtilities {
 
         private:
             //! This function will remove this observer from all the properties which it might have added to an obj.
-            void removeObserverProperties(QObject* obj) const;
+            void removeObserverProperties(QObject* obj);
 
             // --------------------------------
             // General functions providing information about this observer's state and observed subjects
@@ -643,65 +530,42 @@ namespace Qtilities {
             // --------------------------------
             // Observer hints related functions
             // --------------------------------
-            //! Sets the naming control for this model.
-            Q_SCRIPTABLE void setNamingControlHint(Observer::NamingControl naming_control);
-            //! Gets the naming control for this model.
-            Q_SCRIPTABLE Observer::NamingControl namingControlHint() const;
-            //! Sets the activity display for this model.
-            Q_SCRIPTABLE void setActivityDisplayHint(Observer::ActivityDisplay activity_display);
-            //! Gets the activity display for this model.
-            Q_SCRIPTABLE Observer::ActivityDisplay activityDisplayHint() const;
-            //! Sets the activity control for this model.
-            Q_SCRIPTABLE void setActivityControlHint(Observer::ActivityControl activity_control);
-            //! Gets the activity control for this model.
-            Q_SCRIPTABLE Observer::ActivityControl activityControlHint() const;
-            //! Sets the selection control for this model.
-            Q_SCRIPTABLE void setItemSelectionControlHint(Observer::ItemSelectionControl item_selection_control);
-            //! Gets the selection control for this model.
-            Q_SCRIPTABLE Observer::ItemSelectionControl itemSelectionControlHint() const;
-            //! Sets the hierarchical display hint for this model.
-            Q_SCRIPTABLE void setHierarchicalDisplayHint(Observer::HierarhicalDisplay hierarhical_display);
-            //! Gets the hierarchical display hint for this model.
-            Q_SCRIPTABLE Observer::HierarhicalDisplay hierarchicalDisplayHint() const;
-            //! Function to set display flags hint.
-            Q_SCRIPTABLE void setDisplayFlagsHint(Observer::DisplayFlags display_flags);
-            //! Function to get current display flags hint.
-            Q_SCRIPTABLE Observer::DisplayFlags displayFlagsHint() const;
-            //! Function to set item view column display hints.
-            Q_SCRIPTABLE void setItemViewColumnFlags(Observer::ItemViewColumnFlags item_view_column_hint);
-            //! Function to get item view column display hints.
-            Q_SCRIPTABLE Observer::ItemViewColumnFlags itemViewColumnFlags() const;
-            //! Function to set the action hint for this observer's context.
-            Q_SCRIPTABLE void setActionHints(Observer::ActionHints popup_menu_items);
-            //! Function to get the action hint for this observer's context.
-            Q_SCRIPTABLE Observer::ActionHints actionHints() const;
+            //! Function which returns a pointer to the ObserverHints used by this observer.
+            /*!
+              If no observer hints are used, 0 is returned.
+
+              \sa useDisplayHints(), setDisplayHints()
+              */
+            ObserverHints* const displayHints() const;
+            //! Function which sets the display hints used by this observer.
+            /*!
+              Note that display hints can only be set when the observer has no subjects attached to it. If the observer
+              already has display hints, they will be deleted.
+
+              \returns True if successful, false otherwise.
+
+              \sa useDisplayHints(), displayHints()
+              */
+            bool setDisplayHints(ObserverHints* display_hints);
+            //! Function which constructs hints for this observer.
+            /*!
+              If the observer does not have any hints, this function will construct an ObserverHints instance
+              and assign it to this observer. If the observer already has hints associated with it, this function does
+              nothing.
+
+              \returns The constructed hints instance, if hints were already present, return 0.
+
+              \sa displayHints(), setDisplayHints()
+              */
+            ObserverHints* useDisplayHints();
 
             // --------------------------------
             // Subject category related functions
             // --------------------------------
-            //! Function to set the categories you want to be displayed in item views viewing this observer.
+            //! Returns a QStringList with all the categories found in the OBJECT_CATEGORY properties of all attached subjects.
             /*!
-              Only applicable when an observer provides a CategorizedHierarchy hierachical display hint.
-              Only categories which appears in the category list will be displayed, or passing true as the
-              inversed paramater will inverse the list. Thus, all categories will be displayed except the categories
-              in the category_list paramater.
-
-              Calling this function will automatically update all views viewing the observer.
-
-              \sa setCategoryFilterEnabled()
-              */
-            void setDisplayedCategories(const QStringList& category_list, bool inversed = false);
-            //! Returns the displayed categories list. Note that this function does not take inversed filtering, or if filtering is enabled into account. The default is QStringList().
-            QStringList displayedCategories();
-            //! Returns true if the displayed categories list is inversed. The default is true.
-            bool hasInversedCategoryDisplay();
-            //! Returns true if the category filter is enabled, false otherwise. The default is false.
-            bool categoryFilterEnabled();
-            //! Returns true if the displayed categories list is inversed. The default is true.
-            void setCategoryFilterEnabled(bool enabled);
-            //! Returns a QStringList with all the categories found in the OBJECT_CATEGORY properties of all attached subjects. This function does not take the category filtering options of the observer into account, for that functionality see displayedCategories().
-            /*!
-              \sa categoryFilterEnabled(), hasInversedCategoryDisplay(), setDisplayedCategories();
+              This function does not take the category filtering options of the observer into account, for that functionality see displayedCategories()
+              on the observer hints for this observer provided by hints(). Category filtering is only related to the displaying of the observer.
               */
             Q_SCRIPTABLE QStringList subjectCategories() const;
             //! Returns a list with the names of all the current observed subjects which belongs to a specific category.
@@ -729,7 +593,7 @@ namespace Qtilities {
             void nameChanged(const QString& new_name);
 
         protected:
-            QExplicitlySharedDataPointer<ObserverData> observerData;
+            QSharedDataPointer<ObserverData> observerData;
         };
 
         /*!
