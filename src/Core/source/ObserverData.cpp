@@ -31,30 +31,32 @@
 **
 ****************************************************************************/
 
-#include <ObserverData.h>
+#include "ObserverData.h"
+#include "ObserverHints.h"
 
-QDataStream &operator<<(QDataStream &ds, Qtilities::Core::ObserverData &s) {
-    ds << (qint32) s.subject_limit;
-    ds << (qint32) s.subject_id_counter;
-    ds << s.observer_description;
-    ds << (qint32) s.access_mode;
-    ds << (qint32) s.access_mode_scope;
-    ds << s.category_access;
-    return(ds);
+bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
+    stream << (qint32) subject_limit;
+    stream << (qint32) subject_id_counter;
+    stream << observer_description;
+    stream << (qint32) access_mode;
+    stream << (qint32) access_mode_scope;
+    stream << category_access;
+    return display_hints->exportBinary(stream);
 }
 
-QDataStream &operator>>(QDataStream &ds, Qtilities::Core::ObserverData &s) {
+bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
     qint32 i32;
 
-    ds >> i32;
-    s.subject_limit = i32;
-    ds >> i32;
-    s.subject_id_counter = i32;
-    ds >> s.observer_description;
-    ds >> i32;
-    s.access_mode = i32;
-    ds >> i32;
-    s.access_mode_scope = i32;
-    ds >> s.category_access;
-    return(ds);
+    stream >> i32;
+    subject_limit = i32;
+    stream >> i32;
+    subject_id_counter = i32;
+    stream >> observer_description;
+    stream >> i32;
+    access_mode = i32;
+    stream >> i32;
+    access_mode_scope = i32;
+    stream >> category_access;
+    return display_hints->importBinary(stream);
 }
+

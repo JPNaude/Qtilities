@@ -46,7 +46,7 @@
 
 namespace Qtilities {
     namespace Core {
-        struct ObserverHints;
+        class ObserverHints;
         using namespace Qtilities::Core::Interfaces;
 
         /*!
@@ -61,14 +61,25 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData
         {
         public:
-            ObserverData() : subject_limit(-1), subject_id_counter(0), access_mode(0), factory_data(IFactoryData()), process_cycle_active(false),
-            is_modified(false) {}
+            ObserverData() : subject_limit(-1), subject_id_counter(0), access_mode(0), display_hints(0),
+            factory_data(IFactoryData()), process_cycle_active(false), is_modified(false) {}
             ObserverData(const ObserverData &other) : QSharedData(other), subject_list(other.subject_list) ,subject_filters(other.subject_filters),
             subject_limit(other.subject_limit), subject_id_counter(0),
             access_mode(other.access_mode), access_mode_scope(other.access_mode_scope),
             category_access(other.category_access), display_hints(other.display_hints),
             factory_data(other.factory_data), process_cycle_active(other.process_cycle_active),
             is_modified(other.is_modified) {}
+
+            //! Exports observer data to a QDataStream.
+            /*!
+              \returns True if succesfull, false otherwise.
+              */
+            bool exportBinary(QDataStream& stream) const;
+            //! Imports observer data from a QDataStream.
+            /*!
+              \returns True if succesfull, false otherwise.
+              */
+            bool importBinary(QDataStream& stream);
 
             PointerList<QObject> subject_list;
             PointerList<AbstractSubjectFilter> subject_filters;
@@ -88,8 +99,5 @@ namespace Qtilities {
         };
     }
 }
-
-QDataStream &operator<<(QDataStream &ds,Qtilities::Core::ObserverData &s);
-QDataStream &operator>>(QDataStream &ds,Qtilities::Core::ObserverData &s);
 
 #endif // OBSERVERDATA_H
