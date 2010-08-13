@@ -40,6 +40,7 @@
 #include "ObjectPropertyBrowser.h"
 
 #include <Observer.h>
+#include <ObserverHints.h>
 #include <IContext.h>
 #include <Observer.h>
 
@@ -90,24 +91,31 @@ namespace Qtilities {
             Q_ENUMS(DisplayMode)
 
         public:
-            enum DisplayMode { TableView, TreeView };
+            //! The possible display modes of an ObserverWidget
+            /*!
+              \sa ObserverWidget()
+              */
+            enum DisplayMode {
+                TableView,      /*!< Table view mode. */
+                TreeView        /*!< Tree view mode. */
+            };
 
+            // --------------------------------
+            // Core Functions
+            // --------------------------------
+            //! Default constructor.
+            /*!
+              \param display_mode The display mode that should be used.
+              \param parent The parent widget.
+              \param f The Qt::WindowFlags which must be used for the widget.
+              */
             ObserverWidget(DisplayMode display_mode = TreeView, QWidget * parent = 0, Qt::WindowFlags f = 0);
+            //! Default destructor.
             virtual ~ObserverWidget();
-            bool eventFilter(QObject *object, QEvent *event);
-
-            // --------------------------------
-            // IContext implementation
-            // --------------------------------
-            QString contextString() const { return globalMetaType(); }
-            QString contextHelpId() const { return QString(); }
-
             //! Implementation of virtual function ObserverAwareBase::setObserverContext().
             void setObserverContext(Observer* observer);
-
-            //! Returns the observer ID of the top level observer in the widget
-            int topLevelObserverID();
-
+            //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
+            virtual void initialize(bool hints_only = false);
             //! Gets the current navigation stack of this widget.
             QStack<int> navigationStack() const;
             //! Allows you to set the navigation stack of this widget.
@@ -120,33 +128,58 @@ namespace Qtilities {
                 - initialize()
               */
             void setNavigationStack(QStack<int> navigation_stack);
+            //! Returns the observer ID of the top level observer in the widget. If the top level observer is not defined, -1 is returned.
+            int topLevelObserverID();
+            //! Event filter which has responsibilities such as drag and drop operations etc.
+            bool eventFilter(QObject *object, QEvent *event);
+        public slots:
+            void contextDeleted();
+            //! The context detach handler check if any observer in the current context's parent hierarhcy is deleted. If so, contextDeleted() is called.
+            void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> obj);
+            //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
+            void resetProxyModel();
+        signals:
+            //! Signal which is emitted when the observer context of this widget changes.
+            void observerContextChanged(Observer* new_context);
 
-            //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
-            virtual void initialize(bool hints_only = false);
+            // --------------------------------
+            // IContext implementation
+            // --------------------------------
+        public:
+            QString contextString() const { return globalMetaType(); }
+            QString contextHelpId() const { return QString(); }
 
-            //! Function to set display flags.
-            void setDisplayFlags(Observer::DisplayFlags display_flags);
-            //! Function to get current display flags.
-            Observer::DisplayFlags displayFlags() const;
-            //! Function to get current display mode.
-            ObserverWidget::DisplayMode displayMode() const;
-            //! Function to set the visible actions items.
-            void setActionHints(Observer::ActionHints popup_menu_items);
-            //! Function to get the visible actions items.
-            Observer::ActionHints actionHints() const;
+            // --------------------------------
+            // Functions Related To Display Hints
+            // --------------------------------
             //! Function to toggle the visibility of the grid in the item view. Call it after initialization.
             void toggleGrid(bool toggle);
             //! Function to toggle the visibility of the grid in the item view. Call it after initialization.
             void toggleAlternatingRowColors(bool toggle);
             //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
             void toggleUseObserverHints(bool toggle);
+            //! This function will set the hints used for the current selection parent.
+            /*!
+              \sa toggleUseObserverHints()
+              */
+            void inheritObserverHints(ObserverHints* display_hints);
+        private:
+            //! This function will provide the hints which should be used by this widget at any time.
+            /*!
+              \sa toggleUseObserverHints()
+              */
+            ObserverHints* activeHints() const;
+            ObserverHints* activeHints();
 
-            //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
-            ObjectPropertyBrowser* propertyBrowser();
-            //! Provides a list of QObject pointers to all the selected objects.
-            QList<QObject*> selectedObjects() const;
-            //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
-            QModelIndexList selectedIndexes() const;
+            // --------------------------------
+            // Settings, Global Meta Type and Action Provider Functions
+            // --------------------------------
+        public slots:
+            //! Monitors the settings update request signal on the QtilitiesCoreGui instance.
+            void handleSettingsUpdateRequest(const QString& request_id);
+            //! Slot connected to QCoreApplication::aboutToQuit() signal.
+            void writeSettings();
+        public:
             //! Saves the current state of the widget.
             void writeSettings(const QString& widget_string);
             //! Restores the widget to a previous state.
@@ -157,13 +190,56 @@ namespace Qtilities {
             QString globalMetaType() const;
             //! Returns the action handler interface for this observer widget.
             IActionProvider* actionProvider();
+            //! Sets the global object subject type used by this observer widget.
+            /*!
+              For more information see the \ref meta_type_object_management section of the \ref page_object_management article.
+              */
+            void setGlobalObjectSubjectType();
 
+            // --------------------------------
+            // Functions Related To Selected Objects & Refreshing Of The Views
+            // --------------------------------
+            //! Provides a list of QObject pointers to all the selected objects.
+            QList<QObject*> selectedObjects() const;
+            //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
+            QModelIndexList selectedIndexes() const;
+        private slots:
+            //! Updates the current selection parent context.
+            /*!
+              This function is only used in TreeView mode.
+              */
+            void setTreeSelectionParent(Observer* observer);
         public slots:
-            //! Monitors the settings update request signal on the QtilitiesCoreGui instance.
-            void handleSettingsUpdateRequest(const QString& request_id);
+            //! Selects the specified objects in a table view. If any object is invalid, nothing is selected.
+            /*!
+              This function only does something when in table viewing mode.
+              */
+            void selectSubjectsInTable(QList<QObject*> objects);
             //! Slot which handles subject count changes.
             void handleSubjectCountChanged();
+            //! Handles the selection model change.
+            /*!
+              This function is called whenever the selection in the item view changes. The function
+              will handle the selection change and then emit selectedObjectChanged().
 
+              In TreeView mode, the function will call the Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent()
+              function to update the selection parent in the tree. Once the selection parent is updated, the setTreeSelectionParent()
+              function will be called which will call initialize(true) on this widget in order to initialize the
+              widget for the new selection parent.
+              */
+            void handleSelectionModelChange();
+        signals:
+            //! Signal which is emitted when object selection changes.
+            void selectedObjectsChanged(QList<QObject*> selected_objects, Observer* selection_parent = 0);
+
+            // --------------------------------
+            // Property Editor Related Functions
+            // --------------------------------
+        public:
+            //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
+            ObjectPropertyBrowser* propertyBrowser();
+
+        public slots:
             //! Sets the desired area of the property editor (if it is used by the observer context).
             /*!
               This area will be used to position the property editor dock widget when the widget is first shown during a session. Afterwards the widget will remember where the dock widget is.
@@ -174,8 +250,17 @@ namespace Qtilities {
               The property editor type must be set before calling initialize().
               */
             void setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type);
+        private:
+            //! Constructs the property browser. If it already exists, this function does nothing.
+            void constructPropertyBrowser();
+        protected:
+            //! Refreshes the property browser, thus hide or show it depending on the active display flags.
+            void refreshPropertyBrowser();
 
-            // Here we add slots for all the possible standard popup menu items and toolbar items
+            // --------------------------------
+            // Action Handlers and Related Functions
+            // --------------------------------
+        public slots:
             //! Handle the remove item action trigger. Detaches the item from the current observer context.
             void handle_actionRemoveItem_triggered();
             //! Handle the remove all action trigger. Detaches all objects from the current observer context.
@@ -210,50 +295,29 @@ namespace Qtilities {
             void handle_actionCollapseAll_triggered();
             //! Handle the expand tree view action. Only usefull in TreeView display mode.
             void handle_actionExpandAll_triggered();
-
-            //! Handles the selection model change. This basically enables/disables actions in the table view.
-            void handleSelectionModelChange();
+            //! Handles search options changes in the SearchBoxWidget if present.
+            void handleSearchOptionsChanged();
+            //! Handles search string changes in the SearchBoxWidget if present.
+            void handleSearchStringChanged(const QString& filter_string);
             //! Refreshes the state of all actions.
             void refreshActions();
-            //! Updates the current selection parent context
-            void setSelectionParent(Observer* observer);
-            //! Slot connected to QCoreApplication::aboutToQuit() signal.
-            void writeSettings();
+        protected:
+            //! Constructs actions inside the observer widget.
+            void constructActions();
 
         signals:
             //! Signal which is emitted when the add new item action is triggered.
             void addNewItem_triggered(QObject* object, Observer* parent_observer = 0);
             //! Signal which is emitted when the user double clicks on an item in the observer widget.
             void doubleClickRequest(QObject* object, Observer* parent_observer = 0);
-            //! Signal which is emitted when object selection changes.
-            void selectedObjectsChanged(QList<QObject*> selected_objects, Observer* selection_parent = 0);
             //! Signal which is emitted when the user pushes up/down in a new observer widget. The new widget is passed as a paramater.
             void newObserverWidgetCreated(ObserverWidget* new_widget);
-            //! Signal which is emitted when the observer context of this widget changes.
-            void observerContextChanged(Observer* new_context);
-
-        public slots:
-            void contextDeleted();
-            //! The context detach handler check if any observer in the current context's parent hierarhcy is deleted. If so, contextDeleted() is called.
-            void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> obj);
-            //! Selects the specified objects in the item view. If any object is invalid, nothing is selected.
-            /*!
-              This function only does something when in table viewing mode.
-              */
-            void selectSubjectsByRef(QList<QObject*> objects);
-            void handleSearchOptionsChanged();
-            void handleSearchStringChanged(const QString& filter_string);
-            void resetProxyModel();
 
         private:
-            void constructObjectManagementToolBar();
-            void constructPropertyBrowser();
+            //! Disconnects the clipboard's copy and cut actions from this widget.
             void disconnectClipboard();
-            void setGlobalObjectSubjectType();
 
         protected:
-            void refreshPropertyBrowser();           
-            void constructActions();
             void changeEvent(QEvent *e);
 
         private:

@@ -47,7 +47,7 @@
 #include "ActionProvider.h"
 
 #include <ActivityPolicyFilter.h>
-#include <Observer.h>
+#include <ObserverHints.h>
 #include <ObserverMimeData.h>
 #include <QtilitiesCore.h>
 #include <QtilitiesCoreConstants.h>
@@ -134,15 +134,14 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     ObjectPropertyBrowser* property_browser_widget;
 
     bool initialized;
-    bool use_observer_hints;
     bool update_selection_activity;
 
-    Qtilities::Core::Observer::DisplayFlags display_flags;
-    Qtilities::Core::Observer::ActionHints action_hints;
-    Qtilities::Core::Observer::DisplayFlags default_display_flags;
-    Qtilities::Core::Observer::ActionHints default_action_hints;
-    Qtilities::Core::Observer::ItemViewColumnFlags item_view_column_hints;
-    Qtilities::Core::Observer::ItemViewColumnFlags default_item_view_column_flags;
+    //! Used to store default observer hints to be used with this widget.
+    QPointer<ObserverHints> hints_default;
+    //! Used to store observer hints for the current selection parent observer.
+    QPointer<ObserverHints> hints_selection_parent;
+    //! Indicates if the default observer hints, or the current selection parent observer hints are used.
+    bool use_observer_hints;
 
     Qt::DockWidgetArea property_editor_dock_area;
     ObjectPropertyBrowser::BrowserType property_editor_type;
@@ -169,7 +168,6 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->display_mode = display_mode;
 
     d->tree_view = 0;
-    d->display_flags = 0;
     d->table_model = 0;
     d->table_view = 0;
     d->tree_model = 0;
@@ -178,17 +176,11 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->top_level_observer = 0;
 
     // Init rest of parameters
-    d->action_hints = Qtilities::Core::Observer::None;
-    d->display_flags = Qtilities::Core::Observer::NoDisplayFlagsHint;
-    d->item_view_column_hints = Qtilities::Core::Observer::NoItemViewColumnHint;
-    d->default_action_hints = Qtilities::Core::Observer::None;
-    d->default_display_flags = Qtilities::Core::Observer::NoDisplayFlagsHint;
-    d->default_display_flags |= Qtilities::Core::Observer::ItemView;
-    d->default_display_flags |= Qtilities::Core::Observer::NavigationBar;
-    d->default_item_view_column_flags = Qtilities::Core::Observer::NoItemViewColumnHint;
+    d->hints_default = new ObserverHints(this);
+    d->hints_selection_parent = 0;
+    d->use_observer_hints = true;
 
     d->initialized = false;
-    d->use_observer_hints = true;
     d->update_selection_activity = true;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
     d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
@@ -205,182 +197,18 @@ Qtilities::CoreGui::ObserverWidget::~ObserverWidget()
     delete d;           
 }
 
-bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *event) {
-    if (!d->initialized)
-        return false;
+Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints() const {
+    if (d->use_observer_hints && d->hints_selection_parent)
+        return d->hints_selection_parent;
+    else
+        return d->hints_default;
+}
 
-    if (d->table_view && d->display_mode == TableView) {
-        if (object == d->table_view->viewport() && event->type() == QEvent::MouseButtonPress) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->buttons() == Qt::LeftButton)
-               d->startPos = mouseEvent->pos();
-            return false;
-        } else if (object == d->table_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
-            if (d->current_selection.count() == 1)
-                emit doubleClickRequest(d->current_selection.front(), d_observer);
-            else
-                emit doubleClickRequest(0, d_observer);
-
-            return false;
-        } else if (object == d->table_view->viewport() && event->type() == QEvent::MouseMove) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-
-            int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
-            if (distance >= QApplication::startDragDistance()) {
-                if (mouseEvent->buttons() == Qt::LeftButton || mouseEvent->buttons() == Qt::RightButton) {
-                    if (selectedObjects().size() > 0 && d->initialized) {
-                        // Check to see if the selection contains any observers. If so, we don't allow the drag to start.
-                        bool do_drag = true;
-                        /*for (int i = 0; i < selectedObjects().size(); i++) {
-                            Observer* observer = qobject_cast<Observer*> (selectedObjects().at(i));
-                            if (observer) {
-                                do_drag = false;
-                                break;
-                            }
-                        }*/
-
-                        if (do_drag && d->table_model) {
-                            ObserverMimeData *mimeData = new ObserverMimeData(selectedObjects(),d_observer->observerID());
-
-                            QDrag *drag = new QDrag(this);
-                            drag->setMimeData(mimeData);
-                            //drag->setPixmap(QPixmap(ICON_OBSERVER));
-
-                            if (mouseEvent->buttons() == Qt::LeftButton)
-                                drag->exec(Qt::CopyAction);
-                            else if (mouseEvent->buttons() == Qt::RightButton)
-                                drag->exec(Qt::MoveAction);
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
-        if (object == d->tree_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
-            if (d->current_selection.count() == 1)
-                emit doubleClickRequest(d->current_selection.front(), d->tree_model->selectionParent());
-            else
-                emit doubleClickRequest(0, d->tree_model->selectionParent());
-            return false;
-        }
-    }
-
-    if (object == d->table_view && event->type() == QEvent::DragEnter) {
-        QDragEnterEvent *dragEnterEvent = static_cast<QDragEnterEvent *>(event);
-        dragEnterEvent->accept();
-        return false;
-    } else if (object == d->table_view && event->type() == QEvent::FocusIn) {
-        // Connect to the paste action
-        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
-        if (command) {
-            if (command->action())
-                command->action()->disconnect(this);
-        }
-
-        if (d_observer->subjectCount() == 0) {
-            QtilitiesCore::instance()->contextManager()->setNewContext(contextString(),true);
-            setGlobalObjectSubjectType();
-            refreshActions();
-        } else {
-            QtilitiesCore::instance()->contextManager()->setNewContext(contextString(),true);
-        }
-
-        return false;
-    } else if (object == d->table_view && event->type() == QEvent::FocusOut) {
-        // Disconnect the paste action from the this widget.
-        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
-        if (command) {
-            if (command->action())
-                command->action()->disconnect(this);
-        }
-
-        return false;
-    } else if (object == d->tree_view && event->type() == QEvent::FocusIn) {
-        if (!d_observer)
-            return false;
-
-        // Connect to the paste action
-        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
-        if (command) {
-            if (command->action())
-                connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
-        }
-
-        if (d_observer->subjectCount() == 0) {
-            QtilitiesCore::instance()->contextManager()->setNewContext(contextString(),true);
-            setGlobalObjectSubjectType();
-            refreshActions();
-        } else {
-            QtilitiesCore::instance()->contextManager()->setNewContext(contextString(),true);
-        }
-
-        return false;
-    } else if (object == d->tree_view && event->type() == QEvent::FocusOut) {
-        // Disconnect the paste action from the this widget.
-        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
-        if (command) {
-            if (command->action())
-                command->action()->disconnect(this);
-        }
-
-        return false;
-    } else if (object == d->table_view && event->type() == QEvent::DragMove) {
-        QDragMoveEvent *dragMoveEvent = static_cast<QDragMoveEvent *>(event);
-        dragMoveEvent->accept();
-        return false;
-    } else if (object == this && event->type() == QEvent::Drop) {
-        QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
-
-        if (!d->initialized)
-            return false;
-
-        if (d->display_mode == TableView) {
-            if (dropEvent->proposedAction() == Qt::MoveAction || dropEvent->proposedAction() == Qt::CopyAction) {
-                const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (dropEvent->mimeData());
-                if (observer_mime_data) {
-                    if (observer_mime_data->sourceID() == d_observer->observerID())
-                        return false;
-
-                    if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Qtilities::Core::Observer::Allowed) {
-                        // Now check the proposed action of the event.
-                        if (dropEvent->proposedAction() == Qt::MoveAction) {
-                            dropEvent->accept();
-                            QtilitiesCore::instance()->objectManager()->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
-                        } else if (dropEvent->proposedAction() == Qt::CopyAction) {
-                            dropEvent->accept();
-
-                            // Attempt to copy the dragged objects
-                            // For now we discard objects that cause problems during attachment and detachment
-                            for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
-                                // Attach to destination
-                                d_observer->attachSubject(observer_mime_data->subjectList().at(i));
-                            }
-                        }
-                    } else {
-                        QMessageBox msgBox;
-                        msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                        msgBox.setWindowIcon(QIcon(ICON_OBSERVER));
-                        msgBox.setText(QString(tr("The drop operation could not be completed. The destination observer manages cannot accept all the objects in your selection.")));
-                        msgBox.exec();
-                    }
-                }
-            }
-        }
-        return false;
-    } else if (object == this && event->type() == QEvent::User) {
-        // We check if the event is a QtilitiesPropertyChangeEvent.
-        QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
-        if (qtilities_event) {
-            if (!strcmp(qtilities_event->propertyName().data(),OBSERVER_SUBJECT_IDS)) {
-                // This implementation can be improved in the future. For now we don't care if the change affects this view.
-                // We just close this window.
-                contextDeleted();
-            }
-        }
-        return false;
-     }
-     return false;
+Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints() {
+    if (d->use_observer_hints && d->hints_selection_parent)
+        return d->hints_selection_parent;
+    else
+        return d->hints_default;
 }
 
 void Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) {
@@ -401,28 +229,6 @@ void Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     }
 
     ObserverAwareBase::setObserverContext(observer);
-
-    // Check if the observer has a FollowSelection actity policy
-    // In that case the observer widget, in tree mode must select objects which are active and adapt to changes in the activity filter.
-    if (d_observer->activityControlHint() == Qtilities::Core::Observer::FollowSelection) {
-        // Check if the observer has a activity filter, which it should have with this hint
-        ActivityPolicyFilter* filter = 0;
-        for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
-            filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
-            if (filter) {
-                d->activity_filter = filter;
-
-                // Connect to the activity change signal (to update activity on observer widget side)
-                // This only works in table mode...
-                connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectSubjectsByRef(QList<QObject*>)));
-                selectSubjectsByRef(d->activity_filter->activeSubjects());
-            }
-        }
-    } else {
-        if (d->activity_filter)
-            d->activity_filter->disconnect(this);
-        d->activity_filter = 0;
-    }
 
     // Update the observer context of the delegates
     if (d->display_mode == TableView && d->table_name_column_delegate)
@@ -446,14 +252,14 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Setup some flags and attributes for this widget the first time it is constructed.
         setAttribute(Qt::WA_DeleteOnClose, true);
         // Register contextString in the context manager.
-        QtilitiesCore::instance()->objectManager()->registerObject(this);
+        OBJECT_MANAGER->registerObject(this);
         constructActions();
     }
 
     d->initialized = false;
 
     if (!d_observer) {
-        LOG_DEBUG("You are attempting to initialize an ObserverWidget without an observer context.");
+        LOG_FATAL("You are attempting to initialize an ObserverWidget without an observer context.");
         d->action_provider->disableAllActions();
         d->initialized = false;
         return;
@@ -469,20 +275,40 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         setObjectName(d_observer->objectName());
     }
 
-    // Construct navigation toolbar and set up hints
+    // Set up hints
     if (d->use_observer_hints) {
         // Check if this observer provides hints for this model
-        d->display_flags = d_observer->displayFlagsHint();
-        d->action_hints = d_observer->actionHints();
-        d->item_view_column_hints = d_observer->itemViewColumnFlags();
-    } else {
-        d->action_hints = d->default_action_hints;
-        d->item_view_column_hints = d->default_item_view_column_flags;
-    }
+        d->hints_selection_parent = d_observer->displayHints();
 
-    // Check if the observer does not specify flags, if so we use the defaults
-    if (d->display_flags == Qtilities::Core::Observer::NoDisplayFlagsHint)
-        d->display_flags = d->default_display_flags;
+        // Check if the observer does not specify flags, if so we use the defaults
+        if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
+            activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
+
+        if (activeHints() && (d->display_mode == TableView)) {
+            // Ok since the new observer provides hints, we need to see if we must select its' active objects:
+            // Check if the observer has a FollowSelection actity policy
+            // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
+            if (d_observer->displayHints()->activityControlHint() == ObserverHints::FollowSelection) {
+                // Check if the observer has a activity filter, which it should have with this hint
+                ActivityPolicyFilter* filter = 0;
+                for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+                    filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
+                    if (filter) {
+                        d->activity_filter = filter;
+
+                        // Connect to the activity change signal (to update activity on observer widget side)
+                        // This only works in table mode...
+                        connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectSubjectsInTable(QList<QObject*>)));
+                        selectSubjectsInTable(d->activity_filter->activeSubjects());
+                    }
+                }
+            } else {
+                if (d->activity_filter)
+                    d->activity_filter->disconnect(this);
+                d->activity_filter = 0;
+            }
+        }
+    }
 
     // Hide the search bar if it is visible
     ui->widgetSearchBox->hide();
@@ -520,9 +346,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setRootIsDecorated(true);
                 d->tree_model = new ObserverTreeModel();
                 d->tree_view->setSortingEnabled(true);
-                d->tree_view->sortByColumn(ObserverTreeModel::NameColumn,Qt::AscendingOrder);
+                d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::DescendingOrder);
                 d->model_was_reset = false;
-                connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setSelectionParent(Observer*)));
+                connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
                 connect(d->tree_model,SIGNAL(layoutChanged()),d->tree_view,SLOT(expandAll()));
 
                 d->tree_view->viewport()->installEventFilter(this);
@@ -549,19 +375,15 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup proxy model
             d->proxy_model->setSourceModel(d->tree_model);
-            d->proxy_model->setFilterKeyColumn(ObserverTreeModel::NameColumn);
+            d->proxy_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->tree_view->setModel(d->proxy_model);
 
             //d->tree_view->header()->hide();
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
 
-            // Check if the item view should be vissible
-            if (d->display_flags & Qtilities::Core::Observer::ItemView)
-                d->tree_view->setVisible(true);
-            else
-                d->tree_view->setVisible(false);
-
+            // The view must always be visible.
+            d->tree_view->setVisible(true);
             d->tree_view->expandAll();
         } else if (d->display_mode == TableView) {
             // Connect to the current parent observer, in the tree view the model will monitor this for you.
@@ -613,7 +435,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup proxy model
             d->proxy_model->setSourceModel(d->table_model);
-            d->proxy_model->setFilterKeyColumn(ObserverTableModel::NameColumn);
+            d->proxy_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->table_view->setModel(d->proxy_model);
 
             if (d->table_view->selectionModel()) {
@@ -621,16 +443,13 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
             }
 
-            // Check if the item view should be vissible
-            if (d->display_flags & Qtilities::Core::Observer::ItemView)
-                d->table_view->setVisible(true);
-            else
-                d->table_view->setVisible(false);
+            // The view must always be visible.
+            d->table_view->setVisible(true);
         }
     }
 
     // Check if the hierarhcy navigation bar should be visible
-    if (d->display_flags & Qtilities::Core::Observer::NavigationBar) {
+    if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar) {
         if (!d->navigation_bar) {
             d->navigation_bar = new ObjectHierarchyNavigator();
             QGridLayout* layout = new QGridLayout();
@@ -660,66 +479,66 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     }
 
     // Update the columns shown
-    if (d->display_mode == TableView && d->table_view) {
+    if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Show only the needed columns for the current observer.
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::IdColumn))
-            d->table_view->hideColumn(ObserverTableModel::IdColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
         else {
-            d->table_view->showColumn(ObserverTableModel::IdColumn);
-            d->table_view->setColumnWidth(ObserverTableModel::IdColumn,50);
+            d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
+            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID),50);
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::CategoryColumn))
-            d->table_view->hideColumn(ObserverTableModel::CategoryColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
         else {
-            if (d_observer->hierarchicalDisplayHint() & Observer::CategorizedHierarchy) {
-                d->table_view->showColumn(ObserverTableModel::CategoryColumn);
-                d->table_view->setColumnWidth(ObserverTableModel::CategoryColumn,50);
+            if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
+                d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
+                d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory),50);
             } else {
-                d->table_view->hideColumn(ObserverTableModel::CategoryColumn);
+                d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
             }
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::ChildCountColumn))
-            d->table_view->hideColumn(ObserverTableModel::ChildCountColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
-            d->table_view->showColumn(ObserverTableModel::ChildCountColumn);
-            d->table_view->setColumnWidth(ObserverTableModel::ChildCountColumn,50);
+            d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
+            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::TypeInfoColumn))
-            d->table_view->hideColumn(ObserverTableModel::TypeInfoColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
-            d->table_view->showColumn(ObserverTableModel::TypeInfoColumn);
-            d->table_view->setColumnWidth(ObserverTableModel::TypeInfoColumn,50);
+            d->table_view->showColumn(AbstractObserverItemModel::ColumnTypeInfo);
+            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::AccessColumn))
-            d->table_view->hideColumn(ObserverTableModel::AccessColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
-            d->table_view->showColumn(ObserverTableModel::AccessColumn);
-            d->table_view->setColumnWidth(ObserverTableModel::AccessColumn,50);
+            d->table_view->showColumn(AbstractObserverItemModel::ColumnAccess);
+            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
         }
 
         // Resize columns
         QHeaderView* table_header = d->table_view->horizontalHeader();
         d->table_view->resizeColumnsToContents();
-        table_header->setResizeMode(ObserverTableModel::NameColumn,QHeaderView::Stretch);
-    } else if (d->display_mode == TreeView && d->tree_view) {
+        table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+    } else if (d->display_mode == TreeView && d->tree_view && d->tree_model) {
         // Show only the needed columns for the current observer
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::ChildCountColumn))
-            d->tree_view->hideColumn(ObserverTreeModel::ChildCountColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
+            d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
-            d->tree_view->showColumn(ObserverTreeModel::ChildCountColumn);
-            d->tree_view->setColumnWidth(ObserverTreeModel::ChildCountColumn,50);
+            d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
+            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::TypeInfoColumn))
-            d->tree_view->hideColumn(ObserverTreeModel::TypeInfoColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
+            d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
-            d->tree_view->showColumn(ObserverTreeModel::TypeInfoColumn);
-            d->tree_view->setColumnWidth(ObserverTreeModel::TypeInfoColumn,50);
+            d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
+            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
-        if (!(d->item_view_column_hints & Qtilities::Core::Observer::AccessColumn))
-            d->tree_view->hideColumn(ObserverTreeModel::AccessColumn);
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
+            d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
-            d->tree_view->showColumn(ObserverTreeModel::AccessColumn);
-            d->tree_view->setColumnWidth(ObserverTreeModel::AccessColumn,50);
+            d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
+            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
         }
 
         // Set name column width to something biggish for now. Will fix later.
@@ -727,7 +546,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         d->tree_view->setColumnWidth(0,300);
 
         //QHeaderView* tree_header = d->tree_view->header();
-        //tree_header->setResizeMode(ObserverTreeModel::NameColumn,QHeaderView::Stretch);
+        //tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::NameColumn),QHeaderView::Stretch);
     }
 
     d->initialized = true;
@@ -757,43 +576,23 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
     // If so we set the top level to the first item.
     if (d->top_level_observer) {
         if (d->navigation_stack.front() != d->top_level_observer->observerID()) {
-            d->top_level_observer = QtilitiesCore::instance()->objectManager()->observerReference(d->navigation_stack.front());
+            d->top_level_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.front());
         }
     } else {
         // setObserverContext not yet called, we set it to the front item.
         if (d->navigation_stack.count() > 0)
-            d->top_level_observer = QtilitiesCore::instance()->objectManager()->observerReference(d->navigation_stack.front());
+            d->top_level_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.front());
     }
 
     // We need to check the subjectChange signal on all the navigation stack items.
     // For now, we just check if any of them detaches an observer, in that case we close this widget since
     // we cannot garuantee that the detached item doesn't appear in the stack.
     for (int i = 0; i < d->navigation_stack.count(); i++) {
-        Observer* stack_observer = QtilitiesCore::instance()->objectManager()->observerReference(d->navigation_stack.at(i));
+        Observer* stack_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.at(i));
         if (stack_observer)
             connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QObject*>)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QObject*>)));
     }
 
-}
-
-void Qtilities::CoreGui::ObserverWidget::setDisplayFlags(Qtilities::Core::Observer::DisplayFlags display_flags) {
-    d->default_display_flags = display_flags;
-}
-
-Qtilities::Core::Observer::DisplayFlags Qtilities::CoreGui::ObserverWidget::displayFlags() const {
-    return d->default_display_flags;
-}
-
-Qtilities::CoreGui::ObserverWidget::DisplayMode Qtilities::CoreGui::ObserverWidget::displayMode() const {
-    return d->display_mode;
-}
-
-void Qtilities::CoreGui::ObserverWidget::setActionHints(Qtilities::Core::Observer::ActionHints action_hints) {
-    d->default_action_hints = action_hints;
-}
-
-Qtilities::Core::Observer::ActionHints Qtilities::CoreGui::ObserverWidget::actionHints() const {
-    return d->default_action_hints;
 }
 
 void Qtilities::CoreGui::ObserverWidget::toggleGrid(bool toggle) {
@@ -938,6 +737,10 @@ Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::ObserverWid
     return d->action_provider;
 }
 
+void Qtilities::CoreGui::ObserverWidget::inheritObserverHints(ObserverHints* display_hints) {
+    d->hints_selection_parent = display_hints;
+}
+
 void Qtilities::CoreGui::ObserverWidget::handleSettingsUpdateRequest(const QString& request_id) {
     if (request_id == d->settings_string)
         readSettings(request_id);
@@ -959,13 +762,13 @@ void Qtilities::CoreGui::ObserverWidget::handleSubjectCountChanged() {
     if (!d->initialized || !isVisible())
         return;
 
-    if (d->display_mode == TableView && d->table_view) {
+    if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Row height
         for (int i = 0; i < d->table_model->rowCount(); i++) {
             d->table_view->setRowHeight(i,17);
             QHeaderView* table_header = d->table_view->horizontalHeader();
             d->table_view->resizeColumnsToContents();
-            table_header->setResizeMode(ObserverTableModel::NameColumn,QHeaderView::Stretch);
+            table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
         }
     }
 }
@@ -973,7 +776,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSubjectCountChanged() {
 void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // We construct each action and then register it
     QList<int> context;
-    context.push_front(QtilitiesCore::instance()->contextManager()->contextID(contextString()));
+    context.push_front(CONTEXT_MANAGER->contextID(contextString()));
 
     // ---------------------------
     // Remove All
@@ -1090,62 +893,62 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     }
 
     // Ok, first we set only actions specified by the observer's action hints to be visible
-    if (d->action_hints & Qtilities::Core::Observer::RemoveItem)
+    if (activeHints()->actionHints() & ObserverHints::RemoveItem)
         d->actionRemoveItem->setVisible(true);
     else
         d->actionRemoveItem->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::RemoveAll)
+    if (activeHints()->actionHints() & ObserverHints::RemoveAll)
         d->actionRemoveAll->setVisible(true);
     else
         d->actionRemoveAll->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::DeleteItem)
+    if (activeHints()->actionHints() & ObserverHints::DeleteItem)
         d->actionDeleteItem->setVisible(true);
     else
         d->actionDeleteItem->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::DeleteAll)
+    if (activeHints()->actionHints() & ObserverHints::DeleteAll)
         d->actionDeleteAll->setVisible(true);
     else
         d->actionDeleteAll->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::PushDown)
+    if (activeHints()->actionHints() & ObserverHints::PushDown)
         d->actionPushDown->setVisible(true);
     else
         d->actionPushDown->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::PushDownNew)
+    if (activeHints()->actionHints() & ObserverHints::PushDownNew)
         d->actionPushDownNew->setVisible(true);
     else
         d->actionPushDownNew->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::PushUp)
+    if (activeHints()->actionHints() & ObserverHints::PushUp)
         d->actionPushUp->setVisible(true);
     else
         d->actionPushUp->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::PushUpNew)
+    if (activeHints()->actionHints() & ObserverHints::PushUpNew)
         d->actionPushUpNew->setVisible(true);
     else
         d->actionPushUpNew->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::NewItem)
+    if (activeHints()->actionHints() & ObserverHints::NewItem)
         d->actionNewItem->setVisible(true);
     else
         d->actionNewItem->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::RefreshView)
+    if (activeHints()->actionHints() & ObserverHints::RefreshView)
         d->actionRefreshView->setVisible(true);
     else
         d->actionRefreshView->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::SwitchView)
+    if (activeHints()->actionHints() & ObserverHints::SwitchView)
         d->actionSwitchView->setVisible(true);
     else
         d->actionSwitchView->setVisible(false);
 
-    if (d->action_hints & Qtilities::Core::Observer::FindItem)
+    if (activeHints()->actionHints() & ObserverHints::FindItem)
         d->actionFindItem->setVisible(true);
     else
         d->actionFindItem->setVisible(false);
@@ -1184,6 +987,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionExpandAll->setEnabled(true);
         d->actionPushDown->setEnabled(false);
         d->actionPushUp->setEnabled(false);
+        d->actionPushDownNew->setEnabled(false);
+        d->actionPushUpNew->setEnabled(false);
+        d->actionPushDown->setVisible(false);
+        d->actionPushUp->setVisible(false);
+        d->actionPushDownNew->setVisible(false);
+        d->actionPushUpNew->setVisible(false);
     }
 
     // Remove & Delete Items + Navigating Down Actions
@@ -1242,16 +1051,34 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::setSelectionParent(Observer* observer) {
+void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
     // This function will only be entered in TreeView mode.
     // It is a slot connected to the selection parent changed signal in the tree model.
-    if (observer) {
-        // The case where the parent is a valid observer. 
-        if (d->tree_model)
-            d->tree_model->useObserverHints(observer);
-        setObserverContext(observer);
-        initialize(true);
+    if (!observer)
+        observer = d->top_level_observer;
+
+    setObserverContext(observer);
+    initialize(true);
+
+    // We need to look at the current selection parent if in tree mode, otherwise in table mode we use d_observer:
+    if (d->update_selection_activity && observer) {
+        // Check if the observer has a FollowSelection activity policy
+        if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
+            // Check if the observer has a activity filter, which it should have with this hint
+            ActivityPolicyFilter* filter = 0;
+            for (int i = 0; i < observer->subjectFilters().count(); i++) {
+                filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
+                if (filter) {
+                    // Bug here: When an object becomes inactive, the view does not update yet. We can refresh the
+                    // observer context or reset the model but this loses the current selection in tree view. Need to fix.
+                    filter->setActiveSubjects(selectedObjects());
+                }
+            }
+        }
     }
+
+    d->tree_name_column_delegate->setObserverContext(observer);
+    refreshPropertyBrowser();
 }
 
 void Qtilities::CoreGui::ObserverWidget::handle_actionRemoveItem_triggered() {
@@ -1336,7 +1163,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
             // Check if the stack contains a parent for the current d_observer
             if (navigationStack().count() > 0) {
                 // Get observer from stack
-                Observer* selection_parent = QtilitiesCore::instance()->objectManager()->observerReference(navigationStack().last());
+                Observer* selection_parent = OBJECT_MANAGER->observerReference(navigationStack().last());
                 emit addNewItem_triggered(d_observer, selection_parent);
             } else
                 emit addNewItem_triggered(d_observer, 0);
@@ -1380,7 +1207,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushUp_triggered() {
     d_observer->disconnect(d->navigation_bar);
 
     // Setup new observer
-    Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(d->navigation_stack.pop());
+    Observer* observer = OBJECT_MANAGER->observerReference(d->navigation_stack.pop());
     Q_ASSERT(observer);
 
     setObserverContext(observer);
@@ -1395,13 +1222,11 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushUpNew_triggered() {
     if (d->navigation_stack.count() == 0)
         return;
 
-    Observer* observer = QtilitiesCore::instance()->objectManager()->observerReference(d->navigation_stack.front());
-    Q_ASSERT(observer);
+    Observer* observer = OBJECT_MANAGER->observerReference(d->navigation_stack.front());
+    if (!observer)
+        return;
 
     ObserverWidget* new_child_widget = new ObserverWidget(d->display_mode);
-    new_child_widget->setDisplayFlags(displayFlags());
-    new_child_widget->setActionHints(actionHints());
-
     QStack<int> tmp_stack = d->navigation_stack;
     tmp_stack.pop();
     new_child_widget->setNavigationStack(tmp_stack);
@@ -1447,7 +1272,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDown_triggered() {
             return;
 
         // Check the observer's access
-        if (observer->accessMode() == Qtilities::Core::Observer::LockedAccess) {
+        if (observer->accessMode() == Observer::LockedAccess) {
             QMessageBox msgBox;
             msgBox.setText("The context you are trying to access is locked.");
             msgBox.exec();
@@ -1468,7 +1293,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDown_triggered() {
             Observer* observer = qobject_cast<Observer*> (selectedObjects().front());
             if (observer) {
                 // Check the observer's access
-                if (observer->accessMode() == Qtilities::Core::Observer::LockedAccess) {
+                if (observer->accessMode() == Observer::LockedAccess) {
                     QMessageBox msgBox;
                     msgBox.setText("The context you are trying to access is locked.");
                     msgBox.exec();
@@ -1496,7 +1321,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDownNew_triggered() {
     if (d->display_mode == TableView) {
         // Set up new observer
         QObject* obj = selectedObjects().front();
-        Observer* observer = qobject_cast<Observer*> (obj);
+        observer = qobject_cast<Observer*> (obj);
         if (!observer) {
             // Handle the cases where the current object has an observer child
             foreach (QObject* child, obj->children()) {
@@ -1517,7 +1342,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDownNew_triggered() {
             return;
 
         // Check the observer's access
-        if (observer->accessMode() == Qtilities::Core::Observer::LockedAccess) {
+        if (observer->accessMode() == Observer::LockedAccess) {
             QMessageBox msgBox;
             msgBox.setText("The context you are trying to access is locked.");
             msgBox.exec();
@@ -1537,7 +1362,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDownNew_triggered() {
             observer = qobject_cast<Observer*> (selectedObjects().front());
             if (observer) {
                 // Check the observer's access
-                if (observer->accessMode() == Qtilities::Core::Observer::LockedAccess) {
+                if (observer->accessMode() == Observer::LockedAccess) {
                     QMessageBox msgBox;
                     msgBox.setText("The context you are trying to access is locked.");
                     msgBox.exec();
@@ -1557,8 +1382,6 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPushDownNew_triggered() {
             return;
     }
 
-    new_child_widget->setDisplayFlags(displayFlags());
-    new_child_widget->setActionHints(actionHints());
     new_child_widget->setObserverContext(observer);
     new_child_widget->initialize();
     new_child_widget->setSizePolicy(sizePolicy());
@@ -1617,15 +1440,15 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionCut_triggered() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
-    if (d->action_hints & Qtilities::Core::Observer::PasteItem){
+    if (activeHints()->actionHints() & ObserverHints::PasteItem){
         // Check if the subjects being dropped are of the same type as the destination observer.
         // If this is not the case, we do not allow the drop.
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (QApplication::clipboard()->mimeData());
         if (observer_mime_data) {
-            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Qtilities::Core::Observer::Allowed) {
+            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
                 // Now check the proposed action of the event.
                 if (QtilitiesCoreGui::instance()->clipboardManager()->clipboardOrigin() == IClipboard::CutAction) {
-                    QtilitiesCore::instance()->objectManager()->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                    OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
                     QtilitiesCoreGui::instance()->clipboardManager()->acceptMimeData();
                 } else if (QtilitiesCoreGui::instance()->clipboardManager()->clipboardOrigin() == IClipboard::CopyAction) {
                     // Attempt to copy the objects
@@ -1748,7 +1571,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // Remove contexts from previous selection
     int count = d->appended_contexts.count()-1;
     for (int i = count; i >= 0; i--) {
-        QtilitiesCore::instance()->contextManager()->removeContext(d->appended_contexts.at(i),false);
+        CONTEXT_MANAGER->removeContext(d->appended_contexts.at(i),false);
         d->appended_contexts.removeAt(i);
     }
 
@@ -1758,7 +1581,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         IContext* context = qobject_cast<IContext*> (object_list.at(i));
         if (context) {
             if (!d->appended_contexts.contains(context->contextString())) {
-                QtilitiesCore::instance()->contextManager()->appendContext(context->contextString(),false);
+                CONTEXT_MANAGER->appendContext(context->contextString(),false);
                 contexts_in_current_selection << context->contextString();
                 d->appended_contexts << context->contextString();
             }
@@ -1766,20 +1589,20 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     }
 
     if (d->update_selection_activity)
-        QtilitiesCore::instance()->contextManager()->broadcastState();
+        CONTEXT_MANAGER->broadcastState();
 
     // Update the global object list
     if (!d->property_browser_widget) {
         // Set the active objects for the type of observer
         QString meta_type = d_observer->metaObject()->className();
-        QtilitiesCore::instance()->objectManager()->setMetaTypeActiveObjects(meta_type,object_list);
+        OBJECT_MANAGER->setMetaTypeActiveObjects(meta_type,object_list);
 
         setGlobalObjectSubjectType();
     }
 
     // If selected objects > 0 and the observer context supports copy & cut, we enable copy/cut
     if (d->current_selection.count() > 0) {
-        if (d->action_hints & Qtilities::Core::Observer::CopyItem) {
+        if (activeHints()->actionHints() & ObserverHints::CopyItem) {
             // ---------------------------
             // Copy
             // ---------------------------
@@ -1794,7 +1617,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             }
         }
 
-        if (d->action_hints & Qtilities::Core::Observer::CutItem) {
+        if (activeHints()->actionHints() & ObserverHints::CutItem) {
             // ---------------------------
             // Cut
             // ---------------------------
@@ -1812,34 +1635,19 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         disconnectClipboard();
     }
 
-    // Check if selection control activity must be executed:
+    // Only refresh the property browser in table view mode here. In tree view mode it is refreshed in
+    // the setSelectionParent slot.
     Observer* selection_parent = 0;
-    if (d->display_mode == TreeView && d->tree_model) {
-        selection_parent = d->tree_model->calculateSelectionParent(selectedIndexes());
-        d->tree_name_column_delegate->setObserverContext(selection_parent);
-
-        // We need to look at the current selection parent if in tree mode, otherwise in table mode we use d_observer:
-        if (d->update_selection_activity) {
-            // Check if the observer has a FollowSelection activity policy
-            if (selection_parent->activityControlHint() == Qtilities::Core::Observer::FollowSelection) {
-                // Check if the observer has a activity filter, which it should have with this hint
-                ActivityPolicyFilter* filter = 0;
-                for (int i = 0; i < selection_parent->subjectFilters().count(); i++) {
-                    filter = qobject_cast<ActivityPolicyFilter*> (selection_parent->subjectFilters().at(i));
-                    if (filter) {
-                        // Bug here: When an object becomes inactive, the view does not update yet. We can refresh the
-                        // observer context or reset the model but this loses the current selection in tree view. Need to fix.
-                        filter->setActiveSubjects(object_list);
-                    }
-                }
-            }
-        }
-    } else if (d->display_mode == TableView) {
+    if (d->display_mode == TableView) {
+        refreshPropertyBrowser();
         selection_parent = d_observer;
-    }
 
-    // Refresh property browser
-    refreshPropertyBrowser();
+        // In this case we must check for a FollowSelection hint.
+    } else if (d->display_mode == TreeView) {
+        selection_parent = d->tree_model->calculateSelectionParent(selectedIndexes());
+
+        // In this case the FollowSelection hint check will happen in the setTreeSelection slot.
+    }
 
     // Emit signals
     emit selectedObjectsChanged(object_list, selection_parent);
@@ -1877,9 +1685,9 @@ void Qtilities::CoreGui::ObserverWidget::setGlobalObjectSubjectType() {
                 this_list << d_observer->parent();
             else
                 this_list << d_observer;
-            QtilitiesCore::instance()->objectManager()->setMetaTypeActiveObjects(d->global_meta_type,this_list);
+            OBJECT_MANAGER->setMetaTypeActiveObjects(d->global_meta_type,this_list);
         } else
-            QtilitiesCore::instance()->objectManager()->setMetaTypeActiveObjects(d->global_meta_type,d->current_selection);
+            OBJECT_MANAGER->setMetaTypeActiveObjects(d->global_meta_type,d->current_selection);
     }
 }
 
@@ -1908,7 +1716,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
-    if (indication == Qtilities::Core::Observer::SubjectRemoved) {
+    if (indication == Observer::SubjectRemoved) {
         for (int i = 0; i < objects.count(); i++) {
             Observer* observer = qobject_cast<Observer*> (objects.at(i));
             if (observer) {
@@ -1924,7 +1732,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectC
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::selectSubjectsByRef(QList<QObject*> objects) {  
+void Qtilities::CoreGui::ObserverWidget::selectSubjectsInTable(QList<QObject*> objects) {
     if (objects.count() == 0)
         return;
 
@@ -1996,12 +1804,13 @@ void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
 
 void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
     // Update the property editor visibility and object
-    if (d->display_flags & Qtilities::Core::Observer::PropertyBrowser) {
+    if (activeHints()->displayFlagsHint() & ObserverHints::PropertyBrowser) {
         constructPropertyBrowser();
         if (selectedObjects().count() == 1)
             d->property_browser_widget->setObject(selectedObjects().front());
         else
             d->property_browser_widget->setObject(d_observer);
+        d->property_browser_dock->show();
         addDockWidget(d->property_editor_dock_area, d->property_browser_dock);
     } else {
         removeDockWidget(d->property_browser_dock);
@@ -2028,4 +1837,183 @@ void Qtilities::CoreGui::ObserverWidget::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+
+bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *event) {
+    if (!d->initialized)
+        return false;
+
+    if (d->table_view && d->display_mode == TableView) {
+        if (object == d->table_view->viewport() && event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->buttons() == Qt::LeftButton)
+               d->startPos = mouseEvent->pos();
+            return false;
+        } else if (object == d->table_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
+            if (d->current_selection.count() == 1)
+                emit doubleClickRequest(d->current_selection.front(), d_observer);
+            else
+                emit doubleClickRequest(0, d_observer);
+
+            return false;
+        } else if (object == d->table_view->viewport() && event->type() == QEvent::MouseMove) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+            int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
+            if (distance >= QApplication::startDragDistance()) {
+                if (mouseEvent->buttons() == Qt::LeftButton || mouseEvent->buttons() == Qt::RightButton) {
+                    if (selectedObjects().size() > 0 && d->initialized) {
+                        // Check to see if the selection contains any observers. If so, we don't allow the drag to start.
+                        bool do_drag = true;
+                        /*for (int i = 0; i < selectedObjects().size(); i++) {
+                            Observer* observer = qobject_cast<Observer*> (selectedObjects().at(i));
+                            if (observer) {
+                                do_drag = false;
+                                break;
+                            }
+                        }*/
+
+                        if (do_drag && d->table_model) {
+                            ObserverMimeData *mimeData = new ObserverMimeData(selectedObjects(),d_observer->observerID());
+
+                            QDrag *drag = new QDrag(this);
+                            drag->setMimeData(mimeData);
+                            //drag->setPixmap(QPixmap(ICON_OBSERVER));
+
+                            if (mouseEvent->buttons() == Qt::LeftButton)
+                                drag->exec(Qt::CopyAction);
+                            else if (mouseEvent->buttons() == Qt::RightButton)
+                                drag->exec(Qt::MoveAction);
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
+        if (object == d->tree_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
+            if (d->current_selection.count() == 1)
+                emit doubleClickRequest(d->current_selection.front(), d->tree_model->selectionParent());
+            else
+                emit doubleClickRequest(0, d->tree_model->selectionParent());
+            return false;
+        }
+    }
+
+    if (object == d->table_view && event->type() == QEvent::DragEnter) {
+        QDragEnterEvent *dragEnterEvent = static_cast<QDragEnterEvent *>(event);
+        dragEnterEvent->accept();
+        return false;
+    } else if (object == d->table_view && event->type() == QEvent::FocusIn) {
+        // Connect to the paste action
+        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action())
+                command->action()->disconnect(this);
+        }
+
+        if (d_observer->subjectCount() == 0) {
+            CONTEXT_MANAGER->setNewContext(contextString(),true);
+            setGlobalObjectSubjectType();
+            refreshActions();
+        } else {
+            CONTEXT_MANAGER->setNewContext(contextString(),true);
+        }
+
+        return false;
+    } else if (object == d->table_view && event->type() == QEvent::FocusOut) {
+        // Disconnect the paste action from the this widget.
+        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action())
+                command->action()->disconnect(this);
+        }
+
+        return false;
+    } else if (object == d->tree_view && event->type() == QEvent::FocusIn) {
+        if (!d_observer)
+            return false;
+
+        // Connect to the paste action
+        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action())
+                connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+        }
+
+        if (d_observer->subjectCount() == 0) {
+            CONTEXT_MANAGER->setNewContext(contextString(),true);
+            setGlobalObjectSubjectType();
+            refreshActions();
+        } else {
+            CONTEXT_MANAGER->setNewContext(contextString(),true);
+        }
+
+        return false;
+    } else if (object == d->tree_view && event->type() == QEvent::FocusOut) {
+        // Disconnect the paste action from the this widget.
+        Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action())
+                command->action()->disconnect(this);
+        }
+
+        return false;
+    } else if (object == d->table_view && event->type() == QEvent::DragMove) {
+        QDragMoveEvent *dragMoveEvent = static_cast<QDragMoveEvent *>(event);
+        dragMoveEvent->accept();
+        return false;
+    } else if (object == this && event->type() == QEvent::Drop) {
+        QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
+
+        if (!d->initialized)
+            return false;
+
+        if (d->display_mode == TableView) {
+            if (dropEvent->proposedAction() == Qt::MoveAction || dropEvent->proposedAction() == Qt::CopyAction) {
+                const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (dropEvent->mimeData());
+                if (observer_mime_data) {
+                    if (observer_mime_data->sourceID() == d_observer->observerID())
+                        return false;
+
+                    if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
+                        // Now check the proposed action of the event.
+                        if (dropEvent->proposedAction() == Qt::MoveAction) {
+                            dropEvent->accept();
+                            OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                        } else if (dropEvent->proposedAction() == Qt::CopyAction) {
+                            dropEvent->accept();
+
+                            // Attempt to copy the dragged objects
+                            // For now we discard objects that cause problems during attachment and detachment
+                            for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
+                                // Attach to destination
+                                d_observer->attachSubject(observer_mime_data->subjectList().at(i));
+                            }
+                        }
+                    } else {
+                        QMessageBox msgBox;
+                        msgBox.setWindowTitle(tr("Drop Operation Failed"));
+                        msgBox.setWindowIcon(QIcon(ICON_OBSERVER));
+                        msgBox.setText(QString(tr("The drop operation could not be completed. The destination observer manages cannot accept all the objects in your selection.")));
+                        msgBox.exec();
+                    }
+                }
+            }
+        }
+        return false;
+    } else if (object == this && event->type() == QEvent::User) {
+        // We check if the event is a QtilitiesPropertyChangeEvent.
+        QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
+        if (qtilities_event) {
+            if (!strcmp(qtilities_event->propertyName().data(),OBSERVER_SUBJECT_IDS)) {
+                // This implementation can be improved in the future. For now we don't care if the change affects this view.
+                // We just close this window.
+                contextDeleted();
+            }
+        }
+        return false;
+     }
+     return false;
 }
