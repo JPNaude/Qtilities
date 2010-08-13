@@ -36,7 +36,10 @@
 
 #include "QtilitiesCoreGui_global.h"
 
-#include <Observer.h>
+#include <Observer>
+#include <ObserverHints>
+#include <ActivityPolicyFilter>
+#include <NamingPolicyFilter>
 
 #include <QModelIndex>
 
@@ -45,9 +48,34 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-          \class Qtilities::CoreGui::AbstractObserverItemModel
-          \brief The AbstractObserverItemModel is an abstract base class which is used by all the different observer models in the Qtilities library.
+        \struct AbstractObserverItemModelData
+        \brief Structure used by AbstractObserverItemModel to store private data.
+          */
+        struct AbstractObserverItemModelData {
+            AbstractObserverItemModelData() { }
 
+            QStringList headers;
+            //! Used to store default observer hints to be used with this widget.
+            QPointer<ObserverHints> hints_default;
+            //! Used to store observer hints for the root observer (top level observer)
+            QPointer<ObserverHints> hints_top_level_observer;
+            //! Used to store observer hints for the current selection parent observer.
+            QPointer<ObserverHints> hints_selection_parent;
+            //! Indicates if the default observer hints, or the current selection parent observer hints are used.
+            bool use_observer_hints;
+
+            //! The activity policy filter of the current observer context, if present.
+            QPointer<ActivityPolicyFilter>   activity_filter;
+            //! The naming policy filter of the current observer context, if present.
+            QPointer<NamingPolicyFilter>     naming_filter;
+        };
+
+        /*!
+          \class Qtilities::CoreGui::AbstractObserverItemModel
+          \brief The AbstractObserverItemModel is an abstract base class which is used by all the different observer models in the %Qtilities library.
+
+          This class inhertis ObserverAwareBase which is used to define the context (top level context in tree views) to be used
+          in the model. The hints which should be used by the model is provided by the displayHints() function.
           \todo
           - Wishlist: Add option to disable updating when observer context is not active.
         */
@@ -55,50 +83,54 @@ namespace Qtilities {
         {
 
         public:
-            AbstractObserverItemModel() {
-                d_naming_control = Observer::ReadOnlyNames;
-                d_activity_display = Observer::NoActivityDisplay;
-                d_activity_control = Observer::NoActivityControl;
-                d_hierachical_display_hint = Observer::NoHierarhicalDisplayHint;
-                d_item_selection_control = Observer::NonSelectableItems;
-                d_item_view_column_flags = Observer::NoItemViewColumnHint;               
-            }
-            virtual ~AbstractObserverItemModel() {}
+            AbstractObserverItemModel();
+            virtual ~AbstractObserverItemModel();
 
-            //! Sets the naming control for this model.
-            void setNamingControl(Observer::NamingControl naming_control) { d_naming_control = naming_control; }
-            //! Gets the naming control for this model.
-            inline Observer::NamingControl namingControl() const { return d_naming_control; }
-            //! Sets the activity display for this model.
-            void setActivityDisplay(Observer::ActivityDisplay activity_display) { d_activity_display = activity_display; }
-            //! Gets the activity display for this model.
-            inline Observer::ActivityDisplay activityDisplay() const { return d_activity_display; }
-            //! Sets the activity control for this model.
-            void setActivityControl(Observer::ActivityControl activity_control) { d_activity_control = activity_control; }
-            //! Gets the activity control for this model.
-            inline Observer::ActivityControl activityControl() const { return d_activity_control; }
-            //! Sets the hierachical display hint for this model.
-            void setHierachicalDisplayHint(Observer::HierarhicalDisplay hierarhical_display) { d_hierachical_display_hint = hierarhical_display; }
-            //! Gets the hierachical display hint for this model.
-            inline Observer::HierarhicalDisplay hierachicalDisplayHint() const { return d_hierachical_display_hint; }
-            //! Sets the selection control for this model.
-            void setItemSelectionControl(Observer::ItemSelectionControl item_selection_control) { d_item_selection_control = item_selection_control; }
-            //! Gets the selection control for this model.
-            inline Observer::ItemSelectionControl itemSelectionControl() const { return d_item_selection_control; }
+            //! Sets the horizontal headers for this item model.
+            void setHorizontalHeaders(QStringList headers);
+            //! Gets the horizontal headers for this item model.
+            QStringList horizontalHeaders();
 
-            void setObserverContext(Observer* observer) { ObserverAwareBase::setObserverContext(observer); }
+            //! The possible columns which can be requested by views for an module.
+            enum ColumnID { ColumnSubjectID, ColumnName, ColumnChildCount, ColumnAccess, ColumnTypeInfo, ColumnCategory, ColumnLast };
+            //! The model implementation must return the index (starting at 0) for the requested column.
+            /*!
+              \note If your model does not support a specific column, return -1.
+              \note ColumnLast must return the number of columns you use in your model.
+              */
+            virtual int columnPosition(ColumnID column_id) const = 0;
 
+            //! Abstract function which must be implemented to get the subject ID of the object at the given index.
             virtual int getSubjectID(const QModelIndex &index) const = 0;
+            //! Abstract function which must be implemented to get the object at the given index.
             virtual QObject* getObject(const QModelIndex &index) const = 0;
 
+            //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
+            /*!
+             When toggle is equal to usesObserverHints() this function does nothing. When this is not the case this function
+             will call inheritObserverHints() with the base observer when toggle is false.  When true inheritObserverHints()
+             will be called with \p observer as the parameter.
+             */
+            void toggleUsesObserverHints(bool toggle, Observer* observer = 0);
+            //! Function to indicate if observer hints are used in this model. If not, the default hints in the model base class is used.
+            bool usesObserverHints() const;
+            //! Get hints from the specified observer and use it as the current selection parent's hints.
+            /*!
+              \returns True when hints was inherited succesfully, false otherwise.
+              */
+            bool inheritObserverHints(const Observer* observer);
+            //! This function will provide the hints which should be used by this model at any time.
+            /*!
+              \sa toggleUseObserverHints()
+              */
+            ObserverHints* activeHints() const;
+            ObserverHints* activeHints();
+
+            //! Implement the virtual function to get references to known filters.
+            void setObserverContext(Observer* observer);
+
         protected:
-            QStringList d_headers;
-            Observer::NamingControl d_naming_control;
-            Observer::ActivityDisplay d_activity_display;
-            Observer::ActivityControl d_activity_control;
-            Observer::HierarhicalDisplay d_hierachical_display_hint;
-            Observer::ItemSelectionControl d_item_selection_control;
-            Observer::ItemViewColumnFlags d_item_view_column_flags;
+            AbstractObserverItemModelData* model;
         };
     }
 }
