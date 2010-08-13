@@ -82,6 +82,25 @@ namespace Qtilities {
             // --------------------------------
             // Enumerations
             // --------------------------------
+            //! The observer selection context hint provides the ability to specify the context which must be used when selecting an observer in an observer tree hierarhcy.
+            /*!
+              Without this hint, widgets which are viewing a context must make assumptions on what to do when an observer is selected
+              in the view. For example, if you select an observer inside a context, should the DeleteAll hint delete all objects
+              under the selected observer or in the context where the observer is present (thus the observer's parent
+              observer context).
+
+              When using different selection contexts in the same tree you should take care not to create actions which
+              are confusing to users, thus the usages of all items in the tree must make sense and be consistant in the
+              usage scenario.
+
+              \note This hint is only applicable to cases where an Observer <b>with</b> a parent Observer is selected.
+              \sa setObserverSelectionContextHint(), observerSelectionContextHint()
+              */
+            enum ObserverSelectionContext {
+                NoObserverSelectionContextHint = 0,     /*!< No observer selection context hint. Uses SelectionUseParentContext by default. */
+                SelectionUseParentContext = 1,          /*!< Use the parent observer's context. */
+                SelectionUseSelectedContext = 2         /*!< Use the selected observer's context. */
+            };
             //! The possible naming control hints of the observer.
             /*!
               \sa setNamingControlHint(), namingControlHint()
@@ -226,6 +245,10 @@ category_filter_enabled(false)
             // --------------------------------
             // Hints Getter and Setter Functions
             // --------------------------------
+            //! Sets the observer selection context hint.
+            void setObserverSelectionContextHint(ObserverHints::ObserverSelectionContext observer_selection_context);
+            //! Gets the observer selection context hint.
+            ObserverHints::ObserverSelectionContext observerSelectionContextHint() const;
             //! Sets the naming control hint.
             void setNamingControlHint(ObserverHints::NamingControl naming_control);
             //! Gets the naming control hint.

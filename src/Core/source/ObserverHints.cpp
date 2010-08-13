@@ -34,7 +34,8 @@
 #include "ObserverHints.h"
 
 struct Qtilities::Core::ObserverHintsData {
-    ObserverHintsData() : naming_control(ObserverHints::NoNamingControlHint),
+    ObserverHintsData() : observer_selection_context(ObserverHints::SelectionUseParentContext),
+        naming_control(ObserverHints::NoNamingControlHint),
         activity_display(ObserverHints::NoActivityDisplayHint),
         activity_control(ObserverHints::NoActivityControlHint),
         item_selection_control(ObserverHints::SelectableItems),
@@ -46,17 +47,18 @@ struct Qtilities::Core::ObserverHintsData {
         has_inversed_category_display(true),
         category_filter_enabled(false) {}
 
-    ObserverHints::NamingControl        naming_control;
-    ObserverHints::ActivityDisplay      activity_display;
-    ObserverHints::ActivityControl      activity_control;
-    ObserverHints::ItemSelectionControl item_selection_control;
-    ObserverHints::HierarhicalDisplay   hierarhical_display;
-    ObserverHints::DisplayFlags         display_flags;
-    ObserverHints::ItemViewColumnFlags  item_view_column_hint;
-    ObserverHints::ActionHints          action_hints;
-    QStringList                         displayed_categories;
-    bool                                has_inversed_category_display;
-    bool                                category_filter_enabled;
+    ObserverHints::ObserverSelectionContext     observer_selection_context;
+    ObserverHints::NamingControl                naming_control;
+    ObserverHints::ActivityDisplay              activity_display;
+    ObserverHints::ActivityControl              activity_control;
+    ObserverHints::ItemSelectionControl         item_selection_control;
+    ObserverHints::HierarhicalDisplay           hierarhical_display;
+    ObserverHints::DisplayFlags                 display_flags;
+    ObserverHints::ItemViewColumnFlags          item_view_column_hint;
+    ObserverHints::ActionHints                  action_hints;
+    QStringList                                 displayed_categories;
+    bool                                        has_inversed_category_display;
+    bool                                        category_filter_enabled;
 };
 
 Qtilities::Core::ObserverHints::ObserverHints(QObject* parent) : QObject(parent), ObserverAwareBase() {
@@ -73,6 +75,7 @@ Qtilities::Core::ObserverHints::~ObserverHints() {
 
 Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObject(other.parent()), ObserverAwareBase() {
     d = new ObserverHintsData;
+    d->observer_selection_context = other.observerSelectionContext();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();
     d->activity_control = other.activityControlHint();
@@ -90,6 +93,7 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
 }
 
 void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
+    d->observer_selection_context = other.observerSelectionContext();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();
     d->activity_control = other.activityControlHint();
@@ -107,6 +111,7 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
 }
 
 bool Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
+    stream << (quint32) d->observer_selection_context;
     stream << (quint32) d->naming_control;
     stream << (quint32) d->activity_display;
     stream << (quint32) d->activity_control;
@@ -123,6 +128,8 @@ bool Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
 
 bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
     quint32 qi32;
+    stream >> qi32;
+    d->observer_selection_context = ObserverHints::ObserverSelectionContext (qi32);
     stream >> qi32;
     d->naming_control = ObserverHints::NamingControl (qi32);
     stream >> qi32;
@@ -147,6 +154,17 @@ bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
         observerContext()->setModificationState(true);
 
     return true;
+}
+
+void Qtilities::Core::ObserverHints::setObserverSelectionContextHint(ObserverHints::ObserverSelectionContext observer_selection_context) {
+    d->observer_selection_context = observer_selection_context;
+
+    if (observerContext())
+        observerContext()->setModificationState(true);
+}
+
+Qtilities::Core::ObserverHints::ObserverSelectionContext Qtilities::Core::ObserverHints::observerSelectionContextHint() const {
+    return d->observer_selection_context;
 }
 
 void Qtilities::Core::ObserverHints::setNamingControlHint(ObserverHints::NamingControl naming_control) {
