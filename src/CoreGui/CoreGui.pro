@@ -98,6 +98,7 @@ SOURCES += source/QtilitiesCoreGui.cpp \
     source/ObserverWidget.cpp \
     source/NamingPolicyInputDialog.cpp \
     source/NamingPolicyFilter.cpp \
+    source/AbstractObserverItemModel.cpp \
     source/ObserverTableModel.cpp \
     source/ObserverTreeModel.cpp \
     source/ObjectScopeWidget.cpp \
