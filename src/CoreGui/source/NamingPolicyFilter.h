@@ -149,6 +149,22 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // --------------------------------
             static FactoryItem<AbstractSubjectFilter, NamingPolicyFilter> factory;
 
+            // --------------------------------
+            // AbstractSubjectFilter Implemenation
+            // --------------------------------
+            AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
+            bool initializeAttachment(QObject* obj, bool import_cycle);
+            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
+            AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
+            bool initializeDetachment(QObject* obj, bool subject_deleted = false) { return true; }
+            void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
+
+            QStringList monitoredProperties();
+            bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+
+            // --------------------------------
+            // NamingPolicyFilter Implemenation
+            // --------------------------------
             //! Sets the naming uniqueness policy of this subject filter.
             void setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy naming_uniqueness_policy);
             //! Gets the naming uniqueness policy used by this subject filter.
@@ -163,16 +179,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_validity_resolution_policy);
             //! Gets the naming validity conflict policy used by this subject filter.
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
-
-            AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
-            bool initializeAttachment(QObject* obj, bool import_cycle);
-            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
-            AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
-            bool initializeDetachment(QObject* obj, bool subject_deleted = false) { return true; }
-            void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
-
-            QStringList monitoredProperties();
-            bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
             bool exportFilterSpecificBinary(QDataStream& stream) const;
             bool importFilterSpecificBinary(QDataStream& stream);
