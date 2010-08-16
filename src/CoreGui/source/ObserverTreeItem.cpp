@@ -54,11 +54,9 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, Observer
 
 Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem()
 {
-    //qDebug() << QString("Observer Tree Item (%1) destruction started.").arg(objectName());
     int count = childItems.count();
     for (int i = count-1; i >= 0; i--) {
         if (childItems.at(i)) {
-            //qDebug() << QString("Observer Tree Item (%1) is deleting its children: %2.").arg(objectName()).arg(childItems.at(0)->objectName());
             delete childItems.at(i);
         }
     }
@@ -66,7 +64,6 @@ Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem()
         obj->disconnect(this);
     if (contained_observer_ref)
         contained_observer_ref->disconnect(this);
-    //qDebug() << QString("Observer Tree Item (%1) destruction finished.").arg(objectName());
 }
 
 void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item)
