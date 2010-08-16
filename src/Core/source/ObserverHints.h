@@ -93,7 +93,16 @@ namespace Qtilities {
               are confusing to users, thus the usages of all items in the tree must make sense and be consistant in the
               usage scenario.
 
-              \note This hint is only applicable to cases where an Observer <b>with</b> a parent Observer is selected.
+              This hint changes the behaviour of the following action handles in the Qtilities::CoreGui::ObserverWidget class:
+              - ObserverHints::SwitchView
+              - ObserverHints::RemoveAll
+              - ObserverHints::DeleteAll
+              - ObserverHints::NewItem
+              - The double click action handler: Qtilities::CoreGui::ObserverWidget::doubleClickRequest()
+
+              \note This hint must be set on the observer which is selected. Thus if you set it on an observer the hint
+              will only be respected for that observer, not any observers underneath it.
+
               \sa setObserverSelectionContextHint(), observerSelectionContextHint()
               */
             enum ObserverSelectionContext {
@@ -182,16 +191,16 @@ namespace Qtilities {
             enum ActionItem {
                 None = 0,                   /*!< No actions are allowed. */
                 RemoveItem = 1,             /*!< Allow detachment of subjects from the observer context presented to the user. */
-                RemoveAll = 2,              /*!< Allow detachment of all subjects from the observer context presented to the user. */
+                RemoveAll = 2,              /*!< Allow detachment of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
                 DeleteItem = 4,             /*!< Allow deleting subjects from the observer context presented to the user. */
-                DeleteAll = 8,              /*!< Allow deleting of all subjects from the observer context presented to the user. */
+                DeleteAll = 8,              /*!< Allow deleting of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
                 NewItem = 32,               /*!< Allow new items to be added to the observer context presented to the user. */
                 RefreshView = 64,           /*!< Allow refreshing of views. */
                 PushUp = 128,               /*!< Allow pushing up in the hierarhcy of the displayed observer context in TableViews. */
                 PushUpNew = 256,            /*!< Allow pushing up into a new window in the hierarhcy of the displayed observer context in TableViews. */
                 PushDown = 512,             /*!< Allow pushing down in the hierarhcy of the displayed observer context in TableViews. */
                 PushDownNew = 1024,         /*!< Allow pushing down into a new window in the hierarhcy of the displayed observer context in TableViews. */
-                SwitchView = 2048,          /*!< Allow switching between different view modes (TableView and TreeView) for example. */
+                SwitchView = 2048,          /*!< Allow switching between different view modes (TableView and TreeView) for example. When switching from tree to table view mode, the current active context is used for the table view, unless an observer with the ObserverHints::SelectionUseSelectedContext is selected. */
                 CopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
                 CutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
                 PasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
@@ -211,6 +220,7 @@ namespace Qtilities {
                 be called using the parent.
               The defaults for all hints are initialized as shown below:
 \code
+observer_selection_context(ObserverHints::SelectionUseParentContext),
 naming_control(ObserverHints::NoNamingControlHint),
 activity_display(ObserverHints::NoActivityDisplayHint),
 activity_control(ObserverHints::NoActivityControlHint),

@@ -75,7 +75,7 @@ Qtilities::Core::ObserverHints::~ObserverHints() {
 
 Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObject(other.parent()), ObserverAwareBase() {
     d = new ObserverHintsData;
-    d->observer_selection_context = other.observerSelectionContext();
+    d->observer_selection_context = other.observerSelectionContextHint();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();
     d->activity_control = other.activityControlHint();
@@ -93,7 +93,7 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
 }
 
 void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
-    d->observer_selection_context = other.observerSelectionContext();
+    d->observer_selection_context = other.observerSelectionContextHint();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();
     d->activity_control = other.activityControlHint();
