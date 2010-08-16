@@ -130,6 +130,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             enum ResolutionPolicy {
                 AutoRename,             /*!< Automatically rename new names. \sa generateValidName() */
                 PromptUser,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. */
+                Replace,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
                 Reject                  /*!< Reject unacceptable names. */
             };
             //! Enumeration defining the possible outcames of name evaluation operations.
@@ -266,7 +267,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               \return A valid QString value. If QString is returned empty the function could not succeed in generating a valid name.
               */
             QString generateValidName(QString input_name = QString(), bool force_change = false);
+            //! Validates if \p property_name is a valid name for \p obj in this context.
             bool validateNamePropertyChange(QObject* obj, const char* property_name);
+            //! Sets the conflicting object. Only used from NamingPolicyInputDialog.
+            void setConflictingObject(QObject* obj);
 
             NamingPolicyFilterData* d;
         };

@@ -66,19 +66,20 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::NamingPolicyFilterData {
-    NamingPolicyFilterData() : is_modified(false) { }
+    NamingPolicyFilterData() : is_modified(false),
+    conflicting_object(0) { }
 
     bool is_modified;
     QValidator* validator;
     NamingPolicyInputDialog* name_dialog;
 
     QString rollback_name;
+    QPointer<QObject> conflicting_object;
     bool validation_cycle_active;
     NamingPolicyFilter::UniquenessPolicy uniqueness_policy;
     NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy;
     NamingPolicyFilter::ResolutionPolicy validity_resolution_policy;
 };
-
 
 Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
     d = new NamingPolicyFilterData;
@@ -208,7 +209,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
     QVariant name_property = observer->getObserverPropertyValue(obj,OBJECT_NAME);
     if (!name_property.isValid()) {
         // In this case, we create the needed properties and add it to the object.
-        // It will be removed if attachment fails anywhere
+        // It will be removed if attachment fails anywhere.
         SharedObserverProperty new_subject_name_property(QVariant(new_name),OBJECT_NAME);
         new_subject_name_property.setIsExportable(false);
         observer->setSharedProperty(obj,new_subject_name_property);
@@ -216,12 +217,12 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         object_name_manager_property.setIsExportable(false);
         observer->setSharedProperty(obj,object_name_manager_property);
 
-        // Check validity of the name
+        // Check validity of the name.
         validation_result = validateNamePropertyChange(obj,OBJECT_NAME);
     } else {
         new_name = name_property.toString();
 
-        // Check if it does not have a name manager yet, in that case we add a name manager
+        // Check if it does not have a name manager yet, in that case we add a name manager.
         QVariant name_property = observer->getObserverPropertyValue(obj,OBJECT_NAME_MANAGER_ID);
         if (!name_property.isValid()) {
             SharedObserverProperty object_name_manager_property(QVariant(observer->observerID()),OBJECT_NAME_MANAGER_ID);
@@ -240,14 +241,14 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
                 current_instance_names_property.addContext(QVariant(new_name),observer->observerID());
                 observer->setObserverProperty(obj,current_instance_names_property);
             } else {
-                // We need to create the property and add it to the object
+                // We need to create the property and add it to the object.
                 ObserverProperty new_instance_names_property(INSTANCE_NAMES);
                 new_instance_names_property.setIsExportable(false);
                 new_instance_names_property.addContext(QVariant(new_name),observer->observerID());
                 observer->setObserverProperty(obj,new_instance_names_property);
             }
 
-            // Check validity of the name
+            // Check validity of the name.
             validation_result = validateNamePropertyChange(obj,OBJECT_NAME);
         }
     }
@@ -276,6 +277,13 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bo
             if (d->uniqueness_policy == ProhibitDuplicateNames)
                 observer->setObserverPropertyValue(obj,INSTANCE_NAMES,QVariant(d->rollback_name));
         }
+        // If the attachment failed, we must set d->conflicting_object = 0 again.
+        d->conflicting_object = 0;
+    } else {
+        // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
+        // would have set it during initialization:
+        if (d->conflicting_object)
+            delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
     }
 }
 
@@ -301,8 +309,8 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
 
     Q_ASSERT(observer != 0);
 
-    // If OBJECT_NAME changed and this observer is the object name manager, we need to react to this change
     if (!strcmp(property_name,OBJECT_NAME)) {
+        // If OBJECT_NAME changed and this observer is the object name manager, we need to react to this change.
         if (isObjectNameManager(obj)) {
             // Since this observer is the object manager it will make sure that objectName() match the OBJECT_NAME property
             if (!isObjectNameDirty(obj)) {
@@ -313,6 +321,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
 
             bool return_value = validateNamePropertyChange(obj,OBJECT_NAME);
             if (return_value) {
+                // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
+                // would have set it during initialization:
+                if (d->conflicting_object)
+                    delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
+
                 QString new_name = observer->getObserverPropertyValue(obj,OBJECT_NAME).toString();
                 if (!new_name.isEmpty()) {
                     setModificationState(true);
@@ -335,6 +348,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
         if (instance_property.lastChangedContext() == observer->observerID()) {
             bool return_value = validateNamePropertyChange(obj,INSTANCE_NAMES);
             if (return_value) {
+                // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
+                // would have set it during initialization:
+                if (d->conflicting_object)
+                    delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
+
                 setModificationState(true);
                 LOG_DEBUG(QString("Detected and handled INSTANCE_NAMES property change to \"%1\" within context \"%2\"").arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()).arg(observer->observerName()));
             } else {
@@ -374,6 +392,10 @@ bool Qtilities::CoreGui::NamingPolicyFilter::importFilterSpecificBinary(QDataStr
     d->validity_resolution_policy = (ResolutionPolicy) ui32;
 
     return true;
+}
+
+void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) {
+    d->conflicting_object = obj;
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject* obj, const char* property_name) {
@@ -420,7 +442,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
             return_value = true;
         } else if (d->validity_resolution_policy == Reject) {
             return_value = false;
+        } else if (d->validity_resolution_policy == Replace) {
+            // Note we do not replace with valid names, we return the same as Reject.
+            return_value = false;
         }
+    // Next handle duplicate names.
     } else if ((validity_result & Duplicate) && (d->uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(changed_name) != obj)) {
         if (d->uniqueness_resolution_policy == PromptUser) {
             d->name_dialog->setObject(obj);
@@ -441,6 +467,39 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
             return_value = true;
         } else if (d->uniqueness_resolution_policy == Reject) {
             return_value = false;
+        } else if (d->uniqueness_resolution_policy == Replace) {
+            // Gets the conflicting name:
+            QString conflicting_name = QString();
+            // Checks if the subject filter is the name manager of the object, in that case
+            // it uses OBJECT_NAME. If not, it uses INSTANCE_NAMES with the subject filter's observer context ID.
+            // We can't use Observer::subjectNameInContext() here since this function is called during initializeAttachment()
+            // as well when the subject is not yet attached to the observer context.
+            if (isObjectNameManager(obj)) {
+                // We use the OBJECT_NAME property:
+                QVariant object_name_prop;
+                object_name_prop = obj->property(OBJECT_NAME);
+                if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>())
+                        conflicting_name = (object_name_prop.value<SharedObserverProperty>()).value().toString();
+            } else {
+                // We use the INSTANCE_NAMES property:
+                QVariant instance_names_prop;
+                instance_names_prop = obj->property(INSTANCE_NAMES);
+                if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>())
+                    conflicting_name = (instance_names_prop.value<ObserverProperty>()).value(observer->observerID()).toString();
+            }
+
+            QObject* confliciting_object = getConflictingObject(conflicting_name);
+            if (confliciting_object) {
+                int parent_count = Observer::parentCount(confliciting_object);
+                // Check if the parent observer is the conflicting object's only context:
+                if (parent_count == 1 && observer->contains(confliciting_object)) {
+                    d->conflicting_object = confliciting_object;
+                    return_value = true;
+                } else {
+                    return_value = false;
+                }
+            } else
+                return_value = false;
         }
     }
     return return_value;
