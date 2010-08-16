@@ -79,7 +79,7 @@ namespace Qtilities {
           \image html observer_widget_tree.jpg "Observer Widget (Tree View Mode)"
           \image latex observer_widget_tree.eps "Observer Widget (Tree View Mode)" width=3in
 
-          The \ref page_observer_widgets provides a comprehensive overview of the different ways that the observer widget can be used.
+          The \ref page_observer_widgets article provides a comprehensive overview of the different ways that the observer widget can be used.
 
           \todo
           - Observer widget does not show activity in tree mode when only one of the lower level observers has an activity policy filter.
@@ -162,7 +162,7 @@ namespace Qtilities {
             /*!
               \sa toggleUseObserverHints()
               */
-            void inheritObserverHints(ObserverHints* display_hints);
+            void inheritDisplayHints(ObserverHints* display_hints);
         private:
             //! This function will provide the hints which should be used by this widget at any time.
             /*!
@@ -307,8 +307,80 @@ namespace Qtilities {
 
         signals:
             //! Signal which is emitted when the add new item action is triggered.
+            /*!
+              The parameters used during this signal emission is defferent depending on the display mode and the
+              selected objects. The following are the possible scenarios:
+
+              <b>1) Table View Mode: no object selected:</b>
+
+              \param object The context displayed in the table.
+              \param parent_observer The last context in the navigation stack, if no such context exists 0 is returned.
+
+              <b>2) Table View Mode: 1 object selected:</b>
+
+              If an observer is selected with the ObserverHints::SelectionUseSelectedContext hint the following parameters are used:
+              \param object 0.
+              \param parent_observer The selected observer.
+
+              If an observer is selected with no hints or the ObserverHints::SelectionUseParentContext hint, or if an normal object is selected:
+              \param object The selected object.
+              \param parent_observer The context currently displayed in the table view.
+
+              <b>3) Table View Mode: multiple objects selected:</b>
+
+              \param object Null (0).
+              \param parent_observer The context currently displayed in the table view.
+
+              <b>4) Tree View Mode: no objects selected:</b>
+
+              \param object Null (0).
+              \param parent_observer The last context in the navigation stack, if no such context exists 0 is returned.
+
+              <b>5) Tree View Mode: 1 object selected:</b>
+
+              If an observer is selected with the ObserverHints::SelectionUseSelectedContext hint the following parameters are used:
+              \param object 0.
+              \param parent_observer The selected observer.
+
+              If an observer is selected with no hints or the ObserverHints::SelectionUseParentContext hint, or if an normal object is selected:
+              \param object The selected object.
+              \param parent_observer The parent context of the selected object. If it does not have a parent, 0.
+
+              <b>6) Tree View Mode: multiple objects selected:</b>
+
+              \param object Null (0).
+              \param parent_observer The parent context of the selected object. If it does not have a parent, 0.
+
+              \note In Tree View Mode, categories are handled as normal QObjects with the category name accessible through the objectName() function.
+              */
             void addNewItem_triggered(QObject* object, Observer* parent_observer = 0);
             //! Signal which is emitted when the user double clicks on an item in the observer widget.
+            /*!
+              The parameters used during this signal emission is defferent depending on the display mode and the
+              selected objects. The following are the possible scenarios:
+
+              <b>1) Table View Mode: 1 object selected:</b>
+
+              If an observer is double clicked with the ObserverHints::SelectionUseSelectedContext hint the following parameters are used:
+              \param object 0.
+              \param parent_observer The selected observer.
+
+              If an observer is double clicked with no hints or the ObserverHints::SelectionUseParentContext hint, or if an normal object is selected:
+              \param object The selected object.
+              \param parent_observer The context currently displayed in the table view.
+
+              <b>2) Tree View Mode: 1 object selected:</b>
+
+              If an observer is double clicked with the ObserverHints::SelectionUseSelectedContext hint the following parameters are used:
+              \param object 0.
+              \param parent_observer The selected observer.
+
+              If an observer is double clicked with no hints or the ObserverHints::SelectionUseParentContext hint, or if an normal object is selected:
+              \param object The selected object.
+              \param parent_observer The parent context of the selected object. If it does not have a parent, 0.
+
+              \note In Tree View Mode, categories are handled as normal QObjects with the category name accessible through the objectName() function.
+              */
             void doubleClickRequest(QObject* object, Observer* parent_observer = 0);
             //! Signal which is emitted when the user pushes up/down in a new observer widget. The new widget is passed as a paramater.
             void newObserverWidgetCreated(ObserverWidget* new_widget);
