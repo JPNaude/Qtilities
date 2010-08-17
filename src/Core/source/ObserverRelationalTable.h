@@ -245,7 +245,7 @@ namespace Qtilities {
                     bool is_observer = false;
                     bool has_child_observer = false;
 
-                    // We need to iterate through the hierarhcy in the same way
+                    // We need to iterate through the hierarchy in the same way
                     // that constructTable() does it.
                     IExportable* exportable_iface = qobject_cast<IExportable*> (obj);
                     if (exportable_iface)
