@@ -57,7 +57,7 @@ namespace Qtilities {
         \brief The ObjectInfoTreeWidget class provides a widget which shows meta info about the objects inside the widget (properties, events, signals etc.).
 
         \todo
-        - setHierarhcyDepth() does nothing yet.
+        - setHierarchyDepth() does nothing yet.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectInfoTreeWidget : public QTreeWidget {
             Q_OBJECT
