@@ -82,7 +82,7 @@ QTreeWidgetItem* Qtilities::CoreGui::CategorizedStringTreeWidget::getItemParent(
     QTreeWidgetItem* item = 0;
     for (int i = 0; i < category.count(); i++) {
         // i represents the current depth in the tree
-        // Check if the category already exists, if so step into that level of hierarhcy.
+        // Check if the category already exists, if so step into that level of hierarchy.
         bool exists = false;
 
         // Check top level items first

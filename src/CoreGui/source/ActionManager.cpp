@@ -88,7 +88,6 @@ Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMe
     }
 
     existed = false;
-
     MenuContainer* new_container = new MenuContainer(id,this);
 
     if (new_container) {
@@ -170,7 +169,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         if (new_action) {
             new_action->setDefaultText(id);
             new_action->addAction(action,context);
-            new_action->setCurrentContext(QtilitiesCore::instance()->contextManager()->currentContexts());
+            new_action->setCurrentContext(CONTEXT_MANAGER->currentContexts());
             d->id_command_map[id] = new_action;
 
             new_action->setKeySequence(action->shortcut());
@@ -184,7 +183,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
     // First check if an action with the specified id already exist:
-    if (commandMap().keys().contains(id)) {
+    if (d->id_command_map.keys().contains(id)) {
         LOG_ERROR(tr("Attempting to register action place holder for an action which already exist with ID: ") + user_text);
         return 0;
     }
@@ -204,7 +203,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
             QAction* holder_backend_action = new QAction(frontend_action->text(),0);
             new_action->addAction(holder_backend_action,context);
         }
-        new_action->setCurrentContext(QtilitiesCore::instance()->contextManager()->currentContexts());
+        new_action->setCurrentContext(CONTEXT_MANAGER->currentContexts());
         d->id_command_map[id] = new_action;
 
         new_action->setKeySequence(key_sequence);
