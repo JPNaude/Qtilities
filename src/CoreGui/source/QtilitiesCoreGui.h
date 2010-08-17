@@ -54,7 +54,7 @@ namespace Qtilities {
 
         /*!
           \class QtilitiesCoreGui
-          \brief The QtilitiesCoreGui is a singleton which is used to manager objects and contexts in an application.
+          \brief The QtilitiesCore is a singleton which provides accecss to the action and clipboard managers among other things.
          */
 
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesCoreGui : public QObject
