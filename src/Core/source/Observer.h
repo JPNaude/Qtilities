@@ -146,7 +146,7 @@ namespace Qtilities {
             Observer(const Observer &other);
             virtual ~Observer();
             bool eventFilter(QObject *object, QEvent *event);
-            //! This function disables event filtering on objects.
+            //! This function toggles event filtering on objects.
             /*!
               It is recommended to always keep event filtering enabled. However in some cases, like
               object reconstruction in ObjectManager::constructRelationships() it is neccesarry to
@@ -155,21 +155,21 @@ namespace Qtilities {
               In these cases filtering is disabled temporarily. Note that disabling also disables event
               filtering in all subject filters.
 
-              \sa enableSubjectEventFiltering();
+              \note Event filtering is enabled by default.
               */
-            void disableSubjectEventFiltering();
-            //! This function disables event filtering on objects.
+            void toggleSubjectEventFiltering(bool toggle);
+            //! Indicates if subject event filtering is enabled.
+            bool subjectEventFilteringEnabled() const;
+            //! This function toggles delivery of QtilitiesPropertyChangeEvents on objects when property changes occurs.
             /*!
-              It is recommended to always keep event filtering enabled. However in some cases, like
-              object reconstruction in ObjectManager::constructRelationships() it is neccesarry to
-              manually edit read only properties (like ownership etc.).
+              See monitoredPropertyChanged() for more details on when property change events can be used. If your implementation
+              does not use property change events, you should disabled the events to optimize performance.
 
-              In these cases filtering is disabled temporarily. Note that disabling also disables event
-              filtering in all subject filters.
-
-              \sa disableSubjectEventFiltering();
+              \note These events are disabled by default.
               */
-            void enableSubjectEventFiltering();
+            void toggleQtilitiesPropertyChangeEvents(bool toggle);
+            //! Indicates if QtilitiesPropertyChangeEvents are enabled.
+            bool qtilitiesPropertyChangeEventsEnabled() const;
 
             // --------------------------------
             // IObjectBase Implemenation
@@ -206,16 +206,16 @@ namespace Qtilities {
             // Functions related to item views viewing this observer and signal emission.
             // --------------------------------
         public:
-            //! Function to refresh views showing this observer.
+            //! Function to refresh the layout views showing this observer.
             /*!
-              This function emits the modificationStateChanged(true) signal. Thus for the refresh to work
-              your view must monitor the modificationStateChanged() signal of the observer. ObserverWidget
-              does this automatically.
-
-              Note that this function does not change the internal modification state, thus isModified() will
-              still return false.
+              This function will emit the layoutChanged() signal.
               */
-            void refreshViews() const;
+            void refreshViewsLayout();
+            //! Function to refresh the data views showing this observer.
+            /*!
+              This function will emit the dataChanged(this) signal.
+              */
+            void refreshViewsData();
             //! Starts a processing cycle.
             /*!
               When adding/removing many subjects to the observer it makes sense to only let item views know
@@ -234,10 +234,8 @@ namespace Qtilities {
             void startProcessingCycle();
             //! Ends a processing cycle.
             /*!
-              Ends a processing cycle started with startProcessingCycle(). This function will automatically call
-              refreshViews() to notify all item views that the observer context changed.
-
-              If a processing cycle was not started when calling this function, it does nothing.
+              Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started
+              when calling this function, it does nothing.
 
               \sa startProcessingCycle();
               */
@@ -251,11 +249,6 @@ namespace Qtilities {
             // --------------------------------
             // Functions to attach / detach subjects
             // --------------------------------
-            //! This function returns a QStringList with the names of all the properties which are monitored by this observer.
-            /*!
-              Changes to monitored properties are filtered and validated by this observer's event filter.
-              */
-            QStringList monitoredProperties() const;
             //! Will attempt to attach the specified object to the observer. The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the object to be attached.
             /*!
               \param obj The object to be attached.
@@ -265,7 +258,7 @@ namespace Qtilities {
 
               \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
               */
-            Q_SCRIPTABLE virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! Will attempt to attach the specified objects to the observer.
             /*!
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
@@ -277,7 +270,7 @@ namespace Qtilities {
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            Q_SCRIPTABLE virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! Will attempt to attach the specified objects in a ObserverMimeData object.
             /*!
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
@@ -289,11 +282,11 @@ namespace Qtilities {
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            Q_SCRIPTABLE virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
             //! A function which checks if the new object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
-            Q_SCRIPTABLE Observer::EvaluationResult canAttach(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership) const;
+            Observer::EvaluationResult canAttach(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership) const;
             //! A function which checks if the objects in the ObserverMimeData object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
-            Q_SCRIPTABLE Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object) const;
+            Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object) const;
 
         public slots:
             //! Will attempt to detach the specified object from the observer.
@@ -336,7 +329,7 @@ namespace Qtilities {
               is called will be used to define the observer context for which this function will set the property's value.
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
-            Q_SCRIPTABLE bool setObserverPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
+            bool setObserverPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
             //! Convenience function which will get the specified ObserverProperty of the specified object.
             static ObserverProperty getObserverProperty(const QObject* obj, const char* property_name) {
                 #ifndef QT_NO_DEBUG
@@ -449,12 +442,12 @@ namespace Qtilities {
             //! This function will validate changes to the observer, or to a specific observer category if specified.
             bool isConst(const QString& access_mode = QString()) const;
             //! Returns the observer's subject limit.
-            Q_SCRIPTABLE inline int subjectLimit() const { return observerData->subject_limit; }
+            inline int subjectLimit() const { return observerData->subject_limit; }
             //! Function to set the subject limit of this observer.
             /*!
               \return Returns true if the limit was set succesfully, otherwise false.
               */
-            Q_SCRIPTABLE bool setSubjectLimit(int subject_limit);
+            bool setSubjectLimit(int subject_limit);
             //! Function to set the observer's access mode. Set the access mode after construction. When subclassing Observer, set it in your constructor.
             /*!
               \param category Only used when accessModeScope() is categorized. Categories which does not have an access mode set for them will use the global access mode. The global access mode can be set by passing QString() as category.
@@ -464,40 +457,40 @@ namespace Qtilities {
             /*!
               \return The global access mode when category = QString(). Otherwise the access mode for a specific category. The global access mode is FullAccess by default.
               */
-            Q_SCRIPTABLE AccessMode accessMode(const QString& category = QString());
+            AccessMode accessMode(const QString& category = QString()) const;
             //! Function to set the observer's access mode scope.
-            inline void setAccessModeScope(AccessModeScope access_mode_scope) { observerData->access_mode_scope = (int) access_mode_scope; }
+            void setAccessModeScope(AccessModeScope access_mode_scope);
             //! Function to return the access mode scope of the observer.
             /*!
               \return The access mode scope. Global by default.
               */
-            Q_SCRIPTABLE inline AccessModeScope accessModeScope() { return (AccessModeScope) observerData->access_mode_scope; }
+            inline AccessModeScope accessModeScope() const { return (AccessModeScope) observerData->access_mode_scope; }
             //! Returns the observer's description. For example, a variable workspace, or a logger engine manager etc.
             void setObserverDescription(const QString& description) { observerData->observer_description = description; }
             //! Returns the observer's name within a context. If a context is not specified, the objectName() of the observer is returned.
-            Q_SCRIPTABLE QString observerName(int parent_id = -1) const;
+            QString observerName(int parent_id = -1) const;
             //! Returns the name used for the specified object in this context. QString() is returned if the object is not valid.
-            Q_SCRIPTABLE QString subjectNameInContext(const QObject* obj) const;          
+            QString subjectNameInContext(const QObject* obj) const;
             //! Returns the observer's description. For example, a variable workspace, or a logger engine manager etc.
-            Q_SCRIPTABLE inline QString observerDescription() const { return observerData->observer_description; }
+            inline QString observerDescription() const { return observerData->observer_description; }
             //! Returns the uqniue ID assigned to this observer by the ObjectManager.
-            Q_SCRIPTABLE inline int observerID() const { return observerData->observer_id; }
+            inline int observerID() const { return observerData->observer_id; }
             //! Returns the number of subjects currently observed by the observer. This function is different from getChildCount() which gets all the children underneath an observer (Thus, children of children etc.)
-            Q_SCRIPTABLE inline int subjectCount() const { return observerData->subject_list.count(); }
+            inline int subjectCount() const { return observerData->subject_list.count(); }
             //! Function to get the number of children under the specified observer. This count includes the children of children as well.
-            Q_SCRIPTABLE int childCount(const Observer* observer = 0) const;
+            int childCount(const Observer* observer = 0) const;
             //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subject names are returned.
-            Q_SCRIPTABLE QStringList subjectNames(const QString& iface = QString()) const;
+            QStringList subjectNames(const QString& iface = QString()) const;
             //! Returns the subject reference at a given position.
-            Q_SCRIPTABLE QObject* subjectAt(int i) const;
+            QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
-            Q_SCRIPTABLE int subjectID(int i) const;
+            int subjectID(int i) const;
             //! Returns a list with the subject references of all the observed subjects which implements a given interface. If you don't specify an interface, all objects in the observer are returned.
-            Q_SCRIPTABLE QList<QObject*> subjectReferences(const QString& iface = QString()) const;
+            QList<QObject*> subjectReferences(const QString& iface = QString()) const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
-            Q_SCRIPTABLE QMap<QPointer<QObject>, QString> subjectMap();
+            QMap<QPointer<QObject>, QString> subjectMap();
             //! Gets the subject reference for a specific, unique subject ID.
-            Q_SCRIPTABLE QObject* subjectReference(int ID) const;
+            QObject* subjectReference(int ID) const;
             //! Gets the subject reference for a specific object name.
             /*!
               \note Only depend on this function (where you specify the object using the object's name) when you are sure that
@@ -505,9 +498,9 @@ namespace Qtilities {
               are not unique, the first match of the given subject_name will be used. If you don't care about unique subject names,
               rather use subjectReference(int ID) to get subject references.
               */
-            Q_SCRIPTABLE QObject* subjectReference(const QString& subject_name) const;
+            QObject* subjectReference(const QString& subject_name) const;
             //! Returns true if a given subject is currently observed by the observer.
-            Q_SCRIPTABLE bool contains(const QObject* object) const;
+            bool contains(const QObject* object) const;
 
             // --------------------------------
             // Subject filter related functions
@@ -515,17 +508,16 @@ namespace Qtilities {
             //! Installs a new subject filter.
             /*!
               The observer will take ownership of the subject filter object and delete it in its constructor.
-              Subject filters can only be installed when the observer has 0 subjects attached to it.
+              Subject filters can only be installed when the observer has no subjects attached to it.
               */
-            Q_SCRIPTABLE void installSubjectFilter(AbstractSubjectFilter* subject_filter);
+            bool installSubjectFilter(AbstractSubjectFilter* subject_filter);
             //! Uninstalls a subject filter.
             /*!
-              The observer will set the parent of the subject filter to 0 before uninstalling it.
-              Subject filters can only be uninstalled when the observer has 0 subjects attached to it.
+              This function will delete the subject filter since subject filters can only be used once at present.
               */
-            Q_SCRIPTABLE void uninstallSubjectFilter(AbstractSubjectFilter* subject_filter);
+            bool uninstallSubjectFilter(AbstractSubjectFilter* subject_filter);
             //! Provides a list of all installed subject filters.
-            Q_SCRIPTABLE QList<AbstractSubjectFilter*> subjectFilters() const;
+            QList<AbstractSubjectFilter*> subjectFilters() const;
 
             // --------------------------------
             // Observer hints related functions
@@ -567,30 +559,106 @@ namespace Qtilities {
               This function does not take the category filtering options of the observer into account, for that functionality see displayedCategories()
               on the observer hints for this observer provided by hints(). Category filtering is only related to the displaying of the observer.
               */
-            Q_SCRIPTABLE QStringList subjectCategories() const;
+            QStringList subjectCategories() const;
             //! Returns a list with the names of all the current observed subjects which belongs to a specific category.
-            Q_SCRIPTABLE QStringList subjectNamesByCategory(const QString& category) const;
+            QStringList subjectNamesByCategory(const QString& category) const;
             //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an OBJECT_CATEGORY shared observer property.
             QList<QObject*> subjectReferencesByCategory(const QString& category) const;
 
             // --------------------------------
-            // Observer signals
+            // Property related functions
             // --------------------------------
-        signals:
-            //! A signal which is emitted as soon as a reserved property of the observer or any of the installed subject filters becomes dirty.
-            void propertyBecameDirty(const char* property_name, QObject* obj = 0);
-            //! A signal which is emitted when the number of subjects change.
+            //! This function returns a QStringList with the names of all the properties which are monitored by this observer.
             /*!
+              Monitored properties are properties that are monitored for changes by the event filter
+              of the observer and Qtilities::Core::AbstractSubjectFilter::handleMonitoredPropertyChange() functions on
+              all subject filters installed in the observer context. The observer's event filter will automatically
+              route the changes to monitored properties of installed subject filters to the correct subject filters.
+
+              When property changes are valid, the monitoredPropertyChanged() signal is emitted as soon as the property change
+              is completed.
+
+              \note The list of monitored properties includes monitored properties of any installed subject filters.
+
+              \sa monitoredPropertyChanged(), enableSubjectEventFiltering(), propertyChangeFiltered()
+              */
+            QStringList monitoredProperties() const;
+            //! This function returns a QStringList with the names of all the reserved properties inside this observer context.
+            /*!
+              Reserved properties are internal properties that cannot be changed. The observer will filter any attempted changes to
+              these properties. To check if a property is reserved, see the \p Permisson attribute in the property documentation.
+              All %Qtilities properties are defined in the Qtilities::Core::Properties namespace.
+
+              \note The list of reserved properties includes reserved properties of any installed subject filters.
+
+              \sa propertyChangeFiltered()
+              */
+            QStringList reservedProperties() const;
+        signals:
+            //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
+            /*!
+              This signal is usefull when you want to monitor a specific object. This can be done in two ways:
+              - By filtering the QtilitiesPropertyChangeEvent on the object. However events can only be delivered to objects in the same thread. Therefore, if the object you are interested in is in a different thread than the observer context, this will not work.
+              - The alternative is to connect to this signal and check if the object you are interested in is in the list of objects on which the property changed.
+
+              \param property_name The name of the property which changed.
+              \param objects The objects on which the property changed.
+
+              \sa monitoredProperties(), enableSubjectEventFiltering(), propertyChangeFiltered()
+              */
+            void monitoredPropertyChanged(const char* property_name, QList<QObject*> objects = QList<QObject*>());
+            //! A signal which is emitted as soon as an property change event is filtered.
+            /*!
+              This signal can be emitted in two scenarios:
+              - When an attempt is made to modify a reserved property it will always be emitted.
+              - When a monitored property change is not allowed. An example of this is when a name change is rejected.
+
+              \param property_name The name of the property on which the change was filtered.
+              \param objects The objects on which the property was attempted.
+
+              \sa reservedProperties(), monitoredProperties()
+              */
+            void propertyChangeFiltered(const char* property_name, QList<QObject*> objects = QList<QObject*>());
+
+            // --------------------------------
+            // General observer notification signals
+            // --------------------------------
+            //! A signal which is emitted when the number of subjects change in this observer context.
+            /*!
+              This signal only indicates if the number of subjects in this observer changes. To monitor number of subject changes
+              in the complete tree under the observer, see layoutChanged().
+
               \param change_indication Slots can use this indicator to know what change occured.
               \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted.
               */
             void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QObject*> objects = QList<QObject*>());
-            //! A signal which is emitted when the name of this observer changes.
+            //! A signal which is emitted when the layout of the observer or the tree underneath it changes.
             /*!
-              \note Since there is no way to know when objectName() changes on a QObject, this signal will only be emitted when the following is true:
-              - The name is changed by setting the Qtilities::Core::Constants::OBJECT_NAME property.
+              This signal will be emitted whenever the layout of an observer or the tree underneath it changes.
+
+              This will happen when any of the following happens inside the observer context:
+              - Number of subjects changes in an observer context which is part of the tree.
+              - Observer hints changes. Since observer hints define how item models displays (lays out) an observer context, changes to these hints will trigger the layoutChanged() signal.
+              - Replace operations triggered by NamingPolicyFilter filters.
+              - Observer access mode and access mode scope changes. \sa accessMode(), accessModeScope()
+              - Non-observer access mode changes. \sa Qtilities::Core::Properties::AccessMode
+
+              \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
               */
-            void nameChanged(const QString& new_name);
+            void layoutChanged();
+            //! A signal which is emitted when the data in the observer or the tree underneath it changes.
+            /*!
+              This signal will be emitted whenever the data of the observer or any subjects in the tree underneath the observer changes.
+
+              This will happen when any of the following happens inside the observer context:
+              - Activity changes happens.
+              - Names of observers or subjects changes.
+
+              \param observer When the data that changed is related to a specific observer context, for example if the activity of all subjects inside a context changed, the observer can be passed as the \p observer parameter.
+
+              \note When creating models for observers, this signal should be connected to the dataChanged() signal of your model.
+              */
+            void dataChanged(Observer* observer = 0);
 
         protected:
             QSharedDataPointer<ObserverData> observerData;
@@ -611,9 +679,12 @@ namespace Qtilities {
             virtual ~ObserverAwareBase() {}
 
             //! Sets the observer context.
-            virtual void setObserverContext(Observer* observer_ptr) {
+            virtual bool setObserverContext(Observer* observer_ptr) {
                 if (observer_ptr) {
                     d_observer = observer_ptr;
+                    return true;
+                } else {
+                    return false;
                 }
             }
             //! Gets a pointer to the observer context.

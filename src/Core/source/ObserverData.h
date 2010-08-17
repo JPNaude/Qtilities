@@ -61,10 +61,13 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData
         {
         public:
-            ObserverData() : subject_limit(-1), subject_id_counter(0), access_mode(0), display_hints(0),
-            factory_data(IFactoryData()), process_cycle_active(false), is_modified(false) {}
-            ObserverData(const ObserverData &other) : QSharedData(other), subject_list(other.subject_list) ,subject_filters(other.subject_filters),
-            subject_limit(other.subject_limit), subject_id_counter(0),
+            ObserverData() : subject_limit(-1), subject_id_counter(0),
+            ignore_dynamic_property_changes(false), deliver_qtilties_property_changed_events(false),
+            access_mode(0), display_hints(0), factory_data(IFactoryData()), process_cycle_active(false), is_modified(false) {}
+            ObserverData(const ObserverData &other) : QSharedData(other), subject_list(other.subject_list) ,
+            subject_filters(other.subject_filters), subject_limit(other.subject_limit), subject_id_counter(0),
+            ignore_dynamic_property_changes(other.ignore_dynamic_property_changes),
+            deliver_qtilties_property_changed_events(other.deliver_qtilties_property_changed_events),
             access_mode(other.access_mode), access_mode_scope(other.access_mode_scope),
             category_access(other.category_access), display_hints(other.display_hints),
             factory_data(other.factory_data), process_cycle_active(other.process_cycle_active),
@@ -89,6 +92,7 @@ namespace Qtilities {
             QString observer_description;
             QMutex observer_mutex;
             bool ignore_dynamic_property_changes;
+            bool deliver_qtilties_property_changed_events;
             int access_mode;
             int access_mode_scope;
             QHash<QString, int> category_access;

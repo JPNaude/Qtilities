@@ -39,26 +39,28 @@ struct Qtilities::Core::ObserverHintsData {
         activity_display(ObserverHints::NoActivityDisplayHint),
         activity_control(ObserverHints::NoActivityControlHint),
         item_selection_control(ObserverHints::SelectableItems),
-        hierarhical_display(ObserverHints::NoHierarhicalDisplayHint),
+        hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
         display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
-        item_view_column_hint(ObserverHints::ColumnNoHint),
-        action_hints(ObserverHints::None),
+        item_view_column_hint(ObserverHints::ColumnNoHints),
+        action_hints(ObserverHints::ActionNoHints),
         displayed_categories(QStringList()),
         has_inversed_category_display(true),
-        category_filter_enabled(false) {}
+        category_filter_enabled(false),
+        is_modified(false) {}
 
     ObserverHints::ObserverSelectionContext     observer_selection_context;
     ObserverHints::NamingControl                naming_control;
     ObserverHints::ActivityDisplay              activity_display;
     ObserverHints::ActivityControl              activity_control;
     ObserverHints::ItemSelectionControl         item_selection_control;
-    ObserverHints::HierarhicalDisplay           hierarhical_display;
+    ObserverHints::HierarchicalDisplay          hierarhical_display;
     ObserverHints::DisplayFlags                 display_flags;
     ObserverHints::ItemViewColumnFlags          item_view_column_hint;
     ObserverHints::ActionHints                  action_hints;
     QStringList                                 displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
+    bool                                        is_modified;
 };
 
 Qtilities::Core::ObserverHints::ObserverHints(QObject* parent) : QObject(parent), ObserverAwareBase() {
@@ -139,7 +141,7 @@ bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
     stream >> qi32;
     d->item_selection_control = ObserverHints::ItemSelectionControl (qi32);
     stream >> qi32;
-    d->hierarhical_display = ObserverHints::HierarhicalDisplay (qi32);
+    d->hierarhical_display = ObserverHints::HierarchicalDisplay (qi32);
     stream >> qi32;
     d->display_flags = ObserverHints::DisplayFlags (qi32);
     stream >> qi32;
@@ -211,14 +213,14 @@ Qtilities::Core::ObserverHints::ItemSelectionControl Qtilities::Core::ObserverHi
     return d->item_selection_control;
 }
 
-void Qtilities::Core::ObserverHints::setHierarchicalDisplayHint(ObserverHints::HierarhicalDisplay hierarhical_display) {
+void Qtilities::Core::ObserverHints::setHierarchicalDisplayHint(ObserverHints::HierarchicalDisplay hierarhical_display) {
     d->hierarhical_display = hierarhical_display;
 
     if (observerContext())
         observerContext()->setModificationState(true);
 }
 
-Qtilities::Core::ObserverHints::HierarhicalDisplay Qtilities::Core::ObserverHints::hierarchicalDisplayHint() const {
+Qtilities::Core::ObserverHints::HierarchicalDisplay Qtilities::Core::ObserverHints::hierarchicalDisplayHint() const {
     return d->hierarhical_display;
 }
 
@@ -263,6 +265,7 @@ void Qtilities::Core::ObserverHints::setDisplayedCategories(const QStringList& d
     if (observerContext()) {
         if (!observerContext()->isProcessingCycleActive()) {
             observerContext()->setModificationState(true);
+            observerContext()->refreshViewsLayout();
         }
     }
 }
@@ -275,8 +278,10 @@ void Qtilities::Core::ObserverHints::setCategoryFilterEnabled(bool enabled) {
     if (enabled != d->category_filter_enabled) {
         d->category_filter_enabled = enabled;
 
-        if (observerContext())
+        if (observerContext()) {
             observerContext()->setModificationState(true);
+            observerContext()->refreshViewsLayout();
+        }
     }
 }
 
@@ -287,3 +292,15 @@ bool Qtilities::Core::ObserverHints::categoryFilterEnabled() const {
 bool Qtilities::Core::ObserverHints::hasInversedCategoryDisplay() const {
     return d->has_inversed_category_display;
 }
+
+bool Qtilities::Core::ObserverHints::isModified() const {
+    return d->is_modified;
+}
+
+void Qtilities::Core::ObserverHints::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    d->is_modified = new_state;
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
+    }
+}
+

@@ -67,25 +67,26 @@ namespace Qtilities {
 
           \sa Observer, ObserverData
           */
-        class QTILIITES_CORE_SHARED_EXPORT ObserverHints : public QObject, public ObserverAwareBase
+        class QTILIITES_CORE_SHARED_EXPORT ObserverHints : public QObject, public ObserverAwareBase, public IModificationNotifier
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_ENUMS(DisplayFlag)
             Q_ENUMS(NamingControl)
             Q_ENUMS(ActivityDisplay)
             Q_ENUMS(ActivityControl)
             Q_ENUMS(ItemSelectionControl)
-            Q_ENUMS(HierarhicalDisplay)
+            Q_ENUMS(HierarchicalDisplay)
             Q_ENUMS(ItemViewColumn)
 
         public:
             // --------------------------------
             // Enumerations
             // --------------------------------
-            //! The observer selection context hint provides the ability to specify the context which must be used when selecting an observer in an observer tree hierarhcy.
+            //! The observer selection context hint provides the ability to specify the context which must be used when selecting an observer in an observer tree hierarchy.
             /*!
               Without this hint, widgets which are viewing a context must make assumptions on what to do when an observer is selected
-              in the view. For example, if you select an observer inside a context, should the DeleteAll hint delete all objects
+              in the view. For example, if you select an observer inside a context, should the ActionDeleteAll hint delete all objects
               under the selected observer or in the context where the observer is present (thus the observer's parent
               observer context).
 
@@ -94,10 +95,10 @@ namespace Qtilities {
               usage scenario.
 
               This hint changes the behaviour of the following action handles in the Qtilities::CoreGui::ObserverWidget class:
-              - ObserverHints::SwitchView
-              - ObserverHints::RemoveAll
-              - ObserverHints::DeleteAll
-              - ObserverHints::NewItem
+              - ObserverHints::ActionSwitchView
+              - ObserverHints::ActionRemoveAll
+              - ObserverHints::ActionDeleteAll
+              - ObserverHints::ActionNewItem
               - The double click action handler: Qtilities::CoreGui::ObserverWidget::doubleClickRequest()
 
               \note This hint must be set on the observer which is selected. Thus if you set it on an observer the hint
@@ -151,9 +152,9 @@ namespace Qtilities {
             /*!
               \sa setHierarchicalDisplayHint(), hierarchicalDisplayHint()
               */
-            enum HierarhicalDisplay {
-                NoHierarhicalDisplayHint = 0,   /*!< No hierachical display hint. Uses FlatHierarhcy by default. */
-                FlatHierarhcy = 1,              /*!< The hierarhcy of items under an observer is flat. Thus categories are not displayed. */
+            enum HierarchicalDisplay {
+                NoHierarchicalDisplayHint = 0,   /*!< No hierachical display hint. Uses FlatHierarchy by default. */
+                FlatHierarchy = 1,              /*!< The hierarchy of items under an observer is flat. Thus categories are not displayed. */
                 CategorizedHierarchy = 2        /*!< Item are grouped by their category. Items which do not have a category associated with them are grouped under an category called QString(OBSERVER_UNCATEGORIZED_CATEGORY). */
             };
             //! The possible item view column hints.
@@ -161,13 +162,13 @@ namespace Qtilities {
               \sa setItemViewColumnHint(), itemViewColumnHint()
               */
             enum ItemViewColumn {
-                ColumnNoHint = 0,               /*!< No item view column hint. Only the name column is shown in item views viewing this observer. */
+                ColumnNoHints = 0,              /*!< No item view column hint. Only the name column is shown in item views viewing this observer. */
                 ColumnIDHint = 1,               /*!< Shows a column with the subject IDs of subjects in item views viewing this observer. */
                 ColumnChildCountHint = 2,       /*!< Shows a column with the cumulative count (counts items under each subject recusively) of subjects under each subject in item views viewing this observer. */
                 ColumnTypeInfoHint = 4,         /*!< Shows a column with information about the type of subject in item views viewing this observer. */
                 ColumnAccessHint = 8,           /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
                 ColumnCategoryHint = 16,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
-                ColumnAllHint = ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
+                ColumnAllHints = ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
             };
             Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn);
             Q_FLAGS(ItemViewColumnFlags);
@@ -180,7 +181,8 @@ namespace Qtilities {
                 ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
                 NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
                 PropertyBrowser = 4,        /*!< Display the property browser. */
-                AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser
+                ActionToolBar = 8,          /*!< Display an action toolbar in the observer widget with all the actions provided through Qtilities::CoreGui::ObserverWidget::actionProvider(). */
+                AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser | ActionToolBar
             };
             Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
             Q_FLAGS(DisplayFlags);
@@ -189,24 +191,24 @@ namespace Qtilities {
               \sa setActionHints(), actionHints()
               */
             enum ActionItem {
-                None = 0,                   /*!< No actions are allowed. */
-                RemoveItem = 1,             /*!< Allow detachment of subjects from the observer context presented to the user. */
-                RemoveAll = 2,              /*!< Allow detachment of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
-                DeleteItem = 4,             /*!< Allow deleting subjects from the observer context presented to the user. */
-                DeleteAll = 8,              /*!< Allow deleting of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
-                NewItem = 32,               /*!< Allow new items to be added to the observer context presented to the user. */
-                RefreshView = 64,           /*!< Allow refreshing of views. */
-                PushUp = 128,               /*!< Allow pushing up in the hierarhcy of the displayed observer context in TableViews. */
-                PushUpNew = 256,            /*!< Allow pushing up into a new window in the hierarhcy of the displayed observer context in TableViews. */
-                PushDown = 512,             /*!< Allow pushing down in the hierarhcy of the displayed observer context in TableViews. */
-                PushDownNew = 1024,         /*!< Allow pushing down into a new window in the hierarhcy of the displayed observer context in TableViews. */
-                SwitchView = 2048,          /*!< Allow switching between different view modes (TableView and TreeView) for example. When switching from tree to table view mode, the current active context is used for the table view, unless an observer with the ObserverHints::SelectionUseSelectedContext is selected. */
-                CopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
-                CutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
-                PasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
-                FindItem = 131072,          /*!< Allow finding/searching in the observer context presented to the user. */
-                ScopeDuplicate = 262144,    /*!< Allow duplication of selected object in the observer context presented to the user. */
-                AllActionsHint = RemoveItem | RemoveAll | DeleteItem | DeleteAll | NewItem | RefreshView | PushUp | PushUpNew | PushDown | PushDownNew | SwitchView | CopyItem | CutItem | PasteItem | FindItem | ScopeDuplicate /*!< All actions. */
+                ActionNoHints = 0,                /*!< No actions are allowed. */
+                ActionRemoveItem = 1,             /*!< Allow detachment of subjects from the observer context presented to the user. */
+                ActionRemoveAll = 2,              /*!< Allow detachment of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
+                ActionDeleteItem = 4,             /*!< Allow deleting subjects from the observer context presented to the user. */
+                ActionDeleteAll = 8,              /*!< Allow deleting of all subjects from the observer context presented to the user. \note ObserverWidget only handles this action if a single object is selected. */
+                ActionNewItem = 32,               /*!< Allow new items to be added to the observer context presented to the user. */
+                ActionRefreshView = 64,           /*!< Allow refreshing of views. */
+                ActionPushUp = 128,               /*!< Allow pushing up in the hierarchy of the displayed observer context in TableViews. */
+                ActionPushUpNew = 256,            /*!< Allow pushing up into a new window in the hierarchy of the displayed observer context in TableViews. */
+                ActionPushDown = 512,             /*!< Allow pushing down in the hierarchy of the displayed observer context in TableViews. */
+                ActionPushDownNew = 1024,         /*!< Allow pushing down into a new window in the hierarchy of the displayed observer context in TableViews. */
+                ActionSwitchView = 2048,          /*!< Allow switching between different view modes (TableView and TreeView) for example. When switching from tree to table view mode, the current active context is used for the table view, unless an observer with the ObserverHints::SelectionUseSelectedContext is selected. */
+                ActionCopyItem = 4096,            /*!< Allow copy operations which will add details about the selected items in the view to the clipboard using the ObserverMimeData class. */
+                ActionCutItem = 8192,             /*!< Allow cut operations similar to the copy operation, the items are just detached from the current context when added to a new context. */
+                ActionPasteItem = 16384,          /*!< Allow pasting of ObserverMimeData into the observer context presented to the user. */
+                ActionFindItem = 131072,          /*!< Allow finding/searching in the observer context presented to the user. */
+                ActionScopeDuplicate = 262144,    /*!< Allow duplication of selected object in the observer context presented to the user. */
+                ActionAllHints = ActionRemoveItem | ActionRemoveAll | ActionDeleteItem | ActionDeleteAll | ActionNewItem | ActionRefreshView | ActionPushUp | ActionPushUpNew | ActionPushDown | ActionPushDownNew | ActionSwitchView | ActionCopyItem | ActionCutItem | ActionPasteItem | ActionFindItem | ActionScopeDuplicate /*!< All actions. */
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem);
             Q_FLAGS(ActionHints);
@@ -225,7 +227,7 @@ naming_control(ObserverHints::NoNamingControlHint),
 activity_display(ObserverHints::NoActivityDisplayHint),
 activity_control(ObserverHints::NoActivityControlHint),
 item_selection_control(ObserverHints::SelectableItems),
-hierarhical_display(ObserverHints::NoHierarhicalDisplayHint),
+hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
 display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
 item_view_column_hint(ObserverHints::NoItemViewColumnHint),
 action_hints(ObserverHints::None),
@@ -276,9 +278,9 @@ category_filter_enabled(false)
             //! Gets the selection control hint.
             ObserverHints::ItemSelectionControl itemSelectionControlHint() const;
             //! Sets the hierarchical display hint for this model.
-            void setHierarchicalDisplayHint(ObserverHints::HierarhicalDisplay hierarhical_display);
+            void setHierarchicalDisplayHint(ObserverHints::HierarchicalDisplay hierarhical_display);
             //! Gets the hierarchical display hint for this model.
-            ObserverHints::HierarhicalDisplay hierarchicalDisplayHint() const;
+            ObserverHints::HierarchicalDisplay hierarchicalDisplayHint() const;
             //! Function to set display flags hint.
             void setDisplayFlagsHint(ObserverHints::DisplayFlags display_flags);
             //! Function to get current display flags hint.
@@ -316,9 +318,27 @@ category_filter_enabled(false)
             //! Returns true if the displayed categories list is inversed. The default is true.
             bool hasInversedCategoryDisplay() const;
 
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
+
         private:
             ObserverHintsData* d;
         };
+
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ItemViewColumnFlags)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DisplayFlags)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ActionHints)
     }
 }
 

@@ -41,6 +41,7 @@ bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
     stream << (qint32) access_mode;
     stream << (qint32) access_mode_scope;
     stream << category_access;
+    stream << deliver_qtilties_property_changed_events;
     return display_hints->exportBinary(stream);
 }
 
@@ -57,6 +58,7 @@ bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
     stream >> i32;
     access_mode_scope = i32;
     stream >> category_access;
+    stream >> deliver_qtilties_property_changed_events;
     return display_hints->importBinary(stream);
 }
 

@@ -143,7 +143,7 @@ Qtilities::Core::Observer::~Observer() {
 
 QStringList Qtilities::Core::Observer::monitoredProperties() const {
     QStringList properties;
-    properties << QString(OBSERVER_SUBJECT_IDS) << QString(OWNERSHIP) << QString(OBSERVER_PARENT) << QString(OBSERVER_VISITOR_ID) << QString(OBJECT_LIMITED_EXPORTS) << QString(OBJECT_ICON) << QString(OBJECT_TOOLTIP) << QString(OBJECT_CATEGORY) << QString(OBJECT_ACCESS_MODE);
+    properties << QString(OBJECT_ICON) << QString(OBJECT_TOOLTIP) << QString(OBJECT_CATEGORY) << QString(OBJECT_ACCESS_MODE);
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         properties << observerData->subject_filters.at(i)->monitoredProperties();
@@ -151,123 +151,30 @@ QStringList Qtilities::Core::Observer::monitoredProperties() const {
     return properties;
 }
 
-void Qtilities::Core::Observer::disableSubjectEventFiltering() {
-    observerData->ignore_dynamic_property_changes = true;
-}
+QStringList Qtilities::Core::Observer::reservedProperties() const {
+    QStringList properties;
+    properties << QString(OBSERVER_SUBJECT_IDS) << QString(OWNERSHIP) << QString(OBSERVER_PARENT) << QString(OBSERVER_VISITOR_ID) << QString(OBJECT_LIMITED_EXPORTS);
 
-void Qtilities::Core::Observer::enableSubjectEventFiltering() {
-    observerData->ignore_dynamic_property_changes = false;
-}
-
-bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
-{
-    if ((event->type() == QEvent::DynamicPropertyChange)) {
-        // Get the even tin the correct format
-        QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
-
-        // Handle dynamic property changes on subjects
-        if (contains(object) && monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-            // Ok we checked that the property is managed by this observer or any of its subject filters
-
-            // Ignore the property change, just pass it through without filtering it.
-            // Property changes from within observer sets this to true before changing properties.
-            if (observerData->ignore_dynamic_property_changes)
-                return false;
-
-            // Handle changes from different threads
-            if (!observerData->observer_mutex.tryLock())
-                return true;
-
-            // We now route the event that changed to the subject filter responsible for this property to validate the change
-            // If no subject filter is responsible, the observer needs to handle it itself.
-            bool filter_event = false;
-            bool is_filter_property = false;
-            for (int i = 0; i < observerData->subject_filters.count(); i++) {
-                if (observerData->subject_filters.at(i)) {
-                    if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-                        is_filter_property = true;
-                        filter_event = observerData->subject_filters.at(i)->monitoredPropertyChanged(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
-                    }
-                }
-            }
-
-            // Ok if is not a property managed by a subject filter, it is one of the observer's own properties.
-            // In this case we must filter the ones that can't be modified.
-            if (!is_filter_property) {
-                if ((!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_SUBJECT_IDS)) ||
-                   (!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_LIMIT)) ||
-                   (!strcmp(propertyChangeEvent->propertyName().data(),OWNERSHIP)) ||
-                   (!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_PARENT))) {
-                    // Filter any changes to these properties. They are read-only.
-                    filter_event  = true;
-                } else {
-                    filter_event = false;
-                }
-            }
-
-            // If the event should not be filtered, we need to post a user event on the object which will indicate that the
-            // property change was valid and succesfull.
-            if (!filter_event) {
-                if ((!strcmp(propertyChangeEvent->propertyName().data(),OBSERVER_VISITOR_ID)) &&
-                   (!strcmp(propertyChangeEvent->propertyName().data(),OBJECT_LIMITED_EXPORTS))) {
-                    // Filter any changes to these properties. They are read-only.
-                    QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
-                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
-                    QCoreApplication::postEvent(object,user_event);
-                    emit propertyBecameDirty(propertyChangeEvent->propertyName(),object);
-                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
-                }
-            }
-
-            // Unlock the mutex and return
-            observerData->observer_mutex.unlock();
-            return filter_event;
-        } else if (object == this) {
-            // We need to check if the name of this observer changed. If it is observed by an observer with a
-            // naming policy subject filter we just pass the event through since the naming policy subject filter will take care of it
-            // and post a custom qtilities property change event. This event will be caugth by this event filter again.
-            // If the object is not observed we sync objectName() with the new property and emit nameChanged()
-            if (!strcmp(propertyChangeEvent->propertyName().data(),OBJECT_NAME)) {
-                bool sync_name = true;
-                /*ObserverProperty observer_list = getObserverProperty(this,OBSERVER_SUBJECT_IDS);
-                if (observer_list.isValid()) {
-                    Observer* tmp_observer;
-                    for (int i = 0; i < observer_list.observerMap().count(); i++) {
-                        tmp_observer = OBJECT_MANAGER->observerReference(observer_list.observerMap().keys().at(i));
-                        if (tmp_observer) {
-                            for (int r = 0; r < tmp_observer->subjectFilters().count(); r++) {
-                                NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (tmp_observer->subjectFilters().at(r));
-                                if (naming_filter)
-                                    sync_name = false;
-                            }
-                        }
-                    }
-                }*/
-
-                if (sync_name) {
-                    QString new_name = getObserverPropertyValue(this,OBJECT_NAME).toString();
-                    setObjectName(new_name);
-                    objectName() = new_name;
-                    emit nameChanged(getObserverPropertyValue(this,OBJECT_NAME).toString());
-                    setModificationState(true);
-                }
-            }
-        }
-    } else if ((event->type() == QEvent::User)) {
-        // We check if the event is a QtilitiesPropertyChangeEvent.
-        QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
-        if (qtilities_event) {
-            if (!strcmp(qtilities_event->propertyName().data(),OBJECT_NAME) && (object == this)) {
-                // The object name will already be sync'ed at this stage.
-                observerData->subject_list.setObjectName(QString("%1 Pointer List").arg(observerName(qtilities_event->observerID())));
-                if (!observerData->process_cycle_active) {
-                    //emit nameChanged(observerName(qtilities_event->observerID()));
-                    //setModificationState(true);
-                }
-            }
-        }
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        properties << observerData->subject_filters.at(i)->reservedProperties();
     }
-    return false;
+    return properties;
+}
+
+void Qtilities::Core::Observer::toggleSubjectEventFiltering(bool toggle) {
+    observerData->ignore_dynamic_property_changes = toggle;
+}
+
+bool Qtilities::Core::Observer::subjectEventFilteringEnabled() const {
+    return observerData->ignore_dynamic_property_changes;
+}
+
+void Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents(bool toggle) {
+    observerData->deliver_qtilties_property_changed_events = toggle;
+}
+
+bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
+    return observerData->deliver_qtilties_property_changed_events;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Observer::supportedFormats() const {
@@ -342,7 +249,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
     // Write this count to the stream:
     stream << iface_count;
-    LOG_TRACE(QString(tr("%1 exportable subjects found under this observer's level of hierarhcy.")).arg(iface_count));
+    LOG_TRACE(QString(tr("%1 exportable subjects found under this observer's level of hierarchy.")).arg(iface_count));
 
     // Now check all subjects for the IExportable interface.
     for (int i = 0; i < exportable_list.count(); i++) {
@@ -408,7 +315,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     // Count the number of IExportable subjects first.
     qint32 iface_count = 0;
     stream >> iface_count;
-    LOG_TRACE(QString(tr("%1 exportable subject(s) found under this observer's level of hierarhcy.")).arg(iface_count));
+    LOG_TRACE(QString(tr("%1 exportable subject(s) found under this observer's level of hierarchy.")).arg(iface_count));
 
     // Now check all subjects for the IExportable interface.
     for (int i = 0; i < iface_count; i++) {
@@ -509,6 +416,11 @@ bool Qtilities::Core::Observer::isModified() const {
                 return true;
         }
     }
+    // Check if the observer hints were modified.
+    if (observerData->display_hints) {
+        if (observerData->display_hints->isModified())
+            return true;
+    }
     return false;
 }
 
@@ -532,11 +444,19 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
                 mod_iface->setModificationState(new_state,notification_targets);
             }
         }
+        // Also notify observer hints.
+        if (observerData->display_hints) {
+            observerData->display_hints->setModificationState(new_state,notification_targets);
+        }
     }
 }
 
-void Qtilities::Core::Observer::refreshViews() const {
-    emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+void Qtilities::Core::Observer::refreshViewsLayout() {
+    emit layoutChanged();
+}
+
+void Qtilities::Core::Observer::refreshViewsData() {
+    emit dataChanged(this);
 }
 
 void Qtilities::Core::Observer::startProcessingCycle() {
@@ -551,7 +471,6 @@ void Qtilities::Core::Observer::endProcessingCycle() {
         return;
 
     observerData->process_cycle_active = false;
-    emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
 }
 
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {
@@ -756,8 +675,14 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
         if (mod_iface) {
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
-            connect(mod_iface->objectBase(),SIGNAL(partialStateChanged(QString)),SIGNAL(partialStateChanged(QString)));
             has_mod_iface = true;
+        }
+
+        // Check if this is an observer:
+        Observer* obs = qobject_cast<Observer*> (obj);
+        if (obs) {
+            connect(obs,SIGNAL(dataChanged(Observer*)),SIGNAL(dataChanged(Observer*)));
+            connect(obs,SIGNAL(layoutChanged()),SIGNAL(layoutChanged()));
         }
 
         // Emit neccesarry signals
@@ -765,7 +690,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+            emit layoutChanged();
             setModificationState(true);
         }
 
@@ -786,14 +711,12 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         // We do this last, otherwise all dynamic property changes will go through this event filter.
         obj->installEventFilter(this);
 
-        // The global object pool does not care about modification states of subjects.
-
         // Emit neccesarry signals
         QList<QObject*> objects;
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+            emit layoutChanged();
             setModificationState(true);
         }
 
@@ -818,7 +741,7 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> object
     endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+        emit layoutChanged();
         setModificationState(true);
     }
     return success_list;
@@ -834,7 +757,7 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime
     endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+        emit layoutChanged();
         setModificationState(true);
     }
     return success_list;
@@ -979,7 +902,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     objects << obj;
     if (!observerData->process_cycle_active) {
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
-        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+        emit layoutChanged();
         setModificationState(true);
     }
 }
@@ -1062,7 +985,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         QList<QObject*> objects;
         objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
-        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+        emit layoutChanged();
         setModificationState(true);
     }
 
@@ -1081,7 +1004,7 @@ QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> object
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
-        emit partialStateChanged(QString(OBSERVER_PARTIAL_CHANGE_HIERARCHY));
+        emit layoutChanged();
         setModificationState(true);
     }
     return success_list;
@@ -1242,12 +1165,18 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
     #endif
 
     observerData->ignore_dynamic_property_changes = true;
+    observerData->deliver_qtilties_property_changed_events = false;
 
     // This is usefull when you are adding properties and you encounter an error, in that case this function
     // can be used as sort of a rollback, removing the property changes that have been made up to that point.
 
+    // Build up string list with all properties:
+    QStringList added_properties;
+    added_properties.append(monitoredProperties());
+    added_properties.append(reservedProperties());
+
     // Remove all the contexts first.
-    foreach (QString property_name, monitoredProperties()) {
+    foreach (QString property_name, added_properties) {
         ObserverProperty prop = getObserverProperty(obj, property_name.toStdString().data());
         if (prop.isValid()) {
             // If it exists, we remove this observer context
@@ -1258,13 +1187,14 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
 
     // If the count is zero after removing the contexts, remove all properties
     if (parentCount(obj) == 0) {
-        foreach (QString property_name, monitoredProperties()) {
+        foreach (QString property_name, added_properties) {
             if (property_name != QString(OBJECT_NAME))
                 obj->setProperty(property_name.toStdString().data(),QVariant());
         }
     }
 
     observerData->ignore_dynamic_property_changes = false;
+    observerData->deliver_qtilties_property_changed_events = true;
 }
 
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) const {
@@ -1341,15 +1271,22 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, const QString& ca
     else {
         observerData->category_access[category] = (int) mode;
     }
+    emit layoutChanged();
     setModificationState(true);
 }
 
-Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(const QString& category) {
+Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(const QString& category) const {
     if (category.isEmpty())
         return (AccessMode) observerData->access_mode;
     else {
         return (AccessMode) observerData->category_access[category];
     }
+}
+
+void Qtilities::Core::Observer::setAccessModeScope(AccessModeScope access_mode_scope) {
+    observerData->access_mode_scope = (int) access_mode_scope;
+    emit layoutChanged();
+    setModificationState(true);
 }
 
 QString Qtilities::Core::Observer::observerName(int parent_id) const {
@@ -1573,16 +1510,20 @@ bool Qtilities::Core::Observer::contains(const QObject* object) const {
     return false;
 }
 
-void Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subject_filter) {
+bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subject_filter) {
     if (subjectCount() > 0) {
         LOG_ERROR(QString(tr("Observer (%1): Subject filter installation failed. Can't install subject filters if subjects is already attached to an observer.")).arg(objectName()));
-        return;
+        return false;
     }
 
     observerData->subject_filters.append(subject_filter);
 
     // Set the observer context of the filter
-    subject_filter->setObserverContext(this);
+    if (!subject_filter->setObserverContext(this)) {
+        LOG_ERROR(QString(tr("Observer (%1): Subject filter installation failed. Setting the observer context on the subject filter failed.")).arg(objectName()));
+        return false;
+    }
+
     subject_filter->setParent(this);
 
     // Check if the new subject filter implements the IModificationNotifier interface. If so we connect
@@ -1592,26 +1533,27 @@ void Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
         connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
     }
 
-    // Connect signals
-    Q_ASSERT(connect(subject_filter,SIGNAL(notifyDirtyProperty(const char*)),SIGNAL(propertyBecameDirty(const char*))) == true);
+    // We need to connect to the property related signals on this subject filter:
+    connect(subject_filter,SIGNAL(monitoredPropertyChanged(const char*,QList<QObject*>)),SIGNAL(monitoredPropertyChanged(const char*,QList<QObject*>)));
+    connect(subject_filter,SIGNAL(propertyChangeFiltered(const char*,QList<QObject*>)),SIGNAL(propertyChangeFiltered(const char*,QList<QObject*>)));
 
     setModificationState(true);
+    return true;
 }
 
-void Qtilities::Core::Observer::uninstallSubjectFilter(AbstractSubjectFilter* subject_filter) {
+bool Qtilities::Core::Observer::uninstallSubjectFilter(AbstractSubjectFilter* subject_filter) {
     if (subjectCount() > 0) {
-        LOG_ERROR(QString(tr("Observer (%1): Subject filter uninstallation failed. Can't uninstall subject filters if subjects is already attached to an observer.")).arg(objectName()));
-        return;
+        LOG_ERROR(QString(tr("Observer (%1): Subject filter uninstall failed. Can't uninstall subject filters if subjects is already attached to an observer.")).arg(objectName()));
+        return false;
     }
 
     observerData->subject_filters.removeOne(subject_filter);
-
-    // Set the observer context of the filter
-    subject_filter->setObserverContext(0);
-    subject_filter->setParent(0);
     subject_filter->disconnect(this);
+    delete subject_filter;
+    subject_filter = 0;
 
     setModificationState(true);
+    return true;
 }
 
 QList<Qtilities::Core::AbstractSubjectFilter*> Qtilities::Core::Observer::subjectFilters() const {
@@ -1627,6 +1569,7 @@ bool Qtilities::Core::Observer::setDisplayHints(ObserverHints* display_hints) {
         return false;
 
     if (observerData->display_hints) {
+        observerData->display_hints->disconnect(this);
         delete observerData->display_hints;
         observerData->display_hints = 0;
     }
@@ -1638,6 +1581,9 @@ bool Qtilities::Core::Observer::setDisplayHints(ObserverHints* display_hints) {
 Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
     if (!observerData->display_hints) {
         observerData->display_hints = new ObserverHints(this);
+
+        // We need to connect to the modification related signals to this observer:
+        connect(observerData->display_hints,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         return observerData->display_hints;
     }
 
@@ -1645,3 +1591,74 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
 }
 
 
+bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
+{
+    if ((event->type() == QEvent::DynamicPropertyChange)) {
+        // Get the even tin the correct format
+        QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
+
+        // First check is to see if it is a reserved property. In that case we filter it directly.
+        if (contains(object) && reservedProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
+            QList<QObject*> filtered_list;
+            filtered_list << object;
+            emit propertyChangeFiltered(propertyChangeEvent->propertyName().data(),filtered_list);
+            return true;
+        }
+
+        // Next check if it is a monitored property.
+        if (contains(object) && monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
+            // Check if property change monitoring is enabled.
+            // Property changes from within observer sets this to true before changing properties.
+            if (observerData->ignore_dynamic_property_changes) {
+                return false;
+            }
+
+            // Handle changes from different threads
+            if (!observerData->observer_mutex.tryLock()) {
+                QList<QObject*> filtered_list;
+                filtered_list << object;
+                emit propertyChangeFiltered(propertyChangeEvent->propertyName().data(),filtered_list);
+                return true;
+            }
+
+            // We now route the event that changed to the subject filter responsible for this property to validate the change.
+            // If no subject filter is responsible, the observer needs to handle it itself.
+            bool filter_event = false;
+            bool is_filter_property = false;
+            for (int i = 0; i < observerData->subject_filters.count(); i++) {
+                if (observerData->subject_filters.at(i)) {
+                    if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
+                        is_filter_property = true;
+                        filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
+                    }
+                }
+            }
+
+            // If the event should not be filtered, we need to post a user event on the object which will indicate
+            // that the property change was valid and succesfull.
+            // Note that subject filters must emit do the following themselves. Although this makes implementation
+            // of subject filters more difficult, it is more powerfull in this way since one property change can
+            // affect other objects as well and only the subject filter will have knowledge about this.
+            if (!filter_event && !is_filter_property) {
+                // We need to do two things here:
+                // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+                if (observerData->deliver_qtilties_property_changed_events) {
+                    QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
+                    QCoreApplication::postEvent(object,user_event);
+                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
+                }
+
+                // 2. Emit the monitoredPropertyChanged() signal:
+                QList<QObject*> changed_objects;
+                changed_objects << object;
+                emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
+            }
+
+            // Unlock the mutex and return
+            observerData->observer_mutex.unlock();
+            return filter_event;
+        }
+    }
+    return false;
+}
