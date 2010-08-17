@@ -142,9 +142,12 @@ namespace Qtilities {
             bool initializeDetachment(QObject* obj, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
 
-            QStringList monitoredProperties();
-            bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+            QStringList monitoredProperties() const;
+            QStringList reservedProperties() const;
+        protected:
+            bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
@@ -158,7 +161,6 @@ namespace Qtilities {
             void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
         signals:
             void modificationStateChanged(bool is_modified) const;
-            void partialStateChanged(const QString& part_name) const;
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.

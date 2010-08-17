@@ -202,26 +202,39 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     }
     filter_mutex.unlock();
 
-    // Post the QtilitiesPropertyChangeEvents on all subjects
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
-        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-        QCoreApplication::postEvent(observer->subjectAt(i),user_event);
-        #ifndef QT_NO_DEBUG
-            // Get activity of object for debugging purposes
-            QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY);
-            if (activity.isValid()) {
-                if (activity.toBool())
-                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
-                else
-                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
-            }
-        #endif
+    // We need to do some things here:
+    // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+        for (int i = 0; i < observer->subjectCount(); i++) {
+            QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+            QCoreApplication::postEvent(observer->subjectAt(i),user_event);
+            #ifndef QT_NO_DEBUG
+                // Get activity of object for debugging purposes
+                QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY);
+                if (activity.isValid()) {
+                    if (activity.toBool())
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                    else
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                }
+            #endif
+        }
     }
 
-    // Emit needed signals
-    emit activeSubjectsChanged(objects,inactiveSubjects());
+    // 2. Emit the monitoredPropertyChanged() signal:
+    QList<QObject*> changed_objects;
+    changed_objects << observer->subjectReferences();
+    emit monitoredPropertyChanged(OBJECT_ACTIVITY,changed_objects);
+
+    // 3. Emit the activeSubjectsChanged() signal:
+    emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+
+    // 4. Change the modification state of the filter:
     setModificationState(true);
+
+    // 5. Emit the dataChanged() signal on the observer context:
+    observer->refreshViewsData();
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj) const {
@@ -303,13 +316,35 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
         }
 
         if (new_activity) {
-            QList<QObject*> active_subjects = activeSubjects();
-            active_subjects.push_back(obj);
+            // We need to do some things here:
+            // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+            if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+                QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+                QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                QCoreApplication::postEvent(obj,user_event);
+                #ifndef QT_NO_DEBUG
+                    if (new_activity)
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                    else
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                #endif
+            }
+
+            // 2. Emit the monitoredPropertyChanged() signal:
             // Note that the object which is attached is not yet in the observer context, thus we must add it to the active subject list.
-            emit activeSubjectsChanged(active_subjects,inactiveSubjects());
-            // Emit dirty property signal
-            // emit notifyDirtyProperty(OBJECT_ACTIVITY);
+            QList<QObject*> changed_objects;
+            changed_objects << observer->subjectReferences();
+            changed_objects.push_back(obj);
+            emit monitoredPropertyChanged(OBJECT_ACTIVITY,changed_objects);
+
+            // 3. Emit the activeSubjectsChanged() signal:
+            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+
+            // 4. Change the modification state of the filter:
             setModificationState(true);
+
+            // 5. Emit the dataChanged() signal on the observer context:
+            observer->refreshViewsData();
         }
         filter_mutex.unlock();
     }
@@ -356,7 +391,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
             }
         }
 
-        emit notifyDirtyProperty(OBJECT_ACTIVITY);
+        //emit notifyDirtyProperty(OBJECT_ACTIVITY);
         emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
     }
 
@@ -365,22 +400,25 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     setModificationState(true);
 }
 
-QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() {
+QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
     reserved_properties << QString(OBJECT_ACTIVITY);
     return reserved_properties;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+QStringList Qtilities::Core::ActivityPolicyFilter::reservedProperties() const {
+    return QStringList();
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
     if (!filter_mutex.tryLock())
         return true;
 
-    if (!observer)
-        return false;
-
+    bool single_object_change_only = true;
     bool new_activity = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
     if (new_activity) {
         if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
+            single_object_change_only = false;
             for (int i = 0; i < observer->subjectCount(); i++) {
                 if (observer->subjectAt(i) != obj) {
                     observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY, QVariant(false));
@@ -390,18 +428,43 @@ bool Qtilities::Core::ActivityPolicyFilter::monitoredPropertyChanged(QObject* ob
     } else {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive && (numActiveSubjects() == 0)) {
             // In this case, we allow the change to go through but we change the value here.
-            // To update GUIs monitoring OBJECT_ACTIVITY, we need to restore the property manually and emit that
-            // the property is dirty. Perhaps a better way of doing this will be thought out and used in the future.
             observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY, QVariant(true));
-            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
-            filter_mutex.unlock();
-            return false;
         }
     }
 
-    // Emit active subjects changed signal
+    // We need to do some things here:
+    // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+        if (single_object_change_only) {
+            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+            QCoreApplication::postEvent(obj,user_event);
+            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+        } else {
+            for (int i = 0; i < observer->subjectCount(); i++)    {
+                QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                QCoreApplication::postEvent(observer->subjectAt(i),user_event);
+                LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(observer->subjectAt(i)->objectName()));
+            }
+        }
+    }
+
+    // 2. Emit the monitoredPropertyChanged() signal:
+    QList<QObject*> changed_objects;
+    if (single_object_change_only)
+        changed_objects << obj;
+    else
+        changed_objects << observer->subjectReferences();
+    emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
+
+    // 3. Emit the activeSubjectsChanged() signal:
     emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+
+    // 4. Change the modification state of the filter:
     setModificationState(true);
+
+    // 5. Emit the dataChanged() signal on the observer context:
+    observer->refreshViewsData();
 
     filter_mutex.unlock();
     return false;
