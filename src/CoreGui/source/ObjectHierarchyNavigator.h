@@ -45,7 +45,7 @@ namespace Qtilities {
     namespace CoreGui {
         /*!
         \class Qtilities::CoreGui::ObjectHierarchyNavigator
-        \brief The ObjectHierarchyNavigator widget provides an indication of where you are in an observer-subject hierarhcy.
+        \brief The ObjectHierarchyNavigator widget provides an indication of where you are in an observer-subject hierarchy.
 
         This widget is appended to the top of the Qtilities::CoreGui::ObserverWidget widget when the observer context shown by the observer widget provides the correct hints
         and the observer widget uses the TableView mode.
@@ -65,11 +65,11 @@ namespace Qtilities {
             ~ObjectHierarchyNavigator();
 
         public slots:
-            //! Function to set the current object which is the item to the right most part of the hierarhcy display.
+            //! Function to set the current object which is the item to the right most part of the hierarchy display.
             void setCurrentObject(QObject* obj);
             //! Allows you to set the navigation stack of this widget.
             /*!
-              The front item in the stack is handled as the top most observer in the hierarhcy (left in the display)
+              The front item in the stack is handled as the top most observer in the hierarchy (left in the display)
               and the last item is the observer parent of the current object (see setCurrentObject()).
 
               Setting the stack will automatically refresh the hierarchy view using refreshHierarchy().

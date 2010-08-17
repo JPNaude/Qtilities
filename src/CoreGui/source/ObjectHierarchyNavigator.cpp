@@ -60,9 +60,9 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::setCurrentObject(QObject* obj
         d_current_obj = obj;
         
         // This object will always be an observer.
-        Observer* observer = qobject_cast<Observer*> (d_current_obj);
-        if (observer)
-            connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
+        // Observer* observer = qobject_cast<Observer*> (d_current_obj);
+        //if (observer)
+            //connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
     }
 
     d_navigation_stack.clear();
@@ -88,7 +88,7 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
     bool read_only = false;
     for (int i = d_navigation_stack.count()-1; i >= 0; i--) {
         observer = QtilitiesCore::instance()->objectManager()->observerReference(d_navigation_stack.at(i));
-        connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
+        //connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
         Q_ASSERT(observer);
         if (observer) {
             if (observer->accessMode() == Observer::ReadOnlyAccess)
