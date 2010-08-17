@@ -86,6 +86,8 @@ namespace Qtilities {
                     */
                 virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) = 0;
             };
+
+            Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
         }
     }
 }
