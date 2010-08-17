@@ -80,10 +80,6 @@ namespace Qtilities {
           \image latex observer_widget_tree.eps "Observer Widget (Tree View Mode)" width=3in
 
           The \ref page_observer_widgets article provides a comprehensive overview of the different ways that the observer widget can be used.
-
-          \todo
-          - Observer widget does not show activity in tree mode when only one of the lower level observers has an activity policy filter.
-          - Document drag-drop, cut-paste
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverWidget : public QMainWindow, public ObserverAwareBase, public IContext {
             Q_OBJECT
@@ -113,7 +109,7 @@ namespace Qtilities {
             //! Default destructor.
             virtual ~ObserverWidget();
             //! Implementation of virtual function ObserverAwareBase::setObserverContext().
-            void setObserverContext(Observer* observer);
+            bool setObserverContext(Observer* observer);
             //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
             virtual void initialize(bool hints_only = false);
             //! Gets the current navigation stack of this widget.
@@ -134,7 +130,7 @@ namespace Qtilities {
             bool eventFilter(QObject *object, QEvent *event);
         public slots:
             void contextDeleted();
-            //! The context detach handler check if any observer in the current context's parent hierarhcy is deleted. If so, contextDeleted() is called.
+            //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
             void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> obj);
             //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
             void resetProxyModel();
@@ -146,6 +142,7 @@ namespace Qtilities {
             // IContext implementation
             // --------------------------------
         public:
+            //! In the case of an ObserverWidget, the contextString() is the same as the globalMetaType().
             QString contextString() const { return globalMetaType(); }
             QString contextHelpId() const { return QString(); }
 
@@ -178,23 +175,71 @@ namespace Qtilities {
             //! Monitors the settings update request signal on the QtilitiesCoreGui instance.
             void handleSettingsUpdateRequest(const QString& request_id);
             //! Slot connected to QCoreApplication::aboutToQuit() signal.
+            /*!
+              Saves settings about this ObserverWidget instance using QSettings. The following parameters are saved:
+              - The main window state of the observer widget (ObserverWidget inherits QMainWindow).
+              - The grid style. \sa toggleGrid()
+              - The default table view row size (Only in TableView mode). \sa setDefaultRowHeight()
+              - The display mode. \sa DisplayMode
+
+              \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
+              for an ObserverWidget, don't read it when the widget is created.
+
+              \sa readSettings(), globalMetaType()
+              */
             void writeSettings();
         public:
-            //! Saves the current state of the widget.
-            void writeSettings(const QString& widget_string);
             //! Restores the widget to a previous state.
-            void readSettings(const QString& widget_string);
-            //! Sets the id of the IObjectManager setMetaTypeActiveObjects() call used when selectedObjects change in the observer. If QString() is used, the call is not made when the selectedObjects changes.
-            void setGlobalMetaType(const QString& meta_type);
-            //! Gets the global meta type.
+            /*!
+              \note This function must be called only after initialize() was called.
+
+              \sa writeSettings(), globalMetaType()
+              */
+            void readSettings();
+            //! Sets the global meta type used for this observer widget.
+            /*!
+              \returns True if the meta_type string was valid. The validity check is done by checking if that a context with the same name does not yet exist in the context manager.
+
+              \sa globalMetaType()
+              */
+            bool setGlobalMetaType(const QString& meta_type);
+            //! Gets the global meta type used for this observer widget.
+            /*!
+              The global meta type is a string which defines this observer widget. The string must be a string which
+              can be registered in the context manager. Thus, such a string must not yet exist as a context in the context
+              manager.
+
+              The global meta type is used for the following:
+              - As the context which is used to register backends for any actions created by this widget.
+              - During readSettings() and writeSettings() to uniquely define this widget.
+              - As the meta type which is used to identify a set of active objects in the object manager. For more information see Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjects().
+              - It is recommended to use the global meta type as the request ID when monitoring settings update requests. \sa handleSettingsUpdateRequest()
+
+              \returns The meta type used for this observer widget.
+
+              \sa updateGlobalActiveSubjects();
+              */
             QString globalMetaType() const;
-            //! Returns the action handler interface for this observer widget.
-            IActionProvider* actionProvider();
             //! Sets the global object subject type used by this observer widget.
             /*!
+              If objects are selected, they are set as the active objects. If no objects are selected, the observer context
+              is set as the active object.
+
               For more information see the \ref meta_type_object_management section of the \ref page_object_management article.
               */
-            void setGlobalObjectSubjectType();
+            void updateGlobalActiveSubjects();
+            //! Function to toggle if this observer widget updates global active objects under its globalMetaType() meta type.
+            /*!
+              For more information on global active objects, see the \ref meta_type_object_management section of the \ref page_object_management article.
+
+              \sa useGlobalActiveObjects
+              */
+            void toggleUseGlobalActiveObjects(bool toggle);
+            //! Indicates if this observer widget updates global active objects.
+            /*!
+              \sa toggleUseGlobalActiveObjects();
+              */
+            bool useGlobalActiveObjects() const;
 
             // --------------------------------
             // Functions Related To Selected Objects & Refreshing Of The Views
@@ -203,6 +248,18 @@ namespace Qtilities {
             QList<QObject*> selectedObjects() const;
             //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
             QModelIndexList selectedIndexes() const;
+            //! Function to set the default height used for the table view when this widget is used in TableView mode.
+            /*!
+              The default is 17.
+
+              \sa defaultRowHeight()
+              */
+            void setDefaultRowHeight(int height);
+            //! Function to get the default height used for the table view when this widget is used in TableView mode.
+            /*!
+              \sa setDefaultRowHeight()
+              */
+            int defaultRowHeight() const;
         private slots:
             //! Updates the current selection parent context.
             /*!
@@ -215,8 +272,15 @@ namespace Qtilities {
               This function only does something when in table viewing mode.
               */
             void selectSubjectsInTable(QList<QObject*> objects);
-            //! Slot which handles subject count changes.
-            void handleSubjectCountChanged();
+            //! Slot which resizes the rows in table view mode.
+            /*!
+              Slot which resizes the rows in table view mode.
+
+              \param height The height which must be used. By default the default row heigth is used.
+
+              \sa defaultRowHeight(), setDefaultRowHeight()
+              */
+            void resizeTableViewRows(int height = -1);
             //! Handles the selection model change.
             /*!
               This function is called whenever the selection in the item view changes. The function
@@ -260,29 +324,32 @@ namespace Qtilities {
             // --------------------------------
             // Action Handlers and Related Functions
             // --------------------------------
+        public:
+            //! Returns the action handler interface for this observer widget.
+            IActionProvider* actionProvider();
         public slots:
             //! Handle the remove item action trigger. Detaches the item from the current observer context.
-            void handle_actionRemoveItem_triggered();
+            void handle_actionActionRemoveItem_triggered();
             //! Handle the remove all action trigger. Detaches all objects from the current observer context.
-            void handle_actionRemoveAll_triggered();
+            void handle_actionActionRemoveAll_triggered();
             //! Handle the delete item action trigger.
-            void handle_actionDeleteItem_triggered();
+            void handle_actionActionDeleteItem_triggered();
             //! Handle the delete all action trigger.
-            void handle_actionDeleteAll_triggered();
+            void handle_actionActionDeleteAll_triggered();
             //! Handle the new item action trigger.
-            void handle_actionNewItem_triggered();
+            void handle_actionActionNewItem_triggered();
             //! Handle the refresh view action trigger.
-            void handle_actionRefreshView_triggered();
+            void handle_actionActionRefreshView_triggered();
             //! Handle the push up (go to parent) action trigger.
-            void handle_actionPushUp_triggered();
+            void handle_actionActionPushUp_triggered();
             //! Handle the push up (go to parent in a new window) action trigger.
-            void handle_actionPushUpNew_triggered();
+            void handle_actionActionPushUpNew_triggered();
             //! Handle the push down action trigger.
-            void handle_actionPushDown_triggered();
+            void handle_actionActionPushDown_triggered();
             //! Handle the push down in new window action trigger.
-            void handle_actionPushDownNew_triggered();
+            void handle_actionActionPushDownNew_triggered();
             //! Handle the switch view action trigger.
-            void handle_actionSwitchView_triggered();
+            void handle_actionActionSwitchView_triggered();
             //! Handle the copy action.
             void handle_actionCopy_triggered();
             //! Handle the cut action.
@@ -290,7 +357,7 @@ namespace Qtilities {
             //! Handle the paste action.
             void handle_actionPaste_triggered();
             //! Handle the find item action.
-            void handle_actionFindItem_triggered();
+            void handle_actionActionFindItem_triggered();
             //! Handle the collapse tree view action. Only usefull in TreeView display mode.
             void handle_actionCollapseAll_triggered();
             //! Handle the expand tree view action. Only usefull in TreeView display mode.
@@ -353,7 +420,7 @@ namespace Qtilities {
 
               \note In Tree View Mode, categories are handled as normal QObjects with the category name accessible through the objectName() function.
               */
-            void addNewItem_triggered(QObject* object, Observer* parent_observer = 0);
+            void addActionNewItem_triggered(QObject* object, Observer* parent_observer = 0);
             //! Signal which is emitted when the user double clicks on an item in the observer widget.
             /*!
               The parameters used during this signal emission is defferent depending on the display mode and the

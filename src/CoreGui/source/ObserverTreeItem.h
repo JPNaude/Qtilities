@@ -68,7 +68,6 @@ namespace Qtilities {
             void appendChild(ObserverTreeItem *child_item);
             int childCount() const;
             int columnCount() const;
-            QVariant data(int column) const;
             int row() const;
             ObserverTreeItem *parent();
             inline void setObject(QObject* object) { obj = object; }

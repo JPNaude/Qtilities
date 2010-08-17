@@ -89,7 +89,7 @@ namespace Qtilities {
             // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
-            void setObserverContext(Observer* observer);
+            bool setObserverContext(Observer* observer);
             virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
              QObject* getObject(const QModelIndex &index) const;
@@ -113,11 +113,18 @@ namespace Qtilities {
              */
             int getSubjectID(int row) const;
 
-        public slots:
-            //! Slot which will emit the correct signals in order for the view using the model to refresh.
-            virtual void handleDataChange();
-            //! Slot which handles
-            void handleDirtyProperty(const char* property_name);
+        private slots:
+            //! Slot which will emit the correct signals in order for the view using the model to refresh its data.
+            /*!
+              This slot will automatically be connected to the dataChanged() signal on the observer context displayed.
+              It will call the dataChanged() signal for the complete view with the correct parameters.
+              */
+            virtual void handleDataChanged();
+            //! Slot which will emit the correct signals in order for the view using the model to refresh its layout.
+            /*!
+              This slot will automatically be connected to the layoutChanged() signal on the observer context displayed.
+              */
+            virtual void handleLayoutChanged();
 
         protected:
             ObserverTableModelData* d;

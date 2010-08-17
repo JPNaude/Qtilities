@@ -83,7 +83,7 @@ namespace Qtilities {
             // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
-            void setObserverContext(Observer* observer);
+            bool setObserverContext(Observer* observer);
             virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
             QObject* getObject(const QModelIndex &index) const;
@@ -114,9 +114,9 @@ namespace Qtilities {
         public slots:
             //! Function which will rebuild the complete tree structure under the top level observer.
             /*!
-              \param partial_modification_notifier This notifier is the string which is passed to this function using the Qtilities::Core::IModificationNotifier::partialStateChanged() signal. The tree will only rebuild its structure when the modifier is equal to \p Hierarchy.
+                This slot will automatically be connected to the layoutChanged() signal on the top level observer.
               */
-            void rebuildTreeStructure(const QString& partial_modification_notifier = QString());
+            void rebuildTreeStructure();
             //! Function which will calculate the selection parent of a selected object.
             /*!
               \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.
@@ -124,6 +124,16 @@ namespace Qtilities {
             Observer* calculateSelectionParent(QModelIndexList index_list);
             //! This slot will clean up the tree and refresh the view when the top level observer is deleted.
             void handleObserverContextDeleted();
+            //! Handle context data changes where the context is defined by an Observer reference.
+            /*!
+              This function will emit the dataChanged() signal with the indexes of all items underneath this observer.
+              */
+            void handleContextDataChanged(Observer* observer);
+            //! Handle context data changes where the context is defined by a child QModelIndex.
+            /*!
+              This function will emit the dataChanged() signal with the indexes of all items in the same context as the item defined by \p index.
+              */
+            void handleContextDataChanged(const QModelIndex &set_data_index);
 
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.

@@ -61,16 +61,17 @@ Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(const QStringList &he
     setHorizontalHeaders(headers);
 }
 
-void Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer) {
+bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer) {
     if (d_observer)
         d_observer->disconnect(this);
 
-    AbstractObserverItemModel::setObserverContext(observer);
+    if (!AbstractObserverItemModel::setObserverContext(observer))
+        return false;
 
-    connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication)),SIGNAL(layoutChanged()));
-    connect(d_observer,SIGNAL(destroyed()),SIGNAL(layoutChanged()));
-    connect(d_observer,SIGNAL(propertyBecameDirty(const char*, QObject*)),SLOT(handleDirtyProperty(const char*)));
-    handleDataChange();
+    connect(d_observer,SIGNAL(layoutChanged()),SLOT(handleLayoutChanged()));
+    connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
+    connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
+    handleDataChanged();
 
     // Check if this observer has a subject type filter installed
     for (int i = 0; i < observer->subjectFilters().count(); i++) {
@@ -82,6 +83,7 @@ void Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
             break;
         }
     }
+    return true;
 }
 
 int Qtilities::CoreGui::ObserverTableModel::columnPosition(AbstractObserverItemModel::ColumnID column_id) const {
@@ -299,7 +301,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
             if (model->activity_filter) {
                 if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay && activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
-                    // The value comming in here is always Qt::Checked
+                    // The value coming in here is always Qt::Checked
                     // We get the current check state from the OBJECT_ACTIVITY property and change that:
                     QVariant current_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
                     if (current_activity.toBool()) {
@@ -319,6 +321,7 @@ int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) 
     if (!d_observer)
         return 0;
     else {
+        int count = d_observer->subjectCount();
         return d_observer->subjectCount();
     }
 }
@@ -330,17 +333,13 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
         return columnPosition(ColumnLast);
 }
 
-void Qtilities::CoreGui::ObserverTableModel::handleDataChange() {
+void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
     emit dataChanged(index(0,0),index(rowCount(),columnCount()));
-    emit layoutChanged();
 }
 
-void Qtilities::CoreGui::ObserverTableModel::handleDirtyProperty(const char* property_name) {
-    if (!strcmp(property_name,OBJECT_NAME)) {
-        handleDataChange();
-    } else if (!strcmp(property_name,OBJECT_ACTIVITY)) {
-        handleDataChange();
-    }
+void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
 }
 
 int Qtilities::CoreGui::ObserverTableModel::getSubjectID(const QModelIndex &index) const {

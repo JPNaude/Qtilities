@@ -86,23 +86,6 @@ int Qtilities::CoreGui::ObserverTreeItem::columnCount() const
     return itemData.count();
 }
 
-QVariant Qtilities::CoreGui::ObserverTreeItem::data(int column) const
-{
-    if (itemData.count() == 0) {
-        if (obj)
-            return objectName();
-        else
-            return QObject::tr("Contents Tree"); // Will be used for headers
-    } else {
-        if (obj)
-            return itemData.value(column);
-        else
-            return QObject::tr("Contents Tree"); // Will be used for headers
-    }
-
-    return "";
-}
-
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::parent()
 {
     return parentItem;
