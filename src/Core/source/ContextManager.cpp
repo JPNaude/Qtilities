@@ -107,6 +107,10 @@ bool Qtilities::Core::ContextManager::hasContext(int context) const {
     return d->contexts.contains(context);
 }
 
+bool Qtilities::Core::ContextManager::hasContext(const QString& context_string) const {
+    return d->string_id_map.keys().contains(context_string);
+}
+
 void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
     if (d->active_contexts.contains(context) && !notify) {
         LOG_TRACE("Context already active, the following contexts are currently active:");
@@ -220,6 +224,11 @@ QList<int> Qtilities::Core::ContextManager::currentContexts() {
 }
 
 int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
+    if (context_string.isEmpty()) {
+        LOG_ERROR(tr("Registering contexts without a descriptive name is not allowed. Context will not be registered."));
+        return -1;
+    }
+
     if (d->string_id_map.keys().contains(context_string))
         return d->string_id_map.value(context_string);
     else {

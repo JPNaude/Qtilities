@@ -75,6 +75,7 @@ namespace Qtilities {
             QStringList activeContextNames() const;
             bool hasContext(QList<int> contexts) const;
             bool hasContext(int context) const;
+            bool hasContext(const QString& context_string) const;
             QList<int> currentContexts();
             int contextID(const QString& context_string);
 

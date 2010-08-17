@@ -71,10 +71,12 @@ namespace Qtilities {
                 virtual QStringList contextNames() const = 0;
                 //! Returns the names of all active contexts.
                 virtual QStringList activeContextNames() const = 0;
-                //! Returns true if any of the contexts in the list were registered in the action manager.
+                //! Returns true if any of the contexts in the list were registered in the context manager.
                 virtual bool hasContext(QList<int> contexts) const = 0;
-                //! Returns true if the specified context is registered in the action manager.
+                //! Returns true if the specified context is registered in the context manager.
                 virtual bool hasContext(int context) const = 0;
+                //! Returns true if the specified context string is registered in the context manager.
+                virtual bool hasContext(const QString& context_string) const = 0;
                 //! Sets a new context. Will clear all current active contexts.
                 virtual void setNewContext(int context_id, bool notify = true) = 0;
                 //! Appends a context to the set of active contexts.
