@@ -105,14 +105,13 @@ namespace Qtilities {
                 Warning         = 1 << 2, /*!< A warning message. */
                 Error           = 1 << 3, /*!< An error message. */
                 Fatal           = 1 << 4, /*!< A fatal message. */
-                Debug           = 1 << 5, /*!< A debug message. */
-                Trace           = 1 << 6, /*!< A trace message. */
+                Debug           = 1 << 5, /*!< A debug message. \note Trace messages are not part of release mode builds. */
+                Trace           = 1 << 6, /*!< A trace message. \note Trace messages are not part of release mode builds. */
                 AllLogLevels    = Info | Warning | Error | Fatal | Debug | Trace /*!< Represents all message types. */
             };
             Q_DECLARE_FLAGS(MessageTypeFlags, MessageType);
             Q_FLAGS(MessageTypeFlags);
             Q_ENUMS(MessageType);
-
 
         private:
             Logger(QObject* parent = 0);
@@ -299,8 +298,14 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 
 // - Plain logging
 //! Logs a trace message to all active engines.
+/*!
+    \note Trace messages are not part of release mode builds.
+  */
 #define LOG_TRACE(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Trace, Msg)
 //! Logs a debug message to all active engines.
+/*!
+    \note Debug messages are not part of release mode builds.
+  */
 #define LOG_DEBUG(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Debug, Msg)
 //! Logs an error message to all active engines.
 #define LOG_ERROR(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Error, Msg)
