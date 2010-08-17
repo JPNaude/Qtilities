@@ -160,9 +160,12 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             bool initializeDetachment(QObject* obj, bool subject_deleted = false) { return true; }
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
 
-            QStringList monitoredProperties();
-            bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+            QStringList monitoredProperties() const;
+            QStringList reservedProperties() const;
+        protected:
+            bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // NamingPolicyFilter Implemenation
             // --------------------------------
@@ -237,7 +240,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
         signals:
             void modificationStateChanged(bool is_modified) const;
-            void partialStateChanged(const QString& part_name) const;
 
         private:
             //! Attempt to assign a new name manager to the object, other than this filter.

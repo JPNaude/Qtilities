@@ -128,8 +128,10 @@ Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::Nam
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy validity_resolution_policy) {
-    // Q_ASSERT(validity_resolution_policy != Replace);
-    // Note that replace is not a valid option for invalid names. This resolution will reappear in a future release.
+    if (validity_resolution_policy == Replace) {
+        LOG_ERROR(tr("Error: Cannot set the validity resolution policy of a naming policy filter to Replace. The current resolution policy will not be changed."));
+        return;
+    }
 
     d->validity_resolution_policy = validity_resolution_policy;
 }
@@ -165,7 +167,7 @@ QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(QString na
 }
 
 Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateAttachment(QObject* obj) const {
-    // Check the validity of obj's name
+    // Check the validity of obj's name:
     NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName());
 
     if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
@@ -254,15 +256,16 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
     }
 
     // Sync objectName() with the OBJECT_NAME property since the event filter is not installed yet.
-    // Only do this if this observer is the object name manager
+    // Only do this if this observer is the object name manager.
     if (isObjectNameManager(obj)) {
         obj->setObjectName(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString());
-        // Do not emit dirty property signal because it is not yet attached to the observer at this stage.
-        // Post an QtilitiesPropertyChangeEvent on this object notifying that the name changed.
-        QByteArray property_name_byte_array = QByteArray(OBJECT_NAME);
-        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-        QCoreApplication::postEvent(obj,user_event);
-        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(OBJECT_NAME).arg(obj->objectName()));
+        if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+            // Post an QtilitiesPropertyChangeEvent on this object notifying that the name changed.
+            QByteArray property_name_byte_array = QByteArray(OBJECT_NAME);
+            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+            QCoreApplication::postEvent(obj,user_event);
+            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(OBJECT_NAME).arg(obj->objectName()));
+        }
     }
     return validation_result;
 }
@@ -270,9 +273,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
 void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
     if (!attachment_successful) {
         // Undo possible name changes that happened in initializeAttachment()
-        if (isObjectNameManager(obj))
+        if (isObjectNameManager(obj)) {
             observer->setObserverPropertyValue(obj,OBJECT_NAME,QVariant(d->rollback_name));
-        else {
+            // Assign a new object name manager:
+            assignNewNameManager(obj);
+        } else {
             // First check if the object has a instance names property then
             if (d->uniqueness_policy == ProhibitDuplicateNames)
                 observer->setObserverPropertyValue(obj,INSTANCE_NAMES,QVariant(d->rollback_name));
@@ -296,18 +301,21 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeDetachment(QObject* obj, bo
         assignNewNameManager(obj);
 }
 
-QStringList Qtilities::CoreGui::NamingPolicyFilter::monitoredProperties() {
+QStringList Qtilities::CoreGui::NamingPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
-    reserved_properties << QString(OBJECT_NAME) << QString(OBJECT_NAME_MANAGER_ID) << QString(INSTANCE_NAMES);
+    reserved_properties << QString(OBJECT_NAME) << QString(INSTANCE_NAMES);
     return reserved_properties;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
-    // Use QMutexLocker locker(&filter_mutex) in the future
-    if(!filter_mutex.tryLock())
-        return true;
+QStringList Qtilities::CoreGui::NamingPolicyFilter::reservedProperties() const {
+    QStringList reserved_properties;
+    reserved_properties << QString(OBJECT_NAME_MANAGER_ID);
+    return reserved_properties;
+}
 
-    Q_ASSERT(observer != 0);
+bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+    if (!filter_mutex.tryLock())
+        return true;
 
     if (!strcmp(property_name,OBJECT_NAME)) {
         // If OBJECT_NAME changed and this observer is the object name manager, we need to react to this change.
@@ -323,14 +331,44 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
             if (return_value) {
                 // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
                 // would have set it during initialization:
-                if (d->conflicting_object)
+                bool layout_changed = false;
+                if (d->conflicting_object) {
                     delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
+                    layout_changed = true;
+                }
 
                 QString new_name = observer->getObserverPropertyValue(obj,OBJECT_NAME).toString();
                 if (!new_name.isEmpty()) {
-                    setModificationState(true);
                     LOG_DEBUG("Sync'ed objectName() with OBJECT_NAME property -> " + new_name);
                     obj->setObjectName(new_name);
+
+                    // What we do here is to change the property value and filter the actual event.
+                    // If we don't do this, the notifications below will happen before the property event
+                    // is executed. This will only happen when the eventFilter on the observer is finished.
+                    observer->setObserverPropertyValue(obj,OBJECT_NAME,QVariant(new_name));
+
+                    // We need to do some things here:
+                    // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+                    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+                        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+                        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                        QCoreApplication::postEvent(obj,user_event);
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+                    }
+
+                    // 2. Emit the monitoredPropertyChanged() signal:
+                    QList<QObject*> changed_objects;
+                    changed_objects << obj;
+                    emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
+
+                    // 3. Change the modification state of the filter:
+                    setModificationState(true);
+
+                    // 4. Emit the dataChanged() signal on the observer context:
+                    if (layout_changed)
+                        observer->refreshViewsLayout();
+                    else
+                        observer->refreshViewsData();
                 }
             } else {
                 LOG_WARNING(QString(tr("Property change event from objectName() = %1 to OBJECT_NAME property = %2 aborted.")).arg(obj->objectName()).arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()));
@@ -350,11 +388,38 @@ bool Qtilities::CoreGui::NamingPolicyFilter::monitoredPropertyChanged(QObject* o
             if (return_value) {
                 // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
                 // would have set it during initialization:
-                if (d->conflicting_object)
+                bool layout_changed = false;
+                if (d->conflicting_object) {
                     delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
+                    layout_changed = true;
+                }
 
-                setModificationState(true);
                 LOG_DEBUG(QString("Detected and handled INSTANCE_NAMES property change to \"%1\" within context \"%2\"").arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()).arg(observer->observerName()));
+
+                // We need to do some things here:
+                // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+                if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+                    QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                    QCoreApplication::postEvent(obj,user_event);
+                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+                }
+
+                // 2. Emit the monitoredPropertyChanged() signal:
+                QList<QObject*> changed_objects;
+                changed_objects << obj;
+                emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
+
+                // 3. Change the modification state of the filter:
+                setModificationState(true);
+
+                // 4. Emit the dataChanged() signal on the observer context:
+                // First check if the layout changed as well:
+                if (layout_changed)
+                    observer->refreshViewsLayout();
+                else
+                    observer->refreshViewsData();
+
             } else {
                 LOG_WARNING(QString(tr("Aborted INSTANCE_NAMES property change event (attempted change to \"%1\" within context \"%2\").")).arg(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString()).arg(observer->observerName()));
             }
@@ -441,9 +506,6 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
             observer->setObserverPropertyValue(obj,property_name,QVariant(valid_name));
             return_value = true;
         } else if (d->validity_resolution_policy == Reject) {
-            return_value = false;
-        } else if (d->validity_resolution_policy == Replace) {
-            // Note we do not replace with valid names, we return the same as Reject.
             return_value = false;
         }
     // Next handle duplicate names.
@@ -583,7 +645,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
     }
 
     observer->setObserverPropertyValue(obj,OBJECT_NAME_MANAGER_ID,observer->observerID());
-    emit notifyDirtyProperty(OBJECT_NAME);
+    //emit notifyDirtyProperty(OBJECT_NAME);
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::startValidationCycle() {
