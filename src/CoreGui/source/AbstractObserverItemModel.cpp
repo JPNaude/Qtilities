@@ -98,29 +98,29 @@ Qtilities::Core::ObserverHints* Qtilities::CoreGui::AbstractObserverItemModel::a
         return model->hints_default;
 }
 
-void Qtilities::CoreGui::AbstractObserverItemModel::setObserverContext(Observer* observer) {
-    ObserverAwareBase::setObserverContext(observer);
+bool Qtilities::CoreGui::AbstractObserverItemModel::setObserverContext(Observer* observer) {
+    if (!ObserverAwareBase::setObserverContext(observer))
+        return false;
 
     model->naming_filter = 0;
     model->activity_filter = 0;
 
-    if (observer) {
-        // Look which known subject filters are installed in this observer
-        for (int i = 0; i < observer->subjectFilters().count(); i++) {
-            // Check if it is a naming policy subject filter
-            NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
-            if (naming_filter)
-                model->naming_filter = naming_filter;
+    // Look which known subject filters are installed in this observer
+    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+        // Check if it is a naming policy subject filter
+        NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
+        if (naming_filter)
+            model->naming_filter = naming_filter;
 
-            // Check if it is an activity policy subject filter
-            ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
-            if (activity_filter)
-                model->activity_filter = activity_filter;
-        }
-
-        model->hints_selection_parent = observer->displayHints();
-        model->hints_top_level_observer = observer->displayHints();
+        // Check if it is an activity policy subject filter
+        ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
+        if (activity_filter)
+            model->activity_filter = activity_filter;
     }
+
+    model->hints_selection_parent = observer->displayHints();
+    model->hints_top_level_observer = observer->displayHints();
+    return true;
 }
 
 

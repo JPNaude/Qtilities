@@ -127,7 +127,7 @@ namespace Qtilities {
             ObserverHints* activeHints();
 
             //! Implement the virtual function to get references to known filters.
-            void setObserverContext(Observer* observer);
+            virtual bool setObserverContext(Observer* observer);
 
         protected:
             AbstractObserverItemModelData* model;
