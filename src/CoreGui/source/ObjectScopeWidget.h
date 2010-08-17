@@ -83,8 +83,6 @@ namespace Qtilities {
                 OwnerColumn = 2
             };
 
-            //! Sets the object for which the scope must be shown in the widget.
-            void setObject(QObject* obj);
             //! When true, the object name will be shown above the object scope table.
             void setNameVisible(bool visible);
             bool eventFilter(QObject *object, QEvent *event);
@@ -97,6 +95,18 @@ namespace Qtilities {
             void refreshActions();
 
         private slots:
+            //! Sets the object for which the scope must be shown.
+            /*!
+              \param obj The object which must be used.
+              */
+            void setObject(QObject* obj);
+            //! Sets the object for which the scope must be shown.
+            /*!
+              Function which allows this widget to be connected to the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal.
+
+              \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
+              */
+            void setObject(QList<QObject*> objects);
             //! Refreshes the view.
             void updateContents();
             //! Handles the event where the current object is destroyed.

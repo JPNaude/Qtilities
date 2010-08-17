@@ -129,6 +129,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object) {
         */
 }
 
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects) {
+    if (objects.count() == 1)
+        setObject(objects.front());
+}
+
 QObject* Qtilities::CoreGui::ObjectPropertyBrowser::object() const {
     return d->obj;
 }

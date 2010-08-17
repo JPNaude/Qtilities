@@ -126,13 +126,17 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
     for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
         Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
         if (observer) {
-            Q_ASSERT(connect(observer,SIGNAL(nameChanged(QString)),SLOT(updateContents())));
-            Q_ASSERT(connect(observer,SIGNAL(destroyed()),SLOT(updateContents())));
+            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()));
         }
     }
 
     updateContents();
     refreshActions();
+}
+
+void Qtilities::CoreGui::ObjectScopeWidget::setObject(QList<QObject*> objects) {
+    if (objects.count() == 1)
+        setObject(objects.front());
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handleObjectDestroyed() {
@@ -424,12 +428,12 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
                 else
                     actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
 
-                if (observer->displayHints()->actionHints() & ObserverHints::ScopeDuplicate)
+                if (observer->displayHints()->actionHints() & ObserverHints::ActionScopeDuplicate)
                     actionContainerWidget->d->actionDuplicateInScope->setEnabled(true);
                 else
                     actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
 
-                if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem)
+                if (observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem)
                     actionContainerWidget->d->actionRemoveContext->setEnabled(true);
                 else
                     actionContainerWidget->d->actionRemoveContext->setEnabled(false);
@@ -498,7 +502,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionRemoveContext_triggered
 
     if (observer->displayHints()) {
         // Check if a detach operation is supported by this observer.
-        if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem)
+        if (observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem)
             observer->detachSubject(d->obj);
         else {
             QMessageBox msgBox;
@@ -527,7 +531,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
             break;
 
         if (observer->displayHints()) {
-            if (!(observer->displayHints()->actionHints() & ObserverHints::RemoveItem)) {
+            if (!(observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem)) {
                 unsupported_items << observer->observerName();
             }
         } else {
@@ -557,7 +561,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
             break;
 
         if (observer->displayHints()) {
-            if (observer->displayHints()->actionHints() & ObserverHints::RemoveItem) {
+            if (observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem) {
                 observer->detachSubject(d->obj);
             }
         }
