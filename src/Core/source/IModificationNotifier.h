@@ -94,22 +94,12 @@ namespace Qtilities {
                   \endcode
                   */
                 virtual void modificationStateChanged(bool is_modified) const = 0;
-                //! Signal which can be used to indicate that a specific part of the object implementing the interface changed.
-                /*!
-                  In some cases you don't want to respond to certain modification. For example: When an ObserverTreeModel
-                  is used to view and observer in an item view, we don't want to rebuild the tree structure on every emission
-                  of modificationStateChanged() since setting for example and hint on the observer will emit
-                  modificationStateChanged() since the observer changed. However we only want to rebuild the tree structure
-                  when the actual structure change. In this the ObserverTreeModel will monitor the partialStateChanged() signal
-                  and check for the correct part_name before rebuilding the tree structure.
-
-                  \param part_name A string representing the part of the object that changed.
-                  */
-                virtual void partialStateChanged(const QString& part_name) const = 0;
 
             protected:
                 bool d_isModified;
             };
+
+            Q_DECLARE_OPERATORS_FOR_FLAGS(IModificationNotifier::NotificationTargets)
         }
     }
 }
