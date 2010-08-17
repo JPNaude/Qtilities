@@ -64,6 +64,8 @@ namespace Qtilities {
                 //! The factory tag of this interface.
                 virtual QString factoryTag() const = 0;
             };
+
+            Q_DECLARE_OPERATORS_FOR_FLAGS(ILoggerExportable::ExportModeFlags)
         }
     }
 }
