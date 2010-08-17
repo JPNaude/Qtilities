@@ -90,7 +90,7 @@ namespace Qtilities {
                 //! Returns all objects in the global object pool which implements the specified interface.
                 virtual QList<QObject*> registeredInterfaces(const QString& iface) const = 0;
                 //! Updates the active object(s) for a specific meta type.
-                virtual void setMetaTypeActiveObjects(const QString& subject_type, QList<QObject*> objects, const QStringList& filter_list = QStringList(), bool inversed_list = false) = 0;
+                virtual void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list = QStringList(), bool inversed_list = false) = 0;
                 //! Returns the active object(s) for a specific meta type. If the meta type does not exist, an empty list is returned.
                 virtual QList<QObject*> metaTypeActiveObjects(const QString& subject_type) const = 0;
                 //! Streams exportable dynamic properties about the object to the given QDataStream.

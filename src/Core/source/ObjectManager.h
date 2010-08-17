@@ -104,7 +104,7 @@ namespace Qtilities {
             IFactory* factoryReference(const QString& tag) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
             QList<QObject*> metaTypeActiveObjects(const QString& subject_type) const;
-            void setMetaTypeActiveObjects(const QString& subject_type, QList<QObject*> objects, const QStringList& filter_list = QStringList(), bool inversed_list = false);
+            void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list = QStringList(), bool inversed_list = false);
             bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const;
             bool importObjectProperties(QObject* new_instance, QDataStream& stream) const;
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& table) const;

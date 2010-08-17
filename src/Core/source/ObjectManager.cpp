@@ -209,9 +209,9 @@ QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QStri
     return d->object_pool.subjectReferences(iface);
 }
 
-void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(const QString& subject_type, QList<QObject*> objects, const QStringList& filter_list, bool inversed_list) {
+void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list, bool inversed_list) {
     d->meta_type_map[subject_type] = objects;
-    emit metaTypeActiveObjectsChanged(subject_type,objects,filter_list,inversed_list);
+    emit metaTypeActiveObjectsChanged(objects,subject_type,filter_list,inversed_list);
 }
 
 QList<QObject*> Qtilities::Core::ObjectManager::metaTypeActiveObjects(const QString& subject_type) const {
@@ -368,7 +368,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     QList<Observer*> observer_list = observerList(objects);
     // Disable subject event filtering on all observers in list:
     for (int i = 0; i < observer_list.count(); i++) {
-        observer_list.at(i)->disableSubjectEventFiltering();
+        observer_list.at(i)->toggleSubjectEventFiltering(false);
     }
 
     // Fill in all the session ID fields with the current session information
@@ -551,8 +551,8 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     // and emit the modificationStateChanged(true) signal on all the observers.
     // Disable subject event filtering on all observers in list:
     for (int i = 0; i < observer_list.count(); i++) {
-        observer_list.at(i)->enableSubjectEventFiltering();
-        observer_list.at(i)->refreshViews();
+        observer_list.at(i)->toggleSubjectEventFiltering(true);
+        observer_list.at(i)->refreshViewsLayout();
     }
 
     return success;
