@@ -95,12 +95,12 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     display_flags |= ObserverHints::ItemView;
     display_flags |= ObserverHints::PropertyBrowser;
     d->plugins.displayHints()->setDisplayFlagsHint(display_flags);
-    d->plugins.displayHints()->setActionHints(ObserverHints::FindItem);
+    d->plugins.displayHints()->setActionHints(ObserverHints::ActionFindItem);
     d->plugins.displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     SubjectTypeFilter* type_filter = new SubjectTypeFilter(tr("Loaded Plugins"));
     type_filter->addSubjectType(SubjectTypeInfo("Qtilities::ExtensionSystem::Interfaces::IPlugin",tr("Plugins")));
     d->plugins.installSubjectFilter(type_filter);
-    d->plugins.displayHints()->setItemViewColumnHint(ObserverHints::ColumnNoHint);
+    d->plugins.displayHints()->setItemViewColumnHint(ObserverHints::ColumnNoHints);
 
     d->plugins.endProcessingCycle();
 }
