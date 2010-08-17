@@ -43,9 +43,7 @@ namespace Qtilities {
         namespace Constants {
 
             //! The name of the global object pool observer.
-            const char * const GLOBAL_OBJECT_POOL     = "Qtilities.Core.ObjectPool";
-            //! The string used by observers to indicate that their hierarhcy changed. This string is used during the emission of the Qtilities::Core::IModificationNotifier::partialStateChanged() signal.
-            const char * const OBSERVER_PARTIAL_CHANGE_HIERARCHY    = "Observer.Hierarhcy";
+            const char * const GLOBAL_OBJECT_POOL                   = "Qtilities.Core.ObjectPool";
             //! The string used by observers to group uncategorized subjects in the case where the observer has a hierarchical display hint.
             const char * const OBSERVER_UNCATEGORIZED_CATEGORY      = "Uncategorized";
             //! %Factory tag for activity policy filters.
@@ -64,7 +62,7 @@ namespace Qtilities {
 This property is added to any object observed by one or more observers and
 is used to keep track in which contexts the object is visible.
 
-<b>Permisson:</b> Read<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> QMap<int,int> where the keys are observer IDs of the contexts in which the object is visible and values are the unqiue IDs of the object in the different observers<br>
 <b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
 <b>Is Exportable:</b> No<br>
@@ -92,7 +90,7 @@ When an object is attached to an observer, the observer adds this property
 to the object for each context in which it is attached storing the ownership
 of the object in that context.
 
-<b>Permisson:</b> Read<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int, cast to Observer::ObjectOwnership to get the ownership<br>
 <b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
 <b>Is Exportable:</b> No<br>
@@ -150,7 +148,7 @@ const char * const OBSERVER_LIMIT         = "Qtilities.Core.ObserverLimit";
 This is an internal property which is used during construction of an
 Qtilities::Core::ObserverRelationalTable.
 
-<b>Permisson:</b> Internal (Not not modify)<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> Yes<br>
@@ -163,7 +161,7 @@ const char * const OBSERVER_VISITOR_ID    = "Qtilities.Core.ObserverVisitorID";
 This is an internal property which is used during observer exporting in order
 to make sure an object found multiple times in a tree is only exported once.
 
-<b>Permisson:</b> Internal (Not not modify)<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> No<br>
@@ -196,8 +194,8 @@ const char * const OBJECT_ACCESS_MODE     = "Qtilities.Core.Access";
 //! Object Category Property
 /*!
 Use the object category property to specify the category to use for an object
-when attaching it to an observer which has its Qtilities::Core::Observer::HierarhicalDisplay
-hint set to categorized hierarhcy.
+when attaching it to an observer which has its Qtilities::Core::Observer::HierarchicalDisplay
+hint set to categorized hierarchy.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QString<br>
@@ -290,7 +288,7 @@ This property holds the observer ID of the observer which has the subject filter
 manages the object name (sync'ing it with objectName()). For more information on name managers
 see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 
-<b>Permisson:</b> Read<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> No<br>
@@ -303,7 +301,7 @@ const char * const OBJECT_NAME_MANAGER_ID = "Qtilities.NamingPolicyFilter.Object
 Different instance names for the object in different unique contexts. For more information on instance
 names see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 
-<b>Permisson:</b> Read<br>
+<b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QMap<int,QString>, where the keys are observer IDs and the values are the corresponding instance names<br>
 <b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
 <b>Is Exportable:</b> No<br>
@@ -316,7 +314,7 @@ const char * const INSTANCE_NAMES         = "Qtilities.NamingPolicyFilter.Instan
 When the object is attached to one or more observers which have Qtilities::Core::ActivityPolicyFilter
 filters installed, this property holds the activity for each of those contexts
 
-<b>Permisson:</b> Read<br>
+<b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QMap<int,bool>, where the keys are observer IDs and the values are the corresponding activities<br>
 <b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
 <b>Is Exportable:</b> Yes<br>
