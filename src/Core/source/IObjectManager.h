@@ -99,15 +99,17 @@ namespace Qtilities {
                 virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream) const = 0;
                 //! Construct relationships between a list of objects with the relational data being passed to the function as a RelationalObserverTable.
                 virtual bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& relational_table) const = 0;
-                //! Exports an observer and along with all the information to reconstruct and verify the observer hierarhcy (relationships etc.)
+                //! Exports an observer and along with all the information to reconstruct and verify the observer hierarchy (relationships etc.)
                 virtual IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false) const = 0;
                 //! Imports an observer which was exported using the exportObserverBinary() function.
                 virtual IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false) = 0;
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.
-                void metaTypeActiveObjectsChanged(const QString& meta_type, QList<QObject*> objects, const QStringList& filter_list, bool inversed_list);
+                void metaTypeActiveObjectsChanged(QList<QObject*> objects, const QString& meta_type, const QStringList& filter_list, bool inversed_list);
             };
+
+            Q_DECLARE_OPERATORS_FOR_FLAGS(IObjectManager::PropertyTypeFlags)
         }
     }
 }
