@@ -123,12 +123,15 @@ void Qtilities::Core::SubjectTypeFilter::finalizeDetachment(QObject* obj, bool d
     Q_UNUSED(detachment_successful);
 }
 
-QStringList Qtilities::Core::SubjectTypeFilter::monitoredProperties() {
-    QStringList reserved_properties;
-    return reserved_properties;
+QStringList Qtilities::Core::SubjectTypeFilter::monitoredProperties() const {
+    return QStringList();
 }
 
-bool Qtilities::Core::SubjectTypeFilter::monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+QStringList Qtilities::Core::SubjectTypeFilter::reservedProperties() const {
+    return QStringList();
+}
+
+bool Qtilities::Core::SubjectTypeFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
     Q_UNUSED(obj);
     Q_UNUSED(property_name);
     Q_UNUSED(propertyChangeEvent);

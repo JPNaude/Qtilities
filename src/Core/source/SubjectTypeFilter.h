@@ -84,9 +84,12 @@ namespace Qtilities {
             bool initializeDetachment(QObject* obj, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
 
-            QStringList monitoredProperties();
-            bool monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+            QStringList monitoredProperties() const;
+            QStringList reservedProperties() const;
+        protected:
+            bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // SubjectTypeFilter Implemenation
             // --------------------------------
