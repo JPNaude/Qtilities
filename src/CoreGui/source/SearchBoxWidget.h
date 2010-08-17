@@ -154,6 +154,9 @@ namespace Qtilities {
             Ui::SearchBoxWidget* ui;
             SearchBoxWidgetData* d;
         };
+
+        Q_DECLARE_OPERATORS_FOR_FLAGS(SearchBoxWidget::ButtonFlags)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(SearchBoxWidget::SearchOptions)
     }
 }
 
