@@ -67,10 +67,7 @@ bool Qtilities::ProjectManagement::Project::newProject() {
         d->project_items.at(i)->newProjectItem();
     }
 
-    IModificationNotifier::NotificationTargets notify_targets = 0;
-    notify_targets |= IModificationNotifier::NotifyListeners;
-    notify_targets |= IModificationNotifier::NotifySubjects;
-    setModificationState(false,notify_targets);
+    setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     return true;
 }
 
@@ -125,10 +122,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QString file_name_only = fi.fileName().split(".").front();
         d->project_name = file_name_only;
 
-        IModificationNotifier::NotificationTargets notify_targets = 0;
-        notify_targets |= IModificationNotifier::NotifyListeners;
-        notify_targets |= IModificationNotifier::NotifySubjects;
-        setModificationState(false,notify_targets);
+        setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
         LOG_INFO(tr("Successfully saved current project to file: ") + d->project_file);
     } else {
         LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
@@ -220,10 +214,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         // setModificationState() call below, it might change the modification state again.
         QCoreApplication::processEvents();
 
-        IModificationNotifier::NotificationTargets notify_targets = 0;
-        notify_targets |= IModificationNotifier::NotifyListeners;
-        notify_targets |= IModificationNotifier::NotifySubjects;
-        setModificationState(false,notify_targets);
+        setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
         LOG_INFO(tr("Successfully loaded project from file: ") + file_name);
     } else {
         LOG_ERROR(tr("Failed to load project from file: ") + file_name);
@@ -238,10 +229,7 @@ bool Qtilities::ProjectManagement::Project::closeProject() {
         d->project_items.at(i)->closeProjectItem();
     }
 
-    IModificationNotifier::NotificationTargets notify_targets = 0;
-    notify_targets |= IModificationNotifier::NotifyListeners;
-    notify_targets |= IModificationNotifier::NotifySubjects;
-    setModificationState(false,notify_targets);
+    setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     return true;
 }
 
@@ -266,12 +254,8 @@ void Qtilities::ProjectManagement::Project::setProjectItems(QList<IProjectItem*>
 
     if (inherit_modification_state)
         emit modificationStateChanged(isModified());
-    else {
-        IModificationNotifier::NotificationTargets notify_targets = 0;
-        notify_targets |= IModificationNotifier::NotifyListeners;
-        notify_targets |= IModificationNotifier::NotifySubjects;
-        setModificationState(false,notify_targets);
-    }
+    else
+        setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
 }
 
 void Qtilities::ProjectManagement::Project::addProjectItem(IProjectItem* project_item, bool inherit_modification_state) {
