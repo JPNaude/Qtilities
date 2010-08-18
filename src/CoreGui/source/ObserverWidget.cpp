@@ -37,7 +37,7 @@
 #include "ObserverTableModel.h"
 #include "ObserverTreeModel.h"
 #include "NamingPolicyFilter.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "ObjectScopeWidget.h"
 #include "ObjectHierarchyNavigator.h"
 #include "ObjectPropertyBrowser.h"
@@ -49,7 +49,6 @@
 #include <ActivityPolicyFilter.h>
 #include <ObserverHints.h>
 #include <ObserverMimeData.h>
-#include <QtilitiesCore.h>
 #include <QtilitiesCoreConstants.h>
 #include <Logger.h>
 
@@ -773,7 +772,7 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // Connect in order for settings to be written when application quits
     connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),SLOT(writeSettings()));
-    connect(QtilitiesCore::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
+    connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
 }
 
 bool Qtilities::CoreGui::ObserverWidget::setGlobalMetaType(const QString& meta_type) {
@@ -1811,15 +1810,7 @@ void Qtilities::CoreGui::ObserverWidget::updateGlobalActiveSubjects() {
         // Update the global active object type
         if (d->current_selection.count() == 0) {
             QList<QObject*> this_list;
-
-            // Check if the observer has a parent which is not an observer, in that case
-            // set the parent as the global object.
-            // This is needed when observers are contained behind an interface.
-            Observer* obs = qobject_cast<Observer*> (d_observer->parent());
-            if (!obs)
-                this_list << d_observer->parent();
-            else
-                this_list << d_observer;
+             this_list << d_observer;
             OBJECT_MANAGER->setMetaTypeActiveObjects(this_list, d->global_meta_type);
         } else
             OBJECT_MANAGER->setMetaTypeActiveObjects(d->current_selection, d->global_meta_type);

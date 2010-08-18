@@ -33,12 +33,11 @@
 
 #include "ClipboardManager.h"
 #include "QtilitiesCoreGuiConstants.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "Command.h"
 
 #include <QtilitiesCoreConstants.h>
 #include <Observer.h>
-#include <QtilitiesCore.h>
 #include <ObserverProperty.h>
 
 #include <QAction>
@@ -102,7 +101,7 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
         return;
 
     QList<int> context;
-    context << QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD);
+    context << CONTEXT_MANAGER->contextID(CONTEXT_STANDARD);
 
     // ---------------------------
     // Copy
@@ -110,21 +109,21 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
     d->actionCopy = new QAction(QIcon(),tr("Copy"),this);
     d->actionCopy->setShortcut(QKeySequence(QKeySequence::Copy));
     d->actionCopy->setEnabled(false);
-    Command* command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
+    Command* command = ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
     // Cut
     // ---------------------------
     d->actionCut = new QAction(QIcon(),tr("Cut"),this);
     d->actionCut->setShortcut(QKeySequence(QKeySequence::Cut));
     d->actionCut->setEnabled(false);
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_CUT,d->actionCut,context);
+    command = ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
     // ---------------------------
     // Paste
     // ---------------------------
     d->actionPaste = new QAction(QIcon(),tr("Paste"),this);
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
+    command = ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
 
     d->initialized = true;
 }

@@ -34,8 +34,7 @@
 #include "WidgetLoggerEngineFrontend.h"
 #include "LoggingConstants.h"
 
-#include <QtilitiesCore.h>
-#include <QtilitiesCoreGui.h>
+#include <QtilitiesApplication.h>
 #include <QtilitiesCoreGuiConstants.h>
 
 #include <QScrollBar>
@@ -138,7 +137,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::~WidgetLoggerEngineFrontend()
 bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::eventFilter(QObject *object, QEvent *event) {
     if (object == &d->txtLog && event->type() == QEvent::FocusIn) {
         currentWidget = this;
-        QtilitiesCore::instance()->contextManager()->setNewContext(CONTEXT_LOGGER_WIDGET,true);
+        CONTEXT_MANAGER->setNewContext(CONTEXT_LOGGER_WIDGET,true);
     }
     return false;
 }
@@ -306,59 +305,59 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
         return;
     actionContainerWidget = this;
 
-    QtilitiesCore::instance()->contextManager()->registerContext(CONTEXT_LOGGER_WIDGET);
+    CONTEXT_MANAGER->registerContext(CONTEXT_LOGGER_WIDGET);
     QList<int> context;
-    context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_LOGGER_WIDGET));
+    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_LOGGER_WIDGET));
 
     // ---------------------------
     // Save
     // ---------------------------
     d->actionSave = new QAction(QIcon(ICON_SAVE_24x24),tr("Save"),this);
     connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_Save()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_FILE_SAVE,d->actionSave,context);
+    ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
     // ---------------------------
     // Print
     // ---------------------------
     d->actionPrint = new QAction(QIcon(),tr("Print"),this);
     connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
+    ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
     // ---------------------------
     // Copy
     // ---------------------------
     d->actionCopy = new QAction(QIcon(),tr("Copy"),this);
     connect(d->actionCopy,SIGNAL(triggered()),SLOT(handle_Copy()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
+    ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
     // Select All
     // ---------------------------
     d->actionSelectAll = new QAction(QIcon(),tr("Select All"),this);
     d->actionSelectAll->setEnabled(true);
     connect(d->actionSelectAll,SIGNAL(triggered()),SLOT(handle_SelectAll()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
     // ---------------------------
     // Clear
     // ---------------------------
     d->actionClear = new QAction(QIcon(ICON_CLEAR_24x24),tr("Clear"),this);
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
+    ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
     // ---------------------------
     // Find
     // ---------------------------
     d->actionFind = new QAction(QIcon(),tr("Find"),this);
     connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_SearchShortcut()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_EDIT_FIND,d->actionFind,context);
+    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     // ---------------------------
     // Print PDF
     // ---------------------------
     d->actionPrintPDF = new QAction(QIcon(),tr("Print PDF"),this);
     connect(d->actionPrintPDF,SIGNAL(triggered()),SLOT(handle_PrintPDF()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPDF,context);
+    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPDF,context);
     // ---------------------------
     // Print Preview
     // ---------------------------
     d->actionPrintPreview = new QAction(QIcon(),tr("Print Preview"),this);
     connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_PrintPreview()));
-    QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     // ---------------------------
     // Logger Settings
     // ---------------------------

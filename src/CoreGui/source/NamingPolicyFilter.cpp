@@ -34,12 +34,11 @@
 #include "NamingPolicyFilter.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "NamingPolicyInputDialog.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "QtilitiesPropertyChangeEvent.h"
 
 #include <Observer.h>
 #include <QtilitiesCoreConstants.h>
-#include <QtilitiesCore.h>
 #include <Logger.h>
 
 #include <QMessageBox>
@@ -602,7 +601,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
             LOG_WARNING(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is currently the name manager for this object.")).arg(observer->observerName()).arg(obj->objectName()));
             return;
         } else {
-            Observer* current_manager = QtilitiesCore::instance()->objectManager()->observerReference(current_manager_id.value().toInt());
+            Observer* current_manager = OBJECT_MANAGER->observerReference(current_manager_id.value().toInt());
             Q_ASSERT(current_manager);
             NamingPolicyFilter* naming_filter = 0;
             for (int i = 0; i < current_manager->subjectFilters().count(); i++) {
@@ -681,7 +680,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) 
         if (observer_list.isValid()) {
             for (int i = 0; i < observer_list.observerMap().count(); i++) {
                 if (observer_list.observerMap().keys().at(i) != observer->observerID()) {
-                    next_observer = QtilitiesCore::instance()->objectManager()->observerReference(observer_list.observerMap().keys().at(i));
+                    next_observer = OBJECT_MANAGER->observerReference(observer_list.observerMap().keys().at(i));
                     if (next_observer) {
                         for (int i = 0; i < next_observer->subjectFilters().count(); i++) {
                             // Check if it is a naming policy subject filter

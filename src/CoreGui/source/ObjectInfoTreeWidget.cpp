@@ -33,7 +33,7 @@
 
 #include "ObjectInfoTreeWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 
 #include <QtilitiesCoreConstants.h>
 #include <ObserverProperty.h>
@@ -82,7 +82,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::mousePressEvent(QMouseEvent* even
     if (event->type() == QEvent::MouseButtonPress) {
         if (currentWidget != this) {
             // Disconnect the paste action from the previous observer.
-            Command* command = QtilitiesCoreGui::instance()->actionManager()->command(MENU_EDIT_PASTE);
+            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
             if (command->action())
                 command->action()->disconnect(currentWidget);
 
@@ -196,7 +196,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::handle_actionPaste_triggered() {
 
             switch (ret) {
               case QMessageBox::No:
-                  QtilitiesCoreGui::instance()->clipboardManager()->acceptMimeData();
+                  CLIPBOARD_MANAGER->acceptMimeData();
                   break;
               case QMessageBox::Yes:
                   break;

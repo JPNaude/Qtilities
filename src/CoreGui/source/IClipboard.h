@@ -90,14 +90,14 @@ First we look at the observer widget's copy action handler implementation:
 \code
 ObserverMimeData *mimeData = new ObserverMimeData(selectedObjects(),current_observer_ID);
 QApplication::clipboard()->setMimeData(mimeData);
-QtilitiesCoreGui::instance()->clipboardManager()->setClipboardOrigin(IClipboard::CopyAction);
+CLIPBOARD_MANAGER->setClipboardOrigin(IClipboard::CopyAction);
 \endcode
 
 Next we look at the observer widget's cut action handler implementation:
 \code
 ObserverMimeData *mimeData = new ObserverMimeData(selectedObjects(),current_observer_ID);
 QApplication::clipboard()->setMimeData(mimeData);
-QtilitiesCoreGui::instance()->clipboardManager()->setClipboardOrigin(IClipboard::CutAction);
+CLIPBOARD_MANAGER->setClipboardOrigin(IClipboard::CutAction);
 \endcode
 
 Finaly we look at the observer widget's paste action handler implementation:
@@ -106,11 +106,11 @@ const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData
 if (observer_mime_data) {
     if (current_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Qtilities::Core::Observer::Allowed) {
         // Now check the proposed action of the event.
-        if (QtilitiesCoreGui::instance()->clipboardManager()->clipboardOrigin() == IClipboard::CutAction) {
-            QtilitiesCore::instance()->objectManager()->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),current_observer_ID);
+        if (CLIPBOARD_MANAGER->clipboardOrigin() == IClipboard::CutAction) {
+            OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),current_observer_ID);
             // Accept the data, thus the paste action will be disabled and the clipboard cleared.
-            QtilitiesCoreGui::instance()->clipboardManager()->acceptMimeData();
-        } else if (QtilitiesCoreGui::instance()->clipboardManager()->clipboardOrigin() == IClipboard::CopyAction) {
+            CLIPBOARD_MANAGER->acceptMimeData();
+        } else if (CLIPBOARD_MANAGER->clipboardOrigin() == IClipboard::CopyAction) {
             // Attempt to copy the objects
             // For now we discard objects that cause problems during attachment and detachment
             for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
@@ -118,7 +118,7 @@ if (observer_mime_data) {
                 current_observer->attachSubject(observer_mime_data->subjectList().at(i));
             }
             // Accept the data, thus the paste action will be disabled and the clipboard cleared.
-            QtilitiesCoreGui::instance()->clipboardManager()->acceptMimeData();
+            CLIPBOARD_MANAGER->acceptMimeData();
         }
     }
 }

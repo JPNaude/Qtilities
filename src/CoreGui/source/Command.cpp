@@ -32,7 +32,7 @@
 ****************************************************************************/
 
 #include "Command.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 
 #include <Logger.h>

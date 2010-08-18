@@ -33,10 +33,9 @@
 
 #include "ObjectHierarchyNavigator.h"
 #include "ui_ObjectHierarchyNavigator.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 
 #include <Observer.h>
-#include <QtilitiesCore.h>
 
 using namespace Qtilities::Core;
 
@@ -72,7 +71,7 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::setNavigationStack(QStack<int
     // First disconnect all connections to the current stack
     Observer* observer = 0;
     for (int i = 0; i < d_navigation_stack.count(); i++) {
-        observer = QtilitiesCore::instance()->objectManager()->observerReference(d_navigation_stack.at(i));
+        observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(i));
         observer->disconnect(this);
     }
 
@@ -87,7 +86,7 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
     Observer* observer = 0;
     bool read_only = false;
     for (int i = d_navigation_stack.count()-1; i >= 0; i--) {
-        observer = QtilitiesCore::instance()->objectManager()->observerReference(d_navigation_stack.at(i));
+        observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(i));
         //connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
         Q_ASSERT(observer);
         if (observer) {
@@ -116,7 +115,7 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
                 if (observer->accessMode() == Observer::ReadOnlyAccess)
                     read_only = true;
             }
-            observer = QtilitiesCore::instance()->objectManager()->observerReference(d_navigation_stack.at(d_navigation_stack.count()-1));
+            observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(d_navigation_stack.count()-1));
             if (read_only)
                 label_text.append(QString("<font color = 'red'>%1</color>").arg(observer->subjectNameInContext(d_current_obj)));
             else
