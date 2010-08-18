@@ -35,15 +35,7 @@
 #include "ui_ObjectManagementModeWidget.h"
 #include "ObserverStringSubject.h"
 
-#include <QtilitiesCoreGuiConstants.h>
-#include <QtilitiesCoreGui.h>
-#include <ObserverWidget.h>
-#include <NamingPolicyFilter.h>
-#include <ActivityPolicyFilter.h>
-#include <QtilitiesCore.h>
-#include <QtilitiesCoreConstants.h>
-#include <ObjectScopeWidget.h>
-#include <ObserverProjectItemWrapper.h>
+#include <QtilitiesProjectManagement>
 
 #include <QtGui>
 #include <QSettings>
@@ -90,7 +82,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d = new ObjectManagementModeWidgetData;
     d->top_level_observer= new Observer("Example Top Level","");
     d->top_level_observer->useDisplayHints();
-    d->top_level_observer->displayHints()->setActionHints(ObserverHints::AllActionsHint);
+    d->top_level_observer->displayHints()->setActionHints(ObserverHints::ActionAllHints);
 
     // ---------------------------
     // Setup the top level observer
@@ -159,7 +151,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->observer_widget->addDockWidget(Qt::BottomDockWidgetArea,scope_dock);
     connect(d->observer_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->scope_widget,SLOT(handle_observerWidgetSelectionChange(QList<QObject*>)));
     connect(d->observer_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(selectionChanged(QList<QObject*>)));
-    connect(d->observer_widget,SIGNAL(addNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
+    connect(d->observer_widget,SIGNAL(addActionNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
     connect(d->observer_widget,SIGNAL(newObserverWidgetCreated(ObserverWidget*)),SLOT(handle_newObserverWidgetCreated(ObserverWidget*)));
     d->observer_widget->setObserverContext(d->top_level_observer);
     d->observer_widget->setAcceptDrops(true);
@@ -414,7 +406,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::selectio
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_newObserverWidgetCreated(ObserverWidget* new_widget) {
-    connect(new_widget,SIGNAL(addNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
+    connect(new_widget,SIGNAL(addActionNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_actionShowWidget() {

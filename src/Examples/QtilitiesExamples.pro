@@ -19,3 +19,4 @@ SUBDIRS    += ObjectManagement
 SUBDIRS    += BuildingTreeStructures
 SUBDIRS	   += ObserverWidgetExample
 SUBDIRS	   += MainWindowExample
+SUBDIRS	   += ClipboardExample

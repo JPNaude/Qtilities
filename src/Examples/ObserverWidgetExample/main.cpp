@@ -34,18 +34,21 @@
 #include <QApplication>
 #include <QtGui>
 
-#include <QtilitiesCoreGuiModule>
+#include <QtilitiesCoreGui>
 
-using namespace QtilitiesCoreModule;
-using namespace QtilitiesCoreGuiModule;
+using namespace QtilitiesCore;
+using namespace QtilitiesCoreGui;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("Jaco Naude");
-    QCoreApplication::setOrganizationDomain("Qtilities");
-    QCoreApplication::setApplicationName("Observer Widget Example");
-    QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Observer Widget Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+    LOG_INITIALIZE();
+    Log->toggleConsoleEngine(true);
+    Log->setGlobalLogLevel(Logger::Trace);
 
     Observer* observerA = new Observer("Observer A","Top level observer");
     observerA->useDisplayHints();
@@ -63,20 +66,30 @@ int main(int argc, char *argv[])
     observerA->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     // Set observer hints
     ObserverHints::ActionHints action_hints = 0;
-    action_hints |= ObserverHints::PushDown;
-    action_hints |= ObserverHints::PushUp;
-    action_hints |= ObserverHints::SwitchView;
-    action_hints |= ObserverHints::RefreshView;
+    action_hints |= ObserverHints::ActionRemoveAll;
+    action_hints |= ObserverHints::ActionDeleteAll;
+    action_hints |= ObserverHints::ActionPushDown;
+    action_hints |= ObserverHints::ActionPushUp;
+    action_hints |= ObserverHints::ActionPushDownNew;
+    action_hints |= ObserverHints::ActionPushUpNew;
+    action_hints |= ObserverHints::ActionSwitchView;
+    action_hints |= ObserverHints::ActionRefreshView;
     observerA->displayHints()->setActionHints(action_hints);
-    observerA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHint);
+    observerA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
     display_flags |= ObserverHints::NavigationBar;
+    display_flags |= ObserverHints::ActionToolBar;
     //display_flags |= ObserverHints::PropertyBrowser;
     observerA->displayHints()->setDisplayFlagsHint(display_flags);
 
     Observer* observerB = new Observer("Observer B","Child observer");
     observerB->useDisplayHints();
+    // Naming policy filter
+    /*NamingPolicyFilter* naming_filter2 = new NamingPolicyFilter();
+    naming_filter2->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    observerB->installSubjectFilter(naming_filter2);
+    observerB->displayHints()->setNamingControlHint(ObserverHints::EditableNames);*/
     // Activty policy filter
     activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
@@ -85,10 +98,11 @@ int main(int argc, char *argv[])
     observerB->displayHints()->setNamingControlHint(ObserverHints::ReadOnlyNames);
     observerB->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
     observerB->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    observerB->displayHints()->setObserverSelectionContextHint(ObserverHints::SelectionUseSelectedContext);
     // Set observer hints
     observerB->displayHints()->setActionHints(action_hints);
-    observerB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHint);
-    //observerB->displayHints()->setDisplayFlagsHint(display_flags);
+    observerB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    observerB->displayHints()->setDisplayFlagsHint(display_flags);
 
     Observer* observerC = new Observer("Observer C","Child observer");
     observerC->useDisplayHints();
@@ -107,7 +121,7 @@ int main(int argc, char *argv[])
     QStringList displayed_categories;
     displayed_categories << "Category 2";
     observerC->displayHints()->setDisplayedCategories(displayed_categories);
-    //observerC->displayHints()->setCategoryFilterEnabled(true);
+    observerC->displayHints()->setCategoryFilterEnabled(true);
 
     // Create the objects
     QObject* object1 = new QObject();
@@ -126,6 +140,10 @@ int main(int argc, char *argv[])
     category_property5.setValue("Category 2",observerC->observerID());
     Observer::setObserverProperty(object5,category_property5);
     object5->setObjectName("Object 5");
+    QObject* object6 = new QObject();
+    object6->setObjectName("Object 6");
+    QObject* object7 = new QObject();
+    object7->setObjectName("Object 7");
 
     // Create the structure of the tree
     observerA->attachSubject(observerB);
@@ -135,6 +153,8 @@ int main(int argc, char *argv[])
 
     observerB->attachSubject(object2);
     observerB->attachSubject(object3);
+    observerB->attachSubject(object6);
+    observerB->attachSubject(object7);
     //observerB->attachSubject(object3,Observer::SpecificObserverOwnership);
 
     observerC->attachSubject(object5);
@@ -162,18 +182,12 @@ int main(int argc, char *argv[])
 
     // We need to tell all three observers that they should provide an action hint for the search action as well.
     action_hints = observerA->displayHints()->actionHints();
-    action_hints |= ObserverHints::FindItem;
+    action_hints |= ObserverHints::ActionFindItem;
     observerA->displayHints()->setActionHints(action_hints);
     observerB->displayHints()->setActionHints(action_hints);
     //observerC->displayHints()->setActionHints(action_hints);
 
     observer_widget->initialize();
-
-    // We add all actions provided by the observer widget to a toolbar at the top of the observer widget for this example.
-    QList<QAction*> actions = observer_widget->actionProvider()->actions();
-    QToolBar* toolbar = observer_widget->addToolBar("Context Toolbar");
-    observer_widget->addToolBar(toolbar);
-    toolbar->addActions(actions);
 
     // After the observer widget was initialized we can access the property editor and call functions on it:
     if (observer_widget->propertyBrowser()) {
@@ -189,10 +203,10 @@ int main(int argc, char *argv[])
     search_box_widget->show();*/
 
     // Create the object scope widget and set it's object to object3:
-    ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
+    /*ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
     scope_widget->resize(300,300);
     scope_widget->setObject(object3);
-    scope_widget->show();
+    scope_widget->show();*/
 
     return a.exec();
 }

@@ -33,13 +33,12 @@
 
 #include <QtCore/QCoreApplication>
 
-#include <QtilitiesLoggingModule>
-using namespace QtilitiesLoggingModule;
+#include <QtilitiesLogging>
+using namespace QtilitiesLogging;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
     // We must specify the following if we want the logger to remember its settings.
     QCoreApplication::setOrganizationName("Jaco Naude");
     QCoreApplication::setOrganizationDomain("Qtilities");

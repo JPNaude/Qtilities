@@ -33,28 +33,28 @@
 
 #include <QtGui>
 
-#include <QtilitiesExtensionSystemModule>
+#include <QtilitiesExtensionSystem>
 
 #include "ObjectManagementMode.h"
 
-using namespace QtilitiesCoreModule;
-using namespace QtilitiesCoreGuiModule;
-using namespace QtilitiesExtensionSystemModule;
+using namespace QtilitiesCore;
+using namespace QtilitiesCoreGui;
+using namespace QtilitiesExtensionSystem;
 using namespace Qtilities::Examples::ObjectManagement;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("Jaco Naude");
-    QCoreApplication::setOrganizationDomain("Qtilities");
-    QCoreApplication::setApplicationName("Object Management Example");
-    QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Object Management Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Initialize the logger.
     LOG_INITIALIZE(false);
     Log->setIsQtMessageHandler(false);
 
-    // Create menu related things.
+    // Create the menu bar and menus in the menu bar:
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
     ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
@@ -64,11 +64,11 @@ int main(int argc, char *argv[])
     menu_bar->addMenu(edit_menu);
     menu_bar->addMenu(about_menu);
 
-    // Get the standard context.
+    // Get the standard context:
     QList<int> std_context;
     std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
 
-    // Register action place holders for this application. This allows control of your menu structure.
+    // Register action place holders for this application. This allows control of your menu structure:
     // File Menu
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SAVE,QObject::tr("Save"),QKeySequence(QKeySequence::Save));
     file_menu->addAction(command);
@@ -113,17 +113,17 @@ int main(int argc, char *argv[])
 
     // About Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
-    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesCoreGui::instance(),SLOT(aboutQtilities()));
+    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
     about_menu->addAction(command);
 
     // We want to use paste operations in this application, thus initialize the clipboard.
     // It is important to do this after registering the copy, cut and paste action holders above.
     // The initialization will register backends for these actions.
-    QtilitiesCoreGui::instance()->clipboardManager()->initialize();
+    CLIPBOARD_MANAGER->initialize();
 
     // Create a QtilitiesMainWindow to show our different modes.
     QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesCoreGui::instance()->setMainWindow(&exampleMainWindow);
+    QtilitiesApplication::instance()->setMainWindow(&exampleMainWindow);
     exampleMainWindow.setMenuBar(menu_bar->menuBar());
 
     // Create an instance of the example object management mode:

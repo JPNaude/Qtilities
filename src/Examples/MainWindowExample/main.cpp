@@ -34,23 +34,23 @@
 #include <QApplication>
 #include <QtGui>
 
-#include <QtilitiesExtensionSystemModule>
+#include <QtilitiesExtensionSystem>
 
 #include "ExampleMode.h"
 #include "SideWidgetFileSystem.h"
 
-using namespace QtilitiesCoreModule;
-using namespace QtilitiesCoreGuiModule;
-using namespace QtilitiesExtensionSystemModule;
+using namespace QtilitiesCore;
+using namespace QtilitiesCoreGui;
+using namespace QtilitiesExtensionSystem;
 using namespace Qtilities::Examples::MainWindow;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("Jaco Naude");
-    QCoreApplication::setOrganizationDomain("Qtilities");
-    QCoreApplication::setApplicationName("Main Window Example");
-    QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Main Window Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Initialize the logger.
     LOG_INITIALIZE(false);
@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
 
     // Get the standard context.
     QList<int> std_context;
-    std_context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD));
+    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
 
     // Register action place holders for this application. This allows control of your menu structure.
     // File Menu
-    std_context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD));
+    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     // Create the configuration widget here and then connect it to the above command
     ConfigurationWidget config_widget;
@@ -84,12 +84,12 @@ int main(int argc, char *argv[])
     file_menu->addAction(command);
     // About Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
-    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesCoreGui::instance(),SLOT(aboutQtilities()));
+    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
     about_menu->addAction(command);
 
     // Create a QtilitiesMainWindow to show our different modes.
     QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesCoreGui::instance()->setMainWindow(&exampleMainWindow);
+    QtilitiesApplication::instance()->setMainWindow(&exampleMainWindow);
     exampleMainWindow.setMenuBar(menu_bar->menuBar());
 
     // Load plugins using the extension system:

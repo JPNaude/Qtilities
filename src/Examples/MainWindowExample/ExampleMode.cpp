@@ -34,11 +34,7 @@
 #include "ExampleMode.h"
 #include "ui_ExampleMode.h"
 
-#include <DynamicSideWidgetViewer.h>
-#include <QtilitiesCore.h>
-#include <QtilitiesCoreConstants.h>
-#include <QtilitiesCoreGui.h>
-
+#include <QtilitiesCoreGui>
 #include <QtGui>
 
 using namespace Qtilities::Core::Constants;
@@ -105,7 +101,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerAction("ExampleMode.DynamicDockWidget",d->actionShowDock,context);
     bool existed;
-    ActionContainer* view_menu = QtilitiesCoreGui::instance()->actionManager()->createMenu(MENU_VIEW,existed);
+    ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
     view_menu->addAction(command);
 }
 

@@ -33,17 +33,17 @@
 
 #include <QApplication>
 
-#include <ObserverWidget>
+#include <QtilitiesCoreGui>
 
 using namespace Qtilities::CoreGui;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    QCoreApplication::setOrganizationName("Jaco Naude");
-    QCoreApplication::setOrganizationDomain("Qtilities");
-    QCoreApplication::setApplicationName("Building Tree Structures Example");
-    QCoreApplication::setApplicationVersion(QtilitiesCore::instance()->version());
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Building Tree Structures Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Create the observers
     Observer* observerA = new Observer("Observer A","Top level observer");
