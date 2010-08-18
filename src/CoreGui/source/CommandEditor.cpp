@@ -33,7 +33,7 @@
 
 #include "CommandEditor.h"
 #include "CommandTableModel.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "ObjectPropertyBrowser.h"
 #include "ui_CommandEditor.h"
 #include "SearchBoxWidget.h"
@@ -65,6 +65,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     ui->setupUi(this);
     ui->lblSearchIcon->setPixmap(QPixmap(ICON_MAGNIFY));
     connect(ui->txtSearchString,SIGNAL(textChanged(const QString&)),SLOT(handleSearchStringChanged(const QString&)));
+    connect(ui->commandTable->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
 
     d = new CommandEditorData;
 
@@ -114,6 +115,13 @@ Qtilities::CoreGui::CommandEditor::~CommandEditor()
     delete d;
 }
 
+void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
+    ui->commandTable->sortByColumn(0,Qt::AscendingOrder);
+    for (int i = 0; i < d->model->rowCount(); i++) {
+        ui->commandTable->setRowHeight(i,17);
+    }
+}
+
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
     return QIcon();//Constants::ICON_SHORTCUTS_22x22);
 }
@@ -146,10 +154,10 @@ void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
 
 void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous) {
     if (d->property_browser && d->proxy_model) {
-        if (current.row() >= 0 && current.row() < QtilitiesCoreGui::instance()->actionManager()->commandMap().count()) {
+        if (current.row() >= 0 && current.row() < ACTION_MANAGER->commandMap().count()) {
             QModelIndex original_index = d->proxy_model->mapToSource(current);
             if (original_index.isValid())
-                d->property_browser->setObject(QtilitiesCoreGui::instance()->actionManager()->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
+                d->property_browser->setObject(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
         }
     }
 }
@@ -164,7 +172,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
 
     switch (ret) {
         case QMessageBox::Yes:
-             QtilitiesCoreGui::instance()->actionManager()->restoreDefaultShortcuts();
+             ACTION_MANAGER->restoreDefaultShortcuts();
              ui->commandTable->resizeRowsToContents();
              break;
         case QMessageBox::No:
@@ -178,7 +186,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
 void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
     QString file_name = QFileDialog::getSaveFileName(this,tr("Export Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
-        if (!QtilitiesCoreGui::instance()->actionManager()->exportShortcutMapping(file_name)) {
+        if (!ACTION_MANAGER->exportShortcutMapping(file_name)) {
             QMessageBox msgBox;
             msgBox.setText("Shortcut mapping export failed.");
             msgBox.exec();
@@ -189,7 +197,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
 void Qtilities::CoreGui::CommandEditor::on_btnImport_clicked() {
     QString file_name = QFileDialog::getOpenFileName(this,tr("Import Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
-        if (!QtilitiesCoreGui::instance()->actionManager()->importShortcutMapping(file_name)) {
+        if (!ACTION_MANAGER->importShortcutMapping(file_name)) {
             QMessageBox msgBox;
             msgBox.setText("Shortcut mapping import failed.");
             msgBox.exec();

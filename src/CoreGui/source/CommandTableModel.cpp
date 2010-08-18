@@ -33,7 +33,7 @@
 
 #include "CommandTableModel.h"
 #include "QtilitiesCoreGuiConstants.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "Command.h"
 
 #include <QKeySequence>
@@ -43,13 +43,16 @@ Qtilities::CoreGui::CommandTableModel::CommandTableModel(QObject* parent) : QAbs
     id_column = 0;
     default_text_column = 1;
     shortcut_column = 2;
+
+    // Make sure the command table updates itself when new actions are registered.
+    connect(ACTION_MANAGER,SIGNAL(numberOfActionsChanged()),SIGNAL(layoutChanged()));
 }
 
 QVariant Qtilities::CoreGui::CommandTableModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
-    Command* command = QtilitiesCoreGui::instance()->actionManager()->commandMap().values().at(index.row());
+    Command* command = ACTION_MANAGER->commandMap().values().at(index.row());
     if (!command)
         return QVariant();
 
@@ -97,7 +100,7 @@ QVariant Qtilities::CoreGui::CommandTableModel::headerData(int section, Qt::Orie
 }
 
 int Qtilities::CoreGui::CommandTableModel::rowCount(const QModelIndex &parent) const {
-    return QtilitiesCoreGui::instance()->actionManager()->commandMap().count();
+    return ACTION_MANAGER->commandMap().count();
 }
 
 int Qtilities::CoreGui::CommandTableModel::columnCount(const QModelIndex &parent) const {
@@ -105,5 +108,5 @@ int Qtilities::CoreGui::CommandTableModel::columnCount(const QModelIndex &parent
 }
 
 void Qtilities::CoreGui::CommandTableModel::refreshModel() {
-    this->reset();
+    reset();
 }

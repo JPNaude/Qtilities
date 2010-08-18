@@ -87,6 +87,7 @@ namespace Qtilities {
             void on_btnExport_clicked();
             void on_btnImport_clicked();
             void handleSearchStringChanged(const QString& text);
+            void resizeCommandTableRows();
 
         private:
             Ui::CommandEditor *ui;

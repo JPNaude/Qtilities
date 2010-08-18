@@ -45,11 +45,7 @@ namespace Qtilities {
 
         //! The CommandTableModel class provides an ready-to-use model that can be used to show the contents of an Observer in a QTableView.
         /*!
-
-          \todo
-          - Wishlist: Make searchable, thus inherit from QSortFilterProxyModel.
         */
-
         class QTILITIES_CORE_GUI_SHARED_EXPORT CommandTableModel : public QAbstractTableModel
         {
             Q_OBJECT
@@ -64,6 +60,7 @@ namespace Qtilities {
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
             void refreshModel();
+
         protected:
             int id_column;
             int default_text_column;
