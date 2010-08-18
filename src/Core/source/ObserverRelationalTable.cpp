@@ -33,7 +33,6 @@
 
 #include "ObserverRelationalTable.h"
 #include "QtilitiesCoreConstants.h"
-#include "QtilitiesCore.h"
 #include "ObserverProperty.h"
 
 #include <Logger.h>

@@ -32,7 +32,6 @@
 ****************************************************************************/
 
 #include "Observer.h"
-#include "QtilitiesCore.h"
 #include "QtilitiesCoreConstants.h"
 #include "ObserverProperty.h"
 #include "ActivityPolicyFilter.h"
@@ -200,7 +199,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     // It also excludes the factory data which was stream above.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     stream << MARKER_OBSERVER_SECTION;
-    stream << observerData->exportBinary(stream);
+    //stream << observerData->exportBinary(stream);
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
@@ -297,11 +296,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         LOG_ERROR("Observer binary import failed to detect marker located after factory data. Import will fail.");
         return IExportable::Failed;
     }
-    Q_ASSERT(ui32 == MARKER_OBSERVER_SECTION);
-
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
-    success = observerData->importBinary(stream);
+    //success = observerData->importBinary(stream);
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after observer data. Import will fail.");

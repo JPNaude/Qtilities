@@ -32,7 +32,6 @@
 ****************************************************************************/
 
 #include "QtilitiesCoreConstants.h"
-#include "QtilitiesCore.h"
 #include "ContextManager.h"
 #include "IContext.h"
 
@@ -61,13 +60,8 @@ Qtilities::Core::ContextManager::ContextManager(QObject* parent) : IContextManag
     setObjectName("Context Manager");
 
     // Add the standard context
-    d->contexts.push_front(contextID(Qtilities::Core::Constants::CONTEXT_STANDARD));
-
-    // Give the manager an icon TRACK
-    /*SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ICON);
-    Q_ASSERT(shared_icon_property.isValid());
-    QVariant icon_property = qVariantFromValue(shared_icon_property);
-    setProperty(shared_icon_property.propertyName(),icon_property);*/
+    d->contexts.push_front(contextID(CONTEXT_STANDARD));
+    setNewContext(CONTEXT_STANDARD);
 }
 
 int Qtilities::Core::ContextManager::registerContext(const QString& context) {
@@ -126,7 +120,7 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
         return;
     }
 
-    if (notify && QtilitiesCore::instance()->startupFinished())
+    if (notify)
         emit aboutToSetNewContext(context);
 
     // Clear contexts, and add standard.
@@ -145,7 +139,7 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
     } else
         LOG_WARNING(tr("Attempting to append unregistered context in function setNewContext with ID: ") + context);
 
-    if (notify && QtilitiesCore::instance()->startupFinished()) {
+    if (notify) {
         emit finishedSetNewContext(context);
         emit contextChanged(currentContexts());
     }
@@ -162,11 +156,11 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
             return;
         }
 
-        if (notify && QtilitiesCore::instance()->startupFinished())
+        if (notify)
             emit aboutToAppendContext(context);
         d->active_contexts.append(context);
 
-        if (notify && QtilitiesCore::instance()->startupFinished())
+        if (notify)
             emit contextChanged(currentContexts());
         qDebug() << "Context appended, the following contexts are currently active:";
         for (int i = 0; i < currentContexts().size(); i++) {
@@ -174,7 +168,7 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
             qDebug() << debug_string;
         }
 
-        if (notify && QtilitiesCore::instance()->startupFinished())
+        if (notify)
             emit finishedAppendContext(context);
     } else {
         LOG_ERROR(tr("Attempting to append unregistered context in function appendContext with ID: ") + context);
@@ -196,7 +190,7 @@ void Qtilities::Core::ContextManager::removeContext(int context, bool notify) {
                 LOG_TRACE(debug_string);
             }
 
-            if (notify && QtilitiesCore::instance()->startupFinished()) {
+            if (notify) {
                 emit finishedRemoveContext(context);
                 emit contextChanged(currentContexts());
             }

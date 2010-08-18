@@ -35,6 +35,7 @@
 #define OBSERVER_H
 
 #include "QtilitiesCore_global.h"
+#include "QtilitiesCoreApplication.h"
 #include "QtilitiesCoreConstants.h"
 #include "PointerList.h"
 #include "ObserverProperty.h"
@@ -42,7 +43,6 @@
 #include "IExportable.h"
 #include "IFactory.h"
 #include "IModificationNotifier.h"
-#include "QtilitiesCore.h"
 
 #include <QObject>
 #include <QString>
@@ -57,6 +57,7 @@ namespace Qtilities {
         class ObserverMimeData;
 
         using namespace Qtilities::Core::Interfaces;
+        using namespace Qtilities::Core::Properties;
 
         /*!
         \class Observer
@@ -410,7 +411,7 @@ namespace Qtilities {
                 ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
                 if (prop.isValid()) {
                     for (int i = 0; i < prop.observerMap().count(); i++) {
-                        Observer* obs = QtilitiesCore::instance()->objectManager()->observerReference(prop.observerMap().keys().at(i));
+                        Observer* obs = OBJECT_MANAGER->observerReference(prop.observerMap().keys().at(i));
                         if (obs)
                             parents << obs;
                     }
