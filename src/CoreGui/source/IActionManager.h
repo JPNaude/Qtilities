@@ -150,6 +150,10 @@ namespace Qtilities {
 
             public slots:
                 virtual void handleContextChanged(QList<int> new_contexts) = 0;
+
+            signals:
+                //! Signal which is emitted when the number of actions in the action manager changes.
+                void numberOfActionsChanged();
             };
         }
     }

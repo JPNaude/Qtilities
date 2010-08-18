@@ -32,13 +32,12 @@
 ****************************************************************************/
 
 #include "ActionManager.h"
-#include "QtilitiesCoreGui.h"
+#include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "CommandEditor.h"
 
 #include <ObserverProperty.h>
 #include <QtilitiesCoreConstants.h>
-#include <QtilitiesCore.h>
 #include <Logger.h>
 #include <Observer.h>
 
@@ -159,7 +158,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
             action->setShortcut(QKeySequence());
 
             //LOG_TRACE(QString(tr("Registering new backend action for base action %1 (shortcut %2). New action: %3 (shortcut %4).")).arg(multi->text()).arg(multi->keySequence().toString()).arg(action->text()).arg(action->shortcut().toString()));
-
+            emit numberOfActionsChanged();
             return multi;
         } else
             return 0;
@@ -175,6 +174,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
             new_action->setKeySequence(action->shortcut());
             action->setShortcut(QKeySequence());
             new_action->setDefaultKeySequence(action->shortcut());
+            emit numberOfActionsChanged();
             return new_action;
         } else
             return 0;
@@ -208,9 +208,13 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
 
         new_action->setKeySequence(key_sequence);
         new_action->setDefaultKeySequence(key_sequence);
+        emit numberOfActionsChanged();
         return new_action;
-    } else
+    } else {
+        if (frontend_action)
+            delete frontend_action;
         return 0;
+    }
 
 }
 
