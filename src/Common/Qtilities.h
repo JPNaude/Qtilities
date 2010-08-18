@@ -44,6 +44,9 @@
 #define QTILITIES_VERSION_ALPHA 0
 
 //! The binary export format used in the above version of %Qtilities.
-#define QTILITIES_VERSION_BINARY_EXPORT_FORMAT 0
+// v0.1 Beta 1
+// #define QTILITIES_VERSION_BINARY_EXPORT_FORMAT 0
+// v0.1
+#define QTILITIES_VERSION_BINARY_EXPORT_FORMAT 1
 
 #endif // QTILITIES_H
