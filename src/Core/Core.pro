@@ -36,6 +36,8 @@ UI_DIR = $$QTILITIES_TEMP/Core
 # Qtilities Core Files
 # --------------------------
 HEADERS += source/QtilitiesCore_global.h \
+    source/QtilitiesCoreApplication.h \
+    source/QtilitiesCoreApplication_p.h \
     source/QtilitiesCoreConstants.h \
     source/Observer.h \
     source/PointerList.h \
@@ -46,7 +48,6 @@ HEADERS += source/QtilitiesCore_global.h \
     source/ObjectManager.h \
     source/QtilitiesPropertyChangeEvent.h \
     source/ObserverMimeData.h \
-    source/QtilitiesCore.h \
     source/IObjectManager.h \
     source/SubjectTypeFilter.h \
     source/IExportable.h \
@@ -61,11 +62,12 @@ HEADERS += source/QtilitiesCore_global.h \
     source/ObserverHints.h \
     source/SubjectFilterTemplate.h
 
-SOURCES += source/Observer.cpp \
+SOURCES += source/QtilitiesCoreApplication.cpp \
+    source/QtilitiesCoreApplication_p.cpp \
+    source/Observer.cpp \
     source/ActivityPolicyFilter.cpp \
     source/ObjectManager.cpp \
     source/QtilitiesPropertyChangeEvent.cpp \
-    source/QtilitiesCore.cpp \
     source/SubjectTypeFilter.cpp \
     source/ObserverData.cpp \
     source/ObserverProperty.cpp \
