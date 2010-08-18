@@ -36,7 +36,7 @@
 #include "ExtensionSystemConfig.h"
 #include "IPlugin.h"
 
-#include <QtilitiesCore.h>
+#include <QtilitiesCoreApplication.h>
 #include <QtilitiesCoreConstants.h>
 #include <Logger.h>
 #include <SubjectTypeFilter.h>
@@ -183,7 +183,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                 pluginIFace->setPluginState(IPlugin::DependancyError);
                 pluginIFace->setErrorString(error_string);
             }
-            QtilitiesCore::instance()->objectManager()->registerObject(d->plugins.subjectAt(i));
+            OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i));
         }
     }
 
