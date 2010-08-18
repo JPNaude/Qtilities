@@ -35,7 +35,6 @@
 #include "Project.h"
 #include "ProjectManagementConfig.h"
 
-#include <QtilitiesCore.h>
 #include <Logger.h>
 
 #include <QMutex>
