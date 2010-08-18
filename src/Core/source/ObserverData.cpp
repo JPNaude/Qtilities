@@ -42,23 +42,34 @@ bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
     stream << (qint32) access_mode_scope;
     stream << category_access;
     stream << deliver_qtilties_property_changed_events;
-    return display_hints->exportBinary(stream);
+    if (display_hints) {
+        stream << (bool) true;
+        return display_hints->exportBinary(stream);
+    } else {
+        return true;
+    }
 }
 
 bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
-    qint32 i32;
-
-    stream >> i32;
-    subject_limit = i32;
-    stream >> i32;
-    subject_id_counter = i32;
+    quint32 ui32;
+    stream >> ui32;
+    subject_limit = ui32;
+    stream >> ui32;
+    subject_id_counter = ui32;
     stream >> observer_description;
-    stream >> i32;
-    access_mode = i32;
-    stream >> i32;
-    access_mode_scope = i32;
+    stream >> ui32;
+    access_mode = ui32;
+    stream >> ui32;
+    access_mode_scope = ui32;
     stream >> category_access;
     stream >> deliver_qtilties_property_changed_events;
-    return display_hints->importBinary(stream);
+    bool has_hints;
+    stream >> has_hints;
+    if (has_hints) {
+        if (!display_hints)
+            display_hints = new ObserverHints();
+        return display_hints->importBinary(stream);
+    } else
+        return true;
 }
 

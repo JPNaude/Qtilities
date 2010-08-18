@@ -199,7 +199,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     // It also excludes the factory data which was stream above.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     stream << MARKER_OBSERVER_SECTION;
-    //stream << observerData->exportBinary(stream);
+    observerData->exportBinary(stream);
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
@@ -298,7 +298,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
-    //success = observerData->importBinary(stream);
+    if (!observerData->importBinary(stream)) {
+        LOG_ERROR("Observer binary import failed to during observer data import. Import will fail.");
+        return IExportable::Failed;
+    }
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after observer data. Import will fail.");
@@ -1068,8 +1071,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
 
 void Qtilities::Core::Observer::detachAll() {
     detachSubjects(subjectReferences());
-    // Make sure everything is gone
-    observerData->subject_list.clear();
+    // Updating is done in detachSubjects().
 }
 
 void Qtilities::Core::Observer::deleteAll() {
@@ -1087,6 +1089,8 @@ void Qtilities::Core::Observer::deleteAll() {
         }
     }
     endProcessingCycle();
+    emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+    emit layoutChanged();
 }
 
 QVariant Qtilities::Core::Observer::getObserverPropertyValue(const QObject* obj, const char* property_name) const {
@@ -1583,10 +1587,8 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
         connect(observerData->display_hints,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         return observerData->display_hints;
     }
-
     return 0;
 }
-
 
 bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 {

@@ -75,7 +75,7 @@ namespace Qtilities {
 
             //! Exports observer data to a QDataStream.
             /*!
-              \returns True if succesfull, false otherwise.
+              \returns True if successful, false otherwise.
               */
             bool exportBinary(QDataStream& stream) const;
             //! Imports observer data from a QDataStream.

@@ -190,6 +190,11 @@ namespace Qtilities {
             // --------------------------------
             bool isModified() const;
         public slots:
+            /*!
+              For observers, the listeners will only be notified if a processing cycle is not active.
+
+              \sa isProcessingCycleActive(), startProcessingCycle(), endProcessingCycle()
+              */
             void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
         signals:
             void modificationStateChanged(bool is_modified) const;
