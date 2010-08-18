@@ -35,13 +35,11 @@
 #include "ProjectManagementPluginConstants.h"
 
 #include <Qtilities.h>
-#include <QtilitiesCore.h>
+#include <QtilitiesApplication.h>
 #include <ProjectManager.h>
 #include <ActionContainer.h>
 #include <Command.h>
-#include <QtilitiesCore.h>
 #include <QtilitiesCoreConstants.h>
-#include <QtilitiesCoreGui.h>
 #include <QtilitiesCoreGuiConstants.h>
 #include <Logger.h>
 
@@ -93,10 +91,10 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // Create and add project management actions:
     // Add project menu items
     bool existed;
-    ActionContainer* file_menu = QtilitiesCoreGui::instance()->actionManager()->createMenu(MENU_FILE,existed);
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
     // We construct each action and then register it
     QList<int> context;
-    context.push_front(QtilitiesCore::instance()->contextManager()->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
 
     // ---------------------------
     // New Project
@@ -104,7 +102,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectNew = new QAction(QIcon(),tr("New Project"),this);
     d->actionProjectNew->setShortcut(QKeySequence(tr("Alt+N")));
     connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
-    Command* command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_PROJECTS_NEW,d->actionProjectNew,context);
+    Command* command = ACTION_MANAGER->registerAction(MENU_PROJECTS_NEW,d->actionProjectNew,context);
     file_menu->addAction(command,MENU_FILE_PRINT);
     // ---------------------------
     // Open Project
@@ -112,7 +110,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectOpen = new QAction(QIcon(),tr("Open Project"),this);
     d->actionProjectOpen->setShortcut(QKeySequence(tr("Alt+O")));
     connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_PROJECTS_OPEN,d->actionProjectOpen,context);
+    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_OPEN,d->actionProjectOpen,context);
     file_menu->addAction(command,MENU_FILE_PRINT);
     // ---------------------------
     // Close Project
@@ -121,7 +119,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectClose->setEnabled(false);
     d->actionProjectClose->setShortcut(QKeySequence(tr("Alt+C")));
     connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_PROJECTS_CLOSE,d->actionProjectClose,context);
+    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_CLOSE,d->actionProjectClose,context);
     file_menu->addAction(command,MENU_FILE_PRINT);
     // ---------------------------
     // Save Project
@@ -130,7 +128,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSave->setEnabled(false);
     d->actionProjectSave->setShortcut(QKeySequence(tr("Alt+S")));
     connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_PROJECTS_SAVE,d->actionProjectSave,context);
+    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE,d->actionProjectSave,context);
     file_menu->addAction(command,MENU_FILE_PRINT);
     // ---------------------------
     // Save Project As
@@ -138,12 +136,12 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSaveAs = new QAction(QIcon(),tr("Save Project As"),this);
     d->actionProjectSaveAs->setEnabled(false);
     connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
-    command = QtilitiesCoreGui::instance()->actionManager()->registerAction(MENU_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
+    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
     file_menu->addAction(command,MENU_FILE_PRINT);
     file_menu->addSeperator(MENU_FILE_PRINT);
 
     // Register project management config page.
-    QtilitiesCore::instance()->objectManager()->registerObject(PROJECT_MANAGER->configWidget());
+    OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
 
     return true;
 }
@@ -152,7 +150,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeD
     Q_UNUSED(errorString)
 
     // Get a list of all the project items in the system.
-    QList<QObject*> projectItemObjects = QtilitiesCore::instance()->objectManager()->registeredInterfaces("IProjectItem");
+    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
     QList<IProjectItem*> projectItems;
     QStringList itemNames;
     bool success = true;
@@ -187,7 +185,7 @@ double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVer
 
 QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() {
     QStringList compatible_versions;
-    compatible_versions << QtilitiesCore::instance()->version();
+    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
@@ -280,7 +278,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         d->actionProjectSaveAs->setEnabled(true);
 
         // Check if the project name currenlty in the main window must change:
-        QMainWindow* main_window = QtilitiesCoreGui::instance()->mainWindow();
+        QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
         if (main_window && project) {
             // Name was never appended before.
             if (d->appended_project_name.isEmpty()) {
@@ -305,14 +303,14 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         // Add the * character if neccesarry:
         if (project->isModified()) {
             d->actionProjectSave->setEnabled(true);
-            QMainWindow* main_window = QtilitiesCoreGui::instance()->mainWindow();
+            QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
             if (main_window) {
                 if (!main_window->windowTitle().endsWith("*"))
                     main_window->setWindowTitle(main_window->windowTitle().append("*"));
             }
         } else {
             d->actionProjectSave->setEnabled(false);
-            QMainWindow* main_window = QtilitiesCoreGui::instance()->mainWindow();
+            QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
             if (main_window) {
                 if (main_window->windowTitle().endsWith("*")) {
                     QString new_title = main_window->windowTitle();
@@ -328,7 +326,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         d->actionProjectSave->setEnabled(false);
         d->actionProjectSaveAs->setEnabled(false);
 
-        QMainWindow* main_window = QtilitiesCoreGui::instance()->mainWindow();
+        QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
         if (main_window) {
             // Remove possible *:
             if (main_window->windowTitle().endsWith("*")) {

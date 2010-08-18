@@ -34,7 +34,7 @@
 #include "SessionLogMode.h"
 #include "SessionLogPluginConstants.h"
 
-#include <QtilitiesCore.h>
+#include <QtilitiesCoreApplication.h>
 #include <QtilitiesCoreGuiConstants.h>
 #include <Logger.h>
 #include <LoggerGui.h>
@@ -84,7 +84,7 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     d->session_mode_widget->tabifyDockWidget(error_dock,session_log_dock);
 
     // Register this mode's context
-    QtilitiesCore::instance()->contextManager()->registerContext(CONTEXT_SESSION_LOG_MODE);
+    CONTEXT_MANAGER->registerContext(CONTEXT_SESSION_LOG_MODE);
 }
 
 
@@ -110,7 +110,7 @@ void Qtilities::Plugins::SessionLog::SessionLogMode::handle_dockVisibilityChange
         WidgetLoggerEngineFrontend* front_end = qobject_cast<WidgetLoggerEngineFrontend*> (dock->widget());
         if (front_end) {
             front_end->makeCurrentWidget();
-            QtilitiesCore::instance()->contextManager()->setNewContext(CONTEXT_LOGGER_WIDGET,true);
+            CONTEXT_MANAGER->setNewContext(CONTEXT_LOGGER_WIDGET,true);
         }
     }
 }

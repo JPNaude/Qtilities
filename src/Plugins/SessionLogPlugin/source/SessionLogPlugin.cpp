@@ -36,7 +36,7 @@
 #include "SessionLogMode.h"
 
 #include <Qtilities.h>
-#include <QtilitiesCore.h>
+#include <QtilitiesCoreApplication.h>
 #include <LoggerGui.h>
 
 #include <QtPlugin>
@@ -67,13 +67,13 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringL
 
     // Add the session log mode to the global object pool:
     SessionLogMode* session_log_mode = new SessionLogMode();
-    QtilitiesCore::instance()->objectManager()->registerObject(session_log_mode);
+    OBJECT_MANAGER->registerObject(session_log_mode);
 
     // Register the context of the session log mode:
-    QtilitiesCore::instance()->contextManager()->registerContext(session_log_mode->contextString());
+    CONTEXT_MANAGER->registerContext(session_log_mode->contextString());
 
     // Logger Config Gui
-    QtilitiesCore::instance()->objectManager()->registerObject(LoggerGui::createLoggerConfigWidget(false));
+    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false));
 
     return true;
 }
@@ -94,7 +94,7 @@ double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() {
 
 QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() {
     QStringList compatible_versions;
-    compatible_versions << QtilitiesCore::instance()->version();
+    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 

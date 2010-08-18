@@ -36,7 +36,7 @@
 
 #include <ExtensionSystemConstants.h>
 #include <Qtilities.h>
-#include <QtilitiesCore.h>
+#include <QtilitiesCoreApplication.h>
 
 #include <QtPlugin>
 #include <QIcon>
@@ -83,7 +83,7 @@ double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() {
 
 QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() {
     QStringList compatible_versions;
-    compatible_versions << QtilitiesCore::instance()->version();
+    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
