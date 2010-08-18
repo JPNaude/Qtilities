@@ -51,10 +51,11 @@ equals(BUILD_MODE, release) {
 # --------------------------
 RESOURCES += resources/resources.qrc
 
-HEADERS += source/ObserverWidget.h \
-    source/QtilitiesCoreGui_global.h \
-    source/QtilitiesCoreGui.h \
+HEADERS += source/QtilitiesCoreGui_global.h \
+    source/QtilitiesApplication.h \
+    source/QtilitiesApplication_p.h \
     source/QtilitiesCoreGuiConstants.h \
+    source/ObserverWidget.h \
     source/NamingPolicyInputDialog.h \
     source/NamingPolicyFilter.h \
     source/AbstractObserverItemModel.h \
@@ -94,7 +95,8 @@ HEADERS += source/ObserverWidget.h \
     source/TopToBottomList.h \
     source/QtilitiesMainWindow.h
 
-SOURCES += source/QtilitiesCoreGui.cpp \
+SOURCES += source/QtilitiesApplication.cpp \
+    source/QtilitiesApplication_p.cpp \
     source/ObserverWidget.cpp \
     source/NamingPolicyInputDialog.cpp \
     source/NamingPolicyFilter.cpp \
