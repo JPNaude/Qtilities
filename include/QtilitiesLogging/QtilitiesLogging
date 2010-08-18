@@ -14,7 +14,7 @@
 #include "LoggingConstants.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Logging module.
-namespace QtilitiesLoggingModule { 
+namespace QtilitiesLogging { 
 	using namespace Qtilities::Logging; 
 	using namespace Qtilities::Logging::Constants; 
 	using namespace Qtilities::Logging::Interfaces; 

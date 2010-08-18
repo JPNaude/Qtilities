@@ -1,9 +1,9 @@
 #ifndef QTILITIES_PROJECT_MANAGEMENT_MODULE_H
 #define QTILITIES_PROJECT_MANAGEMENT_MODULE_H
 
-#include <QtilitiesLogging/QtilitiesLoggingModule>
-#include <QtilitiesCore/QtilitiesCoreModule>
-#include <QtilitiesCoreGui/QtilitiesCoreGuiModule>
+#include <QtilitiesLogging/QtilitiesLogging>
+#include <QtilitiesCore/QtilitiesCore>
+#include <QtilitiesCoreGui/QtilitiesCoreGui>
 
 #include "IProject.h"
 #include "IProjectItem.h"
@@ -14,7 +14,7 @@
 #include "ProjectManager.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Project Management module.
-namespace QtilitiesProjectManagementModule { 
+namespace QtilitiesProjectManagement { 
 	using namespace Qtilities::ProjectManagement; 
 	using namespace Qtilities::ProjectManagement::Constants; 
 	using namespace Qtilities::ProjectManagement::Interfaces;

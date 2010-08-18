@@ -1,1 +1,60 @@
-#include "QtilitiesCoreGui.h"
+#ifndef QTILITIES_CORE_GUI_MODULE_H
+#define QTILITIES_CORE_GUI_MODULE_H
+
+#include <QtilitiesLogging/QtilitiesLogging>
+#include <QtilitiesCore/QtilitiesCore>
+
+#include "AboutWindow.h"
+#include "AbstractObserverItemModel.h"
+#include "ActionContainer.h"
+#include "ActionManager.h"
+#include "ActionProvider.h"
+#include "CategorizedStringTreeWidget.h"
+#include "ClipboardManager.h"
+#include "Command.h"
+#include "CommandEditor.h"
+#include "CommandTableModel.h"
+#include "ConfigurationWidget.h"
+#include "DynamicSideWidgetViewer.h"
+#include "DynamicSideWidgetWrapper.h"
+#include "IActionManager.h"
+#include "IActionProvider.h"
+#include "IClipboard.h"
+#include "IConfigPage.h"
+#include "IMode.h"
+#include "ISideViewerWidget.h"
+#include "LoggerConfigWidget.h"
+#include "LoggerEnginesTableModel.h"
+#include "LoggerGui.h"
+#include "ModeWidget.h"
+#include "NamingPolicyFilter.h"
+#include "NamingPolicyInputDialog.h"
+#include "ObjectHierarchyNavigator.h"
+#include "ObjectInfoTreeWidget.h"
+#include "ObjectPropertyBrowser.h"
+#include "ObjectScopeWidget.h"
+#include "ObserverTableModel.h"
+#include "ObserverTableModelCategoryFilter.h"
+#include "ObserverTreeItem.h"
+#include "ObserverTreeModel.h"
+#include "ObserverWidget.h"
+#include "QtilitiesApplication.h"
+#include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCoreGuiConstants.h"
+#include "QtilitiesMainWindow.h"
+#include "SearchBoxWidget.h"
+#include "TopToBottomList.h"
+#include "WidgetLoggerEngine.h"
+#include "WidgetLoggerEngineFrontend.h"
+
+//! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
+namespace QtilitiesCoreGui { 
+	using namespace Qtilities::CoreGui; 
+	using namespace Qtilities::CoreGui::Constants; 
+	using namespace Qtilities::CoreGui::Interfaces; 
+	using namespace Qtilities::CoreGui::Actions; 
+	using namespace Qtilities::CoreGui::Icons; 
+	using namespace Qtilities::CoreGui::Images; 
+} 
+
+#endif
