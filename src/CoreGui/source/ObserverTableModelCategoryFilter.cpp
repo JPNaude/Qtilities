@@ -51,9 +51,7 @@ Qtilities::CoreGui::ObserverTableModelCategoryFilter::~ObserverTableModelCategor
 
 }
 
-bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int sourceRow,
-        const QModelIndex &sourceParent) const
-{
+bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
     ObserverTableModel* table_model = qobject_cast<ObserverTableModel*> (sourceModel());
 
     if (table_model) {
@@ -70,7 +68,7 @@ bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int 
                     if (object_at_index) {
                         QVariant category_variant = observer->getObserverPropertyValue(object_at_index,OBJECT_CATEGORY);
                         QString category = category_variant.toString();
-                        if (!category.isEmpty())
+                        if (category.isEmpty())
                             category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
 
                         if (observer->displayHints()->categoryFilterEnabled()) {
