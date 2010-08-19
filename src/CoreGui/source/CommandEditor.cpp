@@ -187,7 +187,8 @@ void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
     if (!file_name.isEmpty()) {
         if (!ACTION_MANAGER->exportShortcutMapping(file_name)) {
             QMessageBox msgBox;
-            msgBox.setText("Shortcut mapping export failed.");
+            msgBox.setWindowTitle("Shortcut Export Failed");
+            msgBox.setText(tr("Shortcut mapping export failed. Please see the session log for details."));
             msgBox.exec();
         }
     }
@@ -198,7 +199,8 @@ void Qtilities::CoreGui::CommandEditor::on_btnImport_clicked() {
     if (!file_name.isEmpty()) {
         if (!ACTION_MANAGER->importShortcutMapping(file_name)) {
             QMessageBox msgBox;
-            msgBox.setText("Shortcut mapping import failed.");
+            msgBox.setWindowTitle("Shortcut Import Failed");
+            msgBox.setText(tr("Shortcut mapping import failed. Please see the session log for details."));
             msgBox.exec();
         } else
             d->model->refreshModel();
