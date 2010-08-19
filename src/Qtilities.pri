@@ -19,7 +19,7 @@ QTILITIES_INCLUDE       = $$QTILITIES_BASE/include
 QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
 QTILITIES_BIN           = $$QTILITIES_BASE/bin
 QTILITIES_DEPENDENCIES  = $$QTILITIES_BASE/dependencies
-QTILITIES_FILE_VER      = -0.1.b1
+QTILITIES_FILE_VER      = -0.1
 
 #****************************************************************************
 # Include paths
