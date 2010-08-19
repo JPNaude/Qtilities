@@ -92,7 +92,15 @@ namespace Qtilities {
             QStringList horizontalHeaders();
 
             //! The possible columns which can be requested by views for an module.
-            enum ColumnID { ColumnSubjectID, ColumnName, ColumnChildCount, ColumnAccess, ColumnTypeInfo, ColumnCategory, ColumnLast };
+            enum ColumnID {
+                ColumnSubjectID,
+                ColumnName,
+                ColumnChildCount,
+                ColumnAccess,
+                ColumnTypeInfo,
+                ColumnCategory,
+                ColumnLast
+            };
             //! The model implementation must return the index (starting at 0) for the requested column.
             /*!
               \note If your model does not support a specific column, return -1.
