@@ -212,10 +212,10 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         // In this case, we create the needed properties and add it to the object.
         // It will be removed if attachment fails anywhere.
         SharedObserverProperty new_subject_name_property(QVariant(new_name),OBJECT_NAME);
-        new_subject_name_property.setIsExportable(false);
+        new_subject_name_property.setIsExportable(true);
         observer->setSharedProperty(obj,new_subject_name_property);
         SharedObserverProperty object_name_manager_property(QVariant(observer->observerID()),OBJECT_NAME_MANAGER_ID);
-        object_name_manager_property.setIsExportable(false);
+        object_name_manager_property.setIsExportable(true);
         observer->setSharedProperty(obj,object_name_manager_property);
 
         // Check validity of the name.
@@ -227,7 +227,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         QVariant name_property = observer->getObserverPropertyValue(obj,OBJECT_NAME_MANAGER_ID);
         if (!name_property.isValid()) {
             SharedObserverProperty object_name_manager_property(QVariant(observer->observerID()),OBJECT_NAME_MANAGER_ID);
-            object_name_manager_property.setIsExportable(false);
+            object_name_manager_property.setIsExportable(true);
             observer->setSharedProperty(obj,object_name_manager_property);
         }
     }
@@ -244,7 +244,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
             } else {
                 // We need to create the property and add it to the object.
                 ObserverProperty new_instance_names_property(INSTANCE_NAMES);
-                new_instance_names_property.setIsExportable(false);
+                new_instance_names_property.setIsExportable(true);
                 new_instance_names_property.addContext(QVariant(new_name),observer->observerID());
                 observer->setObserverProperty(obj,new_instance_names_property);
             }
@@ -595,7 +595,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
 
     // Check if it has a name manager already, if so we add it to the instance names list
     SharedObserverProperty current_manager_id = observer->getSharedProperty(obj,OBJECT_NAME_MANAGER_ID);
-    current_manager_id.setIsExportable(false);
+    current_manager_id.setIsExportable(true);
     if (current_manager_id.isValid()) {
         if (current_manager_id.value().toInt() == observer->observerID()) {
             LOG_WARNING(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is currently the name manager for this object.")).arg(observer->observerName()).arg(obj->objectName()));
@@ -619,7 +619,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
                     } else {
                         // We need to create the property and add it to the object
                         ObserverProperty new_instance_names_property(INSTANCE_NAMES);
-                        new_instance_names_property.setIsExportable(false);
+                        new_instance_names_property.setIsExportable(true);
                         new_instance_names_property.addContext(QVariant(obj->objectName()),observer->observerID());
                         observer->setObserverProperty(obj,new_instance_names_property);
                     }
@@ -818,7 +818,7 @@ QString Qtilities::CoreGui::NamingPolicyFilter::generateValidName(QString input_
 
 struct Qtilities::CoreGui::NamingPolicyDelegateData {
     QMutex editing_mutex;
-    NamingPolicyFilter* naming_filter;
+    QPointer<NamingPolicyFilter> naming_filter;
     Observer* observer;
     QString entry_string;
     QObject* obj;
