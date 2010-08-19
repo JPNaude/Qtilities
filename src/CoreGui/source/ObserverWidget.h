@@ -196,11 +196,31 @@ namespace Qtilities {
               \sa writeSettings(), globalMetaType()
               */
             void readSettings();
+            //! Function which allows this observer widget to share global object activity with other observer widgets.
+            /*!
+              This function will allow this observer widget to share global object activity with other observer widgets.
+              Because the globalMetaType() for each observer widget must be unique, it is required to use a shared meta type
+              for cases where global object activity needs to be shared between multiple observer widgets.
+
+              When using a shared global activity meta type, the normal globalMetaType() will be used for all the normal
+              usage scenarios listed in the globalMetaType() documentation, except for the meta type used to identify a set of active
+              objects in the object manager.
+
+              \sa sharedGlobalMetaType(), globalMetaType(), setGlobalMetaType(), updateGlobalActiveSubjects()
+              */
+            void setSharedGlobalMetaType(const QString& shared_meta_type);
+            //! Function to get the shared global activity meta type of this observer widget.
+            /*!
+              \returns The shared global activity meta type. If this feature is not used, QString() will be returned.
+
+              \sa sharedGlobalMetaType(), globalMetaType(), setGlobalMetaType(), updateGlobalActiveSubjects()
+              */
+            QString sharedGlobalMetaType() const;
             //! Sets the global meta type used for this observer widget.
             /*!
               \returns True if the meta_type string was valid. The validity check is done by checking if that a context with the same name does not yet exist in the context manager.
 
-              \sa globalMetaType()
+              \sa globalMetaType(), sharedGlobalMetaType()
               */
             bool setGlobalMetaType(const QString& meta_type);
             //! Gets the global meta type used for this observer widget.
@@ -217,7 +237,7 @@ namespace Qtilities {
 
               \returns The meta type used for this observer widget.
 
-              \sa updateGlobalActiveSubjects();
+              \sa setGlobalMetaType(), updateGlobalActiveSubjects(), setSharedGlobalMetaType(), sharedGlobalMetaType()
               */
             QString globalMetaType() const;
             //! Sets the global object subject type used by this observer widget.

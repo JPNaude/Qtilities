@@ -97,6 +97,8 @@ namespace Qtilities {
             // --------------------------------
             // ObserverTableModel Implementation
             // --------------------------------
+            //! Function which gives the visible column position. Thus it takes into account if columns are hidden.
+            int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
             //! Convenience function to get the QModelIndex of an object in the table.
             /*!
                \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.

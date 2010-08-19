@@ -112,6 +112,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionCollapseAll;
     QAction* actionActionFindItem;
 
+    //! The navigation stack of this widget, used only in TableView mode.
     QStack<int> navigation_stack;
     //! The navigation bar.
     ObjectHierarchyNavigator* navigation_bar;
@@ -150,17 +151,22 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Indicates if this widget updates global active objects.
     bool update_global_active_objects;
+    //! The global meta type of this widget.
+    QString global_meta_type;
+    //! The shared global meta type of this widget. See setSharedGlobalMetaType().
+    QString shared_global_meta_type;
 
     Qt::DockWidgetArea property_editor_dock_area;
     ObjectPropertyBrowser::BrowserType property_editor_type;
     QStringList appended_contexts;
+
+    //! The current selection in this widget. Set in the selectedObjects() function.
     QList<QObject*> current_selection;
-
+    //! The search box widget.
     SearchBoxWidget* searchBoxWidget;
-    QString global_meta_type;
-
+    //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
-
+    //! The default row height used in TableView mode.
     int default_row_height;
 };
 
@@ -213,6 +219,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
         context_string.append(QString("%1").arg(count));
     }
     d->global_meta_type = context_string;
+    d->shared_global_meta_type = QString();
 }
 
 Qtilities::CoreGui::ObserverWidget::~ObserverWidget()
@@ -300,7 +307,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     setWindowTitle(d_observer->objectName());
     setObjectName(d_observer->objectName());
 
-    // Set up hints
+    // Get hints from d_observer:
     if (d->use_observer_hints) {
         // Check if this observer provides hints for this model
         d->hints_selection_parent = d_observer->displayHints();
@@ -308,31 +315,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Check if the observer does not specify flags, if so we use the defaults
         if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
             activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
-
-        if (activeHints() && (d->display_mode == TableView)) {
-            // Ok since the new observer provides hints, we need to see if we must select its' active objects:
-            // Check if the observer has a FollowSelection actity policy
-            // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
-            if (d_observer->displayHints()->activityControlHint() == ObserverHints::FollowSelection) {
-                // Check if the observer has a activity filter, which it should have with this hint
-                ActivityPolicyFilter* filter = 0;
-                for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
-                    filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
-                    if (filter) {
-                        d->activity_filter = filter;
-
-                        // Connect to the activity change signal (to update activity on observer widget side)
-                        // This only works in table mode...
-                        connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectSubjectsInTable(QList<QObject*>)));
-                        selectSubjectsInTable(d->activity_filter->activeSubjects());
-                    }
-                }
-            } else {
-                if (d->activity_filter)
-                    d->activity_filter->disconnect(this);
-                d->activity_filter = 0;
-            }
-        }
     }
 
     // Hide the search bar if it is visible
@@ -371,9 +353,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setRootIsDecorated(true);
                 d->tree_model = new ObserverTreeModel();
                 d->tree_view->setSortingEnabled(true);
-                d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::DescendingOrder);
+                d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
-                connect(d->tree_model,SIGNAL(layoutChanged()),d->tree_view,SLOT(expandAll()));
 
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
@@ -521,59 +502,77 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Update the columns shown
     if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Show only the needed columns for the current observer.
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
+            d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
+        else {
+            d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
+        }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
-            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID),50);
+            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID),50);
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
         else {
             if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                 d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
-                d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory),50);
+                //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory),50);
             } else {
                 d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
             }
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
+            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnTypeInfo);
-            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
+            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnAccess);
-            d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
+            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
         }
 
         // Resize columns
-        QHeaderView* table_header = d->table_view->horizontalHeader();
         d->table_view->resizeColumnsToContents();
+        QHeaderView* table_header = d->table_view->horizontalHeader();
         table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
     } else if (d->display_mode == TreeView && d->tree_view && d->tree_model) {
         // Show only the needed columns for the current observer
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
+            d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+        else {
+            d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+        }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
             d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
             d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
+
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
@@ -594,6 +593,50 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Construct the property browser if neccesarry
         refreshPropertyBrowser();
         installEventFilter(this);
+    }
+
+    // Handle initial selections:
+    if (d->use_observer_hints) {
+        // Check if this observer provides hints for this model
+        d->hints_selection_parent = d_observer->displayHints();
+
+        // Check if the observer does not specify flags, if so we use the defaults
+        if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
+            activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
+
+        bool create_default_selection = true;
+        if (activeHints() && (d->display_mode == TableView)) {
+            // Ok since the new observer provides hints, we need to see if we must select its' active objects:
+            // Check if the observer has a FollowSelection actity policy
+            // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
+            if (d_observer->displayHints()->activityControlHint() == ObserverHints::FollowSelection) {
+                // Check if the observer has a activity filter, which it should have with this hint
+                ActivityPolicyFilter* filter = 0;
+                for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+                    filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
+                    if (filter) {
+                        d->activity_filter = filter;
+
+                        // Connect to the activity change signal (to update activity on observer widget side)
+                        connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectSubjectsInTable(QList<QObject*>)));
+                        selectSubjectsInTable(d->activity_filter->activeSubjects());
+                        create_default_selection = false;
+                    }
+                }
+            } else {
+                if (d->activity_filter)
+                    d->activity_filter->disconnect(this);
+                d->activity_filter = 0;
+            }
+
+            if (create_default_selection) {
+                // Create an initial selection.
+                QList<QObject*> initial_selection;
+                if (d_observer->subjectCount() > 0)
+                    initial_selection << d_observer->subjectAt(0);
+                selectSubjectsInTable(initial_selection);
+            }
+        }
     }
 
     // Init all actions
@@ -763,16 +806,25 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // MainWindow state
     restoreState(settings.value("state").toByteArray());
-    settings.endGroup();
-    settings.endGroup();
 
     // Display grid
     if (d->table_view)
         d->table_view->setShowGrid(settings.value("table_view_show_grid", false).toBool());
 
+    settings.endGroup();
+    settings.endGroup();
+
     // Connect in order for settings to be written when application quits
     connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),SLOT(writeSettings()));
     connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
+}
+
+void Qtilities::CoreGui::ObserverWidget::setSharedGlobalMetaType(const QString& shared_meta_type) {
+    d->shared_global_meta_type = shared_meta_type;
+}
+
+QString Qtilities::CoreGui::ObserverWidget::sharedGlobalMetaType() const {
+    return d->shared_global_meta_type;
 }
 
 bool Qtilities::CoreGui::ObserverWidget::setGlobalMetaType(const QString& meta_type) {
@@ -1807,13 +1859,19 @@ void Qtilities::CoreGui::ObserverWidget::disconnectClipboard() {
 
 void Qtilities::CoreGui::ObserverWidget::updateGlobalActiveSubjects() {
     if (d->update_global_active_objects) {
+        QString global_activity_meta_type;
+        if (d->shared_global_meta_type.isEmpty())
+            global_activity_meta_type = d->global_meta_type;
+        else
+            global_activity_meta_type = d->shared_global_meta_type;
+
         // Update the global active object type
         if (d->current_selection.count() == 0) {
             QList<QObject*> this_list;
              this_list << d_observer;
-            OBJECT_MANAGER->setMetaTypeActiveObjects(this_list, d->global_meta_type);
+            OBJECT_MANAGER->setMetaTypeActiveObjects(this_list, global_activity_meta_type);
         } else
-            OBJECT_MANAGER->setMetaTypeActiveObjects(d->current_selection, d->global_meta_type);
+            OBJECT_MANAGER->setMetaTypeActiveObjects(d->current_selection, global_activity_meta_type);
     }
 }
 
@@ -1901,21 +1959,6 @@ void Qtilities::CoreGui::ObserverWidget::selectSubjectsInTable(QList<QObject*> o
             selection_model->select(item_selection,QItemSelectionModel::Select);
         }
         d->update_selection_activity = true;
-    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
-        // We just select the top level item for now:
-        // This is because this function will only be connected to the top level observer for now.
-        // In the future this should be upgraded, because the function name suggests otherwise.
-        /*d->update_selection_activity = false;
-        QItemSelectionModel *selection_model = d->tree_view->selectionModel();
-        if (selection_model) {
-            QModelIndex root_index = d->tree_model->index(0,0);
-            selection_model->clearSelection();
-            selection_model->select(root_index,QItemSelectionModel::Select);
-        }
-        d->update_selection_activity = true;*/
-        // The above only selects the top level. However this is not correct since the observerContext()
-        // is set whenever the user selects an object in the tree. This function should really
-        // not cater for a tree model.
     }
 }
 

@@ -71,7 +71,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     connect(d_observer,SIGNAL(layoutChanged()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
-    handleDataChanged();
+    reset();
 
     // Check if this observer has a subject type filter installed
     for (int i = 0; i < observer->subjectFilters().count(); i++) {
@@ -83,6 +83,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
             break;
         }
     }
+
     return true;
 }
 
@@ -100,10 +101,62 @@ int Qtilities::CoreGui::ObserverTableModel::columnPosition(AbstractObserverItemM
     } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
         return 5;
     } else if (column_id == AbstractObserverItemModel::ColumnLast) {
-        return 6;
+        return 5;
+    }
+    return -1;
+}
+
+int Qtilities::CoreGui::ObserverTableModel::columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const {
+    int start;
+    if (column_id == AbstractObserverItemModel::ColumnSubjectID) {
+        start = 0;
+    } else if (column_id == AbstractObserverItemModel::ColumnName) {
+        start = 1;
+    } else if (column_id == AbstractObserverItemModel::ColumnCategory) {
+        start = 2;
+    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
+        start = 3;
+    } else if (column_id == AbstractObserverItemModel::ColumnAccess) {
+        start = 4;
+    } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
+        start = 5;
+    } else if (column_id == AbstractObserverItemModel::ColumnLast) {
+        start = 6;
     }
 
-    return -1;
+    // Now we need to subtract hidden columns from current:
+    int current = start;
+    if (activeHints()) {
+        if (start == 0) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint))
+                return -1;
+        }
+        if (start > 0) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint))
+                --current;
+        }
+        if (start > 1) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
+                --current;
+        }
+        if (start > 2) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
+                --current;
+        }
+        if (start > 3) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
+                --current;
+        }
+        if (start > 4) {
+            if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
+                --current;
+        }
+        if (start == 6) {
+            --current;
+        }
+    }
+
+    return current;
 }
 
 QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, int role) const {
@@ -242,9 +295,11 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTableModel::flags(const QModelIndex &i
      return item_flags;
 }
 
-QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
+    if ((section == columnPosition(ColumnSubjectID)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint)
+            return tr("ID");
+    } else if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         if (d->type_grouping_name.isEmpty())
             return tr("Items");
         else
@@ -321,7 +376,6 @@ int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) 
     if (!d_observer)
         return 0;
     else {
-        int count = d_observer->subjectCount();
         return d_observer->subjectCount();
     }
 }
@@ -329,8 +383,9 @@ int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) 
 int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &parent) const {
     if (!d_observer)
         return 0;
-    else
-        return columnPosition(ColumnLast);
+    else {
+        return columnPosition(AbstractObserverItemModel::ColumnLast) + 1;
+    }
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {

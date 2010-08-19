@@ -91,6 +91,8 @@ namespace Qtilities {
             // --------------------------------
             // ObserverTreeModel Implementation
             // --------------------------------
+            //! Function which gives the visible column position. Thus it takes into account if columns are hidden.
+            int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
             //! Returns a QStack with the parent hierarchy (in terms of observer IDs) for the object at the given index.
             QStack<int> getParentHierarchy(const QModelIndex& index) const;
             //! Returns the parent observer of the current selection, it only works if a single item is selected, otherwise returns 0.
@@ -138,6 +140,8 @@ namespace Qtilities {
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);
+            //! Signal which is emmited requesting views to expand the tree to a specific index.
+            void expandToIndex(const QModelIndex &index);
 
         private:
             //! Deletes all tree items, starting with the root item.
