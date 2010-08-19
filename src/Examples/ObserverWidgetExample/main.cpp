@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     //observerC->displayHints()->setItemViewColumnFlags(Observer::AllColumnsHint);
     observerC->displayHints()->setItemSelectionControlHint(ObserverHints::NonSelectableItems);
     observerC->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnCategoryHint);
+    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observerC->displayHints()->setDisplayFlagsHint(display_flags);
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QStringList displayed_categories;
