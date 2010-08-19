@@ -47,14 +47,6 @@ Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
     delete model;
 }
 
-void Qtilities::CoreGui::AbstractObserverItemModel::setHorizontalHeaders(QStringList headers) {
-    model->headers = headers;
-}
-
-QStringList Qtilities::CoreGui::AbstractObserverItemModel::horizontalHeaders() {
-    return model->headers;
-}
-
 void Qtilities::CoreGui::AbstractObserverItemModel::toggleUsesObserverHints(bool toggle, Observer* observer) {
     if (toggle == model->use_observer_hints)
         return;

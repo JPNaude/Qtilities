@@ -54,12 +54,9 @@ struct Qtilities::CoreGui::ObserverTreeModelData {
     QModelIndex         selection_index;
 };
 
-Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(const QStringList &headers, QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
+Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
 {
     d = new ObserverTreeModelData;
-
-    // Headers
-    setHorizontalHeaders(headers);
 
     // Init root data
     d->rootItem = new ObserverTreeItem();

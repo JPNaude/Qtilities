@@ -43,6 +43,8 @@
 #include <ObserverHints.h>
 #include <IContext.h>
 #include <Observer.h>
+#include <ObserverTableModel>
+#include <ObserverTreeModel>
 
 #include <QMainWindow>
 #include <QStack>
@@ -128,6 +130,20 @@ namespace Qtilities {
             int topLevelObserverID();
             //! Event filter which has responsibilities such as drag and drop operations etc.
             bool eventFilter(QObject *object, QEvent *event);
+            //! Function which sets a custom table model to be used in this widget when its in TableView mode.
+            /*!
+              \note This function must be called before initializing the widget for the first time.
+
+              \returns True if the model was succesfully set.
+              */
+            bool setCustomTableModel(ObserverTableModel* table_model);
+            //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
+            /*!
+              \note This function must be called before initializing the widget for the first time.
+
+              \returns True if the model was succesfully set.
+              */
+            bool setCustomTreeModel(ObserverTreeModel* tree_model);
         public slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.

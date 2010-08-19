@@ -54,11 +54,9 @@ struct Qtilities::CoreGui::ObserverTableModelData {
     QString type_grouping_name;
 };
 
-Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(const QStringList &headers, QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
+Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
 {
-    // Headers
     d = new ObserverTableModelData();
-    setHorizontalHeaders(headers);
 }
 
 bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer) {

@@ -283,6 +283,34 @@ int Qtilities::CoreGui::ObserverWidget::topLevelObserverID() {
         return -1;
 }
 
+bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel* table_model) {
+    if (d->initialized)
+        return false;
+
+    if (d->table_model)
+        return false;
+
+    if (!table_model)
+        return false;
+
+    d->table_model = table_model;
+    return true;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* tree_model) {
+    if (d->initialized)
+        return false;
+
+    if (d->tree_model)
+        return false;
+
+    if (!tree_model)
+        return false;
+
+    d->tree_model = tree_model;
+    return true;
+}
+
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Check it this widget was initialized previously
     if (!d->initialized) {
@@ -351,7 +379,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view = new QTreeView(ui->itemParentWidget);
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
                 d->tree_view->setRootIsDecorated(true);
-                d->tree_model = new ObserverTreeModel();
+                if (!d->tree_model)
+                    d->tree_model = new ObserverTreeModel();
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
@@ -406,7 +435,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setFocusPolicy(Qt::StrongFocus);
                 d->table_view->setAcceptDrops(true);
                 d->table_view->setDragEnabled(true);
-                d->table_model = new ObserverTableModel();
+                if (!d->table_model)
+                    d->table_model = new ObserverTableModel();
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
 

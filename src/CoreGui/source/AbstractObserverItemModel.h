@@ -54,7 +54,6 @@ namespace Qtilities {
         struct AbstractObserverItemModelData {
             AbstractObserverItemModelData() { }
 
-            QStringList headers;
             //! Used to store default observer hints to be used with this widget.
             QPointer<ObserverHints> hints_default;
             //! Used to store observer hints for the root observer (top level observer)
@@ -71,7 +70,7 @@ namespace Qtilities {
         };
 
         /*!
-          \class Qtilities::CoreGui::AbstractObserverItemModel
+          \class AbstractObserverItemModel
           \brief The AbstractObserverItemModel is an abstract base class which is used by all the different observer models in the %Qtilities library.
 
           This class inhertis ObserverAwareBase which is used to define the context (top level context in tree views) to be used
@@ -83,11 +82,6 @@ namespace Qtilities {
         public:
             AbstractObserverItemModel();
             virtual ~AbstractObserverItemModel();
-
-            //! Sets the horizontal headers for this item model.
-            void setHorizontalHeaders(QStringList headers);
-            //! Gets the horizontal headers for this item model.
-            QStringList horizontalHeaders();
 
             //! The possible columns which can be requested by views for an module.
             enum ColumnID {

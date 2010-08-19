@@ -73,7 +73,7 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            ObserverTableModel(const QStringList &headers = QStringList(), QObject* parent = 0);
+            ObserverTableModel(QObject* parent = 0);
             virtual ~ObserverTableModel() {}
 
             // --------------------------------
@@ -82,15 +82,15 @@ namespace Qtilities {
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
             virtual QVariant data(const QModelIndex &index, int role) const;
-            int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
             virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
             // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
-            bool setObserverContext(Observer* observer);
-            virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
+            virtual bool setObserverContext(Observer* observer);
+            int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
              QObject* getObject(const QModelIndex &index) const;
 

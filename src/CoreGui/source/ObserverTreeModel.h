@@ -62,10 +62,9 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTreeModel : public QAbstractItemModel, public AbstractObserverItemModel
         {
             Q_OBJECT
-            Q_ENUMS(ColumnIDs)
 
         public:
-            ObserverTreeModel(const QStringList &headers = QStringList(), QObject *parent = 0);
+            ObserverTreeModel(QObject *parent = 0);
             virtual ~ObserverTreeModel() {}
 
             // --------------------------------
@@ -74,7 +73,7 @@ namespace Qtilities {
             virtual Qt::ItemFlags flags(const QModelIndex &index) const;
             virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
             virtual QVariant data(const QModelIndex &index, int role) const;
-            int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
             virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
             QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -83,8 +82,8 @@ namespace Qtilities {
             // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
-            bool setObserverContext(Observer* observer);
-            virtual int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
+            virtual bool setObserverContext(Observer* observer);
+            int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
             QObject* getObject(const QModelIndex &index) const;
 
@@ -113,12 +112,14 @@ namespace Qtilities {
               */
             ObserverTreeItem* getItem(const QModelIndex &index) const;
 
-        public slots:
+        private slots:
             //! Function which will rebuild the complete tree structure under the top level observer.
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
               */
             void rebuildTreeStructure();
+
+        public slots:
             //! Function which will calculate the selection parent of a selected object.
             /*!
               \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.
