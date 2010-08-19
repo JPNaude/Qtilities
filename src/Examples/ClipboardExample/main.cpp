@@ -36,8 +36,11 @@
 
 #include <QtilitiesCoreGui>
 
+#include "ObserverWidgetConfig.h"
+
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
+using namespace Qtilities::Examples::Clipboard;
 
 int main(int argc, char *argv[])
 {
@@ -144,10 +147,9 @@ int main(int argc, char *argv[])
     observerC->installSubjectFilter(naming_filter);
     observerC->displayHints()->setNamingControlHint(Observer::EditableNames);*/
     observerC->displayHints()->setActionHints(action_hints);
-    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     observerC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     observerC->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnCategoryHint);
+    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observerC->displayHints()->setDisplayFlagsHint(display_flags);
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QStringList displayed_categories;
@@ -221,6 +223,8 @@ int main(int argc, char *argv[])
 
     // Set up config widget:
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    ObserverWidgetConfig observer_config_widget;
+    OBJECT_MANAGER->registerObject(&observer_config_widget);
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
     LOG_INFO(QString("%1 configuration page(s) found in set of loaded plugins.").arg(registered_config_pages.count()));
     config_widget.initialize(registered_config_pages);
