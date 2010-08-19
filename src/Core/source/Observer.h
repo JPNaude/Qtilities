@@ -182,8 +182,8 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             IFactoryData factoryData() const;
-            IExportable::Result exportBinary(QDataStream& stream) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implemenation
@@ -232,8 +232,14 @@ namespace Qtilities {
               Note that this function only affects signals emitted by the observer. The observer still monitors
               dynamic property changes on all attached subjects during a processing cycle. To control the
               event filtering, see disableSubjectEventFiltering() and enableSubjectEventFiltering().
-
+              
               If a processing cycle was already started, this function does nothing.
+              
+              \note It is very important to note that the observer's layoutChanged() and dataChanged() signals are not
+              emitted during processing cycles. Thus, views displaying the observer are not going to update until
+              during processing cycles. Therefore you need to call the refreshViewsLayout() or refreshViewsData() after
+              your processing cycle is completed. The function you must call will depend on what you changed during the
+              processing cycle.
 
               \sa endProcessingCycle(), disableSubjectEventFiltering(), enableSubjectEventFiltering()
               */

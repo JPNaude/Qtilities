@@ -184,7 +184,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
 
 quint32 MARKER_OBSERVER_SECTION = 0xBBBBBBBB;
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     LOG_TRACE(tr("Binary export of observer ") + observerName() + tr(" section started."));
 
     // We define a succesfull operation as an export which is able to export all subjects.
@@ -282,7 +282,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     LOG_TRACE(tr("Binary import of observer ") + observerName() + tr(" section started."));
     startProcessingCycle();
 
