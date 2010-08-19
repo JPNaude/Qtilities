@@ -75,7 +75,7 @@ Qtilities::Core::Interfaces::IFactoryData Qtilities::Examples::ObjectManagement:
     return factoryData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     // Create IFactoryData
     IFactoryData factory_data = factoryData();
     factory_data.exportBinary(stream);
@@ -83,7 +83,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectMana
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     stream >> d->subject_string;
     return IExportable::Complete;
 }

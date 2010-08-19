@@ -85,14 +85,6 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->top_level_observer->displayHints()->setActionHints(ObserverHints::ActionAllHints);
 
     // ---------------------------
-    // Setup the top level observer
-    // ---------------------------
-    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    d->top_level_observer->installSubjectFilter(naming_filter);
-    d->top_level_observer->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-
-    // ---------------------------
     // Factory and Project Item Stuff
     // ---------------------------
     OBJECT_MANAGER->registerIFactory(this);
@@ -145,6 +137,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     d->observer_widget = new ObserverWidget(ObserverWidget::TreeView);
     d->observer_widget->setGlobalMetaType("Example Observer Meta Type");
+    d->observer_widget->setAcceptDrops(true);
     d->scope_widget = new ObjectScopeWidget();
     QDockWidget* scope_dock = new QDockWidget("Object Scope Overview");
     scope_dock->setWidget(d->scope_widget);
@@ -245,32 +238,23 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExampleObjects() {
+    // Project Management will not restore any subject filter related stuff here, therefore we
+    // don't add it since it might confuse the user. The limitation is the fact that
+    // observer imports does reconstruct naming policy filters yet.
+
     // Add a QObject observer
     Observer* new_observer_1 = new Observer("QObject Manager 1","Example observer which manages QObject instances in a categorized manner.");
     new_observer_1->useDisplayHints();
-    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::PromptUser);
-    naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::PromptUser);
-    new_observer_1->installSubjectFilter(naming_filter);
-    ActivityPolicyFilter* activity_filter = new ActivityPolicyFilter();
-    activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
-    new_observer_1->installSubjectFilter(activity_filter);
-    new_observer_1->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
-    new_observer_1->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    new_observer_1->startProcessingCycle();
     new_observer_1->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     new_observer_1->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-
-    Observer* selected_observer = 0;
-    if (d->observer_widget->selectedObjects().count() == 1)
-        selected_observer = qobject_cast<Observer*> (d->observer_widget->selectedObjects().front());
-
-    if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
-    else
-        selected_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
-
+    new_observer_1->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    // Naming policy filter
+    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
+    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    new_observer_1->installSubjectFilter(naming_filter);
+    new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Add example QObjects to "QObject Manager 1"
     ObserverStringSubject* new_subject_1 = new ObserverStringSubject("ObserverStringSubject 1");
     new_observer_1->attachSubject(new_subject_1,Observer::SpecificObserverOwnership);
@@ -282,28 +266,32 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_1->attachSubject(new_subject_4,Observer::SpecificObserverOwnership);
     ObserverStringSubject* new_subject_5 = new ObserverStringSubject("ObserverStringSubject 5");
     new_observer_1->attachSubject(new_subject_5,Observer::SpecificObserverOwnership);
+    new_observer_1->endProcessingCycle();
+
+    Observer* selected_observer = 0;
+    if (d->observer_widget->selectedObjects().count() == 1)
+        selected_observer = qobject_cast<Observer*> (d->observer_widget->selectedObjects().front());
+
+    if (!selected_observer)
+        d->top_level_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
+    else
+        selected_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
 
     // Add a QObject observer
     Observer* new_observer_2 = new Observer("QObject Manager 2","Example observer which manages QObject instances");
     new_observer_2->useDisplayHints();
-    naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::PromptUser);
-    naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::PromptUser);
-    new_observer_2->installSubjectFilter(naming_filter);
-    activity_filter = new ActivityPolicyFilter();
-    activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
-    new_observer_2->installSubjectFilter(activity_filter);
+    new_observer_2->startProcessingCycle();
     new_observer_2->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
     new_observer_2->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     new_observer_2->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-
-    if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
-    else
-        selected_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
-
+    new_observer_2->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    new_observer_2->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    // Naming policy filter
+    naming_filter = new NamingPolicyFilter();
+    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    new_observer_2->installSubjectFilter(naming_filter);
+    new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Add example QObjects to "QObject Manager 2"
     ObserverStringSubject* new_subject_6 = new ObserverStringSubject("ObserverStringSubject 6");
     new_observer_2->attachSubject(new_subject_6,Observer::SpecificObserverOwnership);
@@ -315,29 +303,29 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_2->attachSubject(new_subject_9,Observer::SpecificObserverOwnership);
     ObserverStringSubject* new_subject_10 = new ObserverStringSubject("ObserverStringSubject 10");
     new_observer_2->attachSubject(new_subject_10,Observer::SpecificObserverOwnership);
+    new_observer_2->endProcessingCycle();
+
+    if (!selected_observer)
+        d->top_level_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
+    else
+        selected_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
 
     // Add a QWidget observer
     Observer* new_observer_3 = new Observer("QWidget Manager","Example observer which manages QWidget instances");
     new_observer_3->useDisplayHints();
-    naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::AutoRename);
-    naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::AutoRename);
-    new_observer_3->installSubjectFilter(naming_filter);
-    activity_filter = new ActivityPolicyFilter();
-    activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
-    new_observer_3->installSubjectFilter(activity_filter);
+    new_observer_3->startProcessingCycle();
     new_observer_3->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
     new_observer_3->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     new_observer_3->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
+    new_observer_3->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    // Naming policy filter
+    naming_filter = new NamingPolicyFilter();
+    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    new_observer_3->installSubjectFilter(naming_filter);
+    new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
 
-    if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
-    else
-        selected_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
-
-    // Add example QWidgets to "QWidget Manager 2"
+    // Add example QWidgets to "QWidget Manager"
     QWidget* new_subject_11 = new QWidget();
     new_subject_11->setObjectName("Example QWidget 9");
     new_subject_11->setWindowTitle("Example QWidget 9");
@@ -363,22 +351,14 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_subject_15->setWindowTitle("Example QWidget 5");
     new_subject_15->setAttribute(Qt::WA_DeleteOnClose, true);
     new_observer_3->attachSubject(new_subject_15, Observer::ObserverScopeOwnership);
+    new_observer_3->endProcessingCycle();
 
-    // Show the observer widgets for all of these
-    /*ObserverWidget* new_child_widget = new ObserverWidget(ObserverWidget::TableView);
-    new_child_widget->setObserverContext(new_observer_1);
-    new_child_widget->initialize();
-    new_child_widget->show();
+    if (!selected_observer)
+        d->top_level_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
+    else
+        selected_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
 
-    new_child_widget = new ObserverWidget(ObserverWidget::TableView);
-    new_child_widget->setObserverContext(new_observer_2);
-    new_child_widget->initialize();
-    new_child_widget->show();
-
-    new_child_widget = new ObserverWidget(ObserverWidget::TableView);
-    new_child_widget->setObserverContext(new_observer_3);
-    new_child_widget->initialize();
-    new_child_widget->show();*/
+    d->top_level_observer->refreshViewsLayout();
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection) {

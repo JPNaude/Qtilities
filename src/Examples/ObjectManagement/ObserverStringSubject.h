@@ -87,8 +87,8 @@ namespace Qtilities {
                 // --------------------------------
                 ExportModeFlags supportedFormats() const;
                 IFactoryData factoryData() const;
-                IExportable::Result exportBinary(QDataStream& stream) const;
-                IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+                IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+                IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
                 // --------------------------------
                 // IModificationNotifier Implemenation

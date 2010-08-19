@@ -34,12 +34,14 @@
 #include <QtGui>
 
 #include <QtilitiesExtensionSystem>
+#include <QtilitiesProjectManagement>
 
 #include "ObjectManagementMode.h"
 
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
 using namespace QtilitiesExtensionSystem;
+using namespace QtilitiesProjectManagement;
 using namespace Qtilities::Examples::ObjectManagement;
 
 int main(int argc, char *argv[])
@@ -70,10 +72,7 @@ int main(int argc, char *argv[])
 
     // Register action place holders for this application. This allows control of your menu structure:
     // File Menu
-    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SAVE,QObject::tr("Save"),QKeySequence(QKeySequence::Save));
-    file_menu->addAction(command);
-    file_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT,QObject::tr("Print"),QKeySequence(QKeySequence::Print));
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT,QObject::tr("Print"),QKeySequence(QKeySequence::Print));
     file_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT_PREVIEW,QObject::tr("Print Preview"),QKeySequence());
     file_menu->addAction(command);
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
 
     // Create a QtilitiesMainWindow to show our different modes.
     QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesApplication::instance()->setMainWindow(&exampleMainWindow);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
     exampleMainWindow.setMenuBar(menu_bar->menuBar());
 
     // Create an instance of the example object management mode:
@@ -161,7 +160,12 @@ int main(int argc, char *argv[])
     // Show the main window:
     exampleMainWindow.show();
 
+    // Initialize the project manager:
+    PROJECT_MANAGER_INITIALIZE();
+
     int result = a.exec();
+
+    // Save main window state:
     exampleMainWindow.writeSettings();
 
     // Save the current keyboard mapping for the next session.
@@ -170,6 +174,7 @@ int main(int argc, char *argv[])
     else
         LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);
 
+    PROJECT_MANAGER_FINALIZE();
     LOG_FINALIZE();
     return result;
 }

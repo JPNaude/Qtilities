@@ -61,7 +61,7 @@ namespace Qtilities {
 
             /*!
             \class ObjectManagementModeWidget
-            \brief The ObjectManagementModeWidget is a mode widget which allows management of an Observer class instance using the ObserverWidget class.
+            \brief The ObjectManagementModeWidget class is a mode widget which allows management of an Observer class instance using the ObserverWidget class.
               */
             class ObjectManagementModeWidget : public QWidget, public IFactory
             {
