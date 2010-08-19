@@ -34,10 +34,8 @@
 #ifndef OBJECTMANAGER_H
 #define OBJECTMANAGER_H
 
-#include "Observer.h"
 #include "IObjectManager.h"
 #include "QtilitiesCore_global.h"
-#include "Observer.h"
 
 #include <QList>
 #include <QStringList>
@@ -45,6 +43,8 @@
 namespace Qtilities {
     namespace Core {
         using namespace Qtilities::Core::Interfaces;
+        class Observer;
+
         /*!
           \struct SubjectTypeInfo
           \brief The SubjectTypeInfo structure is used to define subject types.
@@ -108,8 +108,8 @@ namespace Qtilities {
             bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const;
             bool importObjectProperties(QObject* new_instance, QDataStream& stream) const;
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& table) const;
-            IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false) const;
-            IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false);
+            IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>());
 
         signals:
             //! Signal which is emitted when a new object is added to the global object pool. Do not use this signal directly, it is connected to the signal with the same name on QtilitiesCore.
