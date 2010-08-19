@@ -40,6 +40,7 @@
 #include <QtilitiesCoreConstants.h>
 #include <Logger.h>
 #include <Observer.h>
+#include <Qtilities.h>
 
 #include <QMainWindow>
 #include <QList>
@@ -255,13 +256,29 @@ void Qtilities::CoreGui::ActionManager::restoreDefaultShortcuts() {
 
 bool Qtilities::CoreGui::ActionManager::exportShortcutMapping(const QString& file_name) {
     QDomDocument doc("KeyboardMapping");
-    QDomElement root = doc.createElement("Commands");
-    doc.appendChild(root);
 
+    // Export version:
+    QDomElement root = doc.createElement("ShortcutStorage");
+    doc.appendChild(root);
+    QDomElement formatting = doc.createElement("Formatting");
+    QDomElement export_version = doc.createElement("Export_Format");
+    QDomElement qtilities_version = doc.createElement("Qtilities");
+    QDomElement application_version = doc.createElement("Application");
+    export_version.setAttribute("version",QString("%1").arg(QTILITIES_SHORTCUT_EXPORT_FORMAT));
+    qtilities_version.setAttribute("version",QtilitiesApplication::qtilitiesVersion());
+    application_version.setAttribute("version",QtilitiesApplication::applicationVersion());
+    formatting.appendChild(qtilities_version);
+    formatting.appendChild(application_version);
+    formatting.appendChild(export_version);
+    root.appendChild(formatting);
+
+    // All shortcuts:
+    QDomElement shortcuts = doc.createElement("Shortcuts");
+    root.appendChild(shortcuts);
     for (int i = 0; i < d->id_command_map.count(); i++) {
         QDomElement tag = doc.createElement(d->id_command_map.keys().at(i));
         tag.setAttribute("KeySequence",d->id_command_map.values().at(i)->keySequence().toString());
-        root.appendChild(tag);
+        shortcuts.appendChild(tag);
     }
 
     QFile data(file_name);
@@ -275,32 +292,68 @@ bool Qtilities::CoreGui::ActionManager::exportShortcutMapping(const QString& fil
 }
 
 bool Qtilities::CoreGui::ActionManager::importShortcutMapping(const QString& file_name) {
-    QDomDocument doc("KeyboardMapping");
+    QDomDocument doc("ShortcutMapping");
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly))
         return false;
-    if (!doc.setContent(&file)) {
+    QString error_string;
+    int error_line;
+    int error_column;
+    if (!doc.setContent(&file,&error_string,&error_line,&error_column)) {
+        LOG_ERROR(QString(tr("The shortcut file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
         file.close();
         return false;
     }
     file.close();
 
+    bool valid_file = false;
     QDomElement docElem = doc.documentElement();
-    QDomNode n = docElem.firstChild();
-    while(!n.isNull()) {
-        QDomElement e = n.toElement();
-        if(!e.isNull()) {
-            QString attribute = e.attribute("KeySequence");
-            if (!attribute.isEmpty() && d->id_command_map.contains(e.tagName())) {
-                Command* command = d->id_command_map[e.tagName()];
+    QDomNode storage_node = docElem.firstChild();
+    QDomElement storage_element = storage_node.toElement();
+    QDomNode formatting_node = storage_element.firstChild();
+    QDomElement formatting_element = formatting_node.toElement();
+
+    QDomNode formatting_version_node = formatting_element.nextSibling();
+    while(!formatting_version_node.isNull()) {
+        QDomElement formatting_version_element = formatting_version_node.toElement();
+        if(!formatting_version_element.isNull()) {
+            QString version_string = formatting_version_element.attribute("version");
+            if (!version_string.isEmpty() && (formatting_version_element.tagName() == "Export_Format")) {
+                bool ok;
+                int version = version_string.toInt(&ok);
+                if (ok) {
+                    if (version == (int) QTILITIES_SHORTCUT_EXPORT_FORMAT)
+                        valid_file = true;
+                }
+            }
+        }
+        formatting_version_node = formatting_version_node.nextSibling();
+    }
+
+    if (!valid_file) {
+        LOG_ERROR(QString(tr("The shortcut file is not in a recognizable format. Import will fail.")));
+        return false;
+    }
+
+    // Get all shortcuts:
+    QDomNode shortcut_node = storage_node.nextSibling();
+    QDomElement shortcut_element = shortcut_node.toElement();
+
+    QDomNode shortcut_item_node = shortcut_element.firstChild();
+    while(!shortcut_item_node.isNull()) {
+        QDomElement shortcut_item_element = shortcut_item_node.toElement();
+        if(!shortcut_item_element.isNull()) {
+            QString attribute = shortcut_item_element.attribute("KeySequence");
+            if (d->id_command_map.contains(shortcut_item_element.tagName())) {
+                Command* command = d->id_command_map[shortcut_item_element.tagName()];
                 if (command)
                     command->setKeySequence(QKeySequence(attribute));
-                else
-                    LOG_WARNING(QString(tr("Unknown command found in the input shortcut mapping file: %1")).arg(e.tagName()));
-            }
 
+            } else {
+                LOG_WARNING(QString(tr("Unknown command found in the input shortcut mapping file: %1")).arg(shortcut_item_element.tagName()));
+            }
         }
-        n = n.nextSibling();
+        shortcut_item_node = shortcut_item_node.nextSibling();
     }
 
     return true;
