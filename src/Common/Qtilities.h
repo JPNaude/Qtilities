@@ -39,14 +39,51 @@
 //! The %Qtilities minor version number.
 #define QTILITIES_VERSION_MINOR 1
 //! The %Qtilities beta number.
-#define QTILITIES_VERSION_BETA 1
+#define QTILITIES_VERSION_BETA 0
 //! The %Qtilities alpha number.
 #define QTILITIES_VERSION_ALPHA 0
 
-//! The binary export format used in the above version of %Qtilities.
-// v0.1 Beta 1
-// #define QTILITIES_VERSION_BINARY_EXPORT_FORMAT 0
-// v0.1
-#define QTILITIES_VERSION_BINARY_EXPORT_FORMAT 1
+//! The %Qtilities binary export formats version
+/*!
+The binary export format indicates how binary exports are done in %Qtilities. The export format
+defines the binary format used by the following functions and classes which implements
+Qtilities::Core::Interfaces::IExportable:
+<b>Classes:</b>
+- Qtilities::Core::Observer
+- Qtilities::Core::ObserverRelationalTable
+- Qtilities::Core::ObserverData
+
+<b>Functions (corresponding import functions not shown here):</b>
+- Qtilities::Core::ObjectManager::exportObserverBinary()
+- Qtilities::Core::ObjectManager::exportObjectProperties()
+- Qtilities::ProjectManagement::Project::saveProject()
+
+History:
+0 - %Qtilities v0.1 Beta 1
+1 - %Qtilities v0.1
+*/
+#define QTILITIES_BINARY_EXPORT_FORMAT 1
+
+//! The shortcut export format version.
+/*!
+History:
+No version defined - %Qtilities v0.1 Beta 1
+1 - %Qtililties v0.1.
+*/
+#define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
+
+//! The %Qtilities binary export formats.
+/*!
+The binary export format indicates how binary exports are done in the %Qtilities logging module.
+The export format defines the binary format used by the following functions and classes which implements
+Qtilities::Core::Interfaces::ILoggerExportable:
+<b>Classes:</b>
+- Qtilities::Logging::Logger
+
+History:
+No version defined - %Qtilities v0.1 Beta 1
+1 - %Qtilities v0.1
+*/
+#define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 1
 
 #endif // QTILITIES_H
