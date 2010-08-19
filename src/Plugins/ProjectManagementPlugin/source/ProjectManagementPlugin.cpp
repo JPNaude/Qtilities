@@ -278,7 +278,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         d->actionProjectSaveAs->setEnabled(true);
 
         // Check if the project name currenlty in the main window must change:
-        QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
+        QMainWindow* main_window = QtilitiesApplication::mainWindow();
         if (main_window && project) {
             // Name was never appended before.
             if (d->appended_project_name.isEmpty()) {
@@ -303,14 +303,14 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         // Add the * character if neccesarry:
         if (project->isModified()) {
             d->actionProjectSave->setEnabled(true);
-            QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
+            QMainWindow* main_window = QtilitiesApplication::mainWindow();
             if (main_window) {
                 if (!main_window->windowTitle().endsWith("*"))
                     main_window->setWindowTitle(main_window->windowTitle().append("*"));
             }
         } else {
             d->actionProjectSave->setEnabled(false);
-            QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
+            QMainWindow* main_window = QtilitiesApplication::mainWindow();
             if (main_window) {
                 if (main_window->windowTitle().endsWith("*")) {
                     QString new_title = main_window->windowTitle();
@@ -326,7 +326,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         d->actionProjectSave->setEnabled(false);
         d->actionProjectSaveAs->setEnabled(false);
 
-        QMainWindow* main_window = QtilitiesApplication::instance()->mainWindow();
+        QMainWindow* main_window = QtilitiesApplication::mainWindow();
         if (main_window) {
             // Remove possible *:
             if (main_window->windowTitle().endsWith("*")) {
