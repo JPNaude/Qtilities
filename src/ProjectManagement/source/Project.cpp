@@ -79,7 +79,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
     QTemporaryFile file;
     file.open();
     QDataStream stream(&file);   // we will serialize the data into the file
-    stream << (quint32) QTILITIES_VERSION_BINARY_EXPORT_FORMAT;
+    stream << (quint32) QTILITIES_BINARY_EXPORT_FORMAT;
     stream << PROJECT_MANAGER->projectFileVersion();
     stream << MARKER_PROJECT_SECTION;
     stream << d->project_name;
@@ -151,9 +151,9 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
     quint32 marker;
     stream >> marker;
-    LOG_INFO(QString(tr("Inspecting project file format: Qtilities binary export file format version: %1")).arg(marker));
-    if (marker != (quint32) QTILITIES_VERSION_BINARY_EXPORT_FORMAT) {
-        LOG_ERROR(QString(tr("Project file format does not match the expected Qtilities binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_VERSION_BINARY_EXPORT_FORMAT));
+    LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
+    if (marker != (quint32) QTILITIES_BINARY_EXPORT_FORMAT) {
+        LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_BINARY_EXPORT_FORMAT));
         return false;
     }
     stream >> marker;
