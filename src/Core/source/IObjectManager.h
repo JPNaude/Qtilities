@@ -90,8 +90,18 @@ namespace Qtilities {
                 //! Returns all objects in the global object pool which implements the specified interface.
                 virtual QList<QObject*> registeredInterfaces(const QString& iface) const = 0;
                 //! Updates the active object(s) for a specific meta type.
+                /*!
+                  For more information about see the \ref meta_type_object_management section of the \ref page_object_management article.
+
+                  \sa metaTypeActiveObjects(), metaTypeActiveObjectsChanged()
+                  */
                 virtual void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list = QStringList(), bool inversed_list = false) = 0;
                 //! Returns the active object(s) for a specific meta type. If the meta type does not exist, an empty list is returned.
+                /*!
+                  For more information about see the \ref meta_type_object_management section of the \ref page_object_management article.
+
+                  \sa setMetaTypeActiveObjects(), metaTypeActiveObjectsChanged()
+                  */
                 virtual QList<QObject*> metaTypeActiveObjects(const QString& subject_type) const = 0;
                 //! Streams exportable dynamic properties about the object to the given QDataStream.
                 virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
@@ -100,9 +110,9 @@ namespace Qtilities {
                 //! Construct relationships between a list of objects with the relational data being passed to the function as a RelationalObserverTable.
                 virtual bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& relational_table) const = 0;
                 //! Exports an observer and along with all the information to reconstruct and verify the observer hierarchy (relationships etc.)
-                virtual IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false) const = 0;
+                virtual IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) const = 0;
                 //! Imports an observer which was exported using the exportObserverBinary() function.
-                virtual IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false) = 0;
+                virtual IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) = 0;
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.
