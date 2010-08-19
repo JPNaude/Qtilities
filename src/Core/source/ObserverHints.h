@@ -162,13 +162,14 @@ namespace Qtilities {
               \sa setItemViewColumnHint(), itemViewColumnHint()
               */
             enum ItemViewColumn {
-                ColumnNoHints = 0,              /*!< No item view column hint. Only the name column is shown in item views viewing this observer. */
-                ColumnIDHint = 1,               /*!< Shows a column with the subject IDs of subjects in item views viewing this observer. */
-                ColumnChildCountHint = 2,       /*!< Shows a column with the cumulative count (counts items under each subject recusively) of subjects under each subject in item views viewing this observer. */
-                ColumnTypeInfoHint = 4,         /*!< Shows a column with information about the type of subject in item views viewing this observer. */
-                ColumnAccessHint = 8,           /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
-                ColumnCategoryHint = 16,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
-                ColumnAllHints = ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
+                ColumnNoHints = 1,              /*!< No item view column hint. Only the name column is shown in item views viewing this observer. */
+                ColumnNameHint = 1,             /*!< Shows a column with the name of the subject. */
+                ColumnIDHint = 2,               /*!< Shows a column with the subject IDs of subjects in item views viewing this observer. */
+                ColumnChildCountHint = 4,       /*!< Shows a column with the cumulative count (counts items under each subject recusively) of subjects under each subject in item views viewing this observer. */
+                ColumnTypeInfoHint = 8,         /*!< Shows a column with information about the type of subject in item views viewing this observer. */
+                ColumnAccessHint = 16,           /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
+                ColumnCategoryHint = 32,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
+                ColumnAllHints = ColumnNameHint | ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
             };
             Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn);
             Q_FLAGS(ItemViewColumnFlags);
