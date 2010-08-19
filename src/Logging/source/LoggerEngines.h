@@ -128,7 +128,7 @@ namespace Qtilities {
             void finalize();
             bool isInitialized() const;
             QString name() const { return QObject::tr("Qt Message Logger Engine"); }
-            QString description() const { return QObject::tr("Writes log messages to a the Qt message system."); }
+            QString description() const { return QObject::tr("Writes log messages to the Qt message system."); }
             QString status() const;
             bool removable() const { return false; }
             bool isFormattingEngineConstant() const { return true; }
@@ -164,7 +164,7 @@ namespace Qtilities {
             void finalize();
             bool isInitialized() const;
             QString name() const { return QObject::tr("Console Logger Engine"); }
-            QString description() const { return QObject::tr("Writes log messages to a the console."); }
+            QString description() const { return QObject::tr("Writes log messages to the console."); }
             QString status() const;
             bool removable() const { return false; }
             bool isFormattingEngineConstant() const { return false; }
