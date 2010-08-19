@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Qtilities Documentation"
-PROJECT_NUMBER         = "Version 0.1 Beta 1"
+PROJECT_NUMBER         = "Version 0.1"
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -95,18 +95,19 @@ WARN_LOGFILE           = output/website_html.log
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = sources \
-						../src/Core/source \
-						../src/CoreGui/source \
-						../src/ExtensionSystem/source \
-						../src/Logging/source \ 
-						../src/ProjectManagement/source \
-						../include/QtilitiesLogging \
-						../include/QtilitiesCore \
-						../include/QtilitiesCoreGui \
-						../include/QtilitiesProjectManagement \
-						../include/QtilitiesExtensionSystem \
-						../src/Plugins \
-						../src/Examples
+                      ../src/Common \
+                      ../src/Core/source \                      
+                      ../src/CoreGui/source \
+                      ../src/ExtensionSystem/source \
+                      ../src/Logging/source \ 
+                      ../src/ProjectManagement/source \
+                      ../include/QtilitiesLogging \
+                      ../include/QtilitiesCore \
+                      ../include/QtilitiesCoreGui \
+                      ../include/QtilitiesProjectManagement \
+                      ../include/QtilitiesExtensionSystem \
+                      ../src/Plugins \
+                      ../src/Examples
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.h \
                          *.cpp \
