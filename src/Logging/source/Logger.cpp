@@ -40,6 +40,7 @@
 #include <LoggingConstants.h>
 #include <QtDebug>
 #include <QMutex>
+#include <Qtilities.h>
 
 using namespace Qtilities::Logging::Constants;
 
@@ -597,6 +598,7 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
         return false;
     }
     QDataStream stream(&file);   // we will serialize the data into the file
+    stream << (quint32) QTILITIES_LOGGER_BINARY_EXPORT_FORMAT;
 
     // Stream exportable engines:
     QList<ILoggerExportable*> export_list;
@@ -654,6 +656,12 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     QDataStream stream(&file);   // we will serialize the data into the file
 
     quint32 ui32;
+    stream >> ui32;
+    LOG_INFO(QString(tr("Inspecting logger configuration file format: Found binary export file format version: %1")).arg(ui32));
+    if (ui32 != (quint32) QTILITIES_LOGGER_BINARY_EXPORT_FORMAT) {
+        LOG_ERROR(QString(tr("Logger configuration file format does not match the expected binary export file format (expected version: %1). Import will fail.")).arg(QTILITIES_LOGGER_BINARY_EXPORT_FORMAT));
+        return false;
+    }
     stream >> ui32;
     if (ui32 != MARKER_LOGGER_CONFIG_TAG) {
         file.close();
