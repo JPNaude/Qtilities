@@ -32,7 +32,6 @@
 ****************************************************************************/
 
 #include "ObjectManager.h"
-#include "QtilitiesCore.h"
 #include "ObserverProperty.h"
 #include "QtilitiesCoreConstants.h"
 #include "Observer.h"
@@ -71,12 +70,6 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
     d = new ObjectManagerData;
     d->object_pool.startProcessingCycle();
     setObjectName("Object Manager");
-
-    // Give the manager an icon TRACK
-    /*SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ICON);
-    Q_ASSERT(shared_icon_property.isValid());
-    QVariant icon_property = qVariantFromValue(shared_icon_property);
-    setProperty(shared_icon_property.propertyName(),icon_property);*/
 
     // Add the standard observer subject filters which comes with the Qtilities library here
     //FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER);
@@ -433,6 +426,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
                 RelationalTableEntry* entry = table.entryWithPreviousSessionID(prev_session_id);
                 if (!entry) {
                     LOG_ERROR(QString(QObject::tr("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1")).arg(prev_session_id));
+                    // This should only be an error and we must continue.
                     return false;
                 }
 
@@ -544,7 +538,37 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
                 LOG_WARNING(QString(QObject::tr("Could not determine correct ownership for object: %1")).arg(objects.at(i)->objectName()));
         }
 
-        LOG_TRACE("> Restoring instance names accros contexts.");
+        LOG_TRACE("> Restoring instance names across contexts.");
+        // Instance names should be correct after the observer IDs have been corrected.
+        // Here we just need to correct the OBJECT_NAME_MANAGER_ID property and sync the object name with the OBJECT_NAME property.
+        // 1. Correct OBJECT_NAME_MANAGER_ID:
+        SharedObserverProperty object_name_manager_id = Observer::getSharedProperty(objects.at(i),OBJECT_NAME_MANAGER_ID);
+        if (object_name_manager_id.isValid()) {
+            int prev_session_id = object_name_manager_id.value().toInt();
+            RelationalTableEntry* entry = table.entryWithPreviousSessionID(prev_session_id);
+            if (entry) {
+                // The previous name manager was part of this export:
+                int current_session_id = entry->d_sessionID;
+                SharedObserverProperty new_name_manager_id(current_session_id,OBJECT_NAME_MANAGER_ID);
+                new_name_manager_id.setIsExportable(true);
+                Observer::setSharedProperty(objects.at(i),new_name_manager_id);
+                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID:  Restored name manager successfuly.");
+            } else {
+                // The previous name manager was not part of this export:
+                // Assign a new name manager.
+                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID: Name manager was not part of this export. Assigning a new name manager.");
+                // Still todo.
+            }
+
+            // 2. Sync OBJECT_NAME:
+            SharedObserverProperty object_name = Observer::getSharedProperty(objects.at(i),OBJECT_NAME);
+            if (object_name.isValid()) {
+                objects.at(i)->setObjectName(object_name.value().toString());
+                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID : Sync'ed object name with OBJECT_NAME property.");
+            }
+        } else {
+            LOG_TRACE("> OBJECT_NAME_MANAGER_ID : Property not found, nothing to restore.");
+        }
     }
 
     // Enable subject event filtering on all observers in the objects list,
@@ -558,7 +582,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     return success;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output, QList<QVariant> params) const {
     if (!obs)
         return IExportable::Failed;
 
@@ -595,23 +619,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // Now export the observer itself:
     IExportable::Result result = obs->exportBinary(stream);
-    QtilitiesCore::instance()->objectManager()->exportObjectProperties(obs,stream);
+    OBJECT_MANAGER->exportObjectProperties(obs,stream);
 
     // Check result
-    IModificationNotifier::NotificationTargets notify_targets = 0;
-    notify_targets |= IModificationNotifier::NotifyListeners;
-    notify_targets |= IModificationNotifier::NotifySubjects;
     if (result == IExportable::Complete) {
-        obs->setModificationState(false, notify_targets);
+        obs->setModificationState(false, IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     } else if (result == IExportable::Incomplete) {
         LOG_WARNING(tr("Observer (") + obs->objectName() + tr(") was only partially saved. Saved project will be incomplete."));
-        obs->setModificationState(false, notify_targets);
+        obs->setModificationState(false, IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     }
 
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output, QList<QVariant> params) {
     if (!obs)
         return IExportable::Failed;
 
@@ -634,11 +655,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
     IExportable::Result result = obs->importBinary(stream, internal_import_list);
     if (result == IExportable::Failed)
         return result;
-    QtilitiesCore::instance()->objectManager()->importObjectProperties(obs,stream);
+    OBJECT_MANAGER->importObjectProperties(obs,stream);
     internal_import_list.append(obs);
 
     // Construct relationships:
-    if (!QtilitiesCore::instance()->objectManager()->constructRelationships(internal_import_list,readback_table))
+    if (!OBJECT_MANAGER->constructRelationships(internal_import_list,readback_table))
         result = IExportable::Incomplete;    
 
     // Cross-check the constructed table:
