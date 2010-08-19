@@ -90,6 +90,9 @@ namespace Qtilities {
 
             //! Create a new settings update request.
             /*!
+            This function allows settings update requests to be sent anywhere in an application. This
+            allows objects which depends on the settings to update themselves when the settings change.
+
               This function will emit settingsUpdateRequest() with the given request ID.
               */
             static inline void newSettingsUpdateRequest(const QString& request_id) { emit m_Instance->settingsUpdateRequest(request_id); }
