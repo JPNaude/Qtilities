@@ -55,12 +55,13 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     ProjectManagerData() : current_project(0),
     recent_projects_size(5),
     config_widget(0),
-    project_file_version(0) {}
+    project_file_version(0),
+    is_initialized(false) {}
 
     QPointer<Project>               current_project;
     QList<IProjectItem*>            item_list;
     QMap<QString, QVariant>         recent_project_names;
-    QStringList                  recent_project_stack;
+    QStringList                     recent_project_stack;
     int                             recent_projects_size;
     ProjectManagementConfig*        config_widget;
     bool                            open_last_project;
@@ -70,6 +71,7 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     bool                            check_modified_projects;
     quint32                         project_file_version;
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
+    bool                            is_initialized;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -375,10 +377,14 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
         }
     }
 
+    d->is_initialized = true;
     LOG_INFO(tr("Qtilities Project Management Framework, initialization finished successfully..."));
 }
 
 void Qtilities::ProjectManagement::ProjectManager::finalize() {
+    if (!d->is_initialized)
+        LOG_WARNING(tr("ProjectManager is finalized without being initialized first."));
+
     if (d->current_project) {
         if (d->check_modified_projects && d->current_project->isModified()) {
             if (d->modified_projects_handling_policy == PromptUser) {
