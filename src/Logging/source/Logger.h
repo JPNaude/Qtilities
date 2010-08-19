@@ -70,12 +70,13 @@ namespace Qtilities {
                 It is usefull to pass false to restore_config when more log widgets are going to be added after the intitial initialize call.
                 In that situation it is up to the user to call the loadSessionConfig() and checking the rememberSessionConfig() setting manually.
 
-                \sa LOG_INITIALIZE
+                \sa LOG_INITIALIZE, finalize()
                 */
             void initialize(bool restore_config = true);
             //! Finalizes the engine.
             /*!
-                \sa LOG_FINALIZE
+              This saves the current session configuration.
+                \sa LOG_FINALIZE, initialize()
               */
             void finalize();
 
