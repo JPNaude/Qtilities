@@ -68,7 +68,7 @@ namespace Qtilities {
                     Incomplete,   /*!< Incomplete when some information could not be exported/imported. An example of this is when an Observer exports itself. When only a subset of the subjets observed by the observer implements the IExportable interface the Observer will return Partial because it was only exported partially. */
                     Failed        /*!< Failed when an error occured. The operation must be aborted in this case. */
                 };
-                Q_ENUMS(Result)
+                Q_ENUMS(Result)                
 
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
                 virtual ExportModeFlags supportedFormats() const = 0;
@@ -77,14 +77,16 @@ namespace Qtilities {
                 //! Allows exporting to a QDataStream.
                 /*!
                   \param stream A reference to the QDataStream to which the object's information must be appended is provided.
+                  \param params A list of QVariants which can be used to pass parameters to the object implementing the interface. An example of such a parameter is the export version.
                   */
-                virtual Result exportBinary(QDataStream& stream) const = 0;
+                virtual Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const = 0;
                 //! Allows importing and reconstruction of the object state from information provided in a QDataStream.
                 /*!
                     \param stream The QDataStream which contains the object's information.
                     \param import_list All objects constructed during the import operation must be added to the import list. When the operation fails, all objects in this list will be deleted.
+                    \param params A list of QVariants which can be used to pass parameters to the object implementing the interface. An example of such a parameter is the export version.
                     */
-                virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) = 0;
+                virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) = 0;
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
