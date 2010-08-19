@@ -173,7 +173,6 @@ void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
     switch (ret) {
         case QMessageBox::Yes:
              ACTION_MANAGER->restoreDefaultShortcuts();
-             ui->commandTable->resizeRowsToContents();
              break;
         case QMessageBox::No:
              break;
