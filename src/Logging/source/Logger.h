@@ -56,9 +56,6 @@ namespace Qtilities {
         The Logger class is a singleton which is used to create a single instance of the logger class in memory.
 
         See the \ref page_logging article for more information on how to use the logger.
-
-        \todo
-        - If the directory for the last config does not exist, the session won't be saved. The directory should be created automatically.
           */
         class LOGGING_SHARED_EXPORT Logger : public QObject
         {

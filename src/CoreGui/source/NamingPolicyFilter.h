@@ -96,9 +96,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         Note: When streaming naming policy filter objects, custom validators will not be streamed at present. Thus the default validator will be used when constructing a naming policy filter from a binary stream.
 
         \sa NamingPolicyInputDialog
-        \todo
-        - Wishlist: Allowing control over unique name comparisons might be usefull in the future.
-        - Wishlist: Implement a Replace resolution policy. There need to be decided how this should be done: Should the old subject be deleted, or just detached? If it is deleted do we add the new subject to all the observer's which observed the old subject? Also, the validity resolution policy cannot use replace so that must be handled correctly.
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT NamingPolicyFilter : public AbstractSubjectFilter, public IModificationNotifier
         {

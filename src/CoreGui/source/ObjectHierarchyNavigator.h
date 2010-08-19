@@ -54,9 +54,6 @@ namespace Qtilities {
 
         \image html observer_widget_table_with_actions.jpg "Observer Widget With Action Toolbar"
         \image latex observer_widget_table_with_actions.eps "Observer Widget With Action Toolbar" width=3in
-
-        \todo
-        - Wishlist: Make observer names clickable to be able to navigate using the navigation bar widget.
         */
         class ObjectHierarchyNavigator : public QWidget {
             Q_OBJECT

@@ -76,8 +76,6 @@ namespace Qtilities {
 
           This class inhertis ObserverAwareBase which is used to define the context (top level context in tree views) to be used
           in the model. The hints which should be used by the model is provided by the displayHints() function.
-          \todo
-          - Wishlist: Add option to disable updating when observer context is not active.
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT AbstractObserverItemModel : public ObserverAwareBase
         {

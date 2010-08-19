@@ -55,9 +55,6 @@ namespace Qtilities {
         /*!
         \class ActionManager
         \brief A class which represents an action manager.
-
-        \todo
-        - connect to object destroyed.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionManager : public IActionManager
         {

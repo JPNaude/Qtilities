@@ -45,7 +45,7 @@ namespace Qtilities {
           See the \ref page_extension_system article for more information about the %Qtilities extension system.
 
           \todo
-          - We never finalize the plugins, this must be added
+          - We never finalize the plugins, this must be added.
          */
         class EXTENSION_SYSTEM_SHARED_EXPORT ExtensionSystemCore : public QObject
         {

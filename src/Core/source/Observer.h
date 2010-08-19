@@ -64,10 +64,6 @@ namespace Qtilities {
         \brief The observer class is an extended implementation of an observer in the subject-observer pattern.
 
         See the \ref page_observers article for more information.
-
-        \todo
-        - CyclicProcess numberOfSubjectChanged() emission should happen if the number of subjects changed during a processing cycle.
-        - Access mode on a category level must be shown next to the category in observer tree widgets.
         */
         class QTILIITES_CORE_SHARED_EXPORT Observer : public QObject, public IExportable, public IModificationNotifier
         {

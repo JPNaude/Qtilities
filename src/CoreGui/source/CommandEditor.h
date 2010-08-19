@@ -57,9 +57,6 @@ namespace Qtilities {
         /*!
         \class CommandEditor
         \brief A widget which allows the user to edit command shortcuts for actions registered in the ActionManager class.
-
-        \todo
-        - Add Qtilities icon to the message boxes displayed by this widget.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CommandEditor : public QWidget, public IConfigPage {
             Q_OBJECT

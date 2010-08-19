@@ -52,8 +52,6 @@ namespace Qtilities {
 
         \image html about_window.jpg "About Window"
         \image latex about_window.eps "About Window" width=5in
-        \todo
-        - Logo does not display correctly...
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT AboutWindow : public QWidget {
             Q_OBJECT

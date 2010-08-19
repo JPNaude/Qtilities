@@ -687,7 +687,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) 
                             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (next_observer->subjectFilters().at(i));
                             if (naming_filter) {
                                 found = true;
-                                // MOD, should make it quicker but crashes at the moment, todo figure out why it happens.
+                                // MOD, a quicker way might be: (But not tested)
                                 // next_observer->setObserverPropertyValue(obj,OBJECT_NAME_MANAGER_ID,-1);
                                 naming_filter->makeNameManager(obj);
                                 LOG_INFO(QString(tr("The name manager (%1) of object (%2) not observing this object any more. Observer (%3) was selected to be the new name manager for this object.")).arg(observer->observerName()).arg(obj->objectName()).arg(next_observer->observerName()));

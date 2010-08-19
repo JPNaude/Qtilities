@@ -66,8 +66,6 @@ namespace Qtilities {
           Below is an example where the search box widget is embedded at the bottom of an observer widget:
           \image html observer_widget_searching.jpg "Observer Widget Search Demonstration"
           \image latex observer_widget_searching.eps "Observer Widget Search Demonstration" width=4in
-          \todo
-          - Wishlist: Add a search history combo box, maybe use auto-completion?
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SearchBoxWidget : public QWidget {
             Q_OBJECT
