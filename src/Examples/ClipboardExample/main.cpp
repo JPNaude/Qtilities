@@ -37,6 +37,8 @@
 #include <QtilitiesCoreGui>
 
 #include "ObserverWidgetConfig.h"
+#include "ExtendedObserverTableModel.h"
+#include "ExtendedObserverTreeModel.h"
 
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
@@ -198,6 +200,8 @@ int main(int argc, char *argv[])
     nav_stack << observerA->observerID();
     observer_widgetA->setNavigationStack(nav_stack);
     observer_widgetA->setObserverContext(observerB);
+    ExtendedObserverTableModel* extended_table_model = new ExtendedObserverTableModel();
+    observer_widgetA->setCustomTableModel(extended_table_model);
     observer_widgetA->initialize();
     observer_widgetA->readSettings();
     observer_widgetA->toggleUseGlobalActiveObjects(true);
@@ -208,6 +212,8 @@ int main(int argc, char *argv[])
     observer_widgetB->resize(600,250);
     observer_widgetB->setNavigationStack(nav_stack);
     observer_widgetB->setObserverContext(observerC);
+    ExtendedObserverTreeModel* extended_tree_model = new ExtendedObserverTreeModel();
+    observer_widgetA->setCustomTreeModel(extended_tree_model);
     observer_widgetB->initialize();
     observer_widgetB->readSettings();
     observer_widgetB->toggleUseGlobalActiveObjects(true);
