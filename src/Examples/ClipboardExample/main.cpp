@@ -202,6 +202,8 @@ int main(int argc, char *argv[])
     observer_widgetA->setObserverContext(observerB);
     ExtendedObserverTableModel* extended_table_model = new ExtendedObserverTableModel();
     observer_widgetA->setCustomTableModel(extended_table_model);
+    ExtendedObserverTreeModel* extended_tree_model = new ExtendedObserverTreeModel();
+    observer_widgetA->setCustomTreeModel(extended_tree_model);
     observer_widgetA->initialize();
     observer_widgetA->readSettings();
     observer_widgetA->toggleUseGlobalActiveObjects(true);
@@ -212,8 +214,6 @@ int main(int argc, char *argv[])
     observer_widgetB->resize(600,250);
     observer_widgetB->setNavigationStack(nav_stack);
     observer_widgetB->setObserverContext(observerC);
-    ExtendedObserverTreeModel* extended_tree_model = new ExtendedObserverTreeModel();
-    observer_widgetA->setCustomTreeModel(extended_tree_model);
     observer_widgetB->initialize();
     observer_widgetB->readSettings();
     observer_widgetB->toggleUseGlobalActiveObjects(true);
@@ -229,10 +229,10 @@ int main(int argc, char *argv[])
 
     // Set up config widget:
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false));
     ObserverWidgetConfig observer_config_widget;
     OBJECT_MANAGER->registerObject(&observer_config_widget);
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
-    LOG_INFO(QString("%1 configuration page(s) found in set of loaded plugins.").arg(registered_config_pages.count()));
     config_widget.initialize(registered_config_pages);
 
     // Create a main widget container:

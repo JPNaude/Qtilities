@@ -33,31 +33,49 @@
 
 #include "ExtendedObserverTreeModel.h"
 
-
-Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::ExtendedObserverTreeModel(QObject* parent) : ObserverTreeModel(parent) {
+Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::ExtendedObserverTreeModel(QObject* parent) : AbstractObserverTreeModel(parent) {
 
 }
 
 QVariant Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::data(const QModelIndex &index, int role) const {
-    return ObserverTreeModel::data(index,role);
+    if ((index.column() == columnCount() - 1) && (role == Qt::DisplayRole)) {
+        return QString("Custom Data");
+    } else {
+        return AbstractObserverTreeModel::dataHelper(index,role);
+    }
 }
 
 Qt::ItemFlags Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::flags(const QModelIndex &index) const {
-    return ObserverTreeModel::flags(index);
+    if (index.column() == columnCount() - 1) {
+        Qt::ItemFlags item_flags = 0;
+        item_flags |= Qt::ItemIsEnabled;
+        item_flags |= Qt::ItemIsSelectable;
+        return item_flags;
+    } else {
+        return AbstractObserverTreeModel::flagsHelper(index);
+    }
 }
 
 QVariant Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    return ObserverTreeModel::headerData(section,orientation,role);
+    if ((section == columnCount() - 1) && (role == Qt::DisplayRole)) {
+        return QString("Custom Extension Header");
+    } else {
+        return AbstractObserverTreeModel::headerDataHelper(section,orientation,role);
+    }
 }
 
-bool Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::setData(const QModelIndex &set_data_index, const QVariant &value, int role) {
-    return ObserverTreeModel::setData(set_data_index, value, role);
+bool Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (index.column() == columnCount() - 1) {
+        return false;
+    } else {
+        return AbstractObserverTreeModel::setDataHelper(index,value,role);
+    }
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::rowCount(const QModelIndex &parent) const {
-    return ObserverTreeModel::rowCount(parent);
+    return AbstractObserverTreeModel::rowCountHelper(parent);
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::columnCount(const QModelIndex &parent) const {
-    return ObserverTreeModel::columnCount(parent);
+    return AbstractObserverTreeModel::columnCountHelper(parent) + 1;
 }
