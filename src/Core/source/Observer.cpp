@@ -59,7 +59,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     observerData->observer_description = observer_description;
     observerData->access_mode_scope = GlobalScope;
     observerData->access_mode = FullAccess;
-    observerData->ignore_dynamic_property_changes = false;
+    observerData->filter_subject_events_enabled = true;
     observerData->subject_limit = -1;
     observerData->subject_id_counter = 0;
     observerData->subject_list.setObjectName(QString("%1 Pointer List").arg(observer_name));
@@ -75,7 +75,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     installEventFilter(this);
 }
 
-Qtilities::Core::Observer::Observer(const Observer &other) : observerData (other.observerData) {
+Qtilities::Core::Observer::Observer(const Observer &other) : QObject(), observerData(other.observerData) {
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 }
 
@@ -161,19 +161,25 @@ QStringList Qtilities::Core::Observer::reservedProperties() const {
 }
 
 void Qtilities::Core::Observer::toggleSubjectEventFiltering(bool toggle) {
-    observerData->ignore_dynamic_property_changes = toggle;
+    observerData->filter_subject_events_enabled = toggle;
 }
 
 bool Qtilities::Core::Observer::subjectEventFilteringEnabled() const {
-    return observerData->ignore_dynamic_property_changes;
+    return observerData->filter_subject_events_enabled;
 }
 
 void Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents(bool toggle) {
-    observerData->deliver_qtilties_property_changed_events = toggle;
+    observerData->deliver_qtilities_property_changed_events = toggle;
 }
 
 bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
-    return observerData->deliver_qtilties_property_changed_events;
+    return observerData->deliver_qtilities_property_changed_events;
+}
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData() const {
+    IFactoryData factory_data = observerData->factory_data;
+    factory_data.d_instance_name = observerName();
+    return factory_data;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Observer::supportedFormats() const {
@@ -182,9 +188,11 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
     return flags;
 }
 
-quint32 MARKER_OBSERVER_SECTION = 0xBBBBBBBB;
+quint32 MARKER_OBSERVER_SECTION = 0xDEADBEEF;
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     LOG_TRACE(tr("Binary export of observer ") + observerName() + tr(" section started."));
 
     // We define a succesfull operation as an export which is able to export all subjects.
@@ -203,8 +211,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
-    // ToDo: in the future when the user has the ability to add custom subject filters, or
-    // change subject filter details.
+    // The number of subject filters in this context:
+    stream << (quint32) observerData->subject_filters.count();
+    // Stream all subject filters:
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        observerData->subject_filters.at(i)->exportBinary(stream);
+        LOG_TRACE(QString("%1/%2: Exporting subject filter \"%3\"...").arg(i+1).arg(observerData->subject_filters.count()).arg(observerData->subject_filters.at(i)->filterName()));
+    }
+    stream << MARKER_OBSERVER_SECTION;
 
     // Count the number of IExportable subjects first and check if objects must be excluded.
     QList<IExportable*> exportable_list;
@@ -283,6 +297,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(params)
+
     LOG_TRACE(tr("Binary import of observer ") + observerName() + tr(" section started."));
     startProcessingCycle();
 
@@ -311,6 +327,32 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     // Stream details about the subject filters to be added to the observer.
     // ToDo: in the future when the user has the ability to add custom subject filters, or
     // change subject filter details.
+    stream >> ui32;
+    int subject_filter_count = ui32;
+    for (int i = 0; i < subject_filter_count; i++) {
+        // Get the factory data of the subject filter:
+        IFactoryData factoryData;
+        if (!factoryData.importBinary(stream))
+            return IExportable::Failed;
+        else {
+            AbstractSubjectFilter* new_filter = OBJECT_MANAGER->createSubjectFilter(factoryData.d_instance_tag);
+            if (new_filter) {
+                new_filter->setObjectName(factoryData.d_instance_name);
+                LOG_TRACE(QString("%1/%2: Importing subject filter \"%3\"...").arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
+                new_filter->importBinary(stream,import_list);
+                installSubjectFilter(new_filter);
+            } else {
+                return IExportable::Failed;
+            }
+        }
+    }
+
+    stream >> ui32;
+    if (ui32 != MARKER_OBSERVER_SECTION) {
+        LOG_ERROR("Observer binary import failed to detect marker located after subject filters. Import will fail.");
+        return IExportable::Failed;
+    }
+
 
     // Count the number of IExportable subjects first.
     qint32 iface_count = 0;
@@ -394,6 +436,22 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         endProcessingCycle();
         return IExportable::Failed;
     }
+}
+
+bool Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
 }
 
 bool Qtilities::Core::Observer::isModified() const {
@@ -480,12 +538,6 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
 void Qtilities::Core::Observer::setFactoryData(IFactoryData factory_data) {
     if (factory_data.isValid())
         observerData->factory_data = factory_data;
-}
-
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData() const {
-    IFactoryData factory_data = observerData->factory_data;
-    factory_data.d_instance_name = observerName();
-    return factory_data;
 }
 
 bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, bool import_cycle) {
@@ -919,7 +971,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     if (canDetach(obj) == Rejected)
         return false;
 
-    observerData->ignore_dynamic_property_changes = true;
+    observerData->filter_subject_events_enabled = false;
 
     // Pass object through all installed subject filters
     bool passed_filters = true;
@@ -989,7 +1041,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         setModificationState(true);
     }
 
-    observerData->ignore_dynamic_property_changes = false;
+    observerData->filter_subject_events_enabled = true;
     return true;
 }
 
@@ -1165,8 +1217,8 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
             return;
     #endif
 
-    observerData->ignore_dynamic_property_changes = true;
-    observerData->deliver_qtilties_property_changed_events = false;
+    observerData->filter_subject_events_enabled = false;
+    observerData->deliver_qtilities_property_changed_events = false;
 
     // This is usefull when you are adding properties and you encounter an error, in that case this function
     // can be used as sort of a rollback, removing the property changes that have been made up to that point.
@@ -1194,8 +1246,8 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
         }
     }
 
-    observerData->ignore_dynamic_property_changes = false;
-    observerData->deliver_qtilties_property_changed_events = true;
+    observerData->filter_subject_events_enabled = true;
+    observerData->deliver_qtilities_property_changed_events = true;
 }
 
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) const {
@@ -1512,10 +1564,16 @@ bool Qtilities::Core::Observer::contains(const QObject* object) const {
 }
 
 bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subject_filter) {
+    if (!subject_filter)
+        return false;
+
     if (subjectCount() > 0) {
         LOG_ERROR(QString(tr("Observer (%1): Subject filter installation failed. Can't install subject filters if subjects is already attached to an observer.")).arg(objectName()));
         return false;
     }
+
+    if (hasSubjectFilter(subject_filter->filterName()))
+        return false;
 
     observerData->subject_filters.append(subject_filter);
 
@@ -1559,6 +1617,15 @@ bool Qtilities::Core::Observer::uninstallSubjectFilter(AbstractSubjectFilter* su
 
 QList<Qtilities::Core::AbstractSubjectFilter*> Qtilities::Core::Observer::subjectFilters() const {
     return observerData->subject_filters;
+}
+
+bool Qtilities::Core::Observer::hasSubjectFilter(const QString& filter_name) const {
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        if (observerData->subject_filters.at(i)->filterName() == filter_name)
+            return true;
+    }
+
+    return false;
 }
 
 Qtilities::Core::ObserverHints* const Qtilities::Core::Observer::displayHints() const {
@@ -1608,7 +1675,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
         if (contains(object) && monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
             // Check if property change monitoring is enabled.
             // Property changes from within observer sets this to true before changing properties.
-            if (observerData->ignore_dynamic_property_changes) {
+            if (!observerData->filter_subject_events_enabled) {
                 return false;
             }
 
@@ -1641,7 +1708,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             if (!filter_event && !is_filter_property) {
                 // We need to do two things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-                if (observerData->deliver_qtilties_property_changed_events) {
+                if (observerData->deliver_qtilities_property_changed_events) {
                     QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
                     QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
                     QCoreApplication::postEvent(object,user_event);

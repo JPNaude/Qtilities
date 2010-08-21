@@ -43,6 +43,7 @@
 #include "IExportable.h"
 #include "IFactory.h"
 #include "IModificationNotifier.h"
+#include "SubjectTypeFilter"
 
 #include <QObject>
 #include <QString>
@@ -152,6 +153,8 @@ namespace Qtilities {
               In these cases filtering is disabled temporarily. Note that disabling also disables event
               filtering in all subject filters.
 
+              \param toggle True is event filtering is enabled, thus property changes are monitored by the observer. False otherwise.
+
               \note Event filtering is enabled by default.
               */
             void toggleSubjectEventFiltering(bool toggle);
@@ -169,20 +172,22 @@ namespace Qtilities {
             bool qtilitiesPropertyChangeEventsEnabled() const;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
 
             // --------------------------------
-            // IExportable Implemenation
+            // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             IFactoryData factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:
@@ -436,6 +441,28 @@ namespace Qtilities {
                 return prop.isValid();
             }
 
+            //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
+            /*!
+              \sa Qtilities::Core::SubjectTypeInfo
+              */
+            bool isSupportedType(const QString& meta_type, Observer* observer) {
+                if (!observer)
+                    return false;
+
+                // Check if this observer has a subject type filter installed
+                for (int i = 0; i < observer->subjectFilters().count(); i++) {
+                    SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
+                    if (subject_type_filter) {
+                        if (subject_type_filter->isKnownType(meta_type)) {
+                            return true;
+                        }
+                        break;
+                    }
+                }
+
+                return false;
+            }
+
         private:
             //! This function will remove this observer from all the properties which it might have added to an obj.
             void removeObserverProperties(QObject* obj);
@@ -517,6 +544,10 @@ namespace Qtilities {
             /*!
               The observer will take ownership of the subject filter object and delete it in its constructor.
               Subject filters can only be installed when the observer has no subjects attached to it.
+
+              Subject filter names are unique in the context of an observer. This ensures that two filters of the
+              same type cannot be installed in the same context. This function will check that the filterName() of
+              \p subject_filter is unique and then add it. If it is not, the function will fail.
               */
             bool installSubjectFilter(AbstractSubjectFilter* subject_filter);
             //! Uninstalls a subject filter.
@@ -526,6 +557,8 @@ namespace Qtilities {
             bool uninstallSubjectFilter(AbstractSubjectFilter* subject_filter);
             //! Provides a list of all installed subject filters.
             QList<AbstractSubjectFilter*> subjectFilters() const;
+            //! Function to check if a subject filter with the specified name already exists in this context.
+            bool hasSubjectFilter(const QString& filter_name) const;
 
             // --------------------------------
             // Observer hints related functions
