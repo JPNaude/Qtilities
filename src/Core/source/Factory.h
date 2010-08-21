@@ -122,7 +122,8 @@ namespace Qtilities {
 
               //! Registers a new factory interface implementation. The string 'factory_tag' can be used to generate instances of this implementation.
               /*!
-                \param contexts The contexts in which the factory can produce a specific interface.
+                \param interface The factory item interface.
+                \param iface_data A structure providing information about the factory item interface.
                 */
               void registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceData iface_data) {
                   if (!iface_data.tag.isEmpty()) {
