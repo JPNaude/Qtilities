@@ -96,24 +96,6 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
     return -1;
 }
 
-bool Qtilities::Core::ObjectManager::isSupportedType(const QString& meta_type, Observer* observer) {
-    if (!observer)
-        return false;
-
-    // Check if this observer has a subject type filter installed
-    for (int i = 0; i < observer->subjectFilters().count(); i++) {
-        SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
-        if (subject_type_filter) {
-            if (subject_type_filter->isKnownType(meta_type)) {
-                return true;
-            }
-            break;
-        }
-    }
-
-    return false;
-}
-
 Qtilities::Core::Observer* Qtilities::Core::ObjectManager::observerReference(int id) const {
     if (d->observer_map.contains(id)) {
         return d->observer_map.value(id);
@@ -178,6 +160,14 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj) {
     if (d->object_pool.attachSubject(obj))
         emit newObjectAdded(obj);
+}
+
+Qtilities::Core::AbstractSubjectFilter* Qtilities::Core::ObjectManager::createSubjectFilter(const QString& filter_tag) {
+    return d->subject_filter_factory.createInstance(filter_tag);
+}
+
+void Qtilities::Core::ObjectManager::registerSubjectFilter(FactoryInterface<AbstractSubjectFilter>* interface, FactoryInterfaceData iface_data) {
+    d->subject_filter_factory.registerFactoryInterface(interface,iface_data);
 }
 
 void Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
@@ -426,7 +416,13 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
                 RelationalTableEntry* entry = table.entryWithPreviousSessionID(prev_session_id);
                 if (!entry) {
                     LOG_ERROR(QString(QObject::tr("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1")).arg(prev_session_id));
-                    // This should only be an error and we must continue.
+                    // If you get here on custom properties added by subject filters, make sure you handle the
+                    // import_cycle parameter correctly when initializing and finalizing attachments. What normally
+                    // happens is that the filter adds the property again with the current session ID. This check
+                    // will notice this because it looks at the new property, not the old correct property.
+                    for (int i = 0; i < observer_list.count(); i++) {
+                        observer_list.at(i)->toggleSubjectEventFiltering(true);
+                    }
                     return false;
                 }
 
@@ -583,6 +579,8 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     if (!obs)
         return IExportable::Failed;
 
@@ -633,6 +631,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager::importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output, QList<QVariant> params) {
+    Q_UNUSED(params)
+
     if (!obs)
         return IExportable::Failed;
 
@@ -680,7 +680,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // Once everything is done we look at result to see if it was succesfull.
     if (result == IExportable::Incomplete) {
-        LOG_WARNING(tr("Design files for design (") + obs->observerName() + tr(") was partially reconstructed. Loaded set of design files will be incomplete."));
+        LOG_WARNING(tr("Observer (") + obs->observerName() + tr(") was partially reconstructed. Reconstructed context will be incomplete."));
     } else if (result == IExportable::Failed) {
         // Handle deletion of internal_import_list;
         // Delete the first item in the list (the top item) and the rest should be deleted.

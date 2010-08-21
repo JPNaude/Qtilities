@@ -49,9 +49,13 @@ namespace Qtilities {
           \struct SubjectTypeInfo
           \brief The SubjectTypeInfo structure is used to define subject types.
 
-          The d_meta_type property property must match the metaObject->className() string of the QObject.
+          The SubjectTypeInfo structure defines a subject type in the context of an observer and is used by the
+          Qtilities::Core::SubjectTypeFilter to filter subject types within an observer context.
+
+          \note The d_meta_type property property must match the metaObject->className() string of the QObject.
          */
         struct SubjectTypeInfo {
+        public:
             SubjectTypeInfo() {}
             SubjectTypeInfo(QString meta_type, QString name = QString()) {
                 d_meta_type = meta_type;
@@ -96,15 +100,16 @@ namespace Qtilities {
             // IObjectManager Implemenation
             // --------------------------------
             Observer* observerReference(int id) const;
-            bool isSupportedType(const QString& meta_type, Observer* observer);
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id);
             void registerObject(QObject* obj);
+            AbstractSubjectFilter* createSubjectFilter(const QString& filter_tag);
+            void registerSubjectFilter(FactoryInterface<AbstractSubjectFilter>* interface, FactoryInterfaceData iface_data);
             void registerIFactory(IFactory* factory_iface);
             IFactory* factoryReference(const QString& tag) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
-            QList<QObject*> metaTypeActiveObjects(const QString& subject_type) const;
-            void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list = QStringList(), bool inversed_list = false);
+            QList<QObject*> metaTypeActiveObjects(const QString& meta_type) const;
+            void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type, const QStringList& filter_list = QStringList(), bool inversed_list = false);
             bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const;
             bool importObjectProperties(QObject* new_instance, QDataStream& stream) const;
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& table) const;
