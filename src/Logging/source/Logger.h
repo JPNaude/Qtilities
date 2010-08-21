@@ -66,13 +66,9 @@ namespace Qtilities {
             ~Logger();
             //! Initializes the logger.
             /*!
-                When restore_config is true, the initialization will check the logger's rememberSessionConfig() setting and load the previous session.
-                It is usefull to pass false to restore_config when more log widgets are going to be added after the intitial initialize call.
-                In that situation it is up to the user to call the loadSessionConfig() and checking the rememberSessionConfig() setting manually.
-
                 \sa LOG_INITIALIZE, finalize()
                 */
-            void initialize(bool restore_config = true);
+            void initialize();
             //! Finalizes the engine.
             /*!
               This saves the current session configuration.
@@ -286,7 +282,7 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
     The initialization will create default formatting and logger engines for you. When rememberSessionConfig() is true, the initialization will also restore your previous configuration.
     \sa Qtilities::Logging::Logger::initialize()
     */
-#define LOG_INITIALIZE(restore_config) Log->initialize(restore_config)
+#define LOG_INITIALIZE() Log->initialize()
 //! Finalizes the logger.
 /*!
     The finalization will store your logging parameters and also clean up the logger, thus it will delete all engines.
@@ -294,7 +290,6 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
     */
 #define LOG_FINALIZE() Log->finalize();
 
-// - Plain logging
 //! Logs a trace message to all active engines.
 /*!
     \note Trace messages are not part of release mode builds.

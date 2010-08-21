@@ -89,7 +89,7 @@ Qtilities::Logging::Logger::~Logger()
     delete d;
 }
 
-void Qtilities::Logging::Logger::initialize(bool restore_config) {
+void Qtilities::Logging::Logger::initialize() {
     if (d->initialized)
         return;
 
@@ -124,7 +124,7 @@ void Qtilities::Logging::Logger::initialize(bool restore_config) {
     readSettings();
 
     // Now load the logger config if neccesarry.
-    if (d->remember_session_config && restore_config) {
+    if (d->remember_session_config) {
         loadSessionConfig();
     }
 
@@ -251,19 +251,19 @@ QString Qtilities::Logging::Logger::defaultFormattingEngine() {
 }
 
 bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_logger_engine, bool initialize_engine) {
-    if (new_logger_engine) {
-        d->logger_engines << new_logger_engine;
-        connect(this,SIGNAL(newMessage(QString,Logger::MessageType,QList<QVariant>)),new_logger_engine,SLOT(newMessages(QString,Logger::MessageType,QList<QVariant>)));
-    } else
-        return false;
-
     if (initialize_engine) {
         bool init_result = new_logger_engine->initialize();
         if (!init_result) {
             LOG_ERROR("New file logger engine could not be added, it failed during initialization.");
             delete new_logger_engine;
+            new_logger_engine = 0;
             return false;
         }
+    }
+
+    if (new_logger_engine) {
+        d->logger_engines << new_logger_engine;
+        connect(this,SIGNAL(newMessage(QString,Logger::MessageType,QList<QVariant>)),new_logger_engine,SLOT(newMessages(QString,Logger::MessageType,QList<QVariant>)));
     }
 
     emit loggerEngineCountChanged(new_logger_engine, EngineAdded);
@@ -400,8 +400,10 @@ int Qtilities::Logging::Logger::attachedLoggerEngineCount() {
 
 Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngineReference(const QString& engine_name) {
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        if (engine_name == d->logger_engines.at(i)->name())
-            return d->logger_engines.at(i);
+        if (d->logger_engines.at(i)) {
+            if (engine_name == d->logger_engines.at(i)->name())
+                return d->logger_engines.at(i);
+        }
     }
     return 0;
 }
@@ -715,7 +717,8 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
         }
 
         for (int i = 0; i < count; i++) {
-            attachLoggerEngine(engine_list.at(i));
+            if (!attachLoggerEngine(engine_list.at(i)))
+                success = false;
         }
     } else {
         for (int i = 0; i < count; i++) {
