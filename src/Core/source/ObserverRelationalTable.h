@@ -224,6 +224,9 @@ namespace Qtilities {
 
             //! Gets the visitor ID of an object. Returns -1 if no visitor ID exists.
             static int getVisitorID(QObject* obj) {
+                if (!obj)
+                    return -1;
+
                 QVariant prop_variant = obj->property(OBSERVER_VISITOR_ID);
                 if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
                     SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
