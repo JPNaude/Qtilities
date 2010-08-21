@@ -10,22 +10,11 @@ include(../../Qtilities.pri)
 QT       += core
 QT       += gui
 
-TARGET = BuildingTreeStructures$${name}
+TARGET = BuildingTreeStructures
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/BuildingTreeStructures
-
-# ------------------------------
-# Qtilities Library Dependancies
-# ------------------------------
-equals(BUILD_MODE, release) {
-    LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-    LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-} else {
-    LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-    LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-}
 
 # ------------------------------
 # Temp Output Paths

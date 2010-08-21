@@ -18,10 +18,10 @@ CONFIG += qt \
 QT += core
 QT -= gui
 
-equals(BUILD_MODE, release) {
-    TARGET = QtilitiesLogging$${QTILITIES_FILE_VER}
-} else {
+CONFIG(debug, debug|release) {
     TARGET = QtilitiesLoggingd$${QTILITIES_FILE_VER}
+} else {
+    TARGET = QtilitiesLogging$${QTILITIES_FILE_VER}
 }
 
 TEMPLATE = lib

@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion("0.1");
 
     // Initialize the logger.
-    LOG_INITIALIZE(false);
+    LOG_INITIALIZE();
     // We want to capture all messages <= Trace level.
     Log->setGlobalLogLevel(Logger::Trace);
 

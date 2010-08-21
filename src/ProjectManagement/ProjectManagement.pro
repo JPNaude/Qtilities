@@ -13,13 +13,14 @@ INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
 CONFIG += qt \
     dll \
     ordered
+
 QT += core
 #QT -= gui
 
-equals(BUILD_MODE, release) {
-    TARGET = QtilitiesProjectManagement$${QTILITIES_FILE_VER}
-} else {
+CONFIG(debug, debug|release) {
     TARGET = QtilitiesProjectManagementd$${QTILITIES_FILE_VER}
+} else {
+    TARGET = QtilitiesProjectManagement$${QTILITIES_FILE_VER}
 }
 
 TEMPLATE = lib

@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Initialize the logger.
-    LOG_INITIALIZE(false);
+    LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
     // Create menu related things.

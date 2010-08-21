@@ -10,7 +10,7 @@ QTILITIES += extension_system
 include(../../Qtilities.pri)
 
 TARGET = PluginTemplate
-DESTDIR = $$QTILITIES_BIN/Plugins/PluginTemplate
+DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += PLUGIN_TEMPLATE_LIBRARY
 CONFIG += plugin

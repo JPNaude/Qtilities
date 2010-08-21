@@ -192,6 +192,8 @@ QString Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::initializeString
 }
 
 QString Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
+    Q_UNUSED(message_type)
+
     QString message = QString();
     message.append(QString("%1\n").arg(messages.front().toString()));
     return message;

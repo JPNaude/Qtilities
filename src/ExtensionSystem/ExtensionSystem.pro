@@ -17,10 +17,10 @@ CONFIG += qt \
 QT += core
 #QT -= gui
 
-equals(BUILD_MODE, release) {
-    TARGET = QtilitiesExtensionSystem$${QTILITIES_FILE_VER}
-} else {
+CONFIG(debug, debug|release) {
     TARGET = QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
+} else {
+    TARGET = QtilitiesExtensionSystem$${QTILITIES_FILE_VER}
 }
 
 TEMPLATE = lib
