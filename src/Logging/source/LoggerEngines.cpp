@@ -73,8 +73,17 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
     }
 
     if (!abstractLoggerEngineData->formatting_engine) {
-        LOG_ERROR(QString(tr("Failed to initialize file logger engine (%1): This engine does not have a formatting engine installed...").arg(objectName())));
-        return false;
+        // Attempt to get the formatting engine with the specified file format.
+        QFileInfo fi(file_name);
+        QString extension = fi.fileName().split(".").last();
+        AbstractFormattingEngine* formatting_engine_inst = Log->formattingEngineReferenceFromExtension(extension);
+        if (!formatting_engine_inst) {
+            // We assign a default formatting engine:
+            abstractLoggerEngineData->formatting_engine = Log->formattingEngineReference(FORMATTING_ENGINE_DEFAULT);
+            LOG_INFO(QString(tr("Assigning default formatting engine to file logger engine (%1).").arg(objectName())));
+        } else {
+            abstractLoggerEngineData->formatting_engine = formatting_engine_inst;
+        }
     }
 
     QFile file(file_name);
