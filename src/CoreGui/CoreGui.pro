@@ -16,10 +16,10 @@ CONFIG += qt \
     ordered
 QT += xml
 
-equals(BUILD_MODE, release) {
-    TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
-} else {
+CONFIG(debug, debug|release) {
     TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
+} else {
+    TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
 }
 
 TEMPLATE = lib
@@ -40,10 +40,12 @@ LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
 PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
 DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
 INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
-equals(BUILD_MODE, release) {
-    LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
+CONFIG(debug, debug|release) {
+    win32: LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
+    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-2.5d
 } else {
-    LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
+    win32: LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
+    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-2.5
 }
 
 # --------------------------
@@ -59,6 +61,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/NamingPolicyInputDialog.h \
     source/NamingPolicyFilter.h \
     source/AbstractObserverItemModel.h \
+    source/AbstractObserverTableModel.h \    
+    source/AbstractObserverTreeModel.h \
     source/ObserverTableModel.h \
     source/ObserverTreeModel.h \
     source/ObjectScopeWidget.h \
@@ -101,6 +105,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/NamingPolicyInputDialog.cpp \
     source/NamingPolicyFilter.cpp \
     source/AbstractObserverItemModel.cpp \
+    source/AbstractObserverTableModel.cpp \
+    source/AbstractObserverTreeModel.cpp \
     source/ObserverTableModel.cpp \
     source/ObserverTreeModel.cpp \
     source/ObjectScopeWidget.cpp \
