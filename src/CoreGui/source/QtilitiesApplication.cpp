@@ -37,20 +37,27 @@
 #include "ActionManager.h"
 #include "ClipboardManager.h"
 #include "AboutWindow.h"
+#include "NamingPolicyFilter.h"
 
 #include <QtilitiesCoreApplication_p.h>
 #include <Qtilities.h>
+#include <Factory>
 
 #include <QMutex>
 #include <QMessageBox>
 
 using namespace Qtilities::Core;
+using namespace Qtilities::CoreGui::Constants;
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::m_Instance = 0;
 
 Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char ** argv) : QApplication(argc, argv) {
     if (!m_Instance) {
         m_Instance = this;
+
+        // Register the naming policy filter in the object manager:
+        FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER,QStringList(tr("Subject Filters")));
+        QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }
@@ -61,52 +68,31 @@ Qtilities::CoreGui::QtilitiesApplication::~QtilitiesApplication() {
 }
 
 Qtilities::Core::Interfaces::IObjectManager* const Qtilities::CoreGui::QtilitiesApplication::objectManager() {
-    if (!QtilitiesApplication::hasInstance("objectManager"))
-        return 0;
-    else
-        return QtilitiesCoreApplicationPrivate::instance()->objectManager();
+     return QtilitiesCoreApplicationPrivate::instance()->objectManager();
 }
 
 Qtilities::Core::Interfaces::IContextManager* const Qtilities::CoreGui::QtilitiesApplication::contextManager() {
-    if (!QtilitiesApplication::hasInstance("contextManager"))
-        return 0;
-    else
-        return QtilitiesCoreApplicationPrivate::instance()->contextManager();
+    return QtilitiesCoreApplicationPrivate::instance()->contextManager();
 }
 
 Qtilities::CoreGui::Interfaces::IActionManager* const Qtilities::CoreGui::QtilitiesApplication::actionManager() {
-    if (!QtilitiesApplication::hasInstance("actionManager"))
-        return 0;
-    else
-        return QtilitiesApplicationPrivate::instance()->actionManager();
+    return QtilitiesApplicationPrivate::instance()->actionManager();
 }
 
 Qtilities::CoreGui::Interfaces::IClipboard* const Qtilities::CoreGui::QtilitiesApplication::clipboardManager() {
-    if (!QtilitiesApplication::hasInstance("clipboardManager"))
-        return 0;
-    else
-        return QtilitiesApplicationPrivate::instance()->clipboardManager();
+    return QtilitiesApplicationPrivate::instance()->clipboardManager();
 }
 
 void Qtilities::CoreGui::QtilitiesApplication::setMainWindow(QMainWindow* mainWindow) {
-    if (!QtilitiesApplication::hasInstance("setMainWindow"))
-        return;
-    else
-        QtilitiesApplicationPrivate::instance()->setMainWindow(mainWindow);
+    QtilitiesApplicationPrivate::instance()->setMainWindow(mainWindow);
 }
 
 QMainWindow* const Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
-    if (!QtilitiesApplication::hasInstance("mainWindow"))
-        return 0;
-    else
-        return QtilitiesApplicationPrivate::instance()->mainWindow();
+    return QtilitiesApplicationPrivate::instance()->mainWindow();
 }
 
 QString Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersion() {
-    if (!QtilitiesApplication::hasInstance("qtilitiesVersion"))
-        return 0;
-    else
-        return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance() {
@@ -140,17 +126,13 @@ bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent *
 }
 
 void Qtilities::CoreGui::QtilitiesApplication::aboutQtilities() {
-    if (!QtilitiesApplication::hasInstance("mainWindow"))
-        return;
-    else {
-        AboutWindow* about_window = new AboutWindow();
-        about_window->setWebsite("http://www.qtilities.org");
-        about_window->setAttribute(Qt::WA_DeleteOnClose);
-        about_window->setExtendedDescription(tr("This application uses the Qtilities libraries. For more information see the link below."));
-        about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion());
+    AboutWindow* about_window = new AboutWindow();
+    about_window->setWebsite("http://www.qtilities.org");
+    about_window->setAttribute(Qt::WA_DeleteOnClose);
+    about_window->setExtendedDescription(tr("This application uses the Qtilities libraries. For more information see the link below."));
+    about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion());
 
-        about_window->setWindowTitle(tr("About Qtilities"));
-        about_window->show();
-    }
+    about_window->setWindowTitle(tr("About Qtilities"));
+    about_window->show();
 }
 
