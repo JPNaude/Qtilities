@@ -53,6 +53,7 @@
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Properties;
+using namespace Qtilities::Core::Constants;
 
 // ----------------------------------------------------------------------------------------
 // NAMING POLICY SUBJECT FILTER
@@ -198,6 +199,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         return false;
     }
 
+    if (import_cycle)
+        return true;
+
     d->rollback_name = obj->objectName();
 
     // Get name of new subject/object
@@ -270,6 +274,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
+    if (import_cycle)
+        return;
+
     if (!attachment_successful) {
         // Undo possible name changes that happened in initializeAttachment()
         if (isObjectNameManager(obj)) {
@@ -292,6 +299,8 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bo
 }
 
 Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateDetachment(QObject* obj) const {
+    Q_UNUSED(obj)
+
     return AbstractSubjectFilter::Allowed;
 }
 
@@ -435,18 +444,36 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::exportFilterSpecificBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_NAMING_POLICY_FILTER,objectName());
+    return factoryData;
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::NamingPolicyFilter::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    IFactoryData factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
     stream << d->rollback_name;
     stream << (quint32) d->uniqueness_policy;
     stream << (quint32) d->uniqueness_resolution_policy;
     stream << (quint32) d->validity_resolution_policy;
 
-    return true;
+    return IExportable::Complete;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::importFilterSpecificBinary(QDataStream& stream) {
-    stream >> d->rollback_name;
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
 
+    stream >> d->rollback_name;
     quint32 ui32;
     stream >> ui32;
     d->uniqueness_policy = (UniquenessPolicy) ui32;
@@ -455,7 +482,23 @@ bool Qtilities::CoreGui::NamingPolicyFilter::importFilterSpecificBinary(QDataStr
     stream >> ui32;
     d->validity_resolution_policy = (ResolutionPolicy) ui32;
 
-    return true;
+    return IExportable::Complete;
+}
+
+bool Qtilities::CoreGui::NamingPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::CoreGui::NamingPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) {
@@ -825,6 +868,8 @@ struct Qtilities::CoreGui::NamingPolicyDelegateData {
 };
 
 Qtilities::CoreGui::NamingPolicyDelegate::NamingPolicyDelegate(QObject *parent) {
+    Q_UNUSED(parent)
+
     d = new NamingPolicyDelegateData;
     d->observer = 0;
     d->naming_filter = 0;
@@ -845,11 +890,14 @@ void Qtilities::CoreGui::NamingPolicyDelegate::setObserverContext(Observer* obse
     }
 }
 
-Qtilities::CoreGui::Observer* Qtilities::CoreGui::NamingPolicyDelegate::observerContext() const {
+Qtilities::Core::Observer* Qtilities::CoreGui::NamingPolicyDelegate::observerContext() const {
     return d->observer;
 }
 
 QWidget *Qtilities::CoreGui::NamingPolicyDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+
     QLineEdit *editor = new QLineEdit(parent);
     connect(editor,SIGNAL(textChanged(QString)),SLOT(on_LineEdit_TextChanged(QString)));
 
@@ -881,6 +929,8 @@ void Qtilities::CoreGui::NamingPolicyDelegate::setModelData(QWidget *editor, QAb
 }
 
 void Qtilities::CoreGui::NamingPolicyDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+    Q_UNUSED(index)
+
      editor->setGeometry(option.rect);
 }
 

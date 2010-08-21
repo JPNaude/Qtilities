@@ -35,6 +35,7 @@
 #define NAMINGPOLICYFILTER_H
 
 #include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCoreGuiConstants"
 
 #include <AbstractSubjectFilter.h>
 #include <IModificationNotifier>
@@ -47,6 +48,7 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
         using namespace Qtilities::Core::Interfaces;
+        using namespace Qtilities::CoreGui::Constants;
         class NamingPolicyInputDialog;
 
         /*!
@@ -110,7 +112,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         public:
             NamingPolicyFilter(QObject* parent = 0);
             ~NamingPolicyFilter();
-            QString filterName() { return tr("Naming Policy Filter"); }
+            QString filterName() { return FACTORY_TAG_NAMING_POLICY_FILTER; }
 
             //! Policy to control uniqueness of subject names in the observer context in which this filter is installed.
             /*!
@@ -154,13 +156,37 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             bool initializeAttachment(QObject* obj, bool import_cycle);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
             AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
-            bool initializeDetachment(QObject* obj, bool subject_deleted = false) { return true; }
+            bool initializeDetachment(QObject* obj, bool subject_deleted = false) { Q_UNUSED(obj); Q_UNUSED(subject_deleted); return true; }
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
 
             QStringList monitoredProperties() const;
             QStringList reservedProperties() const;
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            ExportModeFlags supportedFormats() const;
+            IFactoryData factoryData() const;
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
 
         public:
             // --------------------------------
@@ -180,9 +206,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_validity_resolution_policy);
             //! Gets the naming validity conflict policy used by this subject filter.
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
-
-            bool exportFilterSpecificBinary(QDataStream& stream) const;
-            bool importFilterSpecificBinary(QDataStream& stream);
 
             //! Evaluates a name in the observer context in which this subject filter is installed.
             NamingPolicyFilter::NameValidity evaluateName(QString name) const;
@@ -223,20 +246,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void endValidationCycle();
             //! Returns true if a validation cycle is active at present.
             bool isValidationCycleActive() const;
-
-            // --------------------------------
-            // IObjectBase Implemenation
-            // --------------------------------
-            QObject* objectBase() { return this; }
-
-            // --------------------------------
-            // IModificationNotifier Implemenation
-            // --------------------------------
-            bool isModified() const;
-        public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
-        signals:
-            void modificationStateChanged(bool is_modified) const;
 
         private:
             //! Attempt to assign a new name manager to the object, other than this filter.
