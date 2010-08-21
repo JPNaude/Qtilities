@@ -33,7 +33,7 @@
 
 #include "ObjectManagementModeWidget.h"
 #include "ui_ObjectManagementModeWidget.h"
-#include "ObserverStringSubject.h"
+#include "ObserverTreeItem.h"
 
 #include <QtilitiesProjectManagement>
 
@@ -89,7 +89,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     OBJECT_MANAGER->registerIFactory(this);
     FactoryInterfaceData observer_string_subject_data("Observer String Subject",QStringList(),QStringList());
-    d->string_subject_factory.registerFactoryInterface(&ObserverStringSubject::factory,observer_string_subject_data);
+    d->string_subject_factory.registerFactoryInterface(&ObserverTreeItem::factory,observer_string_subject_data);
 
     d->project_item = new ObserverProjectItemWrapper(this);
     d->project_item->setObserverContext(d->top_level_observer);
@@ -184,12 +184,13 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
             if (new_item_selection == "Observer Subject String") {
                 QString subject_name = QInputDialog::getText(this, tr("Name of object:"), QString("Provide a name for the new object:"), QLineEdit::Normal, "new_object",&ok);
                 if (ok && !subject_name.isEmpty()) {
-                    ObserverStringSubject* new_subject = new ObserverStringSubject(subject_name);
+                    ObserverTreeItem* new_subject = new ObserverTreeItem(subject_name);
                     QString subject_category;
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                             subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
                             ObserverProperty object_category(OBJECT_CATEGORY);
+                            object_category.setIsExportable(true);
                             object_category.setValue(QVariant(subject_category),observer->observerID());
                             QVariant object_category_variant = qVariantFromValue(object_category);
                             new_subject->setProperty(object_category.propertyName(),object_category_variant);
@@ -251,20 +252,23 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_1->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     new_observer_1->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     // Naming policy filter
-    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    new_observer_1->installSubjectFilter(naming_filter);
+    AbstractSubjectFilter* filter = OBJECT_MANAGER->createSubjectFilter(FACTORY_TAG_NAMING_POLICY_FILTER);
+    NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (filter);
+    if (naming_filter) {
+        naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+        new_observer_1->installSubjectFilter(naming_filter);
+    }
     new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Add example QObjects to "QObject Manager 1"
-    ObserverStringSubject* new_subject_1 = new ObserverStringSubject("ObserverStringSubject 1");
+    ObserverTreeItem* new_subject_1 = new ObserverTreeItem("ObserverTreeItem 1");
     new_observer_1->attachSubject(new_subject_1,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_2 = new ObserverStringSubject("ObserverStringSubject 2");
+    ObserverTreeItem* new_subject_2 = new ObserverTreeItem("ObserverTreeItem 2");
     new_observer_1->attachSubject(new_subject_2,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_3 = new ObserverStringSubject("ObserverStringSubject 3");
+    ObserverTreeItem* new_subject_3 = new ObserverTreeItem("ObserverTreeItem 3");
     new_observer_1->attachSubject(new_subject_3,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_4 = new ObserverStringSubject("ObserverStringSubject 4");
+    ObserverTreeItem* new_subject_4 = new ObserverTreeItem("ObserverTreeItem 4");
     new_observer_1->attachSubject(new_subject_4,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_5 = new ObserverStringSubject("ObserverStringSubject 5");
+    ObserverTreeItem* new_subject_5 = new ObserverTreeItem("ObserverTreeItem 5");
     new_observer_1->attachSubject(new_subject_5,Observer::SpecificObserverOwnership);
     new_observer_1->endProcessingCycle();
 
@@ -293,15 +297,15 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_2->installSubjectFilter(naming_filter);
     new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Add example QObjects to "QObject Manager 2"
-    ObserverStringSubject* new_subject_6 = new ObserverStringSubject("ObserverStringSubject 6");
+    ObserverTreeItem* new_subject_6 = new ObserverTreeItem("ObserverTreeItem 6");
     new_observer_2->attachSubject(new_subject_6,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_7 = new ObserverStringSubject("ObserverStringSubject 7");
+    ObserverTreeItem* new_subject_7 = new ObserverTreeItem("ObserverTreeItem 7");
     new_observer_2->attachSubject(new_subject_7,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_8 = new ObserverStringSubject("ObserverStringSubject 8");
+    ObserverTreeItem* new_subject_8 = new ObserverTreeItem("ObserverTreeItem 8");
     new_observer_2->attachSubject(new_subject_8,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_9 = new ObserverStringSubject("ObserverStringSubject 9");
+    ObserverTreeItem* new_subject_9 = new ObserverTreeItem("ObserverTreeItem 9");
     new_observer_2->attachSubject(new_subject_9,Observer::SpecificObserverOwnership);
-    ObserverStringSubject* new_subject_10 = new ObserverStringSubject("ObserverStringSubject 10");
+    ObserverTreeItem* new_subject_10 = new ObserverTreeItem("ObserverTreeItem 10");
     new_observer_2->attachSubject(new_subject_10,Observer::SpecificObserverOwnership);
     new_observer_2->endProcessingCycle();
 

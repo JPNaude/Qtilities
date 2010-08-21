@@ -8,7 +8,7 @@ QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
 
-TARGET = ObjectManagement$${QTILITIES_FILE_VER}
+TARGET = ObjectManagementExample
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/ObjectManagement
 
@@ -25,12 +25,12 @@ UI_DIR          = $$QTILITIES_TEMP/ObjectManagementExample
 # --------------------------
 HEADERS += ObjectManagementModeWidget.h \
     ObjectManagementMode.h \
-    ObserverStringSubject.h
+    ObserverTreeItem.h
 
 SOURCES += main.cpp \
     ObjectManagementModeWidget.cpp \
     ObjectManagementMode.cpp \
-    ObserverStringSubject.cpp
+    ObserverTreeItem.cpp
 
 FORMS += ObjectManagementModeWidget.ui
 

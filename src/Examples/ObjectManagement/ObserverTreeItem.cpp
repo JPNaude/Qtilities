@@ -31,51 +31,53 @@
 **
 ****************************************************************************/
 
-#include "ObserverStringSubject.h"
+#include "ObserverTreeItem.h"
 #include <Observer.h>
 #include <IFactory.h>
 
 using namespace Qtilities::Core::Interfaces;
 
-FactoryItem<QObject, Qtilities::Examples::ObjectManagement::ObserverStringSubject> Qtilities::Examples::ObjectManagement::ObserverStringSubject::factory;
+FactoryItem<QObject, Qtilities::Examples::ObjectManagement::ObserverTreeItem> Qtilities::Examples::ObjectManagement::ObserverTreeItem::factory;
 
-struct Qtilities::Examples::ObjectManagement::ObserverStringSubjectData {
-    ObserverStringSubjectData() : is_modified(false) {}
+struct Qtilities::Examples::ObjectManagement::ObserverTreeItemData {
+    ObserverTreeItemData() : is_modified(false) {}
 
     QString subject_string;
     bool is_modified;
 };
 
-Qtilities::Examples::ObjectManagement::ObserverStringSubject::ObserverStringSubject(const QString& string, QObject *parent) :
+Qtilities::Examples::ObjectManagement::ObserverTreeItem::ObserverTreeItem(const QString& string, QObject *parent) :
     QObject(parent)
 {
-    d = new ObserverStringSubjectData;
+    d = new ObserverTreeItemData;
     d->subject_string = string;
     setObjectName(string);
 }
 
-Qtilities::Examples::ObjectManagement::ObserverStringSubject::~ObserverStringSubject() {
+Qtilities::Examples::ObjectManagement::ObserverTreeItem::~ObserverTreeItem() {
     delete d;
 }
 
-void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setString(const QString& string) {
+void Qtilities::Examples::ObjectManagement::ObserverTreeItem::setString(const QString& string) {
     d->subject_string = string;
 }
 
-QString Qtilities::Examples::ObjectManagement::ObserverStringSubject::string() const {
+QString Qtilities::Examples::ObjectManagement::ObserverTreeItem::string() const {
     return d->subject_string;
 }
 
-Qtilities::Core::Observer::ExportModeFlags Qtilities::Examples::ObjectManagement::ObserverStringSubject::supportedFormats() const {
+Qtilities::Core::Observer::ExportModeFlags Qtilities::Examples::ObjectManagement::ObserverTreeItem::supportedFormats() const {
     return IExportable::Binary;
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Examples::ObjectManagement::ObserverStringSubject::factoryData() const {
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Examples::ObjectManagement::ObserverTreeItem::factoryData() const {
     IFactoryData factoryData("Example IFactory","Observer String Subject",objectName());
     return factoryData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverTreeItem::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     // Create IFactoryData
     IFactoryData factory_data = factoryData();
     factory_data.exportBinary(stream);
@@ -83,16 +85,35 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectMana
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverStringSubject::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverTreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(params)
+    Q_UNUSED(import_list)
+
     stream >> d->subject_string;
     return IExportable::Complete;
 }
 
-bool Qtilities::Examples::ObjectManagement::ObserverStringSubject::isModified() const {
+bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::isModified() const {
     return d->is_modified;
 }
 
-void Qtilities::Examples::ObjectManagement::ObserverStringSubject::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::Examples::ObjectManagement::ObserverTreeItem::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
     if (d->is_modified != new_state) {
         d->is_modified = new_state;
         if (notification_targets & IModificationNotifier::NotifyListeners)

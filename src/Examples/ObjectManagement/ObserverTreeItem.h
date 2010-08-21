@@ -47,20 +47,20 @@ namespace Qtilities {
             using namespace Qtilities::Core::Interfaces;
 
             /*!
-              \struct ObserverStringSubjectData
-              \brief The ObserverStringSubjectData struct stores private data used by the ObserverStringSubject class.
+              \struct ObserverTreeItemData
+              \brief The ObserverTreeItemData struct stores private data used by the ObserverTreeItem class.
              */
-            struct ObserverStringSubjectData;
+            struct ObserverTreeItemData;
 
             /*!
-            \class ObserverStringSubject
+            \class ObserverTreeItem
             \brief Provides an observer subject which can be used to build simple trees.
 
-            ObserverStringSubject classes can be used to build simple & exportable trees using the Observer architecture.
+            ObserverTreeItem classes can be used to build simple & exportable trees using the Observer architecture.
             Each instance can only be attach to a single observer at a time. The string is usually set in the constructor, or
             can be set using setString(). The current displayed string is retreived using string().
               */
-            class ObserverStringSubject : public QObject, public IExportable, public IModificationNotifier
+            class ObserverTreeItem : public QObject, public IExportable, public IModificationNotifier
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
@@ -69,8 +69,8 @@ namespace Qtilities {
                 Q_PROPERTY(bool Modified READ isModified());
 
             public:
-                explicit ObserverStringSubject(const QString& string = QString(), QObject *parent = 0);
-                ~ObserverStringSubject();
+                explicit ObserverTreeItem(const QString& string = QString(), QObject *parent = 0);
+                ~ObserverTreeItem();
 
                 //! Sets the string to be displayed.
                 void setString(const QString& string);
@@ -89,6 +89,8 @@ namespace Qtilities {
                 IFactoryData factoryData() const;
                 IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
                 IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+                bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+                bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
                 // --------------------------------
                 // IModificationNotifier Implemenation
@@ -104,10 +106,10 @@ namespace Qtilities {
                 // --------------------------------
                 // Factory Interface Implemenation
                 // --------------------------------
-                static FactoryItem<QObject, ObserverStringSubject> factory;
+                static FactoryItem<QObject, ObserverTreeItem> factory;
 
             private:
-                ObserverStringSubjectData* d;
+                ObserverTreeItemData* d;
 
             };
         }

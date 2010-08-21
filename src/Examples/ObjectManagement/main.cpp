@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Initialize the logger.
-    LOG_INITIALIZE(false);
+    LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
     // Create the menu bar and menus in the menu bar:
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     file_menu->addAction(command);
     file_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
-    // Create the configuration widget here and then connect it to the above command
+    // Create the configuration widget here and then connect it to the above command:
     ConfigurationWidget config_widget;
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
