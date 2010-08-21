@@ -46,10 +46,12 @@ namespace Qtilities {
             const char * const GLOBAL_OBJECT_POOL                   = "Qtilities.Core.ObjectPool";
             //! The string used by observers to group uncategorized subjects in the case where the observer has a hierarchical display hint.
             const char * const OBSERVER_UNCATEGORIZED_CATEGORY      = "Uncategorized";
+            //! %Factory name of factory which produces subject filters.
+            const char * const FACTORY_SUBJECT_FILTERS              = "Factory.SubjectFilters";
             //! %Factory tag for activity policy filters.
-            const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "FactoryTag.ActivityPolicyFilter";
+            const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "Activity Policy Filter";
             //! %Factory tag for subject type filters.
-            const char * const FACTORY_TAG_SUBJECT_TYPE_FILTER      = "FactoryTag.SubjectTypeFilter";
+            const char * const FACTORY_TAG_SUBJECT_TYPE_FILTER      = "Subject Type Filter";
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
             const char * const CONTEXT_STANDARD                     = "General.Standard";
         }
