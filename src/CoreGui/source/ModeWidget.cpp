@@ -34,6 +34,7 @@
 #include "ModeWidget.h"
 #include "ui_ModeWidget.h"
 #include "IMode.h"
+#include "TopToBottomList.h"
 
 #include <IContextManager.h>
 #include <QListWidgetItem>
@@ -42,6 +43,7 @@ struct Qtilities::CoreGui::ModeWidgetData {
     ModeWidgetData() {}
 
     QMap<QString, IMode*> name_widget_map;
+    TopToBottomList* modeList;
 };
 
 Qtilities::CoreGui::ModeWidget::ModeWidget(QWidget *parent) :
@@ -51,7 +53,15 @@ Qtilities::CoreGui::ModeWidget::ModeWidget(QWidget *parent) :
     ui->setupUi(this);
     d = new ModeWidgetData;
 
-    //connect(VisualWorkspaceGlobal::instance(),SIGNAL(currentModeChanged(int)),SLOT(handleModeChangeRequest(int)));
+    if (ui->modeListHolder->layout())
+        delete ui->modeListHolder->layout();
+
+    d->modeList = new TopToBottomList();
+    d->modeList->setViewMode(QListView::IconMode);
+
+    QHBoxLayout* holder_layout = new QHBoxLayout(ui->modeListHolder);
+    holder_layout->addWidget(d->modeList);
+    holder_layout->setMargin(0);
 }
 
 Qtilities::CoreGui::ModeWidget::~ModeWidget()
@@ -74,25 +84,25 @@ bool Qtilities::CoreGui::ModeWidget::addMode(IMode* mode, bool initialize_mode) 
         QIcon icon = mode->icon();
         //if (icon.isNull())
         //    icon =
-        QListWidgetItem* new_item = new QListWidgetItem(icon,mode->text(),ui->modeList);
-        ui->modeList->addItem(new_item);
+        QListWidgetItem* new_item = new QListWidgetItem(icon,mode->text(),d->modeList);
+        d->modeList->addItem(new_item);
         d->name_widget_map[mode->text()] = mode;
         mode->initialize();
 
         // We set the first mode we find to be active
         if (d->name_widget_map.count() == 1) {
-            connect(ui->modeList,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
-            ui->modeList->setCurrentItem(new_item);
+            connect(d->modeList,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
+            d->modeList->setCurrentItem(new_item);
         }
     }
 
-    ui->modeList->setMinimumWidth(ui->modeList->sizeHint().width()+10);
-    //ui->modeList->setMaximumWidth(ui->modeList->sizeHint().width()+25);
-    ui->modeList->setGridSize(ui->modeList->itemSizeHint());
+    d->modeList->setMinimumWidth(d->modeList->sizeHint().width()+10);
+    //d->modeList->setMaximumWidth(d->modeList->sizeHint().width()+25);
+    d->modeList->setGridSize(d->modeList->itemSizeHint());
 
-    ui->modeList->itemSizeHint();
-    for (int i = 0; i < ui->modeList->count(); i++ ) {
-        ui->modeList->item(i)->setSizeHint(ui->modeList->itemSizeHint());
+    d->modeList->itemSizeHint();
+    for (int i = 0; i < d->modeList->count(); i++ ) {
+        d->modeList->item(i)->setSizeHint(d->modeList->itemSizeHint());
     }
 
     return true;
@@ -127,7 +137,7 @@ void Qtilities::CoreGui::ModeWidget::handleModeChangeRequest(int new_mode) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->name_widget_map.count(); i++) {
         if (d->name_widget_map.values().at(i)->modeID() == new_mode) {
-            ui->modeList->setCurrentRow(i);
+            d->modeList->setCurrentRow(i);
             break;
         }
     }

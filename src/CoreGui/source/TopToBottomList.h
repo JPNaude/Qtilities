@@ -43,7 +43,7 @@
 class TopToBottomList : public QListWidget
 {
 public:
-    TopToBottomList(QWidget*&);
+    TopToBottomList(QWidget* parent = 0);
     virtual QSize sizeHint() const;
     QSize itemSizeHint() const;
 };
