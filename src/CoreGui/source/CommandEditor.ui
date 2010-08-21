@@ -162,6 +162,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>commandTable</tabstop>
+  <tabstop>txtSearchString</tabstop>
+  <tabstop>btnDefaults</tabstop>
+  <tabstop>btnImport</tabstop>
+  <tabstop>btnExport</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
