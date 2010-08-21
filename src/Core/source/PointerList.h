@@ -57,7 +57,7 @@ namespace Qtilities {
             //! Constructor.
             PointerListDeleter() : QObject() {}
             //! Copy constructor.
-            PointerListDeleter(const PointerListDeleter & other) : QObject() {}
+            PointerListDeleter(const PointerListDeleter & other) : QObject() { Q_UNUSED(other) }
 
         signals:
             //! Signal which is emitted when an object is removed.
@@ -111,6 +111,8 @@ namespace Qtilities {
              \param cleanup_when_done When true, the PointerList will delete all objects attached to it when it is destructed.
             */
             PointerList(bool cleanup_when_done = false, QObject *parent = 0) : QList<T*>() {
+                Q_UNUSED(parent)
+
                 cleanup_enabled = cleanup_when_done;
             }
 

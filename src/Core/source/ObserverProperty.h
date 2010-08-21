@@ -202,7 +202,7 @@ attach_success = my_observer_2->attachSubject(test_subject);
             SharedObserverProperty(QDataStream &ds) {
                 importSharedPropertyBinary(ds);
             }
-            SharedObserverProperty(const SharedObserverProperty& shared_property) {
+            SharedObserverProperty(const SharedObserverProperty& shared_property) : ObserverProperty(shared_property.propertyName()) {
                 name = shared_property.propertyName();
                 last_change_context = -1;
                 property_value = shared_property.value();
@@ -220,6 +220,8 @@ attach_success = my_observer_2->attachSubject(test_subject);
               \param observer_context Ignored since this is a shared property.
               */
             QVariant value(int observer_context = -1) const {
+                Q_UNUSED(observer_context)
+
                 return property_value;
             }
             //! Sets the value of the property.
@@ -228,6 +230,8 @@ attach_success = my_observer_2->attachSubject(test_subject);
               \param observer_context Ignored since this is a shared property.
               */
             void setValue(QVariant new_value, int observer_context = -1) {
+                Q_UNUSED(observer_context)
+
                 if (!new_value.isValid())
                     return;
 
