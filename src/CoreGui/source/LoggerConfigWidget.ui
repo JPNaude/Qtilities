@@ -86,6 +86,9 @@
             <property name="showGrid">
              <bool>false</bool>
             </property>
+            <property name="sortingEnabled">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="3" rowspan="4" colspan="4">
@@ -299,6 +302,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboGlobalLogLevel</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>checkBoxToggleAll</tabstop>
+  <tabstop>btnAddLoggerEngine</tabstop>
+  <tabstop>btnRemoveLoggerEngine</tabstop>
+  <tabstop>comboBoxLoggerFormattingEngine</tabstop>
+  <tabstop>checkBoxRememberSession</tabstop>
+  <tabstop>btnLoadConfig</tabstop>
+  <tabstop>btnSaveConfig</tabstop>
+  <tabstop>btnApply</tabstop>
+  <tabstop>tableViewLoggerEngines</tabstop>
+  <tabstop>txtLoggerEngineStatus</tabstop>
+  <tabstop>txtLoggerEngineDescription</tabstop>
+  <tabstop>listWidgetFormattingEngines</tabstop>
+  <tabstop>txtFormattingEnginePreview</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

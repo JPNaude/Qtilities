@@ -101,6 +101,7 @@ namespace Qtilities {
             void handle_BtnSaveConfigClicked();
             void handle_BtnLoadConfigClicked();
             void handle_BtnApplyClicked();
+            void resizeCommandTableRows();
 
         private:
             void refreshLoggerEngineInformation();

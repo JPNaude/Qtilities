@@ -76,6 +76,7 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     connect(ui->btnLoadConfig,SIGNAL(clicked()),SLOT(handle_BtnLoadConfigClicked()));
     connect(ui->btnSaveConfig,SIGNAL(clicked()),SLOT(handle_BtnSaveConfigClicked()));
     connect(ui->btnApply,SIGNAL(clicked()),SLOT(handle_BtnApplyClicked()));
+    connect(ui->tableViewLoggerEngines->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
 
     // Add log levels:
     QStringList list = Log->allLogLevelStrings();
@@ -271,6 +272,16 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnLoadConfigClicked() {
 void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnApplyClicked() {
     writeSettings();
     Log->saveSessionConfig();
+}
+
+void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
+    ui->tableViewLoggerEngines->sortByColumn(0,Qt::AscendingOrder);
+    for (int i = 0; i < d->logger_engine_model.rowCount(); i++) {
+        ui->tableViewLoggerEngines->setRowHeight(i,17);
+    }
+
+    // We also sort in here:
+    ui->tableViewLoggerEngines->sortByColumn(0,Qt::DescendingOrder);
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
