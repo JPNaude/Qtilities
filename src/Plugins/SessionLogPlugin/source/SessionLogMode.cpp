@@ -77,9 +77,6 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     connect(error_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
     d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,error_dock);
 
-    if (Log->rememberSessionConfig())
-        Log->loadSessionConfig();
-
     d->session_mode_widget->tabifyDockWidget(warning_dock,error_dock);
     d->session_mode_widget->tabifyDockWidget(error_dock,session_log_dock);
 
