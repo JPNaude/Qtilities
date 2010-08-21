@@ -53,7 +53,7 @@ namespace Qtilities {
                 d_source_id = source_id;
                 d_subject_list = subject_list;
             }
-            ObserverMimeData(const ObserverMimeData& other) : d_source_id(other.sourceID()),d_subject_list(other.subjectList()) {}
+            ObserverMimeData(const ObserverMimeData& other) : QMimeData(), d_source_id(other.sourceID()), d_subject_list(other.subjectList()) {}
 
             //! Gets the ID of the observer which populated the mime data object.
             int sourceID() const { return d_source_id; }
