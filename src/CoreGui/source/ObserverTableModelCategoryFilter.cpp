@@ -52,7 +52,7 @@ Qtilities::CoreGui::ObserverTableModelCategoryFilter::~ObserverTableModelCategor
 }
 
 bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
-    ObserverTableModel* table_model = qobject_cast<ObserverTableModel*> (sourceModel());
+    AbstractObserverTableModel* table_model = dynamic_cast<AbstractObserverTableModel*> (sourceModel());
 
     if (table_model) {
         QModelIndex name_index = sourceModel()->index(sourceRow, table_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);

@@ -123,9 +123,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     Qtilities::CoreGui::ObserverWidget::DisplayMode display_mode;
     QPointer<QTableView> table_view;
-    QPointer<ObserverTableModel> table_model;
+    AbstractObserverTableModel* table_model;
     QPointer<QTreeView> tree_view;
-    QPointer<ObserverTreeModel> tree_model;
+    AbstractObserverTreeModel* tree_model;
     QSortFilterProxyModel *proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
@@ -183,12 +183,14 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->action_toolbar = 0;
     d->display_mode = display_mode;
 
-    d->tree_view = 0;
     d->table_model = 0;
     d->table_view = 0;
-    d->tree_model = 0;
     d->table_name_column_delegate = 0;
+
+    d->tree_model = 0;
+    d->tree_view = 0;
     d->tree_name_column_delegate = 0;
+
     d->top_level_observer = 0;
     d->default_row_height = 17;
 
@@ -283,7 +285,7 @@ int Qtilities::CoreGui::ObserverWidget::topLevelObserverID() {
         return -1;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel* table_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(AbstractObserverTableModel* table_model) {
     if (d->initialized)
         return false;
 
@@ -297,7 +299,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel*
     return true;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* tree_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(AbstractObserverTreeModel* tree_model) {
     if (d->initialized)
         return false;
 
@@ -1145,26 +1147,28 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             if (d->current_selection.count() == 1) {
                 // Check if the selected object is an observer.
                 QObject* obj = d->current_selection.front();
-                Observer* observer = qobject_cast<Observer*> (obj);
-                if (!observer) {
-                    // Handle the cases where the current object has an observer child
-                    foreach (QObject* child, obj->children()) {
-                        Observer* child_observer = qobject_cast<Observer*> (child);
-                        if (child_observer) {
-                            observer = child_observer;
-                            // For now we break, when there is cases where an object has more than 1 observer child,
-                            // a pop up must prompt the user to choose which one to push into. This should however
-                            // not be neccesarry because the whole idea of allowing categorized observer subjects
-                            // is to avoid having multiple observer children. However if the need for it arises, this
-                            // code can be changed.
-                            break;
+                if (obj) {
+                    Observer* observer = qobject_cast<Observer*> (obj);
+                    if (!observer) {
+                        // Handle the cases where the current object has an observer child
+                        foreach (QObject* child, obj->children()) {
+                            Observer* child_observer = qobject_cast<Observer*> (child);
+                            if (child_observer) {
+                                observer = child_observer;
+                                // For now we break, when there is cases where an object has more than 1 observer child,
+                                // a pop up must prompt the user to choose which one to push into. This should however
+                                // not be neccesarry because the whole idea of allowing categorized observer subjects
+                                // is to avoid having multiple observer children. However if the need for it arises, this
+                                // code can be changed.
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (observer) {
-                    d->actionActionPushDown->setEnabled(true);
-                    d->actionActionPushDownNew->setEnabled(true);
+                    if (observer) {
+                        d->actionActionPushDown->setEnabled(true);
+                        d->actionActionPushDownNew->setEnabled(true);
+                    }
                 }
             }
         } else if (d->display_mode == TreeView) {
@@ -1987,6 +1991,8 @@ void Qtilities::CoreGui::ObserverWidget::selectSubjectsInTable(QList<QObject*> o
 
             selection_model->clearSelection();
             selection_model->select(item_selection,QItemSelectionModel::Select);
+            selectedObjects();
+            updateGlobalActiveSubjects();
         }
         d->update_selection_activity = true;
     }

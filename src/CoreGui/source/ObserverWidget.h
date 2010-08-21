@@ -38,13 +38,13 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "IActionProvider.h"
 #include "ObjectPropertyBrowser.h"
+#include "AbstractObserverTableModel.h"
+#include "AbstractObserverTreeModel.h"
 
 #include <Observer.h>
 #include <ObserverHints.h>
 #include <IContext.h>
 #include <Observer.h>
-#include <ObserverTableModel>
-#include <ObserverTreeModel>
 
 #include <QMainWindow>
 #include <QStack>
@@ -132,18 +132,24 @@ namespace Qtilities {
             bool eventFilter(QObject *object, QEvent *event);
             //! Function which sets a custom table model to be used in this widget when its in TableView mode.
             /*!
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTableModel as the model for the table view.
+              It is possible to create custom models which allows you to extend the default table model.
+
               \note This function must be called before initializing the widget for the first time.
 
               \returns True if the model was succesfully set.
               */
-            bool setCustomTableModel(ObserverTableModel* table_model);
+            bool setCustomTableModel(AbstractObserverTableModel* table_model);
             //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
             /*!
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModel as the model for the tree view.
+              It is possible to create custom models which allows you to extend the default tree model.
+
               \note This function must be called before initializing the widget for the first time.
 
               \returns True if the model was succesfully set.
               */
-            bool setCustomTreeModel(ObserverTreeModel* tree_model);
+            bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
         public slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
@@ -203,7 +209,7 @@ namespace Qtilities {
 
               \sa readSettings(), globalMetaType()
               */
-            void writeSettings();
+            virtual void writeSettings();
         public:
             //! Restores the widget to a previous state.
             /*!
@@ -211,7 +217,7 @@ namespace Qtilities {
 
               \sa writeSettings(), globalMetaType()
               */
-            void readSettings();
+            virtual void readSettings();
             //! Function which allows this observer widget to share global object activity with other observer widgets.
             /*!
               This function will allow this observer widget to share global object activity with other observer widgets.
@@ -495,7 +501,6 @@ namespace Qtilities {
         protected:
             void changeEvent(QEvent *e);
 
-        private:
             Ui::ObserverWidget *ui;
             ObserverWidgetData* d;
         };
