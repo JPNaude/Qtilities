@@ -42,6 +42,9 @@
 #include <QPointer>
 #include <QString>
 
+class QDomDocument;
+class QDomElement;
+
 namespace Qtilities {
     namespace Core {
         namespace Interfaces {
@@ -56,8 +59,14 @@ namespace Qtilities {
                 IExportable() {}
                 virtual ~IExportable() {}
 
+                //! Possible export modes that an implementation of IExportable can support.
+                /*!
+                  \sa supportedFormats()
+                  */
                 enum ExportMode {
-                    Binary = 1 << 0
+                    None = 0,      /*!< Does not support any export modes. */
+                    Binary = 1,    /*!< Binary exporting using QDataStream. \sa exportBinary(), importBinary() */
+                    XML = 2        /*!< XML exporting using QDomDocument. \sa exportXML(), importXML() */
                 };
                 Q_DECLARE_FLAGS(ExportModeFlags, ExportMode);
                 Q_FLAGS(ExportModeFlags);
@@ -74,6 +83,10 @@ namespace Qtilities {
                 virtual ExportModeFlags supportedFormats() const = 0;
                 //! The factory data which must be used when the exported object is reconstructed during an import.
                 virtual IFactoryData factoryData() const = 0;
+
+                //----------------------------
+                // Binary Exporting
+                //----------------------------
                 //! Allows exporting to a QDataStream.
                 /*!
                   \param stream A reference to the QDataStream to which the object's information must be appended is provided.
@@ -87,6 +100,14 @@ namespace Qtilities {
                     \param params A list of QVariants which can be used to pass parameters to the object implementing the interface. An example of such a parameter is the export version.
                     */
                 virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) = 0;
+
+                //----------------------------
+                // XML Exporting
+                //----------------------------
+                //! Allows exporting to an XML document. A reference to the QDomElement to which the object's information must be added is provided, along with a reference to the QDomDocument.
+                virtual bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const = 0;
+                //! Allows importing and reconstruction of data from information provided in a XML document. A reference to the QDomElement which contains the object's information is provided, along with a reference to the QDomDocument.
+                virtual bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) = 0;
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
