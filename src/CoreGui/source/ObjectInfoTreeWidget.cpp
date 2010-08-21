@@ -155,6 +155,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
 }
 
 void Qtilities::CoreGui::ObjectInfoTreeWidget::setHierarchyDepth(int depth) {
+    Q_UNUSED(depth)
 
 }
 

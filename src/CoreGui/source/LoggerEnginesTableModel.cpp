@@ -86,6 +86,8 @@ QVariant Qtilities::CoreGui::LoggerEnginesTableModel::headerData(int section, Qt
 
 bool Qtilities::CoreGui::LoggerEnginesTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_UNUSED(value)
+
     if (index.column() == NameColumn) {
         if (role == Qt::CheckStateRole) {
             if (Log->loggerEngineReference(Log->attachedLoggerEngineNames().at(index.row()))->isActive()) {
@@ -100,14 +102,21 @@ bool Qtilities::CoreGui::LoggerEnginesTableModel::setData(const QModelIndex &ind
 }
 
 int Qtilities::CoreGui::LoggerEnginesTableModel::rowCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent)
+
     return Log->attachedLoggerEngineCount();
 }
 
 int Qtilities::CoreGui::LoggerEnginesTableModel::columnCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent)
+
     return NameColumn+1;
 }
 
 void Qtilities::CoreGui::LoggerEnginesTableModel::handleLoggerEngineChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication) {
+    Q_UNUSED(engine)
+    Q_UNUSED(change_indication)
+
     emit dataChanged(index(0,0),index(rowCount(),columnCount()));
     emit layoutChanged();
 }

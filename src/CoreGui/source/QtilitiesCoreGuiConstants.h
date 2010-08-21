@@ -40,16 +40,13 @@ namespace Qtilities {
         //! Namespace containing constants used inside the CoreGui Module.
         namespace Constants {
             //! %Factory tag for naming policy subject filters.
-            const char * const FACTORY_TAG_NAMING_POLICY_FILTER     = "FactoryTag.NamingPolicyFilter";
+            const char * const FACTORY_TAG_NAMING_POLICY_FILTER     = "Naming Policy Filter";
             //! The default file name used to save session shortcut mappings by the Qtilities::CoreGui::ActionManager class.
-            const char * const FILE_SHORTCUT_MAPPING    = "shortcut_mapping.smf";
+            const char * const FILE_SHORTCUT_MAPPING                = "shortcut_mapping.smf";
             //! Context used to register observer widgets in the Qtilities::Core::ContextManager class.
             const char * const CONTEXT_OBSERVER_WIDGET              = "Context.ObserverWidget";
             //! Context used to register Qtilities::CoreGui::WidgetLoggerEngineFrontend classes in the Qtilities::Core::ContextManager class.
             const char * const CONTEXT_LOGGER_WIDGET                = "Context.LoggerWidget";
-
-            // The meta type used to register global objects
-            // const char * const META_TYPE_GLOBAL_OBJECTS             = "MetaType.GlobalObjects";
         }
 
         //! Namespace containing available icons which forms part of the CoreGui Module.
@@ -72,8 +69,6 @@ namespace Qtilities {
             const char * const ICON_DELETE_ONE        = ":/icons/delete_one_16x16.png";
             //! Icon used for action to delete all objects.
             const char * const ICON_DELETE_ALL        = ":/icons/delete_all_16x16.png";
-            const char * const ICON_MERGE             = ":/icons/merge_16x16.png";
-            const char * const ICON_SPLIT             = ":/icons/split_16x16.png";
             //! Icon used for action to search objects.
             const char * const ICON_MAGNIFY           = ":/icons/magnify_16x16.png";
             //! Icon used for new action.
@@ -82,6 +77,8 @@ namespace Qtilities {
             const char * const ICON_MAGNIFY_PLUS      = ":/icons/magnify_plus_16x16.png";
             //! Zoom out icon.
             const char * const ICON_MAGNIFY_MINUS     = ":/icons/magnify_minus_16x16.png";
+            //! Icon used to indicate a split, or duplication operation.
+            const char * const ICON_SPLIT             = ":/icons/split_16x16.png";
             //! Icon used to switch between observer widget modes.
             const char * const ICON_SWITCH_VIEW       = ":/icons/switch_view_16x16.png";
             //! Refresh icon.
@@ -166,7 +163,6 @@ namespace Qtilities {
             // Observer widget actions & containers
             const char * const MENU_CONTEXT                         = "Context";
             const char * const MENU_CONTEXT_HIERARCHY               = "Hierarchy";
-            const char * const MENU_SELECTION                       = "Selection";
             const char * const MENU_CONTEXT_REFRESH_VIEW            = "Context.RefreshView";
             const char * const MENU_CONTEXT_NEW_ITEM                = "Context.NewItem";
             const char * const MENU_CONTEXT_SWITCH_VIEW             = "Context.SwitchView";
@@ -179,6 +175,7 @@ namespace Qtilities {
             const char * const MENU_CONTEXT_HIERARCHY_DOWN_NEW      = "Context.Hierarchy.DownNew";
             const char * const MENU_CONTEXT_HIERARCHY_EXPAND        = "Context.Hierarchy.Expand";
             const char * const MENU_CONTEXT_HIERARCHY_COLLAPSE      = "Context.Hierarchy.Collapse";
+            const char * const MENU_SELECTION                       = "Selection";
             const char * const MENU_SELECTION_DELETE                = "Selection.Delete";
             const char * const MENU_SELECTION_MERGE_ITEMS           = "Selection.MergeItems";
             const char * const MENU_SELECTION_SPLIT_ITEMS           = "Selection.SplitItems";

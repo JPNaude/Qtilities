@@ -100,10 +100,14 @@ QVariant Qtilities::CoreGui::CommandTableModel::headerData(int section, Qt::Orie
 }
 
 int Qtilities::CoreGui::CommandTableModel::rowCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent)
+
     return ACTION_MANAGER->commandMap().count();
 }
 
 int Qtilities::CoreGui::CommandTableModel::columnCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent)
+
     return 3;
 }
 

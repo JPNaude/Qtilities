@@ -156,6 +156,8 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::handleCurrentItemChanged(QTreeWidgetItem* current ,QTreeWidgetItem* previous) {
+    Q_UNUSED(previous)
+
     // Calculate the new widget
     QString current_text = calculateText(current).join("::");
     QWidget* current_widget;

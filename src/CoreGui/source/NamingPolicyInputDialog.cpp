@@ -202,6 +202,8 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::handleGeneratedNewNameButton()
 }
 
 void Qtilities::CoreGui::NamingPolicyInputDialog::handleDifferentNameChange(QString new_text) {
+    Q_UNUSED(new_text)
+
     NamingPolicyFilter::NameValidity validity_result = subject_filter->evaluateName(ui->txtDifferentName->text());
 
     // Update different name icon
@@ -235,7 +237,7 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::updateStatusMessage() {
     } else if (sender() == ui->radioReplaceConflicting) {
         ui->lblProblemDescription->setText("<font color='green'>Conflicting object will be replaced.</font>");
     } else if (ui->radioReject->isChecked()) {
-        ui->lblProblemDescription->setText("<font color='green'>Object will not be added to this context.</font>");
+        ui->lblProblemDescription->setText("<font color='green'>Operation will be canceled.</font>");
     }
 }
 
