@@ -174,6 +174,10 @@ namespace Qtilities {
             void setOpenLastProjectOnStartup(bool toggle);
             //! Gets the configuration option to open the last project from the previous session on application startup.
             bool openLastProjectOnStartup() const;
+            //! Sets the configuration option to produce verbose project logs.
+            void setVerboseLogging(bool toggle);
+            //! Gets the configuration option to produce verbose project logs.
+            bool verboseLogging() const;
             //! Sets the configuration option to create a new project when the no last open project is available.
             /*!
               This configuration setting has no effect if the openLastProjectOnStartup() is false.

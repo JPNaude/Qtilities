@@ -74,6 +74,7 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
         ui->btnOpenProjectsPath->setEnabled(false);
     }
 
+    connect(ui->checkVerboseLogging,SIGNAL(toggled(bool)),SLOT(handle_checkVerboseLogging(bool)));
     connect(ui->btnClearRecentProjectList,SIGNAL(clicked()),SLOT(handle_btnClearRecentProjectList()));
     connect(ui->chkCreateNewOnStartup,SIGNAL(toggled(bool)),SLOT(handle_chkCreateNewOnStartup(bool)));
     connect(ui->chkOpenLastProject,SIGNAL(toggled(bool)),SLOT(handle_chkOpenLastProject(bool)));
@@ -148,6 +149,10 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_radioSaveAuto
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_chkUseCustomProjectsPath(bool toggle) {
     PROJECT_MANAGER->setUseCustomProjectsPath(toggle);
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::handle_checkVerboseLogging(bool toggle) {
+    PROJECT_MANAGER->setVerboseLogging(toggle);
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnOpenProjectsPath() {

@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "ObserverProjectItemWrapper.h"
+#include "ProjectManager"
 
 #include <IExportable.h>
 #include <ObserverRelationalTable.h>
@@ -84,14 +85,14 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::newProjectItem() 
 
 
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::saveProjectItem(QDataStream& stream) {
-    if (OBJECT_MANAGER->exportObserverBinary(stream,d->observer,true) == IExportable::Failed)
+    if (OBJECT_MANAGER->exportObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging()) == IExportable::Failed)
         return false;
     else
         return true;
 }
 
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::loadProjectItem(QDataStream& stream) {
-    if (OBJECT_MANAGER->importObserverBinary(stream,d->observer,true) == IExportable::Failed)
+    if (OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging()) == IExportable::Failed)
         return false;
     else
         return true;

@@ -56,7 +56,8 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     recent_projects_size(5),
     config_widget(0),
     project_file_version(0),
-    is_initialized(false) {}
+    is_initialized(false),
+    verbose_logging(false) {}
 
     QPointer<Project>               current_project;
     QList<IProjectItem*>            item_list;
@@ -72,6 +73,7 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     quint32                         project_file_version;
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
     bool                            is_initialized;
+    bool                            verbose_logging;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -273,6 +275,14 @@ bool Qtilities::ProjectManagement::ProjectManager::openLastProjectOnStartup() co
     return d->open_last_project;
 }
 
+void Qtilities::ProjectManagement::ProjectManager::setVerboseLogging(bool toggle) {
+    d->verbose_logging = toggle;
+}
+
+bool Qtilities::ProjectManagement::ProjectManager::verboseLogging() const {
+    return d->verbose_logging;
+}
+
 void Qtilities::ProjectManagement::ProjectManager::setCreateNewProjectOnStartup(bool toggle) {
     d->auto_create_new_project = toggle;
     writeSettings();
@@ -321,6 +331,7 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.beginGroup("Projects");
     settings.setValue("open_last_project", d->open_last_project);
     settings.setValue("auto_create_new_project", d->auto_create_new_project);
+    settings.setValue("verbose_logging", d->verbose_logging);
     settings.setValue("recent_project_map", QVariant(d->recent_project_names));
     settings.setValue("recent_project_stack", QVariant(d->recent_project_stack));
     settings.setValue("use_custom_projects_path", d->use_custom_projects_path);
@@ -338,6 +349,7 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     QSettings settings;
     settings.beginGroup("Projects");
     d->open_last_project = settings.value("open_last_project", false).toBool();
+    d->verbose_logging = settings.value("verbose_logging", false).toBool();
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
     d->use_custom_projects_path = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();
