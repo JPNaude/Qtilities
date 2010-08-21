@@ -16,11 +16,12 @@ CONFIG += qt \
     ordered
 QT += core
 QT -= gui
+QT += xml
 
-equals(BUILD_MODE, release) {
-    TARGET = QtilitiesCore$${QTILITIES_FILE_VER}
-} else {
+CONFIG(debug, debug|release) {
     TARGET = QtilitiesCored$${QTILITIES_FILE_VER}
+} else {
+    TARGET = QtilitiesCore$${QTILITIES_FILE_VER}
 }
 
 TEMPLATE = lib
