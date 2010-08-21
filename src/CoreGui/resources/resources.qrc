@@ -30,8 +30,6 @@
         <file>icons/refresh_16x16.png</file>
         <file>icons/remove_all_16x16.png</file>
         <file>icons/remove_one_16x16.png</file>
-        <file>icons/merge_16x16.png</file>
-        <file>icons/split_16x16.png</file>
         <file>icons/export_16x16.png</file>
         <file>icons/save_24x24.png</file>
         <file>icons/clear_24x24.png</file>
@@ -53,5 +51,6 @@
         <file>images/blueontrans_300x300.png</file>
         <file>icons/view_remove_16x16.png</file>
         <file>icons/view_new_16x16.png</file>
+        <file>icons/split_16x16.png</file>
     </qresource>
 </RCC>
