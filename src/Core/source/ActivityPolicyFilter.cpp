@@ -44,6 +44,7 @@
 #include <QCoreApplication>
 
 using namespace Qtilities::Core::Properties;
+using namespace Qtilities::Core::Constants;
 
 namespace Qtilities {
     namespace Core {
@@ -128,26 +129,6 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
             list.push_back(observer->subjectAt(i));
     }
     return list;
-}
-
-bool Qtilities::Core::ActivityPolicyFilter::exportFilterSpecificBinary(QDataStream& stream) const {
-    stream << (quint32) d->activity_policy;
-    stream << (quint32) d->minimum_activity_policy;
-    stream << (quint32) d->new_subject_activity_policy;
-
-    return true;
-}
-
-bool Qtilities::Core::ActivityPolicyFilter::importFilterSpecificBinary(QDataStream& stream) {
-    quint32 ui32;
-    stream >> ui32;
-    d->activity_policy = (ActivityPolicy) ui32;
-    stream >> ui32;
-    d->minimum_activity_policy = (MinimumActivityPolicy) ui32;
-    stream >> ui32;
-    d->new_subject_activity_policy = (NewSubjectActivityPolicy) ui32;
-
-    return true;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::isModified() const {
@@ -238,10 +219,15 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj) const {
+    Q_UNUSED(obj)
+
     return AbstractSubjectFilter::Allowed;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, bool import_cycle) {
+    Q_UNUSED(obj)
+    Q_UNUSED(import_cycle)
+
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -351,10 +337,15 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateDetachment(QObject* obj) const {
+    Q_UNUSED(obj)
+
     return AbstractSubjectFilter::Allowed;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeDetachment(QObject* obj, bool subject_deleted) {
+    Q_UNUSED(obj)
+    Q_UNUSED(subject_deleted)
+
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -411,6 +402,8 @@ QStringList Qtilities::Core::ActivityPolicyFilter::reservedProperties() const {
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+    Q_UNUSED(property_name)
+
     if (!filter_mutex.tryLock())
         return true;
 
@@ -467,5 +460,59 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
     observer->refreshViewsData();
 
     filter_mutex.unlock();
+    return false;
+}
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ActivityPolicyFilter::factoryData() const {
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_ACTIVITY_POLICY_FILTER,objectName());
+    return factoryData;
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ActivityPolicyFilter::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    IFactoryData factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
+    stream << (quint32) d->activity_policy;
+    stream << (quint32) d->minimum_activity_policy;
+    stream << (quint32) d->new_subject_activity_policy;
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
+
+    quint32 ui32;
+    stream >> ui32;
+    d->activity_policy = (ActivityPolicy) ui32;
+    stream >> ui32;
+    d->minimum_activity_policy = (MinimumActivityPolicy) ui32;
+    stream >> ui32;
+    d->new_subject_activity_policy = (NewSubjectActivityPolicy) ui32;
+
+    return IExportable::Complete;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
     return false;
 }

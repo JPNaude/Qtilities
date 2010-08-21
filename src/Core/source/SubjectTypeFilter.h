@@ -37,9 +37,12 @@
 #include "AbstractSubjectFilter.h"
 #include "ObjectManager.h"
 #include "Factory.h"
+#include "QtilitiesCoreConstants"
 
 namespace Qtilities {
     namespace Core {
+        using namespace Qtilities::Core::Constants;
+
         /*!
           \struct SubjectTypeFilterData
           \brief The SubjectTypeFilterData class stores private data used by the SubjectTypeFilter class.
@@ -67,7 +70,7 @@ namespace Qtilities {
         public:
             SubjectTypeFilter(const QString& known_objects_group_name = QString(), QObject* parent = 0);
             ~SubjectTypeFilter() {}
-            QString filterName() { return tr("Subject Type Filter"); }
+            QString filterName() { return FACTORY_TAG_SUBJECT_TYPE_FILTER; }
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -89,13 +92,25 @@ namespace Qtilities {
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            ExportModeFlags supportedFormats() const;
+            IFactoryData factoryData() const;
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+
         public:
             // --------------------------------
             // SubjectTypeFilter Implemenation
             // --------------------------------
-            bool exportFilterSpecificBinary(QDataStream& stream) const;
-            bool importFilterSpecificBinary(QDataStream& stream);
-
             //! Gets the name describing the known subject grouping.
             QString groupName() const;
             //! Sets the filter list.

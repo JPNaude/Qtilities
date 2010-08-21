@@ -36,13 +36,16 @@
 
 #include <QObject>
 #include <QMutex>
+
 #include "QtilitiesCore_global.h"
+#include "IExportable"
 
 class QDynamicPropertyChangeEvent;
 
 namespace Qtilities {
     namespace Core {
         class Observer;
+        using namespace Qtilities::Core::Interfaces;
 
         /*!
           \class Qtilities::Core::AbstractSubjectFilter
@@ -59,7 +62,7 @@ namespace Qtilities {
 
           For a detailed overview of subject filters, see the \ref subject_filters section of the \ref page_observers article.
           */
-        class QTILIITES_CORE_SHARED_EXPORT AbstractSubjectFilter : public QObject
+        class QTILIITES_CORE_SHARED_EXPORT AbstractSubjectFilter : public QObject, virtual public IExportable
         {
             Q_OBJECT
             Q_ENUMS(EvaluationResult)
@@ -170,11 +173,6 @@ namespace Qtilities {
                 observer = observer_context;
                 return true;
             }
-
-            //! Reimplement this function to export specific binary data about your subject filter type.
-            virtual bool exportFilterSpecificBinary(QDataStream& stream) const = 0;
-            //! Reimplement this function to import specific binary data about your subject filter type.
-            virtual bool importFilterSpecificBinary(QDataStream& stream) = 0;
 
         signals:
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.

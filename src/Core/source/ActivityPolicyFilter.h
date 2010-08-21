@@ -37,10 +37,12 @@
 #include "AbstractSubjectFilter.h"
 #include "IModificationNotifier"
 #include "Factory.h"
+#include "QtilitiesCoreConstants"
 
 namespace Qtilities {
     namespace Core {
         using namespace Qtilities::Core::Interfaces;
+        using namespace Qtilities::Core::Constants;
 
         /*!
         \struct ActivityPolicyFilterData
@@ -65,7 +67,7 @@ namespace Qtilities {
         public:
             ActivityPolicyFilter(QObject* parent = 0);
             ~ActivityPolicyFilter() {}
-            QString filterName() { return tr("Activity Policy Filter"); }
+            QString filterName() { return FACTORY_TAG_ACTIVITY_POLICY_FILTER; }
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -129,9 +131,6 @@ namespace Qtilities {
             //! Returns a list with references to all the inactive subjects in the current observer context.
             QList<QObject*> inactiveSubjects() const;
 
-            bool exportFilterSpecificBinary(QDataStream& stream) const;
-            bool importFilterSpecificBinary(QDataStream& stream);
-
             // --------------------------------
             // AbstractSubjectFilter Implemenation
             // --------------------------------
@@ -146,6 +145,16 @@ namespace Qtilities {
             QStringList reservedProperties() const;
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
+
+            // --------------------------------
+            // IExportable Implemenation
+            // --------------------------------
+            IExportable::ExportModeFlags supportedFormats() const;
+            IFactoryData factoryData() const;
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
         public:
             // --------------------------------

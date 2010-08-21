@@ -41,6 +41,8 @@
 #include <QMutex>
 #include <QVariant>
 
+using namespace Qtilities::Core::Constants;
+
 namespace Qtilities {
     namespace Core {
         FactoryItem<AbstractSubjectFilter, SubjectTypeFilter> SubjectTypeFilter::factory;
@@ -61,10 +63,14 @@ Qtilities::Core::SubjectTypeFilter::SubjectTypeFilter(const QString& known_objec
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateAttachment(QObject* obj) const {
+    Q_UNUSED(obj)
+
     return AbstractSubjectFilter::Allowed;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, bool import_cycle) {
+    Q_UNUSED(import_cycle)
+
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
@@ -104,23 +110,28 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, bool
 }
 
 void Qtilities::Core::SubjectTypeFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
-    Q_UNUSED(obj);
-    Q_UNUSED(attachment_successful);
+    Q_UNUSED(obj)
+    Q_UNUSED(attachment_successful)
+    Q_UNUSED(import_cycle)
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateDetachment(QObject* obj) const {
-    Q_UNUSED(obj);
+    Q_UNUSED(obj)
+
     return AbstractSubjectFilter::Allowed;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::initializeDetachment(QObject* obj, bool subject_deleted) {
-    Q_UNUSED(obj);
+    Q_UNUSED(obj)
+    Q_UNUSED(subject_deleted)
+
     return true;
 }
 
 void Qtilities::Core::SubjectTypeFilter::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
-    Q_UNUSED(obj);
-    Q_UNUSED(detachment_successful);
+    Q_UNUSED(obj)
+    Q_UNUSED(detachment_successful)
+    Q_UNUSED(subject_deleted)
 }
 
 QStringList Qtilities::Core::SubjectTypeFilter::monitoredProperties() const {
@@ -132,24 +143,10 @@ QStringList Qtilities::Core::SubjectTypeFilter::reservedProperties() const {
 }
 
 bool Qtilities::Core::SubjectTypeFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
-    Q_UNUSED(obj);
-    Q_UNUSED(property_name);
-    Q_UNUSED(propertyChangeEvent);
+    Q_UNUSED(obj)
+    Q_UNUSED(property_name)
+    Q_UNUSED(propertyChangeEvent)
     return false;
-}
-
-bool Qtilities::Core::SubjectTypeFilter::exportFilterSpecificBinary(QDataStream& stream) const {
-    stream << d->inversed_filtering;
-    stream << d->known_objects_group_name;
-    //stream << d->known_subject_types;
-    return true;
-}
-
-bool Qtilities::Core::SubjectTypeFilter::importFilterSpecificBinary(QDataStream& stream) {
-    stream >> d->inversed_filtering;
-    stream >> d->known_objects_group_name;
-    //stream >> d->known_subject_types;
-    return true;
 }
 
 QString Qtilities::Core::SubjectTypeFilter::groupName() const {
@@ -188,4 +185,70 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
     return d->inversed_filtering;
 }
 
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::SubjectTypeFilter::factoryData() const {
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_SUBJECT_TYPE_FILTER,objectName());
+    return factoryData;
+}
 
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectTypeFilter::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+    Q_UNUSED(stream)
+
+    IFactoryData factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
+    stream << d->inversed_filtering;
+    stream << d->known_objects_group_name;
+    stream << (quint32) d->known_subject_types.count();
+    for (int i = 0; i < d->known_subject_types.count(); i++) {
+        stream << d->known_subject_types.at(i).d_meta_type;
+        stream << d->known_subject_types.at(i).d_name;
+    }
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
+    Q_UNUSED(stream)
+
+    stream >> d->inversed_filtering;
+    stream >> d->known_objects_group_name;
+    quint32 known_type_count;
+    stream >> known_type_count;
+    int known_type_count_int = known_type_count;
+    d->known_subject_types.clear();
+    for (int i = 0; i < known_type_count_int; i++) {
+        QString meta_type;
+        QString name;
+        stream >> meta_type;
+        stream >> name;
+        SubjectTypeInfo new_type(meta_type, name);
+        d->known_subject_types << new_type;
+    }
+
+    return IExportable::Complete;
+}
+
+bool Qtilities::Core::SubjectTypeFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
