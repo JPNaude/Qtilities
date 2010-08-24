@@ -77,16 +77,6 @@ namespace Qtilities {
             virtual ~AbstractObserverTableModel() {}
 
             // --------------------------------
-            // QAbstractTableModel Implementation
-            // --------------------------------
-            Qt::ItemFlags flagsHelper(const QModelIndex &index) const;
-            QVariant headerDataHelper(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-            QVariant dataHelper(const QModelIndex &index, int role) const;
-            int rowCountHelper(const QModelIndex &parent = QModelIndex()) const;
-            int columnCountHelper(const QModelIndex &parent = QModelIndex()) const;
-            bool setDataHelper(const QModelIndex &index, const QVariant &value, int role);
-
-            // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
             virtual bool setObserverContext(Observer* observer);
@@ -97,6 +87,18 @@ namespace Qtilities {
             // --------------------------------
             // AbstractObserverTableModel Implementation
             // --------------------------------
+             //! Flags helper function.
+             Qt::ItemFlags flagsHelper(const QModelIndex &index) const;
+             //! Header data helper function.
+             QVariant headerDataHelper(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+             //! Data helper function.
+             QVariant dataHelper(const QModelIndex &index, int role) const;
+             //! Row count helper function.
+             int rowCountHelper(const QModelIndex &parent = QModelIndex()) const;
+             //! Column count helper function.
+             int columnCountHelper(const QModelIndex &parent = QModelIndex()) const;
+             //! Set data helper function.
+             bool setDataHelper(const QModelIndex &index, const QVariant &value, int role);
             //! Function which gives the visible column position. Thus it takes into account if columns are hidden.
             int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
             //! Convenience function to get the QModelIndex of an object in the table.
