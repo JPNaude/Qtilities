@@ -48,6 +48,7 @@
 #include "TopToBottomList.h"
 #include "WidgetLoggerEngine.h"
 #include "WidgetLoggerEngineFrontend.h"
+#include "SideViewerWidgetHelper.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
