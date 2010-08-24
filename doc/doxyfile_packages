@@ -80,7 +80,7 @@ SHOW_DIRECTORIES       = NO
 SHOW_FILES             = NO
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    = 
-LAYOUT_FILE            = 
+LAYOUT_FILE            = DoxygenLayout.xml
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -167,7 +167,7 @@ CHM_INDEX_ENCODING     =
 BINARY_TOC             = NO
 TOC_EXPAND             = NO
 GENERATE_QHP           = YES
-QCH_FILE               = Qtilities Documentation v0.1 Beta 1.qch
+QCH_FILE               = Qtilities.qch
 QHP_NAMESPACE          = Qtilities
 QHP_VIRTUAL_FOLDER     = "Qtilities Documentation"
 QHG_LOCATION           = C:\Tools\Qt\2010.03\qt\bin

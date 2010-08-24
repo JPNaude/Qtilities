@@ -80,7 +80,7 @@ SHOW_DIRECTORIES       = NO
 SHOW_FILES             = NO
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    = 
-LAYOUT_FILE            = 
+LAYOUT_FILE            = DoxygenLayout.xml
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------

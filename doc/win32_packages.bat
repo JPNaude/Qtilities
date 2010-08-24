@@ -5,3 +5,4 @@ C:\Tools\Qt\2010.03\qt\bin\qhelpgenerator index.qhp -o qtilities.qch
 cd ..
 cd ..
 copy /y images\tab_*.png output\html_packages
+copy /y images\bc_s.png output\html_website
