@@ -97,7 +97,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ModeWidget.h \
     source/DynamicSideWidgetWrapper.h \
     source/TopToBottomList.h \
-    source/QtilitiesMainWindow.h
+    source/QtilitiesMainWindow.h \
+    source/SideViewerWidgetHelper.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -134,7 +135,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ModeWidget.cpp \
     source/DynamicSideWidgetWrapper.cpp \
     source/TopToBottomList.cpp \
-    source/QtilitiesMainWindow.cpp
+    source/QtilitiesMainWindow.cpp \
+    source/SideViewerWidgetHelper.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
