@@ -67,9 +67,11 @@ namespace Qtilities {
 
 struct Qtilities::CoreGui::NamingPolicyFilterData {
     NamingPolicyFilterData() : is_modified(false),
+    is_exportable(true),
     conflicting_object(0) { }
 
     bool is_modified;
+    bool is_exportable;
     QValidator* validator;
     NamingPolicyInputDialog* name_dialog;
 
@@ -309,6 +311,14 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeDetachment(QObject* obj, bo
         assignNewNameManager(obj);
 }
 
+void Qtilities::CoreGui::NamingPolicyFilter::setIsExportable(bool is_exportable) {
+    d->is_exportable = is_exportable;
+}
+
+bool Qtilities::CoreGui::NamingPolicyFilter::isExportable() const {
+    return d->is_exportable;
+}
+
 QStringList Qtilities::CoreGui::NamingPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
     reserved_properties << QString(OBJECT_NAME) << QString(INSTANCE_NAMES);
@@ -445,7 +455,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_NAMING_POLICY_FILTER,objectName());
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
     return factoryData;
 }
 

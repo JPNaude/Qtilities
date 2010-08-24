@@ -50,9 +50,11 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::SubjectTypeFilterData {
-    SubjectTypeFilterData() : inversed_filtering(false) {}
+    SubjectTypeFilterData() : inversed_filtering(false),
+    is_exportable(true) {}
 
     bool inversed_filtering;
+    bool is_exportable;
     QList<SubjectTypeInfo> known_subject_types;
     QString known_objects_group_name;
 };
@@ -134,6 +136,14 @@ void Qtilities::Core::SubjectTypeFilter::finalizeDetachment(QObject* obj, bool d
     Q_UNUSED(subject_deleted)
 }
 
+void Qtilities::Core::SubjectTypeFilter::setIsExportable(bool is_exportable) {
+    d->is_exportable = is_exportable;
+}
+
+bool Qtilities::Core::SubjectTypeFilter::isExportable() const {
+    return d->is_exportable;
+}
+
 QStringList Qtilities::Core::SubjectTypeFilter::monitoredProperties() const {
     return QStringList();
 }
@@ -186,7 +196,7 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::SubjectTypeFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_SUBJECT_TYPE_FILTER,objectName());
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
     return factoryData;
 }
 

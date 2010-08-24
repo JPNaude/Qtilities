@@ -85,6 +85,13 @@ namespace Qtilities {
 
             //! Returns the name of the subject filter.
             virtual QString filterName() = 0;
+            //! Set if this subject filter must be exported.
+            virtual void setIsExportable(bool is_exportable) = 0;
+            //! Indicates if this subject filter must be exported.
+            /*!
+              Default is true.
+              */
+            virtual bool isExportable() const = 0;
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
             virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const = 0;

@@ -53,9 +53,11 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::ActivityPolicyFilterData {
-    ActivityPolicyFilterData() : is_modified(false) { }
+    ActivityPolicyFilterData() : is_modified(false),
+    is_exportable(true) { }
 
     bool is_modified;
+    bool is_exportable;
     ActivityPolicyFilter::ActivityPolicy activity_policy;
     ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy;
@@ -391,6 +393,14 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     setModificationState(true);
 }
 
+void Qtilities::Core::ActivityPolicyFilter::setIsExportable(bool is_exportable) {
+    d->is_exportable = is_exportable;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::isExportable() const {
+    return d->is_exportable;
+}
+
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
     reserved_properties << QString(OBJECT_ACTIVITY);
@@ -464,7 +474,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ActivityPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_ACTIVITY_POLICY_FILTER,objectName());
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
     return factoryData;
 }
 
