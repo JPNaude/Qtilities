@@ -220,44 +220,6 @@ obs->attachSubject(obj);
 */
 const char * const OBJECT_CATEGORY        = "Qtilities.Core.Category";
 
-//! Object Tooltip Property
-/*!
-%Observer table and tree models uses this string property for tooltip roles if present.
-
-<b>Permisson:</b> Read/Write<br>
-<b>Data Type:</b> QString<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
-<b>Is Exportable:</b> No by default, depends on usage<br>
-<b>Change Notifications:</b> Yes<br>
-
-Below is an example of how to add the OBJECT_TOOLTIP property to an object.
-\code
-QObject* obj = new QObject();
-SharedObserverProperty tooltip_property("Tooltip Text",OBJECT_TOOLTIP);
-Observer::setSharedProperty(obj,tooltip_property);
-\endcode
-*/
-const char * const OBJECT_TOOLTIP         = "Qtilities.Core.Tooltip";
-
-//! Object Icon Property
-/*!
-%Observer table and tree models uses this icon property for decoration if present.
-
-<b>Permisson:</b> Read/Write<br>
-<b>Data Type:</b> QIcon<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
-<b>Is Exportable:</b> No by default, depends on usage<br>
-<b>Change Notifications:</b> Yes<br>
-
-Below is an example of how to add the OBJECT_ICON property to an object.
-\code
-QObject* obj = new QObject();
-SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(":/icon_name.png"))),OBJECT_ICON);
-Observer::setSharedProperty(obj, shared_icon_property);
-\endcode
-*/
-const char * const OBJECT_ICON            = "Qtilities.Core.Icon";
-
 //! Object Name Property
 /*!
 This property holds the name of the object which is sync'ed with objectName() by the name manager observer.
@@ -323,6 +285,188 @@ filters installed, this property holds the activity for each of those contexts
 <b>Change Notifications:</b> Yes<br>
 */
 const char * const OBJECT_ACTIVITY        = "Qtilities.ActivityPolicyFilter.Activity";
+
+// -------------------------------------------------------
+// Object Role Properties:
+// -------------------------------------------------------
+
+//! Object Tooltip Role Property
+/*!
+%Observer table and tree models uses this string property for tooltip roles if present.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QString<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> No by default, depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add the OBJECT_TOOLTIP property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property("Tooltip Text",OBJECT_ROLE_TOOLTIP);
+Observer::setSharedProperty(obj,property);
+\endcode
+*/
+const char * const OBJECT_ROLE_TOOLTIP            = "Qtilities.Core.Object.Role.Tooltip";
+
+//! Object Decoration Role Property
+/*!
+%Observer table and tree models uses this icon property for decoration if present.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QColor, QIcon or QPixmap<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QVariant(QIcon(QString(":/icon_name.png"))),OBJECT_ROLE_DECORATION);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_DECORATION            = "Qtilities.Core.Object.Role.Decoration";
+
+//! Object Whats This Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::WhatsThisRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QString<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property("Whats This Text",OBJECT_ROLE_WHATS_THIS);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_WHATS_THIS            = "Qtilities.Core.Object.Role.WhatsThis";
+
+//! Object Status Tip Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::StatusTipRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QString<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property("Whats This Text",OBJECT_ROLE_STATUSTIP);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_STATUSTIP            = "Qtilities.Core.Object.Role.StatusTip";
+
+//! Object Size Hint Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::SizeHintRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QSize<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QSize(10,10),OBJECT_ROLE_SIZE_HINT);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_SIZE_HINT            = "Qtilities.Core.Object.Role.SizeHint";
+
+//! Object Font Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::FontRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QFont<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QFont("Arial"),OBJECT_ROLE_FONT);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_FONT                 = "Qtilities.Core.Object.Role.Font";
+
+//! Object Text Alignment Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::TextAlignmentRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QSize<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QSize(10,10),OBJECT_ROLE_TEXT_ALIGNMENT);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_TEXT_ALIGNMENT       = "Qtilities.Core.Object.Role.TextAlignment";
+
+//! Object Background Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::BackgroundRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QBrush<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QBrush(Qt::NoBrush),OBJECT_ROLE_BACKGROUND);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_BACKGROUND       = "Qtilities.Core.Object.Role.Background";
+
+//! Object Foreground Role Property
+/*!
+If an object has this property, the property's value will be used by observer item models when data is requested
+for the Qt::ForegroundRole.
+
+<b>Permisson:</b> Read/Write<br>
+<b>Data Type:</b> QBrush<br>
+<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Is Exportable:</b> Depends on usage<br>
+<b>Change Notifications:</b> Yes<br>
+
+Below is an example of how to add this property to an object.
+\code
+QObject* obj = new QObject();
+SharedObserverProperty property(QBrush(Qt::NoBrush),OBJECT_ROLE_FOREGROUND);
+Observer::setSharedProperty(obj, property);
+\endcode
+*/
+const char * const OBJECT_ROLE_FOREGROUND       = "Qtilities.Core.Object.Role.Foreground";
 
         }
     }

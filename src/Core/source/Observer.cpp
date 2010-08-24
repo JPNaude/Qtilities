@@ -81,7 +81,9 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(), observer
 
 Qtilities::Core::Observer::~Observer() {
     if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
-        startProcessingCycle();
+        //startProcessingCycle();
+        observerData->deliver_qtilities_property_changed_events = false;
+
         // When this observer is deleted, we must check the ownership of all its subjects
         QVariant subject_ownership_variant;
         QVariant parent_observer_variant;
@@ -100,9 +102,9 @@ Qtilities::Core::Observer::~Observer() {
                if (!i.hasNext()) {
                    delete obj;
                    break;
-               }
-               else
+               } else {
                    delete obj;
+               }
             } else if ((subject_ownership_variant.toInt() == ObserverScopeOwnership) && (parentCount(obj) == 1)) {
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                if (!i.hasNext()) {
@@ -116,12 +118,12 @@ Qtilities::Core::Observer::~Observer() {
               if (!i.hasNext()) {
                   delete obj;
                   break;
-              }
-              else
+              } else {
                   delete obj;
+              }
            }
         }
-        observerData->process_cycle_active = false;
+        //endProcessingCycle();
     }
 
     // Delete subject filters
@@ -142,7 +144,18 @@ Qtilities::Core::Observer::~Observer() {
 
 QStringList Qtilities::Core::Observer::monitoredProperties() const {
     QStringList properties;
-    properties << QString(OBJECT_ICON) << QString(OBJECT_TOOLTIP) << QString(OBJECT_CATEGORY) << QString(OBJECT_ACCESS_MODE);
+    properties.append(QString(OBJECT_CATEGORY));
+    properties.append(QString(OBJECT_ACCESS_MODE));
+    // Role properties are also monitored. We will notify views to refresh when they change.
+    properties.append(QString(OBJECT_ROLE_TOOLTIP));
+    properties.append(QString(OBJECT_ROLE_DECORATION));
+    properties.append(QString(OBJECT_ROLE_FOREGROUND));
+    properties.append(QString(OBJECT_ROLE_BACKGROUND));
+    properties.append(QString(OBJECT_ROLE_TEXT_ALIGNMENT));
+    properties.append(QString(OBJECT_ROLE_FONT));
+    properties.append(QString(OBJECT_ROLE_SIZE_HINT));
+    properties.append(QString(OBJECT_ROLE_STATUSTIP));
+    properties.append(QString(OBJECT_ROLE_WHATS_THIS));
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         properties << observerData->subject_filters.at(i)->monitoredProperties();
@@ -211,12 +224,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
-    // The number of subject filters in this context:
-    stream << (quint32) observerData->subject_filters.count();
+    // The number of exportable subject filters in this context:
+    int exportable_filters_count = 0;
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        if (observerData->subject_filters.at(i)->isExportable())
+            ++exportable_filters_count;
+    }
+
+    stream << (quint32) exportable_filters_count;
     // Stream all subject filters:
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        observerData->subject_filters.at(i)->exportBinary(stream);
-        LOG_TRACE(QString("%1/%2: Exporting subject filter \"%3\"...").arg(i+1).arg(observerData->subject_filters.count()).arg(observerData->subject_filters.at(i)->filterName()));
+        if (observerData->subject_filters.at(i)->isExportable()) {
+            observerData->subject_filters.at(i)->exportBinary(stream);
+            LOG_TRACE(QString("%1/%2: Exporting subject filter \"%3\"...").arg(i+1).arg(observerData->subject_filters.count()).arg(observerData->subject_filters.at(i)->filterName()));
+        }
     }
     stream << MARKER_OBSERVER_SECTION;
 
@@ -310,17 +331,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after factory data. Import will fail.");
+        endProcessingCycle();
         return IExportable::Failed;
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     if (!observerData->importBinary(stream)) {
         LOG_ERROR("Observer binary import failed to during observer data import. Import will fail.");
+        endProcessingCycle();
         return IExportable::Failed;
     }
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after observer data. Import will fail.");
+        endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -332,9 +356,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     for (int i = 0; i < subject_filter_count; i++) {
         // Get the factory data of the subject filter:
         IFactoryData factoryData;
-        if (!factoryData.importBinary(stream))
+        if (!factoryData.importBinary(stream)) {
+            endProcessingCycle();
             return IExportable::Failed;
-        else {
+        } else {
             AbstractSubjectFilter* new_filter = OBJECT_MANAGER->createSubjectFilter(factoryData.d_instance_tag);
             if (new_filter) {
                 new_filter->setObjectName(factoryData.d_instance_name);
@@ -342,6 +367,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                 new_filter->importBinary(stream,import_list);
                 installSubjectFilter(new_filter);
             } else {
+                LOG_ERROR(QString("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...").arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
+                endProcessingCycle();
                 return IExportable::Failed;
             }
         }
@@ -350,6 +377,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect marker located after subject filters. Import will fail.");
+        endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -366,8 +394,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
             break;
 
         IFactoryData factoryData;
-        if (!factoryData.importBinary(stream))
+        if (!factoryData.importBinary(stream)) {
+            endProcessingCycle();
             return IExportable::Failed;
+        }
         if (!factoryData.isValid()) {
             LOG_TRACE(QString(tr("%1/%2: Importing a standard observer...")).arg(i+1).arg(iface_count));
             Observer* new_obs = new Observer(factoryData.d_instance_name,QString());
@@ -417,6 +447,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     break;
                 }
             } else {
+                endProcessingCycle();
                 return IExportable::Failed;
             }
         }
@@ -424,6 +455,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect end marker. Import will fail.");
+        endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -1133,7 +1165,7 @@ void Qtilities::Core::Observer::deleteAll() {
 
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
-        // Validate operation against access mode
+        // Validate operation against access mode if access mode scope is category
         QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),OBJECT_CATEGORY);
         QString category_string = category_variant.toString();
         if (!isConst(category_string)) {
