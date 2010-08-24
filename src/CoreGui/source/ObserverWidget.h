@@ -288,6 +288,8 @@ namespace Qtilities {
             // --------------------------------
             //! Provides a list of QObject pointers to all the selected objects.
             QList<QObject*> selectedObjects() const;
+            //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
+            Observer* selectionParent() const;
             //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
             QModelIndexList selectedIndexes() const;
             //! Function to set the default height used for the table view when this widget is used in TableView mode.

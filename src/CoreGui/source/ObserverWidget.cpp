@@ -754,6 +754,20 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
     return selected_objects;
 }
 
+Qtilities::Core::Observer* Qtilities::CoreGui::ObserverWidget::selectionParent() const {
+    if (!d->initialized)
+        return 0;
+
+    if (d->current_selection.count() == 0)
+        return 0;
+
+    if (d->display_mode == TreeView && d->tree_model) {
+        return d->tree_model->selectionParent();
+    } else if (d->display_mode == TableView ) {
+        return d_observer;
+    }
+}
+
 QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
     QModelIndexList selected_indexes;
 
@@ -2026,7 +2040,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
     // Update the property editor visibility and object
     if (activeHints()->displayFlagsHint() & ObserverHints::PropertyBrowser) {
         constructPropertyBrowser();
-        if (d->current_selection.count() == 1)
+        if (selectedObjects().count() == 1)
             d->property_browser_widget->setObject(d->current_selection.front());
         else
             d->property_browser_widget->setObject(d_observer);
@@ -2085,7 +2099,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 }
 
                 if (use_parent_context)
-                    emit addActionNewItem_triggered(d->current_selection.front(), d_observer);
+                    emit doubleClickRequest(d->current_selection.front(), d_observer);
             }
         }
     }
@@ -2108,7 +2122,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                }
 
                if (use_parent_context)
-                   emit addActionNewItem_triggered(d->current_selection.front(), d_observer);
+                   emit doubleClickRequest(d->current_selection.front(), d_observer);
            }
            return false;
         }
