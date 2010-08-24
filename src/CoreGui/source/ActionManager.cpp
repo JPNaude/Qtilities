@@ -71,7 +71,7 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
     setObjectName(tr("Action Manager"));
 
     // Give the manager an icon
-    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ICON);
+    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ROLE_DECORATION);
     shared_icon_property.setIsExportable(false);
     Observer::setSharedProperty(this,shared_icon_property);
 }

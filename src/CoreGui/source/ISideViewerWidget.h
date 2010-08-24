@@ -42,7 +42,6 @@
 #include <QWidget>
 #include <QIcon>
 
-using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
@@ -58,7 +57,10 @@ namespace Qtilities {
                 ISideViewerWidget() {}
                 virtual ~ISideViewerWidget() {}
 
-                //! The the widget to be added. Each time this function is called, a new side viewer widget must be returned. The dynamic side viewer widget will manage the lifetime of widgets returned.
+                //! The the widget to be added. Each time this function is called, a new side viewer widget must be returned.
+                /*!
+                    The dynamic side viewer widget will manage the lifetime of widgets returned.
+                    */
                 virtual QWidget* widget() = 0;
                 //! The text used to represent the widget.
                 virtual QString text() const = 0;

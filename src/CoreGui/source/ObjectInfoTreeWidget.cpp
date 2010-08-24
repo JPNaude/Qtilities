@@ -138,7 +138,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
         populateItem(child,object_map.keys().at(i));
 
         // Check if it has the OBJECT_ICON shared property set.
-        prop = object_map.keys().at(i)->property(OBJECT_ICON);
+        prop = object_map.keys().at(i)->property(OBJECT_ROLE_DECORATION);
         if (prop.isValid() && prop.canConvert<SharedObserverProperty>())
             child->setIcon(0,(prop.value<SharedObserverProperty>().value().value<QIcon>()));
 

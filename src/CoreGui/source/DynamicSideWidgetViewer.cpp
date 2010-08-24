@@ -86,7 +86,7 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
     }
 
     QMap<QString, ISideViewerWidget*> filtered_list;
-    // Create a filtered list depending on the mode destination
+    // Create a filtered list depending on the mode destination:
     for (int i = 0; i < text_iface_map.count(); i++) {
         if (text_iface_map.values().at(i)->destinationModes().contains(d->mode_destination))
             filtered_list[text_iface_map.keys().at(i)] = text_iface_map.values().at(i);

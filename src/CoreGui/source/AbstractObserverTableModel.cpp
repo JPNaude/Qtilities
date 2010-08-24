@@ -164,13 +164,25 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
     if (!d_observer)
         return QVariant();
 
+    // ------------------------------------
+    // Handle Subject ID Column
+    // ------------------------------------
     if (index.column() == columnPosition(ColumnSubjectID)) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return d_observer->subjectID(index.row());
         }
+    // ------------------------------------
+    // Handle Name Column: We need to inspect all role properties here:
+    // ------------------------------------
     } else if (index.column() == columnPosition(ColumnName)) {
+        // ------------------------------------
+        // Qt::DisplayRole and Qt::EditRole
+        // ------------------------------------
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return d_observer->subjectNames().at(index.row());
+        // ------------------------------------
+        // Qt::CheckStateRole
+        // ------------------------------------
         } else if (role == Qt::CheckStateRole) {
             if (model->activity_filter) {
                 if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay || activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
@@ -181,22 +193,82 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
                     return subject_activity.toBool();
                 }
             }
+        // ------------------------------------
+        // Qt::DecorationRole
+        // ------------------------------------
         } else if (role == Qt::DecorationRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-
-            // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ICON);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_DECORATION);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
-        } else if (role == Qt::ToolTipRole) {
-            // Check if the object has an OBJECT_TOOLTIP shared property to show.
+        // ------------------------------------
+        // Qt::ForegroundRole
+        // ------------------------------------
+        } else if (role == Qt::ForegroundRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty tooltip = d_observer->getSharedProperty(obj,OBJECT_TOOLTIP);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_FOREGROUND);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::BackgroundRole
+        // ------------------------------------
+        } else if (role == Qt::BackgroundRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_BACKGROUND);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::TextAlignmentRole
+        // ------------------------------------
+        } else if (role == Qt::TextAlignmentRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::FontRole
+        // ------------------------------------
+        } else if (role == Qt::FontRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_FONT);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::SizeHintRole
+        // ------------------------------------
+        } else if (role == Qt::SizeHintRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::WhatsThisRole
+        // ------------------------------------
+        } else if (role == Qt::WhatsThisRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS);
+            if (icon_property.isValid()) {
+                return icon_property.value();
+            }
+        // ------------------------------------
+        // Qt::ToolTipRole
+        // ------------------------------------
+        } else if (role == Qt::ToolTipRole) {
+            QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            SharedObserverProperty tooltip = d_observer->getSharedProperty(obj,OBJECT_ROLE_TOOLTIP);
             if (tooltip.isValid()) {
                 return tooltip.value();
             }
         }
+    // ------------------------------------
+    // Handle Category Column
+    // ------------------------------------
     } else if (index.column() == columnPosition(ColumnCategory) && (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy)) {
         if (role == Qt::DisplayRole) {
             // Get the OBJECT_CATEGORY property.
@@ -206,6 +278,9 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
                 category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
             return category;
         }
+    // ------------------------------------
+    // Handle Child Count Column
+    // ------------------------------------
     } else if (index.column() == columnPosition(ColumnChildCount) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
@@ -228,6 +303,9 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
             }
 
         }
+    // ------------------------------------
+    // Handle Subject Type Info Column
+    // ------------------------------------
     } else if (index.column() == columnPosition(ColumnTypeInfo) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
@@ -236,6 +314,9 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
             }
             return QVariant();
         }
+    // ------------------------------------
+    // Handle Access Column
+    // ------------------------------------
     } else if (index.column() == columnPosition(ColumnAccess) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)) {
         if (role == Qt::DecorationRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
