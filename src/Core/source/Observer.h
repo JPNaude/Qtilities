@@ -432,7 +432,7 @@ namespace Qtilities {
                 return parents;
             }
 
-            //! Convenience to check if a property exists on a object.
+            //! Convenience function to check if a property exists on a object.
             static bool propertyExists(const QObject* obj, const char* property_name) {
                 if (!obj)
                     return false;
@@ -445,7 +445,7 @@ namespace Qtilities {
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
               */
-            bool isSupportedType(const QString& meta_type, Observer* observer) {
+            static bool isSupportedType(const QString& meta_type, Observer* observer) {
                 if (!observer)
                     return false;
 
