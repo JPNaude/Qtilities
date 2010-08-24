@@ -46,6 +46,7 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());
     ui->chkUseCustomProjectsPath->setChecked(PROJECT_MANAGER->useCustomProjectsPath());
+    ui->checkVerboseLogging->setChecked(PROJECT_MANAGER->verboseLogging());
     ui->txtCustomProjectsPath->setText(PROJECT_MANAGER->customProjectsPath());
     if (ui->chkOpenLastProject->isChecked()) {
         ui->chkCreateNewOnStartup->setEnabled(true);
