@@ -159,7 +159,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
     d->current_project->setProjectItems(d->item_list);
     if (!d->current_project->loadProject(file_name,false)) {
-        closeProject();
+        delete d->current_project;
         QApplication::restoreOverrideCursor();
         return false;
     }
