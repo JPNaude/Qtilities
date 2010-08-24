@@ -71,9 +71,8 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
     d->object_pool.startProcessingCycle();
     setObjectName("Object Manager");
 
-    // Add the standard observer subject filters which comes with the Qtilities library here
-    //FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER);
-    //d->subject_filter_factory.registerFactoryInterface(&NamingPolicyFilter::factory,naming_policy_filter);
+    // Add the standard observer subject filters which comes with the Qtilities library here:
+    // CoreGui filters are installed in QtilitiesApplication
     FactoryInterfaceData activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER);
     d->subject_filter_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
     FactoryInterfaceData subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER);
@@ -589,8 +588,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // Export relational data about the observer:
     ObserverRelationalTable table(obs,true);
-    if (verbose_output)
-        table.dumpTableInfo();
+    //if (verbose_output)
+    //    table.dumpTableInfo();
 
     // Stream the table to a file, and read it back. Then compare it to verify the streaming:
     QTemporaryFile test_file;
@@ -602,8 +601,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
     QDataStream test_stream_in(&test_file);    // read the data serialized from the file
     ObserverRelationalTable readback_table;
     readback_table.importBinary(test_stream_in);
-    if (verbose_output)
-        readback_table.dumpTableInfo();
+    //if (verbose_output)
+    //    readback_table.dumpTableInfo();
     test_file.close();
     if (!table.compare(readback_table)) {
         LOG_ERROR(QString(tr("Observer relational table comparison failed. Observer (%1) will not be exported.").arg(obs->observerName())));
