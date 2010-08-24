@@ -133,6 +133,7 @@ void Qtilities::Examples::MainWindow::ExampleMode::loadFile(const QString& file_
 Qtilities::Examples::MainWindow::ExampleMode::~ExampleMode()
 {
     delete ui;
+    delete d;
 }
 
 QWidget* Qtilities::Examples::MainWindow::ExampleMode::widget() {

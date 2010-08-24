@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
     // Create a QtilitiesMainWindow to show our different modes.
     QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesApplication::instance()->setMainWindow(&exampleMainWindow);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
     exampleMainWindow.setMenuBar(menu_bar->menuBar());
 
     // Load plugins using the extension system:
@@ -98,13 +98,15 @@ int main(int argc, char *argv[])
     Log->toggleQtMsgEngine(false);
 
     // Create the example file system side widget and add it to the global object pool
-    SideWidgetFileSystem* file_system_widget = new SideWidgetFileSystem();
-    OBJECT_MANAGER->registerObject(file_system_widget);
+    QList<int> modes;
+    modes << MODE_EXAMPLE_ID;
+    SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes);
+    OBJECT_MANAGER->registerObject(file_system_side_widget_helper);
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
     ExampleMode* example_mode = new ExampleMode();
-    QObject::connect(file_system_widget,SIGNAL(requestEditor(QString)),example_mode,SLOT(loadFile(QString)));
+    //QObject::connect(file_system_widget,SIGNAL(requestEditor(QString)),example_mode,SLOT(loadFile(QString)));
     registered_modes << example_mode;
     LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
     exampleMainWindow.addModes(registered_modes);

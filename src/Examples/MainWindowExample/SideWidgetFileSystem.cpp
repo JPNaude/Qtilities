@@ -41,6 +41,13 @@
 #include <QDir>
 #include <QSettings>
 
+namespace Qtilities {
+    namespace Examples {
+        namespace MainWindow {
+            FactoryItem<QWidget, SideWidgetFileSystem> SideWidgetFileSystem::factory;
+        }
+    }
+}
 
 struct Qtilities::Examples::MainWindow::SideWidgetFileSystemData {
     SideWidgetFileSystemData(): model(0) {}
@@ -90,26 +97,4 @@ void Qtilities::Examples::MainWindow::SideWidgetFileSystem::handleDoubleClicked(
 
     QString file_path = d->model->filePath(index);
     emit requestEditor(file_path);
-}
-
-QWidget* Qtilities::Examples::MainWindow::SideWidgetFileSystem::widget() {
-    return this;
-}
-
-QString Qtilities::Examples::MainWindow::SideWidgetFileSystem::text() const {
-    return tr("File System");
-}
-
-bool Qtilities::Examples::MainWindow::SideWidgetFileSystem::showOnStartup() const {
-    return true;
-}
-
-Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::Examples::MainWindow::SideWidgetFileSystem::actionProvider() const {
-    return 0;
-}
-
-QList<int> Qtilities::Examples::MainWindow::SideWidgetFileSystem::destinationModes() const {
-    QList<int> modes;
-    modes << MODE_EXAMPLE_ID;
-    return modes;
 }

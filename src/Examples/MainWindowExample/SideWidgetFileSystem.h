@@ -34,7 +34,7 @@
 #ifndef SIDE_WIDGET_FILE_SYSTEM_H
 #define SIDE_WIDGET_FILE_SYSTEM_H
 
-#include <ISideViewerWidget.h>
+#include <Factory>
 
 #include <QObject>
 #include <QtGui>
@@ -43,11 +43,10 @@ namespace Ui {
     class SideWidgetFileSystem;
 }
 
-
 namespace Qtilities {
     namespace Examples {
         namespace MainWindow {
-            using namespace Qtilities::CoreGui::Interfaces;
+            using namespace Qtilities::Core;
 
             /*!
             \struct SideWidgetFileSystemData
@@ -59,23 +58,18 @@ namespace Qtilities {
             \class SideWidgetFileSystem
             \brief A widget which provides access to the file system as a side widget.
               */
-            class SideWidgetFileSystem : public QWidget, public ISideViewerWidget
+            class SideWidgetFileSystem : public QWidget
             {
                 Q_OBJECT
-                Q_INTERFACES(Qtilities::CoreGui::Interfaces::ISideViewerWidget)
 
             public:
                 explicit SideWidgetFileSystem(QWidget *parent = 0);
                 virtual ~SideWidgetFileSystem() {}
 
-                // --------------------------------------------
-                // ISideViewerWidget Implementation
-                // --------------------------------------------
-                QWidget* widget();
-                QString text() const;
-                bool showOnStartup() const;
-                IActionProvider* actionProvider() const;
-                QList<int> destinationModes() const;
+                // --------------------------------
+                // Factory Interface Implemenation
+                // --------------------------------
+                static FactoryItem<QWidget, SideWidgetFileSystem> factory;
 
             private slots:
                 void handleRootPathChanged(const QString& newPath);
