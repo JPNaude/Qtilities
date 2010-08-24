@@ -52,7 +52,20 @@ namespace Qtilities {
           \class QtilitiesApplication
           \brief The QtilitiesApplication is the same as QApplication with added functionality.
 
-          \sa \sa Qtilities::Core::QtilitiesCoreApplication
+          The QtilitiesApplication class is an extension of QApplication and must be should be used when building
+          Qtilities applications. For example:
+
+\code
+QtilitiesApplication a(argc, argv);
+QtilitiesApplication::setOrganizationName("Jaco Naude");
+QtilitiesApplication::setOrganizationDomain("Qtilities");
+QtilitiesApplication::setApplicationName("Example");
+QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+\endcode
+
+         If you for some reason don't want to use the QtilitiesApplication as shown above, you must call the initialize()
+         instead in your application's main function.
+          \sa Qtilities::Core::QtilitiesCoreApplication
          */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesApplication : public QApplication
         {
@@ -80,6 +93,35 @@ namespace Qtilities {
               */
             static QString qtilitiesVersion();
 
+            //! Initializes the QtilitiesApplication object.
+            /*!
+              Normally the QtilitiesApplication object will be initialized automatically in the application's main function
+              as follows:
+
+\code
+QtilitiesApplication a(argc, argv);
+QtilitiesApplication::setOrganizationName("Jaco Naude");
+QtilitiesApplication::setOrganizationDomain("Qtilities");
+QtilitiesApplication::setApplicationName("Example");
+QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+\endcode
+
+            If it however not possible to use QtilitiesApplication as show above it should be initialized directly after the above
+            set of statements, as follows:
+
+\code
+QApplication a(argc, argv);
+QApplication::setOrganizationName("Jaco Naude");
+QApplication::setOrganizationDomain("Qtilities");
+QApplication::setApplicationName("Example");
+QApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+QtilitiesApplication::initialize();
+\endcode
+
+            Example scenarios where this might happen is when you are using a different class which inherits QApplication, for
+            example the QtSingleApplication solution.
+              */
+            static void initialize();
             //! Returns a reference to the QtilitiesApplication instance.
             static QtilitiesApplication* instance();
             //! Checks if a valid instance has been created.

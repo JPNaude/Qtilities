@@ -95,6 +95,12 @@ QString Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersion() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
 }
 
+void Qtilities::CoreGui::QtilitiesApplication::initialize() {
+    // Register the naming policy filter in the object manager:
+    FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER,QStringList(tr("Subject Filters")));
+    QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
+}
+
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance() {
     if (!QtilitiesApplication::hasInstance("instance"))
         return 0;
