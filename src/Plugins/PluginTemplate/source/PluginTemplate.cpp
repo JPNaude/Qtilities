@@ -40,7 +40,6 @@
 
 #include <QtPlugin>
 #include <QIcon>
-#include <QLabel>
 
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
