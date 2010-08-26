@@ -64,8 +64,10 @@ namespace Qtilities {
 
             QList<QAction*> actions(bool only_enabled = false, const QStringList& category_filter = QStringList()) const;
             QMap<QAction*, QStringList> actionMap(bool only_enabled = false, const QStringList& category_filter = QStringList()) const;
+            QList<QStringList> actionCategories() const;
             QList<QActionGroup*> actionGroups() const;
             QMap<QActionGroup*, QStringList> actionGroupMap(QActionGroup *action_group) const;
+            QList<QStringList> actionGroupCategories() const;
             QAction *addAction(QAction * action, const QStringList& category = QStringList());
             QActionGroup *addActionGroup(QActionGroup * action_group, const QStringList& category = QStringList());
             void disableAllActions();

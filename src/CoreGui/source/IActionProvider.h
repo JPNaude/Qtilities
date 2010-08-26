@@ -58,27 +58,30 @@ namespace Qtilities {
                 //! A list of all the actions provided through the interface.
                 /*!
                   \param only_enabled When true, only the enabled actions will be returned.
+                  \param category_filter Only actions which have a category which appears in the category filter will be part of the returned list.
                   */
                 virtual QList<QAction *> actions(bool only_enabled = false, const QStringList& category_filter = QStringList()) const = 0;
                 //! A map with the action and action category of all the actions provided through the interface.
                 /*!
-                  This function can be used to visualize the actions provided through this interface using
-                  the CategorizedStringTreeWidget class.
+                  This function can be used to visualize the actions provided through this interface.
 
-                  \sa CategorizedStringTreeWidget
+                  \param only_enabled When true, only the enabled actions will be returned.
+                  \param category_filter Only actions which have a category which appears in the category filter will be part of the returned list.
                   */
                 virtual QMap<QAction*, QStringList> actionMap(bool only_enabled = false, const QStringList& category_filter = QStringList()) const = 0;
+                //! A list of all action categories provided through this interface.
+                virtual QList<QStringList> actionCategories() const = 0;
                 //! A list of all the action groups provided through the interface.
                 virtual QList<QActionGroup*> actionGroups() const = 0;
                 //! A map with the actions and action categories of all the action groups provided through the interface.
                 /*!
-                  This function can be used to visualize the actions provided through this interface using
-                  the CategorizedStringTreeWidget class.
+                  This function can be used to visualize the actions provided through this interface.
 
                   \param action_group The action group for which the map is required. If no group is specified, all actions in all action groups are returned in the map.
-                  \sa CategorizedStringTreeWidget
                   */
                 virtual QMap<QActionGroup*, QStringList> actionGroupMap(QActionGroup* action_group = 0) const = 0;
+                //! A list of all action group categories provided through this interface.
+                virtual QList<QStringList> actionGroupCategories() const = 0;
                 //! Adds an action to the object implementing this interface and returns it if added succesfully. Returns 0 otherwise.
                 /*!
                   \param action The action to be added.

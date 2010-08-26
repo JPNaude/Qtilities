@@ -109,6 +109,15 @@ QMap<QAction*, QStringList> Qtilities::CoreGui::ActionProvider::actionMap(bool o
     return d->actions;
 }
 
+QList<QStringList> Qtilities::CoreGui::ActionProvider::actionCategories() const {
+    QList<QStringList> category_list;
+    for (int i = 0; i < d->actions.count(); i++) {
+        if (!category_list.contains(d->actions.values().at(i)))
+            category_list << d->actions.values().at(i);
+    }
+    return category_list;
+}
+
 QList<QActionGroup*> Qtilities::CoreGui::ActionProvider::actionGroups() const {
     return d->action_groups.keys();
 }
@@ -120,6 +129,15 @@ QMap<QActionGroup*, QStringList> Qtilities::CoreGui::ActionProvider::actionGroup
         return filtered_map;
     } else
         return d->action_groups;
+}
+
+QList<QStringList> Qtilities::CoreGui::ActionProvider::actionGroupCategories() const {
+    QList<QStringList> category_list;
+    for (int i = 0; i < d->action_groups.count(); i++) {
+        if (!category_list.contains(d->action_groups.values().at(i)))
+            category_list << d->action_groups.values().at(i);
+    }
+    return category_list;
 }
 
 QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const QStringList& category) {
