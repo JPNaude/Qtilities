@@ -753,20 +753,30 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         // We do this last, otherwise all dynamic property changes will go through this event filter.
         obj->installEventFilter(this);
 
-        // Check if the new subject implements the IModificationNotifier interface. If so we connect
-        // to the modification changed signals:
-        bool has_mod_iface = false;
-        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
-        if (mod_iface) {
-            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
-            has_mod_iface = true;
-        }
-
         // Check if this is an observer:
+        bool has_mod_iface = false;
         Observer* obs = qobject_cast<Observer*> (obj);
+        if (!obs) {
+            foreach(QObject* child, obj->children()) {
+                obs = qobject_cast<Observer*> (child);
+                if (obs) {
+                    break;
+                }
+            }
+        }
         if (obs) {
+            has_mod_iface = true;
+            connect(obs,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
             connect(obs,SIGNAL(dataChanged(Observer*)),SIGNAL(dataChanged(Observer*)));
             connect(obs,SIGNAL(layoutChanged()),SIGNAL(layoutChanged()));
+        } else {
+            // Check if the new subject implements the IModificationNotifier interface. If so we connect
+            // to the modification changed signals:
+            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
+            if (mod_iface) {
+                connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+                has_mod_iface = true;
+            }
         }
 
         // Emit neccesarry signals
