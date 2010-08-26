@@ -74,7 +74,7 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setContext(int context_id, con
     observer_context = context;
     observer_id = context_id;
     if (window_icon.isNull()) {
-        this->setWindowIcon(QIcon(ICON_OBSERVER));
+        this->setWindowIcon(QIcon(ICON_MANAGER_16x16));
     } else {
         this->setWindowIcon(window_icon);
     }

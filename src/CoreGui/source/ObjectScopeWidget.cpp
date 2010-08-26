@@ -94,7 +94,7 @@ Qtilities::CoreGui::ObjectScopeWidget::ObjectScopeWidget(QWidget *parent) :
     Qt::WindowFlags window_flags = windowFlags();
     window_flags |= Qt::Tool;
     setWindowFlags(window_flags);
-    setWindowIcon(QIcon(ICON_OBSERVER));
+    setWindowIcon(QIcon(ICON_MANAGER_16x16));
     m_ui->observerTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     m_ui->observerTable->setSortingEnabled(true);
     m_ui->observerTable->setToolTip(tr("A list of contexts to which the selected object is attached."));
