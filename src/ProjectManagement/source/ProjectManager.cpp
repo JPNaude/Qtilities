@@ -366,6 +366,7 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
 
 void Qtilities::ProjectManagement::ProjectManager::initialize() {
     LOG_INFO(tr("Qtilities Project Management Framework, initialization started..."));
+    readSettings();
 
     // Settings was already read in the constructor.
     if (d->open_last_project) {
