@@ -1,39 +1,49 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/error.png</file>
-        <file>icons/observer_default.png</file>
-        <file>icons/success.png</file>
-        <file>icons/type_info_22x22.png</file>
-        <file>icons/child_count_22x22.png</file>
-        <file>icons/locked_22x22.png</file>
-        <file>icons/read_only_22x22.png</file>
         <file>icons/access_22x22.png</file>
-        <file>icons/search_options_22x22.png</file>
-        <file>icons/property_icon_16x16.png</file>
-        <file>icons/event_icon_16x16.png</file>
-        <file>icons/dependancy_icon_16x16.png</file>
-        <file>icons/source_icon_16x16.png</file>
-        <file>icons/manager_icon_16x16.png</file>
-        <file>icons/method_icon_16x16.png</file>
-        <file>icons/folder_icon_16x16.png</file>
-        <file>icons/switch_view_16x16.png</file>
+        <file>icons/child_count_22x22.png</file>
+        <file>icons/clear_16x16.png</file>
+        <file>icons/clear_22x22.png</file>
         <file>icons/delete_all_16x16.png</file>
         <file>icons/delete_one_16x16.png</file>
-        <file>icons/magnify_16x16.png</file>
+        <file>icons/dependancy_icon_16x16.png</file>
+        <file>icons/edit_copy_16x16.png</file>
+        <file>icons/edit_copy_22x22.png</file>
+        <file>icons/edit_cut_16x16.png</file>
+        <file>icons/edit_cut_22x22.png</file>
+        <file>icons/edit_paste_16x16.png</file>
+        <file>icons/edit_paste_22x22.png</file>
+        <file>icons/error_16x16.png</file>
+        <file>icons/event_icon_16x16.png</file>
+        <file>icons/extension_system_22x22.png</file>
+        <file>icons/file_open_16x16.png</file>
+        <file>icons/file_open_22x22.png</file>
+        <file>icons/file_save_16x16.png</file>
+        <file>icons/file_save_22x22.png</file>
+        <file>icons/file_saveas_16x16.png</file>
+        <file>icons/file_saveas_22x22.png</file>
+        <file>icons/find_16x16.png</file>
+        <file>icons/find_22x22.png</file>
+        <file>icons/folder_icon_16x16.png</file>
+        <file>icons/locked_22x22.png</file>
         <file>icons/magnify_minus_16x16.png</file>
         <file>icons/magnify_plus_16x16.png</file>
+        <file>icons/manager_icon_16x16.png</file>
+        <file>icons/method_icon_16x16.png</file>
         <file>icons/new_16x16.png</file>
+        <file>icons/print_16x16.png</file>
+        <file>icons/print_22x22.png</file>
+        <file>icons/print_pdf_16x16.png</file>
+        <file>icons/print_pdf_22x22.png</file>
+        <file>icons/print_preview_16x16.png</file>
+        <file>icons/print_preview_22x22.png</file>
+        <file>icons/property_icon_16x16.png</file>
         <file>icons/push_down_current_16x16.png</file>
         <file>icons/push_down_new_16x16.png</file>
         <file>icons/push_up_current_16x16.png</file>
         <file>icons/push_up_new_16x16.png</file>
-        <file>icons/refresh_16x16.png</file>
-        <file>icons/remove_all_16x16.png</file>
-        <file>icons/remove_one_16x16.png</file>
-        <file>icons/export_16x16.png</file>
-        <file>icons/save_24x24.png</file>
-        <file>icons/clear_24x24.png</file>
-        <file>icons/print_24x24.png</file>
+        <file>icons/qtilities_icon_blue.ico</file>
+        <file>icons/qtilities_icon_white.ico</file>
         <file>icons/qtilities_symbol_16x16.png</file>
         <file>icons/qtilities_symbol_22x22.png</file>
         <file>icons/qtilities_symbol_24x24.png</file>
@@ -41,16 +51,30 @@
         <file>icons/qtilities_symbol_48x48.png</file>
         <file>icons/qtilities_symbol_64x64.png</file>
         <file>icons/qtilities_symbol_128x128.png</file>
-        <file>icons/qtilities_symbol_white_128x128.png</file>
         <file>icons/qtilities_symbol_white_16x16.png</file>
         <file>icons/qtilities_symbol_white_22x22.png</file>
         <file>icons/qtilities_symbol_white_24x24.png</file>
         <file>icons/qtilities_symbol_white_32x32.png</file>
         <file>icons/qtilities_symbol_white_48x48.png</file>
         <file>icons/qtilities_symbol_white_64x64.png</file>
-        <file>images/blueontrans_300x300.png</file>
-        <file>icons/view_remove_16x16.png</file>
-        <file>icons/view_new_16x16.png</file>
+        <file>icons/qtilities_symbol_white_128x128.png</file>
+        <file>icons/read_only_22x22.png</file>
+        <file>icons/redo_16x16.png</file>
+        <file>icons/redo_22x22.png</file>
+        <file>icons/refresh_16x16.png</file>
+        <file>icons/remove_all_16x16.png</file>
+        <file>icons/remove_one_16x16.png</file>
+        <file>icons/search_options_22x22.png</file>
+        <file>icons/select_all_16x16.png</file>
+        <file>icons/select_all_22x22.png</file>
+        <file>icons/source_icon_16x16.png</file>
         <file>icons/split_16x16.png</file>
+        <file>icons/success_16x16.png</file>
+        <file>icons/switch_view_16x16.png</file>
+        <file>icons/type_info_22x22.png</file>
+        <file>icons/undo_16x16.png</file>
+        <file>icons/undo_22x22.png</file>
+        <file>icons/view_new_16x16.png</file>
+        <file>icons/view_remove_16x16.png</file>
     </qresource>
 </RCC>
