@@ -47,6 +47,8 @@ namespace Qtilities {
             const char * const CONTEXT_OBSERVER_WIDGET              = "Context.ObserverWidget";
             //! Context used to register Qtilities::CoreGui::WidgetLoggerEngineFrontend classes in the Qtilities::Core::ContextManager class.
             const char * const CONTEXT_LOGGER_WIDGET                = "Context.LoggerWidget";
+            //! Context used to register Qtilities::CoreGui::CodeEditorWidget classes in the Qtilities::Core::ContextManager class.
+            const char * const CONTEXT_CODE_EDITOR_WIDGET           = "Context.CodeEditorWidget";
         }
 
         //! Namespace containing available icons which forms part of the CoreGui Module.
