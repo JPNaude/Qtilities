@@ -102,6 +102,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     // Setup the log widget:
     d->txtLog.setReadOnly(true);
     d->txtLog.setFont(QFont("Courier New"));
+    d->txtLog.setMaximumBlockCount(1000);
 
     // Setup the widget layout:
     if (layout())
