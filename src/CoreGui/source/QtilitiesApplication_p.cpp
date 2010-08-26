@@ -82,10 +82,10 @@ Qtilities::CoreGui::Interfaces::IClipboard* const Qtilities::CoreGui::QtilitiesA
     return d_clipboardManagerIFace;
 }
 
-void Qtilities::CoreGui::QtilitiesApplicationPrivate::setMainWindow(QMainWindow* mainWindow) {
+void Qtilities::CoreGui::QtilitiesApplicationPrivate::setMainWindow(QWidget* mainWindow) {
     d_mainWindow = mainWindow;
 }
 
-QMainWindow* const Qtilities::CoreGui::QtilitiesApplicationPrivate::mainWindow() const {
+QWidget* const Qtilities::CoreGui::QtilitiesApplicationPrivate::mainWindow() const {
     return d_mainWindow;
 }

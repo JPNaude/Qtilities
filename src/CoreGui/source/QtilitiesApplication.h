@@ -84,9 +84,9 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             //! Returns a reference to the clipboard manager.
             static IClipboard* const clipboardManager();
             //! Sets the main window reference for the application.
-            static void setMainWindow(QMainWindow* mainWindow);
+            static void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
-            static QMainWindow* const mainWindow();
+            static QWidget* const mainWindow();
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
@@ -121,7 +121,7 @@ QtilitiesApplication::initialize();
             Example scenarios where this might happen is when you are using a different class which inherits QApplication, for
             example the QtSingleApplication solution.
               */
-            static void initialize();
+            void initialize();
             //! Returns a reference to the QtilitiesApplication instance.
             static QtilitiesApplication* instance();
             //! Checks if a valid instance has been created.

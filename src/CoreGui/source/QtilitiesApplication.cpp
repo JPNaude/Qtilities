@@ -58,6 +58,8 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         // Register the naming policy filter in the object manager:
         FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER,QStringList(tr("Subject Filters")));
         QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
+
+        QCoreApplication::instance()->installEventFilter(this);
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }
@@ -83,11 +85,11 @@ Qtilities::CoreGui::Interfaces::IClipboard* const Qtilities::CoreGui::QtilitiesA
     return QtilitiesApplicationPrivate::instance()->clipboardManager();
 }
 
-void Qtilities::CoreGui::QtilitiesApplication::setMainWindow(QMainWindow* mainWindow) {
+void Qtilities::CoreGui::QtilitiesApplication::setMainWindow(QWidget* mainWindow) {
     QtilitiesApplicationPrivate::instance()->setMainWindow(mainWindow);
 }
 
-QMainWindow* const Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
+QWidget* const Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
     return QtilitiesApplicationPrivate::instance()->mainWindow();
 }
 

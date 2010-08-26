@@ -39,6 +39,7 @@
 #include "ClipboardManager.h"
 
 #include <QMainWindow>
+#include <QPointer>
 
 namespace Qtilities {
     namespace CoreGui {
@@ -58,19 +59,19 @@ namespace Qtilities {
             //! Function to access clipboard manager pointer.
             Qtilities::CoreGui::Interfaces::IClipboard* const clipboardManager() const;
             //! Sets the main window reference for the application.
-            void setMainWindow(QMainWindow* mainWindow);
+            void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
-            QMainWindow* const mainWindow() const;
+            QWidget* const mainWindow() const;
 
         private:
             QtilitiesApplicationPrivate();
             static QtilitiesApplicationPrivate* m_Instance;
 
-            QMainWindow*        d_mainWindow;
-            ActionManager*      d_actionManager;
-            IActionManager*     d_actionManagerIFace;
-            ClipboardManager*   d_clipboardManager;
-            IClipboard*         d_clipboardManagerIFace;
+            QPointer<QWidget>       d_mainWindow;
+            ActionManager*          d_actionManager;
+            IActionManager*         d_actionManagerIFace;
+            ClipboardManager*       d_clipboardManager;
+            IClipboard*             d_clipboardManagerIFace;
         };
     }
 }
