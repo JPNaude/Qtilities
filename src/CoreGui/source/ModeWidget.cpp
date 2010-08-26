@@ -36,14 +36,17 @@
 #include "IMode.h"
 #include "TopToBottomList.h"
 
-#include <IContextManager.h>
+#include <QtilitiesCore>
+
 #include <QListWidgetItem>
+using namespace QtilitiesCore;
 
 struct Qtilities::CoreGui::ModeWidgetData {
-    ModeWidgetData() {}
+    ModeWidgetData() : active_mode(0) {}
 
     QMap<QString, IMode*> name_widget_map;
     TopToBottomList* modeList;
+    IMode* active_mode;
 };
 
 Qtilities::CoreGui::ModeWidget::ModeWidget(QWidget *parent) :
@@ -122,21 +125,47 @@ void Qtilities::CoreGui::ModeWidget::addModes(QList<QObject*> modes, bool initia
     }
 }
 
-QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeWidget::modes() {
+QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeWidget::modes() const {
     return d->name_widget_map.values();
+}
+
+Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::ModeWidget::activeMode() const {
+    return d->active_mode;
 }
 
 void Qtilities::CoreGui::ModeWidget::handleModeListCurrentItemChanged(QListWidgetItem * item) {
     if (d->name_widget_map.keys().contains(item->text())) {
         emit changeCentralWidget(d->name_widget_map[item->text()]->widget());
-        // TRACK ObjManagerCore::instance()->contextManager()->setNewContext(d->name_widget_map[item->text()]->contextString());
+        CONTEXT_MANAGER->setNewContext(d->name_widget_map[item->text()]->contextString());
+    }
+
+    d->active_mode = d->name_widget_map[item->text()];
+}
+
+void Qtilities::CoreGui::ModeWidget::setActiveMode(int mode_id) {
+    // Go through all the registered mode and try to match each mode with new_mode.
+    for (int i = 0; i < d->name_widget_map.count(); i++) {
+        if (d->name_widget_map.values().at(i)->modeID() == mode_id) {
+            d->modeList->setCurrentRow(i);
+            break;
+        }
     }
 }
 
-void Qtilities::CoreGui::ModeWidget::handleModeChangeRequest(int new_mode) {
+void Qtilities::CoreGui::ModeWidget::setActiveMode(const QString& mode_name) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->name_widget_map.count(); i++) {
-        if (d->name_widget_map.values().at(i)->modeID() == new_mode) {
+        if (d->name_widget_map.values().at(i)->text() == mode_name) {
+            d->modeList->setCurrentRow(i);
+            break;
+        }
+    }
+}
+
+void Qtilities::CoreGui::ModeWidget::setActiveMode(IMode* mode_iface) {
+    // Go through all the registered mode and try to match each mode with new_mode.
+    for (int i = 0; i < d->name_widget_map.count(); i++) {
+        if (d->name_widget_map.values().at(i) == mode_iface) {
             d->modeList->setCurrentRow(i);
             break;
         }

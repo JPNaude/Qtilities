@@ -61,7 +61,7 @@ namespace Qtilities {
 
         %Qtilities provides a main window architecture which allows you to create complex main windows easily. The Qtilities::CoreGui::QtilitiesMainWindow
         class is the main class. It supports modes that can be added to it, where modes are classes implementing the Qtilities::CoreGui::Interfaces::IMode interface.
-        Each mode provide a widget which and an icon identifying the mode. Modes are listed in in a top to bottom list view on the left hand of the main window and when a mode is clicked,
+        Each mode provide a widget and an icon identifying the mode. Modes are listed in in a top to bottom list view on the left hand of the main window and when a mode is clicked,
         its widget is set as the active widget in the main window.
 
         The Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
@@ -87,7 +87,9 @@ namespace Qtilities {
             //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
             void addModes(QList<QObject*> modes, bool initialize_modes = true);
             //! A list of the modes in this main window.
-            QList<IMode*> modes();
+            QList<IMode*> modes() const;
+            //! Returns the active mode.
+            IMode* activeMode() const;
 
             //! Saves the state of the main window.
             void writeSettings();
@@ -95,7 +97,20 @@ namespace Qtilities {
             void readSettings();           
 
         public slots:
+            //! The mode widget changes the central widget in the main window through this slot.
             void handleChangeCentralWidget(QWidget* new_central_widget);
+            //! Slot through which a new mode can be set by specifying the mode ID.
+            /*!
+              \param mode_id The mode ID of the mode. \sa IMode::modeID().
+              */
+            void setActiveMode(int mode_id);
+            //! Slot through which a new mode can be set by specifying the mode name.
+            /*!
+              \param mode_name The name of the mode. \sa IMode::text().
+              */
+            void setActiveMode(const QString& mode_name);
+            //! Slot through which a new mode can be set by specifying the mode interface.
+            void setActiveMode(IMode* mode_iface);
 
         private:
             Ui::QtilitiesMainWindow *ui;

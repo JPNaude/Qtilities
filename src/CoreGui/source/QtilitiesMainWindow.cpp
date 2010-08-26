@@ -86,8 +86,24 @@ void Qtilities::CoreGui::QtilitiesMainWindow::addModes(QList<QObject*> modes, bo
     d->mode_widget.addModes(modes,initialize_modes);
 }
 
-QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::QtilitiesMainWindow::modes() {
+QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::QtilitiesMainWindow::modes() const {
     return d->mode_widget.modes();
+}
+
+Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::QtilitiesMainWindow::activeMode() const {
+    return d->mode_widget.activeMode();
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(int mode_id) {
+    d->mode_widget.setActiveMode(mode_id);
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(const QString& mode_name) {
+    d->mode_widget.setActiveMode(mode_name);
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(IMode* mode_iface) {
+    d->mode_widget.setActiveMode(mode_iface);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {

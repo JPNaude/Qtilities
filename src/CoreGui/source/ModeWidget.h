@@ -72,11 +72,27 @@ namespace Qtilities {
             //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
             void addModes(QList<QObject*> modes, bool initialize_modes = true);
             //! A list of the modes in this mode widget.
-            QList<IMode*> modes();
+            QList<IMode*> modes() const;
+            //! Returns the active mode interface.
+            IMode* activeMode() const;
+
+        public slots:
+            //! Slot through which a new mode can be set by specifying the mode ID.
+            /*!
+              \param mode_id The mode ID of the mode. \sa IMode::modeID().
+              */
+            void setActiveMode(int mode_id);
+            //! Slot through which a new mode can be set by specifying the mode name.
+            /*!
+              \param mode_name The name of the mode. \sa IMode::text().
+              */
+            void setActiveMode(const QString& mode_name);
+            //! Slot through which a new mode can be set by specifying the mode interface.
+            void setActiveMode(IMode* mode_iface);
 
         private slots:
+            //! Handles selection changes in the top to bottom mode widget.
             void handleModeListCurrentItemChanged(QListWidgetItem * item);
-            void handleModeChangeRequest(int new_mode);
 
         signals:
             void changeCentralWidget(QWidget* new_central_widget);
