@@ -106,21 +106,21 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
     // ---------------------------
     // Copy
     // ---------------------------
-    d->actionCopy = new QAction(QIcon(),tr("Copy"),this);
+    d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
     d->actionCopy->setShortcut(QKeySequence(QKeySequence::Copy));
     d->actionCopy->setEnabled(false);
     Command* command = ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
     // Cut
     // ---------------------------
-    d->actionCut = new QAction(QIcon(),tr("Cut"),this);
+    d->actionCut = new QAction(QIcon(ICON_EDIT_CUT_16x16),tr("Cut"),this);
     d->actionCut->setShortcut(QKeySequence(QKeySequence::Cut));
     d->actionCut->setEnabled(false);
     command = ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
     // ---------------------------
     // Paste
     // ---------------------------
-    d->actionPaste = new QAction(QIcon(),tr("Paste"),this);
+    d->actionPaste = new QAction(QIcon(ICON_EDIT_PASTE_16x16),tr("Paste"),this);
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
     command = ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
