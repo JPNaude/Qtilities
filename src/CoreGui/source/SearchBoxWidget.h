@@ -106,9 +106,9 @@ namespace Qtilities {
             SearchBoxWidget(SearchOptions search_options = AllSearchOptions, WidgetMode mode = SearchOnly, ButtonFlags buttons = AllButtons, QWidget *parent = 0);
             ~SearchBoxWidget();
 
-            //! Returns the current search string in the search text box.
+            //! Gets the current search string in the search text box.
             QString currentSearchString() const;
-            //! Returns the current replace string in the replace text box.
+            //! Sets the current replace string in the replace text box.
             QString currentReplaceString() const;
             //! Indicates if the search string must be handled in a case sensitive way.
             bool caseSensitive() const;
@@ -124,6 +124,21 @@ namespace Qtilities {
             void setRegExpression(bool toggle);
             //! Sets focus to the search string text editor.
             void setEditorFocus();
+
+            //! Function to set the button flags of the widget.
+            void setButtonFlags(ButtonFlags button_flags);
+            //! Function to get the button flags of the widget.
+            ButtonFlags buttonFlags() const;
+            //! Function to set the search options of the widget.
+            void setSearchOptions(SearchOptions search_options);
+            //! Function to get the search options of the widget.
+            SearchOptions searchOptions() const;
+
+        public slots:
+            //! Sets the current search string in the search text box.
+            void setCurrentSearchString(const QString& search_string);
+            //! Gets the current replace string in the replace text box.
+            void setCurrentReplaceString(const QString& replace_string);
 
         protected:
             void changeEvent(QEvent *e);

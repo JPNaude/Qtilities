@@ -51,13 +51,13 @@
        <widget class="QLineEdit" name="txtSearchString">
         <property name="minimumSize">
          <size>
-          <width>130</width>
+          <width>220</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>212</width>
+          <width>220</width>
           <height>16777215</height>
          </size>
         </property>
@@ -168,13 +168,13 @@
        <widget class="QLineEdit" name="txtReplaceString">
         <property name="minimumSize">
          <size>
-          <width>130</width>
+          <width>220</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>212</width>
+          <width>220</width>
           <height>16777215</height>
          </size>
         </property>

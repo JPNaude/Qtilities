@@ -46,6 +46,9 @@ struct Qtilities::CoreGui::SearchBoxWidgetData {
     QAction* searchOptionCaseSensitive;
     QAction* searchOptionWholeWordsOnly;
     QAction* searchOptionRegEx;
+
+    SearchBoxWidget::ButtonFlags button_flags;
+    SearchBoxWidget::SearchOptions search_options;
 };
 
 Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
@@ -54,6 +57,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
 {
     ui->setupUi(this);
     d = new SearchBoxWidgetData;
+
     setWindowTitle(tr("Search Box Widget"));
 
     // Connect ui signals to own signals which will be monitored by this widget's parent
@@ -72,32 +76,10 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
         setFixedHeight(52);
     }
 
-    // Shows buttons according to button flags
-    if (buttons & NextButtons) {
-        ui->btnFindNext->show();
-        ui->btnReplaceNext->show();
-    } else {
-        ui->btnFindNext->hide();
-        ui->btnReplaceNext->hide();
-    }
-    if (buttons & PreviousButtons) {
-        ui->btnFindPrevious->show();
-        ui->btnReplacePrevious->show();
-    } else {
-        ui->btnFindPrevious->hide();
-        ui->btnReplacePrevious->hide();
-    }
-    if (buttons & HideButton) {
-        ui->btnClose->show();
-    } else {
-        ui->btnClose->hide();
-    }
-
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu("Search Options");
     ui->btnSearchOptions->setIcon(QIcon(ICON_SEARCH_OPTIONS));
     ui->btnSearchOptions->setIconSize(QSize(16,16));
-
     d->searchOptionCaseSensitive = new QAction("Case Sensitive",0);
     d->searchOptionCaseSensitive->setCheckable(true);
     d->searchOptionsMenu->addAction(d->searchOptionCaseSensitive);
@@ -108,30 +90,12 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     d->searchOptionRegEx = new QAction("Use Regular Expression",0);
     d->searchOptionsMenu->addAction(d->searchOptionRegEx);
     d->searchOptionRegEx->setCheckable(true);
-
-    if (search_options & CaseSensitive) {
-        d->searchOptionCaseSensitive->setVisible(true);
-        d->searchOptionCaseSensitive->setChecked(true);
-    } else {
-        d->searchOptionCaseSensitive->setVisible(false);
-    }
-
-    if (search_options & WholeWordsOnly) {
-        d->searchOptionWholeWordsOnly->setVisible(true);
-        d->searchOptionWholeWordsOnly->setChecked(true);
-    } else {
-        d->searchOptionWholeWordsOnly->setVisible(false);
-    }
-
-    if (search_options & RegEx) {
-        d->searchOptionRegEx->setVisible(true);
-        d->searchOptionRegEx->setChecked(true);
-    } else {
-        d->searchOptionRegEx->setVisible(false);
-    }
-
     ui->btnSearchOptions->setPopupMode(QToolButton::InstantPopup);
     ui->btnSearchOptions->setMenu(d->searchOptionsMenu);
+
+    // Inspect the search options and button flags:
+    setButtonFlags(buttons);
+    setSearchOptions(search_options);
 }
 
 Qtilities::CoreGui::SearchBoxWidget::~SearchBoxWidget()
@@ -144,8 +108,16 @@ QString Qtilities::CoreGui::SearchBoxWidget::currentSearchString() const {
     return ui->txtSearchString->text();
 }
 
+void Qtilities::CoreGui::SearchBoxWidget::setCurrentSearchString(const QString& search_string) {
+    ui->txtSearchString->setText(search_string);
+}
+
 QString Qtilities::CoreGui::SearchBoxWidget::currentReplaceString() const {
     return ui->txtReplaceString->text();
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setCurrentReplaceString(const QString& replace_string) {
+    ui->txtReplaceString->setText(replace_string);
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::changeEvent(QEvent *e)
@@ -206,4 +178,61 @@ void Qtilities::CoreGui::SearchBoxWidget::setRegExpression(bool toggle) {
 
 void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus() {
     ui->txtSearchString->setFocus();
+}
+
+
+void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {
+    d->button_flags = button_flags;
+    // Shows buttons according to button flags
+    if (d->button_flags & NextButtons) {
+        ui->btnFindNext->show();
+        ui->btnReplaceNext->show();
+    } else {
+        ui->btnFindNext->hide();
+        ui->btnReplaceNext->hide();
+    }
+    if (d->button_flags & PreviousButtons) {
+        ui->btnFindPrevious->show();
+        ui->btnReplacePrevious->show();
+    } else {
+        ui->btnFindPrevious->hide();
+        ui->btnReplacePrevious->hide();
+    }
+    if (d->button_flags & HideButton) {
+        ui->btnClose->show();
+    } else {
+        ui->btnClose->hide();
+    }
+}
+
+Qtilities::CoreGui::SearchBoxWidget::ButtonFlags Qtilities::CoreGui::SearchBoxWidget::buttonFlags() const {
+    return d->button_flags;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setSearchOptions(SearchOptions search_options) {
+    d->search_options = search_options;
+    if (d->search_options & CaseSensitive) {
+        d->searchOptionCaseSensitive->setVisible(true);
+        d->searchOptionCaseSensitive->setChecked(true);
+    } else {
+        d->searchOptionCaseSensitive->setVisible(false);
+    }
+
+    if (d->search_options & WholeWordsOnly) {
+        d->searchOptionWholeWordsOnly->setVisible(true);
+        d->searchOptionWholeWordsOnly->setChecked(true);
+    } else {
+        d->searchOptionWholeWordsOnly->setVisible(false);
+    }
+
+    if (d->search_options & RegEx) {
+        d->searchOptionRegEx->setVisible(true);
+        d->searchOptionRegEx->setChecked(true);
+    } else {
+        d->searchOptionRegEx->setVisible(false);
+    }
+}
+
+Qtilities::CoreGui::SearchBoxWidget::SearchOptions Qtilities::CoreGui::SearchBoxWidget::searchOptions() const {
+    return d->search_options;
 }
