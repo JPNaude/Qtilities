@@ -76,22 +76,33 @@ namespace Qtilities {
            };
 
         /*!
-        \struct FactoryData
+        \struct FactoryInterfaceData
         \brief A structure storing data related to a factory interface.
+
+        The FactoryInterfaceData struct is used to store information about a factory interface within the factory.
           */
         struct FactoryInterfaceData {
+            //! Constructs an empty FactoryInterfaceData structure.
             FactoryInterfaceData() {}
             ~FactoryInterfaceData() {}
+            //! Creates a new factory data object.
+            /*!
+              \param iface_tag The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.
+              \param iface_category A list of categories to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
+              \param iface_contexts A list of contexts which must be associated with this interface.
+              */
             FactoryInterfaceData(const QString& iface_tag, const QStringList& iface_category = QStringList(), const QStringList& iface_contexts = QStringList()) {
                 tag = iface_tag;
                 contexts = iface_contexts;
                 category = iface_category;
             }
+            //! FactoryInterfaceData copy constructor.
             FactoryInterfaceData(const FactoryInterfaceData& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
                 category = ref.category;
             }
+            //! Overload of the = operator.
             void operator=(const FactoryInterfaceData& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
@@ -111,7 +122,7 @@ namespace Qtilities {
           by only providing the factory with the needed interface tag.
 
           For more information see the \ref page_factories article.
-          \sa FactoryInterface, FactoryItem
+          \sa FactoryInterface, FactoryItem, IFactory
         */
         template <class BaseClass>
         class Factory
@@ -123,9 +134,10 @@ namespace Qtilities {
               //! Registers a new factory interface implementation. The string 'factory_tag' can be used to generate instances of this implementation.
               /*!
                 \param interface The factory item interface.
-                \param iface_data A structure providing information about the factory item interface.
+                \param iface_data A structure providing information about the factory item interface. If another item interface with the same tag already exists, the function call will fail and false will be returned. The tag must also contain a value.
+                \returns True if the interface was registered succesfully, false otherwise.
                 */
-              void registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceData iface_data) {
+              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceData iface_data) {
                   if (!iface_data.tag.isEmpty()) {
                       // Check that multiple tags don't exist
                       // Don't check the interface itself, sometimes it is desirable to
@@ -133,10 +145,13 @@ namespace Qtilities {
                       if (!reg_ifaces.keys().contains(iface_data.tag)) {
                           reg_ifaces[iface_data.tag] = interface;
                           data_ifaces[iface_data.tag] = iface_data;
+                          return true;
                       } else
-                          return;
-                 } else
-                     Q_ASSERT(!iface_data.tag.isEmpty());
+                          return false;
+                  } else {
+                      Q_ASSERT(!iface_data.tag.isEmpty());
+                      return false;
+                  }
               }
               //! Unregister a factory interface implementation.
               inline void unregisterFactoryInterface(const QString& tag) {
@@ -144,7 +159,7 @@ namespace Qtilities {
                   data_ifaces.remove(tag);
               }
               //! Returns a list of registered tags for a given context. By default all contexts are returned.
-              QStringList Tags(const QString& context = QString()) const {
+              QStringList tags(const QString& context = QString()) const {
                 if (!context.isEmpty()) {
                     QStringList tags;
                     for (int i = 0; i < data_ifaces.count(); i++) {
@@ -181,7 +196,7 @@ namespace Qtilities {
               inline bool isTagValid(const QString& tag) const {
                   return data_ifaces.keys().contains(tag);
               }
-              //! Creates an instance of the factory interface implementation registered with the specified tag. If an invalid tag is specified, and assertion will be raised.
+              //! Creates an instance of the factory interface implementation registered with the specified tag. If an invalid tag is specified, null will be returned.
               BaseClass* createInstance(const QString& tag) {
                   for (int i = 0; i < data_ifaces.count(); i++) {
                       if (tag == data_ifaces.values().at(i).tag)
