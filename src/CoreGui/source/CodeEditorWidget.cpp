@@ -38,25 +38,9 @@
 #include <QtilitiesCoreGui>
 
 #include <QFileInfo>
-#include <QTextCursor>
-#include <QTextDocumentWriter>
-#include <QTextList>
-#include <QtDebug>
-#include <QCloseEvent>
-#include <QMessageBox>
-#include <QPrintPreviewDialog>
-#include <QFileDialog>
-#include <QPrintDialog>
-#include <QPrinter>
-#include <QClipboard>
-#include <QPlainTextEdit>
-#include <QPainter>
-#include <QRect>
+#include <QtGui>
 
 using namespace QtilitiesCoreGui;
-
-QPointer<Qtilities::CoreGui::CodeEditorWidget> Qtilities::CoreGui::CodeEditorWidget::currentWidget;
-QPointer<Qtilities::CoreGui::CodeEditorWidget> Qtilities::CoreGui::CodeEditorWidget::actionContainerWidget;
 
 struct Qtilities::CoreGui::CodeEditorWidgetData {
     CodeEditorWidgetData() : actionNew(0),
@@ -70,16 +54,16 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     actionRedo(0),
     actionCut(0),
     actionCopy(0),
-    actionPaste(0),
     actionClear(0),
     actionSelectAll(0),
     actionFind(0),
     codeEditor(0),
     syntax_highlighter(0),
     searchBoxWidget(0),
+    action_provider(0),
     cursor_word_highlighter(0),
     cursor_find(0),
-    cursor_repleace(0) {}
+    cursor_replace(0) {}
     
     QAction* actionNew;
     QAction* actionOpen;
@@ -91,33 +75,53 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     QAction* actionUndo;
     QAction* actionRedo;
     QAction* actionCut;
-    QAction* actionCopy;
-    QAction* actionPaste;    
+    QAction* actionCopy;   
     QAction* actionClear;
     QAction* actionSelectAll;
     QAction* actionFind;
 
+    //! The file name linked to the contents of the code editor. \sa loadFile()
+    QString current_file;
+    //! The global meta type string used for this editor.
+    QString global_meta_type;
+
+    //! The central widget of the main window.
+    QWidget* central_widget;
+    //! The contained code editor.
     CodeEditor* codeEditor;
+    //! The syntax highlighter used.
     QPointer<QSyntaxHighlighter> syntax_highlighter;
+    //! The contained search box widget.
     SearchBoxWidget* searchBoxWidget;
+
+    //! The IActionProvider interface implementation.
+    ActionProvider* action_provider;
+    //! Stores the display flags for this code editor.
+    CodeEditorWidget::DisplayFlags display_flags;
+    //! Stores the action flags for this code editor.
+    CodeEditorWidget::ActionFlags action_flags;
+    //! The action toolbars list. Contains toolbars created for each category in the action provider.
+    QList<QToolBar*> action_toolbars;
 
     //! A QTextCursor which handles highlighting of words in the document.
     QTextCursor* cursor_word_highlighter;
     //! A QTextCursor which handles finding of words.
     QTextCursor* cursor_find;
     //! A QTextCursor which handles replacing of words.
-    QTextCursor* cursor_repleace;
+    QTextCursor* cursor_replace;
 };
 
-Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(bool show_search_box, QWidget* parent) :
-    QWidget(parent),
+Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags, DisplayFlags display_flags, QWidget* parent) :
+    QMainWindow(parent),
     ui(new Ui::CodeEditorWidget)
 {
     ui->setupUi(this);
-    ui->widgetSearchBox->setVisible(false);
     d = new CodeEditorWidgetData;
-
-    currentWidget = this;
+    d->action_flags = action_flags;
+    d->display_flags = display_flags;
+    d->action_provider = new ActionProvider(this);
+    d->central_widget = new QWidget();
+    setCentralWidget(d->central_widget);
 
     // Create the code editor:
     d->codeEditor = new CodeEditor();
@@ -127,23 +131,63 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(bool show_search_box, QWi
     // Create the text cursors:
     d->cursor_word_highlighter = new QTextCursor(d->codeEditor->document());
     d->cursor_find = new QTextCursor(d->codeEditor->document());
-    d->cursor_repleace = new QTextCursor(d->codeEditor->document());
+    d->cursor_replace = new QTextCursor(d->codeEditor->document());
 
-    if (ui->widgetEditorHolder->layout())
-        delete ui->widgetEditorHolder->layout();
+    // Read the settings for this editor:
+    handleSettingsUpdateRequest(d->global_meta_type);
+    connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
 
-    // Create new layout & splitter
-    QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->widgetEditorHolder);
+    // Construct and show search box widget:
+    handle_actionFindItem_triggered();
+    d->searchBoxWidget->setVisible(display_flags & SearchBox);
+
+    // Create new layout:
+    if (d->central_widget->layout())
+        delete d->central_widget->layout();
+
+    QBoxLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom,d->central_widget);
     layout->addWidget(d->codeEditor);
+    layout->addWidget(d->searchBoxWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    // Read the settings for this editor
-    handleSettingsUpdateRequest(CONTEXT_CODE_EDITOR_WIDGET);
-    connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
+    // Assign a default meta type for this widget:
+    // We construct each action and then register it
+    QString context_string = "CodeEditor";
+    int count = 0;
+    context_string.append(QString("%1").arg(count));
+    while (CONTEXT_MANAGER->hasContext(context_string)) {
+        QString count_string = QString("%1").arg(count);
+        context_string.chop(count_string.length());
+        ++count;
+        context_string.append(QString("%1").arg(count));
+    }
+    d->global_meta_type = context_string;
 
-    if (show_search_box)
-        handle_actionFindItem_triggered();
+    // Create actions only after global meta type was set.
+    constructActions();
+
+    // Action toolbars construction:
+    if (d->display_flags & ActionToolBar) {
+        QList<QStringList> categories = d->action_provider->actionCategories();
+        for (int i = 0; i < categories.count(); i++) {
+            QToolBar* new_toolbar = addToolBar(categories.at(i).back());
+            d->action_toolbars << new_toolbar;
+            new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
+        }
+    }
+
+    // Check if we must connect to the paste action for the new hints:
+    Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+    if (command) {
+        if (command->action()) {
+            if (d->action_flags & ActionPaste)
+                connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
+            else
+                command->action()->disconnect();
+        }
+    }
+
 }
 
 Qtilities::CoreGui::CodeEditorWidget::~CodeEditorWidget() {
@@ -153,13 +197,47 @@ Qtilities::CoreGui::CodeEditorWidget::~CodeEditorWidget() {
 
 bool Qtilities::CoreGui::CodeEditorWidget::eventFilter(QObject *object, QEvent *event) {
     if (object == d->codeEditor && event->type() == QEvent::FocusIn) {
-        currentWidget = this;
         refreshActions();
         CONTEXT_MANAGER->setNewContext(contextString(),true);
+
+        if (d->action_flags & ActionPaste) {
+            // Connect to the paste action
+            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+            if (command) {
+                if (command->action())
+                    connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
+            }
+        }
     } else if (object == d->codeEditor->viewport() && event->type() == QEvent::FocusIn) {
-        currentWidget = this;
         refreshActions();
         CONTEXT_MANAGER->setNewContext(contextString(),true);
+
+        if (d->action_flags & ActionPaste) {
+            // Connect to the paste action
+            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+            if (command) {
+                if (command->action())
+                    connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
+            }
+        }
+    } else if (object == d->codeEditor && event->type() == QEvent::FocusOut) {
+        if (d->action_flags & ActionPaste) {
+            // Disconnect the paste action from the this widget.
+            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+            if (command) {
+                if (command->action())
+                    command->action()->disconnect(this);
+            }
+        }
+    } else if (object == d->codeEditor->viewport() && event->type() == QEvent::FocusOut) {
+        if (d->action_flags & ActionPaste) {
+            // Disconnect the paste action from the this widget.
+            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+            if (command) {
+                if (command->action())
+                    command->action()->disconnect(this);
+            }
+        }
     }
     return false;
 }
@@ -226,15 +304,38 @@ bool Qtilities::CoreGui::CodeEditorWidget::loadFile(const QString &file_name) {
     d->codeEditor->document()->setModified(false);
     d->codeEditor->setPlainText(contents);
     setWindowModified(false);
+    d->current_file = file_name;
 
     return true;
+}
+
+bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
+    if (file_name.isEmpty())
+        file_name = d->current_file;
+
+    QFile file(file_name);
+    if (!file.open(QFile::WriteOnly))
+        return false;
+
+    file.write(d->codeEditor->toPlainText().toLocal8Bit());
+    file.close();
+
+    updateSaveAction();
+    return true;
+}
+
+QString Qtilities::CoreGui::CodeEditorWidget::fileName() const {
+    return d->current_file;
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::maybeSave() {
     if (!d->codeEditor->document()->isModified())
         return true;
     QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr("Code Editor"),tr("The document has been modified.\nDo you want to save your changes?"),QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (d->current_file.isEmpty())
+        ret = QMessageBox::warning(this, tr("Code Editor"),tr("The document has been modified.\nDo you want to save your changes?"),QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    else
+        ret = QMessageBox::warning(this, tr("File Changed"),QString(tr("The modified document is linked to the following file:\n\n%1\n\nDo you want to save your changes?")).arg(d->current_file),QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Save)
         return handle_actionSave_triggered();
     else if (ret == QMessageBox::Cancel)
@@ -242,9 +343,27 @@ bool Qtilities::CoreGui::CodeEditorWidget::maybeSave() {
     return true;
 }
 
+
+Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::CodeEditorWidget::actionProvider() {
+    return d->action_provider;
+}
+
+bool Qtilities::CoreGui::CodeEditorWidget::setGlobalMetaType(const QString& meta_type) {
+    // Check if this global meta type is allowed.
+    if (CONTEXT_MANAGER->hasContext(meta_type))
+        return false;
+
+    d->global_meta_type = meta_type;
+    return true;
+}
+
+QString Qtilities::CoreGui::CodeEditorWidget::globalMetaType() const {
+    return d->global_meta_type;
+}
+
 void Qtilities::CoreGui::CodeEditorWidget::handle_actionNew_triggered() {
     if (maybeSave()) {
-        currentWidget->d->codeEditor->clear();
+        d->codeEditor->clear();
     }
 }
 
@@ -256,7 +375,10 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionOpen_triggered() {
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSave_triggered() {
-    return handle_actionSaveAs_triggered();
+    if (!d->current_file.isEmpty())
+        return saveFile();
+    else
+        return handle_actionSaveAs_triggered();
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSaveAs_triggered() {
@@ -265,26 +387,18 @@ bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSaveAs_triggered() {
     if (fileName.isEmpty())
         return false;
 
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly))
-        return false;
-
-    file.write(d->codeEditor->toPlainText().toLocal8Bit());
-    file.close();
-
-    updateSaveAction();
-    return true;
+    return saveFile(fileName);
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrint_triggered() {
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
-    if (currentWidget->d->codeEditor->textCursor().hasSelection())
+    if (d->codeEditor->textCursor().hasSelection())
         dlg->addEnabledOption(QAbstractPrintDialog::PrintSelection);
     dlg->setWindowTitle(tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted) {
-        currentWidget->d->codeEditor->print(&printer);
+        d->codeEditor->print(&printer);
     }
     delete dlg;
 #endif
@@ -304,7 +418,7 @@ void Qtilities::CoreGui::CodeEditorWidget::printPreview(QPrinter *printer)
 #ifdef QT_NO_PRINTER
     Q_UNUSED(printer);
 #else
-    currentWidget->d->codeEditor->print(printer);
+    d->codeEditor->print(printer);
 #endif
 }
 
@@ -318,13 +432,13 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrintPdf_triggered() {
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(fileName);
-        currentWidget->d->codeEditor->document()->print(&printer);
+        d->codeEditor->document()->print(&printer);
     }
 #endif
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QString& request_id) {
-    if (request_id == CONTEXT_CODE_EDITOR_WIDGET) {
+    if (request_id == d->global_meta_type) {
         // Read the text editor settings from QSettings
         QSettings settings;
         settings.beginGroup("GUI");
@@ -344,10 +458,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
-    if (!currentWidget)
-        return;
-
-    if (!currentWidget->d->searchBoxWidget) {
+    if (!d->searchBoxWidget) {
         SearchBoxWidget::SearchOptions search_options = 0;
         search_options |= SearchBoxWidget::CaseSensitive;
         search_options |= SearchBoxWidget::WholeWordsOnly;
@@ -355,37 +466,30 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         button_flags |= SearchBoxWidget::HideButton;
         button_flags |= SearchBoxWidget::NextButtons;
         button_flags |= SearchBoxWidget::PreviousButtons;
-        currentWidget->d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
-        currentWidget->d->searchBoxWidget->layout()->setContentsMargins(3,0,0,0);
-        currentWidget->d->searchBoxWidget->setWholeWordsOnly(false);
-        if (currentWidget->ui->widgetSearchBox->layout())
-            delete currentWidget->ui->widgetSearchBox->layout();
+        d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
+        d->searchBoxWidget->layout()->setContentsMargins(3,0,0,0);
+        d->searchBoxWidget->setWholeWordsOnly(false);
+        d->searchBoxWidget->show();
 
-        QHBoxLayout* layout = new QHBoxLayout(currentWidget->ui->widgetSearchBox);
-        layout->addWidget(currentWidget->d->searchBoxWidget);
-        layout->setMargin(0);
-        currentWidget->d->searchBoxWidget->show();
-
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(searchOptionsChanged()),currentWidget,SLOT(handleSearchOptionsChanged()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),currentWidget,SLOT(handleSearchStringChanged(QString)));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnClose_clicked()),currentWidget->ui->widgetSearchBox,SLOT(hide()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnClose_clicked()),currentWidget,SLOT(handleSearchReset()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),currentWidget,SLOT(handleSearchFindNext()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),currentWidget,SLOT(handleSearchFindPrevious()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnReplaceNext_clicked()),currentWidget,SLOT(handleSearchReplaceNext()));
-        connect(currentWidget->d->searchBoxWidget,SIGNAL(btnReplacePrevious_clicked()),currentWidget,SLOT(handleSearchReplacePrevious()));
+        connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
+        connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));
+        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->searchBoxWidget,SLOT(hide()));
+        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),SLOT(handleSearchReset()));
+        connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handleSearchFindNext()));
+        connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handleSearchFindPrevious()));
+        connect(d->searchBoxWidget,SIGNAL(btnReplaceNext_clicked()),SLOT(handleSearchReplaceNext()));
+        connect(d->searchBoxWidget,SIGNAL(btnReplacePrevious_clicked()),SLOT(handleSearchReplacePrevious()));
     }
 
-    currentWidget->ui->widgetSearchBox->show();
-    currentWidget->d->searchBoxWidget->setEditorFocus();
+    d->searchBoxWidget->setEditorFocus();
 
     // We check if there is a selection in the user visible cursor. If so we set that as the search string.
-    QTextCursor visible_cursor = currentWidget->d->codeEditor->textCursor();
+    QTextCursor visible_cursor = d->codeEditor->textCursor();
     if (visible_cursor.hasSelection()) {
-        currentWidget->d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
+        d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
     }
 
-    currentWidget->handleSearchStringChanged(currentWidget->d->searchBoxWidget->currentSearchString());
+    handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSearchOptionsChanged() {
@@ -393,9 +497,6 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSearchOptionsChanged() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSearchStringChanged(const QString& filter_string) {
-    if (!currentWidget)
-        return;
-
     QTextDocument::FindFlags find_flags = 0;
     if (d->searchBoxWidget->wholeWordsOnly())
         find_flags |= QTextDocument::FindWholeWords;
@@ -414,12 +515,10 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSearchReset() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {
-    if (!actionContainerWidget) {
+    if (d->codeEditor->document()->isModified())
+        d->actionSave->setEnabled(true);
+    else
         d->actionSave->setEnabled(false);
-        return;
-    }
-
-    actionContainerWidget->d->actionSave->setEnabled(true);
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSearchFindNext() {
@@ -454,128 +553,160 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSearchReplacePrevious() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
-    if (actionContainerWidget)
-        return;
-    actionContainerWidget = this;
-
-    // Register the context:
-    int context_id = CONTEXT_MANAGER->registerContext(contextString());
-
+    int context_id = CONTEXT_MANAGER->registerContext(d->global_meta_type);
     QList<int> context;
     context.push_front(context_id);
 
     // ---------------------------
     // New
     // ---------------------------
-    d->actionNew = new QAction(QIcon(),"",this);
-    connect(d->actionNew,SIGNAL(triggered()),SLOT(handle_actionNew_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_NEW,d->actionNew,context);
+    if (d->action_flags & ActionNew) {
+        d->actionNew = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("New"),this);
+        d->action_provider->addAction(d->actionNew,QStringList(tr("File")));
+        connect(d->actionNew,SIGNAL(triggered()),SLOT(handle_actionNew_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_NEW,d->actionNew,context);
+    }
     // ---------------------------
     // Open
     // ---------------------------
-    d->actionOpen = new QAction(QIcon(),"",this);
-    connect(d->actionOpen,SIGNAL(triggered()),SLOT(handle_actionOpen_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_OPEN,d->actionOpen,context);
+    if (d->action_flags & ActionOpenFile) {
+        d->actionOpen = new QAction(QIcon(ICON_FILE_OPEN_16x16),tr("Open"),this);
+        d->action_provider->addAction(d->actionOpen,QStringList(tr("File")));
+        connect(d->actionOpen,SIGNAL(triggered()),SLOT(handle_actionOpen_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_OPEN,d->actionOpen,context);
+    }
     // ---------------------------
     // Save
     // ---------------------------
-    d->actionSave = new QAction(QIcon(),"",this);
-    d->actionSave->setEnabled(false);
-    connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_actionSave_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
+    if (d->action_flags & ActionSaveFile) {
+        d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
+        d->actionSave->setEnabled(false);
+        d->action_provider->addAction(d->actionSave,QStringList(tr("File")));
+        connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_actionSave_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
+    }
     // ---------------------------
     // SaveAs
     // ---------------------------
-    d->actionSaveAs = new QAction(QIcon(),"",this);
-    connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(handle_actionSaveAs_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_SAVE_AS,d->actionSaveAs,context);
+    if (d->action_flags & ActionSaveFileAs) {
+        d->actionSaveAs = new QAction(QIcon(ICON_FILE_SAVEAS_16x16),tr("Save As"),this);
+        d->action_provider->addAction(d->actionSaveAs,QStringList(tr("File")));
+        connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(handle_actionSaveAs_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_SAVE_AS,d->actionSaveAs,context);
+    }
     // ---------------------------
     // Print
     // ---------------------------
-    d->actionPrint = new QAction(QIcon(),"",this);
-    connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_actionPrint_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
+    if (d->action_flags & ActionPrint) {
+        d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
+        d->action_provider->addAction(d->actionPrint,QStringList(tr("Print")));
+        connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_actionPrint_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
+    }
     // ---------------------------
     // PrintPreview
     // ---------------------------
-    d->actionPrintPreview = new QAction(QIcon(),"",this);
-    connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_actionPrintPreview_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    if (d->action_flags & ActionPrintPreview) {
+        d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
+        d->action_provider->addAction(d->actionPrintPreview,QStringList(tr("Print")));
+        connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_actionPrintPreview_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    }
     // ---------------------------
     // PrintPDF
     // ---------------------------
-    d->actionPrintPdf = new QAction(QIcon(),"",this);
-    connect(d->actionPrintPdf,SIGNAL(triggered()),SLOT(handle_actionPrintPdf_triggered()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPdf,context);
+    if (d->action_flags & ActionPrintPDF) {
+        d->actionPrintPdf = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
+        d->action_provider->addAction(d->actionPrintPdf,QStringList(tr("Print")));
+        connect(d->actionPrintPdf,SIGNAL(triggered()),SLOT(handle_actionPrintPdf_triggered()));
+        ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPdf,context);
+    }
     // ---------------------------
     // Undo
     // ---------------------------
-    d->actionUndo = new QAction(QIcon(),"",this);
-    connect(d->actionUndo,SIGNAL(triggered()),d->codeEditor,SLOT(undo()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_UNDO,d->actionUndo,context);
+    if (d->action_flags & ActionUndo) {
+        d->actionUndo = new QAction(QIcon(ICON_EDIT_UNDO_16x16),tr("Undo"),this);
+        d->action_provider->addAction(d->actionUndo,QStringList(tr("Clipboard")));
+        connect(d->actionUndo,SIGNAL(triggered()),d->codeEditor,SLOT(undo()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_UNDO,d->actionUndo,context);
+    }
     // ---------------------------
     // Redo
     // ---------------------------
-    d->actionRedo = new QAction(QIcon(),"",this);
-    connect(d->actionRedo,SIGNAL(triggered()),d->codeEditor,SLOT(redo()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_REDO,d->actionRedo,context);
+    if (d->action_flags & ActionRedo) {
+        d->actionRedo = new QAction(QIcon(ICON_EDIT_REDO_16x16),tr("Redo"),this);
+        d->action_provider->addAction(d->actionRedo,QStringList(tr("Clipboard")));
+        connect(d->actionRedo,SIGNAL(triggered()),d->codeEditor,SLOT(redo()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_REDO,d->actionRedo,context);
+    }
     // ---------------------------
     // Cut
     // ---------------------------
-    d->actionCut = new QAction(QIcon(),"",this);
-    connect(d->actionCut,SIGNAL(triggered()),d->codeEditor,SLOT(cut()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
+    if (d->action_flags & ActionCut) {
+        d->actionCut = new QAction(QIcon(ICON_EDIT_CUT_16x16),tr("Cut"),this);
+        d->action_provider->addAction(d->actionCut,QStringList(tr("Clipboard")));
+        connect(d->actionCut,SIGNAL(triggered()),d->codeEditor,SLOT(cut()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
+    }
     // ---------------------------
     // Copy
     // ---------------------------
-    d->actionCopy = new QAction(QIcon(),"",this);
-    connect(d->actionCopy,SIGNAL(triggered()),d->codeEditor,SLOT(copy()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
+    if (d->action_flags & ActionCopy) {
+        d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
+        d->action_provider->addAction(d->actionCopy,QStringList(tr("Clipboard")));
+        connect(d->actionCopy,SIGNAL(triggered()),d->codeEditor,SLOT(copy()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
+    }
     // ---------------------------
     // Paste
     // ---------------------------
-    d->actionPaste = new QAction(QIcon(),"",this);
-    connect(d->actionPaste,SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
+    if (d->action_flags & ActionPaste) {
+        Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action()) {
+                d->action_provider->addAction(command->action(),QStringList(tr("Clipboard")));
+                connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
+            }
+        }
+    }
     // ---------------------------
     // Select All
     // ---------------------------
-    d->actionSelectAll = new QAction(QIcon(),"",this);
-    connect(d->actionSelectAll,SIGNAL(triggered()),d->codeEditor,SLOT(selectAll()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    if (d->action_flags & ActionSelectAll) {
+        d->actionSelectAll = new QAction(QIcon(ICON_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
+        d->action_provider->addAction(d->actionSelectAll,QStringList(tr("Selection")));
+        connect(d->actionSelectAll,SIGNAL(triggered()),d->codeEditor,SLOT(selectAll()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    }
     // ---------------------------
     // Clear
     // ---------------------------
-    d->actionClear = new QAction(QIcon(),"",this);
-    connect(d->actionClear,SIGNAL(triggered()),d->codeEditor,SLOT(clear()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
+    if (d->action_flags & ActionClear) {
+        d->actionClear = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("Clear"),this);
+        d->action_provider->addAction(d->actionClear,QStringList(tr("Selection")));
+        connect(d->actionClear,SIGNAL(triggered()),d->codeEditor,SLOT(clear()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
+    }
     // ---------------------------
     // Find
     // ---------------------------
-    d->actionFind = new QAction(QIcon(),"",this);
-    connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
+    if (d->action_flags & ActionFind) {
+        d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
+        d->action_provider->addAction(d->actionFind,QStringList(tr("Selection")));
+        connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
+        ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
+    }
+
+    connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCut, SLOT(setEnabled(bool)));
+    connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCopy, SLOT(setEnabled(bool)));
+    connect(d->codeEditor, SIGNAL(undoAvailable(bool)), d->actionUndo, SLOT(setEnabled(bool)));
+    connect(d->codeEditor, SIGNAL(redoAvailable(bool)), d->actionRedo, SLOT(setEnabled(bool)));
+    connect(d->codeEditor,SIGNAL(modificationChanged(bool)),d->actionSave,SLOT(setEnabled(bool)));
 }
 
-
 void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {
-    if (!actionContainerWidget)
-        constructActions();
-
-    if (!currentWidget)
-        return;
-
-    // Connect actions to correct editor
-    connect(currentWidget->d->codeEditor, SIGNAL(copyAvailable(bool)), actionContainerWidget->d->actionCut, SLOT(setEnabled(bool)));
-    connect(currentWidget->d->codeEditor, SIGNAL(copyAvailable(bool)), actionContainerWidget->d->actionCopy, SLOT(setEnabled(bool)));
-    connect(currentWidget->d->codeEditor, SIGNAL(undoAvailable(bool)), actionContainerWidget->d->actionUndo, SLOT(setEnabled(bool)));
-    connect(currentWidget->d->codeEditor, SIGNAL(redoAvailable(bool)), actionContainerWidget->d->actionRedo, SLOT(setEnabled(bool)));
-
     // Update actions
-    actionContainerWidget->d->actionUndo->setEnabled(currentWidget->d->codeEditor->document()->isUndoAvailable());
-    actionContainerWidget->d->actionRedo->setEnabled(currentWidget->d->codeEditor->document()->isRedoAvailable());
-    #ifndef QT_NO_CLIPBOARD
-        actionContainerWidget->d->actionPaste->setEnabled(!QApplication::clipboard()->text().isEmpty());
-    #endif
+    d->actionUndo->setEnabled(d->codeEditor->document()->isUndoAvailable());
+    d->actionRedo->setEnabled(d->codeEditor->document()->isRedoAvailable());
 }
 
