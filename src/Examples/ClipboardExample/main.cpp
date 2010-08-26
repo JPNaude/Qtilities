@@ -55,6 +55,9 @@ int main(int argc, char *argv[])
     Log->setGlobalLogLevel(Logger::Debug);
     Log->setIsQtMessageHandler(true);
 
+    QMainWindow* main_window = new QMainWindow();
+    QtilitiesApplication::setMainWindow(main_window);
+
     // Create the menu bar and menus in the menu bar:
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
@@ -113,6 +116,7 @@ int main(int argc, char *argv[])
     action_hints |= ObserverHints::ActionCutItem;
     action_hints |= ObserverHints::ActionPasteItem;
     action_hints |= ObserverHints::ActionSwitchView;
+    action_hints |= ObserverHints::ActionFindItem;
     observerA->displayHints()->setActionHints(action_hints);
     observerA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     ObserverHints::DisplayFlags display_flags = 0;
@@ -236,7 +240,6 @@ int main(int argc, char *argv[])
     config_widget.initialize(registered_config_pages);
 
     // Create a main widget container:
-    QMainWindow* main_window = new QMainWindow();
     main_window->setCentralWidget(observer_widget_container);
     main_window->addDockWidget(Qt::BottomDockWidgetArea,log_dock_widget);
     main_window->resize(1000,800);

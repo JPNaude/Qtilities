@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
     if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
-        LOG_WARNING(QObject::tr("Failed to loaded shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
+        LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
 
     // Show the main window:
     exampleMainWindow.show();
