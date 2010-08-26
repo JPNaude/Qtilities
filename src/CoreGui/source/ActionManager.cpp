@@ -175,12 +175,6 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
     return 0;
 }
 
-void Qtilities::CoreGui::ActionManager::multiContextActionTriggerTester() {
-    #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-    LOG_TRACE("Front end action triggered");
-    #endif
-}
-
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
     // First check if an action with the specified id already exist:
     if (d->id_command_map.keys().contains(id)) {
