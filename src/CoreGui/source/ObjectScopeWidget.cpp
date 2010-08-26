@@ -55,6 +55,12 @@ using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
+namespace Qtilities {
+    namespace CoreGui {
+        FactoryItem<QWidget, ObjectScopeWidget> ObjectScopeWidget::factory;
+    }
+}
+
 QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::currentWidget;
 QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::actionContainerWidget;
 

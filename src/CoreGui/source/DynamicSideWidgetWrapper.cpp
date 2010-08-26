@@ -49,7 +49,8 @@ struct Qtilities::CoreGui::DynamicSideWidgetWrapperData {
     DynamicSideWidgetWrapperData() : widgetCombo(0),
     close_action(0),
     new_action(0),
-    current_widget(0) {}
+    current_widget(0),
+    ignore_combo_box_changes(false) {}
 
     QComboBox* widgetCombo;
     QAction* close_action;
@@ -57,19 +58,23 @@ struct Qtilities::CoreGui::DynamicSideWidgetWrapperData {
     QWidget* current_widget;
     QMap<QString, ISideViewerWidget*> text_iface_map;
     QList<QAction*> viewer_actions;
+    bool ignore_combo_box_changes;
+    bool is_exclusive;
 };
 
-Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, QWidget *parent) :
+Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, bool is_exclusive, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::DynamicSideWidgetWrapper)
 {
     ui->setupUi(this);
     d = new DynamicSideWidgetWrapperData;
     d->text_iface_map = text_iface_map;
+    d->is_exclusive = is_exclusive;
 
     // Close side viewer widget action
     d->new_action = ui->toolBar->addAction(QIcon(ICON_VIEW_NEW_16x16),tr("New"));
     connect(d->new_action,SIGNAL(triggered()),SIGNAL(newSideWidgetRequest()));
+    refreshNewWidgetAction();
     d->close_action = ui->toolBar->addAction(QIcon(ICON_VIEW_REMOVE_16x16),tr("Close"));
     connect(d->close_action,SIGNAL(triggered()),SLOT(handleActionClose_triggered()));
 
@@ -98,46 +103,87 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper()
     delete d;
 }
 
+QString Qtilities::CoreGui::DynamicSideWidgetWrapper::currentText() const {
+    if (d->widgetCombo)
+        return d->widgetCombo->currentText();
+    else
+        return QString();
+}
+
 void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(const QString& text) {
+    if (d->ignore_combo_box_changes)
+        return;
+
     if (d->text_iface_map.contains(text)) {
         if (d->current_widget) {
             for (int i = 0; i < d->viewer_actions.count(); i++)
                 ui->toolBar->removeAction(d->viewer_actions.at(0));
 
             d->viewer_actions.clear();
-            delete d->current_widget;
+            // Check if we must delete the current widget:
+            if (d->text_iface_map[text]->manageWidgets())
+                delete d->current_widget;
         }
 
-        QWidget* widget = d->text_iface_map[text]->widget();
-        // Check if the viewer widget needs to add actions to the toolbar
-        IActionProvider* action_provider = d->text_iface_map[text]->actionProvider();
-        if (action_provider) {
-            if (action_provider->actions().count() > 0) {
-                d->viewer_actions = action_provider->actions();
-                ui->toolBar->addActions(d->viewer_actions);
+        ISideViewerWidget* iface = d->text_iface_map[text];
+        QWidget* widget = iface->produceWidget();
+        if (widget) {
+            // Check if the viewer widget needs to add actions to the toolbar:
+            IActionProvider* action_provider = d->text_iface_map[text]->actionProvider();
+            if (action_provider) {
+                if (action_provider->actions().count() > 0) {
+                    d->viewer_actions = action_provider->actions();
+                    ui->toolBar->addActions(d->viewer_actions);
+                }
             }
+
+            setCentralWidget(widget);
+            widget->show();
+            d->current_widget = widget;
+            setObjectName(text);
+            emit currentTextChanged(text);
         }
-
-        if (centralWidget()->layout())
-            delete centralWidget()->layout();
-
-        // Create new layout with new widget
-        QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,centralWidget());
-        layout->addWidget(widget);
-        widget->show();
-        layout->setMargin(0);
-        d->current_widget = widget;
-        setObjectName(text);
     }
 }
 
-void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleActionClose_triggered() {
-    // Delete the current widget
-    if (d->current_widget)
-        delete d->current_widget;
+void Qtilities::CoreGui::DynamicSideWidgetWrapper::updateAvailableWidgets(QMap<QString, ISideViewerWidget*> text_iface_map) {
+    d->ignore_combo_box_changes = true;
+    QString current_text = d->widgetCombo->currentText();
+    ISideViewerWidget* current_iface = d->text_iface_map[current_text];
+    d->text_iface_map.clear();
+    d->text_iface_map.unite(text_iface_map);
+    d->text_iface_map.insert(current_text,current_iface);
 
-    // Delete this object
+    d->widgetCombo->clear();
+    QStringList items;
+    for (int i = 0; i < d->text_iface_map.count(); i++)
+        items << d->text_iface_map.keys().at(i);
+    d->widgetCombo->addItems(items);
+    d->widgetCombo->setCurrentIndex(d->widgetCombo->findText(current_text));
+    refreshNewWidgetAction();
+    d->ignore_combo_box_changes = false;
+}
+
+void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleActionClose_triggered() {
+    emit aboutToBeDestroyed(this);
+
+    // Delete the current widget if we need to manage it:
+    if (d->current_widget) {
+        QString current_text = d->widgetCombo->currentText();
+        ISideViewerWidget* current_iface = d->text_iface_map[current_text];
+        if (current_iface->manageWidgets())
+            delete d->current_widget;
+    }
+
+    // Delete this object.
     deleteLater();
+}
+
+void Qtilities::CoreGui::DynamicSideWidgetWrapper::refreshNewWidgetAction() {
+    if (d->is_exclusive && d->text_iface_map.count() == 1)
+        d->new_action->setEnabled(false);
+    else
+        d->new_action->setEnabled(true);
 }
 
 void Qtilities::CoreGui::DynamicSideWidgetWrapper::changeEvent(QEvent *e)

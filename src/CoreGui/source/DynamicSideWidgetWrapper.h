@@ -62,20 +62,40 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT DynamicSideWidgetWrapper : public QMainWindow {
             Q_OBJECT
         public:
-            DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, QWidget* parent = 0);
+            //! Constructs a dynamic side widget wrapper widget.
+            /*!
+              \param text_iface_map The string-interface map which must be shown in this widget.
+              \param current_text The current widget that is shown.
+              \param is_exclusive Indicates if this wrapper is part of an exclusive side widget viewer.
+              \param parent The parent of this widget.
+              */
+            DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, bool is_exclusive, QWidget* parent = 0);
             ~DynamicSideWidgetWrapper();
+
+            //! Function which returns the current text in the combo box.
+            QString currentText() const;
 
         public slots:
             void handleCurrentIndexChanged(const QString& text);
+            //! This function expects a map of widgets which can still be produced.
+            /*!
+              \note The current widget should not be in map list.
+              */
+            void updateAvailableWidgets(QMap<QString, ISideViewerWidget*> text_iface_map);
             void handleActionClose_triggered();
 
         signals:
+            void currentTextChanged(const QString& text);
             void newSideWidgetRequest();
+            void aboutToBeDestroyed(QWidget* widget);
 
         protected:
             void changeEvent(QEvent *e);
 
         private:
+            //! Refreshes the new widget action's state.
+            void refreshNewWidgetAction();
+
             Ui::DynamicSideWidgetWrapper *ui;
             DynamicSideWidgetWrapperData* d;
         };

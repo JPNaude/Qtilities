@@ -66,18 +66,45 @@ namespace Qtilities {
             ~DynamicSideWidgetViewer();
 
             //! Adds a widget to the bottom of the dynamic viewer.
-            void setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, QWidget* static_top_widget = 0);
+            /*!
+              This functions gets a map with name-interface pairs of all the side viewer widgets found in the global
+              object pool. The function will automatically filter the widgets depending on the destination mode assigned
+              to this widget in its constructor.
+
+              \param text_iface_map A map with the name-interface pairs of side viewer widgets in the global object pool.
+              \param is_exclusive When true, the side viewer widgets are exclusive which means that they can only appear once. If a widget is
+              already active, it will not appear in the combo box to be switched to again.
+              */
+            void setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive = false);
+            //! Indicates if this widget handles dynamic widgets in an exclusive way.
+            /*!
+              \sa setIFaceMap();
+              */
+            bool isExclusive() const;
 
         public slots:
-            //! Handles the deletion of side widgets
-            void handleSideWidgetDestroyed(QObject* obj);
+            //! Handles the deletion of side widgets.
+            void handleSideWidgetDestroyed(QWidget* widget);
             //! Handles requests for new side widgets.
             void handleNewSideWidgetRequest();
+        private slots:
+            //! Function which updates the items in all the combo boxes of active wrappers in this side widget viewer.
+            /*!
+              \param exclude_text When set, all boxes except the box with the exclude text will be updated.
+              */
+            void updateWrapperComboBoxes(const QString& exclude_text = QString());
+
+        signals:
+            //! Signal indicating that this side widget viewer must be hidden.
+            void toggleVisibility(bool toggle);
 
         protected:
             void changeEvent(QEvent *e);
 
         private:
+            //! Gets a QStringList of all active wrapper names.
+            QStringList activeWrapperNames() const;
+
             Ui::DynamicSideWidgetViewer *ui;
             DynamicSideWidgetViewerData* d;
         };

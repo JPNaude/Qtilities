@@ -47,6 +47,12 @@
 
 using namespace Qtilities::Core::Properties;
 
+namespace Qtilities {
+    namespace CoreGui {
+        FactoryItem<QWidget, ObjectPropertyBrowser> ObjectPropertyBrowser::factory;
+    }
+}
+
 struct Qtilities::CoreGui::ObjectPropertyBrowserData {
     QMap<const QMetaObject *, QtProperty *> map_class_property;
     QMap<QtProperty *, const QMetaObject *> map_property_class;

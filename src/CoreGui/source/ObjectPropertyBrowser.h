@@ -37,8 +37,11 @@
 #include <QtGui/QWidget>
 
 #include "QtilitiesCoreGui_global.h"
+#include <Factory>
 
 class QtProperty;
+
+using namespace Qtilities::Core;
 
 namespace Qtilities {
     namespace CoreGui {
@@ -85,6 +88,11 @@ namespace Qtilities {
 
             ObjectPropertyBrowser(BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~ObjectPropertyBrowser();
+
+            // --------------------------------
+            // Factory Interface Implemenation
+            // --------------------------------
+            static FactoryItem<QWidget, ObjectPropertyBrowser> factory;
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;

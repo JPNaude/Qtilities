@@ -89,6 +89,11 @@ namespace Qtilities {
             //! Action provider interface through which this widget provides its actions.
             IActionProvider* actionProvider();
 
+            // --------------------------------
+            // Factory Interface Implemenation
+            // --------------------------------
+            static FactoryItem<QWidget, ObjectScopeWidget> factory;
+
         protected:
             virtual void changeEvent(QEvent *e);
             void constructActions();
