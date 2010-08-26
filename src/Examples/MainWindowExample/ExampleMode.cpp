@@ -48,14 +48,14 @@ struct Qtilities::Examples::MainWindow::ExampleModeData {
     side_viewer_widget(0),
     main_splitter(0),
     actionShowDock(0),
-    text_editor(0) {}
+    code_editor_widget(0) {}
 
     bool initialized;
     QDockWidget* side_viewer_dock;
     DynamicSideWidgetViewer* side_viewer_widget;
     QSplitter* main_splitter;
     QAction* actionShowDock;
-    QTextEdit* text_editor;
+    CodeEditorWidget* code_editor_widget;
 };
 
 Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
@@ -68,6 +68,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     // Create and dock the dynamic side widget viewer
     d->side_viewer_dock = new QDockWidget(tr("Dynamic Widgets"));
     d->side_viewer_widget = new DynamicSideWidgetViewer(MODE_EXAMPLE_ID);
+    connect(d->side_viewer_widget,SIGNAL(toggleVisibility(bool)),SLOT(toggleDock(bool)));
     d->side_viewer_dock->setWidget(d->side_viewer_widget);
     Qt::DockWidgetAreas allowed_areas = 0;
     allowed_areas |= Qt::LeftDockWidgetArea;
@@ -77,8 +78,8 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     d->side_viewer_dock->installEventFilter(this);
 
     // Create text editor
-    d->text_editor = new QTextEdit();
-    d->text_editor->setText("This is an example mode with a text editor, and a set of dynamically loaded widgets in the dock window.");
+    d->code_editor_widget = new CodeEditorWidget();
+    d->code_editor_widget->codeEditor()->setPlainText("This is an example mode with a text editor, and a set of dynamically loaded widgets in the dock window.");
 
     // Create splitters
     if (ui->splitterParent->layout())
@@ -87,7 +88,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     // Create new layout with new widget
     d->main_splitter = new QSplitter(Qt::Horizontal);
     QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->splitterParent);
-    layout->addWidget(d->text_editor);
+    layout->addWidget(d->code_editor_widget);
     layout->setMargin(0);
     layout->setSpacing(0);
 
@@ -95,6 +96,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     d->actionShowDock = new QAction(QIcon(),"Example Dynamic Dock Widget",this);
     d->actionShowDock->setCheckable(true);
     d->actionShowDock->setChecked(true);
+    connect(d->side_viewer_widget,SIGNAL(toggleVisibility(bool)),d->actionShowDock,SLOT(setChecked(bool)));
     connect(d->actionShowDock,SIGNAL(triggered(bool)),SLOT(toggleDock(bool)));
 
     QList<int> context;
@@ -127,7 +129,7 @@ void Qtilities::Examples::MainWindow::ExampleMode::loadFile(const QString& file_
         return;
 
     QString file_string = file.readAll();
-    d->text_editor->setText(file_string);
+    d->code_editor_widget->codeEditor()->setPlainText(file_string);
 }
 
 Qtilities::Examples::MainWindow::ExampleMode::~ExampleMode()
@@ -150,11 +152,11 @@ void Qtilities::Examples::MainWindow::ExampleMode::initialize() {
     for (int i = 0; i < widgets.count(); i++) {
         ISideViewerWidget* side_viewer_widget = qobject_cast<ISideViewerWidget*> (widgets.at(i));
         if (side_viewer_widget) {
-            text_iface_map[side_viewer_widget->text()] = side_viewer_widget;
+            text_iface_map[side_viewer_widget->widgetLabel()] = side_viewer_widget;
         }
     }
 
-    d->side_viewer_widget->setIFaceMap(text_iface_map);
+    d->side_viewer_widget->setIFaceMap(text_iface_map,true);
     d->side_viewer_widget->show();
     d->initialized = true;
 }

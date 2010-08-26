@@ -60,9 +60,11 @@ int main(int argc, char *argv[])
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
     ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
+    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
     ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
     ActionContainer* about_menu = ACTION_MANAGER->createMenu(MENU_ABOUT,existed);
     menu_bar->addMenu(file_menu);
+    menu_bar->addMenu(edit_menu);
     menu_bar->addMenu(view_menu);
     menu_bar->addMenu(about_menu);
 
@@ -87,6 +89,27 @@ int main(int argc, char *argv[])
     QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
     about_menu->addAction(command);
 
+    // Edit Menu
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
+    edit_menu->addAction(command);
+    edit_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    edit_menu->addAction(command);
+    edit_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CLEAR,QObject::tr("Clear"));
+    edit_menu->addAction(command);
+    edit_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
+    edit_menu->addAction(command);
+
     // Create a QtilitiesMainWindow to show our different modes.
     QtilitiesMainWindow exampleMainWindow(0);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
@@ -100,8 +123,12 @@ int main(int argc, char *argv[])
     // Create the example file system side widget and add it to the global object pool
     QList<int> modes;
     modes << MODE_EXAMPLE_ID;
-    SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes);
+    SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes,modes);
     OBJECT_MANAGER->registerObject(file_system_side_widget_helper);
+    SideViewerWidgetHelper* object_scope_side_widget_helper = new SideViewerWidgetHelper(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
+    OBJECT_MANAGER->registerObject(object_scope_side_widget_helper);
+    SideViewerWidgetHelper* property_editor_side_widget_helper = new SideViewerWidgetHelper(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
+    OBJECT_MANAGER->registerObject(property_editor_side_widget_helper);
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
