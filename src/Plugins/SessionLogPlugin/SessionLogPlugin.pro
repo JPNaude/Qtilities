@@ -9,10 +9,10 @@
 QTILITIES += extension_system
 include(../../Qtilities.pri)
 
-equals(BUILD_MODE, release) {
-    TARGET = SessionLogPlugin
-} else {
+CONFIG(debug, debug|release) {
     TARGET = SessionLogPlugind
+} else {
+    TARGET = SessionLogPlugin
 }
 
 DESTDIR += $$QTILITIES_BIN/plugins

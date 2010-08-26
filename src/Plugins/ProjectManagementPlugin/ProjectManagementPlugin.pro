@@ -10,10 +10,10 @@ QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
 
-equals(BUILD_MODE, release) {
-    TARGET = ProjectManagementPlugin
-} else {
+CONFIG(debug, debug|release) {
     TARGET = ProjectManagementPlugind
+} else {
+    TARGET = ProjectManagementPlugin
 }
 
 DESTDIR += $$QTILITIES_BIN/plugins

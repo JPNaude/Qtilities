@@ -84,7 +84,6 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     CONTEXT_MANAGER->registerContext(CONTEXT_SESSION_LOG_MODE);
 }
 
-
 Qtilities::Plugins::SessionLog::SessionLogMode::~SessionLogMode() {
     delete d;
 }
@@ -106,8 +105,7 @@ void Qtilities::Plugins::SessionLog::SessionLogMode::handle_dockVisibilityChange
     if (dock && visible) {
         WidgetLoggerEngineFrontend* front_end = qobject_cast<WidgetLoggerEngineFrontend*> (dock->widget());
         if (front_end) {
-            front_end->makeCurrentWidget();
-            CONTEXT_MANAGER->setNewContext(CONTEXT_LOGGER_WIDGET,true);
+            CONTEXT_MANAGER->setNewContext(front_end->contextString(),true);
         }
     }
 }
