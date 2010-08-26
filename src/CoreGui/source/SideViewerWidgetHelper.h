@@ -62,20 +62,33 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::ISideViewerWidget)
 
         public:
-            SideViewerWidgetHelper(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, bool show_on_startup = true);
+            //! Constructs a side viewer widget helper.
+            /*!
+              \param interface The factory interface to the widget which must be produced.
+              \param widget_id The string used to represent the widget.
+              \param modes The modes in which this widget must be present.
+              \param startup_modes The modes in which this widget must be visible when the application starts.
+              */
+            SideViewerWidgetHelper(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive = false);
             ~SideViewerWidgetHelper();
 
             // --------------------------------------------
             // ISideViewerWidget Implementation
             // --------------------------------------------
-            QWidget* widget();
-            QString text() const;
-            bool showOnStartup() const;
+            QWidget* produceWidget();
+            bool manageWidgets() const { return true; }
+            QString widgetLabel() const;
             IActionProvider* actionProvider() const;
             QList<int> destinationModes() const;
+            QList<int> startupModes() const;
+            bool isExclusive() const;
+
+        private slots:
+            //! Slot which detects when a widget was deleted.
+            void handleWidgetDestroyed(QObject* object);
 
         signals:
-            //! Signal which is emitted when a new widget is manufactured.
+            //! Signal which is emitted when a new widget was manufactured.
             void newWidgetCreated(QWidget* widget);
 
         private:

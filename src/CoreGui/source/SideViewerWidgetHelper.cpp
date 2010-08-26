@@ -41,39 +41,38 @@ struct Qtilities::CoreGui::SideViewerWidgetHelperData {
     SideViewerWidgetHelperData() {}
 
     QList<int> modes;
+    QList<int> startup_modes;
     QList<QPointer<QWidget> > widgets;
     Factory<QWidget> factory;
     QString widget_id;
-    bool show_on_startup;
+    bool is_exclusive;
 };
 
-Qtilities::CoreGui::SideViewerWidgetHelper::SideViewerWidgetHelper(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, bool show_on_startup) : QObject(0) {
+Qtilities::CoreGui::SideViewerWidgetHelper::SideViewerWidgetHelper(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive) : QObject(0) {
     d = new SideViewerWidgetHelperData;
 
     FactoryInterfaceData factory_data("Produce Me");
     d->factory.registerFactoryInterface(interface,factory_data);
     d->widget_id = widget_id;
-    d->show_on_startup = show_on_startup;
     d->modes = modes;
+    d->startup_modes = startup_modes;
+    d->is_exclusive = is_exclusive;
 }
 
 Qtilities::CoreGui::SideViewerWidgetHelper::~SideViewerWidgetHelper() {
     delete d;
 }
 
-QWidget* Qtilities::CoreGui::SideViewerWidgetHelper::widget() {
+QWidget* Qtilities::CoreGui::SideViewerWidgetHelper::produceWidget() {
     QWidget* new_instance = d->factory.createInstance("Produce Me");
     d->widgets << new_instance;
+    connect(new_instance,SIGNAL(destroyed(QObject*)),SLOT(handleWidgetDestroyed(QObject*)));
     emit newWidgetCreated(new_instance);
     return new_instance;
 }
 
-QString Qtilities::CoreGui::SideViewerWidgetHelper::text() const {
+QString Qtilities::CoreGui::SideViewerWidgetHelper::widgetLabel() const {
     return d->widget_id;
-}
-
-bool Qtilities::CoreGui::SideViewerWidgetHelper::showOnStartup() const {
-    return true;
 }
 
 Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::SideViewerWidgetHelper::actionProvider() const {
@@ -83,5 +82,19 @@ Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::SideViewerW
 QList<int> Qtilities::CoreGui::SideViewerWidgetHelper::destinationModes() const {
     return d->modes;
 }
+
+QList<int> Qtilities::CoreGui::SideViewerWidgetHelper::startupModes() const {
+    return d->startup_modes;
+}
+
+bool Qtilities::CoreGui::SideViewerWidgetHelper::isExclusive() const {
+    return d->is_exclusive;
+}
+
+void Qtilities::CoreGui::SideViewerWidgetHelper::handleWidgetDestroyed(QObject* object) {
+    QPointer<QWidget> widget = reinterpret_cast<QWidget*> (object);
+    d->widgets.removeOne(widget);
+}
+
 
 
