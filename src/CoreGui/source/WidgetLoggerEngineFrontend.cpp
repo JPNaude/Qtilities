@@ -33,12 +33,13 @@
 
 #include "WidgetLoggerEngineFrontend.h"
 #include "LoggingConstants.h"
+#include "QtilitiesApplication.h"
+#include "QtilitiesCoreGuiConstants.h"
+#include "ActionProvider.h"
 
-#include <QtilitiesApplication.h>
-#include <QtilitiesCoreGuiConstants.h>
+#include <Logger.h>
 
 #include <QScrollBar>
-#include <Logger.h>
 #include <QMetaObject>
 #include <QPrinter>
 #include <QPrintDialog>
@@ -51,15 +52,13 @@
 #include <QVBoxLayout>
 #include <QPrintPreviewDialog>
 #include <QApplication>
+#include <QToolBar>
 
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Constants;
-
-QPointer<Qtilities::CoreGui::WidgetLoggerEngineFrontend> Qtilities::CoreGui::WidgetLoggerEngineFrontend::currentWidget;
-QPointer<Qtilities::CoreGui::WidgetLoggerEngineFrontend> Qtilities::CoreGui::WidgetLoggerEngineFrontend::actionContainerWidget;
 
 struct Qtilities::CoreGui::WidgetLoggerEngineFrontendData {
     WidgetLoggerEngineFrontendData() : searchBoxWidget(0),
@@ -72,7 +71,8 @@ struct Qtilities::CoreGui::WidgetLoggerEngineFrontendData {
     actionPrintPreview(0),
     actionSave(0),
     actionFind(0),
-    actionSettings(0) {}
+    actionSettings(0),
+    central_widget(0) {}
 
     SearchBoxWidget* searchBoxWidget;
     QPlainTextEdit txtLog;
@@ -85,11 +85,21 @@ struct Qtilities::CoreGui::WidgetLoggerEngineFrontendData {
     QAction* actionSave;
     QAction* actionFind;
     QAction* actionSettings;
+
+    //! The IActionProvider interface implementation.
+    ActionProvider* action_provider;
+    //! The action toolbars list. Contains toolbars created for each category in the action provider.
+    QList<QToolBar*> action_toolbars;
+    //! The global meta type string used for this widget.
+    QString global_meta_type;
+    //! This is the widget for the plain text editor and search box widget.
+    QWidget* central_widget;
 };
 
-Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidget *parent) : QWidget(parent)
+Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidget *parent) : QMainWindow(parent)
 {
     d = new WidgetLoggerEngineFrontendData;
+    d->action_provider = new ActionProvider(this);
 
     // Setup search box widget:
     SearchBoxWidget::SearchOptions search_options = 0;
@@ -105,16 +115,18 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     d->txtLog.setMaximumBlockCount(1000);
 
     // Setup the widget layout:
-    if (layout())
-        delete layout();
+    d->central_widget = new QWidget();
+    if (d->central_widget->layout())
+        delete d->central_widget->layout();
 
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    QVBoxLayout* layout = new QVBoxLayout(d->central_widget);
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(&d->txtLog);
     layout->addWidget(d->searchBoxWidget);
     d->txtLog.show();
     d->searchBoxWidget->show();
+    setCentralWidget(d->central_widget);
 
     connect(d->searchBoxWidget,SIGNAL(searchStringChanged(const QString)),SLOT(handleSearchStringChanged(QString)));
     connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handle_FindNext()));
@@ -124,10 +136,31 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     d->searchBoxWidget->setEditorFocus();
     setAttribute(Qt::WA_DeleteOnClose, true);
 
+    // Assign a default meta type for this widget:
+    // We construct each action and then register it
+    QString context_string = "WidgetLoggerEngineFrontend";
+    int count = 0;
+    context_string.append(QString("%1").arg(count));
+    while (CONTEXT_MANAGER->hasContext(context_string)) {
+        QString count_string = QString("%1").arg(count);
+        context_string.chop(count_string.length());
+        ++count;
+        context_string.append(QString("%1").arg(count));
+    }
+    d->global_meta_type = context_string;
+    LOG_ERROR(d->global_meta_type);
+    setObjectName(context_string);
+
+    // Construct actions only after global meta type was set.
     constructActions();
+    QList<QStringList> categories = d->action_provider->actionCategories();
+    for (int i = 0; i < categories.count(); i++) {
+        QToolBar* new_toolbar = addToolBar(categories.at(i).back());
+        d->action_toolbars << new_toolbar;
+        new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
+    }
 
     d->txtLog.installEventFilter(this);
-    currentWidget = this;
 }
 
 Qtilities::CoreGui::WidgetLoggerEngineFrontend::~WidgetLoggerEngineFrontend()
@@ -137,14 +170,22 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::~WidgetLoggerEngineFrontend()
 
 bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::eventFilter(QObject *object, QEvent *event) {
     if (object == &d->txtLog && event->type() == QEvent::FocusIn) {
-        currentWidget = this;
-        CONTEXT_MANAGER->setNewContext(CONTEXT_LOGGER_WIDGET,true);
+        CONTEXT_MANAGER->setNewContext(d->global_meta_type,true);
     }
     return false;
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::makeCurrentWidget() {
-    currentWidget = this;
+bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::setGlobalMetaType(const QString& meta_type) {
+    // Check if this global meta type is allowed.
+    if (CONTEXT_MANAGER->hasContext(meta_type))
+        return false;
+
+    d->global_meta_type = meta_type;
+    return true;
+}
+
+QString Qtilities::CoreGui::WidgetLoggerEngineFrontend::globalMetaType() const {
+    return d->global_meta_type;
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::appendMessage(const QString& message) {
@@ -183,9 +224,6 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindNext() {
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
-    if (!currentWidget)
-        return;
-
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save Log"),QApplication::applicationDirPath(),tr("Log File (*.log)"));
 
     if (file_name.isEmpty())
@@ -196,167 +234,145 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
         return;
 
     QTextStream out(&file);
-    out << currentWidget->d->txtLog.toPlainText() << "\n";
+    out << d->txtLog.toPlainText() << "\n";
     file.close();
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Settings() {
-    if (!currentWidget)
-        return;
-
     /*TRACK QWidget* widget = Log->configWidget();
     if (widget)
         widget->show();*/
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Print() {
-    if (!currentWidget)
-        return;
-
 #ifndef QT_NO_PRINTER
      QPrinter printer;
 
      QPrintDialog *dialog = new QPrintDialog(&printer, this);
      dialog->setWindowTitle(tr("Print Current Log"));
-     if (currentWidget->d->txtLog.textCursor().hasSelection())
+     if (d->txtLog.textCursor().hasSelection())
          dialog->addEnabledOption(QAbstractPrintDialog::PrintSelection);
      if (dialog->exec() != QDialog::Accepted)
          return;
 
      delete dialog;
-     currentWidget->d->txtLog.print(&printer);
+     d->txtLog.print(&printer);
 #endif
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPDF() {
-    if (!currentWidget)
-        return;
-
 #ifndef QT_NO_PRINTER
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"),
-                                                    QString(), "*.pdf");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
     if (!fileName.isEmpty()) {
         if (QFileInfo(fileName).suffix().isEmpty())
             fileName.append(".pdf");
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(fileName);
-        currentWidget->d->txtLog.document()->print(&printer);
+        d->txtLog.document()->print(&printer);
     }
 #endif
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPreview() {
-    if (!currentWidget)
-        return;
-
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
-    QPrintPreviewDialog preview(&printer, &currentWidget->d->txtLog);
+    QPrintPreviewDialog preview(&printer, &d->txtLog);
     connect(&preview, SIGNAL(paintRequested(QPrinter *)), SLOT(printPreview(QPrinter *)));
     preview.exec();
 #endif
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::printPreview(QPrinter *printer)
-{
+void Qtilities::CoreGui::WidgetLoggerEngineFrontend::printPreview(QPrinter *printer) {
 #ifdef QT_NO_PRINTER
     Q_UNUSED(printer);
 #else
-    currentWidget->d->txtLog.print(printer);
+    d->txtLog.print(printer);
 #endif
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Clear() {
-    if (!currentWidget)
-        return;
-
-    currentWidget->d->txtLog.clear();
+    d->txtLog.clear();
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Copy() {
-    if (!currentWidget)
-        return;
-
-    currentWidget->d->txtLog.copy();
+    d->txtLog.copy();
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SearchShortcut() {
-    if (!currentWidget)
-        return;
-
-    if (currentWidget->d->searchBoxWidget) {
-        if (!currentWidget->d->searchBoxWidget->isVisible()) {
-            currentWidget->d->searchBoxWidget->show();
-            currentWidget->d->searchBoxWidget->setEditorFocus();
+    if (d->searchBoxWidget) {
+        if (!d->searchBoxWidget->isVisible()) {
+            d->searchBoxWidget->show();
+            d->searchBoxWidget->setEditorFocus();
         }
     }
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SelectAll() {
-    if (!currentWidget)
-        return;
-
-    currentWidget->d->txtLog.selectAll();
+    d->txtLog.selectAll();
 }
 
-
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
-    if (actionContainerWidget)
-        return;
-    actionContainerWidget = this;
-
-    CONTEXT_MANAGER->registerContext(CONTEXT_LOGGER_WIDGET);
+    int context_id = CONTEXT_MANAGER->registerContext(d->global_meta_type);
     QList<int> context;
-    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_LOGGER_WIDGET));
+    context.push_front(context_id);
 
     // ---------------------------
     // Save
     // ---------------------------
-    d->actionSave = new QAction(QIcon(ICON_SAVE_24x24),tr("Save"),this);
+    d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
+    d->action_provider->addAction(d->actionSave,QStringList(tr("Log")));
     connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_Save()));
     ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
     // ---------------------------
-    // Print
-    // ---------------------------
-    d->actionPrint = new QAction(QIcon(),tr("Print"),this);
-    connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
-    // ---------------------------
     // Copy
     // ---------------------------
-    d->actionCopy = new QAction(QIcon(),tr("Copy"),this);
+    d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
+    d->action_provider->addAction(d->actionCopy,QStringList(tr("Log")));
     connect(d->actionCopy,SIGNAL(triggered()),SLOT(handle_Copy()));
     ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
     // Select All
     // ---------------------------
-    d->actionSelectAll = new QAction(QIcon(),tr("Select All"),this);
+    d->actionSelectAll = new QAction(QIcon(ICON_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
     d->actionSelectAll->setEnabled(true);
+    d->action_provider->addAction(d->actionSelectAll,QStringList(tr("Log")));
     connect(d->actionSelectAll,SIGNAL(triggered()),SLOT(handle_SelectAll()));
     ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
     // ---------------------------
     // Clear
     // ---------------------------
-    d->actionClear = new QAction(QIcon(ICON_CLEAR_24x24),tr("Clear"),this);
+    d->actionClear = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("Clear"),this);
+    d->action_provider->addAction(d->actionClear,QStringList(tr("Log")));
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
     ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
     // ---------------------------
     // Find
     // ---------------------------
-    d->actionFind = new QAction(QIcon(),tr("Find"),this);
+    d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
+    //d->actionFind->setShortcut(QKeySequence(QKeySequence::Find));
+    d->action_provider->addAction(d->actionFind,QStringList(tr("Log")));
     connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_SearchShortcut()));
     ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     // ---------------------------
+    // Print
+    // ---------------------------
+    d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
+    d->action_provider->addAction(d->actionPrint,QStringList(tr("Print")));
+    connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
+    ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
+    // ---------------------------
     // Print PDF
     // ---------------------------
-    d->actionPrintPDF = new QAction(QIcon(),tr("Print PDF"),this);
+    d->actionPrintPDF = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
+    d->action_provider->addAction(d->actionPrintPDF,QStringList(tr("Print")));
     connect(d->actionPrintPDF,SIGNAL(triggered()),SLOT(handle_PrintPDF()));
     ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPDF,context);
     // ---------------------------
     // Print Preview
     // ---------------------------
-    d->actionPrintPreview = new QAction(QIcon(),tr("Print Preview"),this);
+    d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
+    d->action_provider->addAction(d->actionPrintPreview,QStringList(tr("Print")));
     connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_PrintPreview()));
     ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     // ---------------------------

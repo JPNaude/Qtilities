@@ -37,9 +37,10 @@
 #include "SearchBoxWidget.h"
 #include "QtilitiesCoreGui_global.h"
 
-#include <QtGui/QWidget>
+#include <IContext.h>
+
+#include <QMainWindow>
 #include <QPointer>
-#include <QPrinter>
 
 namespace Ui {
     class WidgetLoggerEngineFrontend;
@@ -48,19 +49,48 @@ namespace Ui {
 namespace Qtilities {
     namespace CoreGui {
         struct WidgetLoggerEngineFrontendData;
+        using namespace Qtilities::Core::Interfaces;
 
         /*!
         \class WidgetLoggerEngineFrontend
         \brief The visual frontend of a widget logger engine.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT WidgetLoggerEngineFrontend : public QWidget {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT WidgetLoggerEngineFrontend : public QMainWindow, public IContext {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
         public:
             WidgetLoggerEngineFrontend(QWidget *parent = 0);
             ~WidgetLoggerEngineFrontend();
             bool eventFilter(QObject *object, QEvent *event);
-            void makeCurrentWidget();
+
+            // --------------------------------
+            // IContext Implementation
+            // --------------------------------
+            QString contextString() const { return globalMetaType(); }
+            QString contextHelpId() const { return QString(); }
+
+            //! Sets the global meta type used for this widget.
+            /*!
+              \returns True if the meta_type string was valid. The validity check is done by checking if that a context with the same name does not yet exist in the context manager.
+
+              \sa globalMetaType()
+              */
+            bool setGlobalMetaType(const QString& meta_type);
+            //! Gets the global meta type used for this widget.
+            /*!
+              The global meta type is a string which defines this widget. The string must be a string which
+              can be registered in the context manager. Thus, such a string must not yet exist as a context in the context
+              manager.
+
+              The global meta type is used for the following:
+              - To register actions in the action manager.
+
+              \returns The meta type used for this widget.
+
+              \sa setGlobalMetaType()
+              */
+            QString globalMetaType() const;
 
         public slots:
             void appendMessage(const QString& message);
@@ -81,8 +111,6 @@ namespace Qtilities {
             void handleSearchStringChanged(const QString& filter_string);
 
         private:
-            static QPointer<WidgetLoggerEngineFrontend> currentWidget;
-            static QPointer<WidgetLoggerEngineFrontend> actionContainerWidget;
             void constructActions();
 
             WidgetLoggerEngineFrontendData* d;
