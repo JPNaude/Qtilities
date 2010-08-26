@@ -100,9 +100,6 @@ namespace Qtilities {
             Q_FLAGS(SearchOptions);
 
             //! Constructs a search box widget using the paramaters to customize the look of the widget.
-            /*!
-
-              */
             SearchBoxWidget(SearchOptions search_options = AllSearchOptions, WidgetMode mode = SearchOnly, ButtonFlags buttons = AllButtons, QWidget *parent = 0);
             ~SearchBoxWidget();
 
@@ -133,6 +130,10 @@ namespace Qtilities {
             void setSearchOptions(SearchOptions search_options);
             //! Function to get the search options of the widget.
             SearchOptions searchOptions() const;
+            //! Function to set the WidgetMode of the widget.
+            void setWidgetMode(WidgetMode widget_mode);
+            //! Function to get the WidgetMode of the widget.
+            WidgetMode widgetMode() const;
 
         public slots:
             //! Sets the current search string in the search text box.

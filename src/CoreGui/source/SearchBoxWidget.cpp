@@ -49,6 +49,7 @@ struct Qtilities::CoreGui::SearchBoxWidgetData {
 
     SearchBoxWidget::ButtonFlags button_flags;
     SearchBoxWidget::SearchOptions search_options;
+    SearchBoxWidget::WidgetMode widget_mode;
 };
 
 Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
@@ -66,15 +67,6 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     connect(ui->btnFindNext,SIGNAL(clicked()),SIGNAL(btnFindNext_clicked()));
     connect(ui->btnReplacePrevious,SIGNAL(clicked()),SIGNAL(btnReplacePrevious_clicked()));
     connect(ui->btnReplaceNext,SIGNAL(clicked()),SIGNAL(btnReplaceNext_clicked()));
-
-    // Show contents according to selected mode
-    if (mode == SearchOnly) {
-        ui->widgetReplace->hide();
-        setFixedHeight(24);
-    } else if (mode == SearchAndReplace) {
-        ui->widgetReplace->show();
-        setFixedHeight(52);
-    }
 
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu("Search Options");
@@ -96,6 +88,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     // Inspect the search options and button flags:
     setButtonFlags(buttons);
     setSearchOptions(search_options);
+    setWidgetMode(mode);
 }
 
 Qtilities::CoreGui::SearchBoxWidget::~SearchBoxWidget()
@@ -235,4 +228,20 @@ void Qtilities::CoreGui::SearchBoxWidget::setSearchOptions(SearchOptions search_
 
 Qtilities::CoreGui::SearchBoxWidget::SearchOptions Qtilities::CoreGui::SearchBoxWidget::searchOptions() const {
     return d->search_options;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setWidgetMode(WidgetMode widget_mode) {
+    d->widget_mode = widget_mode;
+    // Show contents according to selected mode
+    if (d->widget_mode == SearchOnly) {
+        ui->widgetReplace->hide();
+        setFixedHeight(24);
+    } else if (d->widget_mode == SearchAndReplace) {
+        ui->widgetReplace->show();
+        setFixedHeight(52);
+    }
+}
+
+Qtilities::CoreGui::SearchBoxWidget::WidgetMode Qtilities::CoreGui::SearchBoxWidget::widgetMode() const {
+    return d->widget_mode;
 }
