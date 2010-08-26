@@ -766,6 +766,8 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverWidget::selectionParent()
     } else if (d->display_mode == TableView ) {
         return d_observer;
     }
+
+    return 0;
 }
 
 QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
