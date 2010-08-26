@@ -166,7 +166,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                     LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
                 }
             } else {
-                LOG_ERROR(tr("Plugin could not be loaded."));
+                LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name);
             }
         }
     }
