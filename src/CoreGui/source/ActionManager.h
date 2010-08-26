@@ -85,6 +85,7 @@ namespace Qtilities {
 
         public slots:
             void handleContextChanged(QList<int> new_contexts);
+            void multiContextActionTriggerTester();
 
         private:
             ActionManagerData* d;

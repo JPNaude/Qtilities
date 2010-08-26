@@ -63,7 +63,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     ui(new Ui::CommandEditor)
 {
     ui->setupUi(this);
-    ui->lblSearchIcon->setPixmap(QPixmap(ICON_MAGNIFY));
+    ui->lblSearchIcon->setPixmap(QPixmap(ICON_FIND_16x16));
     connect(ui->txtSearchString,SIGNAL(textChanged(const QString&)),SLOT(handleSearchStringChanged(const QString&)));
     connect(ui->commandTable->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
 

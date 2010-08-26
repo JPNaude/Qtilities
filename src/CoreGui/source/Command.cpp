@@ -125,8 +125,7 @@ QShortcut* Qtilities::CoreGui::Action::shortcut() const {
     return 0;
 }
 
-void Qtilities::CoreGui::Action::handleKeySequenceChange()
-{
+void Qtilities::CoreGui::Action::handleKeySequenceChange() {
     // Check if there is no current action but a default. In that case we set the current to the default.
     if (c->current_key_sequence.isEmpty() && !c->default_key_sequence.isEmpty()) {
         c->current_key_sequence = c->default_key_sequence;
@@ -183,9 +182,9 @@ void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<in
         return;
 
     if (context_ids.isEmpty()) {
-        // Check if there is already an action for the standard context
+        // Check if there is already an action for the standard context.
         if (d->id_action_map.keys().contains(0)) {
-            LOG_WARNING(tr("Attempting to register an action for a multi context action twice. Last action will be ignored: ") + action->text());
+            LOG_WARNING(QString(tr("Attempting to register an action for a multi context (\"Standard Context\") action twice. Last action will be ignored: %1")).arg(action->text()));
             return;
         }
 
@@ -215,8 +214,9 @@ bool Qtilities::CoreGui::MultiContextAction::isActive() {
 }
 
 bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> context_ids) {
-    // Uncomment the line below for very verbose details on command updates.
-    // LOG_TRACE("Context update request on command: " + defaultText());
+    #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+    LOG_TRACE("Context update request on command: " + defaultText());
+    #endif
 
     // If this is just a place holder without any backend action we do nothing in here.
     if (d->id_action_map.count() == 0)
@@ -230,33 +230,59 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         if (QAction *a = d->id_action_map.value(d->active_contexts.at(i), 0)) {
             d->active_action = a;
 
-            //LOG_TRACE("Active action found: " + d->active_action->text() + ", Active shortcut: " + d->active_action->shortcut().toString());
+            #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+            LOG_TRACE("Backend action found: " + d->active_action->text() + ", backend shortcut: " + d->active_action->shortcut().toString() + ", MultiContextAction shortcut: " + b->base_action->shortcut().toString());
+            #endif
 
             // This break will ensure that the first context is used for the case where multiple contexts are active at once.
             break;
         }
     }
 
-    if (d->active_action == old_action && d->initialized)
+    if (d->active_action == old_action && d->initialized)  {
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        LOG_TRACE("New backend action is the same as the current active backend action. Nothihng to be done in here.");
+        #endif
         return true;
+    }
 
     // Disconnect signals from old action
     if (old_action) {
         disconnect(old_action, SIGNAL(changed()), this, SLOT(updateAction()));
         disconnect(b->base_action, SIGNAL(triggered(bool)), old_action, SIGNAL(triggered(bool)));
         disconnect(b->base_action, SIGNAL(toggled(bool)), old_action, SLOT(setChecked(bool)));
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        QObject* parent = old_action->parent();
+        QString parent_name = "Unspecified parent";
+        if (parent) {
+             parent_name = parent->objectName();
+        }
+        LOG_TRACE("Disconnecting multicontext action from previous backend action in parent: " + parent_name);
+        #endif
     }
 
     // Connect signals for new action
     if (d->active_action) {
         connect(d->active_action, SIGNAL(changed()), this, SLOT(updateAction()));
-        connect(b->base_action, SIGNAL(triggered(bool)), d->active_action, SIGNAL(triggered(bool)));
+        Q_ASSERT(connect(b->base_action, SIGNAL(triggered(bool)), d->active_action, SIGNAL(triggered(bool))));
         connect(b->base_action, SIGNAL(toggled(bool)), d->active_action, SLOT(setChecked(bool)));
         updateAction();
+        b->base_action->setParent(d->active_action->parent());
         d->is_active = true;
         d->initialized = true;
-        //LOG_TRACE("Base action connected: " + d->active_action->text() + ", Base shortcut: " + b->base_action->shortcut().toString());
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        QObject* parent = d->active_action->parent();
+        QString parent_name = "Unspecified parent";
+        if (parent) {
+             parent_name = parent->objectName();
+        }
+        LOG_TRACE("Base action connected: " + d->active_action->text() + ", Base shortcut: " + b->base_action->shortcut().toString() + ", Parent: " + parent_name);
+        #endif
         return true;
+    } else {
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        LOG_TRACE("New backend action could not be found. Action will be disabled in this context.");
+        #endif
     }
     // We can hide the action here if needed
     // b->base_action->setVisible(false);

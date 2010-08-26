@@ -35,6 +35,7 @@
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "CommandEditor.h"
+#include "QtilitiesApplication"
 
 #include <ObserverProperty.h>
 #include <QtilitiesCoreConstants.h>
@@ -132,10 +133,15 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
     if (!action)
         return 0;
 
-    // Check if this action is intended to become part of a multi context action or not.
-    if (d->id_command_map.keys().contains(id)) {        
-        Command* cmd = d->id_command_map[id];
-        // Check if we need to assign the text from the original action place holder creation call
+    // Check if there is already a front end action for this action id:
+    Command* cmd = 0;
+    if (d->id_command_map.keys().contains(id))
+        cmd = d->id_command_map[id];
+    else
+        cmd = registerActionPlaceHolder(id,action->text());
+
+    if (cmd) {
+        // Check if we need to assign the text from the original action place holder creation call:
         if (action->text().isEmpty())
             action->setText(cmd->text());
 
@@ -147,39 +153,32 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
                 multi->setDefaultKeySequence(action->shortcut());
 
             // Handle the key sequence
-            if ((action->shortcut() != multi->keySequence()) && !multi->keySequence().isEmpty() && !action->shortcut().isEmpty()) {
+            if ((action->shortcut() != multi->keySequence()) && !multi->keySequence().isEmpty() && !action->shortcut().isEmpty())
                 LOG_ERROR(QString(tr("Conflicting shortcut found for command %1 when trying to register shortcut %2. Original shortcut of %3 will be used.")).arg(action->text()).arg(action->shortcut().toString()).arg(multi->keySequence().toString()));
-            }
 
             if (multi->keySequence().isEmpty() && !action->shortcut().isEmpty()) {
-                //LOG_TRACE(QString(tr("Base action shortcut did not exist previously, now using shortcut (%1) from backend action: %2.")).arg(action->shortcut().toString()).arg(action->text()));
+                #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+                LOG_TRACE(QString(tr("Base action shortcut did not exist previously, now using shortcut (%1) from backend action: %2.")).arg(action->shortcut().toString()).arg(action->text()));
+                #endif
                 multi->setKeySequence(action->shortcut());
             }
 
-            action->setShortcut(QKeySequence());
+            #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+            LOG_TRACE(QString(tr("Registering new backend action for base action %1 (shortcut %2). New action: %3 (shortcut %4).")).arg(multi->text()).arg(multi->keySequence().toString()).arg(action->text()).arg(action->shortcut().toString()));
+            #endif
 
-            //LOG_TRACE(QString(tr("Registering new backend action for base action %1 (shortcut %2). New action: %3 (shortcut %4).")).arg(multi->text()).arg(multi->keySequence().toString()).arg(action->text()).arg(action->shortcut().toString()));
-            emit numberOfActionsChanged();
+            //emit numberOfActionsChanged();
             return multi;
-        } else
-            return 0;
-    } else {
-        QAction* frontend_action = new QAction(action->text(),0);
-        MultiContextAction* new_action = new MultiContextAction(frontend_action);
-        if (new_action) {
-            new_action->setDefaultText(id);
-            new_action->addAction(action,context);
-            new_action->setCurrentContext(CONTEXT_MANAGER->currentContexts());
-            d->id_command_map[id] = new_action;
-
-            new_action->setKeySequence(action->shortcut());
-            action->setShortcut(QKeySequence());
-            new_action->setDefaultKeySequence(action->shortcut());
-            emit numberOfActionsChanged();
-            return new_action;
-        } else
-            return 0;
+        }
     }
+
+    return 0;
+}
+
+void Qtilities::CoreGui::ActionManager::multiContextActionTriggerTester() {
+    #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+    LOG_TRACE("Front end action triggered");
+    #endif
 }
 
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
@@ -195,6 +194,12 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         frontend_action = new QAction(id.split(".").last(),0);
     else
         frontend_action = new QAction(user_text,0);
+
+    frontend_action->setShortcutContext(Qt::ApplicationShortcut);
+    if (!QtilitiesApplication::mainWindow())
+        LOG_FATAL(QString("QtilitiesApplication::mainWindow() is required when registering actions in the action manager."));
+    else
+        QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
     MultiContextAction* new_action = new MultiContextAction(frontend_action);
     if (new_action) {
@@ -217,6 +222,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         return 0;
     }
 
+    return 0;
 }
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(QShortcut *shortcut, const QString &default_text, const QList<int> &context) {
@@ -346,8 +352,12 @@ bool Qtilities::CoreGui::ActionManager::importShortcutMapping(const QString& fil
             QString attribute = shortcut_item_element.attribute("KeySequence");
             if (d->id_command_map.contains(shortcut_item_element.tagName())) {
                 Command* command = d->id_command_map[shortcut_item_element.tagName()];
-                if (command)
+                if (command) {
                     command->setKeySequence(QKeySequence(attribute));
+                    #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+                    LOG_TRACE("Importing shortcut for action: " + shortcut_item_element.tagName() + ", Shortcut: " + attribute);
+                    #endif
+                }
 
             } else {
                 LOG_WARNING(QString(tr("Unknown command found in the input shortcut mapping file: %1")).arg(shortcut_item_element.tagName()));
