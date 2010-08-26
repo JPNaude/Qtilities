@@ -44,7 +44,9 @@ struct Qtilities::CoreGui::ConfigurationWidgetData {
     ConfigurationWidgetData() : active_widget(0) {}
 
     QWidget* active_widget;
+    //! The keys are the page name and categories (a QStringList) joined with :: where the last element is the page name.
     QMap<QString, IConfigPage*> name_widget_map;
+    //! Stores the page name and categories (a QStringList) joined with :: where the last element is the page name.
     QString active_page;
     bool initialized;
 };
@@ -220,4 +222,16 @@ bool Qtilities::CoreGui::ConfigurationWidget::isTopLevelItem(QTreeWidgetItem* it
     }
 
     return false;
+}
+
+/*void Qtilities::CoreGui::ConfigurationWidget::setActivePage() {
+
+}*/
+
+QStringList Qtilities::CoreGui::ConfigurationWidget::activePageName() const {
+    return d->active_page.split("::");
+}
+
+Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWidget::activePageIFace() const {
+    return d->name_widget_map[d->active_page];
 }

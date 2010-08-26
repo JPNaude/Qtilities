@@ -83,6 +83,12 @@ namespace Qtilities {
             void on_btnApply_clicked();
             //! Handles item changes in the page tree.
             void handleCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
+            //! Function to set the active page.
+            //void setActivePage();
+            //! Function to get the active page name and category.
+            QStringList activePageName() const;
+            //! Function to get the reference to the IConfig interface of the active page.
+            IConfigPage* activePageIFace() const;
 
         protected:
             void changeEvent(QEvent *e);
