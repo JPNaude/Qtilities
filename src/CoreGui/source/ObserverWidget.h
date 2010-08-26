@@ -373,27 +373,27 @@ namespace Qtilities {
             IActionProvider* actionProvider();
         public slots:
             //! Handle the remove item action trigger. Detaches the item from the current observer context.
-            void handle_actionActionRemoveItem_triggered();
+            void handle_actionRemoveItem_triggered();
             //! Handle the remove all action trigger. Detaches all objects from the current observer context.
-            void handle_actionActionRemoveAll_triggered();
+            void handle_actionRemoveAll_triggered();
             //! Handle the delete item action trigger.
-            void handle_actionActionDeleteItem_triggered();
+            void handle_actionDeleteItem_triggered();
             //! Handle the delete all action trigger.
-            void handle_actionActionDeleteAll_triggered();
+            void handle_actionDeleteAll_triggered();
             //! Handle the new item action trigger.
-            void handle_actionActionNewItem_triggered();
+            void handle_actionNewItem_triggered();
             //! Handle the refresh view action trigger.
-            void handle_actionActionRefreshView_triggered();
+            void handle_actionRefreshView_triggered();
             //! Handle the push up (go to parent) action trigger.
-            void handle_actionActionPushUp_triggered();
+            void handle_actionPushUp_triggered();
             //! Handle the push up (go to parent in a new window) action trigger.
-            void handle_actionActionPushUpNew_triggered();
+            void handle_actionPushUpNew_triggered();
             //! Handle the push down action trigger.
-            void handle_actionActionPushDown_triggered();
+            void handle_actionPushDown_triggered();
             //! Handle the push down in new window action trigger.
-            void handle_actionActionPushDownNew_triggered();
+            void handle_actionPushDownNew_triggered();
             //! Handle the switch view action trigger.
-            void handle_actionActionSwitchView_triggered();
+            void handle_actionSwitchView_triggered();
             //! Handle the copy action.
             void handle_actionCopy_triggered();
             //! Handle the cut action.
@@ -401,7 +401,7 @@ namespace Qtilities {
             //! Handle the paste action.
             void handle_actionPaste_triggered();
             //! Handle the find item action.
-            void handle_actionActionFindItem_triggered();
+            void handle_actionFindItem_triggered();
             //! Handle the collapse tree view action. Only usefull in TreeView display mode.
             void handle_actionCollapseAll_triggered();
             //! Handle the expand tree view action. Only usefull in TreeView display mode.

@@ -78,46 +78,46 @@ using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 
 struct Qtilities::CoreGui::ObserverWidgetData {
-    ObserverWidgetData() : actionActionRemoveItem(0),
-    actionActionRemoveAll(0),
-    actionActionDeleteItem(0),
-    actionActionDeleteAll(0),
-    actionActionNewItem(0),
-    actionActionRefreshView(0),
-    actionActionPushUp(0),
-    actionActionPushUpNew(0),
-    actionActionPushDown(0),
-    actionActionPushDownNew(0),
-    actionActionSwitchView(0),
+    ObserverWidgetData() : actionRemoveItem(0),
+    actionRemoveAll(0),
+    actionDeleteItem(0),
+    actionDeleteAll(0),
+    actionNewItem(0),
+    actionRefreshView(0),
+    actionPushUp(0),
+    actionPushUpNew(0),
+    actionPushDown(0),
+    actionPushDownNew(0),
+    actionSwitchView(0),
     actionExpandAll(0),
     actionCollapseAll(0),
-    actionActionFindItem(0),
+    actionFindItem(0),
     proxy_model(0),
     activity_filter(0),
     searchBoxWidget(0),
     action_provider(0) { }
 
-    QAction* actionActionRemoveItem;
-    QAction* actionActionRemoveAll;
-    QAction* actionActionDeleteItem;
-    QAction* actionActionDeleteAll;
-    QAction* actionActionNewItem;
-    QAction* actionActionRefreshView;
-    QAction* actionActionPushUp;
-    QAction* actionActionPushUpNew;
-    QAction* actionActionPushDown;
-    QAction* actionActionPushDownNew;
-    QAction* actionActionSwitchView;
+    QAction* actionRemoveItem;
+    QAction* actionRemoveAll;
+    QAction* actionDeleteItem;
+    QAction* actionDeleteAll;
+    QAction* actionNewItem;
+    QAction* actionRefreshView;
+    QAction* actionPushUp;
+    QAction* actionPushUpNew;
+    QAction* actionPushDown;
+    QAction* actionPushDownNew;
+    QAction* actionSwitchView;
     QAction* actionExpandAll;
     QAction* actionCollapseAll;
-    QAction* actionActionFindItem;
+    QAction* actionFindItem;
 
     //! The navigation stack of this widget, used only in TableView mode.
     QStack<int> navigation_stack;
     //! The navigation bar.
     ObjectHierarchyNavigator* navigation_bar;
-    //! The action toolbar.
-    QToolBar* action_toolbar;
+    //! The action toolbars list. Contains toolbars created for each category in the action provider.
+    QList<QToolBar*> action_toolbars;
     //! The start position point used during drag & drop operations.
     QPoint startPos;
 
@@ -180,7 +180,6 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->property_browser_dock = 0;
     d->property_browser_widget = 0;
     d->navigation_bar = 0;
-    d->action_toolbar = 0;
     d->display_mode = display_mode;
 
     d->table_model = 0;
@@ -222,6 +221,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     }
     d->global_meta_type = context_string;
     d->shared_global_meta_type = QString();
+    setObjectName(context_string);
 }
 
 Qtilities::CoreGui::ObserverWidget::~ObserverWidget()
@@ -342,9 +342,16 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Check if this observer provides hints for this model
         d->hints_selection_parent = d_observer->displayHints();
 
-        // Check if the observer does not specify flags, if so we use the defaults
-        if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
-            activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
+        // Check if we must connect to the paste action for the new hints:
+        Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+        if (command) {
+            if (command->action()) {
+                if (activeHints()->actionHints() & ObserverHints::ActionPasteItem)
+                    connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+                else
+                    command->action()->disconnect();
+            }
+        }
     }
 
     // Hide the search bar if it is visible
@@ -516,17 +523,25 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     }
 
     // Check if an action toolbar should be created:
-    if (activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar && d->action_provider) {
-        if (!d->action_toolbar) {
-            d->action_toolbar = addToolBar("Context Toolbar");
-            d->action_toolbar->addActions(d->action_provider->actions());
+    if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
+        if (d->action_toolbars.count() == 0) {
+            QList<QStringList> categories = d->action_provider->actionCategories();
+            for (int i = 0; i < categories.count(); i++) {
+                QToolBar* new_toolbar = addToolBar(categories.at(i).back());
+                d->action_toolbars << new_toolbar;
+                new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
+            }
         }
     } else {
-        if (d->action_toolbar) {
-            removeToolBar(d->action_toolbar);
-            if (d->action_toolbar) {
-                delete d->action_toolbar;
-                d->action_toolbar = 0;
+        int toolbar_count = d->action_toolbars.count();
+        if (toolbar_count > 0) {
+            for (int i = 0; i < toolbar_count; i++) {
+                removeToolBar(d->action_toolbars.at(0));
+                if (d->action_toolbars.at(0)) {
+                    QToolBar* current_toolbar = d->action_toolbars.at(0);
+                    d->action_toolbars.removeOne(current_toolbar);
+                    delete current_toolbar;
+                }
             }
         }
     }
@@ -622,7 +637,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
     d->initialized = true;
     if (!hints_only) {
-        // Construct the property browser if neccesarry
+        // Construct the property browser if neccesarry:
         refreshPropertyBrowser();
         installEventFilter(this);
     }
@@ -928,79 +943,95 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
     // ---------------------------
-    // Remove All
+    // New Item
     // ---------------------------
-    d->actionActionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE),tr("Remove Item"),this);
-    d->action_provider->addAction(d->actionActionRemoveItem,QStringList(tr("Children")));
-    connect(d->actionActionRemoveItem,SIGNAL(triggered()),SLOT(handle_actionActionRemoveItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ITEM,d->actionActionRemoveItem,context);
+    d->actionNewItem = new QAction(QIcon(ICON_NEW),tr("New Item"),this);
+    d->actionNewItem->setShortcut(QKeySequence("+"));
+    d->action_provider->addAction(d->actionNewItem,QStringList(tr("Items")));
+    connect(d->actionNewItem,SIGNAL(triggered()),SLOT(handle_actionNewItem_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_NEW_ITEM,d->actionNewItem,context);
+    // ---------------------------
+    // Remove Item
+    // ---------------------------
+    d->actionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE),tr("Remove Item"),this);
+    d->action_provider->addAction(d->actionRemoveItem,QStringList(tr("Items")));
+    connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(handle_actionRemoveItem_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
+    // ---------------------------
+    // Delete Item
+    // ---------------------------
+    d->actionDeleteItem = new QAction(QIcon(ICON_DELETE_ONE),tr("Delete Item"),this);
+    d->action_provider->addAction(d->actionDeleteItem,QStringList(tr("Items")));
+    d->actionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
+    connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(handle_actionDeleteItem_triggered()));
+    ACTION_MANAGER->registerAction(MENU_SELECTION_DELETE,d->actionDeleteItem,context);
     // ---------------------------
     // Remove All
     // ---------------------------    
-    d->actionActionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL),tr("Remove All Children"),this);
-    d->action_provider->addAction(d->actionActionRemoveAll,QStringList(tr("Children")));
-    connect(d->actionActionRemoveAll,SIGNAL(triggered()),SLOT(handle_actionActionRemoveAll_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ALL,d->actionActionRemoveAll,context);
+    d->actionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL),tr("Remove All Children"),this);
+    d->action_provider->addAction(d->actionRemoveAll,QStringList(tr("Items")));
+    connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(handle_actionRemoveAll_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
     // ---------------------------
     // Delete All
     // ---------------------------
-    d->actionActionDeleteAll = new QAction(QIcon(ICON_DELETE_ALL),tr("Delete All Children"),this);
-    d->action_provider->addAction(d->actionActionDeleteAll,QStringList(tr("Children")));
-    connect(d->actionActionDeleteAll,SIGNAL(triggered()),SLOT(handle_actionActionDeleteAll_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_DELETE_ALL,d->actionActionDeleteAll,context);
+    d->actionDeleteAll = new QAction(QIcon(ICON_DELETE_ALL),tr("Delete All Children"),this);
+    d->action_provider->addAction(d->actionDeleteAll,QStringList(tr("Items")));
+    connect(d->actionDeleteAll,SIGNAL(triggered()),SLOT(handle_actionDeleteAll_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
     // ---------------------------
     // Switch View
     // ---------------------------
-    d->actionActionSwitchView = new QAction(QIcon(ICON_SWITCH_VIEW),tr("Switch View"),this);
-    d->actionActionSwitchView->setShortcut(QKeySequence("F4"));
-    d->action_provider->addAction(d->actionActionSwitchView,QStringList(tr("View")));
-    connect(d->actionActionSwitchView,SIGNAL(triggered()),SLOT(handle_actionActionSwitchView_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_SWITCH_VIEW,d->actionActionSwitchView,context);
+    d->actionSwitchView = new QAction(QIcon(ICON_SWITCH_VIEW),tr("Switch View"),this);
+    d->actionSwitchView->setShortcut(QKeySequence("F4"));
+    d->action_provider->addAction(d->actionSwitchView,QStringList(tr("View")));
+    connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(handle_actionSwitchView_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
     // ---------------------------
     // Refresh View
     // ---------------------------
-    d->actionActionRefreshView = new QAction(QIcon(ICON_REFRESH),tr("Refresh View"),this);
-    d->action_provider->addAction(d->actionActionRefreshView,QStringList(tr("View")));
-    connect(d->actionActionRefreshView,SIGNAL(triggered()),SLOT(handle_actionActionRefreshView_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REFRESH_VIEW,d->actionActionRefreshView,context);
+    d->actionRefreshView = new QAction(QIcon(ICON_REFRESH),tr("Refresh View"),this);
+    d->action_provider->addAction(d->actionRefreshView,QStringList(tr("View")));
+    connect(d->actionRefreshView,SIGNAL(triggered()),SLOT(handle_actionRefreshView_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
     // ---------------------------
-    // New Item
+    // Find Item
     // ---------------------------
-    d->actionActionNewItem = new QAction(QIcon(ICON_NEW),tr("New Item"),this);
-    d->actionActionNewItem->setShortcut(QKeySequence("+"));
-    d->action_provider->addAction(d->actionActionNewItem,QStringList(tr("Children")));
-    connect(d->actionActionNewItem,SIGNAL(triggered()),SLOT(handle_actionActionNewItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_NEW_ITEM,d->actionActionNewItem,context);
+    d->actionFindItem = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
+    d->action_provider->addAction(d->actionFindItem,QStringList(tr("View")));
+    //d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
+    connect(d->actionFindItem,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
+    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFindItem,context);
     // ---------------------------
     // Go To Parent
     // ---------------------------
-    d->actionActionPushUp = new QAction(QIcon(ICON_PUSH_UP_CURRENT),tr("Go To Parent"),this);
-    d->actionActionPushUp->setShortcut(QKeySequence("Left"));
-    d->action_provider->addAction(d->actionActionPushUp,QStringList(tr("Hierarchy")));
-    connect(d->actionActionPushUp,SIGNAL(triggered()),SLOT(handle_actionActionPushUp_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP,d->actionActionPushUp,context);
+    d->actionPushUp = new QAction(QIcon(ICON_PUSH_UP_CURRENT),tr("Go To Parent"),this);
+    d->actionPushUp->setShortcut(QKeySequence("Left"));
+    d->action_provider->addAction(d->actionPushUp,QStringList(tr("Hierarchy")));
+    connect(d->actionPushUp,SIGNAL(triggered()),SLOT(handle_actionPushUp_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
     // ---------------------------
     // Go To Parent In New Window
     // ---------------------------
-    d->actionActionPushUpNew = new QAction(QIcon(ICON_PUSH_UP_NEW),tr("Go To Parent (New Window)"),this);
-    d->action_provider->addAction(d->actionActionPushUpNew,QStringList(tr("Hierarchy")));
-    connect(d->actionActionPushUpNew,SIGNAL(triggered()),SLOT(handle_actionActionPushUpNew_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP_NEW,d->actionActionPushUpNew,context);
+    d->actionPushUpNew = new QAction(QIcon(ICON_PUSH_UP_NEW),tr("Go To Parent (New Window)"),this);
+    d->action_provider->addAction(d->actionPushUpNew,QStringList(tr("Hierarchy")));
+    connect(d->actionPushUpNew,SIGNAL(triggered()),SLOT(handle_actionPushUpNew_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
     // ---------------------------
     // Push Down
     // ---------------------------
-    d->actionActionPushDown = new QAction(QIcon(ICON_PUSH_DOWN_CURRENT),tr("Push Down"),this);
-    d->action_provider->addAction(d->actionActionPushDown,QStringList(tr("Hierarchy")));
-    d->actionActionPushDown->setShortcut(QKeySequence("Right"));
-    connect(d->actionActionPushDown,SIGNAL(triggered()),SLOT(handle_actionActionPushDown_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN,d->actionActionPushDown,context);
+    d->actionPushDown = new QAction(QIcon(ICON_PUSH_DOWN_CURRENT),tr("Push Down"),this);
+    d->action_provider->addAction(d->actionPushDown,QStringList(tr("Hierarchy")));
+    d->actionPushDown->setShortcut(QKeySequence("Right"));
+    connect(d->actionPushDown,SIGNAL(triggered()),SLOT(handle_actionPushDown_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
     // ---------------------------
     // Push Down In New Window
     // ---------------------------
-    d->actionActionPushDownNew = new QAction(QIcon(ICON_PUSH_DOWN_NEW),tr("Push Down (New Window)"),this);
-    d->action_provider->addAction(d->actionActionPushDownNew,QStringList(tr("Hierarchy")));
-    connect(d->actionActionPushDownNew,SIGNAL(triggered()),SLOT(handle_actionActionPushDownNew_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN_NEW,d->actionActionPushDownNew,context);
+    d->actionPushDownNew = new QAction(QIcon(ICON_PUSH_DOWN_NEW),tr("Push Down (New Window)"),this);
+    d->action_provider->addAction(d->actionPushDownNew,QStringList(tr("Hierarchy")));
+    connect(d->actionPushDownNew,SIGNAL(triggered()),SLOT(handle_actionPushDownNew_triggered()));
+    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
     // ---------------------------
     // Expand All
     // ---------------------------
@@ -1017,22 +1048,6 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionCollapseAll->setShortcut(QKeySequence("Ctrl+<"));
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(handle_actionCollapseAll_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
-    // ---------------------------
-    // Delete Item
-    // ---------------------------
-    d->actionActionDeleteItem = new QAction(QIcon(ICON_DELETE_ONE),tr("Delete Item"),this);
-    d->action_provider->addAction(d->actionActionDeleteItem,QStringList(tr("Item")));
-    d->actionActionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
-    connect(d->actionActionDeleteItem,SIGNAL(triggered()),SLOT(handle_actionActionDeleteItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_SELECTION_DELETE,d->actionActionDeleteItem,context);
-    // ---------------------------
-    // Find Item
-    // ---------------------------
-    d->actionActionFindItem = new QAction(QIcon(ICON_MAGNIFY),tr("Find"),this);
-    d->action_provider->addAction(d->actionActionFindItem,QStringList(tr("View")));
-    d->actionActionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
-    connect(d->actionActionFindItem,SIGNAL(triggered()),SLOT(handle_actionActionFindItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionActionFindItem,context);
 }
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {
@@ -1043,87 +1058,87 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 
     // Ok, first we set only actions specified by the observer's action hints to be visible
     if (activeHints()->actionHints() & ObserverHints::ActionRemoveItem)
-        d->actionActionRemoveItem->setVisible(true);
+        d->actionRemoveItem->setVisible(true);
     else
-        d->actionActionRemoveItem->setVisible(false);
+        d->actionRemoveItem->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionRemoveAll)
-        d->actionActionRemoveAll->setVisible(true);
+        d->actionRemoveAll->setVisible(true);
     else
-        d->actionActionRemoveAll->setVisible(false);
+        d->actionRemoveAll->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionDeleteItem)
-        d->actionActionDeleteItem->setVisible(true);
+        d->actionDeleteItem->setVisible(true);
     else
-        d->actionActionDeleteItem->setVisible(false);
+        d->actionDeleteItem->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionDeleteAll)
-        d->actionActionDeleteAll->setVisible(true);
+        d->actionDeleteAll->setVisible(true);
     else
-        d->actionActionDeleteAll->setVisible(false);
+        d->actionDeleteAll->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionPushDown)
-        d->actionActionPushDown->setVisible(true);
+        d->actionPushDown->setVisible(true);
     else
-        d->actionActionPushDown->setVisible(false);
+        d->actionPushDown->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionPushDownNew)
-        d->actionActionPushDownNew->setVisible(true);
+        d->actionPushDownNew->setVisible(true);
     else
-        d->actionActionPushDownNew->setVisible(false);
+        d->actionPushDownNew->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionPushUp)
-        d->actionActionPushUp->setVisible(true);
+        d->actionPushUp->setVisible(true);
     else
-        d->actionActionPushUp->setVisible(false);
+        d->actionPushUp->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionPushUpNew)
-        d->actionActionPushUpNew->setVisible(true);
+        d->actionPushUpNew->setVisible(true);
     else
-        d->actionActionPushUpNew->setVisible(false);
+        d->actionPushUpNew->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionNewItem)
-        d->actionActionNewItem->setVisible(true);
+        d->actionNewItem->setVisible(true);
     else
-        d->actionActionNewItem->setVisible(false);
+        d->actionNewItem->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionRefreshView)
-        d->actionActionRefreshView->setVisible(true);
+        d->actionRefreshView->setVisible(true);
     else
-        d->actionActionRefreshView->setVisible(false);
+        d->actionRefreshView->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionSwitchView)
-        d->actionActionSwitchView->setVisible(true);
+        d->actionSwitchView->setVisible(true);
     else
-        d->actionActionSwitchView->setVisible(false);
+        d->actionSwitchView->setVisible(false);
 
     if (activeHints()->actionHints() & ObserverHints::ActionFindItem)
-        d->actionActionFindItem->setVisible(true);
+        d->actionFindItem->setVisible(true);
     else
-        d->actionActionFindItem->setVisible(false);
+        d->actionFindItem->setVisible(false);
 
     // Remove & Delete All Actions
     if (d_observer) {
         if (d_observer->subjectCount() > 0) {
-            d->actionActionRemoveAll->setEnabled(true);
-            d->actionActionDeleteAll->setEnabled(true);
+            d->actionRemoveAll->setEnabled(true);
+            d->actionDeleteAll->setEnabled(true);
         } else {
-            d->actionActionRemoveAll->setEnabled(false);
-            d->actionActionDeleteAll->setEnabled(false);
+            d->actionRemoveAll->setEnabled(false);
+            d->actionDeleteAll->setEnabled(false);
         }
     }
 
     // New Item
-    d->actionActionNewItem->setEnabled(true);
+    d->actionNewItem->setEnabled(true);
 
     // Navigating Up/Down Actions
     if (d->display_mode == TableView) {
         if (d->navigation_stack.count() == 0) {
-            d->actionActionPushUp->setEnabled(false);
-            d->actionActionPushUpNew->setEnabled(false);
+            d->actionPushUp->setEnabled(false);
+            d->actionPushUpNew->setEnabled(false);
         } else {
-            d->actionActionPushUp->setEnabled(true);
-            d->actionActionPushUpNew->setEnabled(true);
+            d->actionPushUp->setEnabled(true);
+            d->actionPushUpNew->setEnabled(true);
         }
         d->actionCollapseAll->setEnabled(false);
         d->actionExpandAll->setEnabled(false);
@@ -1134,30 +1149,30 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionExpandAll->setVisible(true);
         d->actionCollapseAll->setEnabled(true);
         d->actionExpandAll->setEnabled(true);
-        d->actionActionPushDown->setEnabled(false);
-        d->actionActionPushUp->setEnabled(false);
-        d->actionActionPushDownNew->setEnabled(false);
-        d->actionActionPushUpNew->setEnabled(false);
-        d->actionActionPushDown->setVisible(false);
-        d->actionActionPushUp->setVisible(false);
-        d->actionActionPushDownNew->setVisible(false);
-        d->actionActionPushUpNew->setVisible(false);
+        d->actionPushDown->setEnabled(false);
+        d->actionPushUp->setEnabled(false);
+        d->actionPushDownNew->setEnabled(false);
+        d->actionPushUpNew->setEnabled(false);
+        d->actionPushDown->setVisible(false);
+        d->actionPushUp->setVisible(false);
+        d->actionPushDownNew->setVisible(false);
+        d->actionPushUpNew->setVisible(false);
     }
 
     // Remove & Delete Items + Navigating Down Actions
     if (selectedObjects().count() == 0) {
-        d->actionActionDeleteItem->setEnabled(false);
-        d->actionActionRemoveItem->setEnabled(false);
+        d->actionDeleteItem->setEnabled(false);
+        d->actionRemoveItem->setEnabled(false);
         if (d->display_mode == TableView) {
-            d->actionActionPushDown->setEnabled(false);
-            d->actionActionPushDownNew->setEnabled(false);
+            d->actionPushDown->setEnabled(false);
+            d->actionPushDownNew->setEnabled(false);
         }
     } else {
         if (d->display_mode == TableView) {
-            d->actionActionDeleteItem->setEnabled(true);
-            d->actionActionRemoveItem->setEnabled(true);
-            d->actionActionPushDown->setEnabled(false);
-            d->actionActionPushDownNew->setEnabled(false);
+            d->actionDeleteItem->setEnabled(true);
+            d->actionRemoveItem->setEnabled(true);
+            d->actionPushDown->setEnabled(false);
+            d->actionPushDownNew->setEnabled(false);
 
             // Inspect property to see if push up, or push down related actions should be enabled.
             if (d->current_selection.count() == 1) {
@@ -1182,8 +1197,8 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     }
 
                     if (observer) {
-                        d->actionActionPushDown->setEnabled(true);
-                        d->actionActionPushDownNew->setEnabled(true);
+                        d->actionPushDown->setEnabled(true);
+                        d->actionPushDownNew->setEnabled(true);
                     }
                 }
             }
@@ -1191,11 +1206,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             if (selectedObjects().count() == 1) {
                 Observer* selected = qobject_cast<Observer*> (selectedObjects().front());
                 if (selected == d->top_level_observer) {
-                    d->actionActionDeleteItem->setEnabled(false);
-                    d->actionActionRemoveItem->setEnabled(false);
+                    d->actionDeleteItem->setEnabled(false);
+                    d->actionRemoveItem->setEnabled(false);
                 } else {
-                    d->actionActionDeleteItem->setEnabled(true);
-                    d->actionActionRemoveItem->setEnabled(true);
+                    d->actionDeleteItem->setEnabled(true);
+                    d->actionRemoveItem->setEnabled(true);
                 }
             }
         }
@@ -1230,7 +1245,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     refreshPropertyBrowser();
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionRemoveItem_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionRemoveItem_triggered() {
     if (!d->initialized)
         return;
 
@@ -1251,7 +1266,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionRemoveItem_triggered
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionRemoveAll_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionRemoveAll_triggered() {
     if (!d->initialized)
         return;
 
@@ -1286,7 +1301,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionRemoveAll_triggered(
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionDeleteItem_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionDeleteItem_triggered() {
     if (!d->initialized)
         return;
 
@@ -1302,7 +1317,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionDeleteItem_triggered
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionDeleteAll_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionDeleteAll_triggered() {
     if (!d->initialized)
         return;
 
@@ -1337,7 +1352,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionDeleteAll_triggered(
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionNewItem_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
     if (!d->initialized)
         return;
 
@@ -1391,7 +1406,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionNewItem_triggered() 
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionRefreshView_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionRefreshView_triggered() {
     if (!d->initialized || !d_observer)
         return;
 
@@ -1409,7 +1424,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionRefreshView_triggere
         d->navigation_bar->refreshHierarchy();
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushUp_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionPushUp_triggered() {
     if (!d->initialized)
         return;
 
@@ -1429,7 +1444,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushUp_triggered() {
     initialize();
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushUpNew_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionPushUpNew_triggered() {
     if (!d->initialized)
         return;
 
@@ -1459,7 +1474,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushUpNew_triggered(
     newObserverWidgetCreated(new_child_widget);
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushDown_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionPushDown_triggered() {
     if (!d->initialized)
         return;
 
@@ -1527,7 +1542,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushDown_triggered()
     }*/
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushDownNew_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionPushDownNew_triggered() {
     if (!d->initialized)
         return;
 
@@ -1607,7 +1622,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionActionPushDownNew_triggere
     newObserverWidgetCreated(new_child_widget);
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionSwitchView_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionSwitchView_triggered() {
     if (!d->initialized)
         return;
 
@@ -1671,7 +1686,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionCut_triggered() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
-    if (activeHints()->actionHints() & ObserverHints::ActionPasteItem){
+    if (activeHints()->actionHints() & ObserverHints::ObserverHints::ActionPasteItem){
         // Check if the subjects being dropped are of the same type as the destination observer.
         // If this is not the case, we do not allow the drop.
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (QApplication::clipboard()->mimeData());
@@ -1746,7 +1761,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::handle_actionActionFindItem_triggered() {
+void Qtilities::CoreGui::ObserverWidget::handle_actionFindItem_triggered() {
     if (!d->initialized)
         return;
 
@@ -2138,10 +2153,12 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
     if (d->table_view && d->table_model && d->display_mode == TableView) {
         if (object == d->table_view && event->type() == QEvent::FocusIn) {
             // Connect to the paste action
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
-            if (command) {
-                if (command->action())
-                    connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+            if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
+                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                if (command) {
+                    if (command->action())
+                        connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+                }
             }
 
             if (d_observer->subjectCount() == 0) {
@@ -2155,10 +2172,12 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
             return false;
         } else if (object == d->table_view && event->type() == QEvent::FocusOut) {
             // Disconnect the paste action from the this widget.
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
-            if (command) {
-                if (command->action())
-                    command->action()->disconnect(this);
+            if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
+                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                if (command) {
+                    if (command->action())
+                        command->action()->disconnect(this);
+                }
             }
 
             return false;
@@ -2173,10 +2192,12 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 return false;
 
             // Connect to the paste action
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
-            if (command) {
-                if (command->action())
-                    connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+            if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
+                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                if (command) {
+                    if (command->action())
+                        connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
+                }
             }
 
             if (d_observer->subjectCount() == 0) {
@@ -2189,11 +2210,13 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
 
             return false;
         } else if (object == d->tree_view && event->type() == QEvent::FocusOut) {
-            // Disconnect the paste action from the this widget.
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
-            if (command) {
-                if (command->action())
-                    command->action()->disconnect(this);
+            if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
+                // Disconnect the paste action from the this widget.
+                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                if (command) {
+                    if (command->action())
+                        command->action()->disconnect(this);
+                }
             }
 
             return false;
