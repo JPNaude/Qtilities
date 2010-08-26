@@ -46,6 +46,7 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(QString(tr("About %1")).arg(QApplication::applicationName()));
 
+
     // Set labels
     if (QApplication::applicationVersion().isEmpty())
         ui->labelApplicationVersion->setVisible(false);
@@ -57,10 +58,14 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     ui->labelCopyright->setText(tr("Copyright ©") + " 2010, Jaco Naude");
     ui->labelWebsite->setText("");
     ui->labelExtendedDescription->setVisible(false);
+    ui->labelApplicationName->setText(QApplication::applicationName());
 
     // Put the widget in the center of the screen
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
+
+    // By default the logo is visible:
+    setLogoVisible(true);
 }
 
 Qtilities::CoreGui::AboutWindow::~AboutWindow()
@@ -73,7 +78,7 @@ void Qtilities::CoreGui::AboutWindow::setCopyright(const QString& copyright) {
 }
 
 void Qtilities::CoreGui::AboutWindow::setLogo(const QPixmap& pixmap) {
-    ui->imageLabel->setPixmap(pixmap);
+    ui->labelImage->setPixmap(pixmap);
 }
 
 void Qtilities::CoreGui::AboutWindow::setVersionString(const QString& version_string) {
@@ -94,6 +99,19 @@ void Qtilities::CoreGui::AboutWindow::setExtendedDescription(const QString& exte
         ui->labelExtendedDescription->setVisible(true);
         ui->labelExtendedDescription->setText(extended_description);
     }
+}
+
+bool Qtilities::CoreGui::AboutWindow::logoVisible() const {
+    return ui->labelImage->isVisible();
+}
+
+void Qtilities::CoreGui::AboutWindow::setLogoVisible(bool is_visible) {
+    ui->labelImage->setVisible(is_visible);
+    ui->labelApplicationName->setVisible(!is_visible);
+    if (is_visible)
+        resize(475,400);
+    else
+        resize(475,150);
 }
 
 void Qtilities::CoreGui::AboutWindow::changeEvent(QEvent *e)

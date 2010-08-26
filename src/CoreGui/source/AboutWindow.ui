@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>421</height>
+    <width>475</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,12 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="imageLabel">
+    <widget class="QLabel" name="labelImage">
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
       <pixmap resource="../resources/resources.qrc">:/images/blueontrans_300x300.png</pixmap>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelApplicationName">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Application Name</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

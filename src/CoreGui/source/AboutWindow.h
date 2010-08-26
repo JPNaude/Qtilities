@@ -69,6 +69,16 @@ namespace Qtilities {
             void setExtendedDescription(const QString& extended_description);
             //! Sets the website address to be displayed. If no displayed name is specified, the url will be used.
             void setWebsite(const QString& url, const QString& displayed_name = QString());
+            //! Indicates if the logo must be shown. If not, the application name will be shown in place of the logo.
+            /*!
+              \sa setLogoVisible()
+              */
+            bool logoVisible() const;
+            //! Sets the visibility of the logo.
+            /*!
+              \sa logoVisible()
+              */
+            void setLogoVisible(bool is_visible);
 
         protected:
             void changeEvent(QEvent *e);
