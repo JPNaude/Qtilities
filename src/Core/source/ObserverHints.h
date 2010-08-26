@@ -178,7 +178,7 @@ namespace Qtilities {
               \sa setDisplayFlagsHint(), displayFlagsHint()
               */
             enum DisplayFlag {
-                NoDisplayFlagsHint = 0,     /*!< No display flags hint. Uses ItemView by default. */
+                NoDisplayFlagsHint = 1,     /*!< No display flags hint. Uses ItemView by default. */
                 ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
                 NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
                 PropertyBrowser = 4,        /*!< Display the property browser. */
