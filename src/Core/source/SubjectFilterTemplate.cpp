@@ -1,27 +1,50 @@
 /****************************************************************************
 **
-** Copyright 2009-2010, Jaco Naude
+** Copyright (c) 2009-2010, Jaco Naude
 **
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License as published by the Free Software Foundation; either
-** version 2.1 of the License, or (at your option) any later version.
+** This file is part of Qtilities which is released under the following
+** licensing options.
 **
-** This library is distributed in the hope that it will be useful,
+** Option 1: Open Source
+** Under this license Qtilities is free software: you can
+** redistribute it and/or modify it under the terms of the GNU General
+** Public License as published by the Free Software Foundation, either
+** version 3 of the License, or (at your option) any later version.
+**
+** Qtilities is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Lesser General Public License for more details.
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
 **
-** You should have received a copy of the GNU Lesser General Public
-** License along with this library;  If not, see <http://www.gnu.org/licenses/>.
+** You should have received a copy of the GNU General Public License
+** along with Qtilities. If not, see http://www.gnu.org/licenses/.
+**
+** Option 2: Commercial
+** Alternatively, this library is also released under a commercial license
+** that allows the development of closed source proprietary applications
+** without restrictions on licensing. For more information on this option,
+** please see the project website's licensing page:
+** http://www.qtilities.org/licensing.html
+**
+** If you are unsure which license is appropriate for your use, please
+** contact support@qtilities.org.
 **
 ****************************************************************************/
 
 #include "SubjectFilterTemplate.h"
 #include "Observer.h"
 
+
+namespace Qtilities {
+    namespace Core {
+        FactoryItem<AbstractSubjectFilter, SubjectFilterTemplate> SubjectFilterTemplate::factory;
+    }
+}
+
 struct Qtilities::Core::SubjectFilterTemplateData {
-    SubjectFilterTemplateData() {}
+    SubjectFilterTemplateData() : is_exportable(true) {}
+
+    bool is_exportable;
 };
 
 Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) : AbstractSubjectFilter(parent) {
@@ -69,17 +92,75 @@ void Qtilities::Core::SubjectFilterTemplate::finalizeDetachment(QObject* obj, bo
     Q_UNUSED(detachment_successful);
 }
 
-QStringList Qtilities::Core::SubjectFilterTemplate::monitoredProperties() {
-    QStringList reserved_properties;
-    return reserved_properties;
+void Qtilities::Core::SubjectFilterTemplate::setIsExportable(bool is_exportable) {
+    d->is_exportable = is_exportable;
 }
 
-bool Qtilities::Core::SubjectFilterTemplate::monitoredPropertyChanged(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
-    Q_UNUSED(obj);
-    Q_UNUSED(property_name);
-    Q_UNUSED(propertyChangeEvent);
+bool Qtilities::Core::SubjectFilterTemplate::isExportable() const {
+    return d->is_exportable;
+}
+
+QStringList Qtilities::Core::SubjectFilterTemplate::monitoredProperties() const {
+    return QStringList();
+}
+
+QStringList Qtilities::Core::SubjectFilterTemplate::reservedProperties() const {
+    return QStringList();
+}
+
+bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+    Q_UNUSED(obj)
+    Q_UNUSED(property_name)
+    Q_UNUSED(propertyChangeEvent)
     return false;
 }
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::SubjectFilterTemplate::factoryData() const {
+    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,"Subject Filter Template","Subject Filter Template");
+    return factoryData;
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectFilterTemplate::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+    Q_UNUSED(stream)
+
+    IFactoryData factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
+    Q_UNUSED(stream)
+
+    return IExportable::Complete;
+}
+
+bool Qtilities::Core::SubjectFilterTemplate::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
+bool Qtilities::Core::SubjectFilterTemplate::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(object_node)
+    Q_UNUSED(params)
+
+    return false;
+}
+
 
 
 
