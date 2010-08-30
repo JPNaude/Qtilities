@@ -45,7 +45,7 @@ Qtilities::CoreGui::CommandTableModel::CommandTableModel(QObject* parent) : QAbs
     shortcut_column = 2;
 
     // Make sure the command table updates itself when new actions are registered.
-    connect(ACTION_MANAGER,SIGNAL(numberOfActionsChanged()),SIGNAL(layoutChanged()));
+    connect(ACTION_MANAGER,SIGNAL(numberOfCommandsChanged()),SIGNAL(layoutChanged()));
 }
 
 QVariant Qtilities::CoreGui::CommandTableModel::data(const QModelIndex &index, int role) const {

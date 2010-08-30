@@ -153,7 +153,7 @@ namespace Qtilities {
 
             signals:
                 //! Signal which is emitted when the number of actions in the action manager changes.
-                void numberOfActionsChanged();
+                void numberOfCommandsChanged();
             };
         }
     }

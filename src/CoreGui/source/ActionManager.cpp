@@ -52,6 +52,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QtDebug>
+#include <QMessageBox>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
@@ -170,16 +171,12 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
             // We set the backend action's shortcut to nothing, otherwise we get ambigious action shortcuts.
             action->setShortcut(QKeySequence());
 
-            //emit numberOfActionsChanged();
+            //emit numberOfCommandsChanged();
             return multi;
         }
     }
 
     return 0;
-}
-
-void Qtilities::CoreGui::ActionManager::frontendActionTesterSlot() {
-    int i = 5;
 }
 
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
@@ -197,10 +194,14 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         frontend_action = new QAction(user_text,0);
 
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
-    connect(frontend_action,SIGNAL(triggered()),SLOT(frontendActionTesterSlot()));
-    if (!QtilitiesApplication::mainWindow())
-        qFatal("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.");
-    else
+    if (!QtilitiesApplication::mainWindow()) {
+        // Don't make it fatal now. Show a message box since action manager will always be used in QtGui application.
+        //qFatal("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.");
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Action Manager");
+        msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Multi context actions will not work as intended.");
+        msgBox.exec();
+    } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
     MultiContextAction* new_action = new MultiContextAction(frontend_action);
@@ -216,7 +217,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
 
         new_action->setKeySequence(key_sequence);
         new_action->setDefaultKeySequence(key_sequence);
-        emit numberOfActionsChanged();
+        emit numberOfCommandsChanged();
         return new_action;
     } else {
         if (frontend_action)

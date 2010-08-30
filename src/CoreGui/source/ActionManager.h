@@ -85,7 +85,6 @@ namespace Qtilities {
 
         public slots:
             void handleContextChanged(QList<int> new_contexts);
-            void frontendActionTesterSlot();
 
         private:
             ActionManagerData* d;
