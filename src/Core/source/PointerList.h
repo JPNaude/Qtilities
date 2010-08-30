@@ -81,25 +81,25 @@ namespace Qtilities {
         will delete all objects attached to it when it is destructed.
 
         For example:
-        \code
-        QObject* test = new QObject;
-        QObject* test2 = new QObject;
-        PointerList<QObject>* test_list = new PointerList<QObject>(true);
-        test_list->addObject(test);
-        test_list->addObject(test2);
+\code
+QObject* test = new QObject;
+QObject* test2 = new QObject;
+PointerList<QObject>* test_list = new PointerList<QObject>(true);
+test_list->addObject(test);
+test_list->addObject(test2);
 
-        delete test;
-        delete test_list;
-        \endcode
+delete test;
+delete test_list;
+\endcode
 
         The above code will result in the following actions inside test_list
-        \code
-        test_list: Adding object test.
-        test_list: Adding object test2.
-        test_list: Removing object test from the pointer list when it is destructed.
-        test_list: Delete object test2 during destruction of test_list. Deleting it will also result in test2 being removed from the pointer list before it is destructed.
-        \endcode
-        */
+\code
+test_list: Adding object test.
+test_list: Adding object test2.
+test_list: Removing object test from the pointer list when it is destructed.
+test_list: Delete object test2 during destruction of test_list. Deleting it will also result in test2 being removed from the pointer list before it is destructed.
+\endcode
+*/
 
         template<class T>
         class QTILIITES_CORE_SHARED_EXPORT PointerList : public PointerListDeleter, public QList<T*>

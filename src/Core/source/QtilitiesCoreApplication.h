@@ -52,7 +52,7 @@ namespace Qtilities {
 
           \note In GUI applications, the QtilitiesCoreApplication instance will not be created. It is still possible to access
           the objectManager(), contextManager() and qtilitiesVersion() functions. For the rest of the functionality, like the
-          settings update request for example, you should use QtilitiesApplication.
+          settings update request for example, you should use Qtilities::CoreGui::QtilitiesApplication.
 
           \sa Qtilities::CoreGui::QtilitiesApplication
          */

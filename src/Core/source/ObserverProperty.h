@@ -183,7 +183,7 @@ attach_success = my_observer_2->attachSubject(test_subject);
         };
 
         /*! \class Qtilities::Core::SharedObserverProperty
-            \brief An SharedObserverProperty object represents an ObserverProperty which is shared between multiple observer contexts.
+            \brief A SharedObserverProperty object represents an ObserverProperty which is shared between multiple observer contexts.
 
             A SharedObserverProperty is a subclass of ObserverProperty which provides an implementation where the property value is
             the same (shared) in more than one observer context.
