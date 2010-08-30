@@ -177,17 +177,6 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         return false;
 
     d->active_contexts = context_ids;
-    QStringList contexts = CONTEXT_MANAGER->activeContextNames();
-    if (d->active_backend_action) {
-        QString action_text = d->active_backend_action->text();
-        if (action_text == "Push Down")
-            int i = 5;
-    } else {
-        QString action_text = text();
-        if (action_text == "Push Down")
-            int i = 5;
-    }
-
     QAction *old_action = d->active_backend_action;
     d->active_backend_action = 0;
     for (int i = 0; i < d->active_contexts.size(); ++i) {
@@ -207,11 +196,6 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
         LOG_TRACE("New backend action is the same as the current active backend action. Nothing to be done in here.");
         #endif
-        if (d->active_backend_action) {
-            QString action_text = d->active_backend_action->text();
-            if (action_text == "Push Down")
-                int i = 5;
-        }
         return true;
     }
 
@@ -291,10 +275,12 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
     QAction* backend_action;
     for (int i = 0; i < d->id_action_map.count(); i++) {
         backend_action = d->id_action_map.values().at(i);
-        if (backend_action->toolTip().endsWith(old_key_tooltip)) {
-            QString chopped_tooltip = backend_action->toolTip();
-            chopped_tooltip.chop(old_key_tooltip.size());
-            backend_action->setToolTip(chopped_tooltip);
+        if (backend_action) {
+            if (backend_action->toolTip().endsWith(old_key_tooltip)) {
+                QString chopped_tooltip = backend_action->toolTip();
+                chopped_tooltip.chop(old_key_tooltip.size());
+                backend_action->setToolTip(chopped_tooltip);
+            }
         }
     }
 
