@@ -37,7 +37,6 @@
 
 #include <Logger.h>
 
-#include <QtDebug>
 #include <QMutex>
 #include <QVariant>
 
@@ -208,7 +207,6 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Subje
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
-    Q_UNUSED(stream)
 
     IFactoryData factory_data = factoryData();
     factory_data.exportBinary(stream);
@@ -227,7 +225,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(import_list)
     Q_UNUSED(params)
-    Q_UNUSED(stream)
 
     stream >> d->inversed_filtering;
     stream >> d->known_objects_group_name;

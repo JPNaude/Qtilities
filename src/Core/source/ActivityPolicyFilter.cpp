@@ -38,7 +38,6 @@
 
 #include <Logger.h>
 
-#include <QtDebug>
 #include <QMutex>
 #include <QVariant>
 #include <QCoreApplication>

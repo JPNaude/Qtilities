@@ -84,7 +84,7 @@ namespace Qtilities {
             };
 
             //! Returns the name of the subject filter.
-            virtual QString filterName() = 0;
+            virtual QString filterName() const = 0;
             //! Set if this subject filter must be exported.
             virtual void setIsExportable(bool is_exportable) = 0;
             //! Indicates if this subject filter must be exported.

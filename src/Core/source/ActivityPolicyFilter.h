@@ -139,7 +139,7 @@ namespace Qtilities {
             AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
             bool initializeDetachment(QObject* obj, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
-            QString filterName() { return FACTORY_TAG_ACTIVITY_POLICY_FILTER; }
+            QString filterName() const { return FACTORY_TAG_ACTIVITY_POLICY_FILTER; }
             void setIsExportable(bool is_exportable);
             bool isExportable() const;
             QStringList monitoredProperties() const;
