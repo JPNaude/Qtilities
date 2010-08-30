@@ -1,0 +1,245 @@
+/**
+\page page_modules_overview Modules Overview
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+This page will provide an overview of the different modules which form part of %Qtilities and describe the dependencies of these modules on each other.
+
+Table of contents:
+- \ref section_modules
+- \ref section_dependencies
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section section_modules Modules
+
+<div align="center">
+<table style="table-layout:auto;
+	margin: fixed; 
+  width: 800px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F; 
+	border-style:solid" CELLPADDING=5 CELLSPACING=1 RULES=ROWS>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%;text-align=justify">
+Provides an advanced logging solution. 
+
+<table style="table-layout:auto;
+	margin: auto; 
+	border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += logging;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module, add this to your .h/.cpp files:
+\code
+#include <QtilitiesLogging>
+// In your .cpp files, use this namespace:
+using namespace QtillitiesLogging;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_core.html">Core Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%">
+Provides the core %Qtilities classes. 
+
+<table style="table-layout:auto;
+	margin: auto; 
+	border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += core;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module, add this to your .h/.cpp files:
+\code
+#include <QtilitiesCore>
+// In your .cpp files, use this namespace:
+using namespace QtillitiesCore;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%">
+Provides the core %Qtilities GUI classes.
+
+<table style="table-layout:auto;
+	margin: auto; 
+	border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += coregui;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module, add this to your .h/.cpp files:
+\code
+#include <QtilitiesCoreGui>
+// In your .cpp files, use this namespace:
+using namespace QtillitiesCoreGui;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_project_management.html">Project Management Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%">
+Provides project management classes. 
+
+<table style="table-layout:auto;
+	margin: auto; 
+	border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += project_management;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module, add this to your .h/.cpp files:
+\code
+#include <QtilitiesProjectManagement>
+// In your .cpp files, use this namespace:
+using namespace QtillitiesProjectManagement;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_extension_system.html">Extension System Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%">
+Provides an extension system based on the Qt plugin architecture. 
+
+<table style="table-layout:auto;
+	margin: auto; 
+	border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += core;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module, add this to your .h/.cpp files:
+\code
+#include <QtilitiesExtensionSystem>
+// In your .cpp files, use this namespace:
+using namespace QtillitiesExtensionSystem;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
+\section section_dependencies Module Dependencies
+
+The diagram below shows the dependencies of the different modules on each other. When you include a library in your .pro file, all dependent modules are automatically included.
+
+\image html dependency_graph.jpg "Library Dependency Graph"
+\image latex dependency_graph.eps "Library Dependency Graph" width=\textwidth
+
+For more information about the Qt Property Browser Solution on which the CoreGui module depends, see the <a href="http://qt.nokia.com/products/appdev/add-on-products/catalog/4/Widgets/qtpropertybrowser/">solution website</a>. Also see the \ref getting_started_library_dependencies section of the \ref page_getting_started page for more information.
+</table>
+</div>
+
+ */
+ 
