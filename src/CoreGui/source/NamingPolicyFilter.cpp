@@ -44,7 +44,6 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QAbstractButton>
-#include <QtDebug>
 #include <QPushButton>
 #include <QMutex>
 #include <QVariant>
