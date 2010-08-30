@@ -68,7 +68,7 @@ namespace Qtilities {
                 //! The targets which should be notified when the state of the object implementing this interface changes.
                 enum NotificationTarget {
                     NotifyNone      = 0,  /*!< No targets will be notified about the modification state change. */
-                    NotifyListeners = 1,  /*!< Notify all listeners connected to the modification state change signals. \sa modificationStateChanged(), partialStateChanged() */
+                    NotifyListeners = 1,  /*!< Notify all listeners connected to the modification state change signals. \sa modificationStateChanged() */
                     NotifySubjects  = 2,  /*!< Notify all subjects about the new state. The new state will be set on all subjects as well. */
                 };
                 Q_DECLARE_FLAGS(NotificationTargets, NotificationTarget);
