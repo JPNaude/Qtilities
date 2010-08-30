@@ -35,6 +35,8 @@ namespace Qtilities {
         /*!
         \class CodeEditorWidgetConfig
         \brief A config page for text editors.
+
+        \note This class is still under development and is not yet ready for production usage.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditorWidgetConfig : public QWidget, public IConfigPage
         {

@@ -55,6 +55,8 @@ namespace Qtilities {
         /*!
         \class CodeEditor
         \brief A code editor.
+
+        \note This class is still under development and is not yet ready for production usage.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditor : public QPlainTextEdit
         {
