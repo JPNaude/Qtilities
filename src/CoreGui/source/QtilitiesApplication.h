@@ -53,7 +53,7 @@ namespace Qtilities {
           \brief The QtilitiesApplication is the same as QApplication with added functionality.
 
           The QtilitiesApplication class is an extension of QApplication and must be should be used when building
-          Qtilities applications. For example:
+          %Qtilities applications. For example:
 
 \code
 QtilitiesApplication a(argc, argv);
@@ -64,7 +64,7 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
 \endcode
 
          If you for some reason don't want to use the QtilitiesApplication as shown above, you must call the initialize()
-         instead in your application's main function.
+         function instead in your application's main function.
           \sa Qtilities::Core::QtilitiesCoreApplication
          */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesApplication : public QApplication
