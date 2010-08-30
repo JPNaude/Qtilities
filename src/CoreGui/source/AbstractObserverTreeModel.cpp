@@ -871,8 +871,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(Obs
     // since the selection will be in this parent context and that function will refresh the complete context.
     if (observer == d->selection_parent) {
         handleContextDataChanged(d->selection_index);
-        // Not sure why this refreshes the complete tree at present.
-        // It is probably because observers context to each other's dataChanged() signals.
     }
 }
 
