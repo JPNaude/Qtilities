@@ -90,9 +90,11 @@ namespace Qtilities {
                 //! Removes a context from the set of active contexts. The context is identified using a string.
                 virtual void removeContext(const QString& context_string, bool notify = true) = 0;
                 //! Gets the current context.
-                virtual QList<int> currentContexts() = 0;
+                virtual QList<int> currentContexts() const = 0;
                 //! Returns an unique context ID for the given context string. Contexts are stored and identified using integer ID values throughout the library.
                 virtual int contextID(const QString& context_string) = 0;
+                //! Returns the string which was used to register a context id. If the context id does not exist, QString() is returned.
+                virtual QString contextString(int context_id) const = 0;
 
             public slots:
                 //! Slot which will emit the current state of the context manager. Use this if you updated your contexts using notify = false.

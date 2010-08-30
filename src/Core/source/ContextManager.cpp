@@ -213,7 +213,7 @@ void Qtilities::Core::ContextManager::removeContext(const QString& context_strin
     removeContext(contextID(context_string),notify);
 }
 
-QList<int> Qtilities::Core::ContextManager::currentContexts() {
+QList<int> Qtilities::Core::ContextManager::currentContexts() const {
     return d->active_contexts;
 }
 
@@ -230,6 +230,15 @@ int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
         d->string_id_map[context_string] = d->id_counter;
         return d->id_counter;
     }
+}
+
+QString Qtilities::Core::ContextManager::contextString(int context_id) const {
+    for (int i = 0; i < d->string_id_map.count(); i++) {
+        if (d->string_id_map.values().at(i) == context_id)
+            return d->string_id_map.keys().at(i);
+    }
+
+    return QString();
 }
 
 void Qtilities::Core::ContextManager::addContexts(QObject* obj) {

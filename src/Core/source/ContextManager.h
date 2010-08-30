@@ -76,8 +76,9 @@ namespace Qtilities {
             bool hasContext(QList<int> contexts) const;
             bool hasContext(int context) const;
             bool hasContext(const QString& context_string) const;
-            QList<int> currentContexts();
+            QList<int> currentContexts() const;
             int contextID(const QString& context_string);
+            QString contextString(int context_id) const;
 
         public slots:
             void setNewContext(int context_id, bool notify = true);
