@@ -73,7 +73,7 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     connect(warning_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
     d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
 
-    QDockWidget* error_dock = LoggerGui::createLogDockWidget(tr("Errors"),true,Logger::Error);
+    QDockWidget* error_dock = LoggerGui::createLogDockWidget(tr("Errors"),true,Logger::Error | Logger::Fatal);
     connect(error_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
     d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,error_dock);
 
