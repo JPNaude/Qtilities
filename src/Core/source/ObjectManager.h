@@ -84,7 +84,7 @@ namespace Qtilities {
           \class ObjectManager
           \brief The ObjectManager provides object management features to the developer.
 
-          For more information about object management in Qtilities, see the \ref page_object_management article.
+          For more information about object management in %Qtilities, see the \ref page_object_management article.
          */
         class QTILIITES_CORE_SHARED_EXPORT ObjectManager : public IObjectManager
         {
