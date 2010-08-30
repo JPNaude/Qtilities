@@ -191,9 +191,9 @@ QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QStri
     return d->object_pool.subjectReferences(iface);
 }
 
-void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type, const QStringList& filter_list, bool inversed_list) {
+void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type) {
     d->meta_type_map[subject_type] = objects;
-    emit metaTypeActiveObjectsChanged(objects,subject_type,filter_list,inversed_list);
+    emit metaTypeActiveObjectsChanged(objects,subject_type);
 }
 
 QList<QObject*> Qtilities::Core::ObjectManager::metaTypeActiveObjects(const QString& subject_type) const {

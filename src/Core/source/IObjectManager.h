@@ -109,7 +109,7 @@ namespace Qtilities {
 
                   \sa metaTypeActiveObjects(), metaTypeActiveObjectsChanged()
                   */
-                virtual void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type, const QStringList& filter_list = QStringList(), bool inversed_list = false) = 0;
+                virtual void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type) = 0;
                 //! Returns the active object(s) for a specific meta type. If the meta type does not exist, an empty list is returned.
                 /*!
                   For more information about see the \ref meta_type_object_management section of the \ref page_object_management article.
@@ -134,7 +134,9 @@ namespace Qtilities {
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.
-                void metaTypeActiveObjectsChanged(QList<QObject*> objects, const QString& meta_type, const QStringList& filter_list, bool inversed_list);
+                void metaTypeActiveObjectsChanged(QList<QObject*> objects, const QString& meta_type);
+                //! Signal which is emitted when a new object is added to the global object pool.
+                void newObjectAdded(QObject* obj);
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IObjectManager::PropertyTypeFlags)
