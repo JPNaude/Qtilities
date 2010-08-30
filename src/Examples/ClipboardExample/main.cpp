@@ -51,12 +51,13 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Clipboard Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
-    LOG_INITIALIZE();
-    Log->setGlobalLogLevel(Logger::Debug);
-    Log->setIsQtMessageHandler(true);
 
     QMainWindow* main_window = new QMainWindow();
     QtilitiesApplication::setMainWindow(main_window);
+
+    LOG_INITIALIZE();
+    Log->setGlobalLogLevel(Logger::Debug);
+    Log->setIsQtMessageHandler(true);
 
     // Create the menu bar and menus in the menu bar:
     bool existed;
@@ -268,13 +269,27 @@ int main(int argc, char *argv[])
     main_window->addDockWidget(Qt::LeftDockWidgetArea,object_scope_dock);
     main_window->addDockWidget(Qt::LeftDockWidgetArea,property_browser_dock);
 
+    // Load the previous session's keyboard mapping file.
+    QString shortcut_mapping_file = QString("%1/session/%2").arg(QApplication::applicationDirPath()).arg(FILE_SHORTCUT_MAPPING);
+    if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
+        LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
+    else
+        LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
+
     int result = a.exec();
+
     settings.beginGroup("GUI");
     settings.beginGroup("MainWindow");
     settings.setValue("geometry", main_window->saveGeometry());
     settings.setValue("windowState", main_window->saveState());
     settings.endGroup();
     settings.endGroup();
+
+    // Save the current keyboard mapping for the next session.
+    if (ACTION_MANAGER->exportShortcutMapping(shortcut_mapping_file))
+        LOG_INFO(QObject::tr("Succesfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
+    else
+        LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);
 
     LOG_FINALIZE();
     return result;
