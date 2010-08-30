@@ -167,12 +167,19 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
             LOG_TRACE(QString(tr("Registering new backend action for base action %1 (shortcut %2). New action: %3 (shortcut %4).")).arg(multi->text()).arg(multi->keySequence().toString()).arg(action->text()).arg(action->shortcut().toString()));
             #endif
 
+            // We set the backend action's shortcut to nothing, otherwise we get ambigious action shortcuts.
+            action->setShortcut(QKeySequence());
+
             //emit numberOfActionsChanged();
             return multi;
         }
     }
 
     return 0;
+}
+
+void Qtilities::CoreGui::ActionManager::frontendActionTesterSlot() {
+    int i = 5;
 }
 
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
@@ -182,7 +189,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         return 0;
     }
 
-    // We create a default action. The user can connect to the trigger produced by Command->action() or add backend actions at a later stage.
+    // We create a default action. The user can connect to the trigger produced by Command->action() or add backend actions at a later stage:
     QAction* frontend_action;
     if (user_text.isEmpty())
         frontend_action = new QAction(id.split(".").last(),0);
@@ -190,8 +197,9 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         frontend_action = new QAction(user_text,0);
 
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
+    connect(frontend_action,SIGNAL(triggered()),SLOT(frontendActionTesterSlot()));
     if (!QtilitiesApplication::mainWindow())
-        LOG_FATAL(QString("QtilitiesApplication::mainWindow() is required when registering actions in the action manager."));
+        qFatal("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.");
     else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
@@ -219,9 +227,9 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     return 0;
 }
 
-Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(QShortcut *shortcut, const QString &default_text, const QList<int> &context) {
+/*Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(QShortcut *shortcut, const QString &default_text, const QList<int> &context) {
     return 0;
-}
+}*/
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::command(const QString &id) const {
     if (d->id_command_map.keys().contains(id))

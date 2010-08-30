@@ -54,14 +54,16 @@ Qtilities::CoreGui::Command::~Command() {
 }
 
 void Qtilities::CoreGui::Command::setDefaultKeySequence(const QKeySequence &key) {
+    QKeySequence old_key_sequence = c->current_key_sequence;
     c->default_key_sequence = key;
-    handleKeySequenceChange();
+    handleKeySequenceChange(old_key_sequence);
     emit keySequenceChanged();
 }
 
 void Qtilities::CoreGui::Command::setKeySequence(const QKeySequence &key) {
+    QKeySequence old_key_sequence = c->current_key_sequence;
     c->current_key_sequence = key;
-    handleKeySequenceChange();
+    handleKeySequenceChange(old_key_sequence);
     emit keySequenceChanged();
 }
 
@@ -82,99 +84,51 @@ QString Qtilities::CoreGui::Command::defaultText() const {
 }
 
 // --------------------------------
-// Action Implemenation
-// --------------------------------
-struct Qtilities::CoreGui::ActionData {
-    ActionData() : base_action(0) { }
-
-    QAction* base_action;
-    QString original_tooltip;
-    Action::InActivePolicy inActivePolicy;
-};
-
-Qtilities::CoreGui::Action::Action(QAction* user_visible_action, QObject* parent) : Command(parent) {
-    b = new ActionData;
-
-    b->base_action = user_visible_action;
-    if (b->base_action) {
-        b->base_action->setEnabled(false);
-        b->base_action->setParent(this);
-        b->original_tooltip = b->base_action->toolTip();
-    }
-
-    b->inActivePolicy = Action::DisableAction;
-}
-
-Qtilities::CoreGui::Action::~Action() {
-    delete b;
-}
-
-void Qtilities::CoreGui::Action::setInActivePolicy(Action::InActivePolicy policy) {
-    b->inActivePolicy = policy;
-}
-
-Qtilities::CoreGui::Action::InActivePolicy Qtilities::CoreGui::Action::inActivePolicy() {
-    return b->inActivePolicy;
-}
-
-QAction* Qtilities::CoreGui::Action::action() const {
-    return b->base_action;
-}
-
-QShortcut* Qtilities::CoreGui::Action::shortcut() const {
-    return 0;
-}
-
-void Qtilities::CoreGui::Action::handleKeySequenceChange() {
-    // Check if there is no current action but a default. In that case we set the current to the default.
-    if (c->current_key_sequence.isEmpty() && !c->default_key_sequence.isEmpty()) {
-        c->current_key_sequence = c->default_key_sequence;
-    }
-
-    b->base_action->setShortcut(c->current_key_sequence);
-    updateToolTipWithKeySequence();
-}
-
-QString Qtilities::CoreGui::Action::text() const
-{
-    if (!b->base_action)
-        return QString();
-
-    return b->base_action->text();
-}
-
-void Qtilities::CoreGui::Action::updateToolTipWithKeySequence()
-{
-    if (b->base_action->shortcut().isEmpty())
-        b->base_action->setToolTip(b->original_tooltip);
-    else {
-        QString appendedString = QString("%1 <span style=\"color: gray; font-size: small\">%2</span>").arg(b->original_tooltip).arg(
-                keySequence().toString(QKeySequence::NativeText));
-        b->base_action->setToolTip(appendedString);
-    }
-}
-
-// --------------------------------
 // MultiContextAction Implemenation
 // --------------------------------
 struct Qtilities::CoreGui::MultiContextActionData {
-    MultiContextActionData() : initialized(false),
+    MultiContextActionData() : frontend_action(0),
+    initialized(false),
     is_active(false) { }
 
+    QAction* frontend_action;
+    QString original_tooltip;
     bool initialized;
     bool is_active;
     QList<int> active_contexts;
-    QPointer<QAction> active_action;
+    QPointer<QAction> active_backend_action;
     QHash<int, QPointer<QAction> > id_action_map;
 };
 
-Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, QObject* parent) : Action(user_visible_action, parent) {
+Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, QObject* parent) : Command(parent) {
     d = new MultiContextActionData;
 
+    d->frontend_action = user_visible_action;
+    if (d->frontend_action) {
+        d->frontend_action->setEnabled(false);
+        d->frontend_action->setParent(this);
+        d->original_tooltip = d->frontend_action->toolTip();
+    }
 }
 
 Qtilities::CoreGui::MultiContextAction::~MultiContextAction() {
     delete d;
+}
+
+QAction* Qtilities::CoreGui::MultiContextAction::action() const {
+    return d->frontend_action;
+}
+
+QShortcut* Qtilities::CoreGui::MultiContextAction::shortcut() const {
+    return 0;
+}
+
+QString Qtilities::CoreGui::MultiContextAction::text() const
+{
+    if (!d->frontend_action)
+        return QString();
+
+    return d->frontend_action->text();
 }
 
 void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<int> context_ids) {
@@ -206,7 +160,7 @@ void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<in
         }
     }
 
-    updateAction();
+    updateFrontendAction();
 }
 
 bool Qtilities::CoreGui::MultiContextAction::isActive() {
@@ -223,15 +177,25 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         return false;
 
     d->active_contexts = context_ids;
+    QStringList contexts = CONTEXT_MANAGER->activeContextNames();
+    if (d->active_backend_action) {
+        QString action_text = d->active_backend_action->text();
+        if (action_text == "Push Down")
+            int i = 5;
+    } else {
+        QString action_text = text();
+        if (action_text == "Push Down")
+            int i = 5;
+    }
 
-    QAction *old_action = d->active_action;
-    d->active_action = 0;
+    QAction *old_action = d->active_backend_action;
+    d->active_backend_action = 0;
     for (int i = 0; i < d->active_contexts.size(); ++i) {
         if (QAction *a = d->id_action_map.value(d->active_contexts.at(i), 0)) {
-            d->active_action = a;
+            d->active_backend_action = a;
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-            LOG_TRACE("Backend action found: " + d->active_action->text() + ", backend shortcut: " + d->active_action->shortcut().toString() + ", MultiContextAction shortcut: " + b->base_action->shortcut().toString());
+            LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", MultiContextAction shortcut: " + d->frontend_action->shortcut().toString());
             #endif
 
             // This break will ensure that the first context is used for the case where multiple contexts are active at once.
@@ -239,18 +203,23 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         }
     }
 
-    if (d->active_action == old_action && d->initialized)  {
+    if (d->active_backend_action == old_action && d->initialized)  {
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-        LOG_TRACE("New backend action is the same as the current active backend action. Nothihng to be done in here.");
+        LOG_TRACE("New backend action is the same as the current active backend action. Nothing to be done in here.");
         #endif
+        if (d->active_backend_action) {
+            QString action_text = d->active_backend_action->text();
+            if (action_text == "Push Down")
+                int i = 5;
+        }
         return true;
     }
 
     // Disconnect signals from old action
     if (old_action) {
-        disconnect(old_action, SIGNAL(changed()), this, SLOT(updateAction()));
-        disconnect(b->base_action, SIGNAL(triggered(bool)), old_action, SIGNAL(triggered(bool)));
-        disconnect(b->base_action, SIGNAL(toggled(bool)), old_action, SLOT(setChecked(bool)));
+        disconnect(old_action, SIGNAL(changed()), this, SLOT(updateFrontendAction()));
+        disconnect(d->frontend_action, SIGNAL(triggered(bool)), old_action, SIGNAL(triggered(bool)));
+        disconnect(d->frontend_action, SIGNAL(toggled(bool)), old_action, SLOT(setChecked(bool)));
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
         QObject* parent = old_action->parent();
         QString parent_name = "Unspecified parent";
@@ -262,21 +231,20 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
     }
 
     // Connect signals for new action
-    if (d->active_action) {
-        connect(d->active_action, SIGNAL(changed()), this, SLOT(updateAction()));
-        Q_ASSERT(connect(b->base_action, SIGNAL(triggered(bool)), d->active_action, SIGNAL(triggered(bool))));
-        connect(b->base_action, SIGNAL(toggled(bool)), d->active_action, SLOT(setChecked(bool)));
-        updateAction();
-        b->base_action->setParent(d->active_action->parent());
+    if (d->active_backend_action) {
+        connect(d->active_backend_action, SIGNAL(changed()), this, SLOT(updateFrontendAction()));
+        connect(d->frontend_action, SIGNAL(triggered(bool)), d->active_backend_action, SIGNAL(triggered(bool)));
+        connect(d->frontend_action, SIGNAL(toggled(bool)), d->active_backend_action, SLOT(setChecked(bool)));
+        updateFrontendAction();
         d->is_active = true;
         d->initialized = true;
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-        QObject* parent = d->active_action->parent();
+        QObject* parent = d->active_backend_action->parent();
         QString parent_name = "Unspecified parent";
         if (parent) {
              parent_name = parent->objectName();
         }
-        LOG_TRACE("Base action connected: " + d->active_action->text() + ", Base shortcut: " + b->base_action->shortcut().toString() + ", Parent: " + parent_name);
+        LOG_TRACE("Base action connected: " + d->active_backend_action->text() + ", Base shortcut: " + d->frontend_action->shortcut().toString() + ", Parent: " + parent_name);
         #endif
         return true;
     } else {
@@ -285,37 +253,77 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
         #endif
     }
     // We can hide the action here if needed
-    // b->base_action->setVisible(false);
-    b->base_action->setEnabled(false);
+    // d->frontend_action->setVisible(false);
+    d->frontend_action->setEnabled(false);
     d->is_active = false;
     return false;
 }
 
-void Qtilities::CoreGui::MultiContextAction::updateAction() {
+void Qtilities::CoreGui::MultiContextAction::updateFrontendAction() {
     // If this is just a place holder without any backend action we do nothing in here
     if (d->id_action_map.count() == 0)
         return;
 
-    if (!d->active_action || !b->base_action)
+    if (!d->active_backend_action || !d->frontend_action)
         return;
 
     // Update the icon
-    b->base_action->setIcon(d->active_action->icon());
-    b->base_action->setIconText(d->active_action->iconText());
+    d->frontend_action->setIcon(d->active_backend_action->icon());
+    d->frontend_action->setIconText(d->active_backend_action->iconText());
 
     // Update the text
-    b->base_action->setText(d->active_action->text());
-    b->original_tooltip = d->active_action->toolTip();
-    updateToolTipWithKeySequence();
-    b->base_action->setStatusTip(d->active_action->statusTip());
-    b->base_action->setWhatsThis(d->active_action->whatsThis());
+    d->frontend_action->setText(d->active_backend_action->text());
+    d->frontend_action->setStatusTip(d->active_backend_action->statusTip());
+    d->frontend_action->setWhatsThis(d->active_backend_action->whatsThis());
 
-    b->base_action->setCheckable(d->active_action->isCheckable());
-    b->base_action->setEnabled(d->active_action->isEnabled());
-    b->base_action->setVisible(d->active_action->isVisible());
+    d->frontend_action->setCheckable(d->active_backend_action->isCheckable());
+    d->frontend_action->setEnabled(d->active_backend_action->isEnabled());
+    d->frontend_action->setVisible(d->active_backend_action->isVisible());
 
-    bool previous_block_value = b->base_action->blockSignals(true);
-    b->base_action->setChecked(d->active_action->isChecked());
-    b->base_action->blockSignals(previous_block_value);
+    bool previous_block_value = d->frontend_action->blockSignals(true);
+    d->frontend_action->setChecked(d->active_backend_action->isChecked());
+    d->frontend_action->blockSignals(previous_block_value);
+}
+
+void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeySequence& old_key) {
+    // Check if the old key is part of the backend actions' tooltips:
+    QString old_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(old_key.toString(QKeySequence::NativeText));
+    QAction* backend_action;
+    for (int i = 0; i < d->id_action_map.count(); i++) {
+        backend_action = d->id_action_map.values().at(i);
+        if (backend_action->toolTip().endsWith(old_key_tooltip)) {
+            QString chopped_tooltip = backend_action->toolTip();
+            chopped_tooltip.chop(old_key_tooltip.size());
+            backend_action->setToolTip(chopped_tooltip);
+        }
+    }
+
+    // Check if there is no current action but a default. In that case we set the current to the default:
+    if (c->current_key_sequence.isEmpty() && !c->default_key_sequence.isEmpty()) {
+        c->current_key_sequence = c->default_key_sequence;
+    }
+
+    // Change the shortcut of the frontend action:
+    d->frontend_action->setShortcut(c->current_key_sequence);
+
+    // Add new key sequence to frontend action and all backend actions (backend actions only if there is a shortcut):
+    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(keySequence().toString(QKeySequence::NativeText));
+    if (d->frontend_action->shortcut().isEmpty()) {
+        if (d->active_backend_action)
+            d->frontend_action->setToolTip(d->active_backend_action->toolTip());
+        else
+            d->frontend_action->setToolTip(d->original_tooltip);
+    } else {
+        if (d->active_backend_action)
+            d->frontend_action->setToolTip(d->active_backend_action->toolTip() + " " + new_key_tooltip);
+        else
+            d->frontend_action->setToolTip(d->original_tooltip + " " + new_key_tooltip);
+
+        // Add the new tooltip to all the backend actions' tooltips:
+        for (int i = 0; i < d->id_action_map.count(); i++) {
+            backend_action = d->id_action_map.values().at(i);
+            backend_action->setToolTip(backend_action->toolTip() + " " + new_key_tooltip);
+        }
+    }
 }
 

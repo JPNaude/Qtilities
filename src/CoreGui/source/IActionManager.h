@@ -126,7 +126,7 @@ namespace Qtilities {
                   */
                 virtual Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence = QKeySequence(), const QList<int> &context = QList<int>()) = 0;
                 //! Function to register a shortcut in the action manager.
-                virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
+                //virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
                 //! Access function for actions and shortcuts.
                 virtual Command *command(const QString &id) const = 0;
                 //! Access function for menus and menu bars.

@@ -104,7 +104,7 @@ namespace Qtilities {
             //! Returns the text which appears as user friendly text to the user.
             virtual QString text() const = 0;
             //! Called when the key sequence changes.
-            virtual void handleKeySequenceChange() = 0;
+            virtual void handleKeySequenceChange(const QKeySequence& old_key) = 0;
             //! Call to set change the curent context of a command.
             virtual bool setCurrentContext(QList<int> context_ids) = 0;
 
@@ -116,48 +116,6 @@ namespace Qtilities {
         };
 		
         /*!
-        \struct ActionData
-        \brief A structure storing private data in the Action class.
-          */
-        struct ActionData;
-
-        /*!
-        \class Action
-        \brief A class which represents an action in your application.
-          */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT Action : public Command
-        {
-            Q_OBJECT
-            Q_ENUMS(InActivePolicy);
-
-        public:
-            Action(QAction* user_visible_action, QObject* parent = 0);
-            ~Action();
-            
-            enum InActivePolicy { HideAction, DisableAction };
-
-            //! Sets the inactive policy of the action.
-            void setInActivePolicy(Action::InActivePolicy policy);
-            //! Gets the inactive policy.
-            InActivePolicy inActivePolicy();
-
-            // --------------------------------
-            // Command Implemenation
-            // --------------------------------
-            QAction *action() const;
-            QShortcut *shortcut() const;
-            QString text() const;
-            void handleKeySequenceChange();
-
-            virtual bool setCurrentContext(QList<int> context_ids) = 0;
-
-        protected:
-            void updateToolTipWithKeySequence();
-
-            ActionData* b;
-        };
-
-        /*!
         \struct MultiContextActionData
         \brief A structure storing private data in the MultiContextAction class.
           */
@@ -165,15 +123,31 @@ namespace Qtilities {
 
         /*!
         \class MultiContextAction
-        \brief A class which represents an action which triggers different actions for different contexts.
+        \brief A class which represents a multi context action which triggers different actions for different contexts.
+        
+        The MultiContextAction class represents an action which has a frontend action which is triggered 
+        when the shortcut of the MultiContextAction is used, and any number of backend actions which each
+        represent a different context. When context changes happen in the application, the multi context 
+        action will make the correct backend action for the set of active contexts active. Thus, when the 
+        frontend action trigger, the active backend action will also trigger.
+
+        When the active backend action changes, the frontend action inherts the properties of the backend action.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT MultiContextAction : public Action
+        class QTILITIES_CORE_GUI_SHARED_EXPORT MultiContextAction : public Command
         {
             Q_OBJECT
 
         public:
             MultiContextAction(QAction* user_visible_action, QObject* parent = 0);
             virtual ~MultiContextAction();
+
+            // --------------------------------
+            // Command Implemenation
+            // --------------------------------
+            QAction *action() const;
+            QShortcut *shortcut() const;
+            QString text() const;
+            void handleKeySequenceChange(const QKeySequence& old_key);
 
             //! Add the action under the specified contexts.
             void addAction(QAction* action, QList<int> context_ids);
@@ -183,7 +157,7 @@ namespace Qtilities {
             bool setCurrentContext(QList<int> context_ids);
 
         private slots:
-            void updateAction();
+            void updateFrontendAction();
 
         private:
             MultiContextActionData* d;
