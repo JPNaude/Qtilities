@@ -86,6 +86,8 @@ namespace Qtilities {
                 void toggleDock(bool toggle);
                 //! Loads file into text editor.
                 void loadFile(const QString& file_name);
+                //! Slot which handles new side widget file system instances being produced.
+                void handleNewFileSystemWidget(QWidget* widget);
 
             protected:
                 void changeEvent(QEvent *e);

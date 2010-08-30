@@ -46,7 +46,7 @@ namespace Qtilities {
         namespace Clipboard {
             using namespace Qtilities::CoreGui;
 
-            //! The ExtendedObserverTableModel class class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed.
+            //! The ExtendedObserverTableModel class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed.
             /*!
               The ExtendedObserverTableModel class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed
               to add additional functionality to your model and to Qtilities::CoreGui::ObserverWidget widgets.

@@ -100,7 +100,6 @@ namespace Qtilities {
                 void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners);
             signals:
                 void modificationStateChanged(bool is_modified) const;
-                void partialStateChanged(const QString& part_name) const;
 
             public:
                 // --------------------------------

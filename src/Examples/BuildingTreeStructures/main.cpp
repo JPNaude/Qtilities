@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Building Tree Structures Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
-
     // Create the observers
     Observer* observerA = new Observer("Observer A","Top level observer");
     observerA->useDisplayHints();

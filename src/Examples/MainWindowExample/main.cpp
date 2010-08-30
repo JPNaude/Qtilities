@@ -52,6 +52,10 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Main Window Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
+    // Create a QtilitiesMainWindow to show our different modes.
+    QtilitiesMainWindow exampleMainWindow(0);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
+
     // Initialize the logger.
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
@@ -59,6 +63,7 @@ int main(int argc, char *argv[])
     // Create menu related things.
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
+    exampleMainWindow.setMenuBar(menu_bar->menuBar());
     ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
     ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
     ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
@@ -110,11 +115,6 @@ int main(int argc, char *argv[])
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
     edit_menu->addAction(command);
 
-    // Create a QtilitiesMainWindow to show our different modes.
-    QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesApplication::setMainWindow(&exampleMainWindow);
-    exampleMainWindow.setMenuBar(menu_bar->menuBar());
-
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     ExtensionSystemCore::instance()->loadPlugins();
@@ -123,8 +123,10 @@ int main(int argc, char *argv[])
     // Create the example file system side widget and add it to the global object pool
     QList<int> modes;
     modes << MODE_EXAMPLE_ID;
+    ExampleMode* example_mode = new ExampleMode();
     SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes,modes);
     OBJECT_MANAGER->registerObject(file_system_side_widget_helper);
+    QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
     SideViewerWidgetHelper* object_scope_side_widget_helper = new SideViewerWidgetHelper(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
     OBJECT_MANAGER->registerObject(object_scope_side_widget_helper);
     SideViewerWidgetHelper* property_editor_side_widget_helper = new SideViewerWidgetHelper(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
@@ -132,8 +134,6 @@ int main(int argc, char *argv[])
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
-    ExampleMode* example_mode = new ExampleMode();
-    //QObject::connect(file_system_widget,SIGNAL(requestEditor(QString)),example_mode,SLOT(loadFile(QString)));
     registered_modes << example_mode;
     LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
     exampleMainWindow.addModes(registered_modes);
