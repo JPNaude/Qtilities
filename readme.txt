@@ -17,6 +17,7 @@ For information on how to get started with Qtilities, please see http://www.qtil
 For any questions or comments, please use any of the resources below:
 Support: support@qtilities.org
 Website: http://www.qtilities.org
-Feedback: http://qtilities.userecho.com/
+Blog: http://qtilities.blogspot.com
+Feedback: http://qtilities.userecho.com
 Bug Tracker: http://code.google.com/p/qtilities/issues/list
 Source Repo: http://gitorious.org/qtilities
