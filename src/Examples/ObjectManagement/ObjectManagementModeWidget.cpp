@@ -61,7 +61,6 @@ struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
 
     QAction *actionAddExampleObjects;
     QAction *exitAct;
-    QToolBar* main_toolbar;
 
     // Example toolbar and actions to control widgets in the tree
     QToolBar* widgets_toolbar;
@@ -83,6 +82,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->top_level_observer= new Observer("Example Top Level","");
     d->top_level_observer->useDisplayHints();
     d->top_level_observer->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    d->top_level_observer->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
 
     // ---------------------------
     // Factory and Project Item Stuff
@@ -147,12 +147,9 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     connect(d->observer_widget,SIGNAL(addActionNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
     connect(d->observer_widget,SIGNAL(newObserverWidgetCreated(ObserverWidget*)),SLOT(handle_newObserverWidgetCreated(ObserverWidget*)));
     d->observer_widget->setObserverContext(d->top_level_observer);
+    d->observer_widget->addToolBar(d->widgets_toolbar);
     d->observer_widget->setAcceptDrops(true);
     d->observer_widget->initialize();
-    QList<QAction*> actions = d->observer_widget->actionProvider()->actions();
-    d->main_toolbar = d->observer_widget->addToolBar("Context Toolbar");
-    d->observer_widget->addToolBar(d->widgets_toolbar);
-    d->main_toolbar->addActions(actions);
     d->observer_widget->toggleGrid(false);
     d->observer_widget->layout()->setMargin(0);
 
@@ -251,6 +248,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     new_observer_1->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     new_observer_1->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    new_observer_1->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     // Naming policy filter
     AbstractSubjectFilter* filter = OBJECT_MANAGER->createSubjectFilter(FACTORY_TAG_NAMING_POLICY_FILTER);
     NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (filter);
@@ -291,6 +289,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     new_observer_2->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     new_observer_2->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    new_observer_2->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     // Naming policy filter
     naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
@@ -323,6 +322,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_3->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     new_observer_3->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    new_observer_3->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     // Naming policy filter
     naming_filter = new NamingPolicyFilter();
     naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);

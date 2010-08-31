@@ -46,6 +46,17 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Observer Widget Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+
+    // Create the observer widget in tree mode
+    ObserverWidget* observer_widget = new ObserverWidget();
+    // Create the observer widget in table mode
+    //ObserverWidget* observer_widget = new ObserverWidget(ObserverWidget::TableView);
+    // Size smallest
+    //observer_widget->resize(350,200);
+    // Size biggest
+    observer_widget->resize(600,250);
+    QtilitiesApplication::setMainWindow(observer_widget);
+
     LOG_INITIALIZE();
     Log->toggleConsoleEngine(true);
     Log->setGlobalLogLevel(Logger::Trace);
@@ -163,15 +174,6 @@ int main(int argc, char *argv[])
     // Set access modes only now after all subjects were attached
     //observerB->setAccessMode(Observer::ReadOnlyAccess);
     //observerC->setAccessMode(Observer::LockedAccess);
-
-    // Create the observer widget in tree mode
-    ObserverWidget* observer_widget = new ObserverWidget();
-    // Create the observer widget in table mode
-    //ObserverWidget* observer_widget = new ObserverWidget(ObserverWidget::TableView);
-    // Size smallest
-    //observer_widget->resize(350,200);
-    // Size biggest
-    observer_widget->resize(600,250);
     observer_widget->setObserverContext(observerA);
 
     // Before the observer widget initialization we can specify where the editor should be, and of what type the editor must be:

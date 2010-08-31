@@ -88,6 +88,7 @@ namespace Qtilities {
 
         private:
             ActionManagerData* d;
+            static bool showed_warning;
         };
     }
 }

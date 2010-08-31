@@ -52,6 +52,10 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Object Management Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
+    // Create a QtilitiesMainWindow to show our different modes.
+    QtilitiesMainWindow exampleMainWindow(0);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
+
     // Initialize the logger.
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
@@ -59,6 +63,7 @@ int main(int argc, char *argv[])
     // Create the menu bar and menus in the menu bar:
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
+    exampleMainWindow.setMenuBar(menu_bar->menuBar());
     ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
     ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
     ActionContainer* about_menu = ACTION_MANAGER->createMenu(MENU_ABOUT,existed);
@@ -119,11 +124,6 @@ int main(int argc, char *argv[])
     // It is important to do this after registering the copy, cut and paste action holders above.
     // The initialization will register backends for these actions.
     CLIPBOARD_MANAGER->initialize();
-
-    // Create a QtilitiesMainWindow to show our different modes.
-    QtilitiesMainWindow exampleMainWindow(0);
-    QtilitiesApplication::setMainWindow(&exampleMainWindow);
-    exampleMainWindow.setMenuBar(menu_bar->menuBar());
 
     // Create an instance of the example object management mode:
     ObjectManagementMode* object_management_mode = new ObjectManagementMode();

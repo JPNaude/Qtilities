@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     observerC->attachSubject(object3);
 
     ObserverWidget* tree_widget = new ObserverWidget();
+    QtilitiesApplication::setMainWindow(tree_widget);
     tree_widget->setObserverContext(observerA);
     tree_widget->initialize();
     tree_widget->show();

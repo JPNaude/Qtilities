@@ -59,6 +59,8 @@ using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
 
+bool Qtilities::CoreGui::ActionManager::showed_warning;
+
 struct Qtilities::CoreGui::ActionManagerData {
     ActionManagerData() { }
 
@@ -76,6 +78,8 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
     SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ROLE_DECORATION);
     shared_icon_property.setIsExportable(false);
     Observer::setSharedProperty(this,shared_icon_property);
+
+    showed_warning = false;
 }
 
 Qtilities::CoreGui::ActionManager::~ActionManager()
@@ -197,10 +201,13 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     if (!QtilitiesApplication::mainWindow()) {
         // Don't make it fatal now. Show a message box since action manager will always be used in QtGui application.
         //qFatal("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.");
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Action Manager");
-        msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Multi context actions will not work as intended.");
-        msgBox.exec();
+        if (!showed_warning) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Action Manager");
+            msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Multi context actions will not work as intended.");
+            msgBox.exec();
+            showed_warning = true;
+        }
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
