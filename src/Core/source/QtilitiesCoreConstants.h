@@ -179,7 +179,7 @@ is used to determine the access column icon as well as how the hierahcy below th
 displayed.
 
 <b>Permisson:</b> Read/Write<br>
-<b>Data Type:</b> int, cast to Observer::ReadOnlyAccess to get the access mode<br>
+<b>Data Type:</b> int, cast to Observer::AccessMode to get the access mode<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> Yes<br>

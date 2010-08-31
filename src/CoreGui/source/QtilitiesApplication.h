@@ -52,7 +52,7 @@ namespace Qtilities {
           \class QtilitiesApplication
           \brief The QtilitiesApplication is the same as QApplication with added functionality.
 
-          The QtilitiesApplication class is an extension of QApplication and must be should be used when building
+          The QtilitiesApplication class is an extension of QApplication and should be used when building
           %Qtilities applications. For example:
 
 \code
@@ -65,6 +65,16 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
 
          If you for some reason don't want to use the QtilitiesApplication as shown above, you must call the initialize()
          function instead in your application's main function.
+
+         This class provides extra functionality which is not found in QApplication:
+         - Access to an object manager through objectManager().
+         - Access to a context manager through contextManager().
+         - Access to an action manager through actionManager().
+         - Access to a clipboard manager through clipboardManager().
+         - The ability to define your top level main window in your application using setMainWindow() and mainWindow().
+         - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
+         - Information about %Qtilities through qtilitiesVersion() and aboutQtilities().
+
           \sa Qtilities::Core::QtilitiesCoreApplication
          */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesApplication : public QApplication
@@ -80,6 +90,10 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             //! Returns a reference to the context manager.
             static IContextManager* const contextManager();
             //! Returns a reference to the action manager.
+            /*!
+              If you are using the action manager, you must specify a main window using setMainWindow() for
+              the action manager to work correctly.
+              */
             static IActionManager* const actionManager();
             //! Returns a reference to the clipboard manager.
             static IClipboard* const clipboardManager();
@@ -133,14 +147,14 @@ QtilitiesApplication::initialize();
             //! Create a new settings update request.
             /*!
             This function allows settings update requests to be sent anywhere in an application. This
-            allows objects which depends on the settings to update themselves when the settings change.
+            allows objects which depend on the settings to update themselves when the settings change.
 
-              This function will emit settingsUpdateRequest() with the given request ID.
+              This function will emit settingsUpdateRequest() with the given \p request_id.
               */
             static inline void newSettingsUpdateRequest(const QString& request_id) { emit m_Instance->settingsUpdateRequest(request_id); }
 
         signals:
-            //! Signal which broadcasts that settings identified by the request_id changed and requires updating.
+            //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.
             void settingsUpdateRequest(const QString& request_id);
 
         public slots:

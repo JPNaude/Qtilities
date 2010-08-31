@@ -94,7 +94,7 @@ namespace Qtilities {
               */
             enum EvaluationResult {
                 Allowed,                    /*!< Indicates that the attachment/detachment operation will be valid. */
-                Conditional,                /*!< Indicates that the attachment/detachment operation's validity will be dependant on the user input. An example of this is when the object's name is not valid in the context and the naming policy filter is set to prompt the user for the action to take (Reject, Rename etc.). */
+                Conditional,                /*!< Indicates that the attachment/detachment operation's validity will be dependent on the user input. An example of this is when the object's name is not valid in the context and the naming policy filter is set to prompt the user for the action to take (Reject, Rename etc.). */
                 Rejected,                   /*!< Indicates that the attachment/detachment operation will be invalid. */
                 IsParentObserver,           /*!< Only used during detachment. Indicates that the observer is the parent of the object. This result takes priority over the other possible results. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
                 LastScopedObserver          /*!< Only used during detachment. Indicates that the observer is the last scoped parent of the object. This result takes priority over the other possible results except IsParentObserver. The use case is where the Object Manager attempts to move objects between observers. When attempting to move objects between two observers it will not move subjects which returns this during their detachment validation. */
@@ -109,12 +109,15 @@ namespace Qtilities {
                 CycleProcess                /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle()*/
             };
             //! The possible ownerships with which subjects can be attached to an observer.
+            /*!
+              See the \ref object_lifetimes section of the \ref page_observers article for a detailed discussion.
+              */
             enum ObjectOwnership {
-                ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If parent() = 0, it will not be managed, if parent() is an QObject, the subject will be deleted when its parent is deleted. */
-                AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so ManualOwnership is used. If no parent() is specified yet, the observer will attach the subject using ObserverScopeOwnership. */
+                ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted. */
+                AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a \p parent(), if so Observer::ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using Observer::ObserverScopeOwnership. */
                 SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. */
                 ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
-                OwnedBySubjectOwnership     /*!< The observer is dependant on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using OwnedBySubjectOwnership it is attached to all other contexts after that using OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
+                OwnedBySubjectOwnership     /*!< The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When Observer::OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using Observer::OwnedBySubjectOwnership it is attached to all other contexts after that using Observer::OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using Observer::OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
             };
             //! The possible access modes of the observer.
             /*!
@@ -226,12 +229,11 @@ namespace Qtilities {
             /*!
               When adding/removing many subjects to the observer it makes sense to only let item views know
               that the observer changed when all subjects have been added/removed. This function will disable
-              the numberOfSubjectsChanged() and propertyBecameDirty() signals of this observer until
-              endProcessingCycle() is called.
+              the change notification signals of this observer until endProcessingCycle() is called.
 
               Note that this function only affects signals emitted by the observer. The observer still monitors
               dynamic property changes on all attached subjects during a processing cycle. To control the
-              event filtering, see disableSubjectEventFiltering() and enableSubjectEventFiltering().
+              event filtering, see subjectEventFilteringEnabled() and toggleSubjectEventFiltering().
               
               If a processing cycle was already started, this function does nothing.
               
@@ -241,13 +243,16 @@ namespace Qtilities {
               your processing cycle is completed. The function you must call will depend on what you changed during the
               processing cycle.
 
-              \sa endProcessingCycle(), disableSubjectEventFiltering(), enableSubjectEventFiltering()
+              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering()
               */
             void startProcessingCycle();
             //! Ends a processing cycle.
             /*!
               Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started
               when calling this function, it does nothing.
+
+              Note that you must manually call the needed update signals refreshViewsData() or refreshViewsLayout()
+              after ending a processing cycle.
 
               \sa startProcessingCycle();
               */
@@ -264,8 +269,8 @@ namespace Qtilities {
             //! Will attempt to attach the specified object to the observer. The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the object to be attached.
             /*!
               \param obj The object to be attached.
-              \param ownership The ownership that the observer should use to manage the object. \sa Observer::ManualOwnership.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns True is succesfull, false otherwise.
 
               \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
@@ -276,8 +281,8 @@ namespace Qtilities {
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
 
               \param objects A list of objects which must be attached.
-              \param ownership The ownership that the observer should use to manage the objects in the list. \sa Observer::ManualOwnership.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
@@ -288,8 +293,8 @@ namespace Qtilities {
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
 
               \param obj The object to be attached.
-              \param ownership The ownership that the observer should use to manage the object. \sa Observer::ManualOwnership.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+              \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
+              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()

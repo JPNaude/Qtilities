@@ -252,7 +252,9 @@ void Qtilities::CoreGui::MultiContextAction::updateFrontendAction() {
         return;
 
     // Update the icon
-    d->frontend_action->setIcon(d->active_backend_action->icon());
+    // Only use the backend action icon if it has one:
+    if (!d->active_backend_action->icon().isNull())
+        d->frontend_action->setIcon(d->active_backend_action->icon());
     d->frontend_action->setIconText(d->active_backend_action->iconText());
 
     // Update the text

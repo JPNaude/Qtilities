@@ -167,7 +167,7 @@ namespace Qtilities {
                 ColumnIDHint = 2,               /*!< Shows a column with the subject IDs of subjects in item views viewing this observer. */
                 ColumnChildCountHint = 4,       /*!< Shows a column with the cumulative count (counts items under each subject recusively) of subjects under each subject in item views viewing this observer. */
                 ColumnTypeInfoHint = 8,         /*!< Shows a column with information about the type of subject in item views viewing this observer. */
-                ColumnAccessHint = 16,           /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
+                ColumnAccessHint = 16,          /*!< Shows a column with information about the access type of the subject in item views viewing this observer. */
                 ColumnCategoryHint = 32,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
                 ColumnAllHints = ColumnNameHint | ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
             };
@@ -277,6 +277,11 @@ category_filter_enabled(false)
             //! Sets the selection control hint.
             void setItemSelectionControlHint(ObserverHints::ItemSelectionControl item_selection_control);
             //! Gets the selection control hint.
+            /*!
+              When in tree mode, Qtilities::CoreGui::ObserverWidget uses the selection control hint of the top level observer (root item)
+              and does not inherit the selection control hint of other observer contexts in the tree when they become active
+              which will happen when the user selects objects in those contexts.
+              */
             ObserverHints::ItemSelectionControl itemSelectionControlHint() const;
             //! Sets the hierarchical display hint for this model.
             void setHierarchicalDisplayHint(ObserverHints::HierarchicalDisplay hierarhical_display);

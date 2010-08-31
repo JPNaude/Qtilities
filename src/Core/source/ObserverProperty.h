@@ -43,10 +43,11 @@
 namespace Qtilities {
     namespace Core {
 
-/*! \class Qtilities::Core::ObserverProperty
+/*!
+\class Qtilities::Core::ObserverProperty
 \brief An ObserverProperty object represents a single property which can be added as a dynamic property to a QObject when observed by an observer.
 
-An ObserverProperty is a property which is different between different observer contexts. An observer context (which is obtained by observerID() on
+An ObserverProperty is a property which is different between different observer contexts. An observer context (which is obtained by \p observerID() on
 the context that you are interested in) is needed when getting or setting the value of the property.
 
 A complete map of the observer contexts and their respective QVariant() values can be obtained sing observerMap(). To get the last observer context
@@ -59,33 +60,7 @@ it should probably not be neccesary to ever create properties yourself. One exce
 attachment. A list of properties which are evaluated by observers during attachment are provided in the Observer class documentation. In most cases
 it will only be neccesary to set or get the values of properties added to an object by observers and their installed subject filters.
 
-As an example we will define a limit on the number of observer which may observer a object. Since this property will be shared among various contexts,
-we use SharedObserverProperty which is a unique type of ObserverProperty.
-
-\code
-Observer* my_observer_1 = new Observer("Test Observer 1","Test Subjects");
-Observer* my_observer_2 = new Observer("Test Observer 2","Test Subjects");
-QObject* test_subject = new QObject();
-
-// Define a limit of 1, thus this object may only be observed by 1 observer at any given time.
-SharedObserverProperty observer_limit(QVariant(1),Qtilities::Core::Constants::OBSERVER_LIMIT);
-
-// Use the convenience function provided by the Observer class to set the shared property.
-my_observer_1->setSharedProperty(test_subject,observer_limit);
-bool attach_success = false;
-
-attach_success = my_observer_1->attachSubject(test_subject);
-// Here attach_success = true
-attach_success = my_observer_2->attachSubject(test_subject);
-// Here attach_success = false since the observer limit is already reached.
-
-// Once a property is defined, we can change the property value by using another convenience function provided by the Observer class.
-// We set the limit to -1 which is interpreted as unlimited.
-my_observer_2->setObserverPropertyValue(test_subject,Qtilities::Core::Constants::OBSERVER_LIMIT,QVariant(-1));
-
-attach_success = my_observer_2->attachSubject(test_subject);
-// Now attach_success = true.
-\endcode
+See the \ref observer_properties section of the \ref page_observers article for an example of how to work with ObserverProperty objects.
 */
         class QTILIITES_CORE_SHARED_EXPORT ObserverProperty
         {
@@ -182,17 +157,19 @@ attach_success = my_observer_2->attachSubject(test_subject);
             bool                    is_exportable;
         };
 
-        /*! \class Qtilities::Core::SharedObserverProperty
-            \brief A SharedObserverProperty object represents an ObserverProperty which is shared between multiple observer contexts.
+        /*!
+        \class Qtilities::Core::SharedObserverProperty
+        \brief A SharedObserverProperty object represents an ObserverProperty which is shared between multiple observer contexts.
 
-            A SharedObserverProperty is a subclass of ObserverProperty which provides an implementation where the property value is
-            the same (shared) in more than one observer context.
+        A SharedObserverProperty is a subclass of ObserverProperty which provides an implementation where the property value is
+        the same (shared) in more than one observer context.
 
-            Note that the convenience functions for working with different contexts (hasContext(), addContext() and removeContext()) which
-            are implemented by the ObserverProperty base class are meaningless on SharedObserverProperty objects. Also when getting and
-            setting the value of the property using value() and setValue(), you do not need to specify a context.
+        Note that the convenience functions for working with different contexts (hasContext(), addContext() and removeContext()) which
+        are implemented by the ObserverProperty base class are meaningless on SharedObserverProperty objects. Also when getting and
+        setting the value of the property using value() and setValue(), you do not need to specify a context.
+
+        See the \ref observer_properties section of the \ref page_observers article for an example of how to work with SharedObserverProperty objects.
         */
-
         class QTILIITES_CORE_SHARED_EXPORT SharedObserverProperty : public ObserverProperty
         {
         public:

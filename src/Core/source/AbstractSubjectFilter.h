@@ -213,7 +213,4 @@ namespace Qtilities {
     }
 }
 
-//QDataStream &operator<<(QDataStream &ds,Qtilities::Core::AbstractSubjectFilter &s);
-//QDataStream &operator>>(QDataStream &ds,Qtilities::Core::AbstractSubjectFilter &s);
-
 #endif // ABSTRACTSUBJECTFILTER_H
