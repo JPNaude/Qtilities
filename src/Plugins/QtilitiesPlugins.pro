@@ -17,5 +17,3 @@ CONFIG     += ordered
 SUBDIRS    += PluginTemplate
 SUBDIRS    += SessionLogPlugin
 SUBDIRS    += ProjectManagementPlugin
-SUBDIRS    += HelpPlugin
-
