@@ -1,9 +1,17 @@
 /**
-\page page_object_management Object Management: Object management using observers and the object manager
+\page page_object_management Object Management
 
-\section object_management_overview Overview
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
 
-%Qtilities provides an Object Manager class which provides many object management features. The object manager is also responsible to provide a global object pool to the developer. This allows the registration of objects in the global object pool where other objects can access them or the interfaces they implement. This article will provide information on the different features of the object manager and global object pool.
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+%Qtilities provides an object manager which provides many object management features. The object manager is also responsible to provide a global object pool to the developer. This allows the registration of objects in the global object pool where other objects can access them or the interfaces they implement. This article will provide information on the different features of the object manager and the global object pool.
 
 Table of contents:
 - \ref accessing
@@ -13,13 +21,60 @@ Table of contents:
 	- \ref meta_type_object_management
 	.
 
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
 \section accessing Accessing the object manager
 
-The object manager implements the Qtilities::Core::Interfaces::IObjectManager interface and can be accessed directly through the Qtilities::Core::QtilitiesCore singleton or using the object manager macro as shown below:
+The object manager implements the Qtilities::Core::Interfaces::IObjectManager interface and can be accessed directly through the OBJECT_MANAGER macro or directly using Qtilities::Core::QtilitiesCoreApplication::objectManager() 
+
+For example:
 
 \code
-#include <QtilitiesCore.h>
-
 QObject* my_object = new QObject();
 OBJECT_MANAGER->registerObject(my_object);
 \endcode
@@ -28,18 +83,17 @@ OBJECT_MANAGER->registerObject(my_object);
 
 \subsection object_pool The global object pool
 
-A global object pool is a powerful object management feature in an application, especially when the application is extensible through plugins. It allows objects to be registered in the pool and can then be searched for and used in  other parts of the application. The example below shows some example usages of the global object pool.
+A global object pool is a powerful object management feature in an application, especially when the application is extensible through plugins. It allows objects to be registered in the pool and can then be searched and used in other parts of the application. The example below shows some example usages of the global object pool.
 
 \code
-#include <QtilitiesCore.h>
 #include <IMyIFace.h>
 
-// Register an object in the global object pool:
-// This will emit the newObjectAdded(QObject*) signal on the object manager.
+// Register an object in the global object pool
+// This will emit the newObjectAdded(QObject*) signal on the object manager
 QObject* my_object = new QObject();
 OBJECT_MANAGER->registerObject(my_object);
 
-// Check which objects in the global object pool implements a specific interface (called "IMyIFace" in this example):
+// Check which objects in the global object pool implements a specific interface (called "IMyIFace" in this example)
 QList<QObject *> iface_list;
 iface_list = OBJECT_MANAGER->registeredInterfaces("IMyIFace");
 foreach (QObject* obj, iface_list) {
@@ -50,7 +104,7 @@ foreach (QObject* obj, iface_list) {
 }
 \endcode
 
-A good example of using the global object pool is the methodology behind how plugins work in the %Qtilities extension system where plugins register objects in which the rest of the application might be interested in during plugin initialization. Once  all plugins were initialized, the plugins initializes their dependencies in which it will inspect the global object pool for registered objects my other plugins and/or the main application.
+A good example of using the global object pool is the methodology behind how plugins work in the %Qtilities extension system where plugins register objects in which the rest of the application might be interested in during plugin initialization. Once  all plugins were initialized, the plugins initializes their dependencies where it will inspect the global object pool for registered objects my other plugins and/or the main application that it is interested in.
 
 \subsection observer_features Observer object management features
 
