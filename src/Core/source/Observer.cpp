@@ -1750,11 +1750,16 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             if (!filter_event && !is_filter_property) {
                 // We need to do two things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-                if (observerData->deliver_qtilities_property_changed_events) {
-                    QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
-                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
-                    QCoreApplication::postEvent(object,user_event);
-                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
+                // First check if this object is in the same thread as this observer:
+                if (object->thread() == thread()) {
+                    if (observerData->deliver_qtilities_property_changed_events) {
+                        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+                        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
+                        QCoreApplication::postEvent(object,user_event);
+                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
+                    }
+                } else {
+                    LOG_TRACE(QString("Failed to post QtilitiesPropertyChangeEvent (property: %1) to object (%2). The object is not in the same thread.").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
                 }
 
                 // 2. Emit the monitoredPropertyChanged() signal:

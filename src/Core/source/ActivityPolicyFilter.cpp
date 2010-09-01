@@ -188,19 +188,21 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     // 1. If enabled, post the QtilitiesPropertyChangeEvent:
     if (observer->qtilitiesPropertyChangeEventsEnabled()) {
         for (int i = 0; i < observer->subjectCount(); i++) {
-            QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
-            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-            QCoreApplication::postEvent(observer->subjectAt(i),user_event);
-            #ifndef QT_NO_DEBUG
-                // Get activity of object for debugging purposes
-                QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY);
-                if (activity.isValid()) {
-                    if (activity.toBool())
-                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
-                    else
-                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
-                }
-            #endif
+            if (observer->subjectAt(i)->thread() == thread()) {
+                QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+                QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                QCoreApplication::postEvent(observer->subjectAt(i),user_event);
+                #ifndef QT_NO_DEBUG
+                    // Get activity of object for debugging purposes
+                    QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY);
+                    if (activity.isValid()) {
+                        if (activity.toBool())
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                        else
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                    }
+                #endif
+            }
         }
     }
 
@@ -305,16 +307,18 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
         if (new_activity) {
             // We need to do some things here:
             // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-            if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-                QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
-                QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-                QCoreApplication::postEvent(obj,user_event);
-                #ifndef QT_NO_DEBUG
-                    if (new_activity)
-                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
-                    else
-                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
-                #endif
+            if (obj->thread() == thread()) {
+                if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+                    QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                    QCoreApplication::postEvent(obj,user_event);
+                    #ifndef QT_NO_DEBUG
+                        if (new_activity)
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                        else
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                    #endif
+                }
             }
 
             // 2. Emit the monitoredPropertyChanged() signal:
@@ -436,17 +440,19 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
 
     // We need to do some things here:
     // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
-        if (single_object_change_only) {
-            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-            QCoreApplication::postEvent(obj,user_event);
-            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
-        } else {
-            for (int i = 0; i < observer->subjectCount(); i++)    {
+    if (obj->thread() == thread()) {
+        if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+            QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+            if (single_object_change_only) {
                 QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-                QCoreApplication::postEvent(observer->subjectAt(i),user_event);
-                LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(observer->subjectAt(i)->objectName()));
+                QCoreApplication::postEvent(obj,user_event);
+                LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+            } else {
+                for (int i = 0; i < observer->subjectCount(); i++)    {
+                    QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+                    QCoreApplication::postEvent(observer->subjectAt(i),user_event);
+                    LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(observer->subjectAt(i)->objectName()));
+                }
             }
         }
     }
