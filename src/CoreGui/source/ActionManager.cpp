@@ -199,8 +199,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
 
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
     if (!QtilitiesApplication::mainWindow()) {
-        // Don't make it fatal now. Show a message box since action manager will always be used in QtGui application.
-        //qFatal("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.");
+        // Show a message box since action manager will always be used in QtGui application.
         if (!showed_warning) {
             QMessageBox msgBox;
             msgBox.setWindowTitle("Action Manager");

@@ -84,16 +84,16 @@ bool Qtilities::Core::QtilitiesCoreApplication::notify(QObject * object, QEvent 
 }
 
 
-Qtilities::Core::QtilitiesCoreApplication* Qtilities::Core::QtilitiesCoreApplication::instance() {
-    if (!QtilitiesCoreApplication::hasInstance("instance"))
+Qtilities::Core::QtilitiesCoreApplication* Qtilities::Core::QtilitiesCoreApplication::instance(bool silent) {
+    if (!QtilitiesCoreApplication::hasInstance("instance",silent))
         return 0;
     else
         return m_Instance;
 }
 
-bool Qtilities::Core::QtilitiesCoreApplication::hasInstance(const char *function) {
+bool Qtilities::Core::QtilitiesCoreApplication::hasInstance(const char *function, bool silent) {
     bool instance_exists = (QtilitiesCoreApplication::m_Instance != 0);
-    if (!instance_exists)
+    if (!instance_exists & !silent)
         qWarning("QtilitiesCoreApplication::%s: Please instantiate the QtilitiesCoreApplication object before attempting to use it.", function);
     return instance_exists;
 }

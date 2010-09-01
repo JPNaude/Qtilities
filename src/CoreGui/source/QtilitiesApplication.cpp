@@ -103,16 +103,16 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
 }
 
-Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance() {
-    if (!QtilitiesApplication::hasInstance("instance"))
+Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {
+    if (!QtilitiesApplication::hasInstance("instance",silent))
         return 0;
     else
         return m_Instance;
 }
 
-bool Qtilities::CoreGui::QtilitiesApplication::hasInstance(const char *function) {
+bool Qtilities::CoreGui::QtilitiesApplication::hasInstance(const char *function, bool silent) {
     bool instance_exists = (QtilitiesApplication::m_Instance != 0);
-    if (!instance_exists)
+    if (!instance_exists && !silent)
         qWarning("QtilitiesApplication::%s: Please instantiate the QtilitiesApplication object before attempting to use it.", function);
     return instance_exists;
 }

@@ -135,7 +135,8 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
 
     // Read the settings for this editor:
     handleSettingsUpdateRequest(d->global_meta_type);
-    connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
+    if (QtilitiesApplication::instance(true))
+        connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
 
     // Construct and show search box widget:
     handle_actionFindItem_triggered();

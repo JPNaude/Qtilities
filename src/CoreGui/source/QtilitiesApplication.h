@@ -137,9 +137,15 @@ QtilitiesApplication::initialize();
               */
             void initialize();
             //! Returns a reference to the QtilitiesApplication instance.
-            static QtilitiesApplication* instance();
+            /*!
+              \param silent When true, a warning message will not be printed when the QtilitiesCoreApplication instance was not found.
+              */
+            static QtilitiesApplication* instance(bool silent = false);
             //! Checks if a valid instance has been created.
-            static bool hasInstance(const char *function);
+            /*!
+              \param silent When true, a warning message will not be printed when the QtilitiesCoreApplication instance was not found.
+              */
+            static bool hasInstance(const char *function, bool silent = false);
 
             //! QCoreApplication::notify() overload. This allows exception handling in GUI applications.
             bool notify(QObject * object, QEvent * event);

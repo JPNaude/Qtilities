@@ -77,9 +77,15 @@ namespace Qtilities {
             static IContextManager* const contextManager();
 
             //! Returns a reference to the QtilitiesCoreApplication instance.
-            static QtilitiesCoreApplication* instance();
+            /*!
+              \param silent When true, a warning message will not be printed when the QtilitiesCoreApplication instance was not found.
+              */
+            static QtilitiesCoreApplication* instance(bool silent = false);
             //! Checks if a valid instance has been created.
-            static bool hasInstance(const char *function);
+            /*!
+              \param silent When true, a warning message will not be printed when the QtilitiesCoreApplication instance was not found.
+              */
+            static bool hasInstance(const char *function, bool silent = false);
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.

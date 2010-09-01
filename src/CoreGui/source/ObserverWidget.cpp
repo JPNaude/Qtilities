@@ -882,7 +882,8 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // Connect in order for settings to be written when application quits
     connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),SLOT(writeSettings()));
-    connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
+    if (QtilitiesApplication::instance(true))
+        connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
 }
 
 void Qtilities::CoreGui::ObserverWidget::setSharedGlobalMetaType(const QString& shared_meta_type) {
