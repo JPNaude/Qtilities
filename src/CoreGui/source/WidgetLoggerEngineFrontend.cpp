@@ -36,6 +36,7 @@
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "ActionProvider.h"
+#include "ConfigurationWidget"
 
 #include <Logger.h>
 
@@ -239,9 +240,11 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Settings() {
-    /*TRACK QWidget* widget = Log->configWidget();
-    if (widget)
-        widget->show();*/
+    ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
+    if (config_widget) {
+        config_widget->setActivePage("Logging");
+        config_widget->show();
+    }
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Print() {
@@ -378,8 +381,13 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // ---------------------------
     // Logger Settings
     // ---------------------------
-    d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Settings"),this);
-    connect(d->actionSettings,SIGNAL(triggered()),SLOT(handle_Settings()));
+    // We create the settings action only if there is a config page registered in QtilitiesApplication.
+    if (QtilitiesApplication::configWidget()) {
+        d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Logging Settings"),this);
+        d->action_provider->addAction(d->actionSettings,QStringList(tr("Log")));
+        ACTION_MANAGER->registerAction(MENU_FILE_SETTINGS,d->actionSettings,context);
+        connect(d->actionSettings,SIGNAL(triggered()),SLOT(handle_Settings()));
+    }
 
     // Add actions to text edit.
     d->txtLog.addAction(d->actionClear);
