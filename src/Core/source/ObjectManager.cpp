@@ -567,11 +567,12 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     }
 
     // Enable subject event filtering on all observers in the objects list,
-    // and emit the modificationStateChanged(true) signal on all the observers.
-    // Disable subject event filtering on all observers in list:
     for (int i = 0; i < observer_list.count(); i++) {
+        if (i == 0) {
+            // Only one observer has to indicate that it's layout changed:
+            observer_list.at(0)->refreshViewsLayout();
+        }
         observer_list.at(i)->toggleSubjectEventFiltering(true);
-        observer_list.at(i)->refreshViewsLayout();
     }
 
     return success;
