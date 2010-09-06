@@ -250,8 +250,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     new_observer_1->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     new_observer_1->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     // Naming policy filter
-    AbstractSubjectFilter* filter = OBJECT_MANAGER->createSubjectFilter(FACTORY_TAG_NAMING_POLICY_FILTER);
-    NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (filter);
+    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
     if (naming_filter) {
         naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
         new_observer_1->installSubjectFilter(naming_filter);

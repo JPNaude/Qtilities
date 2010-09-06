@@ -93,20 +93,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectMana
     return IExportable::Complete;
 }
 
-bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverTreeItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ObjectManagement::ObserverTreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
 bool Qtilities::Examples::ObjectManagement::ObserverTreeItem::isModified() const {

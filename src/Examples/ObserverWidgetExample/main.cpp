@@ -129,9 +129,8 @@ int main(int argc, char *argv[])
     observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observerC->displayHints()->setDisplayFlagsHint(display_flags);
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    QStringList displayed_categories;
-    displayed_categories << "Category 2";
-    observerC->displayHints()->setDisplayedCategories(displayed_categories);
+    QtilitiesCategory category("Category 2");
+    observerC->displayHints()->addDisplayedCategory(category);
     observerC->displayHints()->setCategoryFilterEnabled(true);
 
     // Create the objects
@@ -141,14 +140,14 @@ int main(int argc, char *argv[])
     object2->setObjectName("Object 2");
     QObject* object3 = new QObject();
     ObserverProperty category_property3(OBJECT_CATEGORY);
-    category_property3.setValue("Category 1",observerC->observerID());
+    category_property3.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),observerC->observerID());
     Observer::setObserverProperty(object3,category_property3);
     object3->setObjectName("Object 3");
     QObject* object4 = new QObject();
     object4->setObjectName("Object 4");
     QObject* object5 = new QObject();
     ObserverProperty category_property5(OBJECT_CATEGORY);
-    category_property5.setValue("Category 2",observerC->observerID());
+    category_property5.setValue(qVariantFromValue(QtilitiesCategory("Category 2")),observerC->observerID());
     Observer::setObserverProperty(object5,category_property5);
     object5->setObjectName("Object 5");
     QObject* object6 = new QObject();

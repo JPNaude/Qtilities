@@ -94,10 +94,12 @@ QWidget* Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageWidget(
     return this;
 }
 
-QStringList Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageTitle() const {
-    QStringList text;
-    text << "Observer Widgets";
-    return text;
+QString Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageTitle() const {
+    return tr("Observer Widgets");
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageCategory() const {
+    return QtilitiesCategory("Example");
 }
 
 void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {

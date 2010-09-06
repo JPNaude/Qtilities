@@ -10,8 +10,9 @@ include(../../Qtilities.pri)
 QT       += core
 QT       += gui
 
-TARGET = BuildingTreeStructures
+TARGET    = BuildingTreeStructures
 CONFIG   -= app_bundle
+CONFIG   += release
 
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/BuildingTreeStructures

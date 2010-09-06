@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
 
     QMainWindow* main_window = new QMainWindow();
     QtilitiesApplication::setMainWindow(main_window);
+    ConfigurationWidget* config_widget = new ConfigurationWidget();
+    QtilitiesApplication::setConfigWidget(config_widget);
 
     LOG_INITIALIZE();
     Log->setGlobalLogLevel(Logger::Debug);
@@ -71,8 +73,8 @@ int main(int argc, char *argv[])
 
     // Create the configuration widget here and then connect it to the settings action
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
-    ConfigurationWidget config_widget;
-    QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
+
+    QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     // Register action placeholders for the copy, cut and paste actions:
@@ -129,10 +131,10 @@ int main(int argc, char *argv[])
     Observer* observerB = new Observer("Observer B","Child observer");
     observerB->useDisplayHints();
     // Naming policy filter
-    /*NamingPolicyFilter* naming_filter2 = new NamingPolicyFilter();
-    naming_filter2->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    observerB->installSubjectFilter(naming_filter2);
-    observerB->displayHints()->setNamingControlHint(ObserverHints::EditableNames);*/
+    //NamingPolicyFilter* naming_filter2 = new NamingPolicyFilter();
+    //naming_filter2->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    //observerB->installSubjectFilter(naming_filter2);
+    //observerB->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     // Activty policy filter
     activity_filter = new ActivityPolicyFilter();
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
@@ -148,52 +150,90 @@ int main(int argc, char *argv[])
 
     Observer* observerC = new Observer("Observer C","Child observer");
     observerC->useDisplayHints();
+    activity_filter = new ActivityPolicyFilter();
+    activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
+    activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
+    observerC->installSubjectFilter(activity_filter);
+    observerC->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
+    observerC->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     // Naming policy filter
-    /*naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    observerC->installSubjectFilter(naming_filter);
-    observerC->displayHints()->setNamingControlHint(Observer::EditableNames);*/
+    //naming_filter = new NamingPolicyFilter();
+    //naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+    //observerC->installSubjectFilter(naming_filter);
+    //observerC->displayHints()->setNamingControlHint(Observer::EditableNames);
     observerC->displayHints()->setActionHints(action_hints);
     observerC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     observerC->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observerC->displayHints()->setDisplayFlagsHint(display_flags);
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    QStringList displayed_categories;
-    displayed_categories << "Category 2";
-    observerC->displayHints()->setDisplayedCategories(displayed_categories);
+    QtilitiesCategory category("Category 2");
+    observerC->displayHints()->addDisplayedCategory(category);
     //observerC->displayHints()->setCategoryFilterEnabled(true);
 
     // Create the objects
     QObject* object1 = new QObject();
     object1->setObjectName("Object 1");
+    ObserverProperty category_property1(OBJECT_CATEGORY);
+    QtilitiesCategory multi_category1;
+    multi_category1 << "Category 1";
+    category_property1.setValue(qVariantFromValue(multi_category1),observerC->observerID());
+    Observer::setObserverProperty(object1,category_property1);
+
     QObject* object2 = new QObject();
     object2->setObjectName("Object 2");
+    ObserverProperty category_property2(OBJECT_CATEGORY);
+    QtilitiesCategory multi_category2;
+    multi_category2 << "Category 1";
+    category_property2.setValue(qVariantFromValue(multi_category2),observerC->observerID());
+    Observer::setObserverProperty(object2,category_property2);
+
     QObject* object3 = new QObject();
     object3->setObjectName("Object 3");
+    ObserverProperty category_property3(OBJECT_CATEGORY);
+    QtilitiesCategory multi_category3;
+    multi_category3 << "Category 1" << "Sub Category 3";
+    category_property3.setValue(qVariantFromValue(multi_category3),observerC->observerID());
+    Observer::setObserverProperty(object3,category_property3);
+
     QObject* object4 = new QObject();
     object4->setObjectName("Object 4");
+    ObserverProperty category_property4(OBJECT_CATEGORY);
+    QtilitiesCategory multi_category4;
+    multi_category4 << "Category 1" << "Sub Category 2";
+    category_property4.setValue(qVariantFromValue(multi_category4),observerC->observerID());
+    Observer::setObserverProperty(object4,category_property4);
+
     QObject* object5 = new QObject();
     object5->setObjectName("Object 5");
+    ObserverProperty category_property5(OBJECT_CATEGORY);
+    QtilitiesCategory multi_category5;
+    multi_category5 << "Category 1";
+    category_property5.setValue(qVariantFromValue(multi_category5),observerC->observerID());
+    Observer::setObserverProperty(object5,category_property5);
+
     QObject* object6 = new QObject();
     object6->setObjectName("Object 6");
     ObserverProperty category_property6(OBJECT_CATEGORY);
-    category_property6.setValue("Category 1",observerC->observerID());
+    QtilitiesCategory multi_category6;
+    multi_category6 << "Category 1" << "Sub Category 1";
+    category_property6.setValue(qVariantFromValue(multi_category6),observerC->observerID());
     Observer::setObserverProperty(object6,category_property6);
+
     QObject* object7 = new QObject();
     object7->setObjectName("Object 7");
     ObserverProperty category_property7(OBJECT_CATEGORY);
-    category_property7.setValue("Category 2",observerC->observerID());
+    category_property7.setValue(qVariantFromValue(QtilitiesCategory("Category 2")),observerC->observerID());
     Observer::setObserverProperty(object7,category_property7);
 
     // Create the structure of the tree
     observerA->attachSubject(observerB);
     observerA->attachSubject(observerC);
-    observerB->attachSubject(object1);
-    observerB->attachSubject(object2);
-    observerB->attachSubject(object3);
-    observerB->attachSubject(object4);
-    observerB->attachSubject(object5);
+    observerC->attachSubject(object1);
+    observerC->attachSubject(object2);
+    observerC->attachSubject(object3);
+    observerC->attachSubject(object4);
+    observerC->attachSubject(object5);
     observerC->attachSubject(object6);
     observerC->attachSubject(object7);
 
@@ -238,7 +278,7 @@ int main(int argc, char *argv[])
     ObserverWidgetConfig observer_config_widget;
     OBJECT_MANAGER->registerObject(&observer_config_widget);
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
-    config_widget.initialize(registered_config_pages);
+    config_widget->initialize(registered_config_pages);
 
     // Create a main widget container:
     main_window->setCentralWidget(observer_widget_container);

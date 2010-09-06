@@ -8,6 +8,7 @@ QT += core
 QT += gui
 TARGET = ClipboardExample
 CONFIG -= app_bundle
+
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/ClipboardExample
 
