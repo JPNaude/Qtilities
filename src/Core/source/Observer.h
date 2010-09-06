@@ -43,7 +43,8 @@
 #include "IExportable.h"
 #include "IFactory.h"
 #include "IModificationNotifier.h"
-#include "SubjectTypeFilter"
+#include "SubjectTypeFilter.h"
+#include "QtilitiesCategory.h"
 
 #include <QObject>
 #include <QString>
@@ -126,7 +127,8 @@ namespace Qtilities {
             enum AccessMode {
                 FullAccess = 0,             /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
                 ReadOnlyAccess = 1,         /*!< The observer is read only to the user. */
-                LockedAccess = 2            /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
+                LockedAccess = 2,           /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
+                InvalidAccess = 3           /*!< An invalid access mode. This access mode is returned in functions where the access mode is requested for a category that does not exist, for example categoryAccessMode(). */
             };
             //! The access mode scope of the observer.
             /*! When using categories in an observer, access modes can be set for each individual category.
@@ -184,10 +186,10 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             IFactoryData factoryData() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implementation
@@ -479,7 +481,7 @@ namespace Qtilities {
 
         public:
             //! This function will validate changes to the observer, or to a specific observer category if specified.
-            bool isConst(const QString& access_mode = QString()) const;
+            bool isConst(const QtilitiesCategory& access_mode = QtilitiesCategory()) const;
             //! Returns the observer's subject limit.
             inline int subjectLimit() const { return observerData->subject_limit; }
             //! Function to set the subject limit of this observer.
@@ -491,12 +493,12 @@ namespace Qtilities {
             /*!
               \param category Only used when accessModeScope() is categorized. Categories which does not have an access mode set for them will use the global access mode. The global access mode can be set by passing QString() as category.
               */
-            void setAccessMode(AccessMode mode, const QString& category = QString());
+            void setAccessMode(AccessMode mode, QtilitiesCategory category = QtilitiesCategory());
             //! Function to get the observer's access mode.
             /*!
-              \return The global access mode when category = QString(). Otherwise the access mode for a specific category. The global access mode is FullAccess by default.
+              \return The global access mode when category an empty category is used for \p category. Otherwise the access mode for a specific category. The global access mode is FullAccess by default. When an invalid category (does not exist in this context) is sent Observer::InvalidAccess is returned and an error message is printed.
               */
-            AccessMode accessMode(const QString& category = QString()) const;
+            AccessMode accessMode(QtilitiesCategory category = QtilitiesCategory()) const;
             //! Function to set the observer's access mode scope.
             void setAccessModeScope(AccessModeScope access_mode_scope);
             //! Function to return the access mode scope of the observer.
@@ -599,16 +601,23 @@ namespace Qtilities {
             // --------------------------------
             // Subject category related functions
             // --------------------------------
+            //! Checks if the specified category exists in this observer context.
+            bool hasCategory(const QtilitiesCategory& category) const;
+            //! Returns the access mode for a specific category.
+            /*!
+              If the category does not exist, Observer::InvalidAccess is returned.
+              */
+            AccessMode categoryAccessMode(const QtilitiesCategory& category) const;
             //! Returns a QStringList with all the categories found in the OBJECT_CATEGORY properties of all attached subjects.
             /*!
               This function does not take the category filtering options of the observer into account, for that functionality see displayedCategories()
               on the observer hints for this observer provided by hints(). Category filtering is only related to the displaying of the observer.
               */
-            QStringList subjectCategories() const;
+            QList<QtilitiesCategory> subjectCategories() const;
             //! Returns a list with the names of all the current observed subjects which belongs to a specific category.
-            QStringList subjectNamesByCategory(const QString& category) const;
+            QStringList subjectNamesByCategory(const QtilitiesCategory& category) const;
             //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an OBJECT_CATEGORY shared observer property.
-            QList<QObject*> subjectReferencesByCategory(const QString& category) const;
+            QList<QObject*> subjectReferencesByCategory(const QtilitiesCategory& category) const;
 
             // --------------------------------
             // Property related functions

@@ -40,14 +40,28 @@ bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
     stream << observer_description;
     stream << (qint32) access_mode;
     stream << (qint32) access_mode_scope;
-    stream << category_access;
-    stream << deliver_qtilities_property_changed_events;
-    if (display_hints) {
-        stream << (bool) true;
-        return display_hints->exportBinary(stream);
-    } else {
-        return true;
+
+    // Stream categories
+    stream << categories.count();
+    for (int i = 0; i < categories.count(); i++) {
+        categories.at(i).exportBinary(stream);
     }
+
+    stream << deliver_qtilities_property_changed_events;
+
+    if (display_hints) {
+        // Indicates that this observer has hints.
+        if (display_hints->isExportable()) {
+            stream << (bool) true;
+            return display_hints->exportBinary(stream);
+        } else {
+            stream << (bool) false;
+        }
+    } else {
+        stream << (bool) false;
+    }
+
+    return true;
 }
 
 bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
@@ -61,8 +75,17 @@ bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
     access_mode = ui32;
     stream >> ui32;
     access_mode_scope = ui32;
-    stream >> category_access;
+
+    // Stream categories
+    stream >> ui32;
+    int category_count = ui32;
+    for (int i = 0; i < category_count; i++) {
+        QtilitiesCategory category(stream);
+        categories.push_back(category);
+    }
+
     stream >> deliver_qtilities_property_changed_events;
+
     bool has_hints;
     stream >> has_hints;
     if (has_hints) {
@@ -72,4 +95,3 @@ bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
     } else
         return true;
 }
-

@@ -367,7 +367,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
             endProcessingCycle();
             return IExportable::Failed;
         } else {
-            AbstractSubjectFilter* new_filter = OBJECT_MANAGER->createSubjectFilter(factoryData.d_instance_tag);
+            AbstractSubjectFilter* new_filter = qobject_cast<AbstractSubjectFilter*> (OBJECT_MANAGER->createInstance(factoryData));
             if (new_filter) {
                 new_filter->setObjectName(factoryData.d_instance_name);
                 LOG_TRACE(QString("%1/%2: Importing subject filter \"%3\"...").arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
@@ -477,20 +477,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     }
 }
 
-bool Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
 bool Qtilities::Core::Observer::isModified() const {
@@ -868,9 +868,9 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     if (!obj)
         return Observer::Rejected;
 
-    QVariant category_variant = this->getObserverPropertyValue(obj,OBJECT_CATEGORY);
-    QString category_string = category_variant.toString();
-    if (isConst(category_string)) {
+    QVariant category_variant = getObserverPropertyValue(obj,OBJECT_CATEGORY);
+    QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+    if (isConst(category)) {
         LOG_WARNING(QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName()));
         return Observer::Rejected;
     }
@@ -1126,9 +1126,9 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Validate operation against access mode
-        QVariant category_variant = this->getObserverPropertyValue(obj,OBJECT_CATEGORY);
-        QString category_string = category_variant.toString();
-        if (isConst(category_string)) {
+        QVariant category_variant = getObserverPropertyValue(obj,OBJECT_CATEGORY);
+        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+        if (isConst(category)) {
             LOG_DEBUG(QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName()));
             return Observer::Rejected;
         }
@@ -1184,8 +1184,8 @@ void Qtilities::Core::Observer::deleteAll() {
     for (int i = 0; i < total; i++) {
         // Validate operation against access mode if access mode scope is category
         QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),OBJECT_CATEGORY);
-        QString category_string = category_variant.toString();
-        if (!isConst(category_string)) {
+        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+        if (!isConst(category)) {
             delete observerData->subject_list.at(0);
         }
     }
@@ -1320,23 +1320,25 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     } else {
         // Check above all contained observers:
         if (obj_to_check) {
-            ObserverProperty parent_observer_map_prop = getObserverProperty(obj_to_check->parent(), OBSERVER_SUBJECT_IDS);
-            int observer_count;
-            if (parent_observer_map_prop.isValid())
-                observer_count = parent_observer_map_prop.observerMap().count();
-            else
-                return false;
+            if (obj_to_check->parent()) {
+                ObserverProperty parent_observer_map_prop = getObserverProperty(obj_to_check->parent(), OBSERVER_SUBJECT_IDS);
+                int observer_count;
+                if (parent_observer_map_prop.isValid())
+                    observer_count = parent_observer_map_prop.observerMap().count();
+                else
+                    return false;
 
-            observer_count = parent_observer_map_prop.observerMap().count();
-            // Check all direct parents:
-            for (int i = 0; i < observer_count; i++) {
-                Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
-                if (parent != obj_to_check) {
-                    is_parent = isParentInHierarchy(obj_to_check,parent);
-                    if (is_parent)
-                        break;
-                } else
-                    return true;
+                observer_count = parent_observer_map_prop.observerMap().count();
+                // Check all direct parents:
+                for (int i = 0; i < observer_count; i++) {
+                    Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
+                    if (parent != obj_to_check) {
+                        is_parent = isParentInHierarchy(obj_to_check,parent);
+                        if (is_parent)
+                            break;
+                    } else
+                        return true;
+                }
             }
         }
     }
@@ -1344,13 +1346,13 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     return is_parent;
 }
 
-bool Qtilities::Core::Observer::isConst(const QString& category) const {
+bool Qtilities::Core::Observer::isConst(const QtilitiesCategory& category) const {
     AccessMode mode;
     if (category.isEmpty() || (observerData->access_mode_scope == GlobalScope)) {
         mode = (AccessMode) observerData->access_mode;
     } else {
-        if (observerData->category_access.keys().contains(category)) {
-            mode = (AccessMode) observerData->category_access[category];
+        if (hasCategory(category)) {
+            mode = categoryAccessMode(category);
         } else {
             mode = (AccessMode) observerData->access_mode;
         }
@@ -1379,7 +1381,7 @@ bool Qtilities::Core::Observer::setSubjectLimit(int subject_limit) {
     }
 }
 
-void Qtilities::Core::Observer::setAccessMode(AccessMode mode, const QString& category) {
+void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory category) {
     // Check if this observer is read only
     if (observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) {
         LOG_ERROR(QString("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.").arg(objectName()));
@@ -1389,18 +1391,44 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, const QString& ca
     if (category.isEmpty())
         observerData->access_mode = (int) mode;
     else {
-        observerData->category_access[category] = (int) mode;
+        // Check if this category exists in this observer context:
+        if (!hasCategory(category)) {
+            LOG_ERROR(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString()));
+            return;
+        }
+
+        // Loop through the categories hash until we find the category:
+        for (int i = 0; i < observerData->categories.count(); i++) {
+            if (observerData->categories.at(i) == category) {
+                observerData->categories.removeAt(i);
+                category.setAccessMode(mode);
+                observerData->categories.push_back(category);
+                break;
+            }
+        }
     }
+
     emit layoutChanged();
     setModificationState(true);
 }
 
-Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(const QString& category) const {
+Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(QtilitiesCategory category) const {
     if (category.isEmpty())
         return (AccessMode) observerData->access_mode;
     else {
-        return (AccessMode) observerData->category_access[category];
+        if (!hasCategory(category)) {
+            return Observer::InvalidAccess;
+        }
+
+        // Loop through the categories hash until we find the category:
+        for (int i = 0; i < observerData->categories.count(); i++) {
+            if (observerData->categories.at(i) == category) {
+                return (AccessMode) observerData->categories.at(i).accessMode();
+            }
+        }
     }
+
+    return Observer::InvalidAccess;
 }
 
 void Qtilities::Core::Observer::setAccessModeScope(AccessModeScope access_mode_scope) {
@@ -1489,13 +1517,15 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
     return subject_names;
 }
 
-QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QString& category) const {
+QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCategory& category) const {
     QStringList subject_names;
+    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        ObserverProperty category_property = getObserverProperty(subjectAt(i),OBJECT_CATEGORY);
-        if (category_property.isValid() && !category_property.value(observerID()).toString().isEmpty()) {
-            if (category_property.value(observerID()).toString() == category) {
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        if (category_variant.isValid()) {
+            QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+            if (current_category == category) {
                 // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
                 QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
                 if (instance_name.isValid())
@@ -1504,7 +1534,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QString& cat
                     subject_names << observerData->subject_list.at(i)->objectName();
             }
         } else {
-            if (category == (QString(OBSERVER_UNCATEGORIZED_CATEGORY))) {
+            if (category == uncategorized_category) {
                 // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
                 QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
                 if (instance_name.isValid())
@@ -1518,21 +1548,61 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QString& cat
     return subject_names;
 }
 
-QStringList Qtilities::Core::Observer::subjectCategories() const {
-    QStringList subject_names;
-
+bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        ObserverProperty category_property = getObserverProperty(subjectAt(i),OBJECT_CATEGORY);
-        if (category_property.isValid() && !category_property.value(observerID()).toString().isEmpty()) {
-            if (!subject_names.contains(category_property.value(observerID()).toString()))
-                subject_names << category_property.value(observerID()).toString();
-        } else {
-            if (!subject_names.contains(QString(OBSERVER_UNCATEGORIZED_CATEGORY)))
-                subject_names << QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        // Check if a category property exists:
+        if (category_variant.isValid()) {
+            QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+            if (current_category == category)
+                return true;
         }
     }
 
-    return subject_names;
+    return false;
+}
+
+Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessMode(const QtilitiesCategory& category) const {
+    // Check if this category exists in this observer context:
+    if (!hasCategory(category)) {
+        LOG_ERROR(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString()));
+        return InvalidAccess;
+    }
+
+    // Loop through the categories hash until we find the category:
+    for (int i = 0; i < observerData->categories.count(); i++) {
+        if (observerData->categories.at(i) == category) {
+            return (AccessMode) observerData->categories.at(i).accessMode();
+        }
+    }
+
+    return InvalidAccess;
+}
+
+QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCategories() const {
+    QList<QtilitiesCategory> subject_categories;
+    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
+
+    for (int i = 0; i < observerData->subject_list.count(); i++) {    
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        // Check if a category property exists:
+        if (category_variant.isValid()) {
+            QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+            // Check if the category is empty, if so add it to the uncategorized category:
+            if (!current_category.isEmpty()) {
+                if (!subject_categories.contains(current_category))
+                    subject_categories << current_category;
+            } else {
+                if (!subject_categories.contains(uncategorized_category))
+                    subject_categories << uncategorized_category;
+            }
+        } else {
+            if (!subject_categories.contains(uncategorized_category))
+                subject_categories << uncategorized_category;
+        }
+    }
+
+    return subject_categories;
 }
 
 QObject* Qtilities::Core::Observer::subjectAt(int i) const {
@@ -1563,16 +1633,19 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& ifac
     return subjects;
 }
 
-QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const QString& category) const {
+QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const QtilitiesCategory& category) const {
     // Get all subjects which has the OBJECT_CATEGORY property set to category.
     QList<QObject*> list;
+    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
+
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        ObserverProperty category_property = getObserverProperty(subjectAt(i),OBJECT_CATEGORY);
-        if (category_property.isValid() && !category_property.value(observerID()).toString().isEmpty()) {
-            if (category_property.value(observerID()).toString() == category)
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        if (category_variant.isValid()) {
+            QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+            if (current_category == category)
                 list << subjectAt(i);
         } else {
-            if (category == QString(OBSERVER_UNCATEGORIZED_CATEGORY))
+            if (category == uncategorized_category)
                 list << subjectAt(i);
         }
     }
@@ -1609,19 +1682,17 @@ QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name
         QObject* obj = observerData->subject_list.at(i);
         QVariant prop = getObserverPropertyValue(obj,OBJECT_NAME);
         if (!prop.isValid()) {
-            LOG_TRACE(QString("Observer (%1): Looking for subject name (%2) failed, property 'Subject Name' contains invalid variant for this context.").arg(objectName()).arg(subject_name));
-            return 0;
+            if (observerData->subject_list.at(i)->objectName() == subject_name)
+                return observerData->subject_list.at(i);
+        } else {
+            if (prop.toString() == subject_name)
+                return obj;
         }
-        if (prop.toString() == subject_name)
-            return obj;
     }
     return 0;
 }
 
 bool Qtilities::Core::Observer::contains(const QObject* object) const {
-    // Problems with const, temp fix
-    // return observerData->subject_list.contains(object);
-
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         if (observerData->subject_list.at(i) == object)
             return true;

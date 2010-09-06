@@ -35,9 +35,11 @@
 #define OBSERVERDATA_H
 
 #include "QtilitiesCore_global.h"
+#include "QtilitiesCoreConstants.h"
 #include "AbstractSubjectFilter.h"
 #include "PointerList.h"
 #include "IFactory.h"
+#include "QtilitiesCategory.h"
 
 #include <QSharedData>
 #include <QObject>
@@ -69,7 +71,7 @@ namespace Qtilities {
             filter_subject_events_enabled(other.filter_subject_events_enabled),
             deliver_qtilities_property_changed_events(other.deliver_qtilities_property_changed_events),
             access_mode(other.access_mode), access_mode_scope(other.access_mode_scope),
-            category_access(other.category_access), display_hints(other.display_hints),
+            categories(other.categories), display_hints(other.display_hints),
             factory_data(other.factory_data), process_cycle_active(other.process_cycle_active),
             is_modified(other.is_modified) {}
 
@@ -95,7 +97,8 @@ namespace Qtilities {
             bool deliver_qtilities_property_changed_events;
             int access_mode;
             int access_mode_scope;
-            QHash<QString, int> category_access;
+            // This list does NOT store all categories in the observer context, only categories for which access modes were defined.
+            QList<QtilitiesCategory> categories;
             ObserverHints* display_hints;
             IFactoryData factory_data;
             bool process_cycle_active;
