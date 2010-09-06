@@ -209,12 +209,7 @@ namespace Qtilities {
             void handleSearchReplaceNext();
             void handleSearchReplacePrevious();
 
-            //! Function which highlights the specified word in the document using the brush.
-            void highlightWord(const QString& word, const QBrush& brush);
         public:
-            //! Function which removes highlighted words set using the highlightWord() function.
-            void removeWordHighlighting();
-
             // --------------------------------
             // File Loading Interface
             // --------------------------------

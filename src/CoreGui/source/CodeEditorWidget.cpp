@@ -60,10 +60,7 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     codeEditor(0),
     syntax_highlighter(0),
     searchBoxWidget(0),
-    action_provider(0),
-    cursor_word_highlighter(0),
-    cursor_find(0),
-    cursor_replace(0) {}
+    action_provider(0) {}
     
     QAction* actionNew;
     QAction* actionOpen;
@@ -102,13 +99,6 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     CodeEditorWidget::ActionFlags action_flags;
     //! The action toolbars list. Contains toolbars created for each category in the action provider.
     QList<QToolBar*> action_toolbars;
-
-    //! A QTextCursor which handles highlighting of words in the document.
-    QTextCursor* cursor_word_highlighter;
-    //! A QTextCursor which handles finding of words.
-    QTextCursor* cursor_find;
-    //! A QTextCursor which handles replacing of words.
-    QTextCursor* cursor_replace;
 };
 
 Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags, DisplayFlags display_flags, QWidget* parent) :
@@ -127,11 +117,6 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     d->codeEditor = new CodeEditor();
     d->codeEditor->installEventFilter(this);
     d->codeEditor->viewport()->installEventFilter(this);
-
-    // Create the text cursors:
-    d->cursor_word_highlighter = new QTextCursor(d->codeEditor->document());
-    d->cursor_find = new QTextCursor(d->codeEditor->document());
-    d->cursor_replace = new QTextCursor(d->codeEditor->document());
 
     // Read the settings for this editor:
     handleSettingsUpdateRequest(d->global_meta_type);
@@ -264,34 +249,6 @@ QSyntaxHighlighter* Qtilities::CoreGui::CodeEditorWidget::syntaxHighlighter() co
 
 Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::CodeEditorWidget::searchBoxWidget() const {
     return d->searchBoxWidget;
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::highlightWord(const QString& word, const QBrush& brush) {
-    // Iterate over all words in the document and check if they must be highlighted.
-    d->cursor_word_highlighter->movePosition(QTextCursor::Start);
-
-    d->cursor_word_highlighter->movePosition(QTextCursor::StartOfWord);
-    d->cursor_word_highlighter->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    while (!d->cursor_word_highlighter->atEnd()) {
-        if (d->cursor_word_highlighter->hasSelection()) {
-            if (d->cursor_word_highlighter->selectedText() == word) {
-                QTextCharFormat format(d->cursor_word_highlighter->charFormat());
-                format.setBackground(brush);
-                d->cursor_word_highlighter->setCharFormat(format);
-            } else {
-                QTextCharFormat format(d->cursor_word_highlighter->charFormat());
-                QBrush default_brush(Qt::white);
-                format.setBackground(default_brush);
-                d->cursor_word_highlighter->setCharFormat(format);
-            }
-        }
-        d->cursor_word_highlighter->movePosition(QTextCursor::NextWord);
-        d->cursor_word_highlighter->movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    }
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::removeWordHighlighting() {
-
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::loadFile(const QString &file_name) {

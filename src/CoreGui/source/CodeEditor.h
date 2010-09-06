@@ -71,8 +71,17 @@ namespace Qtilities {
 
         public slots:
             void updateLineNumberAreaWidth(int newBlockCount);
-            void highlightCurrentLine();
             void updateLineNumberArea(const QRect &rect, int dy);
+
+            //! Slot to highlight the current line.
+            void highlightCurrentLine();
+            //! Slot to highlight the line specified  by the cursor.
+            void highlightLine(QTextCursor cursor);
+            //! Function which highlights the specified word in the document using the brush.
+            void highlightWords(const QStringList& words, const QBrush& brush);
+        public:
+            //! Function which removes highlighted words set using the highlightWord() function.
+            void removeWordHighlighting();
 
         protected:
             void resizeEvent(QResizeEvent *e);

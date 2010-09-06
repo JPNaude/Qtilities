@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Display</string>
+       <string>Editor Options</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>

@@ -42,6 +42,13 @@ struct Qtilities::CoreGui::CodeEditorData {
 
     QWidget *lineNumberArea;
     QSyntaxHighlighter* syntaxHighlighter;
+
+    //! A QTextCursor which handles highlighting of words in the document.
+    QTextCursor cursor_word_highlighter;
+    //! A QTextCursor which handles finding of words.
+    QTextCursor cursor_find;
+    //! A QTextCursor which handles replacing of words.
+    QTextCursor cursor_replace;
 };
 
 Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent) {
@@ -57,6 +64,11 @@ Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(par
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
+
+    // Create the text cursors:
+    d->cursor_word_highlighter = textCursor();
+    d->cursor_find = textCursor();
+    d->cursor_replace = textCursor();
 }
 
 Qtilities::CoreGui::CodeEditor::~CodeEditor() {
@@ -105,6 +117,10 @@ void Qtilities::CoreGui::CodeEditor::updateLineNumberAreaWidth(int newBlockCount
 }
 
 void Qtilities::CoreGui::CodeEditor::highlightCurrentLine() {
+    highlightLine(textCursor());
+}
+
+void Qtilities::CoreGui::CodeEditor::highlightLine(QTextCursor cursor) {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     if (!isReadOnly()) {
@@ -114,7 +130,7 @@ void Qtilities::CoreGui::CodeEditor::highlightCurrentLine() {
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = textCursor();
+        selection.cursor = cursor;
         selection.cursor.clearSelection();
         extraSelections.append(selection);
     }
@@ -137,5 +153,33 @@ void Qtilities::CoreGui::CodeEditor::resizeEvent(QResizeEvent *e) {
 
     QRect cr = contentsRect();
     d->lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, const QBrush& brush) {
+    // Iterate over all words in the document and check if they must be highlighted.
+    d->cursor_word_highlighter.movePosition(QTextCursor::Start);
+
+    d->cursor_word_highlighter.movePosition(QTextCursor::StartOfWord);
+    d->cursor_word_highlighter.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    while (!d->cursor_word_highlighter.atEnd()) {
+        if (d->cursor_word_highlighter.hasSelection()) {
+            if (words.contains(d->cursor_word_highlighter.selectedText())) {
+                QTextCharFormat format(d->cursor_word_highlighter.charFormat());
+                format.setBackground(brush);
+                d->cursor_word_highlighter.setCharFormat(format);
+            } else {
+                QTextCharFormat format(d->cursor_word_highlighter.charFormat());
+                QBrush default_brush(Qt::white);
+                format.setBackground(default_brush);
+                d->cursor_word_highlighter.setCharFormat(format);
+            }
+        }
+        d->cursor_word_highlighter.movePosition(QTextCursor::NextWord);
+        d->cursor_word_highlighter.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+    }
+}
+
+void Qtilities::CoreGui::CodeEditor::removeWordHighlighting() {
+
 }
 
