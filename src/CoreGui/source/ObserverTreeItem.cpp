@@ -37,8 +37,7 @@
 #include <QStringList>
 #include <QtDebug>
 
-Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type)
-{
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type) {
     parentItem = parent;
     itemData = data;
     obj = object;
@@ -52,8 +51,7 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, Observer
     }
 }
 
-Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem()
-{
+Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem() {
     int count = childItems.count();
     for (int i = count-1; i >= 0; i--) {
         if (childItems.at(i)) {
@@ -66,33 +64,38 @@ Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem()
         contained_observer_ref->disconnect(this);
 }
 
-void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item)
-{
-    childItems.append(child_item);
+void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item) {
+    childItems.push_back(child_item);
 }
 
-Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::child(int row)
-{
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::childWithName(const QString& name) const {
+    for (int i = 0; i < childItems.count(); i++) {
+        if (childItems.at(i)->getObject()) {
+            if (childItems.at(i)->getObject()->objectName() == name)
+                return childItems.at(i);
+        }
+    }
+
+    return 0;
+}
+
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::child(int row) {
     return childItems.value(row);
 }
 
-int Qtilities::CoreGui::ObserverTreeItem::childCount() const
-{
+int Qtilities::CoreGui::ObserverTreeItem::childCount() const {
     return childItems.count();
 }
 
-int Qtilities::CoreGui::ObserverTreeItem::columnCount() const
-{
+int Qtilities::CoreGui::ObserverTreeItem::columnCount() const {
     return itemData.count();
 }
 
-Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::parent()
-{
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::parent() {
     return parentItem;
 }
 
-int Qtilities::CoreGui::ObserverTreeItem::row() const
-{
+int Qtilities::CoreGui::ObserverTreeItem::row() const {
     if (parentItem)
         return parentItem->childItems.indexOf(const_cast<ObserverTreeItem*>(this));
 

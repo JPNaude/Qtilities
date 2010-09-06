@@ -66,17 +66,23 @@ namespace Qtilities {
 
             ObserverTreeItem *child(int row);
             void appendChild(ObserverTreeItem *child_item);
+            //! Checks if a child with the name already exists.
+            /*!
+              If the child already exists a reference is returned to it. If not 0 is returned.
+              */
+            ObserverTreeItem* childWithName(const QString& name) const;
             int childCount() const;
             int columnCount() const;
             int row() const;
             ObserverTreeItem *parent();
+            inline QList<QPointer<ObserverTreeItem> > childItemReferences() const { return childItems; }
             inline void setObject(QObject* object) { obj = object; }
             inline QObject* getObject() const { return obj; }
             inline TreeItemType itemType() const { return type; }
             //! Sets the category represented through this item. Only used with CategoryItem types.
-            inline void setCategory(const QString& category) { category_id = category; }
+            inline void setCategory(const QtilitiesCategory& category) { category_id = category; }
             //! Gets the category represented through this item. Only used with CategoryItem types.
-            inline QString category() const { return category_id; }
+            inline QtilitiesCategory category() const { return category_id; }
             //! Sets a references to an observer in the case where the observer is contained within an interface.
             /*!
             This is used in cases where a non-observer based child is the parent of an observer.
@@ -98,7 +104,7 @@ namespace Qtilities {
             QPointer<ObserverTreeItem> parentItem;
             QPointer<QObject> obj;
             TreeItemType type;
-            QString category_id;
+            QtilitiesCategory category_id;
             QPointer<Observer> contained_observer_ref;
         };
     }
