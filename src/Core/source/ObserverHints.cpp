@@ -43,10 +43,10 @@ struct Qtilities::Core::ObserverHintsData {
         display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
         item_view_column_hint(ObserverHints::ColumnNoHints),
         action_hints(ObserverHints::ActionNoHints),
-        displayed_categories(QStringList()),
         has_inversed_category_display(true),
         category_filter_enabled(false),
-        is_modified(false) {}
+        is_modified(false),
+        is_exportable(false) {}
 
     ObserverHints::ObserverSelectionContext     observer_selection_context;
     ObserverHints::NamingControl                naming_control;
@@ -57,10 +57,11 @@ struct Qtilities::Core::ObserverHintsData {
     ObserverHints::DisplayFlags                 display_flags;
     ObserverHints::ItemViewColumnFlags          item_view_column_hint;
     ObserverHints::ActionHints                  action_hints;
-    QStringList                                 displayed_categories;
+    QList<QtilitiesCategory>                    displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
     bool                                        is_modified;
+    bool                                        is_exportable;
 };
 
 Qtilities::Core::ObserverHints::ObserverHints(QObject* parent) : QObject(parent), ObserverAwareBase() {
@@ -122,7 +123,11 @@ bool Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
     stream << (quint32) d->display_flags;
     stream << (quint32) d->item_view_column_hint;
     stream << (quint32) d->action_hints;
-    stream << d->displayed_categories;
+
+    stream << (quint32) d->displayed_categories.count();
+    for (int i = 0; i < d->displayed_categories.count(); i++)
+        d->displayed_categories.at(i).exportBinary(stream);
+
     stream << d->has_inversed_category_display;
     stream << d->category_filter_enabled;
     return true;
@@ -148,7 +153,14 @@ bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
     d->item_view_column_hint = ObserverHints::ItemViewColumnFlags (qi32);
     stream >> qi32;
     d->action_hints = ObserverHints::ActionHints (qi32);
-    stream >> d->displayed_categories;
+
+    stream >> qi32;
+    int category_count = qi32;
+    for (int i = 0; i < category_count; i++) {
+        QtilitiesCategory category(stream);
+        d->displayed_categories << category;
+    }
+
     stream >> d->has_inversed_category_display;
     stream >> d->category_filter_enabled;
 
@@ -156,6 +168,14 @@ bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
         observerContext()->setModificationState(true);
 
     return true;
+}
+
+bool Qtilities::Core::ObserverHints::isExportable() const {
+    return d->is_exportable;
+}
+
+void Qtilities::Core::ObserverHints::setIsExportable(bool is_exportable) {
+    d->is_exportable = is_exportable;
 }
 
 void Qtilities::Core::ObserverHints::setObserverSelectionContextHint(ObserverHints::ObserverSelectionContext observer_selection_context) {
@@ -257,7 +277,7 @@ Qtilities::Core::ObserverHints::ActionHints Qtilities::Core::ObserverHints::acti
     return d->action_hints;
 }
 
-void Qtilities::Core::ObserverHints::setDisplayedCategories(const QStringList& displayed_categories, bool inversed) {
+void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
     d->displayed_categories = displayed_categories;
     d->has_inversed_category_display = inversed;
 
@@ -270,7 +290,25 @@ void Qtilities::Core::ObserverHints::setDisplayedCategories(const QStringList& d
     }
 }
 
-QStringList Qtilities::Core::ObserverHints::displayedCategories() const {
+void Qtilities::Core::ObserverHints::addDisplayedCategory(const QtilitiesCategory& category) {
+    for (int i = 0; i < d->displayed_categories.count(); i++) {
+        if (d->displayed_categories.at(i) == category)
+            return;
+    }
+
+    d->displayed_categories.append(category);
+}
+
+void Qtilities::Core::ObserverHints::removeDisplayedCategory(const QtilitiesCategory& category) {
+    for (int i = 0; i < d->displayed_categories.count(); i++) {
+        if (d->displayed_categories.at(i) == category) {
+            d->displayed_categories.removeAt(i);
+            return;
+        }
+    }
+}
+
+QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::ObserverHints::displayedCategories() const {
     return d->displayed_categories;
 }
 

@@ -254,6 +254,21 @@ category_filter_enabled(false)
               \returns True if succesfull, false otherwise.
               */
             virtual bool importBinary(QDataStream& stream);
+            //! Indicates if this observer hints instance must be exported when the observer in which it is used is exported.
+            /*!
+              When users have the ability to change hints it makes sense to export the hints along with an observer.
+              However if the user do not have the ability to change the hints, we do not need to export them.
+
+              \returns True if the hints is exportable, false otherwise. The default is false.
+
+              \sa setIsExportable();
+              */
+            bool isExportable() const;
+            //! Sets if this observer hints instance is exportable.
+            /*!
+              \sa isExportable()
+              */
+            void setIsExportable(bool is_exportable);
 
             // --------------------------------
             // Hints Getter and Setter Functions
@@ -314,9 +329,19 @@ category_filter_enabled(false)
 
               \sa setCategoryFilterEnabled()
               */
-            void setDisplayedCategories(const QStringList& displayed_categories, bool inversed = false);
-            //! Returns the displayed categories list. Note that this function does not take inversed filtering, or if filtering is enabled into account. The default is QStringList().
-            QStringList displayedCategories() const;
+            void setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed = false);
+            //! Returns the displayed categories list. Note that this function does not take inversed filtering, or if filtering is enabled into account.
+            QList<QtilitiesCategory> displayedCategories() const;
+            //! Adds a displayed category to the list of displayed categories.
+            /*!
+              \sa displayedCategories()
+              */
+            void addDisplayedCategory(const QtilitiesCategory& category);
+            //! Removes a displayed category to the list of displayed categories.
+            /*!
+              \sa displayedCategories()
+              */
+            void removeDisplayedCategory(const QtilitiesCategory& category);
             //! Returns true if the displayed categories list is inversed. The default is true.
             void setCategoryFilterEnabled(bool enabled);
             //! Returns true if the category filter is enabled, false otherwise. The default is false.
