@@ -443,7 +443,7 @@ namespace Qtilities {
 
                 QVariant prop = obj->property(property_name);
                 return prop.isValid();
-            }
+            }        
 
             //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
             /*!

@@ -1303,24 +1303,42 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     // Get all the parents of observer
     ObserverProperty observer_map_prop = getObserverProperty(observer, OBSERVER_SUBJECT_IDS);
     int observer_count;
-    if (observer_map_prop.isValid())
-        observer_count = observer_map_prop.observerMap().count();
-    else
-        return false;
-
-    if (observer_count == 0)
-        return false;
-
     bool is_parent = false;
-    for (int i = 0; i < observer_count; i++) {
-        Observer* parent = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
 
-        if (parent != obj_to_check) {
-            is_parent = isParentInHierarchy(obj_to_check,parent);
-            if (is_parent)
-                break;
-        } else
-            return true;
+    if (observer_map_prop.isValid()) {
+        observer_count = observer_map_prop.observerMap().count();
+        // Check all direct parents:
+        for (int i = 0; i < observer_count; i++) {
+            Observer* parent = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
+            if (parent != obj_to_check) {
+                is_parent = isParentInHierarchy(obj_to_check,parent);
+                if (is_parent)
+                    break;
+            } else
+                return true;
+        }
+    } else {
+        // Check above all contained observers:
+        if (obj_to_check) {
+            ObserverProperty parent_observer_map_prop = getObserverProperty(obj_to_check->parent(), OBSERVER_SUBJECT_IDS);
+            int observer_count;
+            if (parent_observer_map_prop.isValid())
+                observer_count = parent_observer_map_prop.observerMap().count();
+            else
+                return false;
+
+            observer_count = parent_observer_map_prop.observerMap().count();
+            // Check all direct parents:
+            for (int i = 0; i < observer_count; i++) {
+                Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
+                if (parent != obj_to_check) {
+                    is_parent = isParentInHierarchy(obj_to_check,parent);
+                    if (is_parent)
+                        break;
+                } else
+                    return true;
+            }
+        }
     }
 
     return is_parent;
