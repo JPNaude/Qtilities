@@ -56,12 +56,18 @@ namespace Qtilities {
             ExtensionSystemConfig(QWidget *parent = 0);
             ~ExtensionSystemConfig();
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
             // --------------------------------------------
             // IConfigPage Implementation
             // --------------------------------------------
             QIcon configPageIcon() const;
             QWidget* configPageWidget();
-            QStringList configPageTitle() const;
+            QtilitiesCategory configPageCategory() const;
+            QString configPageTitle() const;
             void configPageApply();
             bool supportsApply() const { return false; }
 

@@ -100,10 +100,12 @@ QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget
     return this;
 }
 
-QStringList Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle() const {
-    QStringList text;
-    text << "General" << "Projects";
-    return text;
+QString Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle() const {
+    return tr("Projects");
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManagementConfig::configPageCategory() const {
+    return QtilitiesCategory("General");
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {

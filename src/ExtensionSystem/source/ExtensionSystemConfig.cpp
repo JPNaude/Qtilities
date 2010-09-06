@@ -56,10 +56,12 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageWidget() {
     return this;
 }
 
-QStringList Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() const {
-    QStringList text;
-    text << "General" << "Plugins";
-    return text;
+QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() const {
+    return tr("Plugins");
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {
+    return QtilitiesCategory("General");
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageApply() {
