@@ -105,7 +105,7 @@ int Qtilities::CoreGui::AbstractObserverTreeModel::columnPosition(AbstractObserv
 }
 
 int Qtilities::CoreGui::AbstractObserverTreeModel::columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const {
-    int start;
+    int start = 0;
     if (column_id == AbstractObserverItemModel::ColumnName) {
         start = 0;
     } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
@@ -157,11 +157,23 @@ QStack<int> Qtilities::CoreGui::AbstractObserverTreeModel::getParentHierarchy(co
 
     ObserverTreeItem* parent_item = item->parent();
     Observer* parent_observer = qobject_cast<Observer*> (parent_item->getObject());
-    // Handle the cases where the parent is a category item
+    // Handle the cases where the parent is a category item:
     if (!parent_observer) {
         if (parent_item->itemType() == ObserverTreeItem::CategoryItem) {
             parent_observer = parent_item->containedObserver();
             parent_item = parent_item->parent();
+        }
+    }
+
+    // Check if the parent observer is contained:
+    if (!parent_observer) {
+        if (parent_item->getObject()) {
+            for (int i = 0; i < parent_item->getObject()->children().count(); i++) {
+                QObject* child = parent_item->getObject()->children().at(i);
+                if (child) {
+                    parent_observer = qobject_cast<Observer*> (child);
+                }
+            }
         }
     }
 
@@ -170,10 +182,22 @@ QStack<int> Qtilities::CoreGui::AbstractObserverTreeModel::getParentHierarchy(co
         parent_item = parent_item->parent();
         if (parent_item) {
             parent_observer = qobject_cast<Observer*> (parent_item->getObject());
+            // Handle the cases where the parent is a category item:
             if (!parent_observer) {
                 if (parent_item->itemType() == ObserverTreeItem::CategoryItem) {
                     parent_observer = parent_item->containedObserver();
                     parent_item = parent_item->parent();
+                }
+            }
+            // Check if the parent observer is contained:
+            if (!parent_observer) {
+                if (parent_item->getObject()) {
+                    for (int i = 0; i < parent_item->getObject()->children().count(); i++) {
+                        QObject* child = parent_item->getObject()->children().at(i);
+                        if (child) {
+                            parent_observer = qobject_cast<Observer*> (child);
+                        }
+                    }
                 }
             }
         } else
@@ -441,24 +465,24 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
                     if (observer->accessMode() == Observer::FullAccess)
                         return QVariant();
                     if (observer->accessMode() == Observer::ReadOnlyAccess)
-                        return QIcon(ICON_READ_ONLY);
+                        return QIcon(ICON_READ_ONLY_22x22);
                     if (observer->accessMode() == Observer::LockedAccess)
-                        return QIcon(ICON_LOCKED);
+                        return QIcon(ICON_LOCKED_22x22);
                 } else {
                     // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
                     QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
                     if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                        return QIcon(ICON_READ_ONLY);
+                        return QIcon(ICON_READ_ONLY_22x22);
                     if (mode.toInt() == Observer::LockedAccess)
-                        return QIcon(ICON_LOCKED);
+                        return QIcon(ICON_LOCKED_22x22);
                 }
             } else {
                 // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
                 QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
                 if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                    return QIcon(ICON_READ_ONLY);
+                    return QIcon(ICON_READ_ONLY_22x22);
                 if (mode.toInt() == Observer::LockedAccess)
-                    return QIcon(ICON_LOCKED);
+                    return QIcon(ICON_LOCKED_22x22);
             }
         }
     }
@@ -533,19 +557,19 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::headerDataHelper(int sec
         return tr("Contents Tree");
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
-            return QIcon(ICON_CHILD_COUNT);
+            return QIcon(ICON_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
             return tr("Child Count");
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
-            return QIcon(ICON_TYPE_INFO);
+            return QIcon(ICON_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
             return tr("Type");
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
-            return QIcon(ICON_ACCESS);
+            return QIcon(ICON_ACCESS_22x22);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return tr("Access");
