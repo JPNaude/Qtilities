@@ -77,7 +77,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/SearchBoxWidget.h \
     source/ObjectPropertyBrowser.h \
     source/ObjectInfoTreeWidget.h \
-    source/CategorizedStringTreeWidget.h \
     source/ObserverTableModelCategoryFilter.h \
     source/IActionProvider.h \
     source/ActionProvider.h \
@@ -125,7 +124,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/SearchBoxWidget.cpp \
     source/ObjectPropertyBrowser.cpp \
     source/ObjectInfoTreeWidget.cpp \
-    source/CategorizedStringTreeWidget.cpp \
     source/ObserverTableModelCategoryFilter.cpp \
     source/ActionProvider.cpp \
     source/LoggerConfigWidget.cpp \
