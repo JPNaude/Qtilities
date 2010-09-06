@@ -34,6 +34,7 @@
 #ifndef QTILITIES_H
 #define QTILITIES_H
 
+namespace Qtilities {
 //! The %Qtilities major version number.
 #define QTILITIES_VERSION_MAJOR 0
 //! The %Qtilities minor version number.
@@ -60,7 +61,7 @@ Qtilities::Core::Interfaces::IExportable:
 
 History:
 0 - %Qtilities v0.1 Beta 1
-1 - %Qtilities v0.1
+1 - %Qtilities v0.1-v0.2
 */
 #define QTILITIES_BINARY_EXPORT_FORMAT 1
 
@@ -68,7 +69,7 @@ History:
 /*!
 History:
 No version defined - %Qtilities v0.1 Beta 1
-1 - %Qtililties v0.1.
+1 - %Qtililties v0.1-v0.2 onwards
 */
 #define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
 
@@ -83,7 +84,10 @@ Qtilities::Core::Interfaces::ILoggerExportable:
 History:
 No version defined - %Qtilities v0.1 Beta 1
 1 - %Qtilities v0.1
+2 - %Qtilities v0.2
 */
-#define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 1
+#define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 2
+
+}
 
 #endif // QTILITIES_H
