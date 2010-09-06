@@ -34,7 +34,7 @@
 #ifndef QTILITIESCORECONSTANTS_H
 #define QTILITIESCORECONSTANTS_H
 
-#include <QObject>
+#include <QtCore>
 
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the Core Module.
@@ -46,8 +46,8 @@ namespace Qtilities {
             const char * const GLOBAL_OBJECT_POOL                   = "Qtilities.Core.ObjectPool";
             //! The string used by observers to group uncategorized subjects in the case where the observer has a hierarchical display hint.
             const char * const OBSERVER_UNCATEGORIZED_CATEGORY      = "Uncategorized";
-            //! %Factory name of factory which produces subject filters.
-            const char * const FACTORY_SUBJECT_FILTERS              = "Factory.SubjectFilters";
+            //! %Factory name of the Qtilities factory.
+            const char * const FACTORY_QTILITIES                    = "Factory.Qtilities";
             //! %Factory tag for activity policy filters.
             const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "Activity Policy Filter";
             //! %Factory tag for subject type filters.
@@ -200,7 +200,7 @@ when attaching it to an observer which has its Qtilities::Core::Observer::Hierar
 hint set to categorized hierarchy.
 
 <b>Permisson:</b> Read/Write<br>
-<b>Data Type:</b> QString<br>
+<b>Data Type:</b> QtilitiesCategory<br>
 <b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> Yes<br>
@@ -212,7 +212,7 @@ obs->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
 
 QObject* obj = new QObject();
 ObserverProperty category_property(OBJECT_CATEGORY);
-category_property.setValue("Category 1",obs->observerID());
+category_property.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),obs->observerID());
 Observer::setObserverProperty(obj,category_property);
 
 obs->attachSubject(obj);
