@@ -9,7 +9,6 @@
 #include "ActionContainer.h"
 #include "ActionManager.h"
 #include "ActionProvider.h"
-#include "CategorizedStringTreeWidget.h"
 #include "ClipboardManager.h"
 #include "Command.h"
 #include "CommandEditor.h"
