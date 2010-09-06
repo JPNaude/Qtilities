@@ -47,7 +47,7 @@ using namespace Qtilities::Core::Constants;
 
 namespace Qtilities {
     namespace Core {
-        FactoryItem<AbstractSubjectFilter, ActivityPolicyFilter> ActivityPolicyFilter::factory;
+        FactoryItem<QObject, ActivityPolicyFilter> ActivityPolicyFilter::factory;
     }
 }
 
@@ -479,7 +479,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ActivityPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
+    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
     return factoryData;
 }
 
@@ -517,17 +517,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     return IExportable::Complete;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
-    return false;
+    return IExportable::Incomplete;
 }

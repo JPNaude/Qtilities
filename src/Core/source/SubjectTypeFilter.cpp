@@ -44,7 +44,7 @@ using namespace Qtilities::Core::Constants;
 
 namespace Qtilities {
     namespace Core {
-        FactoryItem<AbstractSubjectFilter, SubjectTypeFilter> SubjectTypeFilter::factory;
+        FactoryItem<QObject, SubjectTypeFilter> SubjectTypeFilter::factory;
     }
 }
 
@@ -195,7 +195,7 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::SubjectTypeFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
+    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
     return factoryData;
 }
 
@@ -244,18 +244,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     return IExportable::Complete;
 }
 
-bool Qtilities::Core::SubjectTypeFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }

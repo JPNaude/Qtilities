@@ -116,7 +116,7 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::SubjectFilterTemplate::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,"Subject Filter Template","Subject Filter Template");
+    IFactoryData factoryData(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
     return factoryData;
 }
 
@@ -145,20 +145,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterT
     return IExportable::Complete;
 }
 
-bool Qtilities::Core::SubjectFilterTemplate::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::Core::SubjectFilterTemplate::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
 

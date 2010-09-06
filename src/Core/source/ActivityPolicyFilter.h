@@ -71,7 +71,7 @@ namespace Qtilities {
             // --------------------------------
             // Factory Interface Implemenation
             // --------------------------------
-            static FactoryItem<AbstractSubjectFilter, ActivityPolicyFilter> factory;
+            static FactoryItem<QObject, ActivityPolicyFilter> factory;
 
             // --------------------------------
             // ActivityPolicyFilter Implemenation
@@ -105,7 +105,7 @@ namespace Qtilities {
             /*!
              The policy can only be changed if no observer context has been set yet.
              */
-            void setActivityPolicy(ActivityPolicyFilter::ActivityPolicy naming_policy);
+            void setActivityPolicy(ActivityPolicyFilter::ActivityPolicy activity_policy);
             //! Gets the activity policy used by this subject filter.
             ActivityPolicyFilter::ActivityPolicy activityPolicy() const;
             //! Sets the minimum activity policy used by this subject filter.
@@ -154,8 +154,8 @@ namespace Qtilities {
             IFactoryData factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
         public:
             // --------------------------------
