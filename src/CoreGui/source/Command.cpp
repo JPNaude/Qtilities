@@ -310,7 +310,8 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
         // Add the new tooltip to all the backend actions' tooltips:
         for (int i = 0; i < d->id_action_map.count(); i++) {
             backend_action = d->id_action_map.values().at(i);
-            backend_action->setToolTip(backend_action->toolTip() + " " + new_key_tooltip);
+            if (backend_action)
+                backend_action->setToolTip(backend_action->toolTip() + " " + new_key_tooltip);
         }
     }
 }
