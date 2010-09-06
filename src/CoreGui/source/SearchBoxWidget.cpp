@@ -70,7 +70,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
 
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu("Search Options");
-    ui->btnSearchOptions->setIcon(QIcon(ICON_SEARCH_OPTIONS));
+    ui->btnSearchOptions->setIcon(QIcon(ICON_SEARCH_OPTIONS_22x22));
     ui->btnSearchOptions->setIconSize(QSize(16,16));
     d->searchOptionCaseSensitive = new QAction("Case Sensitive",0);
     d->searchOptionCaseSensitive->setCheckable(true);

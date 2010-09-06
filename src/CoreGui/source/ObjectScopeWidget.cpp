@@ -238,7 +238,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
             QVariant observer_parent = observer->getObserverPropertyValue(d->obj,OBSERVER_PARENT);
             if (observer_parent.isValid() && (observer_parent.toInt() == id)) {
                 QTableWidgetItem *ownerItem = new QTableWidgetItem("", id);
-                ownerItem->setIcon(QIcon(ICON_SUCCESS));
+                ownerItem->setIcon(QIcon(ICON_SUCCESS_16x16));
                 ownerItem->setToolTip(tr("This context owns the selected object (Manages its lifetime)."));
                 m_ui->observerTable->setItem(i, OwnerColumn, ownerItem);
             }
@@ -279,7 +279,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
             tooltip_string.append(QString(tr("Uses Instance Name (\"%1\"), ").arg(instance_names.value(observer->observerID()).toString())));
             has_instance_names = true;
             QTableWidgetItem *aliasItem = new QTableWidgetItem("", id);
-            aliasItem->setIcon(QIcon(ICON_SUCCESS));
+            aliasItem->setIcon(QIcon(ICON_SUCCESS_16x16));
             aliasItem->setToolTip(tr("This context uses an instance name (alias) for the selected object."));
             m_ui->observerTable->setItem(i, UsesInstanceNameColumn, aliasItem);
         }
@@ -373,7 +373,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     // ---------------------------
     // Add Context
     // ---------------------------
-    d->actionAddContext = new QAction(QIcon(ICON_NEW),"Add",this);
+    d->actionAddContext = new QAction(QIcon(ICON_NEW_16x16),"Add",this);
     //d->action_provider->addAction(d->actionAddContext);
     d->actionAddContext->setEnabled(false);
     connect(d->actionAddContext,SIGNAL(triggered()),SLOT(handle_actionAddContext_triggered()));
@@ -381,7 +381,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     // ---------------------------
     // Remove Context
     // ---------------------------
-    d->actionRemoveContext = new QAction(QIcon(ICON_REMOVE_ONE),"Remove Selected",this);
+    d->actionRemoveContext = new QAction(QIcon(ICON_REMOVE_ONE_16x16),"Remove Selected",this);
     d->action_provider->addAction(d->actionRemoveContext);
     d->actionRemoveContext->setEnabled(false);
     connect(d->actionRemoveContext,SIGNAL(triggered()),SLOT(handle_actionRemoveContext_triggered()));
@@ -389,7 +389,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     // ---------------------------
     // Detach In Selected Context (Creates copy in selected context which is detached from the rest of the contexts)
     // ---------------------------
-    d->actionDetachToSelection = new QAction(QIcon(ICON_REMOVE_ALL),"Romove Others",this);
+    d->actionDetachToSelection = new QAction(QIcon(ICON_REMOVE_ALL_16x16),"Romove Others",this);
     d->action_provider->addAction(d->actionDetachToSelection);
     d->actionDetachToSelection->setEnabled(false);
     connect(d->actionDetachToSelection,SIGNAL(triggered()),SLOT(handle_actionDetachToSelection_triggered()));
@@ -397,7 +397,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     // ---------------------------
     // Duplicate In Selected Context
     // ---------------------------
-    d->actionDuplicateInScope = new QAction(QIcon(ICON_SPLIT),"Duplicate",this);
+    d->actionDuplicateInScope = new QAction(QIcon(ICON_SPLIT_16x16),"Duplicate",this);
     //d->action_provider->addAction(d->actionDuplicateInScope);
     d->actionDuplicateInScope->setEnabled(false);
     connect(d->actionDuplicateInScope,SIGNAL(triggered()),SLOT(handle_actionDuplicateInScope_triggered()));

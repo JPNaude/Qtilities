@@ -378,7 +378,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // ---------------------------
     // Logger Settings
     // ---------------------------
-    d->actionSettings = new QAction(QIcon(ICON_PROPERTY),tr("Settings"),this);
+    d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Settings"),this);
     connect(d->actionSettings,SIGNAL(triggered()),SLOT(handle_Settings()));
 
     // Add actions to text edit.

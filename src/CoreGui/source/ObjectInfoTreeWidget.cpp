@@ -217,10 +217,10 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* ite
     if (item) {
         // Methods:
         QTreeWidgetItem* methods = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Methods")));
-        methods->setIcon(0, QIcon(ICON_METHOD));
+        methods->setIcon(0, QIcon(ICON_METHOD_16x16));
         item->addChild(methods);
         QTreeWidgetItem* events = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Events")));
-        events->setIcon(0, QIcon(ICON_EVENT));
+        events->setIcon(0, QIcon(ICON_EVENT_16x16));
         item->addChild(events);
         const QMetaObject* mo = obj->metaObject();
         for(int j=QObject::staticMetaObject.methodCount(); j<mo->methodCount(); j++)
@@ -251,7 +251,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* ite
 
         // Properties:
         QTreeWidgetItem* properties = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Properties")));
-        properties->setIcon(0, QIcon(ICON_PROPERTY));
+        properties->setIcon(0, QIcon(ICON_PROPERTY_16x16));
         item->addChild(properties);
         for(int j=QObject::staticMetaObject.propertyCount(); j<mo->propertyCount(); j++)
         {

@@ -48,63 +48,65 @@ namespace Qtilities {
         //! Namespace containing available icons which forms part of the CoreGui Module.
         namespace Icons {
             //! Icon used in observer widgets for action to push down into an observer hierachy in the current window.
-            const char * const ICON_PUSH_DOWN_CURRENT       = ":/icons/push_down_current_16x16.png";
+            const char * const ICON_PUSH_DOWN_CURRENT_16x16       = ":/icons/push_down_current_16x16.png";
             //! Icon used in observer widgets for action to push down into an observer hierachy in a new window.
-            const char * const ICON_PUSH_DOWN_NEW           = ":/icons/push_down_new_16x16.png";
+            const char * const ICON_PUSH_DOWN_NEW_16x16           = ":/icons/push_down_new_16x16.png";
             //! Icon used in observer widgets for action to push up in an observer hierachy in the current window.
-            const char * const ICON_PUSH_UP_CURRENT         = ":/icons/push_up_current_16x16.png";
+            const char * const ICON_PUSH_UP_CURRENT_16x16         = ":/icons/push_up_current_16x16.png";
             //! Icon used in observer widgets for action to push up in an observer hierachy in a new window.
-            const char * const ICON_PUSH_UP_NEW             = ":/icons/push_up_new_16x16.png";
+            const char * const ICON_PUSH_UP_NEW_16x16             = ":/icons/push_up_new_16x16.png";
             //! Icon used for action to remove a single object.
-            const char * const ICON_REMOVE_ONE              = ":/icons/remove_one_16x16.png";
+            const char * const ICON_REMOVE_ONE_16x16              = ":/icons/remove_one_16x16.png";
             //! Icon used for action to remove all objects.
-            const char * const ICON_REMOVE_ALL              = ":/icons/remove_all_16x16.png";
+            const char * const ICON_REMOVE_ALL_16x16              = ":/icons/remove_all_16x16.png";
             //! Icon used for action to delete a single object.
-            const char * const ICON_DELETE_ONE              = ":/icons/delete_one_16x16.png";
+            const char * const ICON_DELETE_ONE_16x16              = ":/icons/delete_one_16x16.png";
             //! Icon used for action to delete all objects.
-            const char * const ICON_DELETE_ALL              = ":/icons/delete_all_16x16.png";
+            const char * const ICON_DELETE_ALL_16x16              = ":/icons/delete_all_16x16.png";
             //! Icon used for new action.
-            const char * const ICON_NEW                     = ":/icons/new_16x16.png";
+            const char * const ICON_NEW_16x16                     = ":/icons/new_16x16.png";
             //! Zoom in icon.
-            const char * const ICON_MAGNIFY_PLUS            = ":/icons/magnify_plus_16x16.png";
+            const char * const ICON_MAGNIFY_PLUS_16x16            = ":/icons/magnify_plus_16x16.png";
             //! Zoom out icon.
-            const char * const ICON_MAGNIFY_MINUS           = ":/icons/magnify_minus_16x16.png";
+            const char * const ICON_MAGNIFY_MINUS_16x16           = ":/icons/magnify_minus_16x16.png";
             //! Icon used to indicate a split, or duplication operation.
-            const char * const ICON_SPLIT                   = ":/icons/split_16x16.png";
+            const char * const ICON_SPLIT_16x16                   = ":/icons/split_16x16.png";
             //! Icon used to switch between observer widget modes.
-            const char * const ICON_SWITCH_VIEW             = ":/icons/switch_view_16x16.png";
+            const char * const ICON_SWITCH_VIEW_16x16             = ":/icons/switch_view_16x16.png";
             //! Refresh icon.
-            const char * const ICON_REFRESH                 = ":/icons/refresh_16x16.png";
+            const char * const ICON_REFRESH_16x16                 = ":/icons/refresh_16x16.png";
             //! Success icon.
-            const char * const ICON_SUCCESS                 = ":/icons/success_16x16.png";
+            const char * const ICON_SUCCESS_16x16                 = ":/icons/success_16x16.png";
             //! Error icon.
-            const char * const ICON_ERROR                   = ":/icons/error_16x16.png";
+            const char * const ICON_ERROR_16x16                   = ":/icons/error_16x16.png";
+            //! Error icon.
+            const char * const ICON_WARNING_16x16                 = ":/icons/warning_16x16.png";
             //! Icon used for observer access column in observer widgets.
-            const char * const ICON_ACCESS                  = ":/icons/access_22x22.png";
+            const char * const ICON_ACCESS_22x22                  = ":/icons/access_22x22.png";
             //! Icon used for child count column in observer widgets.
-            const char * const ICON_CHILD_COUNT             = ":/icons/child_count_22x22.png";
+            const char * const ICON_CHILD_COUNT_22x22             = ":/icons/child_count_22x22.png";
             //! Icon used for object type column in observer widgets.
-            const char * const ICON_TYPE_INFO                = ":/icons/type_info_22x22.png";
+            const char * const ICON_TYPE_INFO_22x22                = ":/icons/type_info_22x22.png";
             //! Icon used to indicate that an observer has locked access.
-            const char * const ICON_LOCKED                  = ":/icons/locked_22x22.png";
+            const char * const ICON_LOCKED_22x22                  = ":/icons/locked_22x22.png";
             //! Icon used to indicate that an observer has read only access.
-            const char * const ICON_READ_ONLY               = ":/icons/read_only_22x22.png";
+            const char * const ICON_READ_ONLY_22x22               = ":/icons/read_only_22x22.png";
             //! Icon used for search options button in search box widget.
-            const char * const ICON_SEARCH_OPTIONS          = ":/icons/search_options_22x22.png";
+            const char * const ICON_SEARCH_OPTIONS_22x22           = ":/icons/search_options_22x22.png";
             //! Icon used for an object property.
-            const char * const ICON_PROPERTY                = ":/icons/property_icon_16x16.png";
+            const char * const ICON_PROPERTY_16x16                 = ":/icons/property_icon_16x16.png";
             //! Icon used for an object method (slot).
-            const char * const ICON_METHOD                  = ":/icons/method_icon_16x16.png";
+            const char * const ICON_METHOD_16x16                   = ":/icons/method_icon_16x16.png";
             //! Icon used for an object event (signal).
-            const char * const ICON_EVENT                   = ":/icons/event_icon_16x16.png";
+            const char * const ICON_EVENT_16x16                    = ":/icons/event_icon_16x16.png";
             //! Icon used for managers in %Qtilities.
-            const char * const ICON_MANAGER_16x16           = ":/icons/manager_icon_16x16.png";
+            const char * const ICON_MANAGER_16x16                  = ":/icons/manager_icon_16x16.png";
             //! Folder icon, used for categories in observer widgets in tree mode.
-            const char * const ICON_FOLDER_16X16            = ":/icons/folder_icon_16x16.png";
+            const char * const ICON_FOLDER_16X16                   = ":/icons/folder_icon_16x16.png";
             //! Icon used for dynamic side widget remove action.
-            const char * const ICON_VIEW_REMOVE_16x16       = ":/icons/view_remove_16x16.png";
+            const char * const ICON_VIEW_REMOVE_16x16              = ":/icons/view_remove_16x16.png";
             //! Icon used for dynamic side widget new action.
-            const char * const ICON_VIEW_NEW_16x16          = ":/icons/view_new_16x16.png";
+            const char * const ICON_VIEW_NEW_16x16                 = ":/icons/view_new_16x16.png";
 
             // --------------------------------
             // Edit Icons

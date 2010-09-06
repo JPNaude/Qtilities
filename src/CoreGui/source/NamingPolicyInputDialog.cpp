@@ -60,8 +60,8 @@ Qtilities::CoreGui::NamingPolicyInputDialog::NamingPolicyInputDialog(QWidget *pa
     connect(ui->radioReject,SIGNAL(clicked()),SLOT(updateStatusMessage()));
 
     // Init icons on buttons
-    ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR));
-    ui->btnGenerateNewName->setIcon(QIcon(ICON_REFRESH));
+    ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR_16x16));
+    ui->btnGenerateNewName->setIcon(QIcon(ICON_REFRESH_16x16));
     ui->radioAutoRename->setChecked(true);
 }
 
@@ -208,9 +208,9 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::handleDifferentNameChange(QStr
 
     // Update different name icon
     if (validity_result == NamingPolicyFilter::Acceptable)
-        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_SUCCESS));
+        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_SUCCESS_16x16));
     else
-        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR));
+        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR_16x16));
 
     // Update problem description
     if ((validity_result & NamingPolicyFilter::Duplicate) && (validity_result & NamingPolicyFilter::Invalid)) {
