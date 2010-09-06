@@ -146,7 +146,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // --------------------------------
             // Factory Interface Implemenation
             // --------------------------------
-            static FactoryItem<AbstractSubjectFilter, NamingPolicyFilter> factory;
+            static FactoryItem<QObject, NamingPolicyFilter> factory;
 
             // --------------------------------
             // AbstractSubjectFilter Implemenation
@@ -177,8 +177,8 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             IFactoryData factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            bool exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            bool importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implemenation

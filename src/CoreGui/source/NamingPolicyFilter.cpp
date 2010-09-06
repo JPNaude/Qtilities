@@ -60,7 +60,7 @@ using namespace Qtilities::Core::Constants;
 
 namespace Qtilities {
     namespace CoreGui {
-        FactoryItem<AbstractSubjectFilter, NamingPolicyFilter> NamingPolicyFilter::factory;
+        FactoryItem<QObject, NamingPolicyFilter> NamingPolicyFilter::factory;
     }
 }
 
@@ -460,7 +460,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_SUBJECT_FILTERS,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
+    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
     return factoryData;
 }
 
@@ -500,20 +500,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     return IExportable::Complete;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return false;
+    return IExportable::Incomplete;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) {
