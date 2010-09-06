@@ -62,7 +62,7 @@ struct Qtilities::Core::ObjectManagerData {
     QMap<QString, QList<QObject*> >     meta_type_map;
     Observer                            object_pool;
     int                                 id;
-    Factory<AbstractSubjectFilter>      subject_filter_factory;
+    Factory<QObject>                    qtilities_factory;
 };
 
 Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(parent)
@@ -74,9 +74,12 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
     FactoryInterfaceData activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER);
-    d->subject_filter_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
+    d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
     FactoryInterfaceData subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER);
-    d->subject_filter_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
+    d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
+
+    // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
+    registerIFactory(this);
 }
 
 Qtilities::Core::ObjectManager::~ObjectManager()
@@ -93,6 +96,22 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
     }
 
     return -1;
+}
+
+QStringList Qtilities::Core::ObjectManager::factoryTags() const {
+    QStringList tags;
+    tags << "Qtilities Factory";
+    return tags;
+}
+
+QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryData& ifactory_data) {
+    if (ifactory_data.d_factory_tag == QString("Qtilities Factory")) {
+        QObject* obj = d->qtilities_factory.createInstance(ifactory_data.d_instance_tag);
+        if (obj) {
+            return obj;
+        }
+    }
+    return 0;
 }
 
 Qtilities::Core::Observer* Qtilities::Core::ObjectManager::observerReference(int id) const {
@@ -161,12 +180,8 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj) {
         emit newObjectAdded(obj);
 }
 
-Qtilities::Core::AbstractSubjectFilter* Qtilities::Core::ObjectManager::createSubjectFilter(const QString& filter_tag) {
-    return d->subject_filter_factory.createInstance(filter_tag);
-}
-
-void Qtilities::Core::ObjectManager::registerSubjectFilter(FactoryInterface<AbstractSubjectFilter>* interface, FactoryInterfaceData iface_data) {
-    d->subject_filter_factory.registerFactoryInterface(interface,iface_data);
+void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceData iface_data) {
+    d->qtilities_factory.registerFactoryInterface(interface,iface_data);
 }
 
 void Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {

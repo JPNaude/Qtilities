@@ -90,11 +90,18 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IObjectManager)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IFactory)
             friend class Observer;
 
         public:
             ObjectManager(QObject* parent = 0);
             ~ObjectManager();
+
+            // -----------------------------------------
+            // IFactory Implementation
+            // -----------------------------------------
+            QStringList factoryTags() const;
+            QObject* createInstance(const IFactoryData& ifactory_data);
 
             // --------------------------------
             // IObjectManager Implemenation
@@ -103,8 +110,7 @@ namespace Qtilities {
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id);
             void registerObject(QObject* obj);
-            AbstractSubjectFilter* createSubjectFilter(const QString& filter_tag);
-            void registerSubjectFilter(FactoryInterface<AbstractSubjectFilter>* interface, FactoryInterfaceData iface_data);
+            void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceData iface_data);
             void registerIFactory(IFactory* factory_iface);
             IFactory* factoryReference(const QString& tag) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
