@@ -101,6 +101,10 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             static void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
             static QWidget* const mainWindow();
+            //! Sets the configuration widget reference for the application.
+            static void setConfigWidget(QWidget* configWidget);
+            //! Gets the configuration widget reference for the application.
+            static QWidget* const configWidget();
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.

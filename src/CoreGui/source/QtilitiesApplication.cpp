@@ -57,7 +57,7 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
 
         // Register the naming policy filter in the object manager:
         FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER,QStringList(tr("Subject Filters")));
-        QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
+        QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&NamingPolicyFilter::factory,naming_policy_filter);
 
         QCoreApplication::instance()->installEventFilter(this);
     } else {
@@ -97,10 +97,18 @@ QString Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersion() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
 }
 
+void Qtilities::CoreGui::QtilitiesApplication::setConfigWidget(QWidget* configWidget) {
+    QtilitiesApplicationPrivate::instance()->setConfigWidget(configWidget);
+}
+
+QWidget* const Qtilities::CoreGui::QtilitiesApplication::configWidget() {
+    return QtilitiesApplicationPrivate::instance()->configWidget();
+}
+
 void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     // Register the naming policy filter in the object manager:
     FactoryInterfaceData naming_policy_filter(FACTORY_TAG_NAMING_POLICY_FILTER,QStringList(tr("Subject Filters")));
-    QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerSubjectFilter(&NamingPolicyFilter::factory,naming_policy_filter);
+    QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&NamingPolicyFilter::factory,naming_policy_filter);
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {

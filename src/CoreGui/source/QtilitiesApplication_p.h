@@ -62,12 +62,17 @@ namespace Qtilities {
             void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
             QWidget* const mainWindow() const;
+            //! Sets the configuration widget reference for the application.
+            void setConfigWidget(QWidget* configWidget);
+            //! Gets the configuration widget reference for the application.
+            QWidget* const configWidget();
 
         private:
             QtilitiesApplicationPrivate();
             static QtilitiesApplicationPrivate* m_Instance;
 
             QPointer<QWidget>       d_mainWindow;
+            QPointer<QWidget>       d_configWindow;
             ActionManager*          d_actionManager;
             IActionManager*         d_actionManagerIFace;
             ClipboardManager*       d_clipboardManager;

@@ -89,3 +89,11 @@ void Qtilities::CoreGui::QtilitiesApplicationPrivate::setMainWindow(QWidget* mai
 QWidget* const Qtilities::CoreGui::QtilitiesApplicationPrivate::mainWindow() const {
     return d_mainWindow;
 }
+
+void Qtilities::CoreGui::QtilitiesApplicationPrivate::setConfigWidget(QWidget* configWidget) {
+    d_configWindow = configWidget;
+}
+
+QWidget* const Qtilities::CoreGui::QtilitiesApplicationPrivate::configWidget() {
+    return d_configWindow;
+}
