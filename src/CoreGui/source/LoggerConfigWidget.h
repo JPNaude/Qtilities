@@ -71,12 +71,18 @@ namespace Qtilities {
             LoggerConfigWidget(bool applyButtonVisisble = true, QWidget *parent = 0);
             ~LoggerConfigWidget();
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
             // --------------------------------------------
             // IConfigPage Implementation
             // --------------------------------------------
             QIcon configPageIcon() const;
             QWidget* configPageWidget();
-            QStringList configPageTitle() const;
+            QtilitiesCategory configPageCategory() const;
+            QString configPageTitle() const;
             void configPageApply();
             bool supportsApply() const { return true; }
 

@@ -52,7 +52,8 @@ namespace Qtilities {
             // --------------------------------------------
             QIcon configPageIcon() const;
             QWidget* configPageWidget();
-            QStringList configPageTitle() const;
+            QtilitiesCategory configPageCategory() const;
+            QString configPageTitle() const;
             void configPageApply();
             bool supportsApply() const { return true; }
 

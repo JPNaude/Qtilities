@@ -34,6 +34,7 @@
 #include "ConfigurationWidget.h"
 #include "ui_ConfigurationWidget.h"
 #include "IConfigPage.h"
+#include "ObserverWidget.h"
 
 #include <Logger.h>
 #include <QTreeWidgetItem>
@@ -41,14 +42,20 @@
 #include <QDesktopWidget>
 
 struct Qtilities::CoreGui::ConfigurationWidgetData {
-    ConfigurationWidgetData() : active_widget(0) {}
+    ConfigurationWidgetData() : config_pages("Application Settings","Manages IConfigPages in an application"),
+    activity_filter(0),
+    active_widget(0) {}
 
-    QWidget* active_widget;
-    //! The keys are the page name and categories (a QStringList) joined with :: where the last element is the page name.
-    QMap<QString, IConfigPage*> name_widget_map;
-    //! Stores the page name and categories (a QStringList) joined with :: where the last element is the page name.
-    QString active_page;
+    //! Observer widget which is used to display the categories of the config pages.
+    ObserverWidget pageTree;
+    //! The configuration pages observer.
+    Observer config_pages;
+    //! Indicates if the page have been initialized.
     bool initialized;
+    //! The activity policy filter for the pages observer.
+    ActivityPolicyFilter* activity_filter;
+    //! Keeps track of the active widget.
+    QPointer<QWidget> active_widget;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(QWidget *parent) :
@@ -59,81 +66,71 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(QWidget *parent) :
     d = new ConfigurationWidgetData;
     d->initialized = false;
 
-    connect(ui->pageTree,SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),SLOT(handleCurrentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
+    // Layout and placement of observer widget:
+    if (ui->pageTreeHolder->layout())
+        delete ui->pageTreeHolder->layout();
 
-    // Put the widget in the center of the screen
+    QHBoxLayout* layout = new QHBoxLayout(ui->pageTreeHolder);
+    layout->addWidget(&d->pageTree);
+    layout->setMargin(0);
+
+    // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
 }
 
-Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget()
-{
+Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
     delete ui;
+    delete d;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> config_pages) {
     if (d->initialized)
         return;
 
+    // Add an activity policy filter to the config pages observer:
+    d->activity_filter = new ActivityPolicyFilter();
+    d->activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
+    d->activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::ProhibitNoneActive);
+    d->activity_filter->setNewSubjectActivityPolicy(ActivityPolicyFilter::SetNewInactive);
+    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handleActiveItemChanges(QList<QObject*>)));
+    d->config_pages.installSubjectFilter(d->activity_filter);
+    d->config_pages.useDisplayHints();
+    d->config_pages.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
+    d->config_pages.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
+    d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+
+    // Add all the pages to the config pages observer:
     for (int i = 0; i < config_pages.count(); i++) {
         IConfigPage* config_page = config_pages.at(i);
         if (config_page) {
-            // First check if it has a valid widget
-            if (!config_page->configPageWidget())
-                break;
+            if (config_page->configPageWidget()) {
+                // Set the object name to the page title:
+                config_page->objectBase()->setObjectName(config_page->configPageTitle());
 
-            // Maximum depth is 2 at present
-            Q_ASSERT(config_page->configPageTitle().count() <= 2);
-
-            // Build the tree using the QStringList values in the interface's text() function.
-            QTreeWidgetItem* parent = 0;
-            QTreeWidgetItem* new_parent = 0;
-            QStringList name;
-            name << config_page->configPageTitle().at(0);
-            for (int top_level = 0; top_level < ui->pageTree->topLevelItemCount(); top_level++) {
-                if (ui->pageTree->topLevelItem(top_level)->text(0) == name.front()) {
-                    parent = ui->pageTree->topLevelItem(top_level);
-                    break;
+                // Add the category as a property on the object:
+                if (!config_page->configPageCategory().isEmpty()) {
+                    ObserverProperty category_property(OBJECT_CATEGORY);
+                    category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
+                    Observer::setObserverProperty(config_page->objectBase(),category_property);
                 }
-            }
-
-            // If there is not a top level item yet for this category, create it
-            if (!parent) {
-                parent = new QTreeWidgetItem(ui->pageTree, name);
-            }
-
-            for (int depth = 1; depth < config_page->configPageTitle().count(); depth++) {
-                name.clear();
-                name << config_page->configPageTitle().at(depth);
-                for (int r = 0; r < parent->childCount(); r++) {
-                    if (parent->child(r)->text(0) == name.front()) {
-                        new_parent = parent->child(r);
-                        break;
-                    }
+                // Add the icon as a property on the object:
+                if (!config_page->configPageIcon().isNull()) {
+                    SharedObserverProperty icon_property(config_page->configPageIcon(),OBJECT_ROLE_DECORATION);
+                    Observer::setSharedProperty(config_page->objectBase(),icon_property);
                 }
 
-                // If the current item was not found at this depth, create it.
-                if (!new_parent) {
-                    new_parent = new QTreeWidgetItem(parent, name);
-                    if (depth == config_page->configPageTitle().count()-1)
-                        new_parent->setIcon(0,config_page->configPageIcon());
-                }
-                parent = new_parent;
-                new_parent = 0;
-            }
-
-            // Add the page to the name_widget_map
-            QString text = config_page->configPageTitle().join("::");
-            d->name_widget_map[text] = config_page;
-
-            // We set the first valid item to the active item
-            if (i == 0) {
-                ui->pageTree->setCurrentItem(parent);
+                d->config_pages.attachSubject(config_page->objectBase());
+            } else {
+                LOG_DEBUG("Found configuration page without a valid configuration widget. This page will not be shown.");
             }
         }
     }
 
-    ui->pageTree->expandAll();
+    // Set up the observer widget:
+    d->pageTree.setObserverContext(&d->config_pages);
+    d->pageTree.initialize();
+
     d->initialized = true;
 }
 
@@ -153,39 +150,37 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnClose_clicked() {
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
-    if (d->name_widget_map.keys().contains(d->active_page))
-        d->name_widget_map[d->active_page]->configPageApply();
+    if (d->activity_filter->activeSubjects().count() == 1) {
+        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
+        config_page->configPageApply();
+    }
 }
 
-void Qtilities::CoreGui::ConfigurationWidget::handleCurrentItemChanged(QTreeWidgetItem* current ,QTreeWidgetItem* previous) {
-    Q_UNUSED(previous)
+void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObject*> active_pages) {
+    if (active_pages.count() != 1)
+        return;
 
-    // Calculate the new widget
-    QString current_text = calculateText(current).join("::");
-    QWidget* current_widget;
-
-    if (d->name_widget_map.contains(current_text)) {
+    IConfigPage* config_page = qobject_cast<IConfigPage*> (active_pages.front());
+    if (config_page) {
         // Hide the current widget
         if (d->active_widget)
             d->active_widget->hide();
-        current_widget = d->name_widget_map[current_text]->configPageWidget();
-        ui->btnApply->setEnabled(d->name_widget_map[current_text]->supportsApply());
-    } else
-        return;
 
-    if (ui->configWidget->layout())
-        delete ui->configWidget->layout();
+        ui->btnApply->setEnabled(config_page->supportsApply());
+        ui->lblPageHeader->setText(config_page->configPageTitle());
 
-    // Create new layout with new widget
-    QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->configWidget);
-    layout->addWidget(current_widget);
-    current_widget->show();
-    layout->setMargin(0);
-    if (current_widget->layout())
-        current_widget->layout()->setMargin(0);
-    ui->lblPageHeader->setText(current_text.split("::").last());
-    d->active_page = current_text;
-    d->active_widget = current_widget;
+        if (ui->configWidget->layout())
+            delete ui->configWidget->layout();
+
+        // Create new layout with new widget
+        QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->configWidget);
+        layout->setMargin(0);
+        d->active_widget = config_page->configPageWidget();
+        layout->addWidget(d->active_widget);
+        d->active_widget->show();
+        if (d->active_widget->layout())
+            d->active_widget->layout()->setMargin(0);
+    }
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
@@ -200,38 +195,27 @@ void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
     }
 }
 
-QStringList Qtilities::CoreGui::ConfigurationWidget::calculateText(QTreeWidgetItem* item) {
-    // Calculate the QStringList for an item
-    QStringList text;
-    QTreeWidgetItem* current;
-
-    current = item;
-    text.push_front(current->text(0));
-    while (!isTopLevelItem(current)) {
-        current = item->parent();
-        text.push_front(current->text(0));
+void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& active_page_name) {
+    QObject* page = d->config_pages.subjectReference(active_page_name);
+    if (page) {
+        QList<QObject*> active_pages;
+        active_pages << page;
+        d->activity_filter->setActiveSubjects(active_pages);
     }
-
-    return text;
 }
 
-bool Qtilities::CoreGui::ConfigurationWidget::isTopLevelItem(QTreeWidgetItem* item) {
-    for (int i = 0; i < ui->pageTree->topLevelItemCount(); i++) {
-        if (ui->pageTree->topLevelItem(i) == item)
-            return true;
-    }
+QString Qtilities::CoreGui::ConfigurationWidget::activePageName() const {
+    if (!d->initialized)
+        return QString();
 
-    return false;
-}
-
-/*void Qtilities::CoreGui::ConfigurationWidget::setActivePage() {
-
-}*/
-
-QStringList Qtilities::CoreGui::ConfigurationWidget::activePageName() const {
-    return d->active_page.split("::");
+    IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
+    return config_page->configPageTitle();
 }
 
 Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWidget::activePageIFace() const {
-    return d->name_widget_map[d->active_page];
+    if (!d->initialized)
+        return 0;
+
+    IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
+    return config_page;
 }

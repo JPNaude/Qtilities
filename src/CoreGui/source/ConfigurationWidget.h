@@ -82,11 +82,11 @@ namespace Qtilities {
             //! Handles the apply button.
             void on_btnApply_clicked();
             //! Handles item changes in the page tree.
-            void handleCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
+            void handleActiveItemChanges(QList<QObject*> active_pages);
             //! Function to set the active page.
-            //void setActivePage();
+            void setActivePage(const QString& active_page_name);
             //! Function to get the active page name and category.
-            QStringList activePageName() const;
+            QString activePageName() const;
             //! Function to get the reference to the IConfig interface of the active page.
             IConfigPage* activePageIFace() const;
 
@@ -94,9 +94,6 @@ namespace Qtilities {
             void changeEvent(QEvent *e);
 
         private:
-            QStringList calculateText(QTreeWidgetItem* item);
-            bool isTopLevelItem(QTreeWidgetItem* item);
-
             Ui::ConfigurationWidget* ui;
             ConfigurationWidgetData* d;
         };

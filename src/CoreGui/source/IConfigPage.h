@@ -34,10 +34,16 @@
 #ifndef ICONFIGPAGE_H
 #define ICONFIGPAGE_H
 
+#include <IObjectBase>
+
 #include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCategory.h"
 
 #include <QObject>
 #include <QIcon>
+
+using namespace Qtilities::Core;
+using namespace Qtilities::Core::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
@@ -46,7 +52,7 @@ namespace Qtilities {
             \class IConfigPage
             \brief An interface through which widgets can be added to the ConfigurationWidget class.
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IConfigPage
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IConfigPage : virtual public IObjectBase
             {
 
             public:
@@ -57,8 +63,10 @@ namespace Qtilities {
                 virtual QIcon configPageIcon() const = 0;
                 //! Gets widget used in the configuration page area.
                 virtual QWidget* configPageWidget() = 0;
-                //! Gets the text used to represent the page with. A QStringList allows you to create config page categories, with the last item is used as the page text, and previous items used as categories.
-                virtual QStringList configPageTitle() const = 0;
+                //! Gets the category of the config page.
+                virtual QtilitiesCategory configPageCategory() const = 0;
+                //! Gets the title of the config page.
+                virtual QString configPageTitle() const = 0;
                 //! Indicates that the current state of the config page must be saved (applied).
                 virtual void configPageApply() = 0;
                 //! Indicates if the page supports apply operations. When a page only displays information, ExtensionSystemConfig, we don't want the apply button to be active. This function thus controls the activity of the apply button.

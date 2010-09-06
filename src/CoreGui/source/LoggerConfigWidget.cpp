@@ -120,10 +120,12 @@ QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
     return this;
 }
 
-QStringList Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
-    QStringList text;
-    text << tr("General") << tr("Logging");
-    return text;
+QString Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
+    return tr("Logging");
+}
+
+QtilitiesCategory Qtilities::CoreGui::LoggerConfigWidget::configPageCategory() const {
+    return QtilitiesCategory("General");
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {

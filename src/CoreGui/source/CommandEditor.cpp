@@ -123,17 +123,19 @@ void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
-    return QIcon();//Constants::ICON_SHORTCUTS_22x22);
+    return QIcon();//ICON_METHOD_16x16);
 }
 
 QWidget* Qtilities::CoreGui::CommandEditor::configPageWidget() {
     return this;
 }
 
-QStringList Qtilities::CoreGui::CommandEditor::configPageTitle() const {
-    QStringList text;
-    text << tr("General") << tr("Shortcuts");
-    return text;
+QString Qtilities::CoreGui::CommandEditor::configPageTitle() const {
+    return tr("Shortcuts");
+}
+
+QtilitiesCategory Qtilities::CoreGui::CommandEditor::configPageCategory() const {
+    return QtilitiesCategory("General");
 }
 
 void Qtilities::CoreGui::CommandEditor::configPageApply() {

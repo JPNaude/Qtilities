@@ -63,10 +63,12 @@ QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {
     return this;
 }
 
-QStringList Qtilities::CoreGui::CodeEditorWidgetConfig::configPageTitle() const {
-    QStringList text;
-    text << tr("Code Editor");
-    return text;
+QString Qtilities::CoreGui::CodeEditorWidgetConfig::configPageTitle() const {
+    return tr("Code Editor");
+}
+
+QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory() const {
+    return QtilitiesCategory();
 }
 
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
