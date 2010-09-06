@@ -62,7 +62,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     observerData->filter_subject_events_enabled = true;
     observerData->subject_limit = -1;
     observerData->subject_id_counter = 0;
-    observerData->subject_list.setObjectName(QString("%1 Pointer List").arg(observer_name));
+    observerData->subject_list.setObjectName(QString(tr("%1 Pointer List")).arg(observer_name));
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 
     // Register this observer with the observer manager
@@ -80,6 +80,8 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(), observer
 }
 
 Qtilities::Core::Observer::~Observer() {
+    startProcessingCycle();
+
     if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
         //startProcessingCycle();
         observerData->deliver_qtilities_property_changed_events = false;
@@ -94,6 +96,11 @@ Qtilities::Core::Observer::~Observer() {
         QMutableListIterator<QObject*> i(observerData->subject_list);
         while (i.hasNext()) {
             QObject* obj = i.next();
+            // If it is an observer we start a processing cycle on it:
+            Observer* obs = qobject_cast<Observer*> (obj);
+            if (obs)
+                obs->startProcessingCycle();
+
             subject_ownership_variant = getObserverPropertyValue(obj,OWNERSHIP);
             parent_observer_variant = getObserverPropertyValue(obj,OBSERVER_PARENT);
             if ((subject_ownership_variant.toInt() == SpecificObserverOwnership) && (observerData->observer_id == parent_observer_variant.toInt())) {
