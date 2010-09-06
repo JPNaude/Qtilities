@@ -39,6 +39,7 @@
 #include <Observer.h>
 #include <ActivityPolicyFilter.h>
 #include <Logger.h>
+#include <QtilitiesCategory.h>
 
 #include <QIcon>
 
@@ -159,10 +160,9 @@ QStack<int> Qtilities::CoreGui::AbstractObserverTreeModel::getParentHierarchy(co
     Observer* parent_observer = qobject_cast<Observer*> (parent_item->getObject());
     // Handle the cases where the parent is a category item:
     if (!parent_observer) {
-        if (parent_item->itemType() == ObserverTreeItem::CategoryItem) {
-            parent_observer = parent_item->containedObserver();
+        while (parent_item->itemType() == ObserverTreeItem::CategoryItem)
             parent_item = parent_item->parent();
-        }
+        parent_observer = qobject_cast<Observer*> (parent_item->getObject());
     }
 
     // Check if the parent observer is contained:
@@ -184,10 +184,9 @@ QStack<int> Qtilities::CoreGui::AbstractObserverTreeModel::getParentHierarchy(co
             parent_observer = qobject_cast<Observer*> (parent_item->getObject());
             // Handle the cases where the parent is a category item:
             if (!parent_observer) {
-                if (parent_item->itemType() == ObserverTreeItem::CategoryItem) {
-                    parent_observer = parent_item->containedObserver();
+                while (parent_item->itemType() == ObserverTreeItem::CategoryItem)
                     parent_item = parent_item->parent();
-                }
+                parent_observer = qobject_cast<Observer*> (parent_item->getObject());
             }
             // Check if the parent observer is contained:
             if (!parent_observer) {
@@ -753,10 +752,7 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
 
     if (!observer && item->getObject()) {
         // Handle cases where a non-observer based child is the parent of an observer.
-        // An example of this is a variable in QtSF, where the requiement is an QObject based interface, thus
-        // the object can't inherit from Observer directly. It can but it defeats the purpose of an
-        // abstract interface which needs to hide the actual implementation. In such cases use the
-        // observer class through containment and make the interface implementation it's parent.
+        // Observer containment tree building approach.
         foreach (QObject* child, item->getObject()->children()) {
             Observer* child_observer = qobject_cast<Observer*> (child);
             if (child_observer)
@@ -786,15 +782,15 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
     }
 
     if (observer) {
-        // If this observer is locked we don't show its children
+        // If this observer is locked we don't show its children:
         if (observer->accessMode() != Observer::LockedAccess) {
             bool flat_structure = true;
-            // Check the HierarchicalDisplay hint of the observer
+            // Check the HierarchicalDisplay hint of the observer:
             if (observer->displayHints()) {
                 if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
-                    // Create items for each each category
-                    foreach (QString category, observer->subjectCategories()) {
-                        // Check the category against the displayed category list
+                    // Create items for each category:
+                    foreach (QtilitiesCategory category, observer->subjectCategories()) {
+                        // Check the category against the displayed category list:
                         bool valid_category = true;
                         if (observer->displayHints()->categoryFilterEnabled()) {
                             if (observer->displayHints()->hasInversedCategoryDisplay()) {
@@ -810,25 +806,67 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                             }
                         }
 
-                        // Only add valid categories
+                        // Only add valid categories:
                         if (valid_category) {
-                            QVector<QVariant> category_columns;
-                            category_columns << category;
-                            QObject* category_item = new QObject();
-                            SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ROLE_DECORATION);
-                            observer->setSharedProperty(category_item,icon_property);
-                            SharedObserverProperty access_mode_property((int) observer->accessMode(category),OBJECT_ACCESS_MODE);
-                            observer->setSharedProperty(category_item,access_mode_property);
-                            if (category.isEmpty())
-                                category == QString(OBSERVER_UNCATEGORIZED_CATEGORY);
-                            category_item->setObjectName(category);
-                            new_item = new ObserverTreeItem(category_item,item,category_columns,ObserverTreeItem::CategoryItem);
-                            new_item->setContainedObserver(observer);
-                            new_item->setCategory(category);
-                            item->appendChild(new_item);
-                            if (observer->accessMode(category) != Observer::LockedAccess)
-                                setupChildData(new_item);
-                            flat_structure = false;
+                            // Ok here we need to create items for each category level and add the items underneath it.
+                            int level_counter = 0;
+                            QList<ObserverTreeItem*> tree_item_list;
+                            while (level_counter < category.categoryDepth()) {
+                                QStringList category_levels = category.toStringList(level_counter+1);
+
+                                // Get the correct parent:
+                                ObserverTreeItem* correct_parent;
+                                if (tree_item_list.count() == 0)
+                                    correct_parent = item;
+                                else
+                                    correct_parent = tree_item_list.last();
+
+                                // Check if the parent item already has a category for this level:
+                                ObserverTreeItem* existing_item = correct_parent->childWithName(category_levels.last());
+                                if (!existing_item) {
+                                    // Create a category for the first level and add all items under this category to the tree:
+                                    QVector<QVariant> category_columns;
+                                    category_columns << category_levels.last();
+                                    QObject* category_item = new QObject();
+                                    // Give the category a folder icon:
+                                    SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ROLE_DECORATION);
+                                    observer->setSharedProperty(category_item,icon_property);
+                                    // Check the access mode of this category and add it to the category object:
+                                    QtilitiesCategory shortened_category(category_levels);
+                                    Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
+                                    if (category_access_mode != Observer::InvalidAccess) {
+                                        SharedObserverProperty access_mode_property((int) observer->accessMode(shortened_category),OBJECT_ACCESS_MODE);
+                                        observer->setSharedProperty(category_item,access_mode_property);
+                                    }
+                                    category_item->setObjectName(category_levels.last());
+
+                                    // Create new item:
+                                    new_item = new ObserverTreeItem(category_item,correct_parent,category_columns,ObserverTreeItem::CategoryItem);
+                                    new_item->setContainedObserver(observer);
+                                    new_item->setCategory(category_levels);
+
+                                    // Append new item to correct parent item:
+                                    if (tree_item_list.count() == 0)
+                                        item->appendChild(new_item);
+                                    else
+                                        tree_item_list.last()->appendChild(new_item);
+                                    tree_item_list.push_back(new_item);
+
+                                    // If this item has locked access, we don't dig into any items underneath it:
+                                    if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
+                                        setupChildData(new_item);
+                                    } else {
+                                        break;
+                                    }
+
+                                    flat_structure = false;
+                                } else {
+                                    tree_item_list.push_back(existing_item);
+                                }
+
+                                // Increment the level counter:
+                                ++level_counter;
+                            }
                         }
                     }
                 }
@@ -908,6 +946,26 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(con
     QModelIndex bottom_right = index(row_count,column_count,parent_index);
     if (hasIndex(row_count,column_count,parent_index))
         emit dataChanged(top_left,bottom_right);
+}
+
+QModelIndex Qtilities::CoreGui::AbstractObserverTreeModel::findObject(QObject* obj) const {
+    ObserverTreeItem* item = findObject(d->rootItem,obj);
+    return QModelIndex();
+}
+
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::AbstractObserverTreeModel::findObject(ObserverTreeItem* item, QObject* obj) const {
+    // Check item:
+    if (item->getObject() == obj)
+        return item;
+
+    // Check all the children of item and traverse into them.
+    for (int i = 0; i < item->childCount(); i++) {
+        ObserverTreeItem* tree_item = findObject(item->childItemReferences().at(i),obj);
+        if (tree_item)
+            return tree_item;
+    }
+
+    return 0;
 }
 
 void Qtilities::CoreGui::AbstractObserverTreeModel::deleteRootItem() {

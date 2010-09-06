@@ -129,6 +129,8 @@ namespace Qtilities {
               \returns The ObserverTreeItem at the current index, or 0 if the index is invalid.
               */
             ObserverTreeItem* getItem(const QModelIndex &index) const;
+            //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
+            QModelIndex findObject(QObject* obj) const;
 
         private slots:
             //! Function which will rebuild the complete tree structure under the top level observer.
@@ -163,6 +165,8 @@ namespace Qtilities {
             void expandToIndex(const QModelIndex &index);
 
         private:
+            //! Function used by findObject() to traverse through the trying to find an object.
+            ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
             //! Deletes all tree items, starting with the root item.
             void deleteRootItem();
             //! Function called by rebuildTreeStructure during recursive building of the tree.

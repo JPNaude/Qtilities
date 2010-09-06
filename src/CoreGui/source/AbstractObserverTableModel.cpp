@@ -39,6 +39,7 @@
 #include <SubjectTypeFilter.h>
 #include <QtilitiesCoreConstants.h>
 #include <Observer.h>
+#include <QtilitiesCategory.h>
 
 #include <QIcon>
 
@@ -273,10 +274,14 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
         if (role == Qt::DisplayRole) {
             // Get the OBJECT_CATEGORY property.
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            QString category = d_observer->getObserverPropertyValue(obj,OBJECT_CATEGORY).toString();
-            if (category.isEmpty())
-                category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
-            return category;
+            QVariant category_variant = d_observer->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            if (category_variant.isValid()) {
+                QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+                if (!category.isEmpty()) {
+                    return category.toString();
+                }
+            }
+            return QString(OBSERVER_UNCATEGORIZED_CATEGORY);
         }
     // ------------------------------------
     // Handle Child Count Column
