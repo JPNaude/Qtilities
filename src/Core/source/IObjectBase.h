@@ -44,7 +44,7 @@ namespace Qtilities {
         namespace Interfaces {
             /*!
             \class IObjectBase
-            \brief Interface through which QObjects implementing intefaces can be accessed.
+            \brief Interface through which QObjects implementing interfaces can be accessed.
               */
             class QTILIITES_CORE_SHARED_EXPORT IObjectBase {
             public:
