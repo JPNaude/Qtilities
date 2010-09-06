@@ -77,5 +77,6 @@
         <file>icons/view_new_16x16.png</file>
         <file>icons/view_remove_16x16.png</file>
         <file>images/blueontrans_300x300.png</file>
+        <file>icons/warning_16x16.png</file>
     </qresource>
 </RCC>
