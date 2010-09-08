@@ -34,8 +34,9 @@
 #include <QApplication>
 
 #include <QtilitiesCoreGui>
-
+using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
+using namespace Qtilities::CoreGui::Icons;
 
 int main(int argc, char *argv[])
 {
@@ -45,41 +46,44 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Building Tree Structures Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
-    // Create the observers
-    Observer* observerA = new Observer("Observer A","Top level observer");
-    observerA->useDisplayHints();
-    Observer* observerB = new Observer("Observer B","Child observer");
-    observerB->useDisplayHints();
-    Observer* observerC = new Observer("Observer C","Child observer");
-    observerC->useDisplayHints();
+    // Create the tree nodes:
+    TreeNode* nodeA = new TreeNode("Node A");
+    TreeNode* nodeB = nodeA->addNode("Node B");
+    TreeNode* nodeC = nodeA->addNode("Node C");
+    ObserverHints::DisplayFlags display_flags = 0;
+    display_flags |= ObserverHints::ItemView;
+    display_flags |= ObserverHints::NavigationBar;
+    display_flags |= ObserverHints::ActionToolBar;
+    nodeA->displayHints()->setDisplayFlagsHint(display_flags);
+    nodeB->displayHints()->setDisplayFlagsHint(display_flags);
+    nodeC->displayHints()->setDisplayFlagsHint(display_flags);
 
-    // Create the objects
-    QObject* object1 = new QObject();
-    object1->setObjectName("Object 1");
-    QObject* object2 = new QObject();
-    object2->setObjectName("Object 2");
-    QObject* object3 = new QObject();
-    object3->setObjectName("Object 3");
-    QObject* object4 = new QObject();
-    object4->setObjectName("Object 4");
-    QObject* object5 = new QObject();
-    object5->setObjectName("Object 5");
+    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
 
-    // Create the structure of the tree
-    observerA->attachSubject(observerB);
-    observerA->attachSubject(observerC);
-    observerA->attachSubject(object1);
-    observerA->attachSubject(object4);
+    // Create the tree items:
+    nodeA->addItem("Item 1");
+    nodeB->addItem("Item 2");
+    nodeB->addItem("Item 3");
+    nodeB->addItem("Item 4");
+    nodeB->addItem("Item 5");
+    nodeB->addItem("Item 6");
+    nodeB->addItem("Item 7");
 
-    observerB->attachSubject(object2);
-    observerB->attachSubject(object3);
+    nodeC->startProcessingCycle();
+    for (int i = 0; i < 500; i++) {
+        nodeC->addItem(QString("Batch Item").arg(i));
+    }
+    nodeC->endProcessingCycle();
 
-    observerC->attachSubject(object5);
-    observerC->attachSubject(object3);
+    // Test XML tree streaming:
+    QString path = QString("%1/test.xml").arg(QApplication::applicationDirPath());
+    nodeA->saveToFile(path);
+    nodeA->loadFromFile(path);
 
+    // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();
     QtilitiesApplication::setMainWindow(tree_widget);
-    tree_widget->setObserverContext(observerA);
+    tree_widget->setObserverContext(nodeA);
     tree_widget->initialize();
     tree_widget->show();
 

@@ -12,7 +12,6 @@ QT       += gui
 
 TARGET    = BuildingTreeStructures
 CONFIG   -= app_bundle
-CONFIG   += release
 
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/BuildingTreeStructures
