@@ -154,11 +154,14 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
 
     // Construct actions only after global meta type was set.
     constructActions();
-    QList<QStringList> categories = d->action_provider->actionCategories();
+    QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
     for (int i = 0; i < categories.count(); i++) {
-        QToolBar* new_toolbar = addToolBar(categories.at(i).back());
-        d->action_toolbars << new_toolbar;
-        new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
+        QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
+        if (action_list.count() > 0) {
+            QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
+            d->action_toolbars << new_toolbar;
+            new_toolbar->addActions(action_list);
+        }
     }
 
     d->txtLog.installEventFilter(this);
@@ -324,14 +327,14 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // Save
     // ---------------------------
     d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
-    d->action_provider->addAction(d->actionSave,QStringList(tr("Log")));
+    d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("Log")));
     connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_Save()));
     ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
     // ---------------------------
     // Copy
     // ---------------------------
     d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
-    d->action_provider->addAction(d->actionCopy,QStringList(tr("Log")));
+    d->action_provider->addAction(d->actionCopy,QtilitiesCategory(tr("Log")));
     connect(d->actionCopy,SIGNAL(triggered()),SLOT(handle_Copy()));
     ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
@@ -339,14 +342,14 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // ---------------------------
     d->actionSelectAll = new QAction(QIcon(ICON_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
     d->actionSelectAll->setEnabled(true);
-    d->action_provider->addAction(d->actionSelectAll,QStringList(tr("Log")));
+    d->action_provider->addAction(d->actionSelectAll,QtilitiesCategory(tr("Log")));
     connect(d->actionSelectAll,SIGNAL(triggered()),SLOT(handle_SelectAll()));
     ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
     // ---------------------------
     // Clear
     // ---------------------------
     d->actionClear = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("Clear"),this);
-    d->action_provider->addAction(d->actionClear,QStringList(tr("Log")));
+    d->action_provider->addAction(d->actionClear,QtilitiesCategory(tr("Log")));
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
     ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
     // ---------------------------
@@ -354,28 +357,28 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // ---------------------------
     d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
     //d->actionFind->setShortcut(QKeySequence(QKeySequence::Find));
-    d->action_provider->addAction(d->actionFind,QStringList(tr("Log")));
+    d->action_provider->addAction(d->actionFind,QtilitiesCategory(tr("Log")));
     connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_SearchShortcut()));
     ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     // ---------------------------
     // Print
     // ---------------------------
     d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
-    d->action_provider->addAction(d->actionPrint,QStringList(tr("Print")));
+    d->action_provider->addAction(d->actionPrint,QtilitiesCategory(tr("Print")));
     connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
     ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
     // ---------------------------
     // Print PDF
     // ---------------------------
     d->actionPrintPDF = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
-    d->action_provider->addAction(d->actionPrintPDF,QStringList(tr("Print")));
+    d->action_provider->addAction(d->actionPrintPDF,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPDF,SIGNAL(triggered()),SLOT(handle_PrintPDF()));
     ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPDF,context);
     // ---------------------------
     // Print Preview
     // ---------------------------
     d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
-    d->action_provider->addAction(d->actionPrintPreview,QStringList(tr("Print")));
+    d->action_provider->addAction(d->actionPrintPreview,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_PrintPreview()));
     ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     // ---------------------------
@@ -384,7 +387,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // We create the settings action only if there is a config page registered in QtilitiesApplication.
     if (QtilitiesApplication::configWidget()) {
         d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Logging Settings"),this);
-        d->action_provider->addAction(d->actionSettings,QStringList(tr("Log")));
+        d->action_provider->addAction(d->actionSettings,QtilitiesCategory(tr("Log")));
         ACTION_MANAGER->registerAction(MENU_FILE_SETTINGS,d->actionSettings,context);
         connect(d->actionSettings,SIGNAL(triggered()),SLOT(handle_Settings()));
     }

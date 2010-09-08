@@ -529,30 +529,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         ui->navigationBarWidget->setVisible(false);
     }
 
-    // Check if an action toolbar should be created:
-    if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
-        if (d->action_toolbars.count() == 0) {
-            QList<QStringList> categories = d->action_provider->actionCategories();
-            for (int i = 0; i < categories.count(); i++) {
-                QToolBar* new_toolbar = addToolBar(categories.at(i).back());
-                d->action_toolbars << new_toolbar;
-                new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
-            }
-        }
-    } else {
-        int toolbar_count = d->action_toolbars.count();
-        if (toolbar_count > 0) {
-            for (int i = 0; i < toolbar_count; i++) {
-                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
-                removeToolBar(toolbar);
-                if (toolbar) {
-                    d->action_toolbars.removeOne(toolbar);
-                    delete toolbar;
-                }
-            }
-        }
-    }
-
     // Update the columns shown
     if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Show only the needed columns for the current observer.
@@ -695,6 +671,33 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
     // Init all actions
     refreshActions();
+
+    // Check if an action toolbar should be created:
+    if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
+        if (d->action_toolbars.count() == 0) {
+            QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
+            for (int i = 0; i < categories.count(); i++) {
+                QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
+                if (action_list.count() > 0) {
+                    QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
+                    d->action_toolbars << new_toolbar;
+                    new_toolbar->addActions(action_list);
+                }
+            }
+        }
+    } else {
+        int toolbar_count = d->action_toolbars.count();
+        if (toolbar_count > 0) {
+            for (int i = 0; i < toolbar_count; i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
+                removeToolBar(toolbar);
+                if (toolbar) {
+                    d->action_toolbars.removeOne(toolbar);
+                    delete toolbar;
+                }
+            }
+        }
+    }
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -967,14 +970,14 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionNewItem->setShortcut(QKeySequence("+"));
     connect(d->actionNewItem,SIGNAL(triggered()),SLOT(handle_actionNewItem_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_NEW_ITEM,d->actionNewItem,context);
-    d->action_provider->addAction(d->actionNewItem,QStringList(tr("Items")));
+    d->action_provider->addAction(d->actionNewItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Remove Item
     // ---------------------------
     d->actionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE_16x16),tr("Remove Item"),this);
     connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(handle_actionRemoveItem_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
-    d->action_provider->addAction(d->actionRemoveItem,QStringList(tr("Items")));
+    d->action_provider->addAction(d->actionRemoveItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Delete Item
     // ---------------------------
@@ -982,21 +985,21 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(handle_actionDeleteItem_triggered()));
     ACTION_MANAGER->registerAction(MENU_SELECTION_DELETE,d->actionDeleteItem,context);
-    d->action_provider->addAction(d->actionDeleteItem,QStringList(tr("Items")));
+    d->action_provider->addAction(d->actionDeleteItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Remove All
     // ---------------------------    
     d->actionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL_16x16),tr("Remove All Children"),this);
     connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(handle_actionRemoveAll_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
-    d->action_provider->addAction(d->actionRemoveAll,QStringList(tr("Items")));
+    d->action_provider->addAction(d->actionRemoveAll,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Delete All
     // ---------------------------
     d->actionDeleteAll = new QAction(QIcon(ICON_DELETE_ALL_16x16),tr("Delete All Children"),this);
     connect(d->actionDeleteAll,SIGNAL(triggered()),SLOT(handle_actionDeleteAll_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
-    d->action_provider->addAction(d->actionDeleteAll,QStringList(tr("Items")));
+    d->action_provider->addAction(d->actionDeleteAll,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Switch View
     // ---------------------------
@@ -1004,14 +1007,14 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionSwitchView->setShortcut(QKeySequence("F4"));
     connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(handle_actionSwitchView_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
-    d->action_provider->addAction(d->actionSwitchView,QStringList(tr("View")));
+    d->action_provider->addAction(d->actionSwitchView,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Refresh View
     // ---------------------------
     d->actionRefreshView = new QAction(QIcon(ICON_REFRESH_16x16),tr("Refresh View"),this);
     connect(d->actionRefreshView,SIGNAL(triggered()),SLOT(handle_actionRefreshView_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
-    d->action_provider->addAction(d->actionRefreshView,QStringList(tr("View")));
+    d->action_provider->addAction(d->actionRefreshView,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Find Item
     // ---------------------------
@@ -1019,7 +1022,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     //d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
     connect(d->actionFindItem,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
     ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFindItem,context);
-    d->action_provider->addAction(d->actionFindItem,QStringList(tr("View")));
+    d->action_provider->addAction(d->actionFindItem,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Go To Parent
     // ---------------------------
@@ -1027,14 +1030,14 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionPushUp->setShortcut(QKeySequence("Left"));
     connect(d->actionPushUp,SIGNAL(triggered()),SLOT(handle_actionPushUp_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
-    d->action_provider->addAction(d->actionPushUp,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionPushUp,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Go To Parent In New Window
     // ---------------------------
     d->actionPushUpNew = new QAction(QIcon(ICON_PUSH_UP_NEW_16x16),tr("Go To Parent (New Window)"),this);
     connect(d->actionPushUpNew,SIGNAL(triggered()),SLOT(handle_actionPushUpNew_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
-    d->action_provider->addAction(d->actionPushUpNew,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionPushUpNew,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Push Down
     // ---------------------------
@@ -1042,14 +1045,14 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionPushDown->setShortcut(QKeySequence("Right"));
     connect(d->actionPushDown,SIGNAL(triggered()),SLOT(handle_actionPushDown_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
-    d->action_provider->addAction(d->actionPushDown,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionPushDown,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Push Down In New Window
     // ---------------------------
     d->actionPushDownNew = new QAction(QIcon(ICON_PUSH_DOWN_NEW_16x16),tr("Push Down (New Window)"),this);
     connect(d->actionPushDownNew,SIGNAL(triggered()),SLOT(handle_actionPushDownNew_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
-    d->action_provider->addAction(d->actionPushDownNew,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionPushDownNew,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Expand All
     // ---------------------------
@@ -1057,7 +1060,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionExpandAll->setShortcut(QKeySequence("Ctrl+>"));
     connect(d->actionExpandAll,SIGNAL(triggered()),SLOT(handle_actionExpandAll_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
-    d->action_provider->addAction(d->actionExpandAll,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionExpandAll,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Collapse All
     // ---------------------------
@@ -1065,7 +1068,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionCollapseAll->setShortcut(QKeySequence("Ctrl+<"));
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(handle_actionCollapseAll_triggered()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
-    d->action_provider->addAction(d->actionCollapseAll,QStringList(tr("Hierarchy")));
+    d->action_provider->addAction(d->actionCollapseAll,QtilitiesCategory(tr("Hierarchy")));
 }
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {

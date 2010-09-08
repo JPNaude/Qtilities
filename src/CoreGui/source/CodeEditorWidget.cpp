@@ -155,11 +155,14 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
 
     // Action toolbars construction:
     if (d->display_flags & ActionToolBar) {
-        QList<QStringList> categories = d->action_provider->actionCategories();
+        QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
         for (int i = 0; i < categories.count(); i++) {
-            QToolBar* new_toolbar = addToolBar(categories.at(i).back());
-            d->action_toolbars << new_toolbar;
-            new_toolbar->addActions(d->action_provider->actions(false,categories.at(i)));
+            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
+            if (action_list.count() > 0) {
+                QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
+                d->action_toolbars << new_toolbar;
+                new_toolbar->addActions(action_list);
+            }
         }
     }
 
@@ -520,7 +523,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionNew) {
         d->actionNew = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("New"),this);
-        d->action_provider->addAction(d->actionNew,QStringList(tr("File")));
+        d->action_provider->addAction(d->actionNew,QtilitiesCategory(tr("File")));
         connect(d->actionNew,SIGNAL(triggered()),SLOT(handle_actionNew_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_NEW,d->actionNew,context);
     }
@@ -529,7 +532,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionOpenFile) {
         d->actionOpen = new QAction(QIcon(ICON_FILE_OPEN_16x16),tr("Open"),this);
-        d->action_provider->addAction(d->actionOpen,QStringList(tr("File")));
+        d->action_provider->addAction(d->actionOpen,QtilitiesCategory(tr("File")));
         connect(d->actionOpen,SIGNAL(triggered()),SLOT(handle_actionOpen_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_OPEN,d->actionOpen,context);
     }
@@ -539,7 +542,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionSaveFile) {
         d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
         d->actionSave->setEnabled(false);
-        d->action_provider->addAction(d->actionSave,QStringList(tr("File")));
+        d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("File")));
         connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_actionSave_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
     }
@@ -548,7 +551,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionSaveFileAs) {
         d->actionSaveAs = new QAction(QIcon(ICON_FILE_SAVEAS_16x16),tr("Save As"),this);
-        d->action_provider->addAction(d->actionSaveAs,QStringList(tr("File")));
+        d->action_provider->addAction(d->actionSaveAs,QtilitiesCategory(tr("File")));
         connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(handle_actionSaveAs_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_SAVE_AS,d->actionSaveAs,context);
     }
@@ -557,7 +560,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionPrint) {
         d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
-        d->action_provider->addAction(d->actionPrint,QStringList(tr("Print")));
+        d->action_provider->addAction(d->actionPrint,QtilitiesCategory(tr("Print")));
         connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_actionPrint_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
     }
@@ -566,7 +569,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionPrintPreview) {
         d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
-        d->action_provider->addAction(d->actionPrintPreview,QStringList(tr("Print")));
+        d->action_provider->addAction(d->actionPrintPreview,QtilitiesCategory(tr("Print")));
         connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_actionPrintPreview_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     }
@@ -575,7 +578,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionPrintPDF) {
         d->actionPrintPdf = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
-        d->action_provider->addAction(d->actionPrintPdf,QStringList(tr("Print")));
+        d->action_provider->addAction(d->actionPrintPdf,QtilitiesCategory(tr("Print")));
         connect(d->actionPrintPdf,SIGNAL(triggered()),SLOT(handle_actionPrintPdf_triggered()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPdf,context);
     }
@@ -584,7 +587,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionUndo) {
         d->actionUndo = new QAction(QIcon(ICON_EDIT_UNDO_16x16),tr("Undo"),this);
-        d->action_provider->addAction(d->actionUndo,QStringList(tr("Clipboard")));
+        d->action_provider->addAction(d->actionUndo,QtilitiesCategory(tr("Clipboard")));
         connect(d->actionUndo,SIGNAL(triggered()),d->codeEditor,SLOT(undo()));
         ACTION_MANAGER->registerAction(MENU_EDIT_UNDO,d->actionUndo,context);
     }
@@ -593,7 +596,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionRedo) {
         d->actionRedo = new QAction(QIcon(ICON_EDIT_REDO_16x16),tr("Redo"),this);
-        d->action_provider->addAction(d->actionRedo,QStringList(tr("Clipboard")));
+        d->action_provider->addAction(d->actionRedo,QtilitiesCategory(tr("Clipboard")));
         connect(d->actionRedo,SIGNAL(triggered()),d->codeEditor,SLOT(redo()));
         ACTION_MANAGER->registerAction(MENU_EDIT_REDO,d->actionRedo,context);
     }
@@ -602,7 +605,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionCut) {
         d->actionCut = new QAction(QIcon(ICON_EDIT_CUT_16x16),tr("Cut"),this);
-        d->action_provider->addAction(d->actionCut,QStringList(tr("Clipboard")));
+        d->action_provider->addAction(d->actionCut,QtilitiesCategory(tr("Clipboard")));
         connect(d->actionCut,SIGNAL(triggered()),d->codeEditor,SLOT(cut()));
         ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
     }
@@ -611,7 +614,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionCopy) {
         d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
-        d->action_provider->addAction(d->actionCopy,QStringList(tr("Clipboard")));
+        d->action_provider->addAction(d->actionCopy,QtilitiesCategory(tr("Clipboard")));
         connect(d->actionCopy,SIGNAL(triggered()),d->codeEditor,SLOT(copy()));
         ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
     }
@@ -622,7 +625,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
         Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
         if (command) {
             if (command->action()) {
-                d->action_provider->addAction(command->action(),QStringList(tr("Clipboard")));
+                d->action_provider->addAction(command->action(),QtilitiesCategory(tr("Clipboard")));
                 connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
             }
         }
@@ -632,7 +635,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionSelectAll) {
         d->actionSelectAll = new QAction(QIcon(ICON_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
-        d->action_provider->addAction(d->actionSelectAll,QStringList(tr("Selection")));
+        d->action_provider->addAction(d->actionSelectAll,QtilitiesCategory(tr("Selection")));
         connect(d->actionSelectAll,SIGNAL(triggered()),d->codeEditor,SLOT(selectAll()));
         ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
     }
@@ -641,7 +644,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionClear) {
         d->actionClear = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("Clear"),this);
-        d->action_provider->addAction(d->actionClear,QStringList(tr("Selection")));
+        d->action_provider->addAction(d->actionClear,QtilitiesCategory(tr("Selection")));
         connect(d->actionClear,SIGNAL(triggered()),d->codeEditor,SLOT(clear()));
         ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
     }
@@ -650,7 +653,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionFind) {
         d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
-        d->action_provider->addAction(d->actionFind,QStringList(tr("Selection")));
+        d->action_provider->addAction(d->actionFind,QtilitiesCategory(tr("Selection")));
         connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
         ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     }
