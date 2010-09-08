@@ -46,6 +46,9 @@
 
 using namespace Qtilities::Logging;
 
+class QDomDocument;
+class QDomElement;
+
 namespace Qtilities {
     namespace Core {
         namespace Interfaces {
@@ -66,6 +69,7 @@ namespace Qtilities {
                 IFactoryData(QDataStream& stream) {
                     importBinary(stream);
                 }
+                IFactoryData(QDomDocument* doc, QDomElement* object_node);
                 IFactoryData(const QString& factory_tag, const QString& instance_tag, const QString& instance_name = QString(), int instance_context = -1, int instance_context_parent = -1) {
                     d_factory_tag = factory_tag;
                     d_instance_tag = instance_tag;
@@ -118,6 +122,8 @@ namespace Qtilities {
                     }
                     return true;
                 }
+                virtual bool exportXML(QDomDocument* doc, QDomElement* object_node) const;
+                virtual bool importXML(QDomDocument* doc, QDomElement* object_node);
 
                 //! Returns true if this object contains the neccessary information to be used during object construction.
                 bool isValid() {
