@@ -527,7 +527,10 @@ namespace Qtilities {
             inline int observerID() const { return observerData->observer_id; }
             //! Returns the number of subjects currently observed by the observer. This function is different from getChildCount() which gets all the children underneath an observer (Thus, children of children etc.)
             inline int subjectCount() const { return observerData->subject_list.count(); }
-            //! Function to get the number of children under the specified observer. This count includes the children of children as well.
+            //! Function to get the number of children under the specified observer.
+            /*!
+                This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
+                */
             int childCount(const Observer* observer = 0) const;
             //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subject names are returned.
             QStringList subjectNames(const QString& iface = QString()) const;
