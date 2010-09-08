@@ -106,7 +106,11 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/SideViewerWidgetHelper.h \
     source/CodeEditor.h \
     source/CodeEditorWidget.h \
-    source/CodeEditorWidgetConfig.h
+    source/CodeEditorWidgetConfig.h \
+    source/TreeNode.h \
+    source/AbstractTreeItem.h \
+    source/TreeItem.h #\
+    #source/TreeFileItem.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -146,7 +150,11 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/SideViewerWidgetHelper.cpp \
     source/CodeEditor.cpp \
     source/CodeEditorWidget.cpp \
-    source/CodeEditorWidgetConfig.cpp
+    source/CodeEditorWidgetConfig.cpp \
+    source/TreeNode.cpp \
+    source/AbstractTreeItem.cpp \
+    source/TreeItem.cpp #\
+    #source/TreeFileItem.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
