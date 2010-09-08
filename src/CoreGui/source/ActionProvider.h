@@ -62,14 +62,14 @@ namespace Qtilities {
             ActionProvider(QObject* parent = 0);
             virtual ~ActionProvider();
 
-            QList<QAction*> actions(bool only_enabled = false, const QStringList& category_filter = QStringList()) const;
-            QMap<QAction*, QStringList> actionMap(bool only_enabled = false, const QStringList& category_filter = QStringList()) const;
-            QList<QStringList> actionCategories() const;
+            QList<QAction*> actions(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
+            QMap<QAction*, QtilitiesCategory> actionMap(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
+            QList<QtilitiesCategory> actionCategories() const;
             QList<QActionGroup*> actionGroups() const;
-            QMap<QActionGroup*, QStringList> actionGroupMap(QActionGroup *action_group) const;
-            QList<QStringList> actionGroupCategories() const;
-            QAction *addAction(QAction * action, const QStringList& category = QStringList());
-            QActionGroup *addActionGroup(QActionGroup * action_group, const QStringList& category = QStringList());
+            QMap<QActionGroup*, QtilitiesCategory> actionGroupMap(QActionGroup *action_group) const;
+            QList<QtilitiesCategory> actionGroupCategories() const;
+            QAction *addAction(QAction * action, const QtilitiesCategory& category_filter = QtilitiesCategory());
+            QActionGroup *addActionGroup(QActionGroup * action_group, const QtilitiesCategory& category_filter = QtilitiesCategory());
             void disableAllActions();
             void enableAllActions();
 

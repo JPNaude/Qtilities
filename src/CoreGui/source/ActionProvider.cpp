@@ -36,8 +36,8 @@
 struct Qtilities::CoreGui::ActionProviderData {
     ActionProviderData() {}
 
-    QMap<QAction *, QStringList>        actions;
-    QMap<QActionGroup *, QStringList>   action_groups;
+    QMap<QAction *, QtilitiesCategory>        actions;
+    QMap<QActionGroup *, QtilitiesCategory>   action_groups;
 };
 
 Qtilities::CoreGui::ActionProvider::ActionProvider(QObject* parent) : QObject(parent) {
@@ -48,69 +48,68 @@ Qtilities::CoreGui::ActionProvider::~ActionProvider() {
     delete d;
 }
 
-QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(bool only_enabled, const QStringList& category_filter) const {
-    if (only_enabled && !category_filter.isEmpty()) {
-        QList<QAction*> filtered_list;
-        for (int i = 0; i < d->actions.count(); i++) {
-            if (d->actions.values().at(i) == category_filter)
-                filtered_list.append(d->actions.keys().at(i));
+QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
+    // Loop through all actions and inspect them:
+    QList<QAction*> filtered_list;
+    for (int i = 0; i < d->actions.count(); i++) {
+        QAction* action = d->actions.keys().at(i);
+        bool add_action = true;
+
+        // Check the category:
+        if (d->actions.values().at(i) != category_filter && !category_filter.isEmpty())
+            add_action = false;
+
+        // Check for IActionProvider::FilterDisabled
+        if (action_filter & IActionProvider::FilterDisabled && add_action) {
+            if (!action->isEnabled())
+                add_action = false;
         }
-        foreach(QAction* action, filtered_list) {
-            if (action->isEnabled())
-                filtered_list.removeOne(action);
+
+        // Check for IActionProvider::FilterHidden
+        if (action_filter & IActionProvider::FilterHidden && add_action) {
+            if (!action->isVisible())
+                add_action = false;
         }
-        return filtered_list;
-    } else if (only_enabled && category_filter.isEmpty()) {
-        QList<QAction*> filtered_list;
-        foreach(QAction* action, d->actions.keys()) {
-            if (action->isEnabled())
-                filtered_list.append(action);
-        }
-        return filtered_list;
-    } else if (!only_enabled && !category_filter.isEmpty()) {
-        QList<QAction*> filtered_list;
-        for (int i = 0; i < d->actions.count(); i++) {
-            if (d->actions.values().at(i) == category_filter)
-                filtered_list.append(d->actions.keys().at(i));
-        }
-        return filtered_list;
+
+        if (add_action)
+            filtered_list << action;
     }
-    return d->actions.keys();
+
+    return filtered_list;
 }
 
-QMap<QAction*, QStringList> Qtilities::CoreGui::ActionProvider::actionMap(bool only_enabled, const QStringList& category_filter) const {
-    if (only_enabled && !category_filter.isEmpty()) {
-        QMap<QAction*, QStringList> filtered_map;
-        for (int i = 0; i < d->actions.count(); i++) {
-            if (d->actions.values().at(i) == category_filter)
-                filtered_map[d->actions.keys().at(i)] = d->actions.values().at(i);
+QMap<QAction*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionMap(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
+    // Loop through all actions and inspect them:
+    QMap<QAction*, QtilitiesCategory> filtered_map;
+    for (int i = 0; i < d->actions.count(); i++) {
+        QAction* action = d->actions.keys().at(i);
+        bool add_action = true;
+
+        // Check the category:
+        if (d->actions.values().at(i) != category_filter && !category_filter.isEmpty())
+            add_action = false;
+
+        // Check for IActionProvider::FilterDisabled
+        if (action_filter & IActionProvider::FilterDisabled && add_action) {
+            if (!action->isEnabled())
+                add_action = false;
         }
-        QMap<QAction*, QStringList> filtered_map_2;
-        for (int i = 0; i < filtered_map.count(); i++) {
-            if (filtered_map.keys().at(i)->isEnabled())
-                filtered_map_2[filtered_map.keys().at(i)] = filtered_map.values().at(i);
+
+        // Check for IActionProvider::FilterHidden
+        if (action_filter & IActionProvider::FilterHidden && add_action) {
+            if (!action->isVisible())
+                add_action = false;
         }
-        return filtered_map_2;
-    } else if (only_enabled && category_filter.isEmpty()) {
-        QMap<QAction*, QStringList> filtered_map;
-        for (int i = 0; i < d->actions.count(); i++) {
-            if (d->actions.keys().at(i)->isEnabled())
-                filtered_map[d->actions.keys().at(i)] = d->actions.values().at(i);
-        }
-        return filtered_map;
-    } else if (!only_enabled && !category_filter.isEmpty()) {
-        QMap<QAction*, QStringList> filtered_map;
-        for (int i = 0; i < d->actions.count(); i++) {
-            if (d->actions.values().at(i) == category_filter)
-                filtered_map[d->actions.keys().at(i)] = d->actions.values().at(i);
-        }
-        return filtered_map;
+
+        if (add_action)
+            filtered_map[d->actions.keys().at(i)] = d->actions.values().at(i);
     }
-    return d->actions;
+
+    return filtered_map;
 }
 
-QList<QStringList> Qtilities::CoreGui::ActionProvider::actionCategories() const {
-    QList<QStringList> category_list;
+QList<QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionCategories() const {
+    QList<QtilitiesCategory> category_list;
     for (int i = 0; i < d->actions.count(); i++) {
         if (!category_list.contains(d->actions.values().at(i)))
             category_list << d->actions.values().at(i);
@@ -122,17 +121,17 @@ QList<QActionGroup*> Qtilities::CoreGui::ActionProvider::actionGroups() const {
     return d->action_groups.keys();
 }
 
-QMap<QActionGroup*, QStringList> Qtilities::CoreGui::ActionProvider::actionGroupMap(QActionGroup *action_group) const {
+QMap<QActionGroup*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionGroupMap(QActionGroup *action_group) const {
     if (action_group) {
-        QMap<QActionGroup*, QStringList> filtered_map;
+        QMap<QActionGroup*, QtilitiesCategory> filtered_map;
         filtered_map[action_group] = d->action_groups[action_group];
         return filtered_map;
     } else
         return d->action_groups;
 }
 
-QList<QStringList> Qtilities::CoreGui::ActionProvider::actionGroupCategories() const {
-    QList<QStringList> category_list;
+QList<QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionGroupCategories() const {
+    QList<QtilitiesCategory> category_list;
     for (int i = 0; i < d->action_groups.count(); i++) {
         if (!category_list.contains(d->action_groups.values().at(i)))
             category_list << d->action_groups.values().at(i);
@@ -140,12 +139,12 @@ QList<QStringList> Qtilities::CoreGui::ActionProvider::actionGroupCategories() c
     return category_list;
 }
 
-QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const QStringList& category) {
+QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const QtilitiesCategory& category) {
     d->actions[action] = category;
     return action;
 }
 
-QActionGroup* Qtilities::CoreGui::ActionProvider::addActionGroup(QActionGroup* action_group, const QStringList& category) {
+QActionGroup* Qtilities::CoreGui::ActionProvider::addActionGroup(QActionGroup* action_group, const QtilitiesCategory& category) {
     d->action_groups[action_group] = category;
     return action_group;
 }
