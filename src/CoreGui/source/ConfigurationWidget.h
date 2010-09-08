@@ -35,6 +35,7 @@
 #define CONFIGURATIONWIDGET_H
 
 #include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCoreGuiConstants.h"
 #include "IConfigPage.h"
 
 #include <QWidget>
@@ -68,7 +69,7 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            ConfigurationWidget(QWidget *parent = 0);
+            ConfigurationWidget(DisplayMode display_mode = TableView, QWidget *parent = 0);
             ~ConfigurationWidget();
 
             //! Initializes the config widget.

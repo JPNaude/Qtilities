@@ -56,15 +56,18 @@ struct Qtilities::CoreGui::ConfigurationWidgetData {
     ActivityPolicyFilter* activity_filter;
     //! Keeps track of the active widget.
     QPointer<QWidget> active_widget;
+    //! The display mode of this widget.
+    Qtilities::DisplayMode display_mode;
 };
 
-Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(QWidget *parent) :
+Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConfigurationWidget)
 {
     ui->setupUi(this);
     d = new ConfigurationWidgetData;
     d->initialized = false;
+    d->display_mode = display_mode;
 
     // Layout and placement of observer widget:
     if (ui->pageTreeHolder->layout())
@@ -128,8 +131,13 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     }
 
     // Set up the observer widget:
+    d->pageTree.setDisplayMode(d->display_mode);
     d->pageTree.setObserverContext(&d->config_pages);
     d->pageTree.initialize();
+    d->pageTree.resizeTableViewRows(22);
+    if (d->pageTree.tableView() && d->display_mode == TableView) {
+        d->pageTree.tableView()->horizontalHeader()->hide();
+    }
 
     d->initialized = true;
 }
