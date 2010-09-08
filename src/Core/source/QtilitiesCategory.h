@@ -101,6 +101,13 @@ category_property3.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),o
 Observer::setObserverProperty(object3,category_property3);
 \endcode
 
+In %Qtilities categories is used in a few places and using the QtilitiesCategory class everywhere we make
+sure that categories are handled the same way everywhere. Example usages in %Qtilities:
+- The Qtilities::CoreGui::Interfaces::IActionProvider interface allows grouping of actions into categories.
+- Observer classes allows grouping of subjects into categories.
+- Factory classes allows grouping of registered interfaces into categories.
+- Qtilities::CoreGui::Interfaces::IConfigPage implementations allows grouping of the pages into categories in the Qtilities::CoreGui::ConfigurationWidget.
+
 This class was added in %Qtilities v0.2.
 */
         class QTILIITES_CORE_SHARED_EXPORT QtilitiesCategory
@@ -122,6 +129,12 @@ This class was added in %Qtilities v0.2.
             }
             virtual ~QtilitiesCategory() {}
 
+            //! Indicates if this category is valid.
+            /*!
+              The validation check checks if the category has any levels, if not it is invalid.
+              */
+            inline bool isValid() { return d_category_levels.count() > 0; }
+
             //! Operator overload to compare two QtilitiesCategory objects with each other.
             /*!
               \note Only the category names are used in this comparison.
@@ -136,6 +149,22 @@ This class was added in %Qtilities v0.2.
                 }
 
                 return true;
+            }
+
+            //! Operator overload to compare two QtilitiesCategory objects are not equal.
+            /*!
+              \note Only the category names are used in this comparison.
+              */
+            bool operator!=(const QtilitiesCategory& ref) const {
+                if (ref.d_category_levels.count() != d_category_levels.count())
+                    return true;
+
+                for (int i = 0; i < d_category_levels.count(); i++) {
+                    if (ref.d_category_levels.at(i).d_name != d_category_levels.at(i).d_name)
+                        return true;
+                }
+
+                return false;
             }
 
             //! Operator overload to assign one QtilitiesCategory to another QtilitiesCategory.
@@ -169,7 +198,7 @@ This class was added in %Qtilities v0.2.
             QString toString(const QString& join_string = QString("::")) const;
             //! Returns the category as a QStringList.
             /*!
-              \param level The depth of the requested string list. If the category has for example 3 levels, you can only get the first 2 levels by passing 2 as the \p level parameter. If level is bigger than the depth (number of levels) of the category, the depth of the category will be used.
+              \param level The depth of the requested string list. If the category has for example 3 levels, you can only get the first 2 levels by passing 2 as the \p level parameter. If \p level is bigger than the depth (number of levels) of the category, the depth of the category will be used.
               */
             QStringList toStringList(int level = -1) const;
 

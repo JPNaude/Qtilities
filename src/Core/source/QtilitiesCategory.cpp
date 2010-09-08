@@ -75,6 +75,9 @@ QString Qtilities::Core::QtilitiesCategory::toString(const QString& join_string)
 }
 
 QStringList Qtilities::Core::QtilitiesCategory::toStringList(int level) const {
+    if (level == -1)
+        level = d_category_levels.count();
+
     QStringList category_string_list;
     int level_counter = 0;
     for (int i = 0; i < d_category_levels.count(); i++) {
