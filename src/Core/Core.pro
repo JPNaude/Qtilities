@@ -77,4 +77,5 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/ContextManager.cpp \
     source/ObserverHints.cpp \
     source/SubjectFilterTemplate.cpp \
-    source/QtilitiesCategory.cpp
+    source/QtilitiesCategory.cpp \
+    source/IFactory.cpp
