@@ -414,7 +414,7 @@ If an object has this property, the property's value will be used by observer it
 for the Qt::TextAlignmentRole.
 
 <b>Permisson:</b> Read/Write<br>
-<b>Data Type:</b> QSize<br>
+<b>Data Type:</b> int, cast to Qt::AlignmentFlag<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
@@ -422,7 +422,7 @@ for the Qt::TextAlignmentRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QSize(10,10),OBJECT_ROLE_TEXT_ALIGNMENT);
+SharedObserverProperty property((int) Qt::AlignLeft,OBJECT_ROLE_TEXT_ALIGNMENT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
