@@ -41,6 +41,12 @@ namespace Qtilities {
         namespace Constants {
             //! %Factory tag for naming policy subject filters.
             const char * const FACTORY_TAG_NAMING_POLICY_FILTER     = "Naming Policy Filter";
+            //! %Factory tag for tree nodes.
+            const char * const FACTORY_TAG_TREE_NODE                = "Tree Node";
+            //! %Factory tag for tree items.
+            const char * const FACTORY_TAG_TREE_ITEM                = "Tree Item";
+            //! %Factory tag for tree file items.
+            const char * const FACTORY_TAG_TREE_FILE_ITEM           = "Tree File Item";
             //! The default file name used to save session shortcut mappings by the Qtilities::CoreGui::ActionManager class.
             const char * const FILE_SHORTCUT_MAPPING                = "shortcut_mapping.smf";
         }
