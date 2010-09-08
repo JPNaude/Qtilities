@@ -35,6 +35,15 @@
 #define QtilitiesCoreGuiConstants_H
 
 namespace Qtilities {
+    //! The possible display modes of widgets containing observer widgets.
+    /*!
+      \sa Qtilities::CoreGui::ObserverWidget, Qtilities::CoreGui::ConfigurationWidget
+      */
+    enum DisplayMode {
+        TableView,      /*!< Table view mode. */
+        TreeView        /*!< Tree view mode. */
+    };
+
     //! Namespace containing all the classes which forms part of the CoreGui Module.
     namespace CoreGui {
         //! Namespace containing constants used inside the CoreGui Module.
