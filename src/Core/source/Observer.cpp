@@ -48,6 +48,8 @@
 #include <QDynamicPropertyChangeEvent>
 #include <QCoreApplication>
 #include <QMutableListIterator>
+#include <QDomElement>
+#include <QDomDocument>
 
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
@@ -205,6 +207,7 @@ Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Observer::supportedFormats() const {
     IExportable::ExportModeFlags flags = 0;
     flags |= IExportable::Binary;
+    flags |= IExportable::XML;
     return flags;
 }
 
@@ -478,17 +481,69 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
+
+    // Loop through all children and:
+    // 1. Save their factory data
+    // 2. Then do the XML export on them
+    for (int i = 0; i < subjectCount(); i++) {
+        IExportable* export_iface = qobject_cast<IExportable*> (subjectAt(i));
+        if (export_iface) {
+            if (export_iface->supportedFormats() & IExportable::XML) {
+                // Do (1)
+                // Create a factory item for i:
+                QDomElement factory_item = doc->createElement("FactoryData");
+                factory_item.setAttribute("ID", i);
+                object_node->appendChild(factory_item);
+                export_iface->factoryData().exportXML(doc,&factory_item);
+                // Do (2)
+                // Create a data item for i:
+                QDomElement subject_item = doc->createElement("ObjectData");
+                subject_item.setAttribute("ID", i);
+                object_node->appendChild(subject_item);
+                export_iface->exportXML(doc,&subject_item);
+            }
+        }
+    }
 
     return IExportable::Incomplete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
+
+    // All children underneath the root element gets constructed in here:
+    QList<QObject*> constructed_list;
+    QDomNodeList childNodes = object_node->childNodes();
+    IExportable* iface = 0;
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "FactoryData") {
+            IFactoryData factoryData(doc,&child);
+            if (factoryData.isValid()) {
+                QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
+                if (obj) {
+                    obj->setObjectName(factoryData.d_instance_name);
+                    iface = qobject_cast<IExportable*> (obj);
+                    continue;
+                }
+            }
+        }
+
+        if (child.tagName() == "ObjectData") {
+            if (iface) {
+                iface->importXML(doc,&child);
+                constructed_list << iface->objectBase();
+                attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership);
+            }
+        }
+    }
 
     return IExportable::Incomplete;
 }

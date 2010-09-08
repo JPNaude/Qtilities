@@ -188,6 +188,15 @@ namespace Qtilities {
             IFactoryData factoryData() const;
             virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            /*!
+              XML exporting of observers is intended to stream tree structures. It has some limitations compared to exportBinary():
+              - It does not export relationships between objects and does not use the visitor pattern export mechanism used during binary exports. Thus if a item exists more than once in a tree, the reconstructed tree will create different items for all the places where it existed.
+              - It does not export all properties, only ObserverProperties which can be converted to QString values are exported.
+
+              Because of these limitations XML observer exports are best suited for visual tree structures, especially trees build using the Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem instances.
+              For complex observer structures binary exports should be used. Note that XML exports is much faster than
+              binary exports.
+              */
             virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
             virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
