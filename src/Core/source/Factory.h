@@ -34,6 +34,8 @@
 #ifndef FACTORY_H
 #define FACTORY_H
 
+#include "QtilitiesCategory"
+
 #include <QString>
 #include <QStringList>
 #include <QMap>
@@ -76,42 +78,42 @@ namespace Qtilities {
            };
 
         /*!
-        \struct FactoryInterfaceData
+        \struct FactoryInterfaceTag
         \brief A structure storing data related to a factory interface.
 
-        The FactoryInterfaceData struct is used to store information about a factory interface within the factory.
+        The FactoryInterfaceTag struct is used to store information about a factory interface within the factory.
           */
-        struct FactoryInterfaceData {
-            //! Constructs an empty FactoryInterfaceData structure.
-            FactoryInterfaceData() {}
-            ~FactoryInterfaceData() {}
+        struct FactoryInterfaceTag {
+            //! Constructs an empty FactoryInterfaceTag structure.
+            FactoryInterfaceTag() {}
+            ~FactoryInterfaceTag() {}
             //! Creates a new factory data object.
             /*!
               \param iface_tag The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.
-              \param iface_category A list of categories to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
+              \param iface_category The category to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
               \param iface_contexts A list of contexts which must be associated with this interface.
               */
-            FactoryInterfaceData(const QString& iface_tag, const QStringList& iface_category = QStringList(), const QStringList& iface_contexts = QStringList()) {
+            FactoryInterfaceTag(const QString& iface_tag, const QtilitiesCategory& iface_category = QtilitiesCategory(), const QStringList& iface_contexts = QStringList()) {
                 tag = iface_tag;
                 contexts = iface_contexts;
                 category = iface_category;
             }
-            //! FactoryInterfaceData copy constructor.
-            FactoryInterfaceData(const FactoryInterfaceData& ref) {
+            //! FactoryInterfaceTag copy constructor.
+            FactoryInterfaceTag(const FactoryInterfaceTag& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
                 category = ref.category;
             }
             //! Overload of the = operator.
-            void operator=(const FactoryInterfaceData& ref) {
+            void operator=(const FactoryInterfaceTag& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
                 category = ref.category;
             }
 
-            QString         tag;
-            QStringList     contexts;
-            QStringList     category;
+            QString             tag;
+            QStringList         contexts;
+            QtilitiesCategory   category;
         };
 
         //! A factory class which can produce class instances through registered factory interfaces.
@@ -137,7 +139,7 @@ namespace Qtilities {
                 \param iface_data A structure providing information about the factory item interface. If another item interface with the same tag already exists, the function call will fail and false will be returned. The tag must also contain a value.
                 \returns True if the interface was registered succesfully, false otherwise.
                 */
-              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceData iface_data) {
+              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceTag iface_data) {
                   if (!iface_data.tag.isEmpty()) {
                       // Check that multiple tags don't exist
                       // Don't check the interface itself, sometimes it is desirable to
@@ -176,18 +178,18 @@ namespace Qtilities {
                 }
               }             
               //! Returns a tag-category map of registered tags for a given context. By default all contexts are returned.
-              QMap<QString, QStringList> tagCategoryMap(const QString& context = QString()) const {
+              QMap<QString, QtilitiesCategory> tagCategoryMap(const QString& context = QString()) const {
                   if (!context.isEmpty()) {
-                        QMap<QString, QStringList> tag_category_map;
+                        QMap<QString, QtilitiesCategory> tag_category_map;
                         for (int i = 0; i < data_ifaces.count(); i++) {
                             if (data_ifaces.values().at(i).contexts.contains(context))
-                                tag_category_map[data_ifaces.values().at(i).tag] << data_ifaces.values().at(i).category;
+                                tag_category_map[data_ifaces.values().at(i).tag] = data_ifaces.values().at(i).category;
                         }
                         return tag_category_map;
                     } else {
-                        QMap<QString, QStringList> tag_category_map;
+                        QMap<QString, QtilitiesCategory> tag_category_map;
                         for (int i = 0; i < data_ifaces.count(); i++) {
-                            tag_category_map[data_ifaces.values().at(i).tag] << data_ifaces.values().at(i).category;
+                            tag_category_map[data_ifaces.values().at(i).tag] = data_ifaces.values().at(i).category;
                         }
                         return tag_category_map;
                     }
@@ -208,7 +210,7 @@ namespace Qtilities {
 
            private:
               QMap<QString,FactoryInterface<BaseClass>* > reg_ifaces;
-              QMap<QString,FactoryInterfaceData> data_ifaces;
+              QMap<QString,FactoryInterfaceTag> data_ifaces;
            };
     }
 }
