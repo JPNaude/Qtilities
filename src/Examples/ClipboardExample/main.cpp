@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     observerC->attachSubject(object7);
 
     // Create the first observer widget:
-    ObserverWidget* observer_widgetA = new ObserverWidget(ObserverWidget::TableView);
+    ObserverWidget* observer_widgetA = new ObserverWidget(Qtilities::TableView);
     observer_widgetA->setAcceptDrops(true);
     observer_widgetA->resize(600,250);
     QStack<int> nav_stack;
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
     observer_widgetA->toggleUseGlobalActiveObjects(true);
 
     // Create the second observer widget:
-    ObserverWidget* observer_widgetB = new ObserverWidget(ObserverWidget::TableView);
+    ObserverWidget* observer_widgetB = new ObserverWidget(Qtilities::TableView);
     observer_widgetB->setAcceptDrops(true);
     observer_widgetB->resize(600,250);
     observer_widgetB->setNavigationStack(nav_stack);

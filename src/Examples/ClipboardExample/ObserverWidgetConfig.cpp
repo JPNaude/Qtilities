@@ -48,8 +48,8 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
     QSettings settings;
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");
-    int mode = settings.value("display_mode", ObserverWidget::TableView).toInt();
-    if ((ObserverWidget::DisplayMode) mode == ObserverWidget::TableView)
+    int mode = settings.value("display_mode", Qtilities::TableView).toInt();
+    if ((Qtilities::DisplayMode) mode == Qtilities::TableView)
         ui->comboWidgetMode1->setCurrentIndex(0);
     else
         ui->comboWidgetMode1->setCurrentIndex(1);
@@ -57,8 +57,8 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
     ui->checkShowGrid1->setChecked(settings.value("table_view_show_grid", false).toBool());
     settings.endGroup();
     settings.beginGroup("ObserverWidget1");
-    mode = settings.value("display_mode", ObserverWidget::TableView).toInt();
-    if ((ObserverWidget::DisplayMode) mode == ObserverWidget::TableView)
+    mode = settings.value("display_mode", Qtilities::TableView).toInt();
+    if ((Qtilities::DisplayMode) mode == Qtilities::TableView)
         ui->comboWidgetMode2->setCurrentIndex(0);
     else
         ui->comboWidgetMode2->setCurrentIndex(1);
@@ -108,18 +108,18 @@ void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");
     if (ui->comboWidgetMode1->currentText() == "Table View") {
-        settings.setValue("display_mode", (int) ObserverWidget::TableView);
+        settings.setValue("display_mode", (int) Qtilities::TableView);
     } else {
-        settings.setValue("display_mode", (int) ObserverWidget::TreeView);
+        settings.setValue("display_mode", (int) Qtilities::TreeView);
     }
     settings.setValue("default_row_heigth", ui->spinBoxRowHeight1->value());
     settings.setValue("table_view_show_grid", ui->checkShowGrid1->isChecked());
     settings.endGroup();
     settings.beginGroup("ObserverWidget1");
     if (ui->comboWidgetMode2->currentText() == "Table View") {
-        settings.setValue("display_mode", (int) ObserverWidget::TableView);
+        settings.setValue("display_mode", (int) Qtilities::TableView);
     } else {
-        settings.setValue("display_mode", (int) ObserverWidget::TreeView);
+        settings.setValue("display_mode", (int) Qtilities::TreeView);
     }
     settings.setValue("default_row_heigth", ui->spinBoxRowHeight2->value());
     settings.setValue("table_view_show_grid", ui->checkShowGrid2->isChecked());
