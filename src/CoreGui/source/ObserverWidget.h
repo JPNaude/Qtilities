@@ -89,15 +89,6 @@ namespace Qtilities {
             Q_ENUMS(DisplayMode)
 
         public:
-            //! The possible display modes of an ObserverWidget
-            /*!
-              \sa ObserverWidget()
-              */
-            enum DisplayMode {
-                TableView,      /*!< Table view mode. */
-                TreeView        /*!< Tree view mode. */
-            };
-
             // --------------------------------
             // Core Functions
             // --------------------------------
@@ -150,6 +141,10 @@ namespace Qtilities {
               \returns True if the model was succesfully set.
               */
             bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
+            //! Sets the display mode of the tree.
+            void setDisplayMode(DisplayMode display_mode);
+            //! Gets the display mode of the tree.
+            DisplayMode displayMode() const;
         public slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
@@ -320,7 +315,7 @@ namespace Qtilities {
             /*!
               Slot which resizes the rows in table view mode.
 
-              \param height The height which must be used. By default the default row heigth is used.
+              \param height The height which must be used. By default the default row heigth of 17 pixels is used.
 
               \sa defaultRowHeight(), setDefaultRowHeight()
               */

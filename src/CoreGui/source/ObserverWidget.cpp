@@ -124,7 +124,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! The start position point used during drag & drop operations.
     QPoint startPos;
 
-    Qtilities::CoreGui::ObserverWidget::DisplayMode display_mode;
+    Qtilities::DisplayMode display_mode;
     QPointer<QTableView> table_view;
     AbstractObserverTableModel* table_model;
     QPointer<QTreeView> tree_view;
@@ -314,6 +314,19 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(AbstractObserverTree
 
     d->tree_model = tree_model;
     return true;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setDisplayMode(DisplayMode display_mode) {
+    if (d->initialized) {
+        if (d->display_mode != display_mode) {
+            handle_actionSwitchView_triggered();
+        }
+    } else
+        d->display_mode = display_mode;
+}
+
+Qtilities::DisplayMode Qtilities::CoreGui::ObserverWidget::displayMode() const {
+    return d->display_mode;
 }
 
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
