@@ -28,7 +28,7 @@ INCLUDEPATH         +=$$QTILITIES_INCLUDE
 CONFIG              += ordered qt
 
 #****************************************************************************
-# Build mode
+# Build mode:
 #****************************************************************************
 CONFIG              += debug
 
@@ -126,7 +126,7 @@ contains( QTILITIES, extension_system ) {
 }
 
 contains( QTILITIES, project_management ) {
-    message( "Using Qtilities Project module..." )
+    message( "Using Qtilities Project Management module..." )
     message( "Extension System Dependency: Using Qtilities Logging module..." )
     message( "Extension System Dependency: Using Qtilities Core module..." )
     message( "Extension System Dependency: Using Qtilities CoreGui module..." )
