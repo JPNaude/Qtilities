@@ -88,7 +88,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // Factory and Project Item Stuff
     // ---------------------------
     OBJECT_MANAGER->registerIFactory(this);
-    FactoryInterfaceData observer_string_subject_data("Observer String Subject",QStringList(),QStringList());
+    FactoryInterfaceTag observer_string_subject_data("Observer String Subject");
     d->string_subject_factory.registerFactoryInterface(&ObserverTreeItem::factory,observer_string_subject_data);
 
     d->project_item = new ObserverProjectItemWrapper(this);
