@@ -135,7 +135,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     // Create ObserverWidget
     // ---------------------------
-    d->observer_widget = new ObserverWidget(ObserverWidget::TreeView);
+    d->observer_widget = new ObserverWidget(Qtilities::TreeView);
     d->observer_widget->setGlobalMetaType("Example Observer Meta Type");
     d->observer_widget->setAcceptDrops(true);
     d->scope_widget = new ObjectScopeWidget();
