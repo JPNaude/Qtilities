@@ -73,9 +73,9 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
-    FactoryInterfaceData activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER);
+    FactoryInterfaceTag activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
-    FactoryInterfaceData subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER);
+    FactoryInterfaceTag subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
@@ -105,7 +105,7 @@ QStringList Qtilities::Core::ObjectManager::factoryTags() const {
 }
 
 QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryData& ifactory_data) {
-    if (ifactory_data.d_factory_tag == QString("Qtilities Factory")) {
+    if (ifactory_data.d_factory_tag == QString(FACTORY_QTILITIES)) {
         QObject* obj = d->qtilities_factory.createInstance(ifactory_data.d_instance_tag);
         if (obj) {
             return obj;
@@ -180,8 +180,8 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj) {
         emit newObjectAdded(obj);
 }
 
-void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceData iface_data) {
-    d->qtilities_factory.registerFactoryInterface(interface,iface_data);
+void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag) {
+    d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
 }
 
 void Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
@@ -631,7 +631,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
     table.exportBinary(stream);
 
     // Now export the observer itself:
-    IExportable::Result result = obs->exportBinary(stream);
+    IExportable::Result result = obs->exportBinary(stream,params);
     OBJECT_MANAGER->exportObjectProperties(obs,stream);
 
     // Check result
@@ -667,7 +667,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
     if (!factoryData.importBinary(stream))
         return IExportable::Failed;
 
-    IExportable::Result result = obs->importBinary(stream, internal_import_list);
+    IExportable::Result result = obs->importBinary(stream, internal_import_list, params);
     if (result == IExportable::Failed)
         return result;
     OBJECT_MANAGER->importObjectProperties(obs,stream);

@@ -110,7 +110,7 @@ namespace Qtilities {
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id);
             void registerObject(QObject* obj);
-            void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceData iface_data);
+            void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag);
             void registerIFactory(IFactory* factory_iface);
             IFactory* factoryReference(const QString& tag) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
