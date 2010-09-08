@@ -193,7 +193,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     if (!d->extension_system_config_widget) {
-        ObserverWidget* observer_widget = new ObserverWidget(ObserverWidget::TableView);
+        ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
         observer_widget->setObserverContext(&d->plugins);
         observer_widget->setPreferredPropertyEditorDockArea(Qt::BottomDockWidgetArea);
         observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::GroupBoxBrowser);
