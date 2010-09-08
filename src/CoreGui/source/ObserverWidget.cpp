@@ -846,6 +846,20 @@ int Qtilities::CoreGui::ObserverWidget::defaultRowHeight() const {
     return d->default_row_height;
 }
 
+QTableView* const Qtilities::CoreGui::ObserverWidget::tableView() {
+    if (d->display_mode == TableView)
+        return d->table_view;
+    else
+        return 0;
+}
+
+QTreeView* const Qtilities::CoreGui::ObserverWidget::treeView() {
+    if (d->display_mode == TreeView)
+        return d->tree_view;
+    else
+        return 0;
+}
+
 void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     if (!d->initialized)
         return;

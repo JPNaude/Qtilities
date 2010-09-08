@@ -50,6 +50,8 @@
 #include <QStack>
 #include <QAbstractItemModel>
 #include <QModelIndexList>
+#include <QTableView>
+#include <QTreeView>
 
 namespace Ui {
     class ObserverWidget;
@@ -299,6 +301,16 @@ namespace Qtilities {
               \sa setDefaultRowHeight()
               */
             int defaultRowHeight() const;
+            //! Function providing access to the contained table view.
+            /*!
+              \note This reference is only valid in TableView mode.
+              */
+            QTableView* const tableView();
+            //! Function providing access to the contained tree view.
+            /*!
+              \note This reference is only valid in TreeView mode.
+              */
+            QTreeView* const treeView();
         private slots:
             //! Updates the current selection parent context.
             /*!
@@ -511,3 +523,4 @@ namespace Qtilities {
 }
 
 #endif // OBSERVERWIDGET_H
+
