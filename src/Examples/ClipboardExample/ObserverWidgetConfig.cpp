@@ -87,7 +87,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::~ObserverWidgetConfig()
 }
 
 QIcon Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageIcon() const {
-    return QIcon();
+    return QIcon(ICON_QTILITIES_SYMBOL_48x48);
 }
 
 QWidget* Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageWidget() {

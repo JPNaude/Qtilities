@@ -40,7 +40,6 @@
 #include "ExtendedObserverTableModel.h"
 #include "ExtendedObserverTreeModel.h"
 
-using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
 using namespace Qtilities::Examples::Clipboard;
 
@@ -110,10 +109,10 @@ int main(int argc, char *argv[])
     observerA->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
     observerA->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     ObserverHints::ActionHints action_hints = 0;
-    action_hints |= ObserverHints::ActionRemoveAll;
-    action_hints |= ObserverHints::ActionDeleteAll;
-    action_hints |= ObserverHints::ActionPushDown;
-    action_hints |= ObserverHints::ActionPushUp;
+    action_hints |= ObserverHints::ActionRemoveItem;
+    action_hints |= ObserverHints::ActionDeleteItem;
+    //action_hints |= ObserverHints::ActionPushDown;
+    //action_hints |= ObserverHints::ActionPushUp;
     action_hints |= ObserverHints::ActionRefreshView;
     action_hints |= ObserverHints::ActionCopyItem;
     action_hints |= ObserverHints::ActionCutItem;

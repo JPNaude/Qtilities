@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
     nodeA->displayHints()->setDisplayFlagsHint(display_flags);
     nodeB->displayHints()->setDisplayFlagsHint(display_flags);
     nodeC->displayHints()->setDisplayFlagsHint(display_flags);
-
     nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
 
     // Create the tree items:
@@ -70,7 +69,7 @@ int main(int argc, char *argv[])
     nodeB->addItem("Item 7");
 
     nodeC->startProcessingCycle();
-    for (int i = 0; i < 500; i++) {
+    for (int i = 0; i < 100; i++) {
         nodeC->addItem(QString("Batch Item").arg(i));
     }
     nodeC->endProcessingCycle();

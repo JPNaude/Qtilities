@@ -150,7 +150,6 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->observer_widget->addToolBar(d->widgets_toolbar);
     d->observer_widget->setAcceptDrops(true);
     d->observer_widget->initialize();
-    d->observer_widget->toggleGrid(false);
     d->observer_widget->layout()->setMargin(0);
 
     // Create new layout with new widget
