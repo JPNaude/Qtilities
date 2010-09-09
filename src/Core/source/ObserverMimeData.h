@@ -38,6 +38,7 @@
 
 #include <QMimeData>
 #include <QList>
+#include <QPointer>
 
 namespace Qtilities {
     namespace Core {
@@ -49,7 +50,7 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            ObserverMimeData(QList<QObject*> subject_list, int source_id) {
+            ObserverMimeData(QList<QPointer<QObject> > subject_list, int source_id) {
                 d_source_id = source_id;
                 d_subject_list = subject_list;
             }
@@ -58,11 +59,11 @@ namespace Qtilities {
             //! Gets the ID of the observer which populated the mime data object.
             int sourceID() const { return d_source_id; }
             //! Gets the list of subjects to which the mime data object applies.
-            QList<QObject*> subjectList() const { return d_subject_list; }
+            QList<QPointer<QObject> > subjectList() const { return d_subject_list; }
 
         private:
             int d_source_id;
-            QList<QObject*> d_subject_list;
+            QList<QPointer<QObject> > d_subject_list;
         };
     }
 }
