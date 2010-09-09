@@ -148,6 +148,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
         ++count;
         context_string.append(QString("%1").arg(count));
     }
+    CONTEXT_MANAGER->registerContext(context_string);
     d->global_meta_type = context_string;
     LOG_ERROR(d->global_meta_type);
     setObjectName(context_string);
