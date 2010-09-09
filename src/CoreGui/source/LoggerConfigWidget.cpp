@@ -48,6 +48,7 @@
 #include <QFileDialog>
 
 using namespace Qtilities::CoreGui::Constants;
+using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
@@ -113,7 +114,7 @@ Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
 }
 
 QIcon Qtilities::CoreGui::LoggerConfigWidget::configPageIcon() const {
-    return QIcon();//Constants::ICON_SHORTCUTS_22x22);
+    return QIcon(ICON_CONFIG_LOGGING_48x48);
 }
 
 QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
