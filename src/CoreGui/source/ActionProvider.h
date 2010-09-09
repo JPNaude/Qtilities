@@ -64,6 +64,10 @@ namespace Qtilities {
 
             QList<QAction*> actions(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
             QMap<QAction*, QtilitiesCategory> actionMap(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
+            /*!
+              The ActionProvider implementation of the IActionProvider interface will always return
+              a sorted category list in ascending order. That is: starts with 'AAA' and ends with 'ZZZ'.
+              */
             QList<QtilitiesCategory> actionCategories() const;
             QList<QActionGroup*> actionGroups() const;
             QMap<QActionGroup*, QtilitiesCategory> actionGroupMap(QActionGroup *action_group) const;

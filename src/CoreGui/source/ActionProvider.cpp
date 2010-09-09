@@ -114,6 +114,7 @@ QList<QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionCategories() 
         if (!category_list.contains(d->actions.values().at(i)))
             category_list << d->actions.values().at(i);
     }
+    qSort(category_list);
     return category_list;
 }
 
