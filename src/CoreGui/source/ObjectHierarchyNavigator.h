@@ -36,6 +36,7 @@
 
 #include <QWidget>
 #include <QStack>
+#include <QPointer>
 
 namespace Ui {
     class ObjectHierarchyNavigator;
@@ -79,7 +80,7 @@ namespace Qtilities {
             void changeEvent(QEvent *e);
 
         private:
-            QObject* d_current_obj;
+            QPointer<QObject> d_current_obj;
             QStack<int> d_navigation_stack;
             Ui::ObjectHierarchyNavigator *ui;
         };
