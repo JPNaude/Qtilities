@@ -35,7 +35,11 @@
 #include "ui_ProjectManagementConfig.h"
 #include "ProjectManager.h"
 
+#include <QtilitiesCoreGuiConstants>
+
 #include <QFileDialog>
+
+using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(QWidget *parent) :
     QWidget(parent),
@@ -93,7 +97,7 @@ Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig(
 }
 
 QIcon Qtilities::ProjectManagement::ProjectManagementConfig::configPageIcon() const {
-    return QIcon();
+    return QIcon(ICON_CONFIG_PROJECTS_48x48);
 }
 
 QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget() {
