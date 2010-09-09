@@ -37,7 +37,7 @@
 #include <QStringList>
 #include <QtDebug>
 
-Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type) {
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type) : QObject(parent) {
     parentItem = parent;
     itemData = data;
     obj = object;
