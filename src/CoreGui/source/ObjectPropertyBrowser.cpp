@@ -65,10 +65,10 @@ struct Qtilities::CoreGui::ObjectPropertyBrowserData {
     QtVariantPropertyManager*               property_manager;
     QtVariantPropertyManager*               property_read_only_manager;
 
-    QObject* obj;
-    QStringList filter_list;
-    bool read_only_properties_disabled;
-    bool filter_list_inversed;
+    QPointer<QObject>                       obj;
+    QStringList                             filter_list;
+    bool                                    read_only_properties_disabled;
+    bool                                    filter_list_inversed;
 };
 
 Qtilities::CoreGui::ObjectPropertyBrowser::ObjectPropertyBrowser(BrowserType browser_type, QWidget *parent) : QWidget(parent)
@@ -135,7 +135,39 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object) {
         */
 }
 
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> object) {
+    if (d->obj == object)
+        return;
+
+    if (d->obj) {
+        QListIterator<QtProperty *> it(d->top_level_properties);
+        while (it.hasNext()) {
+            d->property_browser->removeProperty(it.next());
+        }
+        d->top_level_properties.clear();
+    }
+
+    d->obj = object;
+
+    if (!d->obj)
+        return;
+
+    connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
+    inspectClass(d->obj->metaObject());
+
+    /*if (object && (d->top_level_properties.count() > 0))
+        d->property_browser->setEnabled(true);
+    else
+        d->property_browser->setEnabled(false);
+        */
+}
+
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects) {
+    if (objects.count() == 1)
+        setObject(objects.front());
+}
+
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QPointer<QObject> > objects) {
     if (objects.count() == 1)
         setObject(objects.front());
 }

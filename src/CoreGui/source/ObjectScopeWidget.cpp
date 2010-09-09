@@ -76,7 +76,7 @@ struct Qtilities::CoreGui::ObjectScopeWidgetData {
     QAction* actionDetachToSelection;
     QAction* actionDuplicateInScope;
     QAction* actionRemoveContext;
-    QObject* obj;
+    QPointer<QObject> obj;
     ActionProvider* action_provider;
 };
 
@@ -139,7 +139,37 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
     refreshActions();
 }
 
+void Qtilities::CoreGui::ObjectScopeWidget::setObject(QPointer<QObject> obj) {
+    if (!obj) {
+        handleObjectDestroyed();
+        return;
+    }
+
+    d->obj = obj;
+    d->obj->installEventFilter(this);
+
+    connect(d->obj,SIGNAL(destroyed(QObject*)),SLOT(handleObjectDestroyed()));
+
+    // For this widget we are interested in dynamic observer property changes in ALL the observers
+    // which are observing this object
+    ObserverProperty observer_map_prop = getObserverProperty(OBSERVER_SUBJECT_IDS);
+    for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
+        Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
+        if (observer) {
+            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()));
+        }
+    }
+
+    updateContents();
+    refreshActions();
+}
+
 void Qtilities::CoreGui::ObjectScopeWidget::setObject(QList<QObject*> objects) {
+    if (objects.count() == 1)
+        setObject(objects.front());
+}
+
+void Qtilities::CoreGui::ObjectScopeWidget::setObject(QList<QPointer<QObject> > objects) {
     if (objects.count() == 1)
         setObject(objects.front());
 }

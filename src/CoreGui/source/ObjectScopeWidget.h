@@ -107,11 +107,18 @@ namespace Qtilities {
             void setObject(QObject* obj);
             //! Sets the object for which the scope must be shown.
             /*!
+              \param obj The object which must be used.
+              */
+            void setObject(QPointer<QObject> obj);
+            //! Sets the object for which the scope must be shown.
+            /*!
               Function which allows this widget to be connected to the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal.
 
               \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
               */
             void setObject(QList<QObject*> objects);
+            //! Sets the object by providing a list of smart pointers.
+            void setObject(QList<QPointer<QObject> > objects);
             //! Refreshes the view.
             void updateContents();
             //! Handles the event where the current object is destroyed.
