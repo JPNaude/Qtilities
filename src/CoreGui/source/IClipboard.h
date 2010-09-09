@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 
 #include <QObject>
+#include <QMimeData>
 
 namespace Qtilities {
     namespace CoreGui {
@@ -151,6 +152,9 @@ if (observer_mime_data) {
                 virtual void initialize() = 0;
                 //! Call this function if you accepted the mime data. It will disable the paste action.
                 virtual void acceptMimeData() = 0;
+
+                virtual void setMimeData(QMimeData* mimeData) = 0;
+                virtual QMimeData* mimeData() const = 0;
 
             public slots:
                 virtual void handleClipboardChanged() = 0;

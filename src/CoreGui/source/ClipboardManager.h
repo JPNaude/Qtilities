@@ -71,6 +71,8 @@ namespace Qtilities {
             void setClipboardOrigin(IClipboard::ClipboardOrigin new_origin);
             void initialize();
             void acceptMimeData();
+            void setMimeData(QMimeData* mimeData);
+            QMimeData* mimeData() const;
 
         public slots:
             void handleClipboardChanged();
