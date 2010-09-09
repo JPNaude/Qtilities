@@ -34,6 +34,8 @@
 #ifndef QtilitiesCoreGuiConstants_H
 #define QtilitiesCoreGuiConstants_H
 
+#include "QtilitiesCoreGui_global.h"
+
 namespace Qtilities {
     //! The possible display modes of widgets containing observer widgets.
     /*!
@@ -62,6 +64,15 @@ namespace Qtilities {
 
         //! Namespace containing available icons which forms part of the CoreGui Module.
         namespace Icons {
+            //! Icon used for shortcuts config page.
+            const char * const ICON_CONFIG_SHORTCUTS_48x48        = ":/icons/config_shortcuts_48x48.png";
+            //! Icon used for logging config page.
+            const char * const ICON_CONFIG_LOGGING_48x48          = ":/icons/config_logging_48x48.png";
+            //! Icon used for plugins config page.
+            const char * const ICON_CONFIG_PLUGINS_48x48          = ":/icons/config_plugins_48x48.png";
+            //! Icon used for project management config page.
+            const char * const ICON_CONFIG_PROJECTS_48x48         = ":/icons/config_projects_48x48.png";
+
             //! Icon used in observer widgets for action to push down into an observer hierachy in the current window.
             const char * const ICON_PUSH_DOWN_CURRENT_16x16       = ":/icons/push_down_current_16x16.png";
             //! Icon used in observer widgets for action to push down into an observer hierachy in a new window.
