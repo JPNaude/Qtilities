@@ -929,11 +929,7 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(Obs
     if (!observer)
         return;
 
-    // If the observer is the current selection parent, we call handleContextDataChanged(d->selection_index)
-    // since the selection will be in this parent context and that function will refresh the complete context.
-    if (observer == d->selection_parent) {
-        handleContextDataChanged(d->selection_index);
-    }
+    handleContextDataChanged(findObject(observer));
 }
 
 void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(const QModelIndex &set_data_index) {
@@ -949,7 +945,31 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(con
 }
 
 QModelIndex Qtilities::CoreGui::AbstractObserverTreeModel::findObject(QObject* obj) const {
-    ObserverTreeItem* item = findObject(d->rootItem,obj);
+    // Loop through all items indexes in the tree and check the object of each ObserverTreeItem at each index.
+    QModelIndex root = index(0,0);
+    return findObject(root,obj);
+}
+
+QModelIndex Qtilities::CoreGui::AbstractObserverTreeModel::findObject(const QModelIndex& root, QObject* obj) const {
+    QModelIndex correct_index;
+    if (root.isValid()) {
+        // Check this index:
+        ObserverTreeItem* item = getItem(root);
+        if (item) {
+            if (item->getObject() == obj) {
+                return root;
+            }
+
+            // Ok it was not this index, loop through all children under this index:
+            for (int i = 0; i < item->childCount(); i++) {
+                QModelIndex child_index = index(i,0,root);
+                correct_index = findObject(child_index,obj);
+                if (correct_index.isValid()) {
+                    return correct_index;
+                }
+            }
+        }
+    }
     return QModelIndex();
 }
 

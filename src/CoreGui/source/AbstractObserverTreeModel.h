@@ -161,11 +161,13 @@ namespace Qtilities {
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);
-            //! Signal which is emmited requesting views to expand the tree to a specific index.
-            void expandToIndex(const QModelIndex &index);
+            //! Signal which is emmited requesting views to expand the tree item at a specific index.
+            void expandIndex(const QModelIndex &index) const;
 
         private:
-            //! Function used by findObject() to traverse through the trying to find an object.
+            //! Recursive function used by findObject() to traverse through the trying to find an object.
+            QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
+            //! Recursive function to get the ObserverTreeItem associacted with an object.
             ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
             //! Deletes all tree items, starting with the root item.
             void deleteRootItem();
