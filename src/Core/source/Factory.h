@@ -34,7 +34,7 @@
 #ifndef FACTORY_H
 #define FACTORY_H
 
-#include "QtilitiesCategory"
+#include "QtilitiesCategory.h"
 
 #include <QString>
 #include <QStringList>
