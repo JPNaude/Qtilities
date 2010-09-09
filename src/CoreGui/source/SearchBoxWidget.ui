@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
+    <width>588</width>
     <height>52</height>
    </rect>
   </property>
@@ -29,16 +29,7 @@
    <property name="spacing">
     <number>1</number>
    </property>
-   <property name="leftMargin">
-    <number>3</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>3</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>0</number>
    </property>
    <item>
@@ -51,7 +42,7 @@
        <widget class="QLineEdit" name="txtSearchString">
         <property name="minimumSize">
          <size>
-          <width>220</width>
+          <width>180</width>
           <height>0</height>
          </size>
         </property>
@@ -124,8 +115,8 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>207</width>
-          <height>17</height>
+          <width>243</width>
+          <height>14</height>
          </size>
         </property>
        </spacer>
@@ -168,7 +159,7 @@
        <widget class="QLineEdit" name="txtReplaceString">
         <property name="minimumSize">
          <size>
-          <width>220</width>
+          <width>180</width>
           <height>0</height>
          </size>
         </property>
