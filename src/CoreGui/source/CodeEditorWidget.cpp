@@ -148,6 +148,7 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
         ++count;
         context_string.append(QString("%1").arg(count));
     }
+    CONTEXT_MANAGER->registerContext(context_string);
     d->global_meta_type = context_string;
 
     // Create actions only after global meta type was set.
