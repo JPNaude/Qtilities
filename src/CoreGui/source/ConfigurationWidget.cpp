@@ -102,6 +102,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     d->config_pages.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
     d->config_pages.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
     d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
 
     // Add all the pages to the config pages observer:
     for (int i = 0; i < config_pages.count(); i++) {
@@ -135,8 +136,13 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     d->pageTree.setObserverContext(&d->config_pages);
     d->pageTree.initialize();
     d->pageTree.resizeTableViewRows(22);
+    d->pageTree.toggleSearchBox();
+    if (d->pageTree.searchBoxWidget())
+        d->pageTree.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
     if (d->pageTree.tableView() && d->display_mode == TableView) {
         d->pageTree.tableView()->horizontalHeader()->hide();
+    } else if (d->pageTree.treeView() && d->display_mode == TreeView) {
+        d->pageTree.treeView()->setRootIsDecorated(false);
     }
 
     d->initialized = true;
@@ -176,6 +182,7 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
 
         ui->btnApply->setEnabled(config_page->supportsApply());
         ui->lblPageHeader->setText(config_page->configPageTitle());
+        ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
 
         if (ui->configWidget->layout())
             delete ui->configWidget->layout();
@@ -209,6 +216,7 @@ void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& activ
         QList<QObject*> active_pages;
         active_pages << page;
         d->activity_filter->setActiveSubjects(active_pages);
+        d->pageTree.selectObjects(active_pages);
     }
 }
 
