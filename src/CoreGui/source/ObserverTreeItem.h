@@ -57,11 +57,15 @@ namespace Qtilities {
         public:
             //! The possible types of items which can be part of the constructed observer tree.
             enum TreeItemType {
-                ObjectItem,         /*!< An object item. */
-                CategoryItem        /*!< A category item. */
+                TreeItem            = 1, /*!< A tree item. */
+                TreeNode            = 2, /*!< A tree node. */
+                CategoryItem        = 4, /*!< A category item. */
+                AllItemTypes        = TreeItem | TreeNode | CategoryItem
             };
+            Q_DECLARE_FLAGS(TreeItemTypeFlags, TreeItemType);
+            Q_FLAGS(TreeItemTypeFlags);
 
-            ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = ObjectItem);
+            ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = TreeNode);
             ~ObserverTreeItem();
 
             ObserverTreeItem *child(int row);
@@ -77,7 +81,7 @@ namespace Qtilities {
             ObserverTreeItem *parent();
             inline QList<QPointer<ObserverTreeItem> > childItemReferences() const { return childItems; }
             inline void setObject(QObject* object) { obj = object; }
-            inline QObject* getObject() const { return obj; }
+            inline QPointer<QObject> getObject() const { return obj; }
             inline TreeItemType itemType() const { return type; }
             //! Sets the category represented through this item. Only used with CategoryItem types.
             inline void setCategory(const QtilitiesCategory& category) { category_id = category; }
@@ -107,6 +111,8 @@ namespace Qtilities {
             QtilitiesCategory category_id;
             QPointer<Observer> contained_observer_ref;
         };
+
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverTreeItem::TreeItemTypeFlags);
     }
 }
 
