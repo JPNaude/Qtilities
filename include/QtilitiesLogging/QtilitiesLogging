@@ -15,6 +15,7 @@
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Logging module.
 namespace QtilitiesLogging { 
+  using namespace Qtilities;
 	using namespace Qtilities::Logging; 
 	using namespace Qtilities::Logging::Constants; 
 	using namespace Qtilities::Logging::Interfaces; 

@@ -15,6 +15,20 @@
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Project Management module.
 namespace QtilitiesProjectManagement { 
+  using namespace Qtilities;
+	using namespace Qtilities::Logging; 
+	using namespace Qtilities::Logging::Constants; 
+	using namespace Qtilities::Logging::Interfaces;   
+  using namespace Qtilities::Core;
+  using namespace Qtilities::Core::Constants;
+  using namespace Qtilities::Core::Interfaces;
+  using namespace Qtilities::Core::Properties;
+	using namespace Qtilities::CoreGui; 
+	using namespace Qtilities::CoreGui::Constants; 
+	using namespace Qtilities::CoreGui::Interfaces; 
+	using namespace Qtilities::CoreGui::Actions; 
+	using namespace Qtilities::CoreGui::Icons; 
+	using namespace Qtilities::CoreGui::Images; 
 	using namespace Qtilities::ProjectManagement; 
 	using namespace Qtilities::ProjectManagement::Constants; 
 	using namespace Qtilities::ProjectManagement::Interfaces;
