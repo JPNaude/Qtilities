@@ -35,6 +35,10 @@
 #include "ui_ExtensionSystemConfig.h"
 #include "ExtensionSystemCore.h"
 
+#include <QtilitiesCoreGuiConstants>
+
+using namespace Qtilities::CoreGui::Icons;
+
 Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ExtensionSystemConfig)
@@ -49,7 +53,7 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
 
 
 QIcon Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageIcon() const {
-    return QIcon();
+    return QIcon(ICON_CONFIG_PLUGINS_48x48);
 }
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageWidget() {
