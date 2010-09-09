@@ -78,5 +78,9 @@
         <file>icons/view_remove_16x16.png</file>
         <file>images/blueontrans_300x300.png</file>
         <file>icons/warning_16x16.png</file>
+        <file>icons/config_shortcuts_48x48.png</file>
+        <file>icons/config_plugins_48x48.png</file>
+        <file>icons/config_projects_48x48.png</file>
+        <file>icons/config_logging_48x48.png</file>
     </qresource>
 </RCC>
