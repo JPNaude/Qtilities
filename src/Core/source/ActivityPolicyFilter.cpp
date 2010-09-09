@@ -221,6 +221,13 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     observer->refreshViewsData();
 }
 
+void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QObject> > objects) {
+    QList<QObject*> simple_objects;
+    for (int i = 0; i < objects.count(); i++)
+        simple_objects << objects.at(i);
+    setActiveSubjects(simple_objects);
+}
+
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj) const {
     Q_UNUSED(obj)
 

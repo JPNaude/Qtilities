@@ -178,6 +178,8 @@ namespace Qtilities {
               Note that this function only works in Table View mode at present. Tree views will support this function in a future version.
               */
             void setActiveSubjects(QList<QObject*> objects);
+            //! Sets the active subjects.
+            void setActiveSubjects(QList<QPointer<QObject> > objects);
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.
