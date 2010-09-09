@@ -84,6 +84,8 @@ namespace Qtilities {
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role) = 0;
             QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
             QModelIndex parent(const QModelIndex &index) const;
+            bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent);
+            Qt::DropActions supportedDropActions() const;
 
             // --------------------------------
             // AbstractObserverItemModel Implementation
