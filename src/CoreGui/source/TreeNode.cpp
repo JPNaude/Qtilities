@@ -46,8 +46,9 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::TreeNodeData {
-    TreeNodeData() { }
+    TreeNodeData() : naming_policy_filter(0) { }
 
+    QPointer<NamingPolicyFilter> naming_policy_filter;
 };
 
 Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
@@ -90,17 +91,18 @@ void Qtilities::CoreGui::TreeNode::enableNamingControl(ObserverHints::NamingCont
                          NamingPolicyFilter::UniquenessPolicy uniqueness_policy,
                          NamingPolicyFilter::ResolutionPolicy resolution_policy) {
 
-    NamingPolicyFilter* filter = new NamingPolicyFilter();
-    filter->setUniquenessPolicy(uniqueness_policy);
-    filter->setUniquenessResolutionPolicy(resolution_policy);
-    filter->setValidityResolutionPolicy(resolution_policy);
-    if (installSubjectFilter(filter)) {
-        displayHints()->setNamingControlHint(naming_control);
-    } else {
-        delete filter;
+    if (!nodeData->naming_policy_filter) {
+        nodeData->naming_policy_filter = new NamingPolicyFilter();
+        nodeData->naming_policy_filter->setUniquenessPolicy(uniqueness_policy);
+        nodeData->naming_policy_filter->setUniquenessResolutionPolicy(resolution_policy);
+        nodeData->naming_policy_filter->setValidityResolutionPolicy(resolution_policy);
+        if (installSubjectFilter(nodeData->naming_policy_filter)) {
+            displayHints()->setNamingControlHint(naming_control);
+        } else {
+            delete nodeData->naming_policy_filter;
+        }
     }
 }
-
 
 void Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                            ObserverHints::ActivityControl activity_control,
@@ -118,6 +120,18 @@ void Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::Activity
     } else {
         delete filter;
     }
+}
+
+void Qtilities::CoreGui::TreeNode::startProcessingCycle() {
+    if (nodeData->naming_policy_filter)
+        nodeData->naming_policy_filter->startValidationCycle();
+    Observer::startProcessingCycle();
+}
+
+void Qtilities::CoreGui::TreeNode::endProcessingCycle() {
+    if (nodeData->naming_policy_filter)
+        nodeData->naming_policy_filter->endValidationCycle();
+    Observer::endProcessingCycle();
 }
 
 bool Qtilities::CoreGui::TreeNode::addItem(TreeItem* item) {

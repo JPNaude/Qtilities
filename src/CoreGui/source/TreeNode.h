@@ -197,6 +197,15 @@ tree_widget->show();
                                        ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy = ActivityPolicyFilter::ProhibitNoneActive,
                                        ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy = ActivityPolicyFilter::SetNewActive);
 
+            /*!
+              This overloaded function will start a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              */
+            void startProcessingCycle();
+            /*!
+              This overloaded function will end a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              */
+            void endProcessingCycle();
+
             //! Creates a new tree item and then add it as a tree item under this node.
             /*!
               \param name The name of the item.
