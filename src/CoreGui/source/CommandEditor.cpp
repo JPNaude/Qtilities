@@ -123,7 +123,7 @@ void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
-    return QIcon();//ICON_METHOD_16x16);
+    return QIcon(ICON_CONFIG_SHORTCUTS_48x48);
 }
 
 QWidget* Qtilities::CoreGui::CommandEditor::configPageWidget() {
