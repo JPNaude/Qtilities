@@ -42,14 +42,14 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::SearchBoxWidgetData {
-    QMenu* searchOptionsMenu;
-    QAction* searchOptionCaseSensitive;
-    QAction* searchOptionWholeWordsOnly;
-    QAction* searchOptionRegEx;
+    QMenu*      searchOptionsMenu;
+    QAction*    searchOptionCaseSensitive;
+    QAction*    searchOptionWholeWordsOnly;
+    QAction*    searchOptionRegEx;
 
-    SearchBoxWidget::ButtonFlags button_flags;
-    SearchBoxWidget::SearchOptions search_options;
-    SearchBoxWidget::WidgetMode widget_mode;
+    SearchBoxWidget::ButtonFlags    button_flags;
+    SearchBoxWidget::SearchOptions  search_options;
+    SearchBoxWidget::WidgetMode     widget_mode;
 };
 
 Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
@@ -244,4 +244,8 @@ void Qtilities::CoreGui::SearchBoxWidget::setWidgetMode(WidgetMode widget_mode) 
 
 Qtilities::CoreGui::SearchBoxWidget::WidgetMode Qtilities::CoreGui::SearchBoxWidget::widgetMode() const {
     return d->widget_mode;
+}
+
+QMenu* Qtilities::CoreGui::SearchBoxWidget::searchOptionsMenu() {
+    return d->searchOptionsMenu;
 }

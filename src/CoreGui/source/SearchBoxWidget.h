@@ -35,6 +35,7 @@
 #define SEARCHBOXWIDGET_H
 
 #include <QWidget>
+#include <QMenu>
 
 #include "QtilitiesCoreGui_global.h"
 
@@ -134,6 +135,11 @@ namespace Qtilities {
             void setWidgetMode(WidgetMode widget_mode);
             //! Function to get the WidgetMode of the widget.
             WidgetMode widgetMode() const;
+            //! Function providing access to the search options menu.
+            /*!
+              This reference can be used to add menu items to the search options menu.
+              */
+            QMenu* searchOptionsMenu();
 
         public slots:
             //! Sets the current search string in the search text box.
