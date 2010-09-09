@@ -32,7 +32,7 @@
 ****************************************************************************/
 
 #include "ObserverTableModelCategoryFilter.h"
-#include "ObserverTableModel.h"
+#include "AbstractObserverTableModel.h"
 #include "QtilitiesCoreGuiConstants.h"
 
 #include <Observer.h>
