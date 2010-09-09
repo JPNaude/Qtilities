@@ -181,7 +181,7 @@ This class was added in %Qtilities v0.2.
             }
 
             //! Overload < operator so that we can use QtilitiesCategory in a QMap.
-            inline bool operator<(const QtilitiesCategory &e1)
+            inline bool operator<(const QtilitiesCategory &e1) const
             {
                 return toString() < e1.toString();
             }
