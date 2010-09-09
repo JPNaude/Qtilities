@@ -37,11 +37,12 @@
 #include "QtilitiesCore_global.h"
 #include "IExportable.h"
 #include "IFactory.h"
-#include "Factory"
-#include "AbstractSubjectFilter"
+#include "Factory.h"
+#include "AbstractSubjectFilter.h"
 
 #include <QList>
 #include <QMap>
+#include <QPointer>
 
 namespace Qtilities {
     namespace Core {
@@ -81,6 +82,8 @@ namespace Qtilities {
                   \return True if all objects were moved succesfully, false if some of the objects failed.
                   */
                 virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id) = 0;
+                //! Move subjects by providing the objects as a list with smart pointers.
+                virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id) = 0;
                 //! Registers an observer in the observer manager.
                 virtual int registerObserver(Observer* observer) = 0;
                 //! Registers an object to be included in the global object pool. The integer value returned will be the object's unique ID in the global object pool.
@@ -108,13 +111,15 @@ namespace Qtilities {
                   \sa metaTypeActiveObjects(), metaTypeActiveObjectsChanged()
                   */
                 virtual void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type) = 0;
+                //! Update the active object(s) for a specific meta type by providing a list of smart pointers to the objects.
+                virtual void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type) = 0;
                 //! Returns the active object(s) for a specific meta type. If the meta type does not exist, an empty list is returned.
                 /*!
                   For more information about see the \ref meta_type_object_management section of the \ref page_object_management article.
 
                   \sa setMetaTypeActiveObjects(), metaTypeActiveObjectsChanged()
                   */
-                virtual QList<QObject*> metaTypeActiveObjects(const QString& meta_type) const = 0;
+                virtual QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const = 0;
 
                 // ---------------------------------
                 // Exporting & Importing Functionality
@@ -132,7 +137,7 @@ namespace Qtilities {
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.
-                void metaTypeActiveObjectsChanged(QList<QObject*> objects, const QString& meta_type);
+                void metaTypeActiveObjectsChanged(QList<QPointer<QObject> > objects, const QString& meta_type);
                 //! Signal which is emitted when a new object is added to the global object pool.
                 void newObjectAdded(QObject* obj);
             };

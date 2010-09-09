@@ -57,12 +57,12 @@ struct Qtilities::Core::ObjectManagerData {
     ObjectManagerData() : object_pool(GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
     id(1)  { }
 
-    QMap<int,QPointer<Observer> >       observer_map;
-    QMap<QString, IFactory*>            factory_map;
-    QMap<QString, QList<QObject*> >     meta_type_map;
-    Observer                            object_pool;
-    int                                 id;
-    Factory<QObject>                    qtilities_factory;
+    QMap<int,QPointer<Observer> >               observer_map;
+    QMap<QString, IFactory*>                    factory_map;
+    QMap<QString, QList<QPointer<QObject> > >   meta_type_map;
+    Observer                                    object_pool;
+    int                                         id;
+    Factory<QObject>                            qtilities_factory;
 };
 
 Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(parent)
@@ -175,6 +175,13 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     return none_failed;
 }
 
+bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id) {
+    QList<QObject*> simple_objects;
+    for (int i = 0; i < objects.count(); i++)
+        simple_objects << objects.at(i);
+    return moveSubjects(simple_objects,source_observer_id,destination_observer_id);
+}
+
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj) {
     if (d->object_pool.attachSubject(obj))
         emit newObjectAdded(obj);
@@ -206,12 +213,21 @@ QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QStri
     return d->object_pool.subjectReferences(iface);
 }
 
-void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& subject_type) {
-    d->meta_type_map[subject_type] = objects;
-    emit metaTypeActiveObjectsChanged(objects,subject_type);
+void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type) {
+    QList<QPointer<QObject> > smart_objects;
+    for (int i = 0; i < objects.count(); i++)
+        smart_objects << objects.at(i);
+
+    d->meta_type_map[meta_type] = smart_objects;
+    emit metaTypeActiveObjectsChanged(smart_objects,meta_type);
 }
 
-QList<QObject*> Qtilities::Core::ObjectManager::metaTypeActiveObjects(const QString& subject_type) const {
+void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type) {
+    d->meta_type_map[meta_type] = objects;
+    emit metaTypeActiveObjectsChanged(objects,meta_type);
+}
+
+QList<QPointer<QObject> > Qtilities::Core::ObjectManager::metaTypeActiveObjects(const QString& subject_type) const {
     return d->meta_type_map[subject_type];
 }
 

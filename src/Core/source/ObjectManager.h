@@ -109,13 +109,15 @@ namespace Qtilities {
             Observer* observerReference(int id) const;
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id);
+            bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id);
             void registerObject(QObject* obj);
             void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag);
             void registerIFactory(IFactory* factory_iface);
             IFactory* factoryReference(const QString& tag) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
-            QList<QObject*> metaTypeActiveObjects(const QString& meta_type) const;
+            QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const;
             void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type);
+            void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type);
             bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const;
             bool importObjectProperties(QObject* new_instance, QDataStream& stream) const;
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& table) const;
