@@ -45,6 +45,7 @@
 #include <ObserverHints.h>
 #include <IContext.h>
 #include <Observer.h>
+#include <SearchBoxWidget>
 
 #include <QMainWindow>
 #include <QStack>
@@ -143,9 +144,15 @@ namespace Qtilities {
               \returns True if the model was succesfully set.
               */
             bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
-            //! Sets the display mode of the tree.
+            //! Sets the display mode of the widget.
+            /*!
+              \sa displayMode(), toggleDisplayMode()
+              */
             void setDisplayMode(DisplayMode display_mode);
-            //! Gets the display mode of the tree.
+            //! Gets the display mode of the widget.
+            /*!
+              \sa setDisplayMode(), toggleDisplayMode()
+              */
             DisplayMode displayMode() const;
         public slots:
             void contextDeleted();
@@ -168,10 +175,6 @@ namespace Qtilities {
             // --------------------------------
             // Functions Related To Display Hints
             // --------------------------------
-            //! Function to toggle the visibility of the grid in the item view. Call it after initialization.
-            void toggleGrid(bool toggle);
-            //! Function to toggle the visibility of the grid in the item view. Call it after initialization.
-            void toggleAlternatingRowColors(bool toggle);
             //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
             void toggleUseObserverHints(bool toggle);
             //! This function will set the hints used for the current selection parent.
@@ -318,11 +321,13 @@ namespace Qtilities {
               */
             void setTreeSelectionParent(Observer* observer);
         public slots:
-            //! Selects the specified objects in a table view. If any object is invalid, nothing is selected.
+            //! Selects the specified objects in the active item view.
             /*!
-              This function only does something when in table viewing mode.
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored.
+
+              \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
               */
-            void selectSubjectsInTable(QList<QObject*> objects);
+            void selectObjects(QList<QObject*> objects);
             //! Slot which resizes the rows in table view mode.
             /*!
               Slot which resizes the rows in table view mode.
@@ -348,11 +353,16 @@ namespace Qtilities {
             void selectedObjectsChanged(QList<QObject*> selected_objects, Observer* selection_parent = 0);
 
             // --------------------------------
-            // Property Editor Related Functions
+            // Item Widgets Related Functions
             // --------------------------------
         public:
             //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
             ObjectPropertyBrowser* propertyBrowser();
+            //! Returns the SearchBoxWidget contained inside the observer widget.
+            /*!
+              \returns The search box widget instance, if it does not exist null is returned.
+              */
+            SearchBoxWidget* searchBoxWidget();
 
         public slots:
             //! Sets the desired area of the property editor (if it is used by the observer context).
@@ -371,6 +381,8 @@ namespace Qtilities {
         protected:
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.
             void refreshPropertyBrowser();
+            //! Refreshes the action toolbar with the current state of the actions.
+            void refreshActionToolBar();
 
             // --------------------------------
             // Action Handlers and Related Functions
@@ -379,40 +391,82 @@ namespace Qtilities {
             //! Returns the action handler interface for this observer widget.
             IActionProvider* actionProvider();
         public slots:
-            //! Handle the remove item action trigger. Detaches the item from the current observer context.
-            void handle_actionRemoveItem_triggered();
-            //! Handle the remove all action trigger. Detaches all objects from the current observer context.
-            void handle_actionRemoveAll_triggered();
-            //! Handle the delete item action trigger.
-            void handle_actionDeleteItem_triggered();
-            //! Handle the delete all action trigger.
-            void handle_actionDeleteAll_triggered();
-            //! Handle the new item action trigger.
+            //! Detaches the current selected objects in the item view from the current selection parent.
+            /*!
+              \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
+              */
+            void selectionRemove();
+            //! Detaches all subjects from the current selection parent.
+            /*!
+              \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
+              */
+            void selectionRemoveAll();
+            //! Deletes the current selected items.
+            /*!
+              \sa selectedObjects(), selectedObjectsChanged()
+              */
+            void selectionDelete();
+            //! Deletes all subjects under the current selection parent.
+            /*!
+              \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
+              */
+            void selectionDeleteAll();
+            //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
             void handle_actionNewItem_triggered();
-            //! Handle the refresh view action trigger.
-            void handle_actionRefreshView_triggered();
-            //! Handle the push up (go to parent) action trigger.
-            void handle_actionPushUp_triggered();
-            //! Handle the push up (go to parent in a new window) action trigger.
-            void handle_actionPushUpNew_triggered();
-            //! Handle the push down action trigger.
-            void handle_actionPushDown_triggered();
-            //! Handle the push down in new window action trigger.
-            void handle_actionPushDownNew_triggered();
-            //! Handle the switch view action trigger.
-            void handle_actionSwitchView_triggered();
-            //! Handle the copy action.
-            void handle_actionCopy_triggered();
-            //! Handle the cut action.
-            void handle_actionCut_triggered();
-            //! Handle the paste action.
+            //! Refreshes the current item view.
+            /*!
+              This function will emit the refreshViewsData() signal on the top level observer context.
+              The refresh operation will be followed by calling selectObjects() with the same objects
+              which were selected before calling this function was called. The function will then call
+              refreshAction() before it exists.
+
+              \sa topLevelObserverID(), addActionNewItem_triggered(), refreshActions();
+              */
+            void refresh();
+            //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent.
+            /*!
+              \sa selectionParent(), selectionPushUpNew()
+              */
+            void selectionPushUp();
+            //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent in a new ObserverWidget.
+            /*!
+              \sa selectionParent(), selectionPushUp()
+              */
+            void selectionPushUpNew();
+            //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer.
+            /*!
+              This function only does something if an observer or an object which contains an observer is selected.
+
+              \sa selectionParent(), selectionPushDownNew()
+              */
+            void selectionPushDown();
+            //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer in a new ObserverWidget.
+            /*!
+              This function only does something if an observer or an object which contains an observer is selected.
+
+              \sa selectionParent(), selectionPushDown()
+              */
+            void selectionPushDownNew();
+            //! Toggles the display mode of the ObserverWidget.
+            /*!
+              \sa setDisplayMode(), displayMode()
+              */
+            void toggleDisplayMode();
+            //! Function to copy the current selection to the application clipboard.
+            void selectionCopy();
+            //! Function to cut the current selection to the application clipboard.
+            void selectionCut();
+            //! Function which is connected to the Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action if it exists.
+            /*!
+              When initializing the %Qtilities clipboard manager the paste action will be created automatically.
+              */
             void handle_actionPaste_triggered();
-            //! Handle the find item action.
-            void handle_actionFindItem_triggered();
-            //! Handle the collapse tree view action. Only usefull in TreeView display mode.
-            void handle_actionCollapseAll_triggered();
-            //! Handle the expand tree view action. Only usefull in TreeView display mode.
-            void handle_actionExpandAll_triggered();
+            //! Toggles the visibility of the SearchBoxWidget at the bottom of the ObserverWidget.
+            void toggleSearchBox();
+            //! Collapse all items in the tree view to a depth of 1 in TreeView mode.
+            void viewCollapseAll();
+            //! Expand all items in the tree view in TreeView mode.
+            void viewExpandAll();
             //! Handles search options changes in the SearchBoxWidget if present.
             void handleSearchOptionsChanged();
             //! Handles search string changes in the SearchBoxWidget if present.
