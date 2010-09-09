@@ -111,8 +111,8 @@ int main(int argc, char *argv[])
     ObserverHints::ActionHints action_hints = 0;
     action_hints |= ObserverHints::ActionRemoveItem;
     action_hints |= ObserverHints::ActionDeleteItem;
-    //action_hints |= ObserverHints::ActionPushDown;
-    //action_hints |= ObserverHints::ActionPushUp;
+    action_hints |= ObserverHints::ActionPushDown;
+    action_hints |= ObserverHints::ActionPushUp;
     action_hints |= ObserverHints::ActionRefreshView;
     action_hints |= ObserverHints::ActionCopyItem;
     action_hints |= ObserverHints::ActionCutItem;
@@ -300,11 +300,11 @@ int main(int argc, char *argv[])
     QDockWidget* object_scope_dock = new QDockWidget("Object Scope Overview");
     ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
     object_scope_dock->setWidget(scope_widget);
-    QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QObject*>,QString)),scope_widget,SLOT(setObject(QList<QObject*>)));
+    QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),scope_widget,SLOT(setObject(QList<QPointer<QObject> >)));
     QDockWidget* property_browser_dock = new QDockWidget("Object Properties");
     ObjectPropertyBrowser* property_browser = new ObjectPropertyBrowser();
     property_browser_dock->setWidget(property_browser);
-    QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QObject*>,QString)),property_browser,SLOT(setObject(QList<QObject*>)));
+    QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),property_browser,SLOT(setObject(QList<QPointer<QObject> >)));
     main_window->addDockWidget(Qt::LeftDockWidgetArea,object_scope_dock);
     main_window->addDockWidget(Qt::LeftDockWidgetArea,property_browser_dock);
 
