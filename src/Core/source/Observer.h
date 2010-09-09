@@ -256,7 +256,7 @@ namespace Qtilities {
 
               \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering()
               */
-            void startProcessingCycle();
+            virtual void startProcessingCycle();
             //! Ends a processing cycle.
             /*!
               Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started
@@ -267,7 +267,7 @@ namespace Qtilities {
 
               \sa startProcessingCycle();
               */
-            void endProcessingCycle();
+            virtual void endProcessingCycle();
             //! Indicates if a processing cycle is active.
             /*!
               \sa startProcessingCycle(), endProcessingCycle()
