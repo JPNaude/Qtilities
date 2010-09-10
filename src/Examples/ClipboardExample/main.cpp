@@ -87,7 +87,6 @@ int main(int argc, char *argv[])
     // Important: The Log widget must be created before the above action place holders were added since it registers some actions
     QDockWidget* log_dock_widget = LoggerGui::createLogDockWidget("Clipboard Example Log",true);
     log_dock_widget->show();
-    log_dock_widget->resize(1000,250);
 
     // We want to use paste operations in this application, thus initialize the clipboard.
     // It is important to do this after registering the copy, cut and paste action holders above.
@@ -126,6 +125,7 @@ int main(int argc, char *argv[])
     display_flags |= ObserverHints::NavigationBar;
     display_flags |= ObserverHints::ActionToolBar;
     observerA->displayHints()->setDisplayFlagsHint(display_flags);
+    observerA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
     Observer* observerB = new Observer("Observer B","Child observer");
     observerB->useDisplayHints();
@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
     observerB->displayHints()->setActionHints(action_hints);
     observerB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     observerB->displayHints()->setDisplayFlagsHint(display_flags);
+    observerB->displayHints()->setDragDropHint(ObserverHints::AcceptDrops);
 
     Observer* observerC = new Observer("Observer C","Child observer");
     observerC->useDisplayHints();
@@ -168,7 +169,8 @@ int main(int argc, char *argv[])
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QtilitiesCategory category("Category 2");
     observerC->displayHints()->addDisplayedCategory(category);
-    //observerC->displayHints()->setCategoryFilterEnabled(true);
+    observerC->displayHints()->setCategoryFilterEnabled(true);
+    observerC->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
 
     // Create the objects
     QObject* object1 = new QObject();
