@@ -294,7 +294,7 @@ namespace Qtilities {
               \param objects A list of objects which must be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
-              \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+              \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
@@ -306,7 +306,7 @@ namespace Qtilities {
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
-              \returns A list of objects which was succesfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+              \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
@@ -326,7 +326,7 @@ namespace Qtilities {
             //! Will attempt to detach the specified object objects in the list from the observer.
             /*!
               \param objects A list of objects which must be detached.
-              \returns A list of objects which was succesfully detached.
+              \returns A list of objects which was successfully detached.
               */
             virtual QList<QObject*> detachSubjects(QList<QObject*> objects);
             //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
@@ -495,7 +495,7 @@ namespace Qtilities {
             inline int subjectLimit() const { return observerData->subject_limit; }
             //! Function to set the subject limit of this observer.
             /*!
-              \return Returns true if the limit was set succesfully, otherwise false.
+              \return Returns true if the limit was set successfully, otherwise false.
               */
             bool setSubjectLimit(int subject_limit);
             //! Function to set the observer's access mode. Set the access mode after construction. When subclassing Observer, set it in your constructor.

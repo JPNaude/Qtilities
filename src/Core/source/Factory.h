@@ -137,7 +137,7 @@ namespace Qtilities {
               /*!
                 \param interface The factory item interface.
                 \param iface_data A structure providing information about the factory item interface. If another item interface with the same tag already exists, the function call will fail and false will be returned. The tag must also contain a value.
-                \returns True if the interface was registered succesfully, false otherwise.
+                \returns True if the interface was registered successfully, false otherwise.
                 */
               bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryInterfaceTag iface_data) {
                   if (!iface_data.tag.isEmpty()) {

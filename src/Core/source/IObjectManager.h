@@ -79,7 +79,7 @@ namespace Qtilities {
                 virtual Observer* observerReference(int id) const = 0;
                 //! A function which moves a list of objects from one observer to another observer.
                 /*!
-                  \return True if all objects were moved succesfully, false if some of the objects failed.
+                  \return True if all objects were moved successfully, false if some of the objects failed.
                   */
                 virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id) = 0;
                 //! Move subjects by providing the objects as a list with smart pointers.
