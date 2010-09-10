@@ -44,6 +44,7 @@
 #include "QtilitiesPropertyChangeEvent.h"
 #include "SearchBoxWidget.h"
 #include "ObserverTableModelCategoryFilter.h"
+#include "ObserverTreeModelProxyFilter.h"
 #include "ActionProvider.h"
 
 #include <ActivityPolicyFilter.h>
@@ -94,8 +95,12 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionFindItem(0),
     proxy_model(0),
     activity_filter(0),
+    action_provider(0),
     searchBoxWidget(0),
-    action_provider(0) { }
+    actionFilterNodes(0),
+    actionFilterItems(0),
+    actionFilterCategories(0),
+    actionFilterTypeSeperator(0) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -118,7 +123,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     ObjectHierarchyNavigator* navigation_bar;
     //! The action toolbars list. Contains toolbars created for each category in the action provider.
     /*!
-      We use QObjects instead of QToolBars sinve we can then do a direct contains() call in the event filter on this list.
+      We use QObjects instead of QToolBars since we can then do a direct contains() call in the event filter on this list.
       */
     QList<QObject*> action_toolbars;
     //! The start position point used during drag & drop operations.
@@ -164,13 +169,19 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QStringList appended_contexts;
 
     //! The current selection in this widget. Set in the selectedObjects() function.
-    QList<QObject*> current_selection;
-    //! The search box widget.
-    SearchBoxWidget* searchBoxWidget;
+    QList<QPointer<QObject> > current_selection;
     //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
     //! The default row height used in TableView mode.
     int default_row_height;
+
+    // Searching related stuff:
+    //! The search box widget.
+    SearchBoxWidget* searchBoxWidget;
+    QAction* actionFilterNodes;
+    QAction* actionFilterItems;
+    QAction* actionFilterCategories;
+    QAction* actionFilterTypeSeperator;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -371,13 +382,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         }
     }
 
-    // Hide the search bar if it is visible
-    ui->widgetSearchBox->hide();
-    if (d->searchBoxWidget) {
-        delete d->searchBoxWidget;
-        d->searchBoxWidget = 0;
-    }
-
     if (!hints_only) {
         // Delete the current layout on itemParentWidget
         if (ui->itemParentWidget->layout())
@@ -394,7 +398,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         if (d->display_mode == TreeView) {
             connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
             connect(d->top_level_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
-            d->proxy_model = new QSortFilterProxyModel(this);
+            d->proxy_model = new ObserverTreeModelProxyFilter(this);
             d->proxy_model->setDynamicSortFilter(true);
 
             if (d->table_view)
@@ -406,12 +410,16 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
                 d->tree_view->setRootIsDecorated(true);
                 d->tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
+                d->tree_view->setAcceptDrops(true);
+                d->tree_view->setAutoExpandDelay(500);
+                d->tree_view->setDropIndicatorShown(true);
+                d->tree_view->setDragEnabled(true);
                 if (!d->tree_model)
                     d->tree_model = new ObserverTreeModel();
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
-                connect(d->tree_model,SIGNAL(expandIndex(QModelIndex)),d->tree_view,SLOT(expand(QModelIndex)));
+                connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)));
                 connect(d->tree_view,SIGNAL(customContextMenuRequested(QPoint)),SLOT(mapCustomContextMenuPoint(QPoint)));
 
                 d->tree_view->viewport()->installEventFilter(this);
@@ -464,9 +472,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             if (!d->table_view) {
                 d->table_view = new QTableView();
                 d->table_view->setFocusPolicy(Qt::StrongFocus);
+                d->table_view->setShowGrid(false);
                 d->table_view->setAcceptDrops(true);
                 d->table_view->setDragEnabled(true);
-                d->table_view->setShowGrid(false);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
                 if (!d->table_model)
                     d->table_model = new ObserverTableModel();
@@ -732,6 +740,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
 
 QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
     QList<QObject*> selected_objects;
+    QList<QPointer<QObject> > smart_selected_objects;
 
     if (d->display_mode == TableView) {
         if (!d->table_view || !d->table_model)
@@ -740,8 +749,11 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
         if (d->table_view->selectionModel()) {          
             for (int i = 0; i < d->table_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->table_view->selectionModel()->selectedIndexes().at(i);
-                if (index.column() == 1)
-                    selected_objects << d->table_model->getObject(d->proxy_model->mapToSource(index));
+                if (index.column() == 1) {
+                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));;
+                    smart_selected_objects << obj;
+                    selected_objects << obj;
+                }
             }
         }
     } else if (d->display_mode == TreeView) {
@@ -751,12 +763,16 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
         if (d->tree_view->selectionModel()) {
             for (int i = 0; i < d->tree_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->tree_view->selectionModel()->selectedIndexes().at(i);
-                if (index.column() == 0)
-                    selected_objects << d->tree_model->getObject(d->proxy_model->mapToSource(index));
+                if (index.column() == 0) {
+                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));;
+                    smart_selected_objects << obj;
+                    selected_objects << obj;
+                }
             }
         }
+        d->tree_model->setSelectedObjects(smart_selected_objects);
     }
-    d->current_selection = selected_objects;
+    d->current_selection = smart_selected_objects;   
     return selected_objects;
 }
 
@@ -1016,7 +1032,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // Find Item
     // ---------------------------
     d->actionFindItem = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
-    //d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
+    d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
     connect(d->actionFindItem,SIGNAL(triggered()),SLOT(toggleSearchBox()));
     ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFindItem,context);
     d->action_provider->addAction(d->actionFindItem,QtilitiesCategory(tr("View")));
@@ -1164,6 +1180,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionExpandAll->setEnabled(false);
         d->actionCollapseAll->setVisible(false);
         d->actionExpandAll->setVisible(false);
+        if (d->actionFilterCategories) {
+            d->actionFilterCategories->setVisible(false);
+            d->actionFilterNodes->setVisible(false);
+            d->actionFilterItems->setVisible(false);
+            d->actionFilterTypeSeperator->setVisible(false);
+        }
     } else {
         d->actionCollapseAll->setVisible(true);
         d->actionExpandAll->setVisible(true);
@@ -1177,6 +1199,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionPushUp->setVisible(false);
         d->actionPushDownNew->setVisible(false);
         d->actionPushUpNew->setVisible(false);
+        if (d->actionFilterCategories) {
+            d->actionFilterCategories->setVisible(true);
+            d->actionFilterNodes->setVisible(true);
+            d->actionFilterItems->setVisible(true);
+            d->actionFilterTypeSeperator->setVisible(true);
+        }
     }
 
     // Remove & Delete Items + Navigating Up & Down
@@ -1397,7 +1425,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         object_list << d_observer;
         selectObjects(object_list);
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        // We must check if there is an selection parent, else use d_observer
+        // We must check if there is an selection parent, else use d_observer:
         if (d->tree_model->selectionParent()) {
             Observer* selection_parent = d->tree_model->selectionParent();
             if (selection_parent->subjectCount() > 0)
@@ -1768,6 +1796,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
         d->update_selection_activity = true;
         selectObjects(selected_objects);
         d->tree_view->setFocus();
+        if (d->searchBoxWidget)
+            handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
     } else if (d->display_mode == TreeView && d->tree_model) {
         if (selectedIndexes().count() > 0) {
             d->navigation_stack = d->tree_model->getParentHierarchy(selectedIndexes().front());
@@ -1790,6 +1820,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
         d->display_mode = TableView;
         initialize();
         d->table_view->setFocus();
+        if (d->searchBoxWidget)
+            handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
     }
 
     refreshActions();
@@ -1814,13 +1846,13 @@ void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionCopy() {
-    ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID());
+    ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::CopyAction);
     QApplication::clipboard()->setMimeData(mimeData);
     CLIPBOARD_MANAGER->setClipboardOrigin(IClipboard::CopyAction);
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionCut() {
-    ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID());
+    ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::MoveAction);
     QApplication::clipboard()->setMimeData(mimeData);
     CLIPBOARD_MANAGER->setClipboardOrigin(IClipboard::CutAction);
 }
@@ -1928,6 +1960,32 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
         } else if (d->tree_view && d->display_mode == TreeView) {
             connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->tree_view,SLOT(setFocus()));
         }
+
+        QMenu* search_options_menu = d->searchBoxWidget->searchOptionsMenu();
+        if (search_options_menu) {
+            d->actionFilterTypeSeperator = search_options_menu->addSeparator();
+            d->actionFilterNodes = new QAction(tr("Filter Nodes"),this);
+            d->actionFilterNodes->setCheckable(true);
+            d->actionFilterNodes->setChecked(false);
+            connect(d->actionFilterNodes,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
+            search_options_menu->addAction(d->actionFilterNodes);
+            d->actionFilterItems = new QAction(tr("Filter Items"),this);
+            d->actionFilterItems->setCheckable(true);
+            d->actionFilterItems->setChecked(true);
+            connect(d->actionFilterItems,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
+            search_options_menu->addAction(d->actionFilterItems);
+            d->actionFilterCategories = new QAction(tr("Filter Categories"),this);
+            d->actionFilterCategories->setCheckable(true);
+            d->actionFilterCategories->setChecked(false);
+            connect(d->actionFilterCategories,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
+            search_options_menu->addAction(d->actionFilterCategories);
+            if (d->display_mode == TableView) {
+                d->actionFilterCategories->setVisible(false);
+                d->actionFilterNodes->setVisible(false);
+                d->actionFilterItems->setVisible(false);
+                d->actionFilterTypeSeperator->setVisible(false);
+            }
+        }
     }
 
     if (!ui->widgetSearchBox->isVisible()) {
@@ -1941,6 +1999,24 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
             d->table_view->setFocus();
         } else if (d->tree_view && d->display_mode == TreeView) {
             d->tree_view->setFocus();
+        }
+    }
+}
+
+void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
+    // Only do something in tree view
+    if (d->display_mode == TreeView && d->proxy_model) {
+        ObserverTreeModelProxyFilter* proxy = dynamic_cast<ObserverTreeModelProxyFilter*> (d->proxy_model);
+        if (proxy) {
+            ObserverTreeItem::TreeItemTypeFlags flags = 0;
+            if (d->actionFilterNodes->isChecked())
+                flags |= ObserverTreeItem::TreeNode;
+            if (d->actionFilterItems->isChecked())
+                flags |= ObserverTreeItem::TreeItem;
+            if (d->actionFilterCategories->isChecked())
+                flags |= ObserverTreeItem::CategoryItem;
+            proxy->setRowFilterTypes(flags);
+            proxy->invalidate();
         }
     }
 }
@@ -2140,6 +2216,15 @@ void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectC
     }
 }
 
+void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> > objects) {
+    QList<QObject*> simple_list;
+    for (int i = 0; i < objects.count(); i++) {
+        if (objects.at(i))
+            simple_list << objects.at(i);
+    }
+    selectObjects(simple_list);
+}
+
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
     if (objects.count() == 0)
         return;
@@ -2218,11 +2303,6 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
     Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
     QRegExp regExp(filter_string, caseSensitivity, syntax);
     d->proxy_model->setFilterRegExp(regExp);
-
-    if (d->table_view && d->display_mode == TableView)
-        d->table_view->resizeRowsToContents();
-    else if (d->tree_view && d->display_mode == TreeView)
-        viewExpandAll();
 }
 
 void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
@@ -2458,45 +2538,31 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
             if (!d->initialized)
                 return false;
 
-            if (d->display_mode == TableView) {
-                if (dropEvent->proposedAction() == Qt::MoveAction || dropEvent->proposedAction() == Qt::CopyAction) {
-                    const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (dropEvent->mimeData());
-                    if (observer_mime_data) {
-                        if (observer_mime_data->sourceID() == d_observer->observerID()) {
-                            QMessageBox msgBox;
-                            msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                            msgBox.setText(QString(tr("The drop operation could not be completed. The destination and source is the same.")));
-                            msgBox.exec();
-                            return false;
-                        }
-
-                        if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
-                            // Now check the proposed action of the event.
-                            if (dropEvent->proposedAction() == Qt::MoveAction) {
-                                dropEvent->accept();
-                                OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
-                            } else if (dropEvent->proposedAction() == Qt::CopyAction) {
-                                dropEvent->accept();
-
-                                // Attempt to copy the dragged objects
-                                // For now we discard objects that cause problems during attachment and detachment
-                                for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
-                                    // Attach to destination
-                                    if (!d_observer->attachSubject(observer_mime_data->subjectList().at(i))) {
-                                        QMessageBox msgBox;
-                                        msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                                        msgBox.setText(QString(tr("Attachment of your object(s) failed in the destination context.")));
-                                        msgBox.exec();
-                                    }
-                                }
-                            }
-                        } else {
-                            QMessageBox msgBox;
-                            msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                            msgBox.setText(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection.")));
-                            msgBox.exec();
-                        }
+            if (dropEvent->proposedAction() == Qt::MoveAction || dropEvent->proposedAction() == Qt::CopyAction) {
+                const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (dropEvent->mimeData());
+                if (observer_mime_data) {
+                    if (observer_mime_data->sourceID() == d_observer->observerID()) {
+                        LOG_ERROR(QString(tr("The drop operation could not be completed. The destination and source is the same.")));
+                        return false;
                     }
+
+                    if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
+                        // Now check the proposed action of the event.
+                        if (dropEvent->proposedAction() == Qt::MoveAction) {
+                            dropEvent->accept();
+                            OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                        } else if (dropEvent->proposedAction() == Qt::CopyAction) {
+                            dropEvent->accept();
+                            // Attempt to copy the dragged objects:
+                            QList<QObject*> dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                            if (dropped_list.count() != observer_mime_data->subjectList().count()) {
+                                LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                            } else {
+                                LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+                            }
+                        }
+                    } else
+                        LOG_ERROR(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection.")));
                 }
             }
             return false;
@@ -2515,31 +2581,76 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
             int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
             if (distance >= QApplication::startDragDistance()) {
                 if (mouseEvent->buttons() == Qt::LeftButton || mouseEvent->buttons() == Qt::RightButton) {
-                    if (d->current_selection.size() > 0 && d->initialized) {
-                        // Check to see if the selection contains any observers. If so, we don't allow the drag to start.
-                        bool do_drag = true;
-                        /*for (int i = 0; i < d->current_selection.size(); i++) {
-                            Observer* observer = qobject_cast<Observer*> (d->current_selection.at(i));
-                            if (observer) {
-                                do_drag = false;
-                                break;
-                            }
-                        }*/
-
-                        if (do_drag && d->table_model) {
-                            ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID());
-
-                            QDrag *drag = new QDrag(this);
+                    if (d->current_selection.size() > 0 && d->initialized && d->table_model) {
+                        ObserverMimeData* mimeData;
+                        QDrag *drag = new QDrag(this);
+                        if (mouseEvent->buttons() == Qt::LeftButton) {
+                            mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::CopyAction);
                             drag->setMimeData(mimeData);
-                            //drag->setPixmap(QPixmap(ICON_OBSERVER));
-
-                            if (mouseEvent->buttons() == Qt::LeftButton)
-                                drag->exec(Qt::CopyAction);
-                            else if (mouseEvent->buttons() == Qt::RightButton)
-                                drag->exec(Qt::MoveAction);
+                            drag->exec(Qt::CopyAction);
+                        } else if (mouseEvent->buttons() == Qt::RightButton) {
+                            mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::MoveAction);
+                            drag->setMimeData(mimeData);
+                            drag->exec(Qt::MoveAction);
                         }
                     }
                 }
+            }
+            return false;
+        }
+    }
+
+    // ----------------------------------------------
+    // -> TreeView Mode:
+    // ----------------------------------------------
+    if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
+        if (object == d->tree_view && event->type() == QEvent::DragMove) {
+            QDragMoveEvent *dragMoveEvent = static_cast<QDragMoveEvent *>(event);
+            dragMoveEvent->accept();
+            return false;
+        } else if (object == d->tree_view && event->type() == QEvent::DragEnter) {
+            QDragEnterEvent *dragEnterEvent = static_cast<QDragEnterEvent *>(event);
+            dragEnterEvent->accept();
+            return false;
+        } else if (object == d->tree_view->viewport() && event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (mouseEvent->buttons() == Qt::LeftButton)
+               d->startPos = mouseEvent->pos();
+            return false;
+        } else if (object == d->tree_view->viewport() && event->type() == QEvent::MouseMove) {
+            if (!d->initialized)
+                return false;
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent *>(event);
+
+            int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
+            if (distance >= QApplication::startDragDistance()) {
+                Observer* obs = selectionParent();
+                if (!obs)
+                    return false;
+
+                // Check if all the objects in the current selection supports drag flags,
+                // otherwise we do not start the drag:
+                if (d->tree_view->selectionModel()) {
+                    QModelIndexList index_list = selectedIndexes();
+                    for (int i = 0; i < index_list.count(); i++) {
+                        if (!(d->tree_model->flags(index_list.at(i)) & Qt::ItemIsDragEnabled)) {
+                            return false;
+                        }
+                    }
+                }
+
+                // We don't start the drag here, we just populate the Qtilities clipboard manager
+                // with our own mime data object.
+                QList<QObject*> simple_objects = selectedObjects();
+                QList<QPointer<QObject> > smart_objects;
+                for (int i = 0; i < simple_objects.count(); i++)
+                    smart_objects << simple_objects.at(i);
+                ObserverMimeData* mimeData;
+                if (mouseEvent->buttons() == Qt::LeftButton)
+                    mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::CopyAction);
+                else if (mouseEvent->buttons() == Qt::RightButton)
+                    mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::MoveAction);
+                CLIPBOARD_MANAGER->setMimeData(mimeData);
             }
             return false;
         }

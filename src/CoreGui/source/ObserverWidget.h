@@ -131,7 +131,7 @@ namespace Qtilities {
 
               \note This function must be called before initializing the widget for the first time.
 
-              \returns True if the model was succesfully set.
+              \returns True if the model was successfully set.
               */
             bool setCustomTableModel(AbstractObserverTableModel* table_model);
             //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
@@ -141,7 +141,7 @@ namespace Qtilities {
 
               \note This function must be called before initializing the widget for the first time.
 
-              \returns True if the model was succesfully set.
+              \returns True if the model was successfully set.
               */
             bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
             //! Sets the display mode of the widget.
@@ -328,6 +328,13 @@ namespace Qtilities {
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
               */
             void selectObjects(QList<QObject*> objects);
+            //! Selects the specified objects in a smart pointer list in the active item view.
+            /*!
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored.
+
+              \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
+              */
+            void selectObjects(QList<QPointer<QObject> > objects);
             //! Slot which resizes the rows in table view mode.
             /*!
               Slot which resizes the rows in table view mode.
@@ -471,6 +478,8 @@ namespace Qtilities {
             void handleSearchOptionsChanged();
             //! Handles search string changes in the SearchBoxWidget if present.
             void handleSearchStringChanged(const QString& filter_string);
+            //! Handle changes to the type of items which must be filtered.
+            void handleSearchItemTypesChanged();
             //! Refreshes the state of all actions.
             void refreshActions();
         protected:

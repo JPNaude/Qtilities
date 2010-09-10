@@ -55,8 +55,9 @@ using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::AbstractObserverTreeModelData {
     ObserverTreeItem*   rootItem;
-    Observer*           selection_parent;
+    QPointer<Observer>  selection_parent;
     QModelIndex         selection_index;
+    QList<QPointer<QObject> > selected_objects;
 };
 
 Qtilities::CoreGui::AbstractObserverTreeModel::AbstractObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
@@ -548,7 +549,6 @@ Qt::ItemFlags Qtilities::CoreGui::AbstractObserverTreeModel::flagsHelper(const Q
          }
      }
      
-
      // Handle drag & drop hints:
      if (index.column() != columnPosition(ColumnName)) {
          item_flags &= ~Qt::ItemIsDragEnabled;
@@ -558,11 +558,45 @@ Qt::ItemFlags Qtilities::CoreGui::AbstractObserverTreeModel::flagsHelper(const Q
              item_flags &= ~Qt::ItemIsDragEnabled;
              item_flags &= ~Qt::ItemIsDropEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeItem) {
-             item_flags &= ~Qt::ItemIsDropEnabled;
-             item_flags |= Qt::ItemIsDragEnabled;
+             // For items we need to check the drag drop hint of the parent of the index:
+             Observer* local_selection_parent = parentOfIndex(index);
+             if (local_selection_parent) {
+                 if (local_selection_parent->displayHints()) {
+                     // Check if drags are allowed:
+                     if (local_selection_parent->displayHints()->dragDropHint() & ObserverHints::AllowDrags)
+                         item_flags |= Qt::ItemIsDragEnabled;
+                     else
+                         item_flags &= ~Qt::ItemIsDragEnabled;
+                 } else {
+                     item_flags &= ~Qt::ItemIsDragEnabled;
+                 }
+             } else {
+                 item_flags &= ~Qt::ItemIsDragEnabled;
+             }
+            item_flags &= ~Qt::ItemIsDropEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeNode) {
-             item_flags |= Qt::ItemIsDropEnabled;
-             item_flags |= Qt::ItemIsDragEnabled;
+             // Check if the node (observer) accepts drops or allows drags:
+             Observer* obs = qobject_cast<Observer*> (item->getObject());
+             if (obs) {
+                 if (obs->displayHints()) {
+                     // Check if drags are allowed:
+                     if (obs->displayHints()->dragDropHint() & ObserverHints::AllowDrags)
+                         item_flags |= Qt::ItemIsDragEnabled;
+                     else
+                         item_flags &= ~Qt::ItemIsDragEnabled;
+                     // Check if drops are accepted:
+                     if (obs->displayHints()->dragDropHint() & ObserverHints::AcceptDrops)
+                         item_flags |= Qt::ItemIsDropEnabled;
+                     else
+                         item_flags &= ~Qt::ItemIsDropEnabled;
+                 } else {
+                     item_flags &= ~Qt::ItemIsDragEnabled;
+                     item_flags &= ~Qt::ItemIsDropEnabled;
+                 }
+             } else {
+                 item_flags &= ~Qt::ItemIsDragEnabled;
+                 item_flags &= ~Qt::ItemIsDropEnabled;
+             }
          }
      }
 
@@ -637,56 +671,46 @@ bool Qtilities::CoreGui::AbstractObserverTreeModel::dropMimeData(const QMimeData
     Q_UNUSED(data)
 
     Observer* obs = 0;
-    if (row == -1 && column == -1)
-        obs = parentOfIndex(parent);
-    else
+    if (row == -1 && column == -1) {
+        // In this case we need to check if we dropped on an observer, in that case
+        // we don't get the parent, we use parent.
+        ObserverTreeItem* item = getItem(parent);
+        if (item) {
+            if (item->getObject()) {
+                obs = qobject_cast<Observer*> (item->getObject());
+            }
+        }
+
+        if (!obs)
+            obs = parentOfIndex(parent);
+    } else
         obs = parentOfIndex(index(row,column,parent));
     if (obs) {
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (CLIPBOARD_MANAGER->mimeData());
         if (observer_mime_data) {
+            // Try to attach it:
             if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
                 // Now check the proposed action of the event.
-                /*if (dropEvent->proposedAction() == Qt::MoveAction) {
-                    dropEvent->accept();
+                if (observer_mime_data->dropAction() == Qt::MoveAction) {
+                    // Attempt to move the dragged objects:
                     OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
-                } else if (dropEvent->proposedAction() == Qt::CopyAction) {
-                    dropEvent->accept();*/
-
-                    // Attempt to copy the dragged objects
-                    // For now we discard objects that cause problems during attachment and detachment
-                    for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
-                        // Attach to destination
-                        if (!d_observer->attachSubject(observer_mime_data->subjectList().at(i))) {
-                            QMessageBox msgBox;
-                            msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                            msgBox.setText(QString(tr("Attachment of your object(s) failed in the destination context.")));
-                            msgBox.exec();
-                        }
+                } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
+                    // Attempt to copy the dragged objects:
+                    QList<QObject*> dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                    if (dropped_list.count() != observer_mime_data->subjectList().count()) {
+                        LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                    } else {
+                        LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
                     }
-                //}
-            } else {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                msgBox.setText(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection.")));
-                msgBox.exec();
-            }
-        }
-    }
+                }
+            } else
+                LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context.")));
+        } else
+            LOG_ERROR(QString(tr("The drop operation could not be completed. The clipboard manager does not contain a valid mime data object.")));
+    } else
+        LOG_ERROR(QString(tr("The drop operation could not be completed. A suitable context to place your dropped data in could not be found.")));
 
-
-    const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (CLIPBOARD_MANAGER->mimeData());
-    if (observer_mime_data) {
-        if (observer_mime_data->sourceID() == d_observer->observerID()) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(tr("Drop Operation Failed"));
-            msgBox.setText(QString(tr("The drop operation could not be completed. The destination and source is the same.")));
-            msgBox.exec();
-            return false;
-        }
-
-
-    }
-
+    CLIPBOARD_MANAGER->clearMimeData();
     return true;
 }
 
@@ -824,6 +848,7 @@ int Qtilities::CoreGui::AbstractObserverTreeModel::columnCountHelper(const QMode
 }
 
 void Qtilities::CoreGui::AbstractObserverTreeModel::rebuildTreeStructure() {
+    // Rebuild the tree structure:
     reset();
     deleteRootItem();
     QVector<QVariant> columns;
@@ -839,6 +864,9 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::rebuildTreeStructure() {
     //printStructure();
     emit layoutAboutToBeChanged();
     emit layoutChanged();
+
+    // Now attempt to reselect the previously selected objects:
+    emit selectObjects(d->selected_objects);
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::AbstractObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
@@ -1082,6 +1110,10 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::handleContextDataChanged(con
     QModelIndex bottom_right = index(row_count,column_count,parent_index);
     if (hasIndex(row_count,column_count,parent_index))
         emit dataChanged(top_left,bottom_right);
+}
+
+void Qtilities::CoreGui::AbstractObserverTreeModel::setSelectedObjects(QList<QPointer<QObject> > selected_objects) {
+    d->selected_objects = selected_objects;
 }
 
 QModelIndex Qtilities::CoreGui::AbstractObserverTreeModel::findObject(QObject* obj) const {

@@ -159,12 +159,19 @@ namespace Qtilities {
               This function will emit the dataChanged() signal with the indexes of all items in the same context as the item defined by \p index.
               */
             void handleContextDataChanged(const QModelIndex &set_data_index);
+            //! Function to let the model know which objects are currently selected in the view connected to this model.
+            /*!
+              This functionality is used when the layout of the tree changed externally (not in the view) and we
+              need to rebuild the model. We attempt to select the previously selected objects when the tree
+              rebuilding is done.
+              */
+            void setSelectedObjects(QList<QPointer<QObject> > selected_objects);
 
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);
-            //! Signal which is emmited requesting views to expand the tree item at a specific index.
-            void expandIndex(const QModelIndex &index) const;
+            //! This signal should be used to reselect previously selected objects if they are still present in the tree. The signal is emmited when the tree finished to rebuild itself.
+            void selectObjects(QList<QPointer<QObject> > objects) const;
 
         private:
             //! Recursive function used by findObject() to traverse through the trying to find an object.
