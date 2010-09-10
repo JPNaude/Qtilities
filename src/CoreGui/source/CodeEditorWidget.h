@@ -215,7 +215,7 @@ namespace Qtilities {
             // --------------------------------
             //! Loads a file into the editor.
             /*!
-              \returns True if the file was loaded succesfully, false otherwise.
+              \returns True if the file was loaded successfully, false otherwise.
               */
             bool loadFile(const QString& file_name);
             //! Saves the content of the editor to a file.
