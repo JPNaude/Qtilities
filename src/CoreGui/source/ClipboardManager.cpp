@@ -64,7 +64,7 @@ struct Qtilities::CoreGui::ClipboardManagerData {
     QAction* actionPaste;
     QClipboard* clipboard;
     IClipboard::ClipboardOrigin current_origin;
-    QMimeData* mime_data;
+    QPointer<QMimeData> mime_data;
 };
 
 Qtilities::CoreGui::ClipboardManager::ClipboardManager(QObject* parent) : IClipboard(parent)
@@ -152,5 +152,10 @@ void Qtilities::CoreGui::ClipboardManager::setMimeData(QMimeData* mimeData) {
 
 QMimeData* Qtilities::CoreGui::ClipboardManager::mimeData() const {
     return d->mime_data;
+}
+
+void Qtilities::CoreGui::ClipboardManager::clearMimeData() {
+    if (d->mime_data)
+        delete d->mime_data;
 }
 

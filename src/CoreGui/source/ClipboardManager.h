@@ -73,6 +73,7 @@ namespace Qtilities {
             void acceptMimeData();
             void setMimeData(QMimeData* mimeData);
             QMimeData* mimeData() const;
+            void clearMimeData();
 
         public slots:
             void handleClipboardChanged();

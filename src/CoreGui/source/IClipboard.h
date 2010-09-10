@@ -155,6 +155,7 @@ if (observer_mime_data) {
 
                 virtual void setMimeData(QMimeData* mimeData) = 0;
                 virtual QMimeData* mimeData() const = 0;
+                virtual void clearMimeData() = 0;
 
             public slots:
                 virtual void handleClipboardChanged() = 0;
