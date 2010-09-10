@@ -71,7 +71,7 @@ bool Qtilities::CoreGui::WidgetLoggerEngine::initialize() {
     if (d->widget) {
         // Print startup info messages
         Q_ASSERT(abstractLoggerEngineData->formatting_engine);
-        d->widget->appendMessage(objectName() + tr(" initialized succesfully."));
+        d->widget->appendMessage(objectName() + tr(" initialized successfully."));
         d->widget->appendMessage(tr("Log messages will be formatted using the following formatting engine: ") + abstractLoggerEngineData->formatting_engine->name());
         d->widget->appendMessage(" ");
         return true;

@@ -225,7 +225,7 @@ tree_widget->show();
             //! Creates a new tree item and then add it as a tree item under this node.
             /*!
               \param item The reference to the item to be added to this tree.
-              \returns True if the item was attached succesfully, false otherwise.
+              \returns True if the item was attached successfully, false otherwise.
 
               \note This tree node will manage the lifetime of the tree item.
               */
@@ -233,7 +233,7 @@ tree_widget->show();
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param node The reference to the node to be added to this tree.
-              \returns True if the node was attached succesfully, false otherwise.
+              \returns True if the node was attached successfully, false otherwise.
 
               \note This tree node will manage the lifetime of the node item.
               */
@@ -241,7 +241,7 @@ tree_widget->show();
             //! Removes the tree item or tree node specified by \p name from this tree node.
             /*!
               \param item The name of the tree item or tree node to be removed.
-              \returns True if the item was removed succesfully, false otherwise.
+              \returns True if the item was removed successfully, false otherwise.
 
               \note Only use the name of the item directly if you are sure that items in your tree node has
               unique names. This can be enforced by installing a NamingPolicyFilter on the tree node. If
@@ -252,13 +252,13 @@ tree_widget->show();
             //! Removes the specified tree item from this node.
             /*!
               \param item The reference to the item to be removed from this tree.
-              \returns True if the item was removed succesfully, false otherwise.
+              \returns True if the item was removed successfully, false otherwise.
               */
             bool removeItem(TreeItem* item);
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param item The reference to the node to be removed from this tree.
-              \returns True if the node was removed succesfully, false otherwise.
+              \returns True if the node was removed successfully, false otherwise.
               */
             bool removeNode(TreeNode* node);
 
