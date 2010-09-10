@@ -78,6 +78,7 @@ namespace Qtilities {
             Q_ENUMS(ItemSelectionControl)
             Q_ENUMS(HierarchicalDisplay)
             Q_ENUMS(ItemViewColumn)
+            Q_ENUMS(DragDropHint)
 
         public:
             // --------------------------------
@@ -213,6 +214,20 @@ namespace Qtilities {
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem);
             Q_FLAGS(ActionHints);
+            //! The possible drag drop hints for an observer context.
+            /*!
+              This hint indicates if an observer context supports drag or/and drop operations.
+
+              \sa setDragDropHint(), dragDropHint()
+              */
+            enum DragDropHint {
+                NoDragDrop =    0, /*!< No drag or drops allowed. */
+                AcceptDrops =   1, /*!< This context accepts drops.*/
+                AllowDrags =    2, /*!< This context allows drags. */
+                AllDragDrop = AcceptDrops | AllowDrags
+            };
+            Q_DECLARE_FLAGS(DragDropFlags, DragDropHint);
+            Q_FLAGS(DragDropFlags);
 
             // --------------------------------
             // Implementation
@@ -231,6 +246,7 @@ item_selection_control(ObserverHints::SelectableItems),
 hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
 display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
 item_view_column_hint(ObserverHints::NoItemViewColumnHint),
+drag_drop_flags(ObserverHints::NoDragDrop);
 action_hints(ObserverHints::None),
 category_list(QStringList()),
 inverse_categories(true),
@@ -314,6 +330,10 @@ category_filter_enabled(false)
             void setActionHints(ObserverHints::ActionHints popup_menu_items);
             //! Function to get the action hint for this observer's context.
             ObserverHints::ActionHints actionHints() const;
+            //! Function to set the drag drop hint for this observer's context.
+            void setDragDropHint(ObserverHints::DragDropFlags drag_drop_flags);
+            //! Function to get the drag drop hint for this observer's context.
+            ObserverHints::DragDropFlags dragDropHint() const;
 
             // --------------------------------
             // Category Display Functionality
@@ -370,6 +390,7 @@ category_filter_enabled(false)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ItemViewColumnFlags)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DisplayFlags)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ActionHints)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DragDropFlags)
     }
 }
 

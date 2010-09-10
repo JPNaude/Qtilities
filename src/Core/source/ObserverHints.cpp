@@ -43,6 +43,7 @@ struct Qtilities::Core::ObserverHintsData {
         display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
         item_view_column_hint(ObserverHints::ColumnNoHints),
         action_hints(ObserverHints::ActionNoHints),
+        drag_drop_flags(ObserverHints::NoDragDrop),
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false),
@@ -57,6 +58,7 @@ struct Qtilities::Core::ObserverHintsData {
     ObserverHints::DisplayFlags                 display_flags;
     ObserverHints::ItemViewColumnFlags          item_view_column_hint;
     ObserverHints::ActionHints                  action_hints;
+    ObserverHints::DragDropFlags                drag_drop_flags;
     QList<QtilitiesCategory>                    displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
@@ -87,6 +89,7 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->display_flags = other.displayFlagsHint();
     d->item_view_column_hint = other.itemViewColumnHint();
     d->action_hints = other.actionHints();
+    d->drag_drop_flags = other.dragDropHint();
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
@@ -105,6 +108,7 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
     d->display_flags = other.displayFlagsHint();
     d->item_view_column_hint = other.itemViewColumnHint();
     d->action_hints = other.actionHints();
+    d->display_flags = other.displayFlagsHint();
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
@@ -123,6 +127,7 @@ bool Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
     stream << (quint32) d->display_flags;
     stream << (quint32) d->item_view_column_hint;
     stream << (quint32) d->action_hints;
+    stream << (quint32) d->drag_drop_flags;
 
     stream << (quint32) d->displayed_categories.count();
     for (int i = 0; i < d->displayed_categories.count(); i++)
@@ -153,6 +158,8 @@ bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
     d->item_view_column_hint = ObserverHints::ItemViewColumnFlags (qi32);
     stream >> qi32;
     d->action_hints = ObserverHints::ActionHints (qi32);
+    stream >> qi32;
+    d->drag_drop_flags = ObserverHints::DragDropFlags (qi32);
 
     stream >> qi32;
     int category_count = qi32;
@@ -275,6 +282,14 @@ void Qtilities::Core::ObserverHints::setActionHints(ObserverHints::ActionHints a
 
 Qtilities::Core::ObserverHints::ActionHints Qtilities::Core::ObserverHints::actionHints() const {
     return d->action_hints;
+}
+
+void Qtilities::Core::ObserverHints::setDragDropHint(ObserverHints::DragDropFlags drag_drop_flags) {
+    d->drag_drop_flags = drag_drop_flags;
+}
+
+Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::dragDropHint() const {
+    return d->drag_drop_flags;
 }
 
 void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
