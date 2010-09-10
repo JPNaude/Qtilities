@@ -116,7 +116,7 @@ namespace Qtilities {
             bool usesObserverHints() const;
             //! Get hints from the specified observer and use it as the current selection parent's hints.
             /*!
-              \returns True when hints was inherited succesfully, false otherwise.
+              \returns True when hints was inherited successfully, false otherwise.
               */
             bool inheritObserverHints(const Observer* observer);
             //! This function will provide the hints which should be used by this model at any time.
