@@ -639,7 +639,7 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
     if (success) {
         stream << MARKER_LOGGER_CONFIG_TAG;
         file.close();
-        LOG_INFO(tr("Logging configuration succesfully exported to ") + file_name);
+        LOG_INFO(tr("Logging configuration successfully exported to ") + file_name);
         return true;
     } else {
         file.close();
@@ -755,7 +755,7 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     if (success) {
         file.close();
         setGlobalLogLevel((Logger::MessageType) global_log_level);
-        LOG_INFO(tr("Logging configuration succesfully imported from ") + file_name);
+        LOG_INFO(tr("Logging configuration successfully imported from ") + file_name);
         return true;
     } else {
         file.close();

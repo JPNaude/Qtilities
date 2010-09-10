@@ -1,8 +1,6 @@
 # ***************************************************************************
 # Copyright (c) 2009-2010, Jaco Naude
-#
 # See http://www.qtilities.org/licensing.html for licensing details.
-#
 # ***************************************************************************
 # Qtilities - Qt Utility Libraries
 # Core GUI Library
@@ -10,34 +8,25 @@
 QTILITIES += core
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
-
 CONFIG += qt \
     dll \
     ordered
 QT += xml
-
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
-}
-
+CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
+else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
 TEMPLATE = lib
-
 DEFINES += QTILITIES_CORE_GUI_LIBRARY
 DESTDIR = $$QTILITIES_BIN
-
-OBJECTS_DIR     = $$QTILITIES_TEMP/CoreGui
-MOC_DIR         = $$QTILITIES_TEMP/CoreGui
-RCC_DIR         = $$QTILITIES_TEMP/CoreGui
-UI_DIR          = $$QTILITIES_TEMP/CoreGui
+OBJECTS_DIR = $$QTILITIES_TEMP/CoreGui
+MOC_DIR = $$QTILITIES_TEMP/CoreGui
+RCC_DIR = $$QTILITIES_TEMP/CoreGui
+UI_DIR = $$QTILITIES_TEMP/CoreGui
 
 # --------------------------
 # Custom Defines
 # --------------------------
 # Uncomment the next line to get verbose action management messages.
-#DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-
+# DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
 # --------------------------
 # Propery Editor Stuff
 # --------------------------
@@ -46,19 +35,21 @@ LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
 PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
 DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
 INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
-CONFIG(debug, debug|release) {
-    win32: LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
-    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-2.5d
-} else {
-    win32: LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
-    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-2.5
+CONFIG(debug, debug|release) { 
+    win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
+    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
+        -lQtSolutions_PropertyBrowser-2.5d
+}
+else { 
+    win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
+    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
+        -lQtSolutions_PropertyBrowser-2.5
 }
 
 # --------------------------
 # Qtilities Core Gui Files
 # --------------------------
 RESOURCES += resources/resources.qrc
-
 HEADERS += source/QtilitiesCoreGui_global.h \
     source/QtilitiesApplication.h \
     source/QtilitiesApplication_p.h \
@@ -67,7 +58,7 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/NamingPolicyInputDialog.h \
     source/NamingPolicyFilter.h \
     source/AbstractObserverItemModel.h \
-    source/AbstractObserverTableModel.h \    
+    source/AbstractObserverTableModel.h \
     source/AbstractObserverTreeModel.h \
     source/ObserverTableModel.h \
     source/ObserverTreeModel.h \
@@ -109,9 +100,9 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/CodeEditorWidgetConfig.h \
     source/TreeNode.h \
     source/AbstractTreeItem.h \
-    source/TreeItem.h #\
-    #source/TreeFileItem.h
-
+    source/TreeItem.h \
+    source/ObserverTreeModelProxyFilter.h
+    # source/TreeFileItem.h
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
     source/ObserverWidget.cpp \
@@ -153,8 +144,9 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/CodeEditorWidgetConfig.cpp \
     source/TreeNode.cpp \
     source/AbstractTreeItem.cpp \
-    source/TreeItem.cpp #\
-    #source/TreeFileItem.cpp
+    source/TreeItem.cpp \
+    source/ObserverTreeModelProxyFilter.cpp
+    # source/TreeFileItem.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \

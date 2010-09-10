@@ -233,7 +233,7 @@ namespace Qtilities {
               \param file_name The name of the file to which logging must be done. If no engine name is provided the function will return false.
               \param formatting_engine The name of the formatting engine which must be used to format messages in the engine. When empty the file extension of file_name is used to determine the formatting engine used for the file by checking the Qtilities::Logging::AbstractFormattingEngine::fileExtension() functions of all the available formatting engines. If the file extension does not match any of the available file extensions, the Qtilities::Logging::FormattingEngine_Default formatting engine is used.
 
-              \return True if new instance was succesfully created and initialized. False otherwise.
+              \return True if new instance was successfully created and initialized. False otherwise.
             */
             bool newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine = QString());
             //! Convenience function to enable a Qt Message engine which pipes messages through to the Qt Debugging System.
