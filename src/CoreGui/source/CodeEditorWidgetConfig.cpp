@@ -26,6 +26,7 @@
 #include <QFontDatabase>
 
 using namespace Qtilities::CoreGui::Constants;
+using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* parent, Qt::WindowFlags f) :
     QWidget(parent),
@@ -56,7 +57,7 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::~CodeEditorWidgetConfig() {
 }
 
 QIcon Qtilities::CoreGui::CodeEditorWidgetConfig::configPageIcon() const {
-    return QIcon();//Constants::ICON_SHORTCUTS_22x22);
+    return QIcon(ICON_CONFIG_CODE_EDITOR_48x48);
 }
 
 QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {
