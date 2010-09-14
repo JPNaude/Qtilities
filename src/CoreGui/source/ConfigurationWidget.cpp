@@ -41,6 +41,8 @@
 #include <QBoxLayout>
 #include <QDesktopWidget>
 
+using namespace Qtilities::CoreGui::Interfaces;
+
 struct Qtilities::CoreGui::ConfigurationWidgetData {
     ConfigurationWidgetData() : config_pages("Application Settings","Manages IConfigPages in an application"),
     activity_filter(0),
@@ -182,7 +184,11 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
 
         ui->btnApply->setEnabled(config_page->supportsApply());
         ui->lblPageHeader->setText(config_page->configPageTitle());
-        ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
+        if (!config_page->configPageIcon().isNull()) {
+            ui->lblPageIcon->setPixmap(QPixmap(config_page->configPageIcon().pixmap(32,32)));
+            ui->lblPageIcon->setVisible(true);
+        } else
+            ui->lblPageIcon->setVisible(false);
 
         if (ui->configWidget->layout())
             delete ui->configWidget->layout();

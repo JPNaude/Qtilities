@@ -36,8 +36,7 @@
 
 #include "QtilitiesCoreGui_global.h"
 #include "QtilitiesCoreGuiConstants.h"
-
-#include <IActionProvider.h>
+#include "IActionProvider.h"
 
 #include <QWidget>
 #include <QIcon>

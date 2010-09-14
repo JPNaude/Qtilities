@@ -38,7 +38,6 @@
 #include "IMode.h"
 
 #include <QMainWindow>
-#include <QList>
 
 namespace Ui
 {

@@ -72,6 +72,8 @@ namespace Qtilities {
             const char * const ICON_CONFIG_PLUGINS_48x48          = ":/icons/config_plugins_48x48.png";
             //! Icon used for project management config page.
             const char * const ICON_CONFIG_PROJECTS_48x48         = ":/icons/config_projects_48x48.png";
+            //! Icon used for code editor config page.
+            const char * const ICON_CONFIG_CODE_EDITOR_48x48      = ":/icons/config_code_editor_48x48.png";
 
             //! Icon used in observer widgets for action to push down into an observer hierachy in the current window.
             const char * const ICON_PUSH_DOWN_CURRENT_16x16       = ":/icons/push_down_current_16x16.png";

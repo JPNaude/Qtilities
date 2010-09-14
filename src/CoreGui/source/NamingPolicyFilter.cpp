@@ -53,6 +53,7 @@
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core::Constants;
+using namespace Qtilities::Core;
 
 // ----------------------------------------------------------------------------------------
 // NAMING POLICY SUBJECT FILTER
@@ -101,8 +102,10 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
         delete d->validator;
 
     // Check if this policy filter was the object name manager
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        assignNewNameManager(observer->subjectAt(i));
+    if (observer) {
+        for (int i = 0; i < observer->subjectCount(); i++) {
+            assignNewNameManager(observer->subjectAt(i));
+        }
     }
 }
 

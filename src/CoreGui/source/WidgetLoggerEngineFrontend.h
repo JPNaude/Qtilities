@@ -46,6 +46,8 @@ namespace Ui {
     class WidgetLoggerEngineFrontend;
 }
 
+using namespace Qtilities::Core::Interfaces;
+
 namespace Qtilities {
     namespace CoreGui {
         struct WidgetLoggerEngineFrontendData;

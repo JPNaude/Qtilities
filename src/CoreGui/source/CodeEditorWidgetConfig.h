@@ -57,6 +57,12 @@ namespace Qtilities {
             void configPageApply();
             bool supportsApply() const { return true; }
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+
+
         private:
             Ui::CodeEditorWidgetConfig *ui;
         };

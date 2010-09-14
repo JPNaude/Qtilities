@@ -36,10 +36,11 @@
 #include "IMode.h"
 #include "TopToBottomList.h"
 
-#include <QtilitiesCore>
-
 #include <QListWidgetItem>
+
+#include <QtilitiesCore>
 using namespace QtilitiesCore;
+using namespace Qtilities::CoreGui::Interfaces;
 
 struct Qtilities::CoreGui::ModeWidgetData {
     ModeWidgetData() : active_mode(0) {}

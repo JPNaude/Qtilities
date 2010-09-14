@@ -35,7 +35,7 @@
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "CommandEditor.h"
-#include "QtilitiesApplication"
+#include "QtilitiesApplication.h"
 
 #include <ObserverProperty.h>
 #include <QtilitiesCoreConstants.h>

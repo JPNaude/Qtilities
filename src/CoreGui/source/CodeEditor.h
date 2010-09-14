@@ -34,7 +34,7 @@
 #ifndef CODE_EDITOR_H
 #define CODE_EDITOR_H
 
-#include "QtilitiesCoreGui_global"
+#include "QtilitiesCoreGui_global.h"
 
 #include <QPlainTextEdit>
 

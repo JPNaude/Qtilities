@@ -35,12 +35,15 @@
 #include "ui_CodeEditorWidget.h"
 #include "CodeEditor.h"
 
-#include <QtilitiesCoreGui>
+#include "ActionProvider.h"
+#include "QtilitiesApplication.h"
+#include "QtilitiesCoreGuiConstants.h"
 
 #include <QFileInfo>
 #include <QtGui>
 
-using namespace QtilitiesCoreGui;
+using namespace Qtilities::CoreGui::Icons;
+using namespace Qtilities::CoreGui::Actions;
 
 struct Qtilities::CoreGui::CodeEditorWidgetData {
     CodeEditorWidgetData() : actionNew(0),
@@ -136,6 +139,7 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     layout->addWidget(d->searchBoxWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
+    d->searchBoxWidget->show();
 
     // Assign a default meta type for this widget:
     // We construct each action and then register it
@@ -431,7 +435,6 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
         d->searchBoxWidget->layout()->setContentsMargins(3,0,0,0);
         d->searchBoxWidget->setWholeWordsOnly(false);
-        d->searchBoxWidget->show();
 
         connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
         connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));

@@ -35,11 +35,11 @@
 #define NAMINGPOLICYFILTER_H
 
 #include "QtilitiesCoreGui_global.h"
-#include "QtilitiesCoreGuiConstants"
+#include "QtilitiesCoreGuiConstants.h"
 
-#include <AbstractSubjectFilter.h>
+#include <AbstractSubjectFilter>
 #include <IModificationNotifier>
-#include <Factory.h>
+#include <Factory>
 
 #include <QItemDelegate>
 #include <QValidator>

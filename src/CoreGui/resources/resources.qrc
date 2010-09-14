@@ -82,5 +82,6 @@
         <file>icons/config_plugins_48x48.png</file>
         <file>icons/config_projects_48x48.png</file>
         <file>icons/config_logging_48x48.png</file>
+        <file>icons/config_code_editor_48x48.png</file>
     </qresource>
 </RCC>

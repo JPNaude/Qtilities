@@ -175,7 +175,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_RemoveLoggerEngineRequest() 
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_LoggerEngineTableClicked(const QModelIndex& index) {
     // Get the engine at the position:
-    if (index.row() < 0 or index.row() >= Log->attachedLoggerEngineCount()) {
+    if (index.row() < 0 || index.row() >= Log->attachedLoggerEngineCount()) {
         d->active_engine = 0;
     } else {
         d->active_engine = Log->loggerEngineReferenceAt(index.row());

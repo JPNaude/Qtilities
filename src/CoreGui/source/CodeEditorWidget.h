@@ -37,10 +37,10 @@
 #include "QtilitiesCoreGui_global.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "CodeEditor.h"
+#include "SearchBoxWidget.h"
+#include "IActionProvider.h"
 
-#include <IContext>
-#include <SearchBoxWidget>
-#include <IActionProvider>
+#include <IContext.h>
 
 #include <QWidget>
 #include <QPointer>

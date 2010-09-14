@@ -35,11 +35,11 @@
 #define ABSTRACTOBSERVERITEMMODEL_H
 
 #include "QtilitiesCoreGui_global.h"
+#include "NamingPolicyFilter.h"
 
 #include <Observer>
 #include <ObserverHints>
 #include <ActivityPolicyFilter>
-#include <NamingPolicyFilter>
 
 #include <QModelIndex>
 

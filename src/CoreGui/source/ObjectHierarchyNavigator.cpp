@@ -87,7 +87,6 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
     bool read_only = false;
     for (int i = d_navigation_stack.count()-1; i >= 0; i--) {
         observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(i));
-        //connect(observer,SIGNAL(nameChanged(QString)),SLOT(refreshHierarchy()));
         Q_ASSERT(observer);
         if (observer) {
             if (observer->accessMode() == Observer::ReadOnlyAccess)

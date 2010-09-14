@@ -37,6 +37,8 @@
 #include "IClipboard.h"
 #include "QtilitiesCoreGui_global.h"
 
+#include <Observer.h>
+
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
@@ -58,7 +60,7 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IClipboard)
-            friend class Observer;
+            friend class Qtilities::Core::Observer;
 
         public:
             ClipboardManager(QObject* parent = 0);

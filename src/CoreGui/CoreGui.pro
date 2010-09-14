@@ -23,11 +23,6 @@ RCC_DIR = $$QTILITIES_TEMP/CoreGui
 UI_DIR = $$QTILITIES_TEMP/CoreGui
 
 # --------------------------
-# Custom Defines
-# --------------------------
-# Uncomment the next line to get verbose action management messages.
-# DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-# --------------------------
 # Propery Editor Stuff
 # --------------------------
 DEFINES += QT_QTPROPERTYBROWSER_IMPORT

@@ -34,10 +34,11 @@
 #ifndef NAMINGPOLICYINPUTDIALOG_H
 #define NAMINGPOLICYINPUTDIALOG_H
 
+#include "NamingPolicyFilter.h"
+
 #include <QDialog>
 #include <QIcon>
 #include <QString>
-#include "NamingPolicyFilter.h"
 
 namespace Ui {
     class NamingPolicyInputDialog;

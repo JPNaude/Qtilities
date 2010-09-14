@@ -38,6 +38,8 @@
 #include <QBoxLayout>
 #include <QSettings>
 
+using namespace Qtilities::CoreGui::Interfaces;
+
 struct Qtilities::CoreGui::QtilitiesMainWindowData {
     QtilitiesMainWindowData() : initialized(false),
     current_widget(0) {}

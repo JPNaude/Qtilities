@@ -36,7 +36,7 @@
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "ActionProvider.h"
-#include "ConfigurationWidget"
+#include "ConfigurationWidget.h"
 
 #include <Logger.h>
 

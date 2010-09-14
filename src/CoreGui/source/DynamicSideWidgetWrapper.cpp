@@ -35,8 +35,7 @@
 #include "ui_DynamicSideWidgetWrapper.h"
 #include "ISideViewerWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
-
-#include <IActionProvider.h>
+#include "IActionProvider.h"
 
 #include <QComboBox>
 #include <QBoxLayout>
