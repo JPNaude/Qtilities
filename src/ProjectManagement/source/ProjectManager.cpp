@@ -43,7 +43,6 @@
 #include <QPointer>
 #include <QSettings>
 #include <QApplication>
-
 #include <QMessageBox>
 #include <QFileDialog>
 
@@ -182,11 +181,16 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
     if (file_name.isEmpty()) {
         if (d->current_project->projectFile().isEmpty()) {
             QString filter = QString(tr("Project File (*%1)")).arg(FILE_EXT_PROJECT);
-            QString project_path = QCoreApplication::applicationDirPath() + "/Projects";
+            QString project_path;
+            if (PROJECT_MANAGER->useCustomProjectsPath())
+                project_path = PROJECT_MANAGER->customProjectsPath();
+            else
+                project_path = QCoreApplication::applicationDirPath() + "/Projects";
             QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
-            if (file_name.isEmpty())
+            if (file_name.isEmpty()) {
+                QApplication::restoreOverrideCursor();
                 return false;
-            else {
+            } else {
                 if (!file_name.endsWith(FILE_EXT_PROJECT))
                     file_name.append(FILE_EXT_PROJECT);
             }
