@@ -154,7 +154,7 @@ namespace Qtilities {
               \sa setHierarchicalDisplayHint(), hierarchicalDisplayHint()
               */
             enum HierarchicalDisplay {
-                NoHierarchicalDisplayHint = 0,   /*!< No hierachical display hint. Uses FlatHierarchy by default. */
+                NoHierarchicalDisplayHint = 0,  /*!< No hierachical display hint. Uses FlatHierarchy by default. */
                 FlatHierarchy = 1,              /*!< The hierarchy of items under an observer is flat. Thus categories are not displayed. */
                 CategorizedHierarchy = 2        /*!< Item are grouped by their category. Items which do not have a category associated with them are grouped under an category called QString(OBSERVER_UNCATEGORIZED_CATEGORY). */
             };
@@ -182,7 +182,7 @@ namespace Qtilities {
                 NoDisplayFlagsHint = 1,     /*!< No display flags hint. Uses ItemView by default. */
                 ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
                 NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
-                PropertyBrowser = 4,        /*!< Display the property browser. */
+                PropertyBrowser = 4,        /*!< Display the property browser. When %Qtilities is build with the QTILITIES_NO_PROPERTY_BROWSER variable defined, this value is meaningless.*/
                 ActionToolBar = 8,          /*!< Display an action toolbar in the observer widget with all the actions provided through Qtilities::CoreGui::ObserverWidget::actionProvider(). */
                 AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser | ActionToolBar
             };

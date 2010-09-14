@@ -41,12 +41,18 @@ Qtilities::Core::Interfaces::IFactoryData::IFactoryData(QDomDocument* doc, QDomE
 
 bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDomElement* object_node) const {
     // We store factory data as QDomCDATASection children:
-    QDomCDATASection factoryTag = doc->createCDATASection(d_factory_tag);
+    /*QDomCDATASection factoryTag = doc->createCDATASection(d_factory_tag);
     object_node->appendChild(factoryTag);
     QDomCDATASection instanceTag = doc->createCDATASection(d_instance_tag);
     object_node->appendChild(instanceTag);
     QDomCDATASection instanceName = doc->createCDATASection(d_instance_name);
-    object_node->appendChild(instanceName);
+    object_node->appendChild(instanceName);*/
+
+    // Create a factory item for i:
+    /*QDomElement factory_tag = doc->createElement("FactoryData");
+    factory_tag.setAttribute("ID", i);
+    object_node->appendChild(factory_tag);
+    export_iface->factoryData().exportXML(doc,&factory_item);*/
 
     return true;
 }

@@ -35,9 +35,9 @@
 #define ACTIVITYPOLICYFILTER_H
 
 #include "AbstractSubjectFilter.h"
-#include "IModificationNotifier"
+#include "IModificationNotifier.h"
 #include "Factory.h"
-#include "QtilitiesCoreConstants"
+#include "QtilitiesCoreConstants.h"
 
 namespace Qtilities {
     namespace Core {

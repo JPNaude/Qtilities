@@ -125,6 +125,10 @@ namespace Qtilities {
                 // Exporting & Importing Functionality
                 // ---------------------------------
                 //! Streams exportable dynamic properties about the object to the given QDataStream.
+                /*!
+                  To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
+                  This is the case for all properties used in %Qtilities.
+                  */
                 virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
                 //! Streams exportable dynamic properties about the new_instance QObject from the given QDataStream.
                 virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream) const = 0;

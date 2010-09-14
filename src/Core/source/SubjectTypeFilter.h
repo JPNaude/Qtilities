@@ -34,10 +34,10 @@
 #ifndef SUBJECT_TYPE_FILTER_H
 #define SUBJECT_TYPE_FILTER_H
 
-#include "AbstractSubjectFilter.h"
 #include "ObjectManager.h"
 #include "Factory.h"
-#include "QtilitiesCoreConstants"
+#include "QtilitiesCoreConstants.h"
+#include "AbstractSubjectFilter.h"
 
 namespace Qtilities {
     namespace Core {

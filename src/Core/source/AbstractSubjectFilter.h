@@ -38,7 +38,7 @@
 #include <QMutex>
 
 #include "QtilitiesCore_global.h"
-#include "IExportable"
+#include "IExportable.h"
 
 class QDynamicPropertyChangeEvent;
 
@@ -48,7 +48,7 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
 
         /*!
-          \class Qtilities::Core::AbstractSubjectFilter
+          \class AbstractSubjectFilter
           \brief The AbstractSubjectFilter class provides the abstract interface for observer subject filters.
 
           The AbstractSubjectFilter class defines the standard interface that subject filters must use to be able to interoperate with observers.
@@ -207,8 +207,8 @@ namespace Qtilities {
             void propertyChangeFiltered(const char* property_name, QList<QObject*> objects = QList<QObject*>());
 
         protected:
-            QMutex filter_mutex;
-            Observer* observer;
+            QMutex              filter_mutex;
+            Observer*           observer;
         };
     }
 }

@@ -38,7 +38,8 @@
 #include "ObjectManager.h"
 #include "ContextManager.h"
 
-#include <Logger>
+#include <Logger.h>
+
 #include <QList>
 #include <QString>
 
