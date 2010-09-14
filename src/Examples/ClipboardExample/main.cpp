@@ -303,12 +303,15 @@ int main(int argc, char *argv[])
     ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
     object_scope_dock->setWidget(scope_widget);
     QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),scope_widget,SLOT(setObject(QList<QPointer<QObject> >)));
+    main_window->addDockWidget(Qt::LeftDockWidgetArea,object_scope_dock);
+
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     QDockWidget* property_browser_dock = new QDockWidget("Object Properties");
     ObjectPropertyBrowser* property_browser = new ObjectPropertyBrowser();
     property_browser_dock->setWidget(property_browser);
     QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),property_browser,SLOT(setObject(QList<QPointer<QObject> >)));
-    main_window->addDockWidget(Qt::LeftDockWidgetArea,object_scope_dock);
     main_window->addDockWidget(Qt::LeftDockWidgetArea,property_browser_dock);
+    #endif
 
     // Load the previous session's keyboard mapping file.
     QString shortcut_mapping_file = QString("%1/session/%2").arg(QApplication::applicationDirPath()).arg(FILE_SHORTCUT_MAPPING);

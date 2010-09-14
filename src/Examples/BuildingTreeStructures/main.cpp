@@ -48,19 +48,24 @@ int main(int argc, char *argv[])
 
     // Create the tree nodes:
     TreeNode* nodeA = new TreeNode("Node A");
+    nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
     TreeNode* nodeB = nodeA->addNode("Node B");
     TreeNode* nodeC = nodeA->addNode("Node C");
-    ObserverHints::DisplayFlags display_flags = 0;
+    TreeNode* nodeD = nodeC->addNode("Node C");
+    TreeNode* nodeE = nodeC->addNode("Node C");
+    TreeNode* nodeF = nodeD->addNode("Node C");
+    nodeB->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
+    /*ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
     display_flags |= ObserverHints::NavigationBar;
     display_flags |= ObserverHints::ActionToolBar;
     nodeA->displayHints()->setDisplayFlagsHint(display_flags);
     nodeB->displayHints()->setDisplayFlagsHint(display_flags);
-    nodeC->displayHints()->setDisplayFlagsHint(display_flags);
-    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    nodeC->displayHints()->setDisplayFlagsHint(display_flags);*/
+    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
 
     // Create the tree items:
-    nodeA->addItem("Item 1");
+    nodeC->addItem("Item 1");
     nodeB->addItem("Item 2");
     nodeB->addItem("Item 3");
     nodeB->addItem("Item 4");
@@ -68,16 +73,16 @@ int main(int argc, char *argv[])
     nodeB->addItem("Item 6");
     nodeB->addItem("Item 7");
 
-    nodeC->startProcessingCycle();
+    /*nodeC->startProcessingCycle();
     for (int i = 0; i < 100; i++) {
         nodeC->addItem(QString("Batch Item").arg(i));
     }
-    nodeC->endProcessingCycle();
+    nodeC->endProcessingCycle();*/
 
     // Test XML tree streaming:
     QString path = QString("%1/test.xml").arg(QApplication::applicationDirPath());
-    nodeA->saveToFile(path);
-    nodeA->loadFromFile(path);
+    //nodeA->saveToFile(path);
+    //nodeA->loadFromFile(path);
 
     // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();

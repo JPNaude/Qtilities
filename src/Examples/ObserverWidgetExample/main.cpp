@@ -175,11 +175,13 @@ int main(int argc, char *argv[])
     //observerC->setAccessMode(Observer::LockedAccess);
     observer_widget->setObserverContext(observerA);
 
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     // Before the observer widget initialization we can specify where the editor should be, and of what type the editor must be:
     observer_widget->setPreferredPropertyEditorDockArea(Qt::RightDockWidgetArea);
     observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::TreeBrowser);
     //observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::GroupBoxBrowser);
     //observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::ButtonBrowser);
+    #endif
 
     // We need to tell all three observers that they should provide an action hint for the search action as well.
     action_hints = observerA->displayHints()->actionHints();
@@ -191,11 +193,13 @@ int main(int argc, char *argv[])
     observer_widget->initialize();
 
     // After the observer widget was initialized we can access the property editor and call functions on it:
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     if (observer_widget->propertyBrowser()) {
             QStringList filter_list;
             filter_list << "QObject";
             observer_widget->propertyBrowser()->setFilterList(filter_list);
     }
+    #endif
 
     observer_widget->show();
 

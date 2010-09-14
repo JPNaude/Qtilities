@@ -129,8 +129,10 @@ int main(int argc, char *argv[])
     QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
     SideViewerWidgetHelper* object_scope_side_widget_helper = new SideViewerWidgetHelper(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
     OBJECT_MANAGER->registerObject(object_scope_side_widget_helper);
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     SideViewerWidgetHelper* property_editor_side_widget_helper = new SideViewerWidgetHelper(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
     OBJECT_MANAGER->registerObject(property_editor_side_widget_helper);
+    #endif
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
