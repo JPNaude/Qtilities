@@ -41,11 +41,11 @@
 #include <QObject>
 #include <QString>
 
-using namespace Qtilities::Core::Interfaces;
-
 namespace Qtilities {
     namespace ProjectManagement {
         namespace Interfaces {
+            using namespace Qtilities::Core::Interfaces;
+
             /*!
             \class IProjectItem
             \brief Interface through which objects can be exposed as project parts.

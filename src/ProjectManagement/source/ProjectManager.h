@@ -34,15 +34,15 @@
 #ifndef PROJECTMANAGERGLOBAL_H
 #define PROJECTMANAGERGLOBAL_H
 
-#include <QObject>
-#include <QStringList>
-
-#include <IModificationNotifier.h>
-
 #include "ProjectManagement_global.h"
 #include "ProjectManagementConstants.h"
 #include "IProjectItem.h"
 #include "IProject.h"
+
+#include <QObject>
+#include <QStringList>
+
+#include <IModificationNotifier.h>
 
 namespace Qtilities {
     namespace ProjectManagement {

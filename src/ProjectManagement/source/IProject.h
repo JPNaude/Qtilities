@@ -41,12 +41,12 @@
 
 #include <QStringList>
 
-using namespace Qtilities::Core::Interfaces;
-
 namespace Qtilities {
     namespace ProjectManagement {
         //! Namespace containing available interfaces which forms part of the ProjectManagement Module.
         namespace Interfaces {
+            using namespace Qtilities::Core::Interfaces;
+
             /*!
             \class IProject
             \brief Interface through which the project manager communicates with projects.

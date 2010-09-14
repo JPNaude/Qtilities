@@ -32,7 +32,7 @@
 ****************************************************************************/
 
 #include "ObserverProjectItemWrapper.h"
-#include "ProjectManager"
+#include "ProjectManager.h"
 
 #include <IExportable.h>
 #include <ObserverRelationalTable.h>

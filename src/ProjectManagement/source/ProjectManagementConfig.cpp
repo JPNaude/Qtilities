@@ -35,10 +35,9 @@
 #include "ui_ProjectManagementConfig.h"
 #include "ProjectManager.h"
 
-#include <QtilitiesCoreGuiConstants>
-
 #include <QFileDialog>
 
+#include <QtilitiesCoreGuiConstants>
 using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(QWidget *parent) :

@@ -42,10 +42,14 @@ namespace Ui {
     class ProjectManagementConfig;
 }
 
-using namespace Qtilities::CoreGui::Interfaces;
-
 namespace Qtilities {
     namespace ProjectManagement {
+        using namespace Qtilities::CoreGui::Interfaces;
+
+        /*!
+          \class ProjectManagementConfig
+          \brief The ProjectManagementConfig class provides a ready to use configuration widget for the project manager.
+         */
         class ProjectManagementConfig : public QWidget, public IConfigPage {
             Q_OBJECT
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)

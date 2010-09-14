@@ -37,16 +37,15 @@
 #include "IProjectItem.h"
 #include "ProjectManagement_global.h"
 
-#include <Observer.h>
-
 #include <QObject>
 
+#include <Observer>
 using namespace Qtilities::Core;
-using namespace Qtilities::Core::Interfaces;
-using namespace Qtilities::ProjectManagement::Interfaces;
 
 namespace Qtilities {
     namespace ProjectManagement {
+        using namespace Qtilities::ProjectManagement::Interfaces;
+
         /*!
           \struct ObserverProjectItemWrapperData
           \brief The ObserverProjectItemWrapperData struct stores private data used by the ObserverProjectItemWrapper class.
