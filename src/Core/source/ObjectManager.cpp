@@ -52,6 +52,7 @@
 
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
+using namespace Qtilities::Core::Interfaces;
 
 struct Qtilities::Core::ObjectManagerData {
     ObjectManagerData() : object_pool(GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
@@ -80,6 +81,10 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
     registerIFactory(this);
+
+    // Register some stream operators:
+    qRegisterMetaType<Qtilities::Core::QtilitiesCategory>("Qtilities::Core::QtilitiesCategory");
+    qRegisterMetaTypeStreamOperators<Qtilities::Core::QtilitiesCategory>("Qtilities::Core::QtilitiesCategory");
 }
 
 Qtilities::Core::ObjectManager::~ObjectManager()

@@ -41,6 +41,13 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
     access_mode = access_mode;
 }
 
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator = QString("::")) {
+    QStringList category_name_list = category_levels.split(seperator);
+    foreach(QString level,category_name_list)
+        addLevel(level);
+    d_access_mode = 3;
+}
+
 Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QStringList& category_name_list) {
     foreach(QString level,category_name_list)
         addLevel(level);
@@ -57,6 +64,14 @@ bool Qtilities::Core::QtilitiesCategory::exportBinary(QDataStream& stream) const
     return true;
 }
 
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::QtilitiesCategory& category) {
+    stream << (quint32) category.accessMode();
+    stream << (quint32) category.categoryLevels().count();
+    for (int i = 0; i < category.categoryLevels().count(); i++)
+        category.categoryLevels().at(i).exportBinary(stream);
+    return stream;
+}
+
 bool Qtilities::Core::QtilitiesCategory::importBinary(QDataStream& stream) {
     quint32 ui32;
     stream >> d_access_mode;
@@ -67,6 +82,19 @@ bool Qtilities::Core::QtilitiesCategory::importBinary(QDataStream& stream) {
         d_category_levels.push_back(category_level);
     }
     return true;
+}
+
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::QtilitiesCategory& category) {
+    quint32 ui32;
+    stream >> ui32;
+    category.setAccessMode(ui32);
+    stream >> ui32;
+    int count_int = ui32;
+    for (int i = 0; i < count_int; i++) {
+        Qtilities::Core::CategoryLevel category_level(stream);
+        category.addLevel(category_level);
+    }
+    return stream;
 }
 
 QString Qtilities::Core::QtilitiesCategory::toString(const QString& join_string) const {

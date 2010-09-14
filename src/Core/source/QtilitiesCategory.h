@@ -119,6 +119,12 @@ This class was added in %Qtilities v0.2.
               \param access_mode The access mode of this category. By default we use Observer::InvalidAccess since the mode is not always going to be used.
               */
             QtilitiesCategory(const QString& category_level_name = QString(), int access_mode = 3);
+            //! Constructs a QtilitiesCategory object.
+            /*!
+              \param category_levels A QString containing a list of categories seperated by the \p seperator parameter.
+              \param seperator The seperator string used to split the \p category_levels parameter.
+              */
+            QtilitiesCategory(const QString& category_levels, const QString& seperator);
             //! Creates a QtilitiesCategory object from a QStringList.
             QtilitiesCategory(const QStringList& category_name_list);
             QtilitiesCategory(QDataStream &ds) {
@@ -252,5 +258,8 @@ This class was added in %Qtilities v0.2.
 }
 
 Q_DECLARE_METATYPE(Qtilities::Core::QtilitiesCategory);
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::QtilitiesCategory& category);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::QtilitiesCategory& category);
 
 #endif // QTILITIES_CATEGORY_H
