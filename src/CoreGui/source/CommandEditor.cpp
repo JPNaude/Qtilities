@@ -54,7 +54,9 @@ struct Qtilities::CoreGui::CommandEditorData {
 
     CommandTableModel* model;
     QTableView* table_view;
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     ObjectPropertyBrowser* property_browser;
+    #endif
     QSortFilterProxyModel* proxy_model;
 };
 
@@ -86,6 +88,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     }
 
     // Create Property Browser
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     d->property_browser = new ObjectPropertyBrowser(ObjectPropertyBrowser::GroupBoxBrowser,0);
     if (d->property_browser) {
         QStringList filter_list;
@@ -93,12 +96,15 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
         d->property_browser->setFilterList(filter_list);
         d->property_browser->layout()->setMargin(0);
     }
+    #endif
 
     // Create Layout
     QGridLayout* layout = new QGridLayout();
     if (ui->widgetPropertyEditor->layout())
         delete ui->widgetPropertyEditor->layout();
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     layout->addWidget(d->property_browser);
+    #endif
     layout->setMargin(0);
     ui->widgetPropertyEditor->setLayout(layout);
     ui->commandTable->setSortingEnabled(true);
@@ -155,11 +161,13 @@ void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
 }
 
 void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous) {
-    if (d->property_browser && d->proxy_model) {
+    if (d->proxy_model) {
         if (current.row() >= 0 && current.row() < ACTION_MANAGER->commandMap().count()) {
             QModelIndex original_index = d->proxy_model->mapToSource(current);
+            #ifndef QTILITIES_NO_PROPERTY_BROWSER
             if (original_index.isValid())
                 d->property_browser->setObject(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
+            #endif
         }
     }
 }

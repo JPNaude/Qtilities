@@ -31,6 +31,8 @@
 **
 ****************************************************************************/
 
+#ifndef QTILITIES_NO_PROPERTY_BROWSER
+
 #ifndef OBJECTPROPERTYBROWSER_H
 #define OBJECTPROPERTYBROWSER_H
 
@@ -159,3 +161,5 @@ namespace Qtilities {
 }
 
 #endif // OBJECTPROPERTYBROWSER_H
+
+#endif

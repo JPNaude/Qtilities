@@ -40,12 +40,12 @@
 #include "ObjectPropertyBrowser.h"
 #include "AbstractObserverTableModel.h"
 #include "AbstractObserverTreeModel.h"
+#include "SearchBoxWidget.h"
 
 #include <Observer.h>
 #include <ObserverHints.h>
 #include <IContext.h>
 #include <Observer.h>
-#include <SearchBoxWidget>
 
 #include <QMainWindow>
 #include <QStack>
@@ -363,8 +363,10 @@ namespace Qtilities {
             // Item Widgets Related Functions
             // --------------------------------
         public:
+            #ifndef QTILITIES_NO_PROPERTY_BROWSER
             //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
             ObjectPropertyBrowser* propertyBrowser();
+            #endif
             //! Returns the SearchBoxWidget contained inside the observer widget.
             /*!
               \returns The search box widget instance, if it does not exist null is returned.
@@ -372,6 +374,7 @@ namespace Qtilities {
             SearchBoxWidget* searchBoxWidget();
 
         public slots:
+            #ifndef QTILITIES_NO_PROPERTY_BROWSER
             //! Sets the desired area of the property editor (if it is used by the observer context).
             /*!
               This area will be used to position the property editor dock widget when the widget is first shown during a session. Afterwards the widget will remember where the dock widget is.
@@ -388,8 +391,12 @@ namespace Qtilities {
         protected:
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.
             void refreshPropertyBrowser();
+            #endif
+        protected:
             //! Refreshes the action toolbar with the current state of the actions.
             void refreshActionToolBar();
+            //! Deletes all the current action toolbars.
+            void deleteActionToolBars();
 
             // --------------------------------
             // Action Handlers and Related Functions
@@ -491,8 +498,6 @@ namespace Qtilities {
             void mapCustomContextMenuPoint(const QPoint & pos);
 
         signals:
-            //! This signal is connected to the item view's custom context menu requested signal.
-            void customContextMenuRequested(const QPoint & pos);
             //! Signal which is emitted when the add new item action is triggered.
             /*!
               The parameters used during this signal emission is defferent depending on the display mode and the

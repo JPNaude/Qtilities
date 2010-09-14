@@ -33,6 +33,7 @@
 
 #include "ObjectPropertyBrowser.h"
 
+#ifndef QTILITIES_NO_PROPERTY_BROWSER
 #include <QtilitiesCoreConstants.h>
 
 #include <QtCore/QMetaObject>
@@ -492,4 +493,4 @@ int Qtilities::CoreGui::ObjectPropertyBrowser::intToFlag(const QMetaEnum &metaEn
     }
     return flagValue;
 }
-
+#endif

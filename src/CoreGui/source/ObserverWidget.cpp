@@ -142,8 +142,12 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! Used to identify the top level observer. d_observer is current selection parent observer.
     QPointer<Observer> top_level_observer;
 
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     QDockWidget* property_browser_dock;
     ObjectPropertyBrowser* property_browser_widget;
+    Qt::DockWidgetArea property_editor_dock_area;
+    ObjectPropertyBrowser::BrowserType property_editor_type;
+    #endif
 
     //! Indicates if the widget is in an initialized state. Thus initialization was successful. \sa initialize()
     bool initialized;
@@ -163,9 +167,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QString global_meta_type;
     //! The shared global meta type of this widget. See setSharedGlobalMetaType().
     QString shared_global_meta_type;
-
-    Qt::DockWidgetArea property_editor_dock_area;
-    ObjectPropertyBrowser::BrowserType property_editor_type;
+    //! A list of appended contexts which have been appended when the selection changes in this widget.
     QStringList appended_contexts;
 
     //! The current selection in this widget. Set in the selectedObjects() function.
@@ -191,8 +193,13 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
 
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     d->property_browser_dock = 0;
     d->property_browser_widget = 0;
+    d->property_editor_dock_area = Qt::RightDockWidgetArea;
+    d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
+    #endif
+
     d->navigation_bar = 0;
     d->display_mode = display_mode;
 
@@ -215,8 +222,6 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->update_global_active_objects = false;
     d->initialized = false;
     d->update_selection_activity = true;
-    d->property_editor_dock_area = Qt::RightDockWidgetArea;
-    d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
     ui->setupUi(this);
 
     setWindowIcon(QIcon(ICON_QTILITIES_SYMBOL_WHITE_16x16));
@@ -354,7 +359,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     d->initialized = false;
 
     if (!d_observer) {
-        LOG_FATAL("You are attempting to initialize an ObserverWidget without an observer context.");
+        LOG_FATAL(tr("You are attempting to initialize an ObserverWidget without an observer context."));
         d->action_provider->disableAllActions();
         d->initialized = false;
         return;
@@ -647,7 +652,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     d->initialized = true;
     if (!hints_only) {
         // Construct the property browser if neccesarry:
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
         refreshPropertyBrowser();
+        #endif
         installEventFilter(this);
     }
 
@@ -665,7 +672,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             // Ok since the new observer provides hints, we need to see if we must select its' active objects:
             // Check if the observer has a FollowSelection actity policy
             // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
-            if (d_observer->displayHints()->activityControlHint() == ObserverHints::FollowSelection) {
+            if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
                 // Check if the observer has a activity filter, which it should have with this hint
                 ActivityPolicyFilter* filter = 0;
                 for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
@@ -936,12 +943,9 @@ void Qtilities::CoreGui::ObserverWidget::handleSettingsUpdateRequest(const QStri
         readSettings();
 }
 
+#ifndef QTILITIES_NO_PROPERTY_BROWSER
 Qtilities::CoreGui::ObjectPropertyBrowser* Qtilities::CoreGui::ObserverWidget::propertyBrowser() {
     return d->property_browser_widget;
-}
-
-Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::ObserverWidget::searchBoxWidget() {
-    return d->searchBoxWidget;
 }
 
 void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorDockArea(Qt::DockWidgetArea property_editor_dock_area) {
@@ -950,6 +954,11 @@ void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorDockArea(Qt::
 
 void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type) {
     d->property_editor_type = property_editor_type;
+}
+#endif
+
+Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::ObserverWidget::searchBoxWidget() {
+    return d->searchBoxWidget;
 }
 
 void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
@@ -1301,7 +1310,9 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     }
 
     d->tree_name_column_delegate->setObserverContext(observer);
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     refreshPropertyBrowser();
+    #endif
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionRemove() {
@@ -1858,7 +1869,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionCut() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
-    if (activeHints()->actionHints() & ObserverHints::ObserverHints::ActionPasteItem){
+    if (activeHints()->actionHints() & ObserverHints::ActionPasteItem){
         // Check if the subjects being dropped are of the same type as the destination observer.
         // If this is not the case, we do not allow the drop.
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (QApplication::clipboard()->mimeData());
@@ -2058,9 +2069,13 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         CONTEXT_MANAGER->broadcastState();
 
     // Update the global object list
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     if (!d->property_browser_widget) {
+    #endif
         updateGlobalActiveSubjects();
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
     }
+    #endif
 
     // If selected objects > 0 and the observer context supports copy & cut, we enable copy/cut
     if (d->current_selection.count() > 0) {
@@ -2101,7 +2116,9 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // the setTreeSelectionParent slot.
     Observer* selection_parent = 0;
     if (d->display_mode == TableView) {
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
         refreshPropertyBrowser();
+        #endif
         selection_parent = d_observer;
 
         if (d->activity_filter && d->update_selection_activity) {
@@ -2197,6 +2214,8 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
         d->initialized = false;
         refreshActions();
     }
+
+    deleteActionToolBars();
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
@@ -2309,6 +2328,7 @@ void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
     handleSearchStringChanged("");
 }
 
+#ifndef QTILITIES_NO_PROPERTY_BROWSER
 void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
     // Update the property editor visibility and object
     if (activeHints()->displayFlagsHint() & ObserverHints::PropertyBrowser) {
@@ -2323,6 +2343,17 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
         removeDockWidget(d->property_browser_dock);
     }
 }
+
+void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
+    if (!d->property_browser_dock) {
+        d->property_browser_dock = new QDockWidget("Property Browser",0);
+        d->property_browser_widget = new ObjectPropertyBrowser(d->property_editor_type);
+        d->property_browser_widget->setObject(d_observer);
+        d->property_browser_dock->setWidget(d->property_browser_widget);
+        connect(d->property_browser_dock,SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),SLOT(setPreferredPropertyEditorDockArea(Qt::DockWidgetArea)));
+    }
+}
+#endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
     // This is very slow way of doing it, must be optimized in the future since
@@ -2352,28 +2383,21 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
                 new_toolbar->addActions(action_list);
             }
         }
-    } else {
-        int toolbar_count = d->action_toolbars.count();
-        if (toolbar_count > 0) {
-            for (int i = 0; i < toolbar_count; i++) {
-                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
-                removeToolBar(toolbar);
-                if (toolbar) {
-                    d->action_toolbars.removeOne(toolbar);
-                    delete toolbar;
-                }
-            }
-        }
-    }
+    } else
+        deleteActionToolBars();
 }
 
-void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
-    if (!d->property_browser_dock) {
-        d->property_browser_dock = new QDockWidget("Property Browser",0);
-        d->property_browser_widget = new ObjectPropertyBrowser(d->property_editor_type);
-        d->property_browser_widget->setObject(d_observer);
-        d->property_browser_dock->setWidget(d->property_browser_widget);
-        connect(d->property_browser_dock,SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),SLOT(setPreferredPropertyEditorDockArea(Qt::DockWidgetArea)));
+void Qtilities::CoreGui::ObserverWidget::deleteActionToolBars() {
+    int toolbar_count = d->action_toolbars.count();
+    if (toolbar_count > 0) {
+        for (int i = 0; i < toolbar_count; i++) {
+            QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
+            removeToolBar(toolbar);
+            if (toolbar) {
+                d->action_toolbars.removeOne(toolbar);
+                delete toolbar;
+            }
+        }
     }
 }
 
