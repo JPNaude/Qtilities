@@ -95,7 +95,7 @@ Qtilities::Core::Observer::~Observer() {
         LOG_TRACE(QString("Starting destruction of observer \"%1\":").arg(objectName()));
         LOG_TRACE("Deleting neccessary children.");
 
-        QMutableListIterator<QObject*> i(observerData->subject_list);
+        QMutableListIterator<QObject*> i = observerData->subject_list.iterator();
         while (i.hasNext()) {
             QObject* obj = i.next();
             // If it is an observer we start a processing cycle on it:
@@ -137,7 +137,11 @@ Qtilities::Core::Observer::~Observer() {
 
     // Delete subject filters
     LOG_TRACE("Deleting subject filters.");
-    observerData->subject_filters.deleteAll();
+    int filter_count = observerData->subject_filters.count();
+    for (int i = 0; i < filter_count; i++) {
+        delete observerData->subject_filters.at(0);
+        observerData->subject_filters.pop_front();
+    }
 
     if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
         LOG_TRACE("Removing any trace of this observer from remaining children.");
@@ -629,7 +633,7 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::setFactoryData(IFactoryData factory_data) {
+void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::Interfaces::IFactoryData factory_data) {
     if (factory_data.isValid())
         observerData->factory_data = factory_data;
 }
@@ -1439,7 +1443,7 @@ bool Qtilities::Core::Observer::setSubjectLimit(int subject_limit) {
 void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory category) {
     // Check if this observer is read only
     if (observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) {
-        LOG_ERROR(QString("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.").arg(objectName()));
+        LOG_ERROR(QString(tr("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.")).arg(objectName()));
         return;
     }
 
@@ -1448,11 +1452,11 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory
     else {
         // Check if this category exists in this observer context:
         if (!hasCategory(category)) {
-            LOG_ERROR(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString()));
+            LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString()));
             return;
         }
 
-        // Loop through the categories hash until we find the category:
+        // Loop through the categories list until we find the category:
         for (int i = 0; i < observerData->categories.count(); i++) {
             if (observerData->categories.at(i) == category) {
                 observerData->categories.removeAt(i);
@@ -1475,7 +1479,7 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(Qtil
             return Observer::InvalidAccess;
         }
 
-        // Loop through the categories hash until we find the category:
+        // Loop through the categories list until we find the category:
         for (int i = 0; i < observerData->categories.count(); i++) {
             if (observerData->categories.at(i) == category) {
                 return (AccessMode) observerData->categories.at(i).accessMode();
@@ -1620,11 +1624,11 @@ bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) c
 Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessMode(const QtilitiesCategory& category) const {
     // Check if this category exists in this observer context:
     if (!hasCategory(category)) {
-        LOG_ERROR(QString("Observer \"%1\" does not have category \"%2\", access mode cannot be set.").arg(objectName()).arg(category.toString()));
+        LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString()));
         return InvalidAccess;
     }
 
-    // Loop through the categories hash until we find the category:
+    // Loop through the categories list until we find the category:
     for (int i = 0; i < observerData->categories.count(); i++) {
         if (observerData->categories.at(i) == category) {
             return (AccessMode) observerData->categories.at(i).accessMode();
@@ -1853,7 +1857,7 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
 bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 {
     if ((event->type() == QEvent::DynamicPropertyChange)) {
-        // Get the even tin the correct format
+        // Get the event in the correct format
         QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
 
         // First check is to see if it is a reserved property. In that case we filter it directly.

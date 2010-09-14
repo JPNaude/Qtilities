@@ -34,6 +34,10 @@
 #ifndef POINTERLIST_H
 #define POINTERLIST_H
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
 #include <QObject>
 #include <QList>
 #include <QtDebug>
@@ -101,8 +105,7 @@ test_list: Delete object test2 during destruction of test_list. Deleting it will
 \endcode
 */
 
-        template<class T>
-        class QTILIITES_CORE_SHARED_EXPORT PointerList : public PointerListDeleter, public QList<T*>
+        class QTILIITES_CORE_SHARED_EXPORT PointerList : public PointerListDeleter
         {
 
         public:
@@ -110,108 +113,23 @@ test_list: Delete object test2 during destruction of test_list. Deleting it will
             /*!
              \param cleanup_when_done When true, the PointerList will delete all objects attached to it when it is destructed.
             */
-            PointerList(bool cleanup_when_done = false, QObject *parent = 0) : QList<T*>() {
-                Q_UNUSED(parent)
+            PointerList(bool cleanup_when_done = false, QObject *parent = 0);
+            ~PointerList();
 
-                cleanup_enabled = cleanup_when_done;
-            }
-
-            //! Copy constructor.
-            PointerList(const PointerList<T*> & other): PointerListDeleter(), QList<T*>(other)
-            {
-                for (int i = 0;i < other.count();i++)
-                {
-                    addThisObject(other.at(i));
-                }
-            }
-
-            ~PointerList() {
-                if (cleanup_enabled) {
-                    deleteAll();
-                }
-            }
-
-            //! Appends a new instance of T to the PointerList.
-            void append(T* object) {
-                addThisObject(object);
-                QList<T*>::append(object);
-            }
-
-            //! Inserts a new instance of T to the PointerList at position i.
-            typename QList<T*>::iterator insert(typename QList<T*>::iterator before,  T*  object)
-            {
-                addThisObject(object);
-                return QList<T*>::insert(before, object);
-            }
-
-            //! Implementation of overloaded + operator.
-            PointerList<T> operator+ (const PointerList<T> & other) const
-            {
-                PointerList<T> m = *this;
-                m += other;
-                return m;
-            }
-            //! Implementation of overloaded += (Pointerlist) operator.
-            PointerList<T> & operator+= (const PointerList<T> & other)
-            {
-                Q_FOREACH(T*t, other)
-                {
-                    *this << t;
-                }
-                return *this;
-            }
-            //! Implementation of overloaded += operator.
-            PointerList<T> & operator+= (T*  object)
-            {
-                addThisObject(object);
-                QList<T*>::operator+=(object);
-                return *this;
-            }
-            //! Implementation of overloaded << (Pointerlist) operator.
-            PointerList<T> & operator<< (const PointerList<T> & other)
-            {
-                *this += other;
-                return *this;
-            }
-            //! Implementation of overloaded << operator.
-            PointerList<T> & operator<< (T* object)
-            {
-                *this += object;
-                return *this;
-            }
-            //! Implementation of overloaded = operator.
-            PointerList<T> & operator= (const PointerList<T> & other)
-            {
-                QList<T*>::clear();
-                Q_FOREACH(T*t, other)
-                {
-                    *this << t;
-                }
-                return *this;
-            }
-            //! Deletes all objects from the list.
-            void deleteAll() {
-                int total = QList<T*>::count();
-                for (int i = 0; i < total; i++) {
-                    delete QList<T*>::at(0);
-                }
-                QList<T*>::clear();
-            }
+            void append(QObject* object);
+            void deleteAll();
+            int count() const;
+            void removeOne(QObject* obj);
+            QObject* at(int i) const;
+            QMutableListIterator<QObject*> iterator();
 
         protected:
-            virtual void removeThisObject(QObject * object)
-            {
-                removeAll(reinterpret_cast<T*>(object));
-                emit objectDestroyed(object);
-            }
-
-            virtual void addThisObject(QObject * obj)
-            {
-                QObject::connect(obj, SIGNAL(destroyed(QObject *)), this, SLOT(removeSender()));
-            }
+            virtual void removeThisObject(QObject * object);
+            virtual void addThisObject(QObject * obj);
 
         private:
             bool cleanup_enabled;
+            QList<QObject*> list;
         };
     }
 }

@@ -36,10 +36,10 @@
 
 #include "QtilitiesCore_global.h"
 #include "QtilitiesCoreConstants.h"
-#include "AbstractSubjectFilter.h"
 #include "PointerList.h"
 #include "IFactory.h"
 #include "QtilitiesCategory.h"
+#include "AbstractSubjectFilter.h"
 
 #include <QSharedData>
 #include <QObject>
@@ -86,8 +86,8 @@ namespace Qtilities {
               */
             bool importBinary(QDataStream& stream);
 
-            PointerList<QObject> subject_list;
-            PointerList<AbstractSubjectFilter> subject_filters;
+            PointerList subject_list;
+            QList<AbstractSubjectFilter*> subject_filters;
             int subject_limit;
             int subject_id_counter;
             int observer_id;
@@ -97,7 +97,8 @@ namespace Qtilities {
             bool deliver_qtilities_property_changed_events;
             int access_mode;
             int access_mode_scope;
-            // This list does NOT store all categories in the observer context, only categories for which access modes were defined.
+            // This list does NOT store all categories in the observer context,
+            // only categories for which access modes were defined.
             QList<QtilitiesCategory> categories;
             ObserverHints* display_hints;
             IFactoryData factory_data;
