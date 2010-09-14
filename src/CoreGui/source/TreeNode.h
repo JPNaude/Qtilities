@@ -159,22 +159,40 @@ tree_widget->show();
             TreeNode(const QString& name = QString());
             virtual ~TreeNode();
 
+            //! Enables categorized display on this node.
+            /*!
+              This is a convenience function which sets the Qtilities::Core::ObserverHints::CategorizedHierarchy hint on
+              this node's observer base class.
+
+              \sa getCategorizedDisplayEnabled()
+              */
+            void setCategorizedDisplayEnabled(bool is_enabled);
+            //! Function indicating if categorized display is used on this tree node.
+            /*!
+              \sa setCategorizedDisplayEnabled()
+              */
+            bool getCategorizedDisplayEnabled() const;
+
             //! Convenience function to set up naming control on this tree node.
             /*!
               This function will create a Qtilities::CoreGui::NamingPolicyFilter with the specified
               parameters and install it on the tree node. It will also set the correct parameters on the
               Observer base class.
 
-              This function must be called only once, after the construction of your tree node. Calling
-              it a second time will do nothing.
+              This function must be called only once, after the construction of your tree node before
+              any tree items have been attached to the node. Calling it a second time will just return
+              the already constructed filter.
 
               \param naming_control The ObserverHints::NamingControl hint to use in this tree node.
               \param uniqueness_policy The NamingPolicyFilter::UniquenessPolicy to use in this tree node.
               \param resolution_policy The NamingPolicyFilter::ResolutionPolicy to use in this tree node. This resolution policy will be used for NamingPolicyFilter::uniquenessResolutionPolicy() and validityResolutionPolicy().
+              \returns The naming policy filter used in this node. If the filter could not be constructed, null is returned.
               */
-            void enableNamingControl(ObserverHints::NamingControl naming_control,
+            NamingPolicyFilter* enableNamingControl(ObserverHints::NamingControl naming_control,
                                      NamingPolicyFilter::UniquenessPolicy uniqueness_policy,
                                      NamingPolicyFilter::ResolutionPolicy resolution_policy = NamingPolicyFilter::PromptUser);
+            //! Disables naming control in this node.
+            void disableNamingControl();
 
             //! Convenience function to set up activity control on this tree node.
             /*!
@@ -182,20 +200,24 @@ tree_widget->show();
               parameters and install it on the tree node. It will also set the correct parameters on the
               Observer base class.
 
-              This function must be called only once, after the construction of your tree node. Calling
-              it a second time will do nothing.
+              This function must be called only once, after the construction of your tree node before
+              any tree items have been attached to the node. Calling it a second time will just return
+              the already constructed filter.
 
               \param activity_display The ObserverHints::ActivityDisplay hint to use in this tree node.
               \param activity_control The ObserverHints::ActivityControl hint to use in this tree node.
               \param activity_policy The ActivityPolicyFilter::ActivityPolicy hint to use in this tree node.
               \param minimum_activity_policy The ActivityPolicyFilter::MinimumActivityPolicy hint to use in this tree node.
               \param new_subject_activity_policy The ActivityPolicyFilter::NewSubjectActivityPolicy hint to use in this tree node.
+              \returns The activity policy filter used in this node. If the filter could not be constructed, null is returned.
               */
-            void enableActivityControl(ObserverHints::ActivityDisplay activity_display,
+            ActivityPolicyFilter* enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                                        ObserverHints::ActivityControl activity_control = ObserverHints::NoActivityControlHint,
                                        ActivityPolicyFilter::ActivityPolicy activity_policy = ActivityPolicyFilter::UniqueActivity,
                                        ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy = ActivityPolicyFilter::ProhibitNoneActive,
                                        ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy = ActivityPolicyFilter::SetNewActive);
+            //! Disables actvity control in this node.
+            void disableActivityControl();
 
             /*!
               This overloaded function will start a naming validation cycle on the naming policy filter if enableNamingControl() called.
@@ -209,35 +231,39 @@ tree_widget->show();
             //! Creates a new tree item and then add it as a tree item under this node.
             /*!
               \param name The name of the item.
+              \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeItem created.
 
               \note This tree node will manage the lifetime of the new tree item.
               */
-            TreeItem* addItem(const QString& name);
+            TreeItem* addItem(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param name The name of the node.
+              \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeNode created.
 
               \note This tree node will manage the lifetime of the new tree node.
               */
-            TreeNode* addNode(const QString& name);
+            TreeNode* addNode(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
             //! Creates a new tree item and then add it as a tree item under this node.
             /*!
               \param item The reference to the item to be added to this tree.
+              \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns True if the item was attached successfully, false otherwise.
 
               \note This tree node will manage the lifetime of the tree item.
               */
-            bool addItem(TreeItem* item);
+            bool addItem(TreeItem* item, const QtilitiesCategory& category = QtilitiesCategory());
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param node The reference to the node to be added to this tree.
+              \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns True if the node was attached successfully, false otherwise.
 
               \note This tree node will manage the lifetime of the node item.
               */
-            bool addNode(TreeNode* node);
+            bool addNode(TreeNode* node, const QtilitiesCategory& category = QtilitiesCategory());
             //! Removes the tree item or tree node specified by \p name from this tree node.
             /*!
               \param item The name of the tree item or tree node to be removed.

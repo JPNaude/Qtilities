@@ -49,6 +49,7 @@ struct Qtilities::CoreGui::TreeNodeData {
     TreeNodeData() : naming_policy_filter(0) { }
 
     QPointer<NamingPolicyFilter> naming_policy_filter;
+    QPointer<ActivityPolicyFilter> activity_policy_filter;
 };
 
 Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
@@ -67,27 +68,18 @@ Qtilities::CoreGui::TreeNode::~TreeNode() {
     delete nodeData;
 }
 
-Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name) {
-    TreeItem* new_item = new TreeItem(name);
-    if (attachSubject(new_item,Observer::ObserverScopeOwnership)) {
-        return new_item;
-    } else {
-        delete new_item;
-        return 0;
-    }
+void Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled(bool is_enabled) {
+    displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 }
 
-Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name) {
-    TreeNode* new_node = new TreeNode(name);
-    if (attachSubject(new_node,Observer::ObserverScopeOwnership)) {
-        return new_node;
-    } else {
-        delete new_node;
-        return 0;
-    }
+bool Qtilities::CoreGui::TreeNode::getCategorizedDisplayEnabled() const {
+    if (displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy)
+        return true;
+    else
+        return false;
 }
 
-void Qtilities::CoreGui::TreeNode::enableNamingControl(ObserverHints::NamingControl naming_control,
+Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::enableNamingControl(ObserverHints::NamingControl naming_control,
                          NamingPolicyFilter::UniquenessPolicy uniqueness_policy,
                          NamingPolicyFilter::ResolutionPolicy resolution_policy) {
 
@@ -102,23 +94,42 @@ void Qtilities::CoreGui::TreeNode::enableNamingControl(ObserverHints::NamingCont
             delete nodeData->naming_policy_filter;
         }
     }
+
+    return nodeData->naming_policy_filter;
 }
 
-void Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
+void Qtilities::CoreGui::TreeNode::disableNamingControl() {
+    if (nodeData->naming_policy_filter) {
+         delete nodeData->naming_policy_filter;
+         displayHints()->setNamingControlHint(ObserverHints::NoNamingControlHint);
+    }
+}
+
+Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                            ObserverHints::ActivityControl activity_control,
                            ActivityPolicyFilter::ActivityPolicy activity_policy,
                            ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy,
                            ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {
 
-    ActivityPolicyFilter* filter = new ActivityPolicyFilter();
-    filter->setMinimumActivityPolicy(minimum_activity_policy);
-    filter->setNewSubjectActivityPolicy(new_subject_activity_policy);
-    filter->setActivityPolicy(activity_policy);
-    if (installSubjectFilter(filter)) {
+    nodeData->activity_policy_filter = new ActivityPolicyFilter();
+    nodeData->activity_policy_filter->setMinimumActivityPolicy(minimum_activity_policy);
+    nodeData->activity_policy_filter->setNewSubjectActivityPolicy(new_subject_activity_policy);
+    nodeData->activity_policy_filter->setActivityPolicy(activity_policy);
+    if (installSubjectFilter(nodeData->activity_policy_filter)) {
         displayHints()->setActivityControlHint(activity_control);
         displayHints()->setActivityDisplayHint(activity_display);
     } else {
-        delete filter;
+        delete nodeData->activity_policy_filter;
+    }
+
+    return nodeData->activity_policy_filter;
+}
+
+void Qtilities::CoreGui::TreeNode::disableActivityControl() {
+    if (nodeData->activity_policy_filter) {
+         delete nodeData->activity_policy_filter;
+         displayHints()->setActivityControlHint(ObserverHints::NoActivityControlHint);
+         displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplayHint);
     }
 }
 
@@ -134,15 +145,39 @@ void Qtilities::CoreGui::TreeNode::endProcessingCycle() {
     Observer::endProcessingCycle();
 }
 
-bool Qtilities::CoreGui::TreeNode::addItem(TreeItem* item) {
+Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
+    TreeItem* new_item = new TreeItem(name);
+    new_item->setCategory(category,this);
+    if (attachSubject(new_item,Observer::ObserverScopeOwnership)) {
+        return new_item;
+    } else {
+        delete new_item;
+        return 0;
+    }
+}
+
+Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name, const QtilitiesCategory& category) {
+    TreeNode* new_node = new TreeNode(name);
+    new_node->setCategory(category,this);
+    if (attachSubject(new_node,Observer::ObserverScopeOwnership)) {
+        return new_node;
+    } else {
+        delete new_node;
+        return 0;
+    }
+}
+
+bool Qtilities::CoreGui::TreeNode::addItem(TreeItem* item, const QtilitiesCategory& category) {
     if (!item)
         return false;
+    item->setCategory(category,this);
     return attachSubject(item);
 }
 
-bool Qtilities::CoreGui::TreeNode::addNode(TreeNode* node) {
+bool Qtilities::CoreGui::TreeNode::addNode(TreeNode* node, const QtilitiesCategory& category) {
     if (!node)
         return false;
+    node->setCategory(category,this);
     return attachSubject(node);
 }
 
