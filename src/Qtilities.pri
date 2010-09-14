@@ -22,6 +22,15 @@ QTILITIES_DEPENDENCIES  = $$QTILITIES_BASE/dependencies
 QTILITIES_FILE_VER      = -0.1
 
 #****************************************************************************
+# Build Options:
+#****************************************************************************
+# Builds Qtilities without the ObjectPropertyBrowser class, thus you
+# don't need the Qt Property Browser Solution.
+DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+# Enables verbose action management messages.
+# DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
+
+#****************************************************************************
 # Include paths
 #****************************************************************************
 INCLUDEPATH         +=$$QTILITIES_INCLUDE
