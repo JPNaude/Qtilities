@@ -22,14 +22,11 @@
 
 #include "ExtensionSystem_global.h"
 
-#include <Observer.h>
-
 #include <QObject>
 #include <QStringList>
 
 namespace Qtilities {
     namespace ExtensionSystem {
-        using namespace Qtilities::Core;
         /*!
           \struct ExtensionSystemCoreData
           \brief The ExtensionSystemCoreData class stores data used by the ExtensionSystemCore class.

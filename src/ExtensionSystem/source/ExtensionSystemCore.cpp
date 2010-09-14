@@ -195,15 +195,18 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     if (!d->extension_system_config_widget) {
         ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
         observer_widget->setObserverContext(&d->plugins);
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
         observer_widget->setPreferredPropertyEditorDockArea(Qt::BottomDockWidgetArea);
         observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::GroupBoxBrowser);
+        #endif
         observer_widget->initialize();
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
         if (observer_widget->propertyBrowser()) {
             QStringList filter_list;
             filter_list << "IPlugin";
             observer_widget->propertyBrowser()->setFilterList(filter_list, true);
         }
-        //observer_widget->setWindowIcon(QIcon(ICON_EXTENSION_SYSTEM_22x22));
+        #endif
         observer_widget->layout()->setMargin(0);
 
         d->extension_system_config_widget = new ExtensionSystemConfig();

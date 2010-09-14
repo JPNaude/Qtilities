@@ -36,7 +36,6 @@
 #include "ExtensionSystemCore.h"
 
 #include <QtilitiesCoreGuiConstants>
-
 using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget *parent) :
