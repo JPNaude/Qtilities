@@ -207,7 +207,7 @@ Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::format
 }
 
 Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::formattingEngineReferenceAt(int index) {
-    if (index < 0 or index >= d->formatting_engines.count())
+    if (index < 0 || index >= d->formatting_engines.count())
         return 0;
 
     return d->formatting_engines.at(index);
@@ -409,7 +409,7 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngi
 }
 
 Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngineReferenceAt(int index) {
-    if (index < 0 or index >= d->logger_engines.count())
+    if (index < 0 || index >= d->logger_engines.count())
         return 0;
 
     return d->logger_engines.at(index);
