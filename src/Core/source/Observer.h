@@ -482,13 +482,12 @@ namespace Qtilities {
             //! This function will remove this observer from all the properties which it might have added to an obj.
             void removeObserverProperties(QObject* obj);
 
+        public:
             // --------------------------------
             // General functions providing information about this observer's state and observed subjects
             // --------------------------------
             //! This function will check if obj_to_check is a parent of observer in the parent hierachy of observer. Use this function to avoid circular dependancies.
-            bool isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) const;
-
-        public:
+            static bool isParentInHierarchy(const Observer* obj_to_check, const Observer* observer);
             //! This function will validate changes to the observer, or to a specific observer category if specified.
             bool isConst(const QtilitiesCategory& access_mode = QtilitiesCategory()) const;
             //! Returns the observer's subject limit.

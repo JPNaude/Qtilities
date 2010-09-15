@@ -608,11 +608,13 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
 }
 
 void Qtilities::Core::Observer::refreshViewsLayout() {
-    emit layoutChanged();
+    if (!observerData->process_cycle_active)
+        emit layoutChanged();
 }
 
 void Qtilities::Core::Observer::refreshViewsData() {
-    emit dataChanged(this);
+    if (!observerData->process_cycle_active)
+        emit dataChanged(this);
 }
 
 void Qtilities::Core::Observer::startProcessingCycle() {
@@ -1058,9 +1060,9 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     LOG_DEBUG(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
 
     // Emit neccesarry signals
-    QList<QObject*> objects;
-    objects << obj;
     if (!observerData->process_cycle_active) {
+        QList<QObject*> objects;
+        objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
         emit layoutChanged();
         setModificationState(true);
@@ -1358,7 +1360,7 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
     observerData->deliver_qtilities_property_changed_events = true;
 }
 
-bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) const {
+bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) {
     // Get all the parents of observer
     ObserverProperty observer_map_prop = getObserverProperty(observer, OBSERVER_SUBJECT_IDS);
     int observer_count;
@@ -1903,7 +1905,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             // of subject filters more difficult, it is more powerfull in this way since one property change can
             // affect other objects as well and only the subject filter will have knowledge about this.
             if (!filter_event && !is_filter_property) {
-                // We need to do two things here:
+                // We need to do a few things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
                 // First check if this object is in the same thread as this observer:
                 if (object->thread() == thread()) {
@@ -1921,6 +1923,21 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                 QList<QObject*> changed_objects;
                 changed_objects << object;
                 emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
+
+                // 3. For specific role properties, we need to notify views that the data changed:
+                if ((!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_DECORATION)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_FOREGROUND)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_BACKGROUND)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_TEXT_ALIGNMENT)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_FONT)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_SIZE_HINT))) {
+                    refreshViewsData();
+                }
+
+                // 4. For specific role properties, we need to notify views that layout changed:
+                if (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_CATEGORY)) {
+                    refreshViewsLayout();
+                }
             }
 
             // Unlock the mutex and return
