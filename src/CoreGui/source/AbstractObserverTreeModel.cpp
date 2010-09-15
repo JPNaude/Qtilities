@@ -453,40 +453,68 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
     // ------------------------------------
     } else if (index.column() == columnPosition(ColumnAccess) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)) {
         if (role == Qt::DecorationRole) {
-            QObject* obj = getObject(index);
-            Observer* observer = qobject_cast<Observer*> (obj);
-            if (!observer) {
-                // Handle the case where the child is the parent of an observer
-                foreach (QObject* child, obj->children()) {
-                    observer = qobject_cast<Observer*> (child);
-                    if (observer)
-                        break;
-                }
-            }
-
-            if (observer) {
-                if (observer->accessModeScope() == Observer::GlobalScope) {
-                    if (observer->accessMode() == Observer::FullAccess)
-                        return QVariant();
-                    if (observer->accessMode() == Observer::ReadOnlyAccess)
-                        return QIcon(ICON_READ_ONLY_22x22);
-                    if (observer->accessMode() == Observer::LockedAccess)
-                        return QIcon(ICON_LOCKED_22x22);
+            // First handle categories:
+            ObserverTreeItem* item = getItem(index);
+            if (item) {
+                // If this is a category item we check if it has access & scope defined.
+                if (item->itemType() == ObserverTreeItem::CategoryItem) {
+                    // Get the parent observer:
+                    Observer* obs = 0;
+                    if (item->parent()) {
+                        if (item->parent()->itemType() == ObserverTreeItem::CategoryItem) {
+                            obs = item->parent()->containedObserver();
+                        } else {
+                            obs = qobject_cast<Observer*> (item->parent()->getObject());
+                        }
+                    }
+                    // If observer is valid, we get the name, otherwise we just use object name.
+                    if (obs) {
+                        if (obs->accessModeScope() == Observer::CategorizedScope) {
+                            if (obs->accessMode(item->category()) == Observer::ReadOnlyAccess)
+                                return QIcon(ICON_READ_ONLY_22x22);
+                            else if (obs->accessMode(item->category()) == Observer::LockedAccess)
+                                return QIcon(ICON_LOCKED_22x22);
+                            else
+                                return QVariant();
+                        }
+                    }
                 } else {
-                    // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
-                    QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
-                    if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                        return QIcon(ICON_READ_ONLY_22x22);
-                    if (mode.toInt() == Observer::LockedAccess)
-                        return QIcon(ICON_LOCKED_22x22);
+                    QObject* obj = getObject(index);
+                    Observer* observer = qobject_cast<Observer*> (obj);
+                    if (!observer) {
+                        // Handle the case where the child is the parent of an observer
+                        foreach (QObject* child, obj->children()) {
+                            observer = qobject_cast<Observer*> (child);
+                            if (observer)
+                                break;
+                        }
+                    }
+
+                    if (observer) {
+                        if (observer->accessModeScope() == Observer::GlobalScope) {
+                            if (observer->accessMode() == Observer::FullAccess)
+                                return QVariant();
+                            if (observer->accessMode() == Observer::ReadOnlyAccess)
+                                return QIcon(ICON_READ_ONLY_22x22);
+                            if (observer->accessMode() == Observer::LockedAccess)
+                                return QIcon(ICON_LOCKED_22x22);
+                        } else {
+                            // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
+                            QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
+                            if (mode.toInt() == (int) Observer::ReadOnlyAccess)
+                                return QIcon(ICON_READ_ONLY_22x22);
+                            if (mode.toInt() == Observer::LockedAccess)
+                                return QIcon(ICON_LOCKED_22x22);
+                        }
+                    } else {
+                        // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
+                        QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
+                        if (mode.toInt() == (int) Observer::ReadOnlyAccess)
+                            return QIcon(ICON_READ_ONLY_22x22);
+                        if (mode.toInt() == Observer::LockedAccess)
+                            return QIcon(ICON_LOCKED_22x22);
+                    }
                 }
-            } else {
-                // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
-                QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
-                if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                    return QIcon(ICON_READ_ONLY_22x22);
-                if (mode.toInt() == Observer::LockedAccess)
-                    return QIcon(ICON_LOCKED_22x22);
             }
         }
     }
