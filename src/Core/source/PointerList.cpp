@@ -6,13 +6,11 @@ Qtilities::Core::PointerList::PointerList(bool cleanup_when_done, QObject *paren
     cleanup_enabled = cleanup_when_done;
 }
 
-
 Qtilities::Core::PointerList::~PointerList() {
-	if (cleanup_enabled) {
-		list.clear();
-	}
+    if (cleanup_enabled) {
+            list.clear();
+    }
 }
-
 
 //! Appends a new instance of T to the PointerList.
 void Qtilities::Core::PointerList::append(QObject* object) {
@@ -37,12 +35,12 @@ QObject* Qtilities::Core::PointerList::at(int i) const {
 }
 
 void Qtilities::Core::PointerList::removeThisObject(QObject * object) {
-    list.removeAll(reinterpret_cast<QObject*>(object));
+    list.removeOne(object);
     emit objectDestroyed(object);
 }
 
 void Qtilities::Core::PointerList::removeOne(QObject* obj) {
-	list.removeOne(obj);
+    list.removeOne(obj);
 }
 
 void Qtilities::Core::PointerList::addThisObject(QObject * obj) {
@@ -50,6 +48,6 @@ void Qtilities::Core::PointerList::addThisObject(QObject * obj) {
 }
 
 QMutableListIterator<QObject*> Qtilities::Core::PointerList::iterator() {
-	QMutableListIterator<QObject*> itr(list);
-	return itr;
+    QMutableListIterator<QObject*> itr(list);
+    return itr;
 }
