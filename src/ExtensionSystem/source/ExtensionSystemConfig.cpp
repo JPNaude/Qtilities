@@ -50,7 +50,6 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
     delete ui;
 }
 
-
 QIcon Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageIcon() const {
     return QIcon(ICON_CONFIG_PLUGINS_48x48);
 }
