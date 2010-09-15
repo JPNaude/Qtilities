@@ -73,6 +73,7 @@ namespace Qtilities {
             QMap<QActionGroup*, QtilitiesCategory> actionGroupMap(QActionGroup *action_group) const;
             QList<QtilitiesCategory> actionGroupCategories() const;
             QAction *addAction(QAction * action, const QtilitiesCategory& category_filter = QtilitiesCategory());
+            void addActions(QList<QAction*> actions, const QtilitiesCategory& category = QtilitiesCategory());
             QActionGroup *addActionGroup(QActionGroup * action_group, const QtilitiesCategory& category_filter = QtilitiesCategory());
             void disableAllActions();
             void enableAllActions();

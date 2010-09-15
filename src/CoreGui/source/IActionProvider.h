@@ -104,6 +104,12 @@ namespace Qtilities {
                   \param category The category under which the action should be added. By default no category is assigned. The first level of hierarchy in the category is defined by the first item in the list, and the last level of hierarchy by the last item in the list.
                   */
                 virtual QAction* addAction(QAction * action, const QtilitiesCategory& category = QtilitiesCategory()) = 0;
+                //! Adds an list of actions to the object implementing this interface.
+                /*!
+                  \param actions The actions to be added.
+                  \param category The category under which the actions should be added. By default no category is assigned. The first level of hierarchy in the category is defined by the first item in the list, and the last level of hierarchy by the last item in the list.
+                  */
+                virtual void addActions(QList<QAction*> actions, const QtilitiesCategory& category = QtilitiesCategory()) = 0;
                 //! Adds an action group to the object implementing this interface and returns it if added successfully. Returns 0 otherwise.
                 /*!
                   \param action_group The action group to be added.

@@ -145,6 +145,12 @@ QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const Qt
     return action;
 }
 
+void Qtilities::CoreGui::ActionProvider::addActions(QList<QAction*> actions, const QtilitiesCategory& category) {
+    foreach (QAction* action, actions) {
+        addAction(action, category);
+    }
+}
+
 QActionGroup* Qtilities::CoreGui::ActionProvider::addActionGroup(QActionGroup* action_group, const QtilitiesCategory& category) {
     d->action_groups[action_group] = category;
     return action_group;
