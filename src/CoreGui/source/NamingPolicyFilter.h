@@ -113,6 +113,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             NamingPolicyFilter(QObject* parent = 0);
             ~NamingPolicyFilter();
 
+            // --------------------------------
+            // Enumerations
+            // --------------------------------
             //! Policy to control uniqueness of subject names in the observer context in which this filter is installed.
             /*!
               \sa setUniquenessPolicy(), uniquenessNamingPolicy()
@@ -121,6 +124,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
                 AllowDuplicateNames,    /*!< Allow duplicate names. */
                 ProhibitDuplicateNames  /*!< Prohibit duplicate names. */
             };
+            //! Function which returns a string associated with a specific UniquenessPolicy.
+            QString uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) const;
+            //! Function which returns the UniquenessPolicy associated with a string.
+            UniquenessPolicy stringToUniquenessPolicy(const QString& uniqueness_policy_string) const;
             //! Policy to control how invalid or duplicate names should be handled.
             /*!
               setUniquenessPolicy(), uniquenessPolicy(), setUniquenessResolutionPolicy(), uniquenessResolutionPolicy(), setValidityResolutionPolicy(), validityResolutionPolicy()
@@ -131,6 +138,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
                 Replace,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
                 Reject                  /*!< Reject unacceptable names. */
             };
+            //! Function which returns a string associated with a specific ResolutionPolicy.
+            QString resolutionPolicyToString(ResolutionPolicy resolution_policy) const;
+            //! Function which returns the ResolutionPolicy associated with a string.
+            ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string) const;
             //! Enumeration defining the possible outcames of name evaluation operations.
             /*!
               \sa evaluateName()

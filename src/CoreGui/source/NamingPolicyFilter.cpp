@@ -109,6 +109,53 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
     }
 }
 
+QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) const {
+    if (uniqueness_policy == AllowDuplicateNames) {
+        return "AllowDuplicateNames";
+    } else if (uniqueness_policy == ProhibitDuplicateNames) {
+        return "ProhibitDuplicateNames";
+    }
+
+    return QString();
+}
+
+Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToUniquenessPolicy(const QString& uniqueness_policy_string) const {
+    if (uniqueness_policy_string == "AllowDuplicateNames") {
+        return AllowDuplicateNames;
+    } else if (uniqueness_policy_string == "ProhibitDuplicateNames") {
+        return ProhibitDuplicateNames;
+    }
+    return AllowDuplicateNames;
+}
+
+QString Qtilities::CoreGui::NamingPolicyFilter::resolutionPolicyToString(ResolutionPolicy resolution_policy) const {
+    if (resolution_policy == AutoRename) {
+        return "AutoRename";
+    } else if (resolution_policy == PromptUser) {
+        return "PromptUser";
+    } else if (resolution_policy == Replace) {
+        return "Replace";
+    } else if (resolution_policy == Reject) {
+        return "Reject";
+    }
+
+    return QString();
+}
+
+Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToResolutionPolicy(const QString& resolution_policy_string) const {
+    if (resolution_policy_string == "AutoRename") {
+        return AutoRename;
+    } else if (resolution_policy_string == "PromptUser") {
+        return PromptUser;
+    } else if (resolution_policy_string == "Replace") {
+        return Replace;
+    } else if (resolution_policy_string == "Reject") {
+        return Reject;
+    }
+
+    return AutoRename;
+}
+
 void Qtilities::CoreGui::NamingPolicyFilter::setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy uniqueness_policy) {
     // Only change policy if the observer context is not defined for the subject filter.
     if (!observer) {
