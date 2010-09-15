@@ -128,7 +128,6 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
 
     // Construct and show search box widget:
     handle_actionFindItem_triggered();
-    d->searchBoxWidget->setVisible(display_flags & SearchBox);
 
     // Create new layout:
     if (d->central_widget->layout())
@@ -139,7 +138,7 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     layout->addWidget(d->searchBoxWidget);
     layout->setMargin(0);
     layout->setSpacing(0);
-    d->searchBoxWidget->show();
+    d->searchBoxWidget->setVisible(display_flags & SearchBox);
 
     // Assign a default meta type for this widget:
     // We construct each action and then register it
@@ -433,7 +432,6 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         button_flags |= SearchBoxWidget::NextButtons;
         button_flags |= SearchBoxWidget::PreviousButtons;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
-        d->searchBoxWidget->layout()->setContentsMargins(3,0,0,0);
         d->searchBoxWidget->setWholeWordsOnly(false);
 
         connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
