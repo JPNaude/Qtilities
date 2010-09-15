@@ -69,6 +69,63 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter(QObject* parent) : A
     d->new_subject_activity_policy = ActivityPolicyFilter::SetNewActive;
 }
 
+QString Qtilities::Core::ActivityPolicyFilter::activityPolicyToString(ActivityPolicy activity_policy) const {
+    if (activity_policy == UniqueActivity) {
+        return "UniqueActivity";
+    } else if (activity_policy == MultipleActivity) {
+        return "MultipleActivity";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToActivityPolicy(const QString& activity_policy_string) const {
+    if (activity_policy_string == "UniqueActivity") {
+        return UniqueActivity;
+    } else if (activity_policy_string == "MultipleActivity") {
+        return MultipleActivity;
+    }
+    return UniqueActivity;
+}
+
+QString Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy) const {
+    if (minimum_activity_policy == AllowNoneActive) {
+        return "AllowNoneActive";
+    } else if (minimum_activity_policy == ProhibitNoneActive) {
+        return "ProhibitNoneActive";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) const {
+    if (minimum_activity_policy_string == "UniqueActivity") {
+        return AllowNoneActive;
+    } else if (minimum_activity_policy_string == "MultipleActivity") {
+        return ProhibitNoneActive;
+    }
+    return AllowNoneActive;
+}
+
+QString Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy) const {
+    if (new_subject_activity_policy == SetNewActive) {
+        return "SetNewActive";
+    } else if (new_subject_activity_policy == SetNewInactive) {
+        return "SetNewInactive";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string) const {
+    if (new_subject_activity_policy_string == "SetNewActive") {
+        return SetNewActive;
+    } else if (new_subject_activity_policy_string == "SetNewInactive") {
+        return SetNewInactive;
+    }
+    return SetNewActive;
+}
+
 void Qtilities::Core::ActivityPolicyFilter::setActivityPolicy(ActivityPolicyFilter::ActivityPolicy activity_policy) {
     // Only change the policy if the observer context is not defined for the subject filter.
     if (!observer)
@@ -384,13 +441,20 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
     filter_mutex.tryLock();
 
+    QString name = observer->observerName();
+    QList<QObject*> list = observer->subjectReferences();
     if (observer->subjectCount() >= 1) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
             bool is_active = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
             if (is_active && (numActiveSubjects() == 0)) {
                 // We need to set a different subject to be active.
-                observer->setObserverPropertyValue(observer->subjectAt(0),OBJECT_ACTIVITY, QVariant(true));
+                // Important bug fixed: In the case where a naming policy filter overwrites a conflicting
+                // object during attachment, we might get here before the activity on the new object
+                // which is replacing the conflicting object has been set. In that case, there is no OBJECT_ACTIVITY
+                // property yet. Thus check it first:
+                if (Observer::propertyExists(observer->subjectAt(0),OBJECT_ACTIVITY))
+                    observer->setObserverPropertyValue(observer->subjectAt(0),OBJECT_ACTIVITY, QVariant(true));
             }
         }
 

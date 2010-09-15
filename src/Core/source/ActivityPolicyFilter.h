@@ -84,6 +84,10 @@ namespace Qtilities {
                 UniqueActivity,     /*!< Only one subject can be active at any time. */
                 MultipleActivity    /*!< Multiple subjects can be active at any time. */
             };
+            //! Function which returns a string associated with a specific ActivityPolicy.
+            QString activityPolicyToString(ActivityPolicy activity_policy) const;
+            //! Function which returns the ActivityPolicy associated with a string.
+            ActivityPolicy stringToActivityPolicy(const QString& activity_policy_string) const;
             //! Policy to control the minimum number of subjects which can be active at any time.
             /*!
               \sa setMinimumActivityPolicy(), minimumActivityPolicy()
@@ -92,6 +96,10 @@ namespace Qtilities {
                 AllowNoneActive,    /*!< All subjects can be incative at the same time. */
                 ProhibitNoneActive  /*!< There should at least be one active subject at any time, unless no subjects are attached to the observer context in which the filter is installed */
             };
+            //! Function which returns a string associated with a specific MinimumActivityPolicy.
+            QString minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy) const;
+            //! Function which returns the MinimumActivityPolicy associated with a string.
+            MinimumActivityPolicy stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) const;
             //! Policy to control the activity of new subjects attached to the observer context in which the filter is installed.
             /*!
               \sa setNewSubjectActivityPolicy(), newSubjectActivityPolicy()
@@ -100,6 +108,10 @@ namespace Qtilities {
                 SetNewActive,       /*!< New subjects are automatically set to be active. */
                 SetNewInactive      /*!< New subjects are automatically set to be inactive. */
             };
+            //! Function which returns a string associated with a specific NewSubjectActivityPolicy.
+            QString newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy) const;
+            //! Function which returns the NewSubjectActivityPolicy associated with a string.
+            NewSubjectActivityPolicy stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string) const;
 
             //! Sets the activity policy used by this subject filter.
             /*!
