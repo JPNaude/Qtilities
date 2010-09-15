@@ -154,27 +154,27 @@ namespace Qtilities {
             //! Returns a reference to the formatting engine at a specific position.
             AbstractFormattingEngine* formattingEngineReferenceAt(int index);
             //! Returns the name of the default formatting engine.
-            QString defaultFormattingEngine();
+            QString defaultFormattingEngine() const;
             //! Register a new logger engine factory.
             void registerLoggerEngineFactory(const QString& tag, LoggerFactoryInterface<AbstractLoggerEngine>* factory_iface);
             //! Function used to get a QStringList with the tags of all available logger engines.
-            QStringList availableLoggerEngines();
+            QStringList availableLoggerEngines() const;
             //! Provides a QStringList with the names of all attached formatting engines.
-            QStringList attachedFormattingEngineNames();
+            QStringList attachedFormattingEngineNames() const;
             //! Provides the number of attached formatting engines.
-            int attachedFormattingEngineCount();
+            int attachedFormattingEngineCount() const;
 
             // Functions related to enabled log level
             //! Sets the global log level. All messages are filtered by the logger according to the global log level before being sent to any logger engines.
             void setGlobalLogLevel(Logger::MessageType new_log_level);
             //! Returns the current global log level.
-            Logger::MessageType globalLogLevel();
+            Logger::MessageType globalLogLevel() const;
             //! Function which returns a string associated with a log level.
-            QString logLevelToString(Logger::MessageType log_level);
+            QString logLevelToString(Logger::MessageType log_level) const;
             //! Function which returns the log level associated with an input string.
-            Logger::MessageType stringToLogLevel(const QString& log_level_string);
+            Logger::MessageType stringToLogLevel(const QString& log_level_string) const;
             //! Function which returns all available log level strings.
-            QStringList allLogLevelStrings();
+            QStringList allLogLevelStrings() const;
 
             // Functions related to updating of QSettings
             //! Stores the logging parameters using QSettings.

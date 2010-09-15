@@ -230,11 +230,11 @@ void Qtilities::Logging::Logger::registerLoggerEngineFactory(const QString& tag,
     d->logger_engine_factory.registerFactoryInterface(tag, factory_iface);
 }
 
-QStringList Qtilities::Logging::Logger::availableLoggerEngines() {
+QStringList Qtilities::Logging::Logger::availableLoggerEngines() const {
     return d->logger_engine_factory.tags();
 }
 
-QStringList Qtilities::Logging::Logger::attachedFormattingEngineNames() {
+QStringList Qtilities::Logging::Logger::attachedFormattingEngineNames() const {
     QStringList names;
     for (int i = 0; i < d->formatting_engines.count(); i++) {
         names << d->formatting_engines.at(i)->name();
@@ -242,11 +242,11 @@ QStringList Qtilities::Logging::Logger::attachedFormattingEngineNames() {
     return names;
 }
 
-int Qtilities::Logging::Logger::attachedFormattingEngineCount() {
+int Qtilities::Logging::Logger::attachedFormattingEngineCount() const {
     return d->formatting_engines.count();
 }
 
-QString Qtilities::Logging::Logger::defaultFormattingEngine() {
+QString Qtilities::Logging::Logger::defaultFormattingEngine() const {
     return d->default_formatting_engine;
 }
 
@@ -282,7 +282,7 @@ bool Qtilities::Logging::Logger::detachLoggerEngine(AbstractLoggerEngine* logger
     return false;
 }
 
-QString Qtilities::Logging::Logger::logLevelToString(Logger::MessageType log_level) {
+QString Qtilities::Logging::Logger::logLevelToString(Logger::MessageType log_level) const {
     if (log_level == None) {
         return "None";
     } else if (log_level == Info) {
@@ -304,7 +304,7 @@ QString Qtilities::Logging::Logger::logLevelToString(Logger::MessageType log_lev
     return QString();
 }
 
-Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::stringToLogLevel(const QString& log_level_string) {
+Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::stringToLogLevel(const QString& log_level_string) const {
     if (log_level_string == "Information") {
         return Logger::Info;
     } else if (log_level_string == "Warning") {
@@ -323,7 +323,7 @@ Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::stringToLogL
     return Logger::None;
 }
 
-QStringList Qtilities::Logging::Logger::allLogLevelStrings() {
+QStringList Qtilities::Logging::Logger::allLogLevelStrings() const {
     QStringList strings;
     strings << "None";
     strings << "Information";
@@ -425,7 +425,7 @@ void Qtilities::Logging::Logger::setGlobalLogLevel(Logger::MessageType new_log_l
     LOG_INFO("Global log level changed to " + logLevelToString(new_log_level));
 }
 
-Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::globalLogLevel() {
+Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::globalLogLevel() const {
     return d->global_log_level;
 }
 
