@@ -139,7 +139,7 @@ QtilitiesApplication::initialize();
             Example scenarios where this might happen is when you are using a different class which inherits QApplication, for
             example the QtSingleApplication solution.
               */
-            void initialize();
+            static void initialize();
             //! Returns a reference to the QtilitiesApplication instance.
             /*!
               \param silent When true, a warning message will not be printed when the QtilitiesCoreApplication instance was not found.
