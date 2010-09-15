@@ -385,8 +385,7 @@ namespace Qtilities {
               The property editor type must be set before calling initialize().
               */
             void setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type);
-        private:
-            //! Constructs the property browser. If it already exists, this function does nothing.
+            //! Constructs the property browser and show it. If it already exists, this function does nothing.
             void constructPropertyBrowser();
         protected:
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.

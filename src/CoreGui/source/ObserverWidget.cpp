@@ -143,8 +143,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QPointer<Observer> top_level_observer;
 
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    QDockWidget* property_browser_dock;
-    ObjectPropertyBrowser* property_browser_widget;
+    QPointer<QDockWidget> property_browser_dock;
+    QPointer<ObjectPropertyBrowser> property_browser_widget;
     Qt::DockWidgetArea property_editor_dock_area;
     ObjectPropertyBrowser::BrowserType property_editor_type;
     #endif
@@ -265,6 +265,9 @@ Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints(
 }
 
 bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) {
+    if (d_observer == observer)
+        return false;
+
     if (!observer)
         return false;
 
@@ -275,7 +278,14 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     connect(observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
 
     if (d->top_level_observer) {
-        // It was set in the navigation stack, don't change it.
+        if (d->display_mode == TableView) {
+            // It was set in the navigation stack, don't change it.
+        } else if (d->display_mode == TreeView) {
+            // Check if the top level observer is in the parent hierarchy of the new observer.
+            // If so we leave it, otherwise we set the new observer as the top level observer:
+            if (!Observer::isParentInHierarchy(d->top_level_observer,observer))
+                d->top_level_observer = observer;
+        }
     } else {
         // Top level observer not yet set, we set it to observer.
         d->top_level_observer = observer;
@@ -361,7 +371,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     if (!d_observer) {
         LOG_FATAL(tr("You are attempting to initialize an ObserverWidget without an observer context."));
         d->action_provider->disableAllActions();
-        d->initialized = false;
         return;
     }
 
@@ -401,10 +410,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
         // Check and setup the item display mode
         if (d->display_mode == TreeView) {
+            disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
             connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
+            disconnect(d->top_level_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
             connect(d->top_level_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
-            d->proxy_model = new ObserverTreeModelProxyFilter(this);
-            d->proxy_model->setDynamicSortFilter(true);
 
             if (d->table_view)
                 d->table_view->hide();
@@ -445,6 +454,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             QHBoxLayout* layout = new QHBoxLayout(ui->itemParentWidget);
             layout->setMargin(0);
             layout->addWidget(d->tree_view);
+            d->tree_view->setEnabled(true);
 
             d->tree_model->setObserverContext(d->top_level_observer);
             d->tree_view->setItemDelegate(d->tree_name_column_delegate);
@@ -454,6 +464,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             //d->tree_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             // Setup proxy model
+            d->proxy_model = new ObserverTreeModelProxyFilter(this);
+            d->proxy_model->setDynamicSortFilter(true);
             d->proxy_model->setSourceModel(d->tree_model);
             d->proxy_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->tree_view->setModel(d->proxy_model);
@@ -466,6 +478,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setVisible(true);
         } else if (d->display_mode == TableView) {
             // Connect to the current parent observer, in the tree view the model will monitor this for you.
+            disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
             connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
             d->proxy_model = new ObserverTableModelCategoryFilter(this);
             d->proxy_model->setDynamicSortFilter(true);
@@ -505,6 +518,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             QHBoxLayout* layout = new QHBoxLayout(ui->itemParentWidget);
             layout->setMargin(0);
             layout->addWidget(d->table_view);
+            d->table_view->setEnabled(true);
 
             d->table_model->setObserverContext(d_observer);
             d->table_name_column_delegate->setObserverContext(d_observer);
@@ -673,14 +687,14 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             // Check if the observer has a FollowSelection actity policy
             // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
             if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
-                // Check if the observer has a activity filter, which it should have with this hint
+                // Check if the observer has an activity filter, which it should have with this hint:
                 ActivityPolicyFilter* filter = 0;
                 for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
                     filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
                     if (filter) {
                         d->activity_filter = filter;
 
-                        // Connect to the activity change signal (to update activity on observer widget side)
+                        // Connect to the activity change signal (to update activity on observer widget side):
                         connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
                         QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
                         selectObjects(active_subjects);
@@ -982,6 +996,9 @@ void Qtilities::CoreGui::ObserverWidget::mapCustomContextMenuPoint(const QPoint 
 }
 
 void Qtilities::CoreGui::ObserverWidget::constructActions() {
+    if (d->actionNewItem)
+        return;
+
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
@@ -1096,8 +1113,9 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {
-    if (!d->initialized) {
+    if (!d->initialized || !d->actionRemoveItem) {
         d->action_provider->disableAllActions();
+        deleteActionToolBars();
         return;
     }
 
@@ -1418,7 +1436,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
     if (!d->initialized)
         return;
 
-    int selected_count = d->current_selection.count();
+    int selected_count = selectedObjects().count();
 
     // Delete selected objects:
     for (int i = 0; i < selected_count; i++) {
@@ -1673,7 +1691,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
         if (observer->accessMode() == Observer::LockedAccess) {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Context Access Locked"));
-            msgBox.setText("The context you are trying to access is locked.");
+            msgBox.setText(tr("The context you are trying to access is locked."));
             msgBox.exec();
             return;
         }
@@ -2197,6 +2215,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
         if (sender() == d->top_level_observer) {
             d->initialized = false;
             refreshActions();
+            d->initialized = true;
         } else {
             setObserverContext(d->top_level_observer);
             initialize();
@@ -2210,12 +2229,15 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
             d->update_selection_activity = true;
             */
         }
+        if (d->tree_view)
+            d->tree_view->setEnabled(false);
     } else if (d->display_mode == TableView) {
         d->initialized = false;
         refreshActions();
+        d->initialized = true;
+        if (d->table_view)
+            d->table_view->setEnabled(false);
     }
-
-    deleteActionToolBars();
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
