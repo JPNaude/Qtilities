@@ -487,24 +487,42 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    // Loop through all children and:
-    // 1. Save their factory data
-    // 2. Then do the XML export on them
-    for (int i = 0; i < subjectCount(); i++) {
+    // 1. Factory attributes is added to this item's node:
+    factoryData().exportXML(doc,object_node);
+
+    // 2. The data of this item is added to a new data node:
+    QDomElement subject_data = doc->createElement("Data");
+    object_node->appendChild(subject_data);
+    // 2.1. Observer data:
+
+    // 2.2. Observer hints:
+    if (observerData->display_hints) {
+        if (observerData->display_hints->isExportable()) {
+            QDomElement hints_data = doc->createElement("ObserverHints");
+            subject_data.appendChild(hints_data);
+            observerData->display_hints->exportXML(doc,&hints_data);
+        }
+    }
+
+    // 2.3. Subject filters:
+    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        QDomElement subject_filter = doc->createElement("SubjectFilter");
+        subject_data.appendChild(subject_filter);
+        observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter);
+        observerData->subject_filters.at(i)->exportXML(doc,&subject_filter);
+    }
+
+    // 3. All the children of this item is exported:
+    QDomElement subject_children = doc->createElement("Children");
+    object_node->appendChild(subject_children);
+    for (int i = 0; i < observerData->subject_list.count(); i++) {
         IExportable* export_iface = qobject_cast<IExportable*> (subjectAt(i));
         if (export_iface) {
             if (export_iface->supportedFormats() & IExportable::XML) {
-                // Do (1)
-                // Create a factory item for i:
-                QDomElement factory_item = doc->createElement("FactoryData");
-                factory_item.setAttribute("ID", i);
-                object_node->appendChild(factory_item);
-                export_iface->factoryData().exportXML(doc,&factory_item);
-                // Do (2)
-                // Create a data item for i:
-                QDomElement subject_item = doc->createElement("ObjectData");
-                subject_item.setAttribute("ID", i);
-                object_node->appendChild(subject_item);
+                // Create a data item with its factory data as attributes for i:
+                // The item and its factory data:
+                QDomElement subject_item = doc->createElement("TreeItem");
+                subject_children.appendChild(subject_item);
                 export_iface->exportXML(doc,&subject_item);
             }
         }
@@ -519,7 +537,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     // All children underneath the root element gets constructed in here:
     QList<QObject*> constructed_list;
     QDomNodeList childNodes = object_node->childNodes();
-    IExportable* iface = 0;
     for(int i = 0; i < childNodes.count(); i++)
     {
         QDomNode childNode = childNodes.item(i);
@@ -528,24 +545,72 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "FactoryData") {
-            IFactoryData factoryData(doc,&child);
-            if (factoryData.isValid()) {
-                QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
-                if (obj) {
-                    obj->setObjectName(factoryData.d_instance_name);
-                    iface = qobject_cast<IExportable*> (obj);
+        if (child.tagName() == "Data") {
+            QDomNodeList dataNodes = child.childNodes();
+            for(int i = 0; i < dataNodes.count(); i++)
+            {
+                QDomNode dataChildNode = dataNodes.item(i);
+                QDomElement dataChild = dataChildNode.toElement();
+
+                if (dataChild.isNull())
+                    continue;
+
+                if (dataChild.tagName() == "ObserverHints") {
+                    useDisplayHints();
+                    observerData->display_hints->importXML(doc,&dataChild);
+                    continue;
+                }
+
+                if (dataChild.tagName() == "SubjectFilter") {
+                    // Construct and init the subject filter:
+                    IFactoryData factoryData(doc,&dataChild);
+                    if (factoryData.isValid()) {
+                        QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
+                        if (obj) {
+                            obj->setObjectName(factoryData.d_instance_name);
+                            AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
+                            if (abstract_filter) {
+                                abstract_filter->importXML(doc,&dataChild);
+                                installSubjectFilter(abstract_filter);
+                            }
+                        }
+                    }
                     continue;
                 }
             }
+            continue;
         }
 
-        if (child.tagName() == "ObjectData") {
-            if (iface) {
-                iface->importXML(doc,&child);
-                constructed_list << iface->objectBase();
-                attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership);
+        if (child.tagName() == "Children") {
+            QDomNodeList childrenNodes = child.childNodes();
+            for(int i = 0; i < childrenNodes.count(); i++)
+            {
+                QDomNode childrenChildNode = childrenNodes.item(i);
+                QDomElement childrenChild = childrenChildNode.toElement();
+
+                if (childrenChild.isNull())
+                    continue;
+
+                if (childrenChild.tagName() == "TreeItem") {
+                    // Construct and init the child:
+                    IFactoryData factoryData(doc,&childrenChild);
+                    if (factoryData.isValid()) {
+                        QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
+                        if (obj) {
+                            obj->setObjectName(factoryData.d_instance_name);
+                            IExportable* iface = qobject_cast<IExportable*> (obj);
+                            if (iface) {
+                                // Now that we created the item, init its data and children:
+                                iface->importXML(doc,&childrenChild);
+                                constructed_list << iface->objectBase();
+                                attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership);
+                            }
+                        }
+                    }
+                    continue;
+                }
             }
+            continue;
         }
     }
 
@@ -1444,7 +1509,7 @@ bool Qtilities::Core::Observer::setSubjectLimit(int subject_limit) {
 
 void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory category) {
     // Check if this observer is read only
-    if (observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) {
+    if ((observerData->access_mode == ReadOnlyAccess || observerData->access_mode == LockedAccess) && observerData->access_mode_scope == GlobalScope) {
         LOG_ERROR(QString(tr("Setting the access mode for observer \"%1\" failed. This observer is read only / locked.")).arg(objectName()));
         return;
     }
@@ -1458,15 +1523,16 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory
             return;
         }
 
-        // Loop through the categories list until we find the category:
+        // Set the scope for the category
         for (int i = 0; i < observerData->categories.count(); i++) {
             if (observerData->categories.at(i) == category) {
                 observerData->categories.removeAt(i);
-                category.setAccessMode(mode);
-                observerData->categories.push_back(category);
                 break;
             }
         }
+
+        category.setAccessMode((int) mode);
+        observerData->categories.push_back(category);
     }
 
     emit layoutChanged();

@@ -499,6 +499,7 @@ namespace Qtilities {
             bool setSubjectLimit(int subject_limit);
             //! Function to set the observer's access mode. Set the access mode after construction. When subclassing Observer, set it in your constructor.
             /*!
+              \note It is only possible to set the access mode for a category that exist. Thus an object must exist in the observer with the category you want to set the access mode for.
               \param category Only used when accessModeScope() is categorized. Categories which does not have an access mode set for them will use the global access mode. The global access mode can be set by passing QString() as category.
               */
             void setAccessMode(AccessMode mode, QtilitiesCategory category = QtilitiesCategory());
