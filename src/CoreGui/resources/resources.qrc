@@ -1,12 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/access_22x22.png</file>
         <file>icons/child_count_22x22.png</file>
         <file>icons/clear_16x16.png</file>
         <file>icons/clear_22x22.png</file>
-        <file>icons/delete_all_16x16.png</file>
-        <file>icons/delete_one_16x16.png</file>
-        <file>icons/dependancy_icon_16x16.png</file>
         <file>icons/edit_copy_16x16.png</file>
         <file>icons/edit_copy_22x22.png</file>
         <file>icons/edit_cut_16x16.png</file>
@@ -25,7 +21,6 @@
         <file>icons/find_16x16.png</file>
         <file>icons/find_22x22.png</file>
         <file>icons/folder_icon_16x16.png</file>
-        <file>icons/locked_22x22.png</file>
         <file>icons/magnify_minus_16x16.png</file>
         <file>icons/magnify_plus_16x16.png</file>
         <file>icons/manager_icon_16x16.png</file>
@@ -38,10 +33,6 @@
         <file>icons/print_preview_16x16.png</file>
         <file>icons/print_preview_22x22.png</file>
         <file>icons/property_icon_16x16.png</file>
-        <file>icons/push_down_current_16x16.png</file>
-        <file>icons/push_down_new_16x16.png</file>
-        <file>icons/push_up_current_16x16.png</file>
-        <file>icons/push_up_new_16x16.png</file>
         <file>icons/qtilities_icon_blue.ico</file>
         <file>icons/qtilities_icon_white.ico</file>
         <file>icons/qtilities_symbol_16x16.png</file>
@@ -58,12 +49,9 @@
         <file>icons/qtilities_symbol_white_48x48.png</file>
         <file>icons/qtilities_symbol_white_64x64.png</file>
         <file>icons/qtilities_symbol_white_128x128.png</file>
-        <file>icons/read_only_22x22.png</file>
         <file>icons/redo_16x16.png</file>
         <file>icons/redo_22x22.png</file>
         <file>icons/refresh_16x16.png</file>
-        <file>icons/remove_all_16x16.png</file>
-        <file>icons/remove_one_16x16.png</file>
         <file>icons/search_options_22x22.png</file>
         <file>icons/select_all_16x16.png</file>
         <file>icons/select_all_22x22.png</file>
@@ -83,5 +71,19 @@
         <file>icons/config_projects_48x48.png</file>
         <file>icons/config_logging_48x48.png</file>
         <file>icons/config_code_editor_48x48.png</file>
+        <file>icons/delete_all_red_16x16.png</file>
+        <file>icons/delete_black_16x16.png</file>
+        <file>icons/delete_red_16x16.png</file>
+        <file>icons/delete_all_black_16x16.png</file>
+        <file>icons/down_16x16.png</file>
+        <file>icons/up_22x22.png</file>
+        <file>icons/down_new_16x16.png</file>
+        <file>icons/up_new_16x16.png</file>
+        <file>icons/tree_16x16.png</file>
+        <file>icons/table_16x16.png</file>
+        <file>icons/locked_16x16.png</file>
+        <file>icons/read_only_16x16.png</file>
+        <file>icons/access_16x16.png</file>
+        <file>icons/up_16x16.png</file>
     </qresource>
 </RCC>
