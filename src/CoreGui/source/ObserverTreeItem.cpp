@@ -58,10 +58,6 @@ Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem() {
             delete childItems.at(i);
         }
     }
-    if (obj)
-        obj->disconnect(this);
-    if (contained_observer_ref)
-        contained_observer_ref->disconnect(this);
 }
 
 void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item) {
