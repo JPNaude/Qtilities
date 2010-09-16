@@ -41,6 +41,7 @@
 #include <QMutex>
 #include <QVariant>
 #include <QCoreApplication>
+#include <QDomElement>
 
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core::Constants;
@@ -85,6 +86,7 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityP
     } else if (activity_policy_string == "MultipleActivity") {
         return MultipleActivity;
     }
+    Q_ASSERT(0);
     return UniqueActivity;
 }
 
@@ -99,11 +101,12 @@ QString Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicyToString(Min
 }
 
 Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) const {
-    if (minimum_activity_policy_string == "UniqueActivity") {
+    if (minimum_activity_policy_string == "AllowNoneActive") {
         return AllowNoneActive;
-    } else if (minimum_activity_policy_string == "MultipleActivity") {
+    } else if (minimum_activity_policy_string == "ProhibitNoneActive") {
         return ProhibitNoneActive;
     }
+    Q_ASSERT(0);
     return AllowNoneActive;
 }
 
@@ -123,6 +126,7 @@ Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core:
     } else if (new_subject_activity_policy_string == "SetNewInactive") {
         return SetNewInactive;
     }
+    Q_ASSERT(0);
     return SetNewActive;
 }
 
@@ -557,6 +561,7 @@ Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ActivityPolicyFilter:
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ActivityPolicyFilter::supportedFormats() const {
     IExportable::ExportModeFlags flags = 0;
     flags |= IExportable::Binary;
+    flags |= IExportable::XML;
     return flags;
 }
 
@@ -589,16 +594,42 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    QDomElement filter_data = doc->createElement("Data");
+    object_node->appendChild(filter_data);
+    filter_data.setAttribute("ActivityPolicy",activityPolicyToString(d->activity_policy));
+    filter_data.setAttribute("MinimumActivityPolicy",minimumActivityPolicyToString(d->minimum_activity_policy));
+    filter_data.setAttribute("NewSubjectActivityPolicy",newSubjectActivityPolicyToString(d->new_subject_activity_policy));
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
     Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
-    return IExportable::Incomplete;
+
+    IExportable::Result result = IExportable::Incomplete;
+
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "Data") {
+            if (child.hasAttribute("ActivityPolicy"))
+                d->activity_policy = stringToActivityPolicy(child.attribute("ActivityPolicy"));
+            if (child.hasAttribute("MinimumActivityPolicy"))
+                d->minimum_activity_policy = stringToMinimumActivityPolicy(child.attribute("MinimumActivityPolicy"));
+            if (child.hasAttribute("NewSubjectActivityPolicy"))
+                d->new_subject_activity_policy = stringToNewSubjectActivityPolicy(child.attribute("NewSubjectActivityPolicy"));
+            result = IExportable::Complete;
+            continue;
+        }
+    }
+
+    return result;
 }
