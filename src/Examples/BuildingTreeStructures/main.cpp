@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     // Test XML tree streaming:
     QString path = QString("%1/test.xml").arg(QApplication::applicationDirPath());
     //nodeA->saveToFile(path);
-    //nodeA->loadFromFile(path);
+    nodeA->loadFromFile(path);
 
     // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();

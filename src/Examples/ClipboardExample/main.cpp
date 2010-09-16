@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     action_hints |= ObserverHints::ActionPasteItem;
     action_hints |= ObserverHints::ActionSwitchView;
     action_hints |= ObserverHints::ActionFindItem;
-    observerA->displayHints()->setActionHints(action_hints);
+    observerA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     observerA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
     observerB->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     observerB->displayHints()->setObserverSelectionContextHint(ObserverHints::SelectionUseSelectedContext);
     observerB->displayHints()->setActionHints(action_hints);
+    observerB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     observerB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     observerB->displayHints()->setDisplayFlagsHint(display_flags);
     observerB->displayHints()->setDragDropHint(ObserverHints::AcceptDrops);
@@ -162,14 +163,17 @@ int main(int argc, char *argv[])
     //observerC->installSubjectFilter(naming_filter);
     //observerC->displayHints()->setNamingControlHint(Observer::EditableNames);
     observerC->displayHints()->setActionHints(action_hints);
+    observerC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     observerC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     observerC->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
     observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
+    observerC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     observerC->displayHints()->setDisplayFlagsHint(display_flags);
     observerC->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QtilitiesCategory category("Category 2");
     observerC->displayHints()->addDisplayedCategory(category);
-    observerC->displayHints()->setCategoryFilterEnabled(true);
+    observerC->displayHints()->setCategoryFilterEnabled(false);
+    observerC->setAccessModeScope(Observer::CategorizedScope);
     observerC->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
 
     // Create the objects
@@ -237,6 +241,9 @@ int main(int argc, char *argv[])
     observerC->attachSubject(object5);
     observerC->attachSubject(object6);
     observerC->attachSubject(object7);
+
+    // Only set the access mode after the object with the category exists in the context.
+    observerC->setAccessMode(Observer::ReadOnlyAccess,category);
 
     // Create the first observer widget:
     ObserverWidget* observer_widgetA = new ObserverWidget(Qtilities::TableView);
