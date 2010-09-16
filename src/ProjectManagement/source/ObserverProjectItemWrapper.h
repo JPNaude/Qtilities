@@ -77,6 +77,16 @@ namespace Qtilities {
             bool closeProjectItem();
 
             // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            ExportModeFlags supportedFormats() const;
+            IFactoryData factoryData() const;
+            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+
+            // --------------------------------
             // IModificationNotifier Implemenation
             // --------------------------------
             bool isModified() const;

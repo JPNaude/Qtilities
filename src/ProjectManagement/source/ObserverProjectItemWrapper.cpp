@@ -45,7 +45,7 @@
 struct Qtilities::ProjectManagement::ObserverProjectItemWrapperData {
     ObserverProjectItemWrapperData() : observer(0) {}
 
-    Observer* observer;
+    QPointer<Observer> observer;
 };
 
 using namespace Qtilities::Core::Interfaces;
@@ -83,21 +83,6 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::newProjectItem() 
     return true;
 }
 
-
-bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::saveProjectItem(QDataStream& stream) {
-    if (OBJECT_MANAGER->exportObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging()) == IExportable::Failed)
-        return false;
-    else
-        return true;
-}
-
-bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::loadProjectItem(QDataStream& stream) {
-    if (OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging()) == IExportable::Failed)
-        return false;
-    else
-        return true;
-}
-
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::closeProjectItem() {
     if (!d->observer)
         return false;
@@ -107,6 +92,38 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::closeProjectItem(
     return true;
 }
 
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectManagement::ObserverProjectItemWrapper::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    flags |= IExportable::XML;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
+    return IFactoryData();
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    return OBJECT_MANAGER->exportObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    return OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    if (d->observer)
+        return d->observer->exportXML(doc,object_node,params);
+    else
+        return IExportable::Incomplete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    if (d->observer)
+        return d->observer->importXML(doc,object_node,params);
+    else
+        return IExportable::Incomplete;
+}
 
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::isModified() const {
     if (d->observer)
