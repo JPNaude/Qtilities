@@ -177,7 +177,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! The default row height used in TableView mode.
     int default_row_height;
 
-    // Searching related stuff:
+    // Search related stuff:
     //! The search box widget.
     SearchBoxWidget* searchBoxWidget;
     QAction* actionFilterNodes;
@@ -1013,14 +1013,14 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // ---------------------------
     // Remove Item
     // ---------------------------
-    d->actionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE_16x16),tr("Remove Item"),this);
-    connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(selectionRemove()));
+    d->actionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE_16x16),tr("Detach Selection"),this);
+    connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(selectionDetach()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
     d->action_provider->addAction(d->actionRemoveItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Delete Item
     // ---------------------------
-    d->actionDeleteItem = new QAction(QIcon(ICON_DELETE_ONE_16x16),tr("Delete Item"),this);
+    d->actionDeleteItem = new QAction(QIcon(ICON_DELETE_ONE_16x16),tr("Delete Selection"),this);
     d->actionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(selectionDelete()));
     ACTION_MANAGER->registerAction(MENU_SELECTION_DELETE,d->actionDeleteItem,context);
@@ -1028,8 +1028,8 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // ---------------------------
     // Remove All
     // ---------------------------    
-    d->actionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL_16x16),tr("Remove All Children"),this);
-    connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(selectionRemoveAll()));
+    d->actionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL_16x16),tr("Deatch All Children"),this);
+    connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(selectionDetachAll()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
     d->action_provider->addAction(d->actionRemoveAll,QtilitiesCategory(tr("Items")));
     // ---------------------------
@@ -1042,7 +1042,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // ---------------------------
     // Switch View
     // ---------------------------
-    d->actionSwitchView = new QAction(QIcon(ICON_SWITCH_VIEW_16x16),tr("Switch View"),this);
+    d->actionSwitchView = new QAction(QIcon(),tr("Switch View"),this);
     d->actionSwitchView->setShortcut(QKeySequence("F4"));
     connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(toggleDisplayMode()));
     ACTION_MANAGER->registerAction(MENU_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
@@ -1180,6 +1180,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     else
         d->actionFindItem->setVisible(false);
 
+    // Actions which should always be active, independent of the display mode:
+    d->actionSwitchView->setEnabled(true);
+    d->actionFindItem->setEnabled(true);
+
     // Remove & Delete All Actions
     if (d_observer) {
         if (d_observer->subjectCount() > 0) {
@@ -1196,6 +1200,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 
     // Navigating Up/Down Actions
     if (d->display_mode == TableView) {
+        d->actionSwitchView->setIcon(QIcon(ICON_TREE_16x16));
         if (d->navigation_stack.count() == 0) {
             d->actionPushUp->setEnabled(false);
             d->actionPushUpNew->setEnabled(false);
@@ -1213,7 +1218,18 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             d->actionFilterItems->setVisible(false);
             d->actionFilterTypeSeperator->setVisible(false);
         }
+        // Remove & Delete All Actions
+        if (d_observer) {
+            if (d_observer->subjectCount() > 0) {
+                d->actionRemoveAll->setEnabled(true);
+                d->actionDeleteAll->setEnabled(true);
+            } else {
+                d->actionRemoveAll->setEnabled(false);
+                d->actionDeleteAll->setEnabled(false);
+            }
+        }
     } else {
+        d->actionSwitchView->setIcon(QIcon(ICON_TABLE_16x16));
         d->actionCollapseAll->setVisible(true);
         d->actionExpandAll->setVisible(true);
         d->actionCollapseAll->setEnabled(true);
@@ -1240,7 +1256,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionRemoveItem->setEnabled(false);
         if (d->display_mode == TableView) {
             d->actionPushDown->setEnabled(false);
-            d->actionPushDownNew->setEnabled(false);
+            d->actionPushDownNew->setEnabled(false);            
+        } else if (d->display_mode == TreeView) {
+            d->actionRemoveAll->setEnabled(false);
+            d->actionDeleteAll->setEnabled(false);
         }
     } else {
         if (d->display_mode == TableView) {
@@ -1274,11 +1293,38 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     if (observer) {
                         d->actionPushDown->setEnabled(true);
                         d->actionPushDownNew->setEnabled(true);
+
+                        // Delete and Remove All depends on the selected context:
+                        if (observer->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
+                            if (observer->subjectCount() > 0) {
+                                d->actionRemoveAll->setText(tr("Detach All Under Selection"));
+                                d->actionRemoveAll->setEnabled(true);
+                                d->actionDeleteAll->setText(tr("Delete All Under Selection"));
+                                d->actionDeleteAll->setEnabled(true);
+                            } else {
+                                d->actionRemoveAll->setEnabled(false);
+                                d->actionDeleteAll->setEnabled(false);
+                            }
+                        } else if (observer->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
+                            d->actionRemoveAll->setText(tr("Detach All"));
+                            d->actionRemoveAll->setEnabled(true);
+                            d->actionDeleteAll->setText(tr("Delete All"));
+                            d->actionDeleteAll->setEnabled(true);
+                        }
+                    }
+
+                    // Can only delete or remove an item if its category is not const:
+                    QtilitiesCategory category = d_observer->getObserverPropertyValue(d->current_selection.at(0),OBJECT_CATEGORY).value<QtilitiesCategory>();
+                    Observer::AccessMode access_mode = d_observer->accessMode(category);
+                    if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
+                        d->actionDeleteItem->setEnabled(false);
+                        d->actionRemoveItem->setEnabled(false);
                     }
                 }
             }
         } else if (d->display_mode == TreeView) {
             if (selectedObjects().count() == 1) {
+                // We can't delete the top level observer in a tree:
                 Observer* selected = qobject_cast<Observer*> (selectedObjects().front());
                 if (selected == d->top_level_observer) {
                     d->actionDeleteItem->setEnabled(false);
@@ -1287,6 +1333,49 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     d->actionDeleteItem->setEnabled(true);
                     d->actionRemoveItem->setEnabled(true);
                 }
+
+                // Can only delete or remove an item if it's category is not const:
+                if (selectionParent()) {
+                    QtilitiesCategory category = selectionParent()->getObserverPropertyValue(d->current_selection.at(0),OBJECT_CATEGORY).value<QtilitiesCategory>();
+                    Observer::AccessMode access_mode = selectionParent()->accessMode(category);
+                    if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
+                        d->actionDeleteItem->setEnabled(false);
+                        d->actionRemoveItem->setEnabled(false);
+                    } else {
+                        d->actionDeleteItem->setEnabled(true);
+                        d->actionRemoveItem->setEnabled(true);
+                    }
+                }
+
+                // Delete and Remove All depends on the selection context if it is an observer:
+                if (selected) {
+                    if (selected->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
+                        if (selected->subjectCount() > 0) {
+                            d->actionRemoveAll->setText(tr("Detach All Under Selection"));
+                            d->actionRemoveAll->setEnabled(true);
+                            d->actionDeleteAll->setText(tr("Delete All Under Selection"));
+                            d->actionDeleteAll->setEnabled(true);
+                        } else {
+                            d->actionRemoveAll->setEnabled(false);
+                            d->actionDeleteAll->setEnabled(false);
+                        }
+                    } else if (selected->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
+                        d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                        d->actionRemoveAll->setEnabled(true);
+                        d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                        d->actionDeleteAll->setEnabled(true);
+                    }
+                } else {
+                    d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                    d->actionRemoveAll->setEnabled(true);
+                    d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                    d->actionDeleteAll->setEnabled(true);
+                }
+            } else {
+                // Disable remove and delete all actions. We need to check if the selection is in the same
+                // context to be able to enable it.
+                d->actionRemoveAll->setEnabled(false);
+                d->actionDeleteAll->setEnabled(false);
             }
         }
     }
@@ -1333,7 +1422,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     #endif
 }
 
-void Qtilities::CoreGui::ObserverWidget::selectionRemove() {
+void Qtilities::CoreGui::ObserverWidget::selectionDetach() {
     if (!d->initialized)
         return;
 
@@ -1350,7 +1439,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemove() {
         if (observer == d->top_level_observer)
             return;
 
-        d_observer->detachSubject(d->current_selection.front());
+        if (!d_observer->detachSubject(d->current_selection.front()))
+            return;
     }
 
     // Select a different item in the same context:
@@ -1389,7 +1479,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemove() {
     }
 }
 
-void Qtilities::CoreGui::ObserverWidget::selectionRemoveAll() {
+void Qtilities::CoreGui::ObserverWidget::selectionDetachAll() {
     if (!d->initialized)
         return;
 

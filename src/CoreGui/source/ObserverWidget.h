@@ -408,12 +408,12 @@ namespace Qtilities {
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionRemove();
+            void selectionDetach();
             //! Detaches all subjects from the current selection parent.
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionRemoveAll();
+            void selectionDetachAll();
             //! Deletes the current selected items.
             /*!
               \sa selectedObjects(), selectedObjectsChanged()
