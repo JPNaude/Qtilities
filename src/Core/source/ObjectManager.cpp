@@ -625,25 +625,24 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // Export relational data about the observer:
     ObserverRelationalTable table(obs,true);
-    //if (verbose_output)
-    //    table.dumpTableInfo();
-
-    // Stream the table to a file, and read it back. Then compare it to verify the streaming:
-    QTemporaryFile test_file;
-    test_file.open();
-    QDataStream test_stream_out(&test_file);
-    table.exportBinary(test_stream_out);
-    test_file.close();
-    test_file.open();
-    QDataStream test_stream_in(&test_file);    // read the data serialized from the file
-    ObserverRelationalTable readback_table;
-    readback_table.importBinary(test_stream_in);
-    //if (verbose_output)
-    //    readback_table.dumpTableInfo();
-    test_file.close();
-    if (!table.compare(readback_table)) {
-        LOG_ERROR(QString(tr("Observer relational table comparison failed. Observer (%1) will not be exported.").arg(obs->observerName())));
-        return IExportable::Failed;
+    if (verbose_output) {
+        // Stream the table to a file, and read it back. Then compare it to verify the streaming:
+        QTemporaryFile test_file;
+        test_file.open();
+        QDataStream test_stream_out(&test_file);
+        table.exportBinary(test_stream_out);
+        test_file.close();
+        test_file.open();
+        QDataStream test_stream_in(&test_file);    // read the data serialized from the file
+        ObserverRelationalTable readback_table;
+        readback_table.importBinary(test_stream_in);
+        //if (verbose_output)
+        //    readback_table.dumpTableInfo();
+        test_file.close();
+        if (!table.compare(readback_table)) {
+            LOG_ERROR(QString(tr("Observer relational table comparison failed. Observer (%1) will not be exported.").arg(obs->observerName())));
+            return IExportable::Failed;
+        }
     }
 
     LOG_DEBUG("Exporting observer relational table for design: " + obs->observerName());
