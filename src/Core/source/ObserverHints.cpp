@@ -33,6 +33,8 @@
 
 #include "ObserverHints.h"
 
+#include <QDomElement>
+
 struct Qtilities::Core::ObserverHintsData {
     ObserverHintsData() : observer_selection_context(ObserverHints::SelectionUseParentContext),
         naming_control(ObserverHints::NoNamingControlHint),
@@ -47,7 +49,7 @@ struct Qtilities::Core::ObserverHintsData {
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false),
-        is_exportable(false) {}
+        is_exportable(true) {}
 
     ObserverHints::ObserverSelectionContext     observer_selection_context;
     ObserverHints::NamingControl                naming_control;
@@ -115,66 +117,6 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
 
     if (observerContext())
         observerContext()->setModificationState(true);
-}
-
-bool Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
-    stream << (quint32) d->observer_selection_context;
-    stream << (quint32) d->naming_control;
-    stream << (quint32) d->activity_display;
-    stream << (quint32) d->activity_control;
-    stream << (quint32) d->item_selection_control;
-    stream << (quint32) d->hierarhical_display;
-    stream << (quint32) d->display_flags;
-    stream << (quint32) d->item_view_column_hint;
-    stream << (quint32) d->action_hints;
-    stream << (quint32) d->drag_drop_flags;
-
-    stream << (quint32) d->displayed_categories.count();
-    for (int i = 0; i < d->displayed_categories.count(); i++)
-        d->displayed_categories.at(i).exportBinary(stream);
-
-    stream << d->has_inversed_category_display;
-    stream << d->category_filter_enabled;
-    return true;
-}
-
-bool Qtilities::Core::ObserverHints::importBinary(QDataStream& stream) {
-    quint32 qi32;
-    stream >> qi32;
-    d->observer_selection_context = ObserverHints::ObserverSelectionContext (qi32);
-    stream >> qi32;
-    d->naming_control = ObserverHints::NamingControl (qi32);
-    stream >> qi32;
-    d->activity_display = ObserverHints::ActivityDisplay (qi32);
-    stream >> qi32;
-    d->activity_control = ObserverHints::ActivityControl (qi32);
-    stream >> qi32;
-    d->item_selection_control = ObserverHints::ItemSelectionControl (qi32);
-    stream >> qi32;
-    d->hierarhical_display = ObserverHints::HierarchicalDisplay (qi32);
-    stream >> qi32;
-    d->display_flags = ObserverHints::DisplayFlags (qi32);
-    stream >> qi32;
-    d->item_view_column_hint = ObserverHints::ItemViewColumnFlags (qi32);
-    stream >> qi32;
-    d->action_hints = ObserverHints::ActionHints (qi32);
-    stream >> qi32;
-    d->drag_drop_flags = ObserverHints::DragDropFlags (qi32);
-
-    stream >> qi32;
-    int category_count = qi32;
-    for (int i = 0; i < category_count; i++) {
-        QtilitiesCategory category(stream);
-        d->displayed_categories << category;
-    }
-
-    stream >> d->has_inversed_category_display;
-    stream >> d->category_filter_enabled;
-
-    if (observerContext())
-        observerContext()->setModificationState(true);
-
-    return true;
 }
 
 bool Qtilities::Core::ObserverHints::isExportable() const {
@@ -357,3 +299,311 @@ void Qtilities::Core::ObserverHints::setModificationState(bool new_state, IModif
     }
 }
 
+QString Qtilities::Core::ObserverHints::observerSelectionContextToString(ObserverSelectionContext observer_selection_context) const {
+    if (observer_selection_context == NoObserverSelectionContextHint) {
+        return "NoObserverSelectionContextHint";
+    } else if (observer_selection_context == SelectionUseParentContext) {
+        return "SelectionUseParentContext";
+    } else if (observer_selection_context == SelectionUseSelectedContext) {
+        return "SelectionUseSelectedContext";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::ObserverSelectionContext Qtilities::Core::ObserverHints::stringToObserverSelectionContext(const QString& observer_selection_context_string) const {
+    if (observer_selection_context_string == "NoObserverSelectionContextHint") {
+        return NoObserverSelectionContextHint;
+    } else if (observer_selection_context_string == "SelectionUseParentContext") {
+        return SelectionUseParentContext;
+    } else if (observer_selection_context_string == "SelectionUseSelectedContext") {
+        return SelectionUseSelectedContext;
+    }
+
+    Q_ASSERT(0);
+    return NoObserverSelectionContextHint;
+}
+
+QString Qtilities::Core::ObserverHints::namingControlToString(NamingControl naming_control) const {
+    if (naming_control == NoNamingControlHint) {
+        return "NoNamingControlHint";
+    } else if (naming_control == ReadOnlyNames) {
+        return "ReadOnlyNames";
+    } else if (naming_control == EditableNames) {
+        return "EditableNames";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::NamingControl Qtilities::Core::ObserverHints::stringToNamingControl(const QString& naming_control_string) const {
+    if (naming_control_string == "NoNamingControlHint") {
+        return NoNamingControlHint;
+    } else if (naming_control_string == "ReadOnlyNames") {
+        return ReadOnlyNames;
+    } else if (naming_control_string == "EditableNames") {
+        return EditableNames;
+    }
+
+    Q_ASSERT(0);
+    return NoNamingControlHint;
+}
+
+QString Qtilities::Core::ObserverHints::activityDisplayToString(ActivityDisplay activity_display) const {
+    if (activity_display == NoActivityDisplayHint) {
+        return "NoActivityDisplayHint";
+    } else if (activity_display == NoActivityDisplay) {
+        return "NoActivityDisplay";
+    } else if (activity_display == CheckboxActivityDisplay) {
+        return "CheckboxActivityDisplay";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::ActivityDisplay Qtilities::Core::ObserverHints::stringToActivityDisplay(const QString& activity_display_string) const {
+    if (activity_display_string == "NoActivityDisplayHint") {
+        return NoActivityDisplayHint;
+    } else if (activity_display_string == "NoActivityDisplay") {
+        return NoActivityDisplay;
+    } else if (activity_display_string == "CheckboxActivityDisplay") {
+        return CheckboxActivityDisplay;
+    }
+
+    Q_ASSERT(0);
+    return NoActivityDisplayHint;
+}
+
+QString Qtilities::Core::ObserverHints::activityControlToString(ActivityControl activity_control) const {
+    if (activity_control == NoActivityControlHint) {
+        return "NoActivityControlHint";
+    } else if (activity_control == NoActivityControl) {
+        return "NoActivityControl";
+    } else if (activity_control == FollowSelection) {
+        return "FollowSelection";
+    } else if (activity_control == CheckboxTriggered) {
+        return "CheckboxTriggered";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::ActivityControl Qtilities::Core::ObserverHints::stringToActivityControl(const QString& activity_control_string) const {
+    if (activity_control_string == "NoActivityControlHint") {
+        return NoActivityControlHint;
+    } else if (activity_control_string == "NoActivityControl") {
+        return NoActivityControl;
+    } else if (activity_control_string == "FollowSelection") {
+        return FollowSelection;
+    } else if (activity_control_string == "CheckboxTriggered") {
+        return CheckboxTriggered;
+    }
+
+    Q_ASSERT(0);
+    return NoActivityControlHint;
+}
+
+QString Qtilities::Core::ObserverHints::itemSelectionControlToString(ItemSelectionControl item_selection_control) const {
+    if (item_selection_control == NoItemSelectionControlHint) {
+        return "NoItemSelectionControlHint";
+    } else if (item_selection_control == SelectableItems) {
+        return "SelectableItems";
+    } else if (item_selection_control == NonSelectableItems) {
+        return "NonSelectableItems";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::ItemSelectionControl Qtilities::Core::ObserverHints::stringToItemSelectionControl(const QString& item_selection_control_string) const {
+    if (item_selection_control_string == "NoItemSelectionControlHint") {
+        return NoItemSelectionControlHint;
+    } else if (item_selection_control_string == "SelectableItems") {
+        return SelectableItems;
+    } else if (item_selection_control_string == "NonSelectableItems") {
+        return NonSelectableItems;
+    }
+
+    Q_ASSERT(0);
+    return NoItemSelectionControlHint;
+}
+
+QString Qtilities::Core::ObserverHints::hierarchicalDisplayToString(HierarchicalDisplay hierarchical_display) const {
+    if (hierarchical_display == NoHierarchicalDisplayHint) {
+        return "NoHierarchicalDisplayHint";
+    } else if (hierarchical_display == FlatHierarchy) {
+        return "FlatHierarchy";
+    } else if (hierarchical_display == CategorizedHierarchy) {
+        return "CategorizedHierarchy";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::HierarchicalDisplay Qtilities::Core::ObserverHints::stringToHierarchicalDisplay(const QString& hierarchical_display_string) const {
+    if (hierarchical_display_string == "NoHierarchicalDisplayHint") {
+        return NoHierarchicalDisplayHint;
+    } else if (hierarchical_display_string == "FlatHierarchy") {
+        return FlatHierarchy;
+    } else if (hierarchical_display_string == "CategorizedHierarchy") {
+        return CategorizedHierarchy;
+    }
+
+    Q_ASSERT(0);
+    return NoHierarchicalDisplayHint;
+}
+
+QString Qtilities::Core::ObserverHints::itemViewColumnFlagsToString(ItemViewColumnFlags item_view_column_flags) const {
+    return QString("%1").arg((int) item_view_column_flags);
+}
+
+Qtilities::Core::ObserverHints::ItemViewColumnFlags Qtilities::Core::ObserverHints::stringToItemViewColumnFlags(const QString& item_view_column_flags_string) const {
+    return (ItemViewColumnFlags) item_view_column_flags_string.toInt();
+}
+
+QString Qtilities::Core::ObserverHints::displayFlagsToString(DisplayFlags display_flags) const {
+    return QString("%1").arg((int) display_flags);
+}
+
+Qtilities::Core::ObserverHints::DisplayFlags Qtilities::Core::ObserverHints::stringToDisplayFlags(const QString& display_flags_string) const {
+    return (DisplayFlags) display_flags_string.toInt();
+}
+
+QString Qtilities::Core::ObserverHints::actionHintsToString(ActionHints actions_hints) const {
+    return QString("%1").arg((int) actions_hints);
+}
+
+Qtilities::Core::ObserverHints::ActionHints Qtilities::Core::ObserverHints::stringToActionHints(const QString& actions_hints_string) const {
+    return (ActionHints) actions_hints_string.toInt();
+}
+
+QString Qtilities::Core::ObserverHints::dragDropFlagsToString(DragDropFlags drag_drop_flags) const {
+    return QString("%1").arg((int) drag_drop_flags);
+}
+
+Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::stringToDragDropFlags(const QString& drag_drop_flags_string) const {
+    return (DragDropFlags) drag_drop_flags_string.toInt();
+}
+
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ObserverHints::factoryData() const {
+    return factoryData();
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ObserverHints::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    flags |= IExportable::XML;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    stream << (quint32) d->observer_selection_context;
+    stream << (quint32) d->naming_control;
+    stream << (quint32) d->activity_display;
+    stream << (quint32) d->activity_control;
+    stream << (quint32) d->item_selection_control;
+    stream << (quint32) d->hierarhical_display;
+    stream << (quint32) d->display_flags;
+    stream << (quint32) d->item_view_column_hint;
+    stream << (quint32) d->action_hints;
+    stream << (quint32) d->drag_drop_flags;
+
+    stream << (quint32) d->displayed_categories.count();
+    for (int i = 0; i < d->displayed_categories.count(); i++)
+        d->displayed_categories.at(i).exportBinary(stream);
+
+    stream << d->has_inversed_category_display;
+    stream << d->category_filter_enabled;
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
+
+    quint32 qi32;
+    stream >> qi32;
+    d->observer_selection_context = ObserverHints::ObserverSelectionContext (qi32);
+    stream >> qi32;
+    d->naming_control = ObserverHints::NamingControl (qi32);
+    stream >> qi32;
+    d->activity_display = ObserverHints::ActivityDisplay (qi32);
+    stream >> qi32;
+    d->activity_control = ObserverHints::ActivityControl (qi32);
+    stream >> qi32;
+    d->item_selection_control = ObserverHints::ItemSelectionControl (qi32);
+    stream >> qi32;
+    d->hierarhical_display = ObserverHints::HierarchicalDisplay (qi32);
+    stream >> qi32;
+    d->display_flags = ObserverHints::DisplayFlags (qi32);
+    stream >> qi32;
+    d->item_view_column_hint = ObserverHints::ItemViewColumnFlags (qi32);
+    stream >> qi32;
+    d->action_hints = ObserverHints::ActionHints (qi32);
+    stream >> qi32;
+    d->drag_drop_flags = ObserverHints::DragDropFlags (qi32);
+
+    stream >> qi32;
+    int category_count = qi32;
+    for (int i = 0; i < category_count; i++) {
+        QtilitiesCategory category(stream);
+        d->displayed_categories << category;
+    }
+
+    stream >> d->has_inversed_category_display;
+    stream >> d->category_filter_enabled;
+
+    if (observerContext())
+        observerContext()->setModificationState(true);
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    object_node->setAttribute("ActionHints",actionHintsToString(d->action_hints));
+    object_node->setAttribute("ActivityControl",activityControlToString(d->activity_control));
+    object_node->setAttribute("ActivityDisplay",activityDisplayToString(d->activity_display));
+    object_node->setAttribute("DisplayFlags",displayFlagsToString(d->display_flags));
+    object_node->setAttribute("DragDropFlags",dragDropFlagsToString(d->drag_drop_flags));
+    object_node->setAttribute("HierarchicalDisplay",hierarchicalDisplayToString(d->hierarhical_display));
+    object_node->setAttribute("ItemSelectionControl",itemSelectionControlToString(d->item_selection_control));
+    object_node->setAttribute("ItemViewColumnFlags",itemViewColumnFlagsToString(d->item_view_column_hint));
+    object_node->setAttribute("NamingControl",namingControlToString(d->naming_control));
+    object_node->setAttribute("ObserverSelectionContext",observerSelectionContextToString(d->observer_selection_context));
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(params)
+
+    if (object_node->hasAttribute("ActionHints"))
+        d->action_hints = stringToActionHints(object_node->attribute("ActionHints"));
+    if (object_node->hasAttribute("ActivityControl"))
+        d->activity_control = stringToActivityControl(object_node->attribute("ActivityControl"));
+    if (object_node->hasAttribute("ActivityDisplay"))
+        d->activity_display = stringToActivityDisplay(object_node->attribute("ActivityDisplay"));
+    if (object_node->hasAttribute("DisplayFlags"))
+        d->display_flags = stringToDisplayFlags(object_node->attribute("DisplayFlags"));
+    if (object_node->hasAttribute("DragDropFlags"))
+        d->drag_drop_flags = stringToDragDropFlags(object_node->attribute("DragDropFlags"));
+    if (object_node->hasAttribute("HierarchicalDisplay"))
+        d->hierarhical_display = stringToHierarchicalDisplay(object_node->attribute("HierarchicalDisplay"));
+    if (object_node->hasAttribute("ItemSelectionControl"))
+        d->item_selection_control = stringToItemSelectionControl(object_node->attribute("ItemSelectionControl"));
+    if (object_node->hasAttribute("ItemViewColumnFlags"))
+        d->item_view_column_hint = stringToItemViewColumnFlags(object_node->attribute("ItemViewColumnFlags"));
+    if (object_node->hasAttribute("NamingControl"))
+        d->naming_control = stringToNamingControl(object_node->attribute("NamingControl"));
+    if (object_node->hasAttribute("ObserverSelectionContext"))
+        d->observer_selection_context = stringToObserverSelectionContext(object_node->attribute("ObserverSelectionContext"));
+
+    return IExportable::Complete;
+}

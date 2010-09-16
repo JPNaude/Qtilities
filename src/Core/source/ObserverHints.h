@@ -67,10 +67,12 @@ namespace Qtilities {
 
           \sa Observer, ObserverData
           */
-        class QTILIITES_CORE_SHARED_EXPORT ObserverHints : public QObject, public ObserverAwareBase, public IModificationNotifier
+        class QTILIITES_CORE_SHARED_EXPORT ObserverHints : public QObject, public ObserverAwareBase,
+                                                           public IModificationNotifier, public IExportable
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
             Q_ENUMS(DisplayFlag)
             Q_ENUMS(NamingControl)
             Q_ENUMS(ActivityDisplay)
@@ -112,6 +114,10 @@ namespace Qtilities {
                 SelectionUseParentContext = 1,          /*!< Use the parent observer's context. */
                 SelectionUseSelectedContext = 2         /*!< Use the selected observer's context. */
             };
+            //! Function which returns a string associated with a specific ObserverSelectionContext.
+            QString observerSelectionContextToString(ObserverSelectionContext observer_selection_context) const;
+            //! Function which returns the ObserverSelectionContext associated with a string.
+            ObserverSelectionContext stringToObserverSelectionContext(const QString& observer_selection_context_string) const;
             //! The possible naming control hints of the observer.
             /*!
               \sa setNamingControlHint(), namingControlHint()
@@ -121,6 +127,10 @@ namespace Qtilities {
                 ReadOnlyNames = 1,          /*!< Names cannot be edited in item views viewing this observer. */
                 EditableNames = 2           /*!< Names are editable in item views viewing this observer. */
             };
+            //! Function which returns a string associated with a specific NamingControl.
+            QString namingControlToString(NamingControl naming_control) const;
+            //! Function which returns the NamingControl associated with a string.
+            NamingControl stringToNamingControl(const QString& naming_control_string) const;
             //! The possible activity display hints.
             /*!
               \sa setActivityDisplayHint(), activityDisplayHint()
@@ -130,6 +140,10 @@ namespace Qtilities {
                 NoActivityDisplay = 1,      /*!< The activity of items are not displayed in item views viewing this observer. */
                 CheckboxActivityDisplay = 2 /*!< If the observer has an ActivityPolicyFilter subject filter installed, a check box which shows the activity of subjects are shown in item views viewing this observer. */
             };
+            //! Function which returns a string associated with a specific ActivityDisplay.
+            QString activityDisplayToString(ActivityDisplay activity_display) const;
+            //! Function which returns the ActivityDisplay associated with a string.
+            ActivityDisplay stringToActivityDisplay(const QString& activity_display_string) const;
             //! The possible activity control hints.
             /*!
               \sa setActivityControlHint(), activityControlHint()
@@ -140,6 +154,10 @@ namespace Qtilities {
                 FollowSelection = 2,        /*!< The activity of subjects follows the selection of the user in item views viewing this observer. To use this option, ItemSelectionControl must be set to SelectableItems. */
                 CheckboxTriggered = 3       /*!< The activity of subjects can be changed by checking or unchecking the checkbox appearing next to subject in item views viewing this observer. To use this option, ActivityDisplay must be set to CheckboxActivityDisplay. */
             };
+            //! Function which returns a string associated with a specific ActivityControl.
+            QString activityControlToString(ActivityControl activity_control) const;
+            //! Function which returns the ActivityControl associated with a string.
+            ActivityControl stringToActivityControl(const QString& activity_control_string) const;
             //! The possible item selection control hints.
             /*!
               \sa setItemSelectionControlHint(), itemSelectionControlHint()
@@ -149,6 +167,10 @@ namespace Qtilities {
                 SelectableItems = 1,            /*!< Items are selectable by the user in item views viewing this observer. */
                 NonSelectableItems = 2          /*!< Items are not selectable by the user in item views viewing this observer. */
             };
+            //! Function which returns a string associated with a specific ItemSelectionControl.
+            QString itemSelectionControlToString(ItemSelectionControl item_selection_control) const;
+            //! Function which returns the ItemSelectionControl associated with a string.
+            ItemSelectionControl stringToItemSelectionControl(const QString& item_selection_control_string) const;
             //! The possible hierarchical display hints.
             /*!
               \sa setHierarchicalDisplayHint(), hierarchicalDisplayHint()
@@ -158,6 +180,10 @@ namespace Qtilities {
                 FlatHierarchy = 1,              /*!< The hierarchy of items under an observer is flat. Thus categories are not displayed. */
                 CategorizedHierarchy = 2        /*!< Item are grouped by their category. Items which do not have a category associated with them are grouped under an category called QString(OBSERVER_UNCATEGORIZED_CATEGORY). */
             };
+            //! Function which returns a string associated with a specific HierarchicalDisplay.
+            QString hierarchicalDisplayToString(HierarchicalDisplay hierarchical_display) const;
+            //! Function which returns the HierarchicalDisplay associated with a string.
+            HierarchicalDisplay stringToHierarchicalDisplay(const QString& hierarchical_display_string) const;
             //! The possible item view column hints.
             /*!
               \sa setItemViewColumnHint(), itemViewColumnHint()
@@ -174,6 +200,10 @@ namespace Qtilities {
             };
             Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn);
             Q_FLAGS(ItemViewColumnFlags);
+            //! Function which returns a string associated with a specific ItemViewColumnFlags.
+            QString itemViewColumnFlagsToString(ItemViewColumnFlags item_view_column_flags) const;
+            //! Function which returns the ItemViewColumnFlags associated with a string.
+            ItemViewColumnFlags stringToItemViewColumnFlags(const QString& item_view_column_flags_string) const;
             //! The possible display flags of the observer.
             /*!
               \sa setDisplayFlagsHint(), displayFlagsHint()
@@ -188,6 +218,10 @@ namespace Qtilities {
             };
             Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
             Q_FLAGS(DisplayFlags);
+            //! Function which returns a string associated with a specific DisplayFlags.
+            QString displayFlagsToString(DisplayFlags display_flags) const;
+            //! Function which returns the DisplayFlags associated with a string.
+            DisplayFlags stringToDisplayFlags(const QString& display_flags_string) const;
             //! The possible actions which views can perform on an observer. The ObserverWidget class provides the applicable actions through an IActionProvider interface and handles all these actions already.
             /*!
               \sa setActionHints(), actionHints()
@@ -214,6 +248,10 @@ namespace Qtilities {
             };
             Q_DECLARE_FLAGS(ActionHints, ActionItem);
             Q_FLAGS(ActionHints);
+            //! Function which returns a string associated with a specific ActionHints.
+            QString actionHintsToString(ActionHints actions_hints) const;
+            //! Function which returns the ActionHints associated with a string.
+            ActionHints stringToActionHints(const QString& actions_hints_string) const;
             //! The possible drag drop hints for an observer context.
             /*!
               This hint indicates if an observer context supports drag or/and drop operations.
@@ -228,6 +266,10 @@ namespace Qtilities {
             };
             Q_DECLARE_FLAGS(DragDropFlags, DragDropHint);
             Q_FLAGS(DragDropFlags);
+            //! Function which returns a string associated with a specific DragDropFlags.
+            QString dragDropFlagsToString(DragDropFlags drag_drop_flags) const;
+            //! Function which returns the DragDropFlags associated with a string.
+            DragDropFlags stringToDragDropFlags(const QString& drag_drop_flags_string) const;
 
             // --------------------------------
             // Implementation
@@ -250,7 +292,8 @@ drag_drop_flags(ObserverHints::NoDragDrop);
 action_hints(ObserverHints::None),
 category_list(QStringList()),
 inverse_categories(true),
-category_filter_enabled(false)
+category_filter_enabled(false),
+is_exportable(true)
 \endcode
               */
             ObserverHints(QObject* parent = 0);
@@ -260,27 +303,18 @@ category_filter_enabled(false)
             void operator=(const ObserverHints& other);
             //! Destructor.
             virtual ~ObserverHints();
-            //! Exports hints to a QDataStream.
-            /*!
-              \returns True if succesfull, false otherwise.
-              */
-            virtual bool exportBinary(QDataStream& stream) const;
-            //! Imports hints from a QDataStream.
-            /*!
-              \returns True if succesfull, false otherwise.
-              */
-            virtual bool importBinary(QDataStream& stream);
+
             //! Indicates if this observer hints instance must be exported when the observer in which it is used is exported.
             /*!
               When users have the ability to change hints it makes sense to export the hints along with an observer.
               However if the user do not have the ability to change the hints, we do not need to export them.
 
-              \returns True if the hints is exportable, false otherwise. The default is false.
+              \returns True if the hints is exportable, false otherwise. The default is true.
 
               \sa setIsExportable();
               */
             bool isExportable() const;
-            //! Sets if this observer hints instance is exportable.
+            //! Sets if this observer hints instance are exportable.
             /*!
               \sa isExportable()
               */
@@ -373,6 +407,16 @@ category_filter_enabled(false)
             // IObjectBase Implemenation
             // --------------------------------
             QObject* objectBase() { return this; }
+
+            // --------------------------------
+            // IExportable Implemenation
+            // --------------------------------
+            IExportable::ExportModeFlags supportedFormats() const;
+            IFactoryData factoryData() const;
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implemenation
