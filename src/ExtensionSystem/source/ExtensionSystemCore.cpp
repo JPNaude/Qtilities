@@ -36,24 +36,16 @@
 #include "ExtensionSystemConfig.h"
 #include "IPlugin.h"
 
-#include <QtilitiesCoreApplication.h>
-#include <QtilitiesCoreConstants.h>
-#include <Logger.h>
-#include <SubjectTypeFilter.h>
-#include <ObserverHints.h>
+#include <QtilitiesCoreGui>
 
-#include <ObserverWidget.h>
-#include <ObjectPropertyBrowser.h>
 #include <QLayout>
-
 #include <QMutex>
 #include <QPluginLoader>
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 
-using namespace Qtilities::Core;
-using namespace Qtilities::CoreGui;
+using namespace QtilitiesCoreGui;
 using namespace Qtilities::ExtensionSystem::Interfaces;
 
 struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
@@ -143,12 +135,18 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                     LOG_INFO(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
                     QCoreApplication::processEvents();
 
+                    // Give it a success icon by default:
+                    SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
+                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
                     // Do a plugin version check here:
                     pluginIFace->pluginVersion();
                     if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
                         LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
                         pluginIFace->setPluginState(IPlugin::CompatibilityError);
                         pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
+                        SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
+                        Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                     } else {
                         pluginIFace->setPluginState(IPlugin::Functional);
                         pluginIFace->setErrorString(tr("No errors detected"));
@@ -161,6 +159,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                         LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
                         pluginIFace->setPluginState(IPlugin::InitializationError);
                         pluginIFace->setErrorString(error_string);
+                        SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+                        Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                     }
                 } else {
                     LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
@@ -176,12 +176,14 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(i));
         if (pluginIFace) {
             QString error_string;
-            emit newProgressMessage(QString(tr("Initializing dependancies in plugin: %1")).arg(pluginIFace->objectName()));
+            emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->objectName()));
             QCoreApplication::processEvents();
             if (!pluginIFace->initializeDependancies(&error_string)) {
                 LOG_ERROR(error_string);
                 pluginIFace->setPluginState(IPlugin::DependancyError);
                 pluginIFace->setErrorString(error_string);
+                SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
             }
             OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i));
         }
