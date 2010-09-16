@@ -204,19 +204,16 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-    // Build up the doc:
-    QString doc_title = QString("Qtilities::XML::ExportVersion::%1").arg(QTILITIES_XML_EXPORT_FORMAT);
-    QDomDocument doc(doc_title);
-    QDomElement root = doc.createElement("TreeNodeExport");
+    // Create the QDomDocument:
+    QDomDocument doc("QtilitiesTreeDoc");
+    QDomElement root = doc.createElement("QtilitiesTree");
+    root.setAttribute("DocumentVersion",QTILITIES_XML_EXPORT_FORMAT);
     doc.appendChild(root);
-    QDomElement this_node = doc.createElement("InstanceProperties");
-    root.appendChild(this_node);
-    QDomCDATASection instanceName = doc.createCDATASection(objectName());
-    this_node.appendChild(instanceName);
+
     // Do XML export in observer base class:
-    QDomElement children = doc.createElement("Children");
-    root.appendChild(children);
-    exportXML(&doc,&children);
+    QDomElement rootItem = doc.createElement("Root");
+    root.appendChild(rootItem);
+    exportXML(&doc,&rootItem);
 
     // Put the complete doc in a string and save it to the file:
     QString docStr = doc.toString(2);
@@ -233,6 +230,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         deleteAll();
 
     // Load the file into doc:
+    startProcessingCycle();
     QDomDocument doc("QtilitiesTreeExport");
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly))
@@ -261,25 +259,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "InstanceProperties") {
-            for(int i = 0; i < child.childNodes().count(); i++) {
-                if (child.tagName() == "InstanceProperties") {
-                    QDomNode node = child.childNodes().item(i);
-                    QDomCDATASection cdata = node.toCDATASection();
-                    if(cdata.isNull())
-                        continue;
-
-                    if (i == 0)
-                        setObjectName(cdata.data());
-                }
-            }
-        }
-
-        if (child.tagName() == "Children") {
-            // Do XML import in observer base class:
+        if (child.tagName() == "Root")
             importXML(&doc,&child);
-        }
     }
+
+    endProcessingCycle();
+    refreshViewsLayout();
 
     QApplication::restoreOverrideCursor();
     return IExportable::Complete;

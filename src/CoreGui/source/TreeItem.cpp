@@ -87,9 +87,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::i
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
+
+    // 1. Factory attributes is added to this item's node:
+    factoryData().exportXML(doc,object_node);
 
     return IExportable::Incomplete;
 }
