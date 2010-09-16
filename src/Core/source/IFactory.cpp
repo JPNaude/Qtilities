@@ -32,27 +32,23 @@
 ****************************************************************************/
 
 #include "IFactory.h"
+#include "QtilitiesCoreConstants.h"
 
 #include <QtXml>
+
+using namespace Qtilities::Core::Constants;
 
 Qtilities::Core::Interfaces::IFactoryData::IFactoryData(QDomDocument* doc, QDomElement* object_node) {
     importXML(doc,object_node);
 }
 
 bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDomElement* object_node) const {
-    // We store factory data as QDomCDATASection children:
-    /*QDomCDATASection factoryTag = doc->createCDATASection(d_factory_tag);
-    object_node->appendChild(factoryTag);
-    QDomCDATASection instanceTag = doc->createCDATASection(d_instance_tag);
-    object_node->appendChild(instanceTag);
-    QDomCDATASection instanceName = doc->createCDATASection(d_instance_name);
-    object_node->appendChild(instanceName);*/
+    Q_UNUSED(doc)
 
-    // Create a factory item for i:
-    /*QDomElement factory_tag = doc->createElement("FactoryData");
-    factory_tag.setAttribute("ID", i);
-    object_node->appendChild(factory_tag);
-    export_iface->factoryData().exportXML(doc,&factory_item);*/
+    object_node->setAttribute("Name", d_instance_name);
+    if (d_factory_tag != QString(FACTORY_QTILITIES))
+        object_node->setAttribute("FactoryTag", d_factory_tag);
+    object_node->setAttribute("InstanceTag", d_instance_tag);
 
     return true;
 }
@@ -60,21 +56,12 @@ bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDo
 bool Qtilities::Core::Interfaces::IFactoryData::importXML(QDomDocument* doc, QDomElement* object_node) {
     Q_UNUSED(doc)
 
-    QDomNodeList nodeList = object_node->childNodes();
-    for(int i=0; i < nodeList.count(); i++)
-    {
-        QDomNode node = nodeList.item(i);
-        QDomCDATASection cdata = node.toCDATASection();
-        if(cdata.isNull())
-            continue;
-
-        if (i == 0)
-            d_factory_tag = cdata.data();
-        if (i == 1)
-            d_instance_tag = cdata.data();
-        if (i == 2)
-            d_instance_name = cdata.data();
-    }
+    d_instance_name = object_node->attribute("Name");
+    if (object_node->hasAttribute("FactoryTag"))
+        d_factory_tag = object_node->attribute("FactoryTag");
+    else
+        d_factory_tag = QString(FACTORY_QTILITIES);
+    d_instance_tag = object_node->attribute("InstanceTag");
 
     return true;
 }

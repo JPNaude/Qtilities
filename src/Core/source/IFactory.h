@@ -122,7 +122,15 @@ namespace Qtilities {
                     }
                     return true;
                 }
+                /*!
+                  In the case of IFactoryData, this function will add the factory tag, instance tag etc. as
+                  attributes on \p object_node.
+                  */
                 virtual bool exportXML(QDomDocument* doc, QDomElement* object_node) const;
+                /*!
+                  \note If \p object_node does not have an \p FactoryTag attribute associated with it,
+                  the &Qtilities factory tag is used by default.
+                  */
                 virtual bool importXML(QDomDocument* doc, QDomElement* object_node);
 
                 //! Returns true if this object contains the neccessary information to be used during object construction.
