@@ -58,6 +58,9 @@ namespace Qtilities {
                 //! This function is called in the initializeDependancies() function, thus all objects implementing interfaces in which a mode might be interested will be present in the global object pool.
                 virtual void initialize() = 0;
                 //! An icon for the mode.
+                /*!
+                  The expected mode icon size is 48x48.
+                  */
                 virtual QIcon icon() const = 0;
                 //! The text used to represent the mode.
                 virtual QString text() const = 0;
