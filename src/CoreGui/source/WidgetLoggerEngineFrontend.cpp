@@ -150,7 +150,6 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     }
     CONTEXT_MANAGER->registerContext(context_string);
     d->global_meta_type = context_string;
-    LOG_ERROR(d->global_meta_type);
     setObjectName(context_string);
 
     // Construct actions only after global meta type was set.
@@ -320,9 +319,8 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SelectAll() {
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
-    int context_id = CONTEXT_MANAGER->registerContext(d->global_meta_type);
     QList<int> context;
-    context.push_front(context_id);
+    context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
     // ---------------------------
     // Save
