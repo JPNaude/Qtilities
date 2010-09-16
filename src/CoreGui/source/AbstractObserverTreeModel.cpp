@@ -471,9 +471,9 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
                     if (obs) {
                         if (obs->accessModeScope() == Observer::CategorizedScope) {
                             if (obs->accessMode(item->category()) == Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_22x22);
+                                return QIcon(ICON_READ_ONLY_16x16);
                             else if (obs->accessMode(item->category()) == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_22x22);
+                                return QIcon(ICON_LOCKED_16x16);
                             else
                                 return QVariant();
                         }
@@ -495,24 +495,24 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
                             if (observer->accessMode() == Observer::FullAccess)
                                 return QVariant();
                             if (observer->accessMode() == Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_22x22);
+                                return QIcon(ICON_READ_ONLY_16x16);
                             if (observer->accessMode() == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_22x22);
+                                return QIcon(ICON_LOCKED_16x16);
                         } else {
                             // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
                             QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
                             if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_22x22);
+                                return QIcon(ICON_READ_ONLY_16x16);
                             if (mode.toInt() == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_22x22);
+                                return QIcon(ICON_LOCKED_16x16);
                         }
                     } else {
                         // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
                         QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
                         if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                            return QIcon(ICON_READ_ONLY_22x22);
+                            return QIcon(ICON_READ_ONLY_16x16);
                         if (mode.toInt() == Observer::LockedAccess)
-                            return QIcon(ICON_LOCKED_22x22);
+                            return QIcon(ICON_LOCKED_16x16);
                     }
                 }
             }
@@ -649,7 +649,7 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::headerDataHelper(int sec
             return tr("Type");
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
-            return QIcon(ICON_ACCESS_22x22);
+            return QIcon(ICON_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
             return tr("Access");
