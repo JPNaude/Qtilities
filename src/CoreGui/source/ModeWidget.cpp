@@ -46,7 +46,8 @@ struct Qtilities::CoreGui::ModeWidgetData {
     ModeWidgetData() : active_mode(0) {}
 
     QMap<QString, IMode*> name_widget_map;
-    TopToBottomList* modeList;
+    TopToBottomList* verticalModeList;
+    QListWidget* vertialModeList;
     IMode* active_mode;
 };
 
@@ -60,11 +61,12 @@ Qtilities::CoreGui::ModeWidget::ModeWidget(QWidget *parent) :
     if (ui->modeListHolder->layout())
         delete ui->modeListHolder->layout();
 
-    d->modeList = new TopToBottomList();
-    d->modeList->setViewMode(QListView::IconMode);
+    d->verticalModeList = new TopToBottomList();
+    d->verticalModeList->setViewMode(QListView::IconMode);
+    d->verticalModeList->setIconSize(QSize(48,48));
 
     QHBoxLayout* holder_layout = new QHBoxLayout(ui->modeListHolder);
-    holder_layout->addWidget(d->modeList);
+    holder_layout->addWidget(d->verticalModeList);
     holder_layout->setMargin(0);
 }
 
@@ -72,7 +74,6 @@ Qtilities::CoreGui::ModeWidget::~ModeWidget()
 {
     delete ui;
 }
-
 
 bool Qtilities::CoreGui::ModeWidget::addMode(IMode* mode, bool initialize_mode) {
     if (mode) {   
@@ -84,29 +85,29 @@ bool Qtilities::CoreGui::ModeWidget::addMode(IMode* mode, bool initialize_mode) 
         if (initialize_mode)
             mode->initialize();
 
-        // Add modes to the modeList
+        // Add modes to the verticalModeList
         QIcon icon = mode->icon();
         //if (icon.isNull())
         //    icon =
-        QListWidgetItem* new_item = new QListWidgetItem(icon,mode->text(),d->modeList);
-        d->modeList->addItem(new_item);
+        QListWidgetItem* new_item = new QListWidgetItem(icon,mode->text(),d->verticalModeList);
+        d->verticalModeList->addItem(new_item);
         d->name_widget_map[mode->text()] = mode;
         mode->initialize();
 
         // We set the first mode we find to be active
         if (d->name_widget_map.count() == 1) {
-            connect(d->modeList,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
-            d->modeList->setCurrentItem(new_item);
+            connect(d->verticalModeList,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
+            d->verticalModeList->setCurrentItem(new_item);
         }
     }
 
-    d->modeList->setMinimumWidth(d->modeList->sizeHint().width()+10);
-    //d->modeList->setMaximumWidth(d->modeList->sizeHint().width()+25);
-    d->modeList->setGridSize(d->modeList->itemSizeHint());
+    d->verticalModeList->setMinimumWidth(d->verticalModeList->sizeHint().width()+10);
+    //d->verticalModeList->setMaximumWidth(d->verticalModeList->sizeHint().width()+25);
+    d->verticalModeList->setGridSize(d->verticalModeList->itemSizeHint());
 
-    d->modeList->itemSizeHint();
-    for (int i = 0; i < d->modeList->count(); i++ ) {
-        d->modeList->item(i)->setSizeHint(d->modeList->itemSizeHint());
+    d->verticalModeList->itemSizeHint();
+    for (int i = 0; i < d->verticalModeList->count(); i++ ) {
+        d->verticalModeList->item(i)->setSizeHint(d->verticalModeList->itemSizeHint());
     }
 
     return true;
@@ -147,7 +148,7 @@ void Qtilities::CoreGui::ModeWidget::setActiveMode(int mode_id) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->name_widget_map.count(); i++) {
         if (d->name_widget_map.values().at(i)->modeID() == mode_id) {
-            d->modeList->setCurrentRow(i);
+            d->verticalModeList->setCurrentRow(i);
             break;
         }
     }
@@ -157,7 +158,7 @@ void Qtilities::CoreGui::ModeWidget::setActiveMode(const QString& mode_name) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->name_widget_map.count(); i++) {
         if (d->name_widget_map.values().at(i)->text() == mode_name) {
-            d->modeList->setCurrentRow(i);
+            d->verticalModeList->setCurrentRow(i);
             break;
         }
     }
@@ -167,7 +168,7 @@ void Qtilities::CoreGui::ModeWidget::setActiveMode(IMode* mode_iface) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->name_widget_map.count(); i++) {
         if (d->name_widget_map.values().at(i) == mode_iface) {
-            d->modeList->setCurrentRow(i);
+            d->verticalModeList->setCurrentRow(i);
             break;
         }
     }
