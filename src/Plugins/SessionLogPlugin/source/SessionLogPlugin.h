@@ -63,6 +63,11 @@ namespace Qtilities {
                 SessionLogPlugin(QObject* parent = 0);
                 ~SessionLogPlugin();
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+
                 // --------------------------------------------
                 // IPlugin Implementation
                 // --------------------------------------------

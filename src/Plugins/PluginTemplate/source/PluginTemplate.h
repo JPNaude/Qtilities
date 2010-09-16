@@ -67,6 +67,11 @@ namespace Qtilities {
                 PluginTemplate(QObject* parent = 0);
                 ~PluginTemplate();
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+
                 // --------------------------------------------
                 // IPlugin Implementation
                 // --------------------------------------------

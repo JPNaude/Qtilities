@@ -45,7 +45,7 @@ namespace Qtilities {
                 #define SESSION_LOG_PLUGIN_VERSION_MINOR 1
 
                 // Icons
-                const char * const SESSION_LOG_MODE_ICON_64x64    = ":/icons/session_log_64x64.png";
+                const char * const SESSION_LOG_MODE_ICON_48x48    = ":/icons/session_log_48x48.png";
             }
         }
     }

@@ -65,6 +65,11 @@ namespace Qtilities {
                 ProjectManagementPlugin(QObject* parent = 0);
                 ~ProjectManagementPlugin();
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+
                 // --------------------------------------------
                 // IPlugin Implementation
                 // --------------------------------------------

@@ -93,7 +93,7 @@ QWidget* Qtilities::Plugins::SessionLog::SessionLogMode::widget() {
 }
 
 QIcon Qtilities::Plugins::SessionLog::SessionLogMode::icon() const {
-    return QIcon(SESSION_LOG_MODE_ICON_64x64);
+    return QIcon(SESSION_LOG_MODE_ICON_48x48);
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogMode::text() const {
