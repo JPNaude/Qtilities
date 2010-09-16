@@ -76,60 +76,77 @@ quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name) {
     LOG_DEBUG(tr("Starting to save current project to file: ") + file_name);
 
-    QTemporaryFile file;
-    file.open();
-    QDataStream stream(&file);   // we will serialize the data into the file
-    stream << (quint32) QTILITIES_BINARY_EXPORT_FORMAT;
-    stream << PROJECT_MANAGER->projectFileVersion();
-    stream << MARKER_PROJECT_SECTION;
-    stream << d->project_name;
-    stream << (quint32) d->project_items.count();
+    if (file_name.endsWith(".xml")) {
+    return true;
+    } else if (file_name.endsWith(".prj")) {
+        QTemporaryFile file;
+        file.open();
+        QDataStream stream(&file);   // we will serialize the data into the file
+        stream.setVersion(QDataStream::Qt_4_6);
+        stream << (quint32) QTILITIES_BINARY_EXPORT_FORMAT;
+        stream << PROJECT_MANAGER->projectFileVersion();
+        stream << MARKER_PROJECT_SECTION;
+        stream << d->project_name;
+        stream << (quint32) d->project_items.count();
 
-    QStringList item_names;
-    for (int i = 0; i < d->project_items.count(); i++) {
-        item_names << d->project_items.at(i)->projectItemName();
-    }
-    stream << item_names;
+        QStringList item_names;
+        for (int i = 0; i < d->project_items.count(); i++) {
+            item_names << d->project_items.at(i)->projectItemName();
+        }
+        stream << item_names;
 
-    // Now stream each project part.
-    LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
-    bool success = true;
-    for (int i = 0; i < d->project_items.count(); i++) {
-        if (!success)
-            break;
-
-        LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-        success = d->project_items.at(i)->saveProjectItem(stream);
-    }
-
-    stream << MARKER_PROJECT_SECTION;
-    file.close();
-
-    if (success) {
-        // Copy the tmp file to the actual project file.
-        d->project_file = file_name;
-        QFile current_file(d->project_file);
-        if (current_file.exists())  {
-            if (!current_file.remove()) {
-                LOG_INFO(tr("Failed to replace the current project file at path: ") + d->project_file);
-                return false;
+        // Now stream each project part.
+        LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
+        IExportable::Result success = IExportable::Complete;
+        for (int i = 0; i < d->project_items.count(); i++) {
+            if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
+                LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+                IExportable::Result item_result = d->project_items.at(i)->exportBinary(stream);
+                if (item_result == IExportable::Failed) {
+                    success = item_result;
+                    break;
+                }
+                if (item_result == IExportable::Incomplete && success == IExportable::Complete)
+                    success = item_result;
+            } else {
+                success = IExportable::Incomplete;
+                LOG_WARNING(QString(tr("Could not save project item %1: %2. This project item does not support binary exporting.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
             }
         }
-        file.copy(d->project_file);
 
-        // We change the project name to the selected file name
-        QFileInfo fi(d->project_file);
-        QString file_name_only = fi.fileName().split(".").front();
-        d->project_name = file_name_only;
+        stream << MARKER_PROJECT_SECTION;
+        file.close();
 
-        setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
-        LOG_INFO(tr("Successfully saved current project to file: ") + d->project_file);
-    } else {
-        LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
-        return false;
+        if (success != IExportable::Failed) {
+            // Copy the tmp file to the actual project file.
+            d->project_file = file_name;
+            QFile current_file(d->project_file);
+            if (current_file.exists())  {
+                if (!current_file.remove()) {
+                    LOG_INFO(tr("Failed to replace the current project file at path: ") + d->project_file);
+                    return false;
+                }
+            }
+            file.copy(d->project_file);
+
+            // We change the project name to the selected file name
+            QFileInfo fi(d->project_file);
+            QString file_name_only = fi.fileName().split(".").front();
+            d->project_name = file_name_only;
+
+            setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            if (success == IExportable::Complete)
+                LOG_INFO(tr("Successfully saved complete project to file: ") + d->project_file);
+            if (success == IExportable::Incomplete)
+                LOG_INFO(tr("Successfully saved incomplete project to file: ") + d->project_file);
+        } else {
+            LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
+            return false;
+        }
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name, bool close_current_first) {
@@ -138,90 +155,111 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
     LOG_DEBUG(tr("Starting to load project from file: ") + file_name);
 
-    d->project_file = file_name;
-    d->project_name = QFileInfo(file_name).fileName();
+    if (file_name.endsWith(".xml")) {
+        return true;
+    } else if (file_name.endsWith(".prj")) {
+        d->project_file = file_name;
+        d->project_name = QFileInfo(file_name).fileName();
 
-    QFile file(file_name);
-    if (!file.exists()) {
-        LOG_ERROR(QString(tr("Project file does not exist. Project will not be loaded.")));
-        return false;
-    }
-    file.open(QIODevice::ReadOnly);
-    QDataStream stream(&file);   // we will serialize the data into the file
+        QFile file(file_name);
+        if (!file.exists()) {
+            LOG_ERROR(QString(tr("Project file does not exist. Project will not be loaded.")));
+            return false;
+        }
+        file.open(QIODevice::ReadOnly);
 
-    quint32 marker;
-    stream >> marker;
-    LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
-    if (marker != (quint32) QTILITIES_BINARY_EXPORT_FORMAT) {
-        LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_BINARY_EXPORT_FORMAT));
-        return false;
-    }
-    stream >> marker;
-    LOG_INFO(QString(tr("Inspecting project file format: Application binary export file format version: %1")).arg(marker));
-    if (marker != PROJECT_MANAGER->projectFileVersion()) {
-        LOG_ERROR(QString(tr("Project file format does not match the expected application binary export file format (expected version: %1). Project will not be loaded.")).arg(PROJECT_MANAGER->projectFileVersion()));
-        return false;
-    }
-    stream >> marker;
-    if (marker != MARKER_PROJECT_SECTION) {
-        LOG_ERROR(tr("Project file does not contain valid project data. Project will not be loaded. Path: ") + file_name);
-        return false;
-    }
-    stream >>d->project_name;
-    quint32 project_item_count;
-    stream >> project_item_count;
+        QDataStream stream(&file);
+        stream.setVersion(QDataStream::Qt_4_6);
 
-    QStringList item_names;
-    QStringList item_names_readback;
-
-    for (int i = 0; i < d->project_items.count(); i++) {
-        item_names << d->project_items.at(i)->projectItemName();
-    }
-    stream >> item_names_readback;
-    LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
-    if (item_names != item_names_readback) {
-        LOG_ERROR(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of projec items.") + file_name);
-        return false;
-    }
-
-    // Now stream each project part.
-    int int_count = project_item_count;
-    bool success = true;
-    for (int i = 0; i < int_count; i++) {
-        if (!success)
-            break;
-
-        success = d->project_items.at(i)->loadProjectItem(stream);
-        LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-    }
-
-    if (success) {
+        quint32 marker;
         stream >> marker;
-        success = (marker == MARKER_PROJECT_SECTION);
+        LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
+        if (marker != (quint32) QTILITIES_BINARY_EXPORT_FORMAT) {
+            LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_BINARY_EXPORT_FORMAT));
+            return false;
+        }
+        stream >> marker;
+        LOG_INFO(QString(tr("Inspecting project file format: Application binary export file format version: %1")).arg(marker));
+        if (marker != PROJECT_MANAGER->projectFileVersion()) {
+            LOG_ERROR(QString(tr("Project file format does not match the expected application binary export file format (expected version: %1). Project will not be loaded.")).arg(PROJECT_MANAGER->projectFileVersion()));
+            return false;
+        }
+        stream >> marker;
+        if (marker != MARKER_PROJECT_SECTION) {
+            LOG_ERROR(tr("Project file does not contain valid project data. Project will not be loaded. Path: ") + file_name);
+            return false;
+        }
+        stream >>d->project_name;
+        quint32 project_item_count;
+        stream >> project_item_count;
+
+        QStringList item_names;
+        QStringList item_names_readback;
+
+        for (int i = 0; i < d->project_items.count(); i++) {
+            item_names << d->project_items.at(i)->projectItemName();
+        }
+        stream >> item_names_readback;
+        LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
+        if (item_names != item_names_readback) {
+            LOG_ERROR(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of projec items.") + file_name);
+            return false;
+        }
+
+        // Now stream each project part.
+        int int_count = project_item_count;
+        IExportable::Result success = IExportable::Complete;
+        QList<QPointer<QObject> > import_list;
+        for (int i = 0; i < int_count; i++) {
+            if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
+                LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+                IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
+                d->project_items.at(i)->exportBinary(stream);
+                if (item_result == IExportable::Failed) {
+                    success = item_result;
+                    break;
+                }
+                if (item_result == IExportable::Incomplete && success == IExportable::Complete)
+                    success = item_result;
+            } else {
+                success = IExportable::Incomplete;
+                LOG_WARNING(QString(tr("Could not load project item %1: %2. This project item does not support binary importing.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+            }
+        }
+
+        if (success) {
+            stream >> marker;
+            if (marker != MARKER_PROJECT_SECTION)
+                success = IExportable::Failed;
+        }
+
+        file.close();
+
+        if (success != IExportable::Failed) {
+            // We change the project name to the selected file name
+            QFileInfo fi(d->project_file);
+            QString file_name_only = fi.fileName().split(".").front();
+            d->project_name = file_name_only;
+
+            // Process events here before we set the modification state. This would ensure that any
+            // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
+            // modification state of observers and when these events are delivered later than the
+            // setModificationState() call below, it might change the modification state again.
+            QCoreApplication::processEvents();
+
+            setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            if (success == IExportable::Complete)
+                LOG_INFO(tr("Successfully loaded complete project from file: ") + file_name);
+            if (success == IExportable::Incomplete)
+                LOG_INFO(tr("Successfully loaded incomplete project from file: ") + file_name);
+        } else {
+            LOG_ERROR(tr("Failed to load project from file: ") + file_name);
+            return false;
+        }
+
+        return true;
     }
-
-    file.close();
-
-    if (success) {
-        // We change the project name to the selected file name
-        QFileInfo fi(d->project_file);
-        QString file_name_only = fi.fileName().split(".").front();
-        d->project_name = file_name_only;
-
-        // Process events here before we set the modification state. This would ensure that any
-        // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
-        // modification state of observers and when these events are delivered later than the
-        // setModificationState() call below, it might change the modification state again.
-        QCoreApplication::processEvents();
-
-        setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
-        LOG_INFO(tr("Successfully loaded project from file: ") + file_name);
-    } else {
-        LOG_ERROR(tr("Failed to load project from file: ") + file_name);
-        return false;
-    }
-
-    return true;
+    return false;
 }
 
 bool Qtilities::ProjectManagement::Project::closeProject() {
