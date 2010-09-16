@@ -198,9 +198,14 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
         layout->setMargin(0);
         d->active_widget = config_page->configPageWidget();
         layout->addWidget(d->active_widget);
-        d->active_widget->show();
-        if (d->active_widget->layout())
-            d->active_widget->layout()->setMargin(0);
+        if (d->active_widget) {
+            d->active_widget->show();
+            if (d->active_widget->layout())
+                d->active_widget->layout()->setMargin(0);
+        } else {
+            d->active_widget = new QLabel("Failed to find configuartion page for selected item.");
+            d->active_widget->show();
+        }
     }
 }
 
