@@ -132,6 +132,7 @@ This class was added in %Qtilities v0.2.
             }
             QtilitiesCategory(const QtilitiesCategory& category) {
                 d_category_levels = category.d_category_levels;
+                d_access_mode = category.d_access_mode;
             }
             virtual ~QtilitiesCategory() {}
 
