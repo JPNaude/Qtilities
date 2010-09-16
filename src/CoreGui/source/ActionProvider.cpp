@@ -50,7 +50,7 @@ Qtilities::CoreGui::ActionProvider::~ActionProvider() {
 
 QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
     // Loop through all actions and inspect them:
-    QList<QAction*> filtered_list;
+    QMap<QString, QAction*> filtered_map;
     for (int i = 0; i < d->actions.count(); i++) {
         QAction* action = d->actions.keys().at(i);
         bool add_action = true;
@@ -59,23 +59,33 @@ QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::Act
         if (d->actions.values().at(i) != category_filter && !category_filter.isEmpty())
             add_action = false;
 
-        // Check for IActionProvider::FilterDisabled
+        // Check for IActionProvider::FilterDisabled:
         if (action_filter & IActionProvider::FilterDisabled && add_action) {
             if (!action->isEnabled())
                 add_action = false;
         }
 
-        // Check for IActionProvider::FilterHidden
+        // Check for IActionProvider::FilterHidden:
         if (action_filter & IActionProvider::FilterHidden && add_action) {
             if (!action->isVisible())
                 add_action = false;
         }
 
-        if (add_action)
-            filtered_list << action;
+        if (add_action) {
+            filtered_map[action->text()] = action;
+        }
     }
 
-    return filtered_list;
+    // We need to sort the list here by the action names:
+    QStringList name_list = filtered_map.keys();
+    qSort(name_list.begin(), name_list.end());
+
+    // Build final list in sorted order and return it:
+    QList<QAction*> final_list;
+    for (int i = 0; i < name_list.count(); i++)
+        final_list << filtered_map[name_list.at(i)];
+
+    return final_list;
 }
 
 QMap<QAction*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionMap(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
