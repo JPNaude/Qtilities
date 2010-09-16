@@ -36,7 +36,8 @@
 
 #include "ProjectManagement_global.h"
 
-#include <IModificationNotifier.h>
+#include <IModificationNotifier>
+#include <IExportable>
 
 #include <QObject>
 #include <QString>
@@ -45,12 +46,11 @@ namespace Qtilities {
     namespace ProjectManagement {
         namespace Interfaces {
             using namespace Qtilities::Core::Interfaces;
-
             /*!
             \class IProjectItem
             \brief Interface through which objects can be exposed as project parts.
               */
-            class PROJECT_MANAGEMENT_SHARED_EXPORT IProjectItem : virtual public IModificationNotifier {
+            class PROJECT_MANAGEMENT_SHARED_EXPORT IProjectItem : virtual public IModificationNotifier, virtual public IExportable {
             public:
                 IProjectItem() {}
                 virtual ~IProjectItem() {}
@@ -59,10 +59,6 @@ namespace Qtilities {
                 virtual QString projectItemName() const = 0;
                 //! Called by the project manager when a new project needs to be created.
                 virtual bool newProjectItem() = 0;
-                //! Load the project from the specified file.
-                virtual bool loadProjectItem(QDataStream& stream) = 0;
-                //! Save the project to a specified file.
-                virtual bool saveProjectItem(QDataStream& stream) = 0;
                 //! Close the project.
                 virtual bool closeProjectItem() = 0;                 
             };
