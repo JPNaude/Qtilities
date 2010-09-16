@@ -36,18 +36,22 @@
 
 #include "ExtensionSystem_global.h"
 
+#include <IObjectBase>
+
 #include <QObject>
 #include <QList>
 
 namespace Qtilities {
     namespace ExtensionSystem {
+        using namespace Qtilities::Core::Interfaces;
+
         //! Namespace containing available interfaces which forms part of the ExtensionSystem Module.
         namespace Interfaces {
             /*!
             \class IPlugin
             \brief Interface used to communicate with plugins.
               */
-            class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : public QObject
+            class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : public QObject, virtual public IObjectBase
             {
                 Q_OBJECT
                 Q_ENUMS(PluginState)
