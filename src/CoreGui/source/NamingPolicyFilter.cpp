@@ -35,8 +35,8 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "NamingPolicyInputDialog.h"
 #include "QtilitiesApplication.h"
-#include "QtilitiesPropertyChangeEvent.h"
 
+#include <QtilitiesPropertyChangeEvent.h>
 #include <Observer.h>
 #include <QtilitiesCoreConstants.h>
 #include <Logger.h>
@@ -49,6 +49,7 @@
 #include <QVariant>
 #include <QRegExpValidator>
 #include <QCoreApplication>
+#include <QDomDocument>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Properties;
@@ -517,6 +518,7 @@ Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::NamingPolicyFilter
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::NamingPolicyFilter::supportedFormats() const {
     IExportable::ExportModeFlags flags = 0;
     flags |= IExportable::Binary;
+    flags |= IExportable::XML;
     return flags;
 }
 
@@ -551,11 +553,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    QDomElement filter_data = doc->createElement("Data");
+    object_node->appendChild(filter_data);
+    filter_data.setAttribute("UniquenessPolicy",uniquenessPolicyToString(d->uniqueness_policy));
+    filter_data.setAttribute("ValidityResolutionPolicy",resolutionPolicyToString(d->validity_resolution_policy));
+    filter_data.setAttribute("UniquenessResolutionPolicy",resolutionPolicyToString(d->uniqueness_resolution_policy));
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
@@ -563,7 +568,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    IExportable::Result result = IExportable::Incomplete;
+
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "Data") {
+            if (child.hasAttribute("NewSubjectActivityPolicy"))
+                d->uniqueness_policy = stringToUniquenessPolicy(child.attribute("UniquenessPolicy"));
+            if (child.hasAttribute("ValidityResolutionPolicy"))
+                d->validity_resolution_policy = stringToResolutionPolicy(child.attribute("ValidityResolutionPolicy"));
+            if (child.hasAttribute("UniquenessResolutionPolicy"))
+                d->uniqueness_resolution_policy = stringToResolutionPolicy(child.attribute("UniquenessResolutionPolicy"));
+            result = IExportable::Complete;
+            continue;
+        }
+    }
+
+    return result;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) {
