@@ -56,8 +56,9 @@ namespace Qtilities {
         \brief Structure used by AbstractTreeItem to store private data.
           */
         struct AbstractTreeItemData {
-            AbstractTreeItemData() { }
+            AbstractTreeItemData() : is_exportable(true) { }
 
+            bool is_exportable;
         };
 
         /*!
@@ -73,69 +74,93 @@ namespace Qtilities {
             AbstractTreeItem();
             virtual ~AbstractTreeItem();
 
+            //! Indicates if the formatting information of this tree item must be exported
+            bool isFormattingExportable() const;
+            //! Sets if the formatting information of this tree item must be exported.
+            void setIsFormattingExportable(bool is_exportable);
+
+            /*!
+              This function will add a formatting node to \p object_node with the formatting information of this item.
+              At present the following information is part of the formatting export:
+              - Alignment
+              - Background Color
+              - Foreground Color
+              - Size Hint
+              - Status Tip
+              - Tool Tip
+              - Font
+
+              The following information is not part of the formatting export:
+              - Icon
+
+              \note Category: The category is not part of the export. It is part of this item's item node.
+              */
+            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+
             // -------------------------------
             // Getter & Setter functions for object role properties
             // -------------------------------
             //! Sets the category of the tree item.
             void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
             //! Gets the category of the tree item.
-            QtilitiesCategory getCategory(TreeNode* tree_node);
+            QtilitiesCategory getCategory(TreeNode* tree_node) const;
             //! Checks if the item has a category.
-            bool hasCategory();
+            bool hasCategory() const;
             //! Sets the tool tip of the tree item.
             void setToolTip(const QString& tooltip);
             //! Gets the tool tip of the tree item.
-            QString getToolTip();
+            QString getToolTip() const;
             //! Checks if the item has a tool tip.
-            bool hasToolTip();
+            bool hasToolTip() const;
             //! Sets the icon of the tree item.
             void setIcon(const QIcon& icon);
             //! Gets the icon of the tree item.
-            QIcon getIcon();
+            QIcon getIcon() const;
             //! Checks if the item has an icon.
-            bool hasIcon();
+            bool hasIcon() const;
             //! Sets the what's this text of the tree item.
             void setWhatsThis(const QString& whats_this);
             //! Gets the what's this text of the tree item.
-            QString getWhatsThis();
+            QString getWhatsThis() const;
             //! Checks if the item has what's this text.
-            bool hasWhatsThis();
+            bool hasWhatsThis() const;
             //! Sets the status tip of the tree item.
             void setStatusTip(const QString& status_tip);
             //! Gets the status tip of the tree item.
-            QString getStatusTip();
+            QString getStatusTip() const;
             //! Checks if the item has status tip text.
-            bool hasStatusTip();
+            bool hasStatusTip() const;
             //! Sets the size hint of the tree item.
             void setSizeHint(const QSize& size);
             //! Gets the size hint of the tree item.
-            QSize getSizeHint();
+            QSize getSizeHint() const;
             //! Checks if the item has a size hint.
-            bool hasSizeHint();
+            bool hasSizeHint() const;
             //! Sets the font of the tree item.
             void setFont(const QFont& font);
             //! Gets the font of the tree item.
-            QFont getFont();
+            QFont getFont() const;
             //! Checks if the item has a font.
-            bool hasFont();
+            bool hasFont() const;
             //! Sets the alignment of the tree item.
             void setAlignment(const Qt::AlignmentFlag& alignment);
             //! Gets the alignement of the tree item.
-            Qt::AlignmentFlag getAlignment();
+            Qt::AlignmentFlag getAlignment() const;
             //! Checks if the item has a font.
-            bool hasAlignment();
+            bool hasAlignment() const;
             //! Sets the foreground role of the tree item.
             void setForegroundRole(const QBrush& foreground_role);
             //! Gets the foreground role of the tree item.
-            QBrush getForegroundRole();
+            QBrush getForegroundRole() const;
             //! Checks if the item has a foreground role.
-            bool hasForegroundRole();
+            bool hasForegroundRole() const;
             //! Sets the background role of the tree item.
             void setBackgroundRole(const QBrush& background_role);
             //! Gets the background role of the tree item.
-            QBrush getBackgroundRole();
+            QBrush getBackgroundRole() const;
             //! Checks if the item has a background role.
-            bool hasBackgroundRole();
+            bool hasBackgroundRole() const;
 
         protected:
             AbstractTreeItemData* baseItemData;

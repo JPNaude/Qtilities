@@ -34,6 +34,8 @@
 #include "AbstractTreeItem.h"
 #include "TreeNode.h"
 
+#include <QDomElement>
+
 using namespace Qtilities::Core;
 
 Qtilities::CoreGui::AbstractTreeItem::AbstractTreeItem() {
@@ -43,6 +45,61 @@ Qtilities::CoreGui::AbstractTreeItem::AbstractTreeItem() {
 
 Qtilities::CoreGui::AbstractTreeItem::~AbstractTreeItem() {
     delete baseItemData;
+}
+
+bool Qtilities::CoreGui::AbstractTreeItem::isFormattingExportable() const {
+    return baseItemData->is_exportable;
+}
+
+void Qtilities::CoreGui::AbstractTreeItem::setIsFormattingExportable(bool is_exportable) {
+    baseItemData->is_exportable = is_exportable;
+}
+
+IExportable::Result Qtilities::CoreGui::AbstractTreeItem::exportFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    QDomElement formatting_data = doc->createElement("Formatting");
+    object_node->appendChild(formatting_data);
+
+    if (hasAlignment())
+        formatting_data.setAttribute("Alignment",(int) getAlignment());
+    if (hasBackgroundRole())
+        formatting_data.setAttribute("BackgroundColor",getBackgroundRole().color().name());
+    if (hasForegroundRole())
+        formatting_data.setAttribute("ForegroundColor",getForegroundRole().color().name());
+    if (hasSizeHint()) {
+        QDomElement size_data = doc->createElement("Size");
+        formatting_data.appendChild(size_data);
+        QSize size = getSizeHint();
+        formatting_data.setAttribute("Width",size.width());
+        formatting_data.setAttribute("Height",size.height());
+    }
+    if (hasStatusTip())
+        formatting_data.setAttribute("StatusTip",getStatusTip());
+    if (hasToolTip())
+        formatting_data.setAttribute("ToolTip",getToolTip());
+    if (hasWhatsThis())
+        formatting_data.setAttribute("WhatsThis",getWhatsThis());
+    if (hasFont()) {
+        QDomElement font_data = doc->createElement("Font");
+        formatting_data.appendChild(font_data);
+        QFont font = getFont();
+        font_data.setAttribute("Family",font.family());
+        font_data.setAttribute("PointSize",font.pointSize());
+        font_data.setAttribute("Weigth",font.weight());
+        if (font.bold())
+            font_data.setAttribute("Bold","True");
+        else
+            font_data.setAttribute("Bold","False");
+        if (font.italic())
+            font_data.setAttribute("Italic","True");
+        else
+            font_data.setAttribute("Italic","False");
+    }
+    return IExportable::Complete;
+}
+
+IExportable::Result Qtilities::CoreGui::AbstractTreeItem::importFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+
+    return IExportable::Complete;
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
@@ -55,8 +112,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     }
 }
 
-Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(TreeNode* tree_node) {
-    QObject* obj = objectBase();
+Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(TreeNode* tree_node) const {
+    const QObject* obj = objectBase();
     if (obj && tree_node) {
         QVariant category_variant = tree_node->getObserverPropertyValue(obj,OBJECT_CATEGORY);
         if (category_variant.isValid()) {
@@ -67,7 +124,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCate
     return QtilitiesCategory();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasCategory() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasCategory() const {
     return Observer::propertyExists(objectBase(),OBJECT_CATEGORY);
 }
 
@@ -80,15 +137,15 @@ void Qtilities::CoreGui::AbstractTreeItem::setToolTip(const QString& tooltip) {
     }
 }
 
-QString Qtilities::CoreGui::AbstractTreeItem::getToolTip() {
-    QObject* obj = objectBase();
+QString Qtilities::CoreGui::AbstractTreeItem::getToolTip() const {
+    const QObject* obj = objectBase();
     if (obj)
         return Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP).value().toString();
 
     return QString();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasToolTip() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasToolTip() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_TOOLTIP);
 }
 
@@ -101,8 +158,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setIcon(const QIcon& icon) {
     }
 }
 
-QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() {
-    QObject* obj = objectBase();
+QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() const {
+    const QObject* obj = objectBase();
     if (obj) {
         QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP).value();
         return variant.value<QIcon>();
@@ -111,7 +168,7 @@ QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() {
     return QIcon();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasIcon() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasIcon() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_TOOLTIP);
 }
 
@@ -124,15 +181,15 @@ void Qtilities::CoreGui::AbstractTreeItem::setWhatsThis(const QString& whats_thi
     }
 }
 
-QString Qtilities::CoreGui::AbstractTreeItem::getWhatsThis() {
-    QObject* obj = objectBase();
+QString Qtilities::CoreGui::AbstractTreeItem::getWhatsThis() const {
+    const QObject* obj = objectBase();
     if (obj)
         return Observer::getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS).value().toString();
 
     return QString();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasWhatsThis() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasWhatsThis() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_WHATS_THIS);
 }
 
@@ -145,15 +202,15 @@ void Qtilities::CoreGui::AbstractTreeItem::setStatusTip(const QString& status_ti
     }
 }
 
-QString Qtilities::CoreGui::AbstractTreeItem::getStatusTip() {
-    QObject* obj = objectBase();
+QString Qtilities::CoreGui::AbstractTreeItem::getStatusTip() const {
+    const QObject* obj = objectBase();
     if (obj)
         return Observer::getSharedProperty(obj,OBJECT_ROLE_STATUSTIP).value().toString();
 
     return QString();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasStatusTip() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasStatusTip() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_STATUSTIP);
 }
 
@@ -166,15 +223,15 @@ void Qtilities::CoreGui::AbstractTreeItem::setSizeHint(const QSize& size) {
     }
 }
 
-QSize Qtilities::CoreGui::AbstractTreeItem::getSizeHint() {
-    QObject* obj = objectBase();
+QSize Qtilities::CoreGui::AbstractTreeItem::getSizeHint() const {
+    const QObject* obj = objectBase();
     if (obj)
         return Observer::getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT).value().toSize();
 
     return QSize();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasSizeHint() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasSizeHint() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_SIZE_HINT);
 }
 
@@ -187,8 +244,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setFont(const QFont& font) {
     }
 }
 
-QFont Qtilities::CoreGui::AbstractTreeItem::getFont() {
-    QObject* obj = objectBase();
+QFont Qtilities::CoreGui::AbstractTreeItem::getFont() const {
+    const QObject* obj = objectBase();
     if (obj) {
         QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_FONT).value();
         return variant.value<QFont>();
@@ -197,7 +254,7 @@ QFont Qtilities::CoreGui::AbstractTreeItem::getFont() {
     return QFont();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasFont() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasFont() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_FONT);
 }
 
@@ -210,8 +267,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setAlignment(const Qt::AlignmentFlag&
     }
 }
 
-Qt::AlignmentFlag Qtilities::CoreGui::AbstractTreeItem::getAlignment() {
-    QObject* obj = objectBase();
+Qt::AlignmentFlag Qtilities::CoreGui::AbstractTreeItem::getAlignment() const {
+    const QObject* obj = objectBase();
     if (obj) {
         QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT).value();
         return (Qt::AlignmentFlag) variant.toInt();
@@ -220,7 +277,7 @@ Qt::AlignmentFlag Qtilities::CoreGui::AbstractTreeItem::getAlignment() {
     return Qt::AlignLeft;
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasAlignment() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasAlignment() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_TEXT_ALIGNMENT);
 }
 
@@ -233,8 +290,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setForegroundRole(const QBrush& foreg
     }
 }
 
-QBrush Qtilities::CoreGui::AbstractTreeItem::getForegroundRole() {
-    QObject* obj = objectBase();
+QBrush Qtilities::CoreGui::AbstractTreeItem::getForegroundRole() const {
+    const QObject* obj = objectBase();
     if (obj) {
         QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_FOREGROUND).value();
         return variant.value<QBrush>();
@@ -243,7 +300,7 @@ QBrush Qtilities::CoreGui::AbstractTreeItem::getForegroundRole() {
     return QBrush();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasForegroundRole() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasForegroundRole() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_FOREGROUND);
 }
 
@@ -256,8 +313,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setBackgroundRole(const QBrush& backg
     }
 }
 
-QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() {
-    QObject* obj = objectBase();
+QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() const {
+    const QObject* obj = objectBase();
     if (obj) {
         QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_BACKGROUND).value();
         return variant.value<QBrush>();
@@ -266,6 +323,6 @@ QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() {
     return QBrush();
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::hasBackgroundRole() {
+bool Qtilities::CoreGui::AbstractTreeItem::hasBackgroundRole() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_BACKGROUND);
 }
