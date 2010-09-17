@@ -120,6 +120,10 @@ namespace Qtilities {
                 ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
                 OwnedBySubjectOwnership     /*!< The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When Observer::OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using Observer::OwnedBySubjectOwnership it is attached to all other contexts after that using Observer::OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using Observer::OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
             };
+            //! Function which returns a string associated with a specific ObjectOwnership.
+            static QString objectOwnershipToString(ObjectOwnership ownership);
+            //! Function which returns the ObjectOwnership associated with a string.
+            static ObjectOwnership stringToObjectOwnership(const QString& ownership_string);
             //! The possible access modes of the observer.
             /*!
               \sa setAccessMode(), accessMode()
@@ -130,6 +134,10 @@ namespace Qtilities {
                 LockedAccess = 2,           /*!< The observer is read only and locked. Item views presenting this observer to the user will respect the LockedAccess mode and will not display the contents of the observer to the user. */
                 InvalidAccess = 3           /*!< An invalid access mode. This access mode is returned in functions where the access mode is requested for a category that does not exist, for example categoryAccessMode(). */
             };
+            //! Function which returns a string associated with a specific AccessMode.
+            static QString accessModeToString(AccessMode access_mode);
+            //! Function which returns the AccessMode associated with a string.
+            static AccessMode stringToAccessMode(const QString& access_mode_string);
             //! The access mode scope of the observer.
             /*! When using categories in an observer, access modes can be set for each individual category.
               Categories which does not have access modes set will use the global access mode.
@@ -139,6 +147,10 @@ namespace Qtilities {
                 GlobalScope = 0,            /*!< The global access mode is used for all categories when categories are used. */
                 CategorizedScope = 1        /*!< Access modes are category specific. */
             };
+            //! Function which returns a string associated with a specific AccessModeScope.
+            static QString accessModeScopeToString(AccessModeScope access_mode_scope);
+            //! Function which returns the AccessModeScope associated with a string.
+            static AccessModeScope stringToAccessModeScope(const QString& access_mode_scope_string);
 
             // --------------------------------
             // Core Functions
@@ -180,6 +192,7 @@ namespace Qtilities {
             // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------
             // IExportable Implementation
@@ -197,8 +210,8 @@ namespace Qtilities {
               For complex observer structures binary exports should be used. Note that XML exports is much faster than
               binary exports.
               */
-            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implementation

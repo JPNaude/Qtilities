@@ -132,7 +132,6 @@ Qtilities::Core::Observer::~Observer() {
               }
            }
         }
-        //endProcessingCycle();
     }
 
     // Delete subject filters
@@ -218,8 +217,6 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
 quint32 MARKER_OBSERVER_SECTION = 0xDEADBEEF;
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
     LOG_TRACE(tr("Binary export of observer ") + observerName() + tr(" section started."));
 
     // We define a succesfull operation as an export which is able to export all subjects.
@@ -234,7 +231,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     // It also excludes the factory data which was stream above.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     stream << MARKER_OBSERVER_SECTION;
-    observerData->exportBinary(stream);
+    observerData->exportBinary(stream,params);
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
@@ -332,8 +329,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(params)
-
     LOG_TRACE(tr("Binary import of observer ") + observerName() + tr(" section started."));
     startProcessingCycle();
 
@@ -350,7 +345,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
-    if (!observerData->importBinary(stream)) {
+    if (!observerData->importBinary(stream,import_list,params)) {
         LOG_ERROR("Observer binary import failed to during observer data import. Import will fail.");
         endProcessingCycle();
         return IExportable::Failed;
@@ -485,22 +480,24 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
     // 1. Factory attributes is added to this item's node:
     factoryData().exportXML(doc,object_node);
 
     // 2. The data of this item is added to a new data node:
     QDomElement subject_data = doc->createElement("Data");
     object_node->appendChild(subject_data);
+
     // 2.1. Observer data:
+    QDomElement observer_data = doc->createElement("ObserverData");
+    subject_data.appendChild(observer_data);
+    observerData->exportXML(doc,&observer_data,params);
 
     // 2.2. Observer hints:
     if (observerData->display_hints) {
         if (observerData->display_hints->isExportable()) {
             QDomElement hints_data = doc->createElement("ObserverHints");
             subject_data.appendChild(hints_data);
-            observerData->display_hints->exportXML(doc,&hints_data);
+            observerData->display_hints->exportXML(doc,&hints_data,params);
         }
     }
 
@@ -509,7 +506,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
         QDomElement subject_filter = doc->createElement("SubjectFilter");
         subject_data.appendChild(subject_filter);
         observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter);
-        observerData->subject_filters.at(i)->exportXML(doc,&subject_filter);
+        observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params);
     }
 
     // 3. All the children of this item is exported:
@@ -523,7 +520,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                 // The item and its factory data:
                 QDomElement subject_item = doc->createElement("TreeItem");
                 subject_children.appendChild(subject_item);
-                export_iface->exportXML(doc,&subject_item);
+                // We also append the following information:
+                // 1. Category:
+                if (Observer::propertyExists(export_iface->objectBase(),OBJECT_CATEGORY)) {
+                    QVariant category_variant = getObserverPropertyValue(export_iface->objectBase(),OBJECT_CATEGORY);
+                    if (category_variant.isValid()) {
+                        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+                        if (!category.toString().isEmpty())
+                            subject_item.setAttribute("Category",category.toString());
+                    }
+                }
+                // 2. Is Active:
+                if (Observer::propertyExists(export_iface->objectBase(),OBJECT_ACTIVITY)) {
+                    bool activity = getObserverPropertyValue(export_iface->objectBase(),OBJECT_ACTIVITY).toBool();
+                    if (activity)
+                        subject_item.setAttribute("Activity","Active");
+                    else
+                        subject_item.setAttribute("Activity","Inactive");
+                }
+
+                // 3. Factory Data:
+                export_iface->factoryData().exportXML(doc,&subject_item);
+
+                // Now we let the export iface export whatever it need to export:
+                export_iface->exportXML(doc,&subject_item,params);
             }
         }
     }
@@ -2012,4 +2032,87 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
         }
     }
     return false;
+}
+
+QString Qtilities::Core::Observer::objectOwnershipToString(ObjectOwnership ownership) {
+    if (ownership == ManualOwnership) {
+        return "ManualOwnership";
+    } else if (ownership == AutoOwnership) {
+        return "AutoOwnership";
+    } else if (ownership == SpecificObserverOwnership) {
+        return "SpecificObserverOwnership";
+    } else if (ownership == ObserverScopeOwnership) {
+        return "ObserverScopeOwnership";
+    } else if (ownership == OwnedBySubjectOwnership) {
+        return "OwnedBySubjectOwnership";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::stringToObjectOwnership(const QString& ownership_string) {
+    if (ownership_string == "ManualOwnership") {
+        return ManualOwnership;
+    } else if (ownership_string == "AutoOwnership") {
+        return AutoOwnership;
+    } else if (ownership_string == "SpecificObserverOwnership") {
+        return SpecificObserverOwnership;
+    } else if (ownership_string == "ObserverScopeOwnership") {
+        return ObserverScopeOwnership;
+    } else if (ownership_string == "OwnedBySubjectOwnership") {
+        return OwnedBySubjectOwnership;
+    }
+
+    Q_ASSERT(0);
+    return ManualOwnership;
+}
+
+QString Qtilities::Core::Observer::accessModeToString(AccessMode access_mode) {
+    if (access_mode == FullAccess) {
+        return "FullAccess";
+    } else if (access_mode == ReadOnlyAccess) {
+        return "ReadOnlyAccess";
+    } else if (access_mode == LockedAccess) {
+        return "LockedAccess";
+    } else if (access_mode == InvalidAccess) {
+        return "InvalidAccess";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::stringToAccessMode(const QString& access_mode_string) {
+    if (access_mode_string == "FullAccess") {
+        return FullAccess;
+    } else if (access_mode_string == "ReadOnlyAccess") {
+        return ReadOnlyAccess;
+    } else if (access_mode_string == "LockedAccess") {
+        return LockedAccess;
+    } else if (access_mode_string == "InvalidAccess") {
+        return InvalidAccess;
+    }
+
+    Q_ASSERT(0);
+    return InvalidAccess;
+}
+
+QString Qtilities::Core::Observer::accessModeScopeToString(AccessModeScope access_mode_scope) {
+    if (access_mode_scope == GlobalScope) {
+        return "GlobalScope";
+    } else if (access_mode_scope == CategorizedScope) {
+        return "CategorizedScope";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::Observer::AccessModeScope Qtilities::Core::Observer::stringToAccessModeScope(const QString& access_mode_scope_string) {
+    if (access_mode_scope_string == "GlobalScope") {
+        return GlobalScope;
+    } else if (access_mode_scope_string == "CategorizedScope") {
+        return CategorizedScope;
+    }
+
+    Q_ASSERT(0);
+    return GlobalScope;
 }
