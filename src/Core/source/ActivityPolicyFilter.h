@@ -85,9 +85,9 @@ namespace Qtilities {
                 MultipleActivity    /*!< Multiple subjects can be active at any time. */
             };
             //! Function which returns a string associated with a specific ActivityPolicy.
-            QString activityPolicyToString(ActivityPolicy activity_policy) const;
+            static QString activityPolicyToString(ActivityPolicy activity_policy);
             //! Function which returns the ActivityPolicy associated with a string.
-            ActivityPolicy stringToActivityPolicy(const QString& activity_policy_string) const;
+            static ActivityPolicy stringToActivityPolicy(const QString& activity_policy_string);
             //! Policy to control the minimum number of subjects which can be active at any time.
             /*!
               \sa setMinimumActivityPolicy(), minimumActivityPolicy()
@@ -97,9 +97,9 @@ namespace Qtilities {
                 ProhibitNoneActive  /*!< There should at least be one active subject at any time, unless no subjects are attached to the observer context in which the filter is installed */
             };
             //! Function which returns a string associated with a specific MinimumActivityPolicy.
-            QString minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy) const;
+            static QString minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy);
             //! Function which returns the MinimumActivityPolicy associated with a string.
-            MinimumActivityPolicy stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) const;
+            static MinimumActivityPolicy stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string);
             //! Policy to control the activity of new subjects attached to the observer context in which the filter is installed.
             /*!
               \sa setNewSubjectActivityPolicy(), newSubjectActivityPolicy()
@@ -109,9 +109,9 @@ namespace Qtilities {
                 SetNewInactive      /*!< New subjects are automatically set to be inactive. */
             };
             //! Function which returns a string associated with a specific NewSubjectActivityPolicy.
-            QString newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy) const;
+            static QString newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy);
             //! Function which returns the NewSubjectActivityPolicy associated with a string.
-            NewSubjectActivityPolicy stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string) const;
+            static NewSubjectActivityPolicy stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string);
 
             //! Sets the activity policy used by this subject filter.
             /*!
@@ -174,6 +174,7 @@ namespace Qtilities {
             // IObjectBase Implemenation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------
             // IModificationNotifier Implemenation

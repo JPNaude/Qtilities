@@ -70,7 +70,7 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter(QObject* parent) : A
     d->new_subject_activity_policy = ActivityPolicyFilter::SetNewActive;
 }
 
-QString Qtilities::Core::ActivityPolicyFilter::activityPolicyToString(ActivityPolicy activity_policy) const {
+QString Qtilities::Core::ActivityPolicyFilter::activityPolicyToString(ActivityPolicy activity_policy) {
     if (activity_policy == UniqueActivity) {
         return "UniqueActivity";
     } else if (activity_policy == MultipleActivity) {
@@ -80,7 +80,7 @@ QString Qtilities::Core::ActivityPolicyFilter::activityPolicyToString(ActivityPo
     return QString();
 }
 
-Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToActivityPolicy(const QString& activity_policy_string) const {
+Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToActivityPolicy(const QString& activity_policy_string) {
     if (activity_policy_string == "UniqueActivity") {
         return UniqueActivity;
     } else if (activity_policy_string == "MultipleActivity") {
@@ -90,7 +90,7 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityP
     return UniqueActivity;
 }
 
-QString Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy) const {
+QString Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicyToString(MinimumActivityPolicy minimum_activity_policy) {
     if (minimum_activity_policy == AllowNoneActive) {
         return "AllowNoneActive";
     } else if (minimum_activity_policy == ProhibitNoneActive) {
@@ -100,7 +100,7 @@ QString Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicyToString(Min
     return QString();
 }
 
-Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) const {
+Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToMinimumActivityPolicy(const QString& minimum_activity_policy_string) {
     if (minimum_activity_policy_string == "AllowNoneActive") {
         return AllowNoneActive;
     } else if (minimum_activity_policy_string == "ProhibitNoneActive") {
@@ -110,7 +110,7 @@ Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::Ac
     return AllowNoneActive;
 }
 
-QString Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy) const {
+QString Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicyToString(NewSubjectActivityPolicy new_subject_activity_policy) {
     if (new_subject_activity_policy == SetNewActive) {
         return "SetNewActive";
     } else if (new_subject_activity_policy == SetNewInactive) {
@@ -120,7 +120,7 @@ QString Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicyToString(
     return QString();
 }
 
-Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string) const {
+Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::stringToNewSubjectActivityPolicy(const QString& new_subject_activity_policy_string) {
     if (new_subject_activity_policy_string == "SetNewActive") {
         return SetNewActive;
     } else if (new_subject_activity_policy_string == "SetNewInactive") {
