@@ -51,9 +51,6 @@ int main(int argc, char *argv[])
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
     TreeNode* nodeB = nodeA->addNode("Node B");
     TreeNode* nodeC = nodeA->addNode("Node C");
-    TreeNode* nodeD = nodeC->addNode("Node C");
-    TreeNode* nodeE = nodeC->addNode("Node C");
-    TreeNode* nodeF = nodeD->addNode("Node C");
     nodeB->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
     /*ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
@@ -65,13 +62,27 @@ int main(int argc, char *argv[])
     nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
 
     // Create the tree items:
-    nodeC->addItem("Item 1");
+    nodeA->addItem("Item 1")->setToolTip("Hello, I'm a ToolTip.");
     nodeB->addItem("Item 2");
     nodeB->addItem("Item 3");
     nodeB->addItem("Item 4");
     nodeB->addItem("Item 5");
     nodeB->addItem("Item 6");
     nodeB->addItem("Item 7");
+
+    // Add some formatting to the nodes:
+    nodeA->setForegroundRole(QBrush(Qt::darkRed));
+    nodeA->setFont(QFont("Helvetica [Cronyx]",20));
+    nodeA->setAlignment(Qt::AlignCenter);
+    nodeA->setBackgroundRole(QBrush(Qt::gray));
+    nodeB->setForegroundRole(QBrush(Qt::darkGreen));
+    nodeB->setFont(QFont("Helvetica [Cronyx]",20));
+    nodeB->setAlignment(Qt::AlignCenter);
+    nodeB->setBackgroundRole(QBrush(Qt::gray));
+    nodeC->setForegroundRole(QBrush(Qt::darkYellow));
+    nodeC->setFont(QFont("Helvetica [Cronyx]",20));
+    nodeC->setAlignment(Qt::AlignCenter);
+    nodeC->setBackgroundRole(QBrush(Qt::gray));
 
     /*nodeC->startProcessingCycle();
     for (int i = 0; i < 100; i++) {
@@ -81,7 +92,7 @@ int main(int argc, char *argv[])
 
     // Test XML tree streaming:
     QString path = QString("%1/test.xml").arg(QApplication::applicationDirPath());
-    //nodeA->saveToFile(path);
+    nodeA->saveToFile(path);
     nodeA->loadFromFile(path);
 
     // Create an observer widget wih the items:
