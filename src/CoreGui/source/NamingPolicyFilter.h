@@ -125,9 +125,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
                 ProhibitDuplicateNames  /*!< Prohibit duplicate names. */
             };
             //! Function which returns a string associated with a specific UniquenessPolicy.
-            QString uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) const;
+            static QString uniquenessPolicyToString(UniquenessPolicy uniqueness_policy);
             //! Function which returns the UniquenessPolicy associated with a string.
-            UniquenessPolicy stringToUniquenessPolicy(const QString& uniqueness_policy_string) const;
+            static UniquenessPolicy stringToUniquenessPolicy(const QString& uniqueness_policy_string);
             //! Policy to control how invalid or duplicate names should be handled.
             /*!
               setUniquenessPolicy(), uniquenessPolicy(), setUniquenessResolutionPolicy(), uniquenessResolutionPolicy(), setValidityResolutionPolicy(), validityResolutionPolicy()
@@ -139,9 +139,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
                 Reject                  /*!< Reject unacceptable names. */
             };
             //! Function which returns a string associated with a specific ResolutionPolicy.
-            QString resolutionPolicyToString(ResolutionPolicy resolution_policy) const;
+            static QString resolutionPolicyToString(ResolutionPolicy resolution_policy);
             //! Function which returns the ResolutionPolicy associated with a string.
-            ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string) const;
+            static ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string);
             //! Enumeration defining the possible outcames of name evaluation operations.
             /*!
               \sa evaluateName()
@@ -180,6 +180,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------
             // IExportable Implementation

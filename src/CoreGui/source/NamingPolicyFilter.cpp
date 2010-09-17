@@ -110,7 +110,7 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
     }
 }
 
-QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) const {
+QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) {
     if (uniqueness_policy == AllowDuplicateNames) {
         return "AllowDuplicateNames";
     } else if (uniqueness_policy == ProhibitDuplicateNames) {
@@ -120,7 +120,7 @@ QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(Uniquen
     return QString();
 }
 
-Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToUniquenessPolicy(const QString& uniqueness_policy_string) const {
+Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToUniquenessPolicy(const QString& uniqueness_policy_string) {
     if (uniqueness_policy_string == "AllowDuplicateNames") {
         return AllowDuplicateNames;
     } else if (uniqueness_policy_string == "ProhibitDuplicateNames") {
@@ -129,7 +129,7 @@ Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::Nam
     return AllowDuplicateNames;
 }
 
-QString Qtilities::CoreGui::NamingPolicyFilter::resolutionPolicyToString(ResolutionPolicy resolution_policy) const {
+QString Qtilities::CoreGui::NamingPolicyFilter::resolutionPolicyToString(ResolutionPolicy resolution_policy) {
     if (resolution_policy == AutoRename) {
         return "AutoRename";
     } else if (resolution_policy == PromptUser) {
@@ -143,7 +143,7 @@ QString Qtilities::CoreGui::NamingPolicyFilter::resolutionPolicyToString(Resolut
     return QString();
 }
 
-Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToResolutionPolicy(const QString& resolution_policy_string) const {
+Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToResolutionPolicy(const QString& resolution_policy_string) {
     if (resolution_policy_string == "AutoRename") {
         return AutoRename;
     } else if (resolution_policy_string == "PromptUser") {
