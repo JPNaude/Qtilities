@@ -38,6 +38,8 @@
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Constants;
 
+#include <QDomElement>
+
 namespace Qtilities {
     namespace CoreGui {
         FactoryItem<QObject, TreeItem> TreeItem::factory;
@@ -91,6 +93,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
 
     // 1. Factory attributes is added to this item's node:
     factoryData().exportXML(doc,object_node);
+
+    // 2. The data of this item is added to a new data node:
+    QDomElement item_data = doc->createElement("Data");
+    object_node->appendChild(item_data);
+
+    // 2.1 Formatting
+    if (isFormattingExportable())
+        exportFormattingXML(doc,&item_data);
 
     return IExportable::Incomplete;
 }
