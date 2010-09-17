@@ -34,7 +34,24 @@
 #include "ObserverData.h"
 #include "ObserverHints.h"
 
-bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
+#include <QDomElement>
+
+using namespace Qtilities::Core::Interfaces;
+
+Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ObserverData::factoryData() const {
+    return IFactoryData();
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ObserverData::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    flags |= IExportable::XML;
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     stream << (qint32) subject_limit;
     stream << (qint32) subject_id_counter;
     stream << observer_description;
@@ -61,10 +78,10 @@ bool Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
         stream << (bool) false;
     }
 
-    return true;
+    return IExportable::Complete;
 }
 
-bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     quint32 ui32;
     stream >> ui32;
     subject_limit = ui32;
@@ -91,7 +108,50 @@ bool Qtilities::Core::ObserverData::importBinary(QDataStream& stream) {
     if (has_hints) {
         if (!display_hints)
             display_hints = new ObserverHints();
-        return display_hints->importBinary(stream);
+        return display_hints->importBinary(stream,import_list,params);
     } else
-        return true;
+        return IExportable::Complete;
 }
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    // Add parameters as attributes:
+    if (subject_limit != -1)
+        object_node->setAttribute("SubjectLimit",subject_limit);
+    if (!observer_description.isEmpty())
+        object_node->setAttribute("Description",observer_description);
+    if (access_mode != Observer::FullAccess)
+        object_node->setAttribute("AccessMode",Observer::accessModeToString((Observer::AccessMode) access_mode));
+    if (access_mode != Observer::GlobalScope)
+        object_node->setAttribute("AccessModeScope",Observer::accessModeScopeToString((Observer::AccessModeScope) access_mode_scope));
+
+    // Categories:
+    if (categories.count() > 0) {
+        QDomElement categories_node = doc->createElement("Categories");
+        object_node->appendChild(categories_node);
+        for (int i = 0; i < categories.count(); i++) {
+            QDomElement category = doc->createElement("Category");
+            categories_node.appendChild(category);
+            categories.at(i).exportXML(doc,&category);
+        }
+    }
+
+    return IExportable::Complete;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+    Q_UNUSED(params)
+
+    if (object_node->hasAttribute("SubjectLimit"))
+        subject_limit = object_node->attribute("SubjectLimit").toInt();
+    if (object_node->hasAttribute("Description"))
+        observer_description = object_node->attribute("Description");
+    if (object_node->hasAttribute("AccessMode"))
+        access_mode = Observer::stringToAccessMode(object_node->attribute("AccessMode"));
+    if (object_node->hasAttribute("AccessModeScope"))
+        access_mode_scope = Observer::stringToAccessModeScope(object_node->attribute("AccessModeScope"));
+
+    return IExportable::Complete;
+}
+

@@ -40,6 +40,7 @@
 #include "IFactory.h"
 #include "QtilitiesCategory.h"
 #include "AbstractSubjectFilter.h"
+#include "IExportable.h"
 
 #include <QSharedData>
 #include <QObject>
@@ -60,7 +61,7 @@ namespace Qtilities {
           \sa Observer
           */
 
-        class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData
+        class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData, public IExportable
         {
         public:
             ObserverData() : subject_limit(-1), subject_id_counter(0),
@@ -75,16 +76,30 @@ namespace Qtilities {
             factory_data(other.factory_data), process_cycle_active(other.process_cycle_active),
             is_modified(other.is_modified) {}
 
-            //! Exports observer data to a QDataStream.
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
             /*!
-              \returns True if successful, false otherwise.
+              \note QtilitiesCategory is not a QObject, thus it returns 0.
               */
-            bool exportBinary(QDataStream& stream) const;
-            //! Imports observer data from a QDataStream.
+            QObject* objectBase() { return 0; }
             /*!
-              \returns True if succesfull, false otherwise.
+              \note QtilitiesCategory is not a QObject, thus it returns 0.
               */
-            bool importBinary(QDataStream& stream);
+            const QObject* objectBase() const { return 0; }
+
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            ExportModeFlags supportedFormats() const;
+            /*!
+              \note ObserverData returns an invalid IFactoryData object since it is not registered in any factory.
+              */
+            IFactoryData factoryData() const;
+            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             PointerList subject_list;
             QList<AbstractSubjectFilter*> subject_filters;
