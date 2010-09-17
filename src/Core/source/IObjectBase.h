@@ -53,6 +53,8 @@ namespace Qtilities {
 
                 //! Returns the QObject* base of the interface.
                 virtual QObject* objectBase() = 0;
+                //! Returns a const QObject* base of the interface.
+                virtual const QObject* objectBase() const = 0;
             };
         }
     }
