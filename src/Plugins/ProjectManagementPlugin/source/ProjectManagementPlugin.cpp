@@ -218,7 +218,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectOpen() {
-    QString filter = QString(tr("Project File (*%1)")).arg(FILE_EXT_PROJECT);
+    QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
     QString project_path;
     if (PROJECT_MANAGER->useCustomProjectsPath())
         project_path = PROJECT_MANAGER->customProjectsPath();
@@ -228,9 +228,8 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     if (file_name.isEmpty())
         return;
 
-    if (file_name.endsWith(QString("%1").arg(FILE_EXT_PROJECT))) {
-        PROJECT_MANAGER->openProject(file_name);
-    }
+    if (!PROJECT_MANAGER->isAllowedFileName(file_name))
+        file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectClose() {
@@ -252,7 +251,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     if (!PROJECT_MANAGER->currentProject())
         return;
 
-    QString filter = QString(tr("Project File (*%1)")).arg(FILE_EXT_PROJECT);
+    QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
     QString project_path;
     if (PROJECT_MANAGER->useCustomProjectsPath())
         project_path = PROJECT_MANAGER->customProjectsPath();
@@ -262,9 +261,8 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     if (file_name.isEmpty())
         return;
 
-    if (file_name.endsWith(QString("%1").arg(FILE_EXT_PROJECT))) {
-        PROJECT_MANAGER->saveProject(file_name);
-    }
+    if (!PROJECT_MANAGER->isAllowedFileName(file_name))
+        file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_projectStateChanged() {
