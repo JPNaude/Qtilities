@@ -45,10 +45,11 @@ Qtilities::Core::Interfaces::IFactoryData::IFactoryData(QDomDocument* doc, QDomE
 bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
 
-    object_node->setAttribute("Name", d_instance_name);
     if (d_factory_tag != QString(FACTORY_QTILITIES))
         object_node->setAttribute("FactoryTag", d_factory_tag);
     object_node->setAttribute("InstanceTag", d_instance_tag);
+    if (d_instance_tag != d_instance_name)
+        object_node->setAttribute("Name", d_instance_name);
 
     return true;
 }
@@ -56,12 +57,16 @@ bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDo
 bool Qtilities::Core::Interfaces::IFactoryData::importXML(QDomDocument* doc, QDomElement* object_node) {
     Q_UNUSED(doc)
 
-    d_instance_name = object_node->attribute("Name");
     if (object_node->hasAttribute("FactoryTag"))
         d_factory_tag = object_node->attribute("FactoryTag");
     else
         d_factory_tag = QString(FACTORY_QTILITIES);
     d_instance_tag = object_node->attribute("InstanceTag");
+
+    if (!object_node->hasAttribute("Name"))
+        d_instance_name = d_instance_tag;
+    else
+        d_instance_name = object_node->attribute("Name");
 
     return true;
 }
