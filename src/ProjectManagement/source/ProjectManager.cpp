@@ -47,6 +47,7 @@
 #include <QFileDialog>
 
 using namespace Qtilities::Core;
+using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::ProjectManagement::Constants;
 using namespace Qtilities::Logging;
 
@@ -56,7 +57,9 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     config_widget(0),
     project_file_version(0),
     is_initialized(false),
-    verbose_logging(false) {}
+    verbose_logging(false),
+    project_types(IExportable::Binary | IExportable::XML),
+    default_project_type(IExportable::XML) {}
 
     QPointer<Project>               current_project;
     QList<IProjectItem*>            item_list;
@@ -73,6 +76,8 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
     bool                            is_initialized;
     bool                            verbose_logging;
+    IExportable::ExportModeFlags    project_types;
+    IExportable::ExportMode         default_project_type;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -102,6 +107,57 @@ Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : 
 Qtilities::ProjectManagement::ProjectManager::~ProjectManager()
 {
     delete d;
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectManagement::ProjectManager::allowedProjectTypes() const {
+    return d->project_types;
+}
+
+void Qtilities::ProjectManagement::ProjectManager::setAllowedProjectTypes(IExportable::ExportModeFlags project_types) {
+    d->project_types = project_types;
+
+    if (!(d->project_types & d->default_project_type)) {
+        if (d->project_types & IExportable::Binary)
+            d->default_project_type = IExportable::Binary;
+        if (d->project_types & IExportable::XML)
+            d->default_project_type = IExportable::XML;
+    }
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::ProjectManagement::ProjectManager::defaultProjectType() const {
+    return d->default_project_type;
+}
+
+void Qtilities::ProjectManagement::ProjectManager::setDefaultProjectType(IExportable::ExportMode default_project_type) {
+    if (d->project_types & default_project_type)
+        d->default_project_type = default_project_type;
+}
+
+QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter() const {
+    QStringList filter_list;
+    if (d->project_types & IExportable::Binary)
+        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(FILE_EXT_BINARY_PROJECT));
+    if (d->project_types & IExportable::XML)
+        filter_list.append(QString(tr("XML Project File (*%1)")).arg(FILE_EXT_XML_PROJECT));
+
+    return filter_list.join(";;");
+}
+
+QString Qtilities::ProjectManagement::ProjectManager::projectTypeFileExtension(IExportable::ExportMode project_type) const {
+    if (project_type & IExportable::Binary)
+        return QString(FILE_EXT_BINARY_PROJECT);
+    if (project_type & IExportable::XML)
+        return QString(FILE_EXT_XML_PROJECT);
+
+    Q_ASSERT(0);
+    return QString();
+}
+
+bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QString& file_name) const {
+    if (file_name.endsWith(QString(FILE_EXT_BINARY_PROJECT)) || file_name.endsWith(QString(FILE_EXT_XML_PROJECT)))
+        return true;
+    else
+        return false;
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::newProject() {
@@ -180,7 +236,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     if (file_name.isEmpty()) {
         if (d->current_project->projectFile().isEmpty()) {
-            QString filter = QString(tr("Project File (*%1)")).arg(FILE_EXT_PROJECT);
+            QString filter = allowedProjectTypesFilter();
             QString project_path;
             if (PROJECT_MANAGER->useCustomProjectsPath())
                 project_path = PROJECT_MANAGER->customProjectsPath();
@@ -191,8 +247,8 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
                 QApplication::restoreOverrideCursor();
                 return false;
             } else {
-                if (!file_name.endsWith(FILE_EXT_PROJECT))
-                    file_name.append(FILE_EXT_PROJECT);
+                if (!isAllowedFileName(file_name))
+                    file_name.append(projectTypeFileExtension(defaultProjectType()));
             }
         } else
             file_name = d->current_project->projectFile();

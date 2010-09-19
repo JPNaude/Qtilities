@@ -95,6 +95,7 @@ namespace Qtilities {
             // IObjectBase Implemenation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
         private:
             ProjectData* d;

@@ -84,6 +84,55 @@ namespace Qtilities {
             };
 
             // ---------------------------------------
+            // Functions related to project types
+            // ---------------------------------------
+            //! Provides the allowed project types that can be used by the project manager to save projects.
+            /*!
+              When prompting to save projects, the allowed project types will be used as the possible file types
+              that the user see.
+
+              The file naming conventions used by default are defined by the following constants.
+              - Binary: FILE_EXT_BINARY_PROJECT
+              - XML:    FILE_EXT_XML_PROJECT
+
+              By default all available project types are allowed.
+
+              \sa setAllowedProjectTypes()
+              */
+            IExportable::ExportModeFlags allowedProjectTypes() const;
+            //! Sets the allowed project types that can be used by the project manager to save projects.
+            /*!
+              This functionality is usefull if you want to force the users of your application to use
+              a specific format.
+
+              \sa allowedProjectTypes()
+              */
+            void setAllowedProjectTypes(IExportable::ExportModeFlags project_types);
+            //! The default project type.
+            /*!
+              This default project type is used when the user saves a project without specifying a project file extension.
+
+              \sa setDefaultProjectType()
+              */
+            IExportable::ExportMode defaultProjectType() const;
+            //! Sets default project type.
+            /*!
+              If \p default_project_type is not an allowed type, this function does nothing.
+
+              \sa defaultProjectType(), allowedProjectTypes()
+              */
+            void setDefaultProjectType(IExportable::ExportMode default_project_type);
+            //! Function which returns a string which can be used in file dialog as a filter with the current allowed project types.
+            /*!
+              \sa allowedProjectTypes()
+              */
+            QString allowedProjectTypesFilter() const;
+            //! Function which returns the file extension used for a specific type of project.
+            QString projectTypeFileExtension(IExportable::ExportMode project_type) const;
+            //! Function which checks if a file name ends with one of the allowed project types' file extension.
+            bool isAllowedFileName(const QString& file_name) const;
+
+            // ---------------------------------------
             // Functions related to the active project
             // ---------------------------------------
             //! Creates a new project.
@@ -231,6 +280,7 @@ namespace Qtilities {
             // IObjectBase Implemenation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------
             // IModificationNotifier Implemenation
