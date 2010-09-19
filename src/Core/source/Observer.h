@@ -204,7 +204,7 @@ namespace Qtilities {
             /*!
               XML exporting of observers is intended to stream tree structures. It has some limitations compared to exportBinary():
               - It does not export relationships between objects and does not use the visitor pattern export mechanism used during binary exports. Thus if a item exists more than once in a tree, the reconstructed tree will create different items for all the places where it existed.
-              - It does not export all properties, only ObserverProperties which can be converted to QString values are exported.
+              - It does not export all properties only activity and category information is exported.
 
               Because of these limitations XML observer exports are best suited for visual tree structures, especially trees build using the Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem instances.
               For complex observer structures binary exports should be used. Note that XML exports is much faster than

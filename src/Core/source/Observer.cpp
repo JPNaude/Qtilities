@@ -38,6 +38,7 @@
 #include "QtilitiesPropertyChangeEvent.h"
 #include "ObserverMimeData.h"
 #include "ObserverHints.h"
+#include "IExportableFormatting.h"
 
 #include <Logger.h>
 
@@ -489,8 +490,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
     // 2.1. Observer data:
     QDomElement observer_data = doc->createElement("ObserverData");
-    subject_data.appendChild(observer_data);
     observerData->exportXML(doc,&observer_data,params);
+    if (observer_data.attributes().count() > 0 || observer_data.childNodes().count() > 0)
+        object_node->appendChild(observer_data);
 
     // 2.2. Observer hints:
     if (observerData->display_hints) {
@@ -507,6 +509,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
         subject_data.appendChild(subject_filter);
         observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter);
         observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params);
+    }
+
+    // 2.4 Formatting:
+    IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (objectBase());
+    if (formatting_iface) {
+        formatting_iface->exportFormattingXML(doc,&subject_data);
     }
 
     // 3. All the children of this item is exported:
@@ -594,6 +602,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                 installSubjectFilter(abstract_filter);
                             }
                         }
+                    }
+                    continue;
+                }
+
+                if (dataChild.tagName() == "Formatting") {
+                    IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (objectBase());
+                    if (formatting_iface) {
+                        formatting_iface->importFormattingXML(doc,&dataChild);
                     }
                     continue;
                 }
