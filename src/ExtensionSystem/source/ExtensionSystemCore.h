@@ -61,6 +61,18 @@ namespace Qtilities {
 
             //! Returns a widget with information about loaded plugins.
             QWidget* configWidget();
+            //! Function to add a custom plugin path.
+            /*!
+              By default plugins are loaded only from the /plugins folder in the application directory.
+              Using this function it is possible to add as many paths as you wish to the plugin loading process.
+
+              In order for \p path to be added it must exist and it should not exist as a custom plugin path yet.
+
+              \note Add all the paths you need before you call loadPlugins().
+              */
+            void addPluginPath(const QString& path);
+            //! Function to get the paths from where plugins are loaded.
+            QStringList pluginPaths() const;
 
         signals:
             //! Progress messages submitted during application startup.

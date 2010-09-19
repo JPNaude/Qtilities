@@ -43,6 +43,10 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     ui(new Ui::ExtensionSystemConfig)
 {
     ui->setupUi(this);
+    if (ExtensionSystemCore::instance()->pluginPaths().count() == 1)
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
+    else
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -63,7 +67,7 @@ QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() con
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {
-    return QtilitiesCategory("General");
+    return QtilitiesCategory(tr("General"));
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageApply() {

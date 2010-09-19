@@ -23,6 +23,25 @@
       <item>
        <widget class="QWidget" name="widgetPluginListHolder" native="true"/>
       </item>
+      <item>
+       <widget class="QLabel" name="labelPluginPaths">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Plugins loaded from 1 path.</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

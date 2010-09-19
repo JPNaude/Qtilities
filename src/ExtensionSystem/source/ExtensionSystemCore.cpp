@@ -54,6 +54,7 @@ struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
 
     Observer plugins;
     QDir pluginsDir;
+    QStringList customPluginPaths;
     ExtensionSystemConfig* extension_system_config_widget;
 };
 
@@ -116,59 +117,67 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
         }
     #endif
     d->pluginsDir.cd("plugins");
-    emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(d->pluginsDir.path()));
-    LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(d->pluginsDir.path()));
-    QCoreApplication::processEvents();
+    if (!d->customPluginPaths.contains(d->pluginsDir.path()))
+        d->customPluginPaths << d->pluginsDir.path();
 
-    foreach (QString fileName, d->pluginsDir.entryList(QDir::Files)) {
-        QFileInfo file_info(fileName);
-        QString stripped_file_name = file_info.fileName();
-        if (QLibrary::isLibrary(d->pluginsDir.absoluteFilePath(fileName))) {
-            LOG_INFO(tr("Found library: ") + stripped_file_name);
-            QPluginLoader loader(d->pluginsDir.absoluteFilePath(fileName));
-            QObject *obj = loader.instance();
-            if (obj) {
-                // Check if the object implements IPlugin:
-                IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
-                if (pluginIFace) {
-                    emit newProgressMessage(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
-                    LOG_INFO(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
-                    QCoreApplication::processEvents();
+    foreach (QString path, d->customPluginPaths) {
+        emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(path));
+        LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(path));
+        QCoreApplication::processEvents();
 
-                    // Give it a success icon by default:
-                    SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
-                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+        QDir dir(path);
+        foreach (QString fileName, dir.entryList(QDir::Files)) {
+            QFileInfo file_info(fileName);
+            QString stripped_file_name = file_info.fileName();
+            if (QLibrary::isLibrary(dir.absoluteFilePath(fileName))) {
+                LOG_INFO(tr("Found library: ") + stripped_file_name);
+                QPluginLoader loader(dir.absoluteFilePath(fileName));
+                QObject *obj = loader.instance();
+                if (obj) {
+                    // Check if the object implements IPlugin:
+                    IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
+                    if (pluginIFace) {
+                        emit newProgressMessage(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
+                        LOG_INFO(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
+                        QCoreApplication::processEvents();
 
-                    // Do a plugin version check here:
-                    pluginIFace->pluginVersion();
-                    if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
-                        LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
-                        pluginIFace->setPluginState(IPlugin::CompatibilityError);
-                        pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
-                        SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
+                        // Give it a success icon by default:
+                        SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
                         Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
+                        // Do a plugin version check here:
+                        pluginIFace->pluginVersion();
+                        if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
+                            LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
+                            pluginIFace->setPluginState(IPlugin::CompatibilityError);
+                            pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
+                            SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
+                            Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                        } else {
+                            pluginIFace->setPluginState(IPlugin::Functional);
+                            pluginIFace->setErrorString(tr("No errors detected"));
+                        }
+
+                        d->plugins.attachSubject(obj);
+
+                        QString error_string;
+                        if (!pluginIFace->initialize(QStringList(), &error_string)) {
+                            LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
+                            pluginIFace->setPluginState(IPlugin::InitializationError);
+                            pluginIFace->setErrorString(error_string);
+                            SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+                            Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                        }
                     } else {
-                        pluginIFace->setPluginState(IPlugin::Functional);
-                        pluginIFace->setErrorString(tr("No errors detected"));
-                    }
-
-                    d->plugins.attachSubject(obj);
-
-                    QString error_string;
-                    if (!pluginIFace->initialize(QStringList(), &error_string)) {
-                        LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
-                        pluginIFace->setPluginState(IPlugin::InitializationError);
-                        pluginIFace->setErrorString(error_string);
-                        SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
-                        Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                        LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
                     }
                 } else {
-                    LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
+                    LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name);
                 }
-            } else {
-                LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name);
             }
         }
+
+        emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(path));
     }
 
     // Now that all plugins were loaded, we call initializeDependancies() on all of them
@@ -189,7 +198,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
         }
     }
 
-    emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(d->pluginsDir.path()));
+    emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
 }
 
@@ -216,4 +225,17 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     }
 
     return d->extension_system_config_widget;
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::addPluginPath(const QString& path) {
+    if (d->customPluginPaths.contains(path))
+        return;
+
+    QDir dir(path);
+    if (dir.exists())
+        d->customPluginPaths << path;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPaths() const {
+    return d->customPluginPaths;
 }
