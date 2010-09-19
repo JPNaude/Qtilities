@@ -96,13 +96,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
 
     // 2. The data of this item is added to a new data node:
     QDomElement item_data = doc->createElement("Data");
-    object_node->appendChild(item_data);
+    IExportable::Result result = saveFormattingToXML(doc,&item_data);
 
-    // 2.1 Formatting
-    if (isFormattingExportable())
-        exportFormattingXML(doc,&item_data);
+    if (item_data.attributes().count() > 0 || item_data.childNodes().count() > 0)
+        object_node->appendChild(item_data);
 
-    return IExportable::Incomplete;
+    return result;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
@@ -110,9 +109,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::i
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    return loadFormattingFromXML(doc,object_node);
 }
-
 
 bool Qtilities::CoreGui::TreeItem::isModified() const {
     return itemData->is_modified;

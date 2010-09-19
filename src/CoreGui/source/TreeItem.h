@@ -56,11 +56,19 @@ namespace Qtilities {
 
           This class was added in %Qtilities v0.2.
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeItem : public QObject, public AbstractTreeItem, public IExportable, public IModificationNotifier
+        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeItem : public QObject, public AbstractTreeItem, public IExportable,
+                                                          public IModificationNotifier
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
+            Q_PROPERTY(QFont Font READ getFont WRITE setFont)
+            Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
+            Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
+            Q_PROPERTY(QSize Size READ getSizeHint WRITE setSizeHint)
+            Q_PROPERTY(QString StatusTip READ getStatusTip WRITE setStatusTip)
+            Q_PROPERTY(QString ToolTip READ getToolTip WRITE setToolTip)
+            Q_PROPERTY(QString WhatsThis READ getWhatsThis WRITE setWhatsThis)
 
         public:
             TreeItem(const QString& name = QString(), QObject* parent = 0);
@@ -82,10 +90,10 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             IFactoryData factoryData() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implementation

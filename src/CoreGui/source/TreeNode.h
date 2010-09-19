@@ -42,6 +42,7 @@
 
 #include <Observer>
 #include <ObserverHints>
+#include <IExportableFormatting.h>
 
 namespace Qtilities {
     namespace CoreGui {
@@ -62,7 +63,7 @@ namespace Qtilities {
           Observer class such as installation of subject filters etc.
 
           All items in a TreeNode is attached to the Qtilities::Core::Observer subclass using Qtilities::Core::Observer::ObserverScopeOwnership. Thus
-          when a item appears once in a tree it will be deleted when removed from the TreeNode. However if an item
+          when an item appears once in a tree it will be deleted when removed from the TreeNode. However if an item
           appears multiple times, it will not be deleted when removed from a single TreeNode. This way trees build using
           TreeNode and TreeItem manages the lifetimes of all items in the tree automatically and cleans up after the
           developer automatically.
@@ -152,12 +153,27 @@ tree_widget->show();
 
           This class was added in %Qtilities v0.2.
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeNode : public Observer, public AbstractTreeItem
+        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeNode : public Observer, public AbstractTreeItem, public IExportableFormatting
         {
+            Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableFormatting)
+            Q_PROPERTY(QFont Font READ getFont WRITE setFont)
+            Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
+            Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
+            Q_PROPERTY(QSize Size READ getSizeHint WRITE setSizeHint)
+            Q_PROPERTY(QString StatusTip READ getStatusTip WRITE setStatusTip)
+            Q_PROPERTY(QString ToolTip READ getToolTip WRITE setToolTip)
+            Q_PROPERTY(QString WhatsThis READ getWhatsThis WRITE setWhatsThis)
 
         public:
             TreeNode(const QString& name = QString());
             virtual ~TreeNode();
+
+            // --------------------------------
+            // IExportableFormatting Implementation
+            // --------------------------------
+            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node);
 
             //! Enables categorized display on this node.
             /*!
@@ -193,6 +209,8 @@ tree_widget->show();
                                      NamingPolicyFilter::ResolutionPolicy resolution_policy = NamingPolicyFilter::PromptUser);
             //! Disables naming control in this node.
             void disableNamingControl();
+            //! Function which returns a reference to the naming control filter used by this node, if any.
+            NamingPolicyFilter* namingPolicyFilter() const;
 
             //! Convenience function to set up activity control on this tree node.
             /*!
@@ -218,6 +236,8 @@ tree_widget->show();
                                        ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy = ActivityPolicyFilter::SetNewActive);
             //! Disables actvity control in this node.
             void disableActivityControl();
+            //! Function which returns a reference to the activity control filter used by this node, if any.
+            ActivityPolicyFilter* activityPolicyFilter() const;
 
             /*!
               This overloaded function will start a naming validation cycle on the naming policy filter if enableNamingControl() called.
@@ -291,16 +311,18 @@ tree_widget->show();
             //! Saves the tree under this tree node to an XML file.
             /*!
               \param file_name The file name from to which the file must be saved.
-              \param verbose_output When true, verbose output will be printed during saving to the file.
               \returns Result of the operation.
+
+              \sa loadFromFile()
               */
             IExportable::Result saveToFile(const QString& file_name) const;
             //! Loads the tree under this tree node from an XML file.
             /*!
               \param file_name The file name from which the tree must be loaded.
               \param clear_first When true, all items under this tree is deleted first. When false, the items in the input file will be added to the current set of items under this tree node.
-              \param verbose_output When true, verbose output will be printed during construction of the tree.
               \returns Result of the operation.
+
+              \sa saveToFile()
               */
             IExportable::Result loadFromFile(const QString& file_name, bool clear_first = true);
 

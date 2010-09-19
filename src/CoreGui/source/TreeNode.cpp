@@ -68,6 +68,14 @@ Qtilities::CoreGui::TreeNode::~TreeNode() {
     delete nodeData;
 }
 
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const {
+    return saveFormattingToXML(doc,object_node);
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::importFormattingXML(QDomDocument* doc, QDomElement* object_node) {
+    return loadFormattingFromXML(doc,object_node);
+}
+
 void Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled(bool is_enabled) {
     displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 }
@@ -105,6 +113,10 @@ void Qtilities::CoreGui::TreeNode::disableNamingControl() {
     }
 }
 
+Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::namingPolicyFilter() const {
+    return nodeData->naming_policy_filter;
+}
+
 Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                            ObserverHints::ActivityControl activity_control,
                            ActivityPolicyFilter::ActivityPolicy activity_policy,
@@ -132,6 +144,11 @@ void Qtilities::CoreGui::TreeNode::disableActivityControl() {
          displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplayHint);
     }
 }
+
+Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPolicyFilter() const {
+    return nodeData->activity_policy_filter;
+}
+
 
 void Qtilities::CoreGui::TreeNode::startProcessingCycle() {
     if (nodeData->naming_policy_filter)
@@ -259,8 +276,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "Root")
+        if (child.tagName() == "Root") {
             importXML(&doc,&child);
+        }
     }
 
     endProcessingCycle();
