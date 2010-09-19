@@ -91,9 +91,11 @@ int main(int argc, char *argv[])
     nodeC->endProcessingCycle();*/
 
     // Test XML tree streaming:
-    QString path = QString("%1/test.xml").arg(QApplication::applicationDirPath());
-    nodeA->saveToFile(path);
-    nodeA->loadFromFile(path);
+    QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
+    nodeA->saveToFile(path_formatted);
+    nodeA->loadFromFile(path_formatted);
+
+    IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (nodeA->objectBase());
 
     // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();

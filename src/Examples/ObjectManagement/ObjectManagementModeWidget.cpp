@@ -33,29 +33,21 @@
 
 #include "ObjectManagementModeWidget.h"
 #include "ui_ObjectManagementModeWidget.h"
-#include "ObserverTreeItem.h"
-
-#include <QtilitiesProjectManagement>
 
 #include <QtGui>
 #include <QSettings>
 #include <QPointer>
 
-using namespace Qtilities::Core;
-using namespace Qtilities::Core::Constants;
-using namespace Qtilities::Core::Properties;
-using namespace Qtilities::CoreGui;
-using namespace Qtilities::CoreGui::Actions;
-using namespace Qtilities::CoreGui::Constants;
-using namespace Qtilities::ProjectManagement;
+#include <QtilitiesProjectManagement>
+using namespace QtilitiesProjectManagement;
 
 struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
-     ObjectManagementModeWidgetData() : top_level_observer(0),
+     ObjectManagementModeWidgetData() : top_level_node(0),
      observer_widget(0),
      scope_widget(0),
      project_item(0) { }
 
-    QPointer<Observer> top_level_observer;
+    QPointer<TreeNode> top_level_node;
     ObserverWidget* observer_widget;
     ObjectScopeWidget* scope_widget;
 
@@ -69,8 +61,6 @@ struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
     QSlider* widget_opacity_slider;
 
     ObserverProjectItemWrapper* project_item;
-
-    Factory<QObject> string_subject_factory;
 };
 
 Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagementModeWidget(QWidget *parent)
@@ -79,20 +69,16 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     ui->setupUi(this);
 
     d = new ObjectManagementModeWidgetData;
-    d->top_level_observer= new Observer("Example Top Level","");
-    d->top_level_observer->useDisplayHints();
-    d->top_level_observer->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    d->top_level_observer->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    d->top_level_node= new TreeNode("Root");
+    d->top_level_node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    d->top_level_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    d->top_level_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
     // ---------------------------
     // Factory and Project Item Stuff
     // ---------------------------
-    OBJECT_MANAGER->registerIFactory(this);
-    FactoryInterfaceTag observer_string_subject_data("Observer String Subject");
-    d->string_subject_factory.registerFactoryInterface(&ObserverTreeItem::factory,observer_string_subject_data);
-
     d->project_item = new ObserverProjectItemWrapper(this);
-    d->project_item->setObserverContext(d->top_level_observer);
+    d->project_item->setObserverContext(d->top_level_node);
     OBJECT_MANAGER->registerObject(d->project_item);
 
     QList<int> context;
@@ -101,7 +87,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     // Add Example Objects
     // ---------------------------
-    d->actionAddExampleObjects = new QAction("Populate With Example Objects",this);
+    d->actionAddExampleObjects = new QAction("Add Example Objects To Selection",this);
     connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
     Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
 
@@ -146,7 +132,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     connect(d->observer_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(selectionChanged(QList<QObject*>)));
     connect(d->observer_widget,SIGNAL(addActionNewItem_triggered(QObject*)),SLOT(addObject_triggered(QObject*)));
     connect(d->observer_widget,SIGNAL(newObserverWidgetCreated(ObserverWidget*)),SLOT(handle_newObserverWidgetCreated(ObserverWidget*)));
-    d->observer_widget->setObserverContext(d->top_level_observer);
+    d->observer_widget->setObserverContext(d->top_level_node);
     d->observer_widget->addToolBar(d->widgets_toolbar);
     d->observer_widget->setAcceptDrops(true);
     d->observer_widget->initialize();
@@ -171,16 +157,16 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
     Observer* observer = qobject_cast<Observer*> (object);
     if (observer) {
         QStringList items;
-        items << tr("Observer Subject String") << tr("Simple QWidget") << tr("Child Observer");
+        items << tr("New Item") << tr("New Node") << tr("QWidget");
 
         bool ok;
         QString new_item_selection = QInputDialog::getItem(this, tr("What type of object would you like to add?"),tr("Object Types:"), items, 0, false, &ok);
         if (ok && !new_item_selection.isEmpty()) {
             ok = false;
-            if (new_item_selection == "Observer Subject String") {
+            if (new_item_selection == "New Item") {
                 QString subject_name = QInputDialog::getText(this, tr("Name of object:"), QString("Provide a name for the new object:"), QLineEdit::Normal, "new_object",&ok);
                 if (ok && !subject_name.isEmpty()) {
-                    ObserverTreeItem* new_subject = new ObserverTreeItem(subject_name);
+                    TreeItem* new_item = new TreeItem(subject_name);
                     QString subject_category;
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
@@ -189,7 +175,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                             object_category.setIsExportable(true);
                             object_category.setValue(QVariant(subject_category),observer->observerID());
                             QVariant object_category_variant = qVariantFromValue(object_category);
-                            new_subject->setProperty(object_category.propertyName(),object_category_variant);
+                            new_item->setProperty(object_category.propertyName(),object_category_variant);
                         }
                     }
                     QStringList management_options;
@@ -197,15 +183,15 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     QString item = QInputDialog::getItem(this, tr("How do you want your new object to be managed?"),tr("Ownership Types:"), management_options, 0, false);
                     if (!item.isEmpty()) {
                         if (item == tr("Manual Ownership"))
-                            observer->attachSubject(new_subject, Observer::ManualOwnership);
+                            observer->attachSubject(new_item, Observer::ManualOwnership);
                         else if (item == tr("Auto Ownership"))
-                            observer->attachSubject(new_subject, Observer::AutoOwnership);
+                            observer->attachSubject(new_item, Observer::AutoOwnership);
                         else if (item == tr("Specific Observer Ownership"))
-                            observer->attachSubject(new_subject, Observer::SpecificObserverOwnership);
+                            observer->attachSubject(new_item, Observer::SpecificObserverOwnership);
                         else if (item == tr("Observer Scope Ownership"))
-                            observer->attachSubject(new_subject, Observer::ObserverScopeOwnership);
+                            observer->attachSubject(new_item, Observer::ObserverScopeOwnership);
                         else if (item == tr("Owned By Subject Ownership"))
-                            observer->attachSubject(new_subject, Observer::OwnedBySubjectOwnership);
+                            observer->attachSubject(new_item, Observer::OwnedBySubjectOwnership);
                     }
                 }
             } else if (new_item_selection == "QWidget")  {
@@ -222,12 +208,15 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     observer->attachSubject(new_subject, Observer::SpecificObserverOwnership);
                     new_subject->show();
                 }
-            } else if (new_item_selection == "Child Observer")  {
-                QString subject_name = QInputDialog::getText(this, tr("Name of observer:"), QString("Provide a name for the new observer:"), QLineEdit::Normal, "new_observer",&ok);
+            } else if (new_item_selection == "New Node")  {
+                QString subject_name = QInputDialog::getText(this, tr("Name of Node:"), QString("Provide a name for the new node:"), QLineEdit::Normal, "New Node",&ok);
                 if (ok && !subject_name.isEmpty()) {
-                    Observer* new_observer = new Observer(subject_name,"Example Object Manager");
+                    TreeNode* new_node = new TreeNode(subject_name);
                     // Finaly attach the new observer
-                    observer->attachSubject(new_observer, Observer::ObserverScopeOwnership);
+                    observer->attachSubject(new_node, Observer::ObserverScopeOwnership);
+                    new_node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+                    new_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+                    new_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
                 }
             }
         }
@@ -235,132 +224,65 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExampleObjects() {
-    // Project Management will not restore any subject filter related stuff here, therefore we
-    // don't add it since it might confuse the user. The limitation is the fact that
-    // observer imports does reconstruct naming policy filters yet.
-
-    // Add a QObject observer
-    Observer* new_observer_1 = new Observer("QObject Manager 1","Example observer which manages QObject instances in a categorized manner.");
-    new_observer_1->useDisplayHints();
-    new_observer_1->startProcessingCycle();
-    new_observer_1->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    new_observer_1->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    new_observer_1->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    new_observer_1->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
-    // Naming policy filter
-    NamingPolicyFilter* naming_filter = new NamingPolicyFilter();
-    if (naming_filter) {
-        naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-        new_observer_1->installSubjectFilter(naming_filter);
-    }
-    new_observer_1->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    // Add example QObjects to "QObject Manager 1"
-    ObserverTreeItem* new_subject_1 = new ObserverTreeItem("ObserverTreeItem 1");
-    new_observer_1->attachSubject(new_subject_1,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_2 = new ObserverTreeItem("ObserverTreeItem 2");
-    new_observer_1->attachSubject(new_subject_2,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_3 = new ObserverTreeItem("ObserverTreeItem 3");
-    new_observer_1->attachSubject(new_subject_3,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_4 = new ObserverTreeItem("ObserverTreeItem 4");
-    new_observer_1->attachSubject(new_subject_4,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_5 = new ObserverTreeItem("ObserverTreeItem 5");
-    new_observer_1->attachSubject(new_subject_5,Observer::SpecificObserverOwnership);
-    new_observer_1->endProcessingCycle();
-
+    // Determine where the new nodes and items must be attached:
     Observer* selected_observer = 0;
     if (d->observer_widget->selectedObjects().count() == 1)
         selected_observer = qobject_cast<Observer*> (d->observer_widget->selectedObjects().front());
 
+    // Create an node:
+    TreeNode* nodeA = new TreeNode("Node A");
+    nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeA->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    for (int i = 0; i < 5; i++)
+        nodeA->addItem(QString("Item %1").arg(i));
     if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
+        d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
     else
-        selected_observer->attachSubject(new_observer_1, Observer::ObserverScopeOwnership);
+        selected_observer->attachSubject(nodeA, Observer::ObserverScopeOwnership);
 
-    // Add a QObject observer
-    Observer* new_observer_2 = new Observer("QObject Manager 2","Example observer which manages QObject instances");
-    new_observer_2->useDisplayHints();
-    new_observer_2->startProcessingCycle();
-    new_observer_2->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
-    new_observer_2->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
-    new_observer_2->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    new_observer_2->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    new_observer_2->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
-    new_observer_2->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
-    // Naming policy filter
-    naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    new_observer_2->installSubjectFilter(naming_filter);
-    new_observer_2->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    // Add example QObjects to "QObject Manager 2"
-    ObserverTreeItem* new_subject_6 = new ObserverTreeItem("ObserverTreeItem 6");
-    new_observer_2->attachSubject(new_subject_6,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_7 = new ObserverTreeItem("ObserverTreeItem 7");
-    new_observer_2->attachSubject(new_subject_7,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_8 = new ObserverTreeItem("ObserverTreeItem 8");
-    new_observer_2->attachSubject(new_subject_8,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_9 = new ObserverTreeItem("ObserverTreeItem 9");
-    new_observer_2->attachSubject(new_subject_9,Observer::SpecificObserverOwnership);
-    ObserverTreeItem* new_subject_10 = new ObserverTreeItem("ObserverTreeItem 10");
-    new_observer_2->attachSubject(new_subject_10,Observer::SpecificObserverOwnership);
-    new_observer_2->endProcessingCycle();
-
+    // Create a second node:
+    TreeNode* nodeB = new TreeNode("Node B");
+    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeB->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    nodeB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    nodeB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    nodeB->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeB->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    for (int i = 0; i < 5; i++)
+        nodeB->addItem(QString("Item %1").arg(i));
     if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
+        d->top_level_node->attachSubject(nodeB, Observer::ObserverScopeOwnership);
     else
-        selected_observer->attachSubject(new_observer_2, Observer::ObserverScopeOwnership);
+        selected_observer->attachSubject(nodeB, Observer::ObserverScopeOwnership);
 
-    // Add a QWidget observer
-    Observer* new_observer_3 = new Observer("QWidget Manager","Example observer which manages QWidget instances");
-    new_observer_3->useDisplayHints();
-    new_observer_3->startProcessingCycle();
-    new_observer_3->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
-    new_observer_3->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
-    new_observer_3->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    new_observer_3->displayHints()->setActionHints(ObserverHints::ActionAllHints);
-    new_observer_3->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
-    // Naming policy filter
-    naming_filter = new NamingPolicyFilter();
-    naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    new_observer_3->installSubjectFilter(naming_filter);
-    new_observer_3->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-
-    // Add example QWidgets to "QWidget Manager"
-    QWidget* new_subject_11 = new QWidget();
-    new_subject_11->setObjectName("Example QWidget 9");
-    new_subject_11->setWindowTitle("Example QWidget 9");
-    new_subject_11->setAttribute(Qt::WA_DeleteOnClose, true);
-    new_observer_3->attachSubject(new_subject_11, Observer::ObserverScopeOwnership);
-    QWidget* new_subject_12 = new QWidget();
-    new_subject_12->setObjectName("Example QWidget 8");
-    new_subject_12->setWindowTitle("Example QWidget 8");
-    new_subject_12->setAttribute(Qt::WA_DeleteOnClose, true);
-    new_observer_3->attachSubject(new_subject_12, Observer::ObserverScopeOwnership);
-    QWidget* new_subject_13 = new QWidget();
-    new_subject_13->setObjectName("Example QWidget 7");
-    new_subject_13->setWindowTitle("Example QWidget 7");
-    new_subject_13->setAttribute(Qt::WA_DeleteOnClose, true);
-    new_observer_3->attachSubject(new_subject_13, Observer::ObserverScopeOwnership);
-    QWidget* new_subject_14 = new QWidget();
-    new_subject_14->setObjectName("Example QWidget 6");
-    new_subject_14->setWindowTitle("Example QWidget 6");
-    new_subject_14->setAttribute(Qt::WA_DeleteOnClose, true);
-    new_observer_3->attachSubject(new_subject_14, Observer::ObserverScopeOwnership);
-    QWidget* new_subject_15 = new QWidget();
-    new_subject_15->setObjectName("Example QWidget 5");
-    new_subject_15->setWindowTitle("Example QWidget 5");
-    new_subject_15->setAttribute(Qt::WA_DeleteOnClose, true);
-    new_observer_3->attachSubject(new_subject_15, Observer::ObserverScopeOwnership);
-    new_observer_3->endProcessingCycle();
-
+    // Create a node with some QWidgets:
+    TreeNode* nodeC = new TreeNode("Node C");
+    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
+    nodeC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    nodeC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    nodeC->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeC->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    for (int i = 0; i < 5; i++) {
+        QWidget* widget = new QWidget();
+        QLabel* label_text = new QLabel(widget);
+        label_text->setText(QString(tr("Hello, I'm a widget. I will delete myself when closed.")));
+        label_text->adjustSize();
+        widget->resize(label_text->width()+10,label_text->height()+10);
+        widget->setObjectName(QString("Widget %1").arg(i));
+        widget->setWindowTitle(QString("Widget %1").arg(i));
+        widget->setAttribute(Qt::WA_DeleteOnClose, true);
+        nodeC->attachSubject(widget, Observer::ObserverScopeOwnership);
+    }
     if (!selected_observer)
-        d->top_level_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
+        d->top_level_node->attachSubject(nodeC, Observer::ObserverScopeOwnership);
     else
-        selected_observer->attachSubject(new_observer_3, Observer::ObserverScopeOwnership);
+        selected_observer->attachSubject(nodeC, Observer::ObserverScopeOwnership);
 
-    d->top_level_observer->refreshViewsLayout();
+    d->top_level_node->refreshViewsLayout();
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection) {
@@ -424,21 +346,3 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_s
         }
     }
 }
-
-
-QStringList Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::factoryTags() const {
-    QStringList tags;
-    tags << "Example IFactory";
-    return tags;
-}
-
-QObject* Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createInstance(const IFactoryData& ifactory_data) {
-    if (ifactory_data.d_factory_tag == QString("Example IFactory")) {
-        QObject* obj = d->string_subject_factory.createInstance(ifactory_data.d_instance_tag);
-        if (obj) {
-            return obj;
-        }
-    }
-    return 0;
-}
-

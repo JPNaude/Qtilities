@@ -36,9 +36,6 @@
 
 #include <QWidget>
 
-#include <IFactory.h>
-#include <Factory.h>
-#include <Observer.h>
 #include <ObserverWidget.h>
 
 namespace Ui
@@ -46,13 +43,11 @@ namespace Ui
     class ObjectManagementModeWidget;
 }
 
-using namespace Qtilities::Core;
-using namespace Qtilities::CoreGui;
-using namespace Qtilities::Core::Interfaces;
-
 namespace Qtilities {
     namespace Examples {
         namespace ObjectManagement {
+            using namespace Qtilities::CoreGui;
+
             /*!
               \struct ObjectManagementModeWidgetData
               \brief The ObjectManagementModeWidgetData struct stores private data used by the ObjectManagementModeWidget class.
@@ -63,20 +58,13 @@ namespace Qtilities {
             \class ObjectManagementModeWidget
             \brief The ObjectManagementModeWidget class is a mode widget which allows management of an Observer class instance using the ObserverWidget class.
               */
-            class ObjectManagementModeWidget : public QWidget, public IFactory
+            class ObjectManagementModeWidget : public QWidget
             {
                 Q_OBJECT
-                Q_INTERFACES(Qtilities::Core::Interfaces::IFactory)
 
                 public:
                     ObjectManagementModeWidget(QWidget *parent = 0);
                     ~ObjectManagementModeWidget();
-
-                    // -----------------------------------------
-                    // IFactory Implementation
-                    // -----------------------------------------
-                    QStringList factoryTags() const;
-                    QObject* createInstance(const IFactoryData& ifactory_data);
 
                 private slots:
                     void addExampleObjects();
