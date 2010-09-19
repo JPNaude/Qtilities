@@ -47,20 +47,26 @@ Qtilities::CoreGui::AbstractTreeItem::~AbstractTreeItem() {
     delete baseItemData;
 }
 
-bool Qtilities::CoreGui::AbstractTreeItem::isFormattingExportable() const {
-    return baseItemData->is_exportable;
+QString Qtilities::CoreGui::AbstractTreeItem::getName(TreeNode* parent) const {
+    if (!parent)
+        return objectBase()->objectName();
+    else {
+        if (parent->contains(objectBase()))
+            return parent->subjectNameInContext(objectBase());
+        else
+            return QString();
+    }
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::setIsFormattingExportable(bool is_exportable) {
-    baseItemData->is_exportable = is_exportable;
+void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, TreeNode* parent) {
+
 }
 
-IExportable::Result Qtilities::CoreGui::AbstractTreeItem::exportFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node) const {
     QDomElement formatting_data = doc->createElement("Formatting");
-    object_node->appendChild(formatting_data);
 
-    if (hasAlignment())
-        formatting_data.setAttribute("Alignment",(int) getAlignment());
+    //if (hasAlignment())
+    //    formatting_data.setAttribute("Alignment",(int) getAlignment());
     if (hasBackgroundRole())
         formatting_data.setAttribute("BackgroundColor",getBackgroundRole().color().name());
     if (hasForegroundRole())
@@ -94,10 +100,82 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::exportFormattingXML(QD
         else
             font_data.setAttribute("Italic","False");
     }
+
+    if (formatting_data.attributes().count() > 0 || formatting_data.childNodes().count() > 0)
+        object_node->appendChild(formatting_data);
+
     return IExportable::Complete;
 }
 
-IExportable::Result Qtilities::CoreGui::AbstractTreeItem::importFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node) {
+    // First get all attributes:
+    //if (object_node->hasAttribute("Alignment")) {
+    //    setAlignment((Qt::Alignment) (object_node->attribute("Alignment").toInt()));
+    //}
+    if (object_node->hasAttribute("BackgroundColor")) {
+        QString color_name = object_node->attribute("BackgroundColor");
+        setBackgroundRole(QBrush(QColor(color_name)));
+    }
+    if (object_node->hasAttribute("ForegroundColor")) {
+        QString color_name = object_node->attribute("ForegroundColor");
+        setForegroundRole(QBrush(QColor(color_name)));
+    }
+    if (object_node->hasAttribute("StatusTip")) {
+        setStatusTip(object_node->attribute("StatusTip"));
+    }
+    if (object_node->hasAttribute("ToolTip")) {
+        setStatusTip(object_node->attribute("ToolTip"));
+    }
+    if (object_node->hasAttribute("WhatsThis")) {
+        setStatusTip(object_node->attribute("WhatsThis"));
+    }
+
+    // Next get all child nodes:
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement childElement = childNode.toElement();
+
+        if (childElement.isNull())
+            continue;
+
+        if (childElement.tagName() == "Size") {
+            int width = childElement.attribute("Width").toInt();
+            int height = childElement.attribute("Height").toInt();
+            QSize size(width,height);
+            setSizeHint(size);
+            continue;
+        }
+
+        if (childElement.tagName() == "Font") {
+            if (childElement.hasAttribute("Family")) {
+                QString family = childElement.attribute("Family");
+                int point_size = -1;
+                int weight = -1;
+                bool italic = false;
+
+                if (childElement.hasAttribute("PointSize"))
+                    point_size = childElement.attribute("PointSize").toInt();
+                if (childElement.hasAttribute("Weigth"))
+                    weight = childElement.attribute("Weigth").toInt();
+                if (childElement.hasAttribute("Italic")) {
+                    if (childElement.attribute("Italic") == "True")
+                        italic = true;
+                    else
+                        italic = false;
+                }
+
+                QFont font(family,point_size,weight,italic);
+                if (childElement.hasAttribute("Bold")) {
+                    if (childElement.attribute("Bold") == "True")
+                        font.setBold(true);
+                }
+                setFont(font);
+            }
+            continue;
+        }
+    }
 
     return IExportable::Complete;
 }
@@ -304,6 +382,23 @@ bool Qtilities::CoreGui::AbstractTreeItem::hasForegroundRole() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_FOREGROUND);
 }
 
+void Qtilities::CoreGui::AbstractTreeItem::setForegroundColor(const QColor& color) {
+    if (hasForegroundRole()) {
+        QBrush brush = getForegroundRole();
+        brush.setColor(color);
+        setForegroundRole(brush);
+    } else
+        setForegroundRole(QBrush(color));
+}
+
+QColor Qtilities::CoreGui::AbstractTreeItem::getForegroundColor() const {
+    if (hasForegroundRole()) {
+        QBrush brush = getForegroundRole();
+        return brush.color();
+    } else
+        return QColor();
+}
+
 void Qtilities::CoreGui::AbstractTreeItem::setBackgroundRole(const QBrush& background_role) {
     QObject* obj = objectBase();
     if (obj) {
@@ -325,4 +420,21 @@ QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() const {
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasBackgroundRole() const {
     return Observer::propertyExists(objectBase(),OBJECT_ROLE_BACKGROUND);
+}
+
+void Qtilities::CoreGui::AbstractTreeItem::setBackgroundColor(const QColor& color) {
+    if (hasBackgroundRole()) {
+        QBrush brush = getBackgroundRole();
+        brush.setColor(color);
+        setBackgroundRole(brush);
+    } else
+        setBackgroundRole(QBrush(color));
+}
+
+QColor Qtilities::CoreGui::AbstractTreeItem::getBackgroundColor() const {
+    if (hasBackgroundRole()) {
+        QBrush brush = getBackgroundRole();
+        return brush.color();
+    } else
+        return QColor(Qt::white);
 }

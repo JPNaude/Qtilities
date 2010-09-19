@@ -56,9 +56,7 @@ namespace Qtilities {
         \brief Structure used by AbstractTreeItem to store private data.
           */
         struct AbstractTreeItemData {
-            AbstractTreeItemData() : is_exportable(true) { }
-
-            bool is_exportable;
+            AbstractTreeItemData() {}
         };
 
         /*!
@@ -74,15 +72,23 @@ namespace Qtilities {
             AbstractTreeItem();
             virtual ~AbstractTreeItem();
 
-            //! Indicates if the formatting information of this tree item must be exported
-            bool isFormattingExportable() const;
-            //! Sets if the formatting information of this tree item must be exported.
-            void setIsFormattingExportable(bool is_exportable);
+            //! Function to get the name of this tree item.
+            /*!
+              \param parent The name of the parent node which provides the context in which we want to get the name.
+              By default gets the objectName(). If a parent is specified which does not contain this item, QString() is returned.
+              */
+            QString getName(TreeNode* parent = 0) const;
+            //! Function to set the name of this tree item.
+            /*!
+              \param parent The name of the parent node which provides the context in which we want to set the name.
+              By default gets the objectName(). If a parent is specified which does not contain this item, QString() is returned.
+              */
+            void setName(const QString& new_name, TreeNode* parent = 0);
 
+        protected:
             /*!
               This function will add a formatting node to \p object_node with the formatting information of this item.
               At present the following information is part of the formatting export:
-              - Alignment
               - Background Color
               - Foreground Color
               - Size Hint
@@ -91,20 +97,22 @@ namespace Qtilities {
               - Font
 
               The following information is not part of the formatting export:
+              - Alignment
               - Icon
 
               \note Category: The category is not part of the export. It is part of this item's item node.
               */
-            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result saveFormattingToXML(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node);
 
+        public:
             // -------------------------------
             // Getter & Setter functions for object role properties
             // -------------------------------
             //! Sets the category of the tree item.
             void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
             //! Gets the category of the tree item.
-            QtilitiesCategory getCategory(TreeNode* tree_node) const;
+            QtilitiesCategory getCategory(TreeNode* tree_node) const;           
             //! Checks if the item has a category.
             bool hasCategory() const;
             //! Sets the tool tip of the tree item.
@@ -155,12 +163,32 @@ namespace Qtilities {
             QBrush getForegroundRole() const;
             //! Checks if the item has a foreground role.
             bool hasForegroundRole() const;
+            //! Sets the foreground color of the tree item.
+            /*!
+              \note If this function is called after setForegroundRole(), the color of the brush set with that function will be changed.
+              */
+            void setForegroundColor(const QColor& color);
+            //! Gets the foreground color of the tree item.
+            /*!
+              \return The foreground color if it has been set, QColor() otherwise.
+              */
+            QColor getForegroundColor() const;
             //! Sets the background role of the tree item.
             void setBackgroundRole(const QBrush& background_role);
             //! Gets the background role of the tree item.
             QBrush getBackgroundRole() const;
             //! Checks if the item has a background role.
             bool hasBackgroundRole() const;
+            //! Sets the background color of the tree item.
+            /*!
+              \note If this function is called after setBackgroundRole(), the color of the brush set with that function will be changed.
+              */
+            void setBackgroundColor(const QColor& color);
+            //! Gets the background color of the tree item.
+            /*!
+              \return The background color if it has been set, QColor() otherwise.
+              */
+            QColor getBackgroundColor() const;
 
         protected:
             AbstractTreeItemData* baseItemData;
