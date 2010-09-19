@@ -60,6 +60,7 @@ namespace Qtilities {
             // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------------------
             // IConfigPage Implementation
