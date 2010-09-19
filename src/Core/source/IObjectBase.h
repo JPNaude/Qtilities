@@ -54,6 +54,11 @@ namespace Qtilities {
                 //! Returns the QObject* base of the interface.
                 virtual QObject* objectBase() = 0;
                 //! Returns a const QObject* base of the interface.
+                /*!
+                  This function can be used in const methods, but make sure that you don't modify things that
+                  should stay const. An example where this is used is when we want to get a property on an object
+                  in a const method. This is a const operation.
+                  */
                 virtual const QObject* objectBase() const = 0;
             };
         }
