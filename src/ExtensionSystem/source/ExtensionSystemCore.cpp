@@ -194,7 +194,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                 SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
                 Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
             }
-            OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i));
+            OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i),QtilitiesCategory("Core::Plugins (IPlugin)","::"));
         }
     }
 
