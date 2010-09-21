@@ -98,7 +98,7 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
     access_mode = access_mode;
 }
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator = QString("::")) {
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) {
     QStringList category_name_list = category_levels.split(seperator);
     foreach(QString level,category_name_list)
         addLevel(level);

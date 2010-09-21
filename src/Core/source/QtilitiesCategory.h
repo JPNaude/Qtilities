@@ -163,7 +163,7 @@ This class was added in %Qtilities v0.2.
             /*!
               The validation check checks if the category has any levels, if not it is invalid.
               */
-            inline bool isValid() { return d_category_levels.count() > 0; }
+            inline bool isValid() const { return d_category_levels.count() > 0; }
 
             //! Operator overload to compare two QtilitiesCategory objects with each other.
             /*!
