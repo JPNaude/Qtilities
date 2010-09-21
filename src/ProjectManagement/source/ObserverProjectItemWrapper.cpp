@@ -62,6 +62,7 @@ void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setObserverContex
         d->observer->disconnect(this);
 
     d->observer = observer;
+    setObjectName(QString("Observer Project Item: \"%1\"").arg(observer->observerName()));
     IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observer);
     if (mod_iface)
         connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
