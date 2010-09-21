@@ -34,6 +34,8 @@
 #ifndef SESSION_LOG_PLUGIN_CONSTANTS_H
 #define SESSION_LOG_PLUGIN_CONSTANTS_H
 
+#include <Qtilities.h>
+
 namespace Qtilities {
     //! Namespace containing all available plugins.
     namespace Plugins {
@@ -41,8 +43,8 @@ namespace Qtilities {
         namespace SessionLog {
             //! Namespace containing constants defined in the SessionLogPlugin.
             namespace Constants {
-                #define SESSION_LOG_PLUGIN_VERSION_MAJOR 0
-                #define SESSION_LOG_PLUGIN_VERSION_MINOR 1
+                #define SESSION_LOG_PLUGIN_VERSION_MAJOR QTILITIES_VERSION_MAJOR
+                #define SESSION_LOG_PLUGIN_VERSION_MINOR QTILITIES_VERSION_MINOR
 
                 // Icons
                 const char * const SESSION_LOG_MODE_ICON_48x48    = ":/icons/session_log_48x48.png";

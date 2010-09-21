@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>debug_log_mode.png</file>
+    </qresource>
+</RCC>

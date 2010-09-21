@@ -141,7 +141,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     file_menu->addSeperator(MENU_FILE_SETTINGS);
 
     // Register project management config page.
-    OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
+    OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     return true;
 }

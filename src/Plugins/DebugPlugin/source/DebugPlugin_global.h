@@ -31,29 +31,15 @@
 **
 ****************************************************************************/
 
-#ifndef PROJECT_MANAGEMENT_PLUGIN_CONSTANTS_H
-#define PROJECT_MANAGEMENT_PLUGIN_CONSTANTS_H
+#ifndef DEBUG_PLUGIN_GLOBAL_H
+#define DEBUG_PLUGIN_GLOBAL_H
 
-#include <Qtilities.h>
+#include <QtCore/qglobal.h>
 
-namespace Qtilities {
-    namespace Plugins {
-        //! Namespace containing all classes which is part of the ProjectManagement plugin.
-        namespace ProjectManagement {
-            //! Namespace containing constants defined in the ProjectManagement plugin.
-            namespace Constants {
-                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR QTILITIES_VERSION_MAJOR
-                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR QTILITIES_VERSION_MINOR
+#if defined(DEBUG_PLUGIN_LIBRARY)
+#  define DEBUG_PLUGIN_SHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define DEBUG_PLUGIN_SHARED_EXPORT Q_DECL_IMPORT
+#endif
 
-                // Actions & Action Containers
-                const char * const MENU_PROJECTS_NEW        = "Projects.New";
-                const char * const MENU_PROJECTS_OPEN       = "Projects.Open";
-                const char * const MENU_PROJECTS_CLOSE      = "Projects.Close";
-                const char * const MENU_PROJECTS_SAVE       = "Projects.Save";
-                const char * const MENU_PROJECTS_SAVE_AS    = "Projects.SaveAs";
-            }
-        }
-    }
-}
-
-#endif // PROJECT_MANAGEMENT_PLUGIN_CONSTANTS_H
+#endif // DEBUG_PLUGIN_GLOBAL_H

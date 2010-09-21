@@ -34,14 +34,16 @@
 #ifndef PLUGIN_TEMPLATE_CONSTANTS_H
 #define PLUGIN_TEMPLATE_CONSTANTS_H
 
+#include <Qtilities.h>
+
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the Template plugin.
         namespace Template {
             //! Namespace containing constants defined in the Template plugin.
             namespace Constants {
-                #define PLUGIN_TEMPLATE_VERSION_MAJOR 0
-                #define PLUGIN_TEMPLATE_VERSION_MINOR 1
+                #define PLUGIN_TEMPLATE_VERSION_MAJOR QTILITIES_VERSION_MAJOR
+                #define PLUGIN_TEMPLATE_VERSION_MINOR QTILITIES_VERSION_MINOR
             }
         }
     }

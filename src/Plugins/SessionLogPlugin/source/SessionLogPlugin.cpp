@@ -67,13 +67,13 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringL
 
     // Add the session log mode to the global object pool:
     SessionLogMode* session_log_mode = new SessionLogMode();
-    OBJECT_MANAGER->registerObject(session_log_mode);
+    OBJECT_MANAGER->registerObject(session_log_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
 
     // Register the context of the session log mode:
     CONTEXT_MANAGER->registerContext(session_log_mode->contextString());
 
     // Logger Config Gui
-    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false));
+    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     return true;
 }

@@ -1,0 +1,125 @@
+/****************************************************************************
+**
+** Copyright (c) 2009-2010, Jaco Naude
+**
+** This file is part of Qtilities which is released under the following
+** licensing options.
+**
+** Option 1: Open Source
+** Under this license Qtilities is free software: you can
+** redistribute it and/or modify it under the terms of the GNU General
+** Public License as published by the Free Software Foundation, either
+** version 3 of the License, or (at your option) any later version.
+**
+** Qtilities is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Qtilities. If not, see http://www.gnu.org/licenses/.
+**
+** Option 2: Commercial
+** Alternatively, this library is also released under a commercial license
+** that allows the development of closed source proprietary applications
+** without restrictions on licensing. For more information on this option,
+** please see the project website's licensing page:
+** http://www.qtilities.org/licensing.html
+**
+** If you are unsure which license is appropriate for your use, please
+** contact support@qtilities.org.
+**
+****************************************************************************/
+
+#include "DebugPlugin.h"
+#include "DebugPluginConstants.h"
+#include "DebugWidget.h"
+
+#include <ExtensionSystemConstants.h>
+#include <Qtilities.h>
+#include <QtilitiesCoreApplication.h>
+
+#include <QtPlugin>
+#include <QIcon>
+
+using namespace Qtilities::ExtensionSystem::Interfaces;
+using namespace Qtilities::Core;
+
+struct Qtilities::Plugins::Debug::DebugPluginData {
+    DebugPluginData() : debug_mode(0) {}
+
+    DebugWidget* debug_mode;
+};
+
+Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : IPlugin(parent)
+{
+    d = new DebugPluginData;
+    setObjectName("Qtilities Debug Plugin");
+}
+
+Qtilities::Plugins::Debug::DebugPlugin::~DebugPlugin()
+{
+    delete d;
+}
+
+bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &arguments, QString *errorString) {
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
+
+    // Add the session log mode to the global object pool:
+    d->debug_mode = new DebugWidget();
+    OBJECT_MANAGER->registerObject(d->debug_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
+
+    // Register the context of the debug mode:
+    CONTEXT_MANAGER->registerContext(d->debug_mode->contextString());
+
+    return true;
+}
+
+bool Qtilities::Plugins::Debug::DebugPlugin::initializeDependancies(QString *errorString) {
+    Q_UNUSED(errorString)
+
+    d->debug_mode->finalizeMode();
+    return true;
+}
+
+void Qtilities::Plugins::Debug::DebugPlugin::finalize() {
+
+}
+
+double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() {
+    return (QString("%1.%2").arg(DEBUG_PLUGIN_VERSION_MAJOR).arg(DEBUG_PLUGIN_VERSION_MINOR)).toDouble();
+}
+
+QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() {
+    QStringList compatible_versions;
+    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
+    return compatible_versions;
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() {
+    return "Jaco Naude";
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherWebsite() {
+    return "http://www.qtilities.org";
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherContact() {
+    return "support@qtilities.org";
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() {
+    return tr("A plugin which helps to debug Qtilities applications.");
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() {
+    return QString(tr("Copyright") + " 2010, Jaco Naude");
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense()  {
+    return tr("See the Qtilities Libraries license");
+}
+
+using namespace Qtilities::Plugins::Debug;
+Q_EXPORT_PLUGIN2(DebugPlugin, DebugPlugin);

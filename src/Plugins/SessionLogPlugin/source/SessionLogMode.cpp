@@ -34,23 +34,13 @@
 #include "SessionLogMode.h"
 #include "SessionLogPluginConstants.h"
 
-#include <QtilitiesCoreApplication.h>
-#include <QtilitiesCoreGuiConstants.h>
-#include <Logger.h>
-#include <LoggerGui.h>
-#include <LoggingConstants.h>
-#include <WidgetLoggerEngine.h>
-#include <WidgetLoggerEngineFrontend.h>
+#include <QtilitiesCoreGui>
 
 #include <QDockWidget>
 #include <QMainWindow>
 
 using namespace Qtilities::Plugins::SessionLog::Constants;
-using namespace Qtilities::Core;
-using namespace Qtilities::CoreGui;
-using namespace Qtilities::CoreGui::Constants;
-using namespace Qtilities::Logging;
-using namespace Qtilities::Logging::Constants;
+using namespace QtilitiesCoreGui;
 
 struct Qtilities::Plugins::SessionLog::SessionLogModeData {
     SessionLogModeData() : session_mode_widget(0) {}
@@ -79,9 +69,6 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
 
     d->session_mode_widget->tabifyDockWidget(warning_dock,error_dock);
     d->session_mode_widget->tabifyDockWidget(error_dock,session_log_dock);
-
-    // Register this mode's context
-    CONTEXT_MANAGER->registerContext(CONTEXT_SESSION_LOG_MODE);
 }
 
 Qtilities::Plugins::SessionLog::SessionLogMode::~SessionLogMode() {
