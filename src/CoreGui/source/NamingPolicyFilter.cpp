@@ -218,36 +218,57 @@ QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(QString na
     return 0;
 }
 
-Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateAttachment(QObject* obj) const {
+Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
     // Check the validity of obj's name:
     NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName());
 
     if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context.")).arg(obj->objectName());
         return AbstractSubjectFilter::Rejected;
     } else if ((validity_result & Invalid) && d->validity_resolution_policy == PromptUser) {
-        return AbstractSubjectFilter::Conditional;
+        if (silent) {
+            if (rejectMsg)
+                *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName());
+            LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName()));
+            return AbstractSubjectFilter::Rejected;
+        } else
+            return AbstractSubjectFilter::Conditional;
     }
 
     if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == Reject) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context.")).arg(obj->objectName());
         return AbstractSubjectFilter::Rejected;
     } else if ((validity_result & Duplicate) && d->uniqueness_resolution_policy == PromptUser) {
-        return AbstractSubjectFilter::Conditional;
+        if (silent) {
+            if (rejectMsg)
+                *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context. The uniqueness resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName());
+            LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context. The uniqueness resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName()));
+            return AbstractSubjectFilter::Rejected;
+        } else
+            return AbstractSubjectFilter::Conditional;
     }
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, bool import_cycle) {
+bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
+        if (!obj) {
+            if (rejectMsg)
+                *rejectMsg = tr("Naming Policy Filter: Invalid object reference received. Attachment cannot be done.");
             return false;
+        }
     #endif
 
     if (!observer) {
-        LOG_TRACE("Cannot evaluate an attachment in a subject filter without an observer context.");
+        if (rejectMsg)
+            *rejectMsg = tr("Naming Policy Filter: Cannot evaluate an attachment in a subject filter without an observer context.");
+        LOG_TRACE(tr("Cannot evaluate an attachment in a subject filter without an observer context."));
         return false;
     }
 
@@ -352,10 +373,19 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bo
     }
 }
 
-Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateDetachment(QObject* obj) const {
+Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
     Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
 
     return AbstractSubjectFilter::Allowed;
+}
+
+bool Qtilities::CoreGui::NamingPolicyFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
+    Q_UNUSED(obj);
+    Q_UNUSED(subject_deleted);
+    Q_UNUSED(rejectMsg)
+
+    return true;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
@@ -607,7 +637,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
     else
         return_value = true;
 
-    // Ok invalid names must be handled first
+    // Invalid names must be handled first:
     if (validity_result & Invalid) {
         if (d->validity_resolution_policy == PromptUser) {
             if (d->validation_cycle_active && d->name_dialog->useCycleResolution()) {
@@ -643,7 +673,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
         } else if (d->validity_resolution_policy == Reject) {
             return_value = false;
         }
-    // Next handle duplicate names.
+    // Next handle duplicate names:
     } else if ((validity_result & Duplicate) && (d->uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(changed_name) != obj)) {
         if (d->uniqueness_resolution_policy == PromptUser) {
             if (d->validation_cycle_active && d->name_dialog->useCycleResolution()) {
@@ -674,8 +704,31 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
             QString valid_name = generateValidName(changed_name);
             if (valid_name.isEmpty())
                 return_value = false;
-            observer->setObserverPropertyValue(obj,property_name,QVariant(valid_name));
-            return_value = true;
+
+            // Check if we must use the instance name or the object name.
+            if (isObjectNameManager(obj)) {
+                // We use the OBJECT_NAME property:
+                QVariant object_name_prop;
+                object_name_prop = obj->property(OBJECT_NAME);
+                if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
+                    SharedObserverProperty name_property(QVariant(valid_name),OBJECT_NAME);
+                    QVariant property = qVariantFromValue(name_property);
+                    obj->setProperty(OBJECT_NAME,QVariant(property));
+                    return_value = true;
+                } else
+                    return_value = false;
+            } else {
+                // We use the INSTANCE_NAMES property:
+                QVariant instance_names_prop;
+                instance_names_prop = obj->property(INSTANCE_NAMES);
+                if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>()) {
+                    ObserverProperty new_instance_name = instance_names_prop.value<ObserverProperty>();
+                    new_instance_name.setValue(QVariant(valid_name),observer->observerID());
+                    obj->setProperty(INSTANCE_NAMES,qVariantFromValue(new_instance_name));
+                    return_value = true;
+                } else
+                    return_value = false;
+            }
         } else if (d->uniqueness_resolution_policy == Reject) {
             return_value = false;
         } else if (d->uniqueness_resolution_policy == Replace) {
