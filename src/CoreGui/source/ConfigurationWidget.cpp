@@ -116,9 +116,15 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 // Add the category as a property on the object:
                 if (!config_page->configPageCategory().isEmpty()) {
-                    ObserverProperty category_property(OBJECT_CATEGORY);
-                    category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
-                    Observer::setObserverProperty(config_page->objectBase(),category_property);
+                    if (Observer::propertyExists(config_page->objectBase(),OBJECT_CATEGORY)) {
+                        ObserverProperty category_property = Observer::getObserverProperty(config_page->objectBase(),OBJECT_CATEGORY);
+                        category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
+                        Observer::setObserverProperty(config_page->objectBase(),category_property);
+                    } else {
+                        ObserverProperty category_property(OBJECT_CATEGORY);
+                        category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
+                        Observer::setObserverProperty(config_page->objectBase(),category_property);
+                    }
                 }
                 // Add the icon as a property on the object:
                 if (!config_page->configPageIcon().isNull()) {
