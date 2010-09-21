@@ -246,11 +246,6 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setName(const QString& new_nam
         return;
 
     // Check if we must use the instance name or the object name.
-    QVariant object_name_prop;
-    object_name_prop = object->property(OBJECT_NAME);
-    QVariant instance_names_prop;
-    instance_names_prop = object->property(INSTANCE_NAMES);
-
     if (subject_filter->isObjectNameManager(object)) {
         // We use the OBJECT_NAME property:
         QVariant object_name_prop;
