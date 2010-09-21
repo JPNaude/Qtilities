@@ -61,6 +61,7 @@ bool Qtilities::Core::Interfaces::IFactoryData::importXML(QDomDocument* doc, QDo
         d_factory_tag = object_node->attribute("FactoryTag");
     else
         d_factory_tag = QString(FACTORY_QTILITIES);
+
     d_instance_tag = object_node->attribute("InstanceTag");
 
     if (!object_node->hasAttribute("Name"))
