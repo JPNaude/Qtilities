@@ -94,7 +94,7 @@ namespace Qtilities {
             virtual bool isExportable() const = 0;
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
-            virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const = 0;
+            virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const = 0;
             //! Initialize the attachment of a new subject to the filter's observer context.
             /*!
               \note The object is not yet attached to the observer context when this function is called.
@@ -103,7 +103,7 @@ namespace Qtilities {
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
               \return Return true if the attachment is allowed, false otherwise.
               */
-            virtual bool initializeAttachment(QObject* obj, bool import_cycle = false) = 0;
+            virtual bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false) = 0;
             //! Finalize the attachment of a the subject to the filter's observer context.
             /*!
               \note When \p attachment_successful is true, the object will already be attached to the observer context.
@@ -114,13 +114,13 @@ namespace Qtilities {
               */
             virtual void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false) = 0;
             //! Evaluates the detachment of a subject from the filter's observer context. Use this function to check how an detachment will be handled.
-            virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const = 0;
+            virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const = 0;
             //! Initialize the detachment of a subject from the filter's observer context.
             /*!
               \return Return true if the detachment is allowed, false otherwise.
               \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
               */
-            virtual bool initializeDetachment(QObject* obj, bool subject_deleted = false) = 0;
+            virtual bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false) = 0;
             //! Finalize the detachment of a subject from the filter's observer context.
             /*!
               \param attachment_successful True if the detachment was successfull, false otherwise.

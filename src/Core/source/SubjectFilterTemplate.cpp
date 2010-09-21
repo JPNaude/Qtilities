@@ -51,20 +51,29 @@ Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) :
 	d = new SubjectFilterTemplateData;
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateAttachment(QObject* obj) const {
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
+    Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
+    Q_UNUSED(silent)
+
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::SubjectFilterTemplate::initializeAttachment(QObject* obj, bool import_cycle) {
+bool Qtilities::Core::SubjectFilterTemplate::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     #ifndef QT_NO_DEBUG
-        Q_ASSERT(observer != 0);
+    Q_ASSERT(observer != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
+    if (!obj) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Subject Filter Template: Invalid object reference received. Attachment cannot be done.."));
+        return false;
+    }
     #endif
 
     if (!observer) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Cannot evaluate an attachment in a subject filter without an observer context."));
         LOG_TRACE("Cannot evaluate an attachment in a subject filter without an observer context.");
         return false;
     }
@@ -73,23 +82,28 @@ bool Qtilities::Core::SubjectFilterTemplate::initializeAttachment(QObject* obj, 
 }
 
 void Qtilities::Core::SubjectFilterTemplate::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
-    Q_UNUSED(obj);
-    Q_UNUSED(attachment_successful);
+    Q_UNUSED(obj)
+    Q_UNUSED(attachment_successful)
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateDetachment(QObject* obj) const {
-    Q_UNUSED(obj);
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
+    Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
+
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::SubjectFilterTemplate::initializeDetachment(QObject* obj, bool subject_deleted) {
-    Q_UNUSED(obj);
+bool Qtilities::Core::SubjectFilterTemplate::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
+    Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
+    Q_UNUSED(subject_deleted)
+
     return true;
 }
 
 void Qtilities::Core::SubjectFilterTemplate::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
-    Q_UNUSED(obj);
-    Q_UNUSED(detachment_successful);
+    Q_UNUSED(obj)
+    Q_UNUSED(detachment_successful)
 }
 
 void Qtilities::Core::SubjectFilterTemplate::setIsExportable(bool is_exportable) {
@@ -112,6 +126,7 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
     Q_UNUSED(obj)
     Q_UNUSED(property_name)
     Q_UNUSED(propertyChangeEvent)
+
     return false;
 }
 
@@ -132,7 +147,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterT
 
     IFactoryData factory_data = factoryData();
     factory_data.exportBinary(stream);
-
 
     return IExportable::Complete;
 }

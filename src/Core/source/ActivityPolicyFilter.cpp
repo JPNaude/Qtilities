@@ -289,26 +289,33 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QOb
     setActiveSubjects(simple_objects);
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj) const {
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
     Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
+    Q_UNUSED(silent)
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, bool import_cycle) {
+bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     Q_UNUSED(obj)
     Q_UNUSED(import_cycle)
 
     #ifndef QT_NO_DEBUG
-        Q_ASSERT(observer != 0);
+    Q_ASSERT(observer != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
+    if (!obj) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Actvity Policy Filter: Invalid object reference received. Attachment cannot be done."));
+        return false;
+    }
     #endif
 
     if (!observer) {
-        LOG_TRACE(QString("Cannot evaluate an attachment in a subject filter without an observer context."));
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Actvity Policy Filter: Cannot evaluate an attachment in a subject filter without an observer context."));
+        LOG_TRACE(QString(tr("Cannot evaluate an attachment in a subject filter without an observer context.")));
         return false;
     } else
         return true;
@@ -324,7 +331,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
     #endif
 
     if (!observer) {
-        LOG_TRACE(QString("Cannot evaluate an attachment in a subject filter without an observer context."));
+        LOG_TRACE(QString(tr("Cannot evaluate an attachment in a subject filter without an observer context.")));
         return;
     }
 
@@ -409,23 +416,17 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
     }
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateDetachment(QObject* obj) const {
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
     Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::ActivityPolicyFilter::initializeDetachment(QObject* obj, bool subject_deleted) {
+bool Qtilities::Core::ActivityPolicyFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
     Q_UNUSED(obj)
     Q_UNUSED(subject_deleted)
-
-    #ifndef QT_NO_DEBUG
-        Q_ASSERT(observer != 0);
-    #endif
-    #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
-    #endif
+    Q_UNUSED(rejectMsg)
 
     return true;
 }

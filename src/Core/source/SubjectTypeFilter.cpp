@@ -63,24 +63,31 @@ Qtilities::Core::SubjectTypeFilter::SubjectTypeFilter(const QString& known_objec
     d->known_objects_group_name = known_objects_group_name;
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateAttachment(QObject* obj) const {
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
     Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
+    Q_UNUSED(silent)
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, bool import_cycle) {
+bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     Q_UNUSED(import_cycle)
 
     #ifndef QT_NO_DEBUG
-        Q_ASSERT(observer != 0);
+    Q_ASSERT(observer != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
+    if (!obj) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Subject Type Filter: Invalid object reference received. Attachment cannot be done."));
+        return false;
+    }
     #endif
 
     if (!observer) {
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Subject Type Filter: Cannot evaluate an attachment in a subject filter without an observer context."));
         LOG_TRACE("Cannot evaluate an attachment in a subject filter without an observer context.");
         return false;
     }
@@ -104,7 +111,9 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, bool
     }
 
     if (!is_known_type) {
-        LOG_WARNING(QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\".")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName()));
+        if (rejectMsg)
+            *rejectMsg = QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\". It is not an allowed type in this context.")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName());
+        LOG_WARNING(QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\". It is not an allowed type in this context.")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName()));
     }
 
     return is_known_type;
@@ -116,15 +125,17 @@ void Qtilities::Core::SubjectTypeFilter::finalizeAttachment(QObject* obj, bool a
     Q_UNUSED(import_cycle)
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateDetachment(QObject* obj) const {
+Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
     Q_UNUSED(obj)
+    Q_UNUSED(rejectMsg)
 
     return AbstractSubjectFilter::Allowed;
 }
 
-bool Qtilities::Core::SubjectTypeFilter::initializeDetachment(QObject* obj, bool subject_deleted) {
+bool Qtilities::Core::SubjectTypeFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
     Q_UNUSED(obj)
     Q_UNUSED(subject_deleted)
+    Q_UNUSED(rejectMsg)
 
     return true;
 }

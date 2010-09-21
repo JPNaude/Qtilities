@@ -79,11 +79,11 @@ namespace Qtilities {
             // --------------------------------
             // AbstractSubjectFilter Implemenation
             // --------------------------------
-            AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj) const;
-            bool initializeAttachment(QObject* obj, bool import_cycle);
-            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle);
-            AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj) const;
-            bool initializeDetachment(QObject* obj, bool subject_deleted = false);
+            AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const;
+            bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
+            void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
+            AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const;
+            bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
             QString filterName() const { return FACTORY_TAG_SUBJECT_TYPE_FILTER; }
             void setIsExportable(bool is_exportable);
