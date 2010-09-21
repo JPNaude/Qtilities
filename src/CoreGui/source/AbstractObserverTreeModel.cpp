@@ -724,11 +724,14 @@ bool Qtilities::CoreGui::AbstractObserverTreeModel::dropMimeData(const QMimeData
                     OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
                 } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
                     // Attempt to copy the dragged objects:
-                    QList<QObject*> dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
-                    if (dropped_list.count() != observer_mime_data->subjectList().count()) {
-                        LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
-                    } else {
-                        LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+                    // Either do all or nothing:
+                    if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),0,true) != Observer::Rejected) {
+                        QList<QObject*> dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                        if (dropped_list.count() != observer_mime_data->subjectList().count()) {
+                            LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                        } else {
+                            LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+                        }
                     }
                 }
             } else
