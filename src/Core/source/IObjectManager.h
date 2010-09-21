@@ -77,17 +77,51 @@ namespace Qtilities {
                 // ---------------------------------
                 //! Gets the reference to an observer.
                 virtual Observer* observerReference(int id) const = 0;
+                //! Function which returns a reference to the global object pool.
+                /*!
+                  Care should be taken when using the object pool observer. You should for example not delete all the
+                  subjects in the pool unless you know what you are doing.
+
+                  It is recommended to use registerObject() and registeredInterfaces() instead of the object pool directly,
+                  unless you require the use of additional functions on the object pool, like displaying it using an
+                  ObserverWidget.
+
+                  \note The global object pool is in a processing cycle by default. Thus if you want to display it, you
+                  need to call endProcessingCycle() on it and refreshViewsLayout().
+                  */
+                virtual Observer* const objectPool() = 0;
                 //! A function which moves a list of objects from one observer to another observer.
                 /*!
+                  This function will attempt to move subjects from one observer context to another. If any of the subjects
+                  cannot be attached, it will be skipped and attempt to move the next subject in the list. If any of the
+                  subjects could not be attached, the function will return false. If all subjects was moved succesfully the
+                  function will return true.
+
+                  \param objects The objects which must be moved.
+                  \param source_observer_id The source observer ID.
+                  \param destination_observer_id The destination observer ID.
+                  \param silent When true the subjects must be moved without showing any dialogs.
                   \return True if all objects were moved successfully, false if some of the objects failed.
                   */
-                virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id) = 0;
+                virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false) = 0;
                 //! Move subjects by providing the objects as a list with smart pointers.
-                virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id) = 0;
+                /*!
+                  This function will attempt to move subjects from one observer context to another. If any of the subjects
+                  cannot be attached, it will be skipped and attempt to move the next subject in the list. If any of the
+                  subjects could not be attached, the function will return false. If all subjects was moved succesfully the
+                  function will return true.
+
+                  \param objects The objects which must be moved.
+                  \param source_observer_id The source observer ID.
+                  \param destination_observer_id The destination observer ID.
+                  \param silent When true the subjects must be moved without showing any dialogs.
+                  \return True if all objects were moved successfully, false if some of the objects failed.
+                  */
+                virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false) = 0;
                 //! Registers an observer in the observer manager.
                 virtual int registerObserver(Observer* observer) = 0;
                 //! Registers an object to be included in the global object pool. The integer value returned will be the object's unique ID in the global object pool.
-                virtual void registerObject(QObject* obj) = 0;
+                virtual void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory()) = 0;
                 //! Returns all objects in the global object pool which implements the specified interface.
                 virtual QList<QObject*> registeredInterfaces(const QString& iface) const = 0;
 

@@ -128,7 +128,11 @@ Qtilities::Core::Observer* Qtilities::Core::ObjectManager::observerReference(int
         return 0;
 }
 
-bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id) {
+Qtilities::Core::Observer* const Qtilities::Core::ObjectManager::objectPool() {
+    return &d->object_pool;
+}
+
+bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent) {
     // Get observer references
     Observer* source_observer = observerReference(source_observer_id);
     Observer* destination_observer = observerReference(destination_observer_id);
@@ -141,7 +145,7 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     // For now we discard objects that cause problems during attachment and detachment
     for (int i = 0; i < objects.count(); i++) {
         // Check if the destination observer will accept it
-        Observer::EvaluationResult result = destination_observer->canAttach(objects.at(i));
+        Observer::EvaluationResult result = destination_observer->canAttach(objects.at(i),Observer::ManualOwnership,0,silent);
         if (result == Observer::Rejected) {           
             break;
         } else {
@@ -180,14 +184,25 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     return none_failed;
 }
 
-bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id) {
+bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent) {
     QList<QObject*> simple_objects;
     for (int i = 0; i < objects.count(); i++)
         simple_objects << objects.at(i);
-    return moveSubjects(simple_objects,source_observer_id,destination_observer_id);
+    return moveSubjects(simple_objects,source_observer_id,destination_observer_id,silent);
 }
 
-void Qtilities::Core::ObjectManager::registerObject(QObject* obj) {
+void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCategory category) {
+    if (category.isValid()) {
+        if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
+            ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+            category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
+            Observer::setObserverProperty(obj,category_property);
+        } else {
+            ObserverProperty category_property(OBJECT_CATEGORY);
+            category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
+            Observer::setObserverProperty(obj,category_property);
+        }
+    }
     if (d->object_pool.attachSubject(obj))
         emit newObjectAdded(obj);
 }

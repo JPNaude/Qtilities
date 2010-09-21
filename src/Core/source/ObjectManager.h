@@ -107,10 +107,11 @@ namespace Qtilities {
             // IObjectManager Implemenation
             // --------------------------------
             Observer* observerReference(int id) const;
+            Observer* const objectPool();
             int registerObserver(Observer* observer);
-            bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id);
-            bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id);
-            void registerObject(QObject* obj);
+            bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false);
+            bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);
+            void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory());
             void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag);
             void registerIFactory(IFactory* factory_iface);
             IFactory* factoryReference(const QString& tag) const;
