@@ -412,7 +412,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
             LOG_TRACE(QString(tr("%1/%2: Importing a standard observer...")).arg(i+1).arg(iface_count));
             Observer* new_obs = new Observer(factoryData.d_instance_name,QString());
             new_obs->setObjectName(factoryData.d_instance_name);
-            success = attachSubject(new_obs,Observer::ManualOwnership,true);
+            success = attachSubject(new_obs,Observer::ManualOwnership,0,true);
             import_list.append(new_obs);
             IExportable::Result result = new_obs->importBinary(stream, import_list);
             if (result == IExportable::Complete) {
@@ -438,10 +438,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                         IExportable::Result result = exp_iface->importBinary(stream, import_list);
                         if (result == IExportable::Complete) {
                             OBJECT_MANAGER->importObjectProperties(new_instance,stream);
-                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,true);
+                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,0,true);
                         } else if (result == IExportable::Incomplete) {
                             OBJECT_MANAGER->importObjectProperties(new_instance,stream);
-                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,true);
+                            success = attachSubject(new_instance,Observer::ObserverScopeOwnership,0,true);
                             complete = false;
                         } else if (result == IExportable::Failed) {
                             success = false;
@@ -549,6 +549,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
                 // 3. Factory Data:
                 export_iface->factoryData().exportXML(doc,&subject_item);
+                // Don't know why this does not work at this stage....
+                // Must sort out at some stage in the future.
+                //subject_item.removeAttribute(QString("InstanceTag"));
 
                 // Now we let the export iface export whatever it need to export:
                 export_iface->exportXML(doc,&subject_item,params);
@@ -556,7 +559,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
         }
     }
 
-    return IExportable::Incomplete;
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
@@ -618,6 +621,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
 
         if (child.tagName() == "Children") {
+            QList<QObject*> active_subjects;
             QDomNodeList childrenNodes = child.childNodes();
             for(int i = 0; i < childrenNodes.count(); i++)
             {
@@ -640,17 +644,44 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                 iface->importXML(doc,&childrenChild);
                                 constructed_list << iface->objectBase();
                                 attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership);
+
+                                // Check if it is active:
+                                if (childrenChild.hasAttribute("Activity")) {
+                                    if (childrenChild.attribute("Activity") == QString("Active"))
+                                        active_subjects << iface->objectBase();
+                                }
+
+                               // We just created this object, it will not have a category property yet so no need to check if it has:
+                                if (childrenChild.hasAttribute("Category")) {
+                                    QString category_string = childrenChild.attribute("Category");
+                                    QtilitiesCategory category(category_string,"::");
+                                    ObserverProperty category_property(OBJECT_CATEGORY);
+                                    category_property.setValue(qVariantFromValue(category),observerID());
+                                    Observer::setObserverProperty(iface->objectBase(),category_property);
+                                }
                             }
                         }
                     }
                     continue;
                 }
             }
+
+            // If active_subjects has items in it we must set them active:
+            if (active_subjects.count() > 0) {
+                for (int i = 0; i < subjectFilters().count(); i++) {
+                    ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
+                    if (activity_filter) {
+                        activity_filter->setActiveSubjects(active_subjects);
+                        break;
+                    }
+                }
+            }
+
             continue;
         }
     }
 
-    return IExportable::Incomplete;
+    return IExportable::Complete;
 }
 
 bool Qtilities::Core::Observer::isModified() const {
@@ -741,27 +772,31 @@ void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::Interfaces::IFac
         observerData->factory_data = factory_data;
 }
 
-bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, bool import_cycle) {
+bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwnership object_ownership, QString* rejectMsg, bool import_cycle) {
     #ifndef QT_NO_DEBUG
-        Q_ASSERT(obj != 0);
+    Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
+    if (!obj) {
+        if (rejectMsg)
+            *rejectMsg = tr("Observer: Invalid object reference received. Attachment cannot be done.");
+        return false;
+    }
     #endif
     
-    if (canAttach(obj,object_ownership) == Rejected)
+    if (canAttach(obj,object_ownership,rejectMsg) == Rejected)
         return false;
 
     // Pass new object through all installed subject filters
     bool passed_filters = true;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        bool result = observerData->subject_filters.at(i)->initializeAttachment(obj,import_cycle);
+        bool result = observerData->subject_filters.at(i)->initializeAttachment(obj,rejectMsg,import_cycle);
         if (passed_filters)
             passed_filters = result;
     }
 
     if (!passed_filters) {
+        // Don't set change rejectMsg here, it will be set in initializeAttachment() above.
         LOG_DEBUG(QString("Observer (%1): Object (%2) attachment failed, attachment was rejected by one or more subject filter.").arg(objectName()).arg(obj->objectName()));
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             observerData->subject_filters.at(i)->finalizeAttachment(obj,false,import_cycle);
@@ -963,9 +998,6 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             else
                 LOG_DEBUG(QString("Observer (%1): Now observing object \"%2\" with management policy: %3.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
         #endif
-
-        // Register object in global object pool
-        OBJECT_MANAGER->registerObject(obj);
     } else {
         // If it is the global object manager it will get here.
         observerData->subject_list.append(obj);
@@ -994,11 +1026,11 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     return true;
 }
 
-QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, bool import_cycle) {
+QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QObject*> success_list;
     startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
-        if (attachSubject(objects.at(i), ownership, import_cycle))
+        if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
             success_list << objects.at(i);
     }
     endProcessingCycle();
@@ -1010,11 +1042,11 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> object
     return success_list;
 }
 
-QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, bool import_cycle) {
+QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QObject*> success_list;
     startProcessingCycle();
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
-        if (attachSubject(mime_data_object->subjectList().at(i), ownership, import_cycle))
+        if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle))
             success_list << mime_data_object->subjectList().at(i);
     }
     endProcessingCycle();
@@ -1026,14 +1058,20 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime
     return success_list;
 }
 
-Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(QObject* obj, Observer::ObjectOwnership) const {
-    if (!obj)
+Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(QObject* obj, Observer::ObjectOwnership, QString* rejectMsg, bool silent) const {
+    if (!obj) {
+        if (rejectMsg)
+            *rejectMsg = tr("Invalid object reference received. Attachment cannot be done.");
         return Observer::Rejected;
+    }
 
     QVariant category_variant = getObserverPropertyValue(obj,OBJECT_CATEGORY);
     QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
     if (isConst(category)) {
-        LOG_WARNING(QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName()));
+        QString reject_string = QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName());
+        LOG_WARNING(reject_string);
+        if (rejectMsg)
+            *rejectMsg = reject_string;
         return Observer::Rejected;
     }
 
@@ -1041,14 +1079,20 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     const Observer* observer_cast = qobject_cast<Observer*> (obj);
     if (observer_cast) {
         if (isParentInHierarchy(observer_cast,this)) {
-            LOG_WARNING(QString(tr("Attaching observer \"%1\" to observer \"%2\" will result in a circular dependancy.")).arg(obj->objectName()).arg(objectName()));
+            QString reject_string = QString(tr("Attaching observer \"%1\" to observer \"%2\" will result in a circular dependancy.")).arg(obj->objectName()).arg(objectName());
+            LOG_WARNING(reject_string);
+            if (rejectMsg)
+                *rejectMsg = reject_string;
             return Observer::Rejected;
         }
     }
 
     // First evaluate new subject from Observer side
     if (observerData->subject_limit == observerData->subject_list.count()) {
-        LOG_WARNING(QString(tr("Observer (%1): Object (%2) attachment failed, subject limit reached.")).arg(objectName()).arg(obj->objectName()));
+        QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, subject limit reached.")).arg(objectName()).arg(obj->objectName());
+        LOG_WARNING(reject_string);
+        if (rejectMsg)
+            *rejectMsg = reject_string;
         return Observer::Rejected;
     }
 
@@ -1059,7 +1103,10 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         ObserverProperty observer_list = getObserverProperty(obj,OBSERVER_SUBJECT_IDS);
         if (observer_list.isValid()) {
             if (observer_list.hasContext(observerData->observer_id)) {
-                LOG_WARNING(QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName()));
+                QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName());
+                LOG_WARNING(reject_string);
+                if (rejectMsg)
+                    *rejectMsg = reject_string;
                 return Observer::Rejected;
             }
         }
@@ -1079,12 +1126,18 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
                 observer_count = 0;
                 // No count yet, check if the limit is > 0
                 if ((observer_limit < 1) && (observer_limit != -1)){
-                    LOG_WARNING(QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit));
+                    QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit);
+                    LOG_WARNING(reject_string);
+                    if (rejectMsg)
+                        *rejectMsg = reject_string;
                     return Observer::Rejected;
                 }
             } else {
                 if (observer_count >= observer_limit) {
-                    LOG_WARNING(QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit));
+                    QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, observer limit (%3) reached.")).arg(objectName()).arg(obj->objectName()).arg(observer_limit);
+                    LOG_WARNING(reject_string);
+                    if (rejectMsg)
+                        *rejectMsg = reject_string;
                     return Observer::Rejected;
                 }
             }
@@ -1096,7 +1149,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     bool was_conditional = false;
     AbstractSubjectFilter::EvaluationResult current_filter_evaluation;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        current_filter_evaluation = observerData->subject_filters.at(i)->evaluateAttachment(obj);
+        current_filter_evaluation = observerData->subject_filters.at(i)->evaluateAttachment(obj,rejectMsg,silent);
         if (current_filter_evaluation == AbstractSubjectFilter::Rejected)
             was_rejected = true;
         if (current_filter_evaluation == AbstractSubjectFilter::Conditional)
@@ -1112,14 +1165,16 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     return Observer::Allowed;
 }
 
-Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(ObserverMimeData* mime_data_object) const {
+Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach(ObserverMimeData* mime_data_object, QString* rejectMsg, bool silent) const {
+    Q_UNUSED(rejectMsg)
+
     if (!mime_data_object)
         return Observer::Rejected;
 
     bool success = true;
     int not_allowed_count = 0;
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
-        if (canAttach(mime_data_object->subjectList().at(i)) == Observer::Rejected) {
+        if (canAttach(mime_data_object->subjectList().at(i),Observer::ManualOwnership,0,silent) == Observer::Rejected) {
             success = false;
             ++not_allowed_count;
         }
@@ -1147,7 +1202,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     // Pass object through all installed subject filters
     bool passed_filters = true;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        passed_filters = observerData->subject_filters.at(i)->initializeDetachment(obj,true);
+        passed_filters = observerData->subject_filters.at(i)->initializeDetachment(obj,0,true);
     }
 
     if (!passed_filters) {
@@ -1161,7 +1216,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     LOG_DEBUG(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
 
     // Emit neccesarry signals
-    if (!observerData->process_cycle_active) {
+    if (!observerData->process_cycle_active && objectName() != QString(GLOBAL_OBJECT_POOL)) {
         QList<QObject*> objects;
         objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);

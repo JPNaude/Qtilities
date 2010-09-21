@@ -299,7 +299,7 @@ namespace Qtilities {
 
               \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
               */
-            virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual bool attachSubject(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
             //! Will attempt to attach the specified objects to the observer.
             /*!
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
@@ -311,7 +311,7 @@ namespace Qtilities {
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
             //! Will attempt to attach the specified objects in a ObserverMimeData object.
             /*!
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
@@ -323,11 +323,22 @@ namespace Qtilities {
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, bool import_cycle = false);
+            virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
             //! A function which checks if the new object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
-            Observer::EvaluationResult canAttach(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership) const;
+            /*!
+              \param obj The object to test attachment of.
+              \param rejectMsg Rejection message. If the attachment cannot be done, thus it returns Observer::Rejected, you can get the reason through this error message.
+              \param ownership This parameter allows you to specify the ownership to use during attachment. By default Observer::ManualOwnership.
+              \param silent When true the function checks if the attachment can be done without using any dialog boxes. This is usefull when you need to attach subjects in an event filter where showing a dialog is a problem. An example of this is drag/drop operations in ObserverWidgets.
+              */
+            Observer::EvaluationResult canAttach(QObject* obj, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool silent = false) const;
             //! A function which checks if the objects in the ObserverMimeData object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
-            Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object) const;
+            /*!
+              \param mime_data_object The mime data object to test attachment of.
+              \param rejectMsg Rejection message. If the attachment cannot be done, thus it returns Observer::Rejected, you can get the reason through this error message.
+              \param silent When true the function checks if the attachment can be done without using any dialog boxes. This is usefull when you need to attach subjects in an event filter where showing a dialog is a problem. An example of this is drag/drop operations in ObserverWidgets.
+              */
+            Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object, QString* rejectMsg = 0, bool silent = false) const;
 
         public slots:
             //! Will attempt to detach the specified object from the observer.
@@ -389,6 +400,27 @@ namespace Qtilities {
                             }
 
             //! Convenience function which will set the specified ObserverProperty on the specified object.
+            /*!
+              Caution should be taken when using this function because you can easily overwrite property values for other
+              contexts since the property has different values for different contexts.
+
+              Therefore you must always check if an observer property exist before setting as shown in the example below:
+\code
+QtilitiesCategory category("Test Category");
+// Check if the property exists:
+if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
+    // If it does we MUST append the value for our context:
+    ObserverProperty category_property = Observer::getObserverProperty(iface->objectBase(),OBJECT_CATEGORY);
+    category_property.setValue(qVariantFromValue(category),observerID());
+    Observer::setObserverProperty(iface->objectBase(),category_property);
+} else {
+    // If not we create a new property with the value for our context:
+    ObserverProperty category_property(OBJECT_CATEGORY);
+    category_property.setValue(qVariantFromValue(category),observerID());
+    Observer::setObserverProperty(iface->objectBase(),category_property);
+}
+\endcode
+              */
             static bool setObserverProperty(QObject* obj, ObserverProperty observer_property) {
                 if (!observer_property.isValid() || !obj) {
                     Q_ASSERT(observer_property.isValid());
