@@ -240,11 +240,11 @@ tree_widget->show();
             ActivityPolicyFilter* activityPolicyFilter() const;
 
             /*!
-              This overloaded function will start a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              This overloaded function will also start a naming validation cycle on the naming policy filter if enableNamingControl() called.
               */
             void startProcessingCycle();
             /*!
-              This overloaded function will end a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              This overloaded function will also end a naming validation cycle on the naming policy filter if enableNamingControl() called.
               */
             void endProcessingCycle();
 
@@ -315,7 +315,7 @@ tree_widget->show();
 
               \sa loadFromFile()
               */
-            IExportable::Result saveToFile(const QString& file_name) const;
+            IExportable::Result saveToFile(const QString& file_name, QString* errorMsg = 0) const;
             //! Loads the tree under this tree node from an XML file.
             /*!
               \param file_name The file name from which the tree must be loaded.
@@ -324,7 +324,7 @@ tree_widget->show();
 
               \sa saveToFile()
               */
-            IExportable::Result loadFromFile(const QString& file_name, bool clear_first = true);
+            IExportable::Result loadFromFile(const QString& file_name, QString* errorMsg = 0, bool clear_first = true);
 
             // --------------------------------
             // IObjectBase Implemenation

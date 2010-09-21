@@ -114,7 +114,18 @@ void Qtilities::CoreGui::TreeNode::disableNamingControl() {
 }
 
 Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::namingPolicyFilter() const {
-    return nodeData->naming_policy_filter;
+    // If the pointer we have is 0, the activity filter might have been set using the observer base class.
+    // Therefore we must check the subject filters in the base class here first:
+    if (!nodeData->naming_policy_filter) {
+        for (int i = 0; i < subjectFilters().count(); i++) {
+            NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (subjectFilters().at(i));
+            if (naming_filter)
+                return naming_filter;
+        }
+    } else
+        return nodeData->naming_policy_filter;
+
+    return 0;
 }
 
 Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
@@ -146,7 +157,18 @@ void Qtilities::CoreGui::TreeNode::disableActivityControl() {
 }
 
 Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPolicyFilter() const {
-    return nodeData->activity_policy_filter;
+    // If the pointer we have is 0, the activity filter might have been set using the observer base class.
+    // Therefore we must check the subject filters in the base class here first:
+    if (!nodeData->activity_policy_filter) {
+        for (int i = 0; i < subjectFilters().count(); i++) {
+            ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
+            if (activity_filter)
+                return activity_filter;
+        }
+    } else
+        return nodeData->activity_policy_filter;
+
+    return 0;
 }
 
 
@@ -214,7 +236,7 @@ bool Qtilities::CoreGui::TreeNode::removeNode(TreeNode* node) {
     return detachSubject(node);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg) const {
     QFile file(file_name);
     if(!file.open(QFile::WriteOnly))
         return IExportable::Failed;
@@ -242,12 +264,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::loadFromFile(const QString& file_name, bool clear_first) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::loadFromFile(const QString& file_name, QString* errorMsg, bool clear_first) {
     if (clear_first)
         deleteAll();
 
     // Load the file into doc:
-    startProcessingCycle();
     QDomDocument doc("QtilitiesTreeExport");
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly))
@@ -259,12 +280,16 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     int error_line;
     int error_column;
     if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
+        if (errorMsg)
+            *errorMsg = QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string);
         LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
         file.close();
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     file.close();
+
+    startProcessingCycle();
 
     // Interpret the loaded doc:
     QDomElement root = doc.documentElement();
