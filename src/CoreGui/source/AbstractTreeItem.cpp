@@ -181,12 +181,20 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+    if (!category.isValid())
+        return;
+
     QObject* obj = objectBase();
     if (obj && tree_node) {
-        ObserverProperty property(OBJECT_CATEGORY);
-        property.setValue(qVariantFromValue(category),tree_node->observerID());
-        property.setIsExportable(true);
-        Observer::setObserverProperty(obj,property);
+        if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
+            ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+            category_property.setValue(qVariantFromValue(category),tree_node->observerID());
+            Observer::setObserverProperty(obj,category_property);
+        } else {
+            ObserverProperty category_property(OBJECT_CATEGORY);
+            category_property.setValue(qVariantFromValue(category),tree_node->observerID());
+            Observer::setObserverProperty(obj,category_property);
+        }
     }
 }
 
