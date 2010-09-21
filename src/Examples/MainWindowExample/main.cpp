@@ -126,13 +126,13 @@ int main(int argc, char *argv[])
     modes << MODE_EXAMPLE_ID;
     ExampleMode* example_mode = new ExampleMode();
     SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes,modes);
-    OBJECT_MANAGER->registerObject(file_system_side_widget_helper);
+    OBJECT_MANAGER->registerObject(file_system_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
     SideViewerWidgetHelper* object_scope_side_widget_helper = new SideViewerWidgetHelper(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
-    OBJECT_MANAGER->registerObject(object_scope_side_widget_helper);
+    OBJECT_MANAGER->registerObject(object_scope_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
     SideViewerWidgetHelper* property_editor_side_widget_helper = new SideViewerWidgetHelper(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
-    OBJECT_MANAGER->registerObject(property_editor_side_widget_helper);
+    OBJECT_MANAGER->registerObject(property_editor_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #endif
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
     exampleMainWindow.addModes(registered_modes);
 
     // Register command editor config page.
-    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     // Register extension system config page.
-    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget());
+    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     // Report on the number of config pages found.
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");

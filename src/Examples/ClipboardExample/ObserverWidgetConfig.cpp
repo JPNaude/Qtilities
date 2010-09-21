@@ -55,6 +55,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
         ui->comboWidgetMode1->setCurrentIndex(1);
     ui->spinBoxRowHeight1->setValue(settings.value("default_row_heigth", 17).toInt());
     ui->checkShowGrid1->setChecked(settings.value("table_view_show_grid", false).toBool());
+    ui->checkConfirmDeletes1->setChecked(settings.value("confirm_deletes", true).toBool());
     settings.endGroup();
     settings.beginGroup("ObserverWidget1");
     mode = settings.value("display_mode", Qtilities::TableView).toInt();
@@ -64,6 +65,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
         ui->comboWidgetMode2->setCurrentIndex(1);
     ui->spinBoxRowHeight2->setValue(settings.value("default_row_heigth", 17).toInt());
     ui->checkShowGrid2->setChecked(settings.value("table_view_show_grid", false).toBool());
+    ui->checkConfirmDeletes2->setChecked(settings.value("confirm_deletes", true).toBool());
     settings.endGroup();
     settings.endGroup();
 
@@ -114,6 +116,7 @@ void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
     }
     settings.setValue("default_row_heigth", ui->spinBoxRowHeight1->value());
     settings.setValue("table_view_show_grid", ui->checkShowGrid1->isChecked());
+    settings.setValue("confirm_deletes", ui->checkConfirmDeletes1->isChecked());
     settings.endGroup();
     settings.beginGroup("ObserverWidget1");
     if (ui->comboWidgetMode2->currentText() == "Table View") {
@@ -123,6 +126,7 @@ void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
     }
     settings.setValue("default_row_heigth", ui->spinBoxRowHeight2->value());
     settings.setValue("table_view_show_grid", ui->checkShowGrid2->isChecked());
+    settings.setValue("confirm_deletes", ui->checkConfirmDeletes2->isChecked());
     settings.endGroup();
     settings.endGroup();
 

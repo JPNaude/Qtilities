@@ -79,7 +79,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     d->project_item = new ObserverProjectItemWrapper(this);
     d->project_item->setObserverContext(d->top_level_node);
-    OBJECT_MANAGER->registerObject(d->project_item);
+    OBJECT_MANAGER->registerObject(d->project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
 
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
@@ -231,7 +231,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create an node:
     TreeNode* nodeA = new TreeNode("Node A");
-    nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
     nodeA->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
@@ -245,7 +245,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create a second node:
     TreeNode* nodeB = new TreeNode("Node B");
-    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
     nodeB->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
@@ -260,7 +260,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create a node with some QWidgets:
     TreeNode* nodeC = new TreeNode("Node C");
-    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
+    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
     nodeC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);

@@ -60,18 +60,19 @@ int main(int argc, char *argv[])
     nodeB->displayHints()->setDisplayFlagsHint(display_flags);
     nodeC->displayHints()->setDisplayFlagsHint(display_flags);*/
     nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    nodeB->setCategorizedDisplayEnabled(true);
 
     // Create the tree items:
     nodeA->addItem("Item 1")->setToolTip("Hello, I'm a ToolTip.");
-    nodeB->addItem("Item 2");
+    nodeB->addItem("Item 2",QtilitiesCategory("Test Category::Sub Category","::"));
     nodeB->addItem("Item 3");
     nodeB->addItem("Item 4");
     nodeB->addItem("Item 5");
-    nodeB->addItem("Item 6");
+    TreeItem* active_item = nodeB->addItem("Item 6");
     nodeB->addItem("Item 7");
 
     // Add some formatting to the nodes:
-    nodeA->setForegroundRole(QBrush(Qt::darkRed));
+    /*nodeA->setForegroundRole(QBrush(Qt::darkRed));
     nodeA->setFont(QFont("Helvetica [Cronyx]",20));
     nodeA->setAlignment(Qt::AlignCenter);
     nodeA->setBackgroundRole(QBrush(Qt::gray));
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
     nodeC->setForegroundRole(QBrush(Qt::darkYellow));
     nodeC->setFont(QFont("Helvetica [Cronyx]",20));
     nodeC->setAlignment(Qt::AlignCenter);
-    nodeC->setBackgroundRole(QBrush(Qt::gray));
+    nodeC->setBackgroundRole(QBrush(Qt::gray));*/
 
     /*nodeC->startProcessingCycle();
     for (int i = 0; i < 100; i++) {
@@ -90,12 +91,15 @@ int main(int argc, char *argv[])
     }
     nodeC->endProcessingCycle();*/
 
+    // Test activity:
+    QList<QObject*> active_subjects;
+    active_subjects << active_item;
+    nodeB->activityPolicyFilter()->setActiveSubjects(active_subjects);
+
     // Test XML tree streaming:
     QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
     nodeA->saveToFile(path_formatted);
     nodeA->loadFromFile(path_formatted);
-
-    IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (nodeA->objectBase());
 
     // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();

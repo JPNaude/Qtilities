@@ -24,13 +24,11 @@ UI_DIR          = $$QTILITIES_TEMP/ObjectManagementExample
 # Application Files
 # --------------------------
 HEADERS += ObjectManagementModeWidget.h \
-    ObjectManagementMode.h \
-    ObserverTreeItem.h
+    ObjectManagementMode.h
 
 SOURCES += main.cpp \
     ObjectManagementModeWidget.cpp \
-    ObjectManagementMode.cpp \
-    ObserverTreeItem.cpp
+    ObjectManagementMode.cpp
 
 FORMS += ObjectManagementModeWidget.ui
 

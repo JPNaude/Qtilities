@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
 
     // Create an instance of the example object management mode:
     ObjectManagementMode* object_management_mode = new ObjectManagementMode();
-    if (exampleMainWindow.addMode(object_management_mode))
-       CONTEXT_MANAGER->registerContext(object_management_mode->contextString());
+    CONTEXT_MANAGER->registerContext(object_management_mode->contextString());
+    OBJECT_MANAGER->registerObject(object_management_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
     exampleMainWindow.addModes(registered_modes);
 
     // Register command editor config page.
-    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     // Register extension system config page.
-    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget());
+    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     // Report on the number of config pages found.
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");

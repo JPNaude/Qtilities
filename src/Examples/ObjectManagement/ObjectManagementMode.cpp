@@ -65,7 +65,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementMode::initialize() {
 }
 
 QIcon Qtilities::Examples::ObjectManagement::ObjectManagementMode::icon() const {
-    return QIcon(":/object_management_mode_64x64.png");
+    return QIcon(":/object_management_mode_48x48.png");
 }
 
 QString Qtilities::Examples::ObjectManagement::ObjectManagementMode::text() const {

@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
     activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
     observerA->installSubjectFilter(activity_filter);
-    observerA->displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+    observerA->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
     observerA->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     ObserverHints::ActionHints action_hints = 0;
     action_hints |= ObserverHints::ActionRemoveItem;
@@ -281,10 +281,10 @@ int main(int argc, char *argv[])
     observer_widget_container_layout->setMargin(0);
 
     // Set up config widget:
-    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
-    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false));
+    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     ObserverWidgetConfig observer_config_widget;
-    OBJECT_MANAGER->registerObject(&observer_config_widget);
+    OBJECT_MANAGER->registerObject(&observer_config_widget,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
     config_widget->initialize(registered_config_pages);
 
