@@ -201,8 +201,9 @@ namespace Qtilities {
               Saves settings about this ObserverWidget instance using QSettings. The following parameters are saved:
               - The main window state of the observer widget (ObserverWidget inherits QMainWindow).
               - The grid style. \sa toggleGrid()
-              - The default table view row size (Only in TableView mode). \sa setDefaultRowHeight()
+              - The default table view row size (Only in TableView mode). \sa defaultRowHeight()
               - The display mode. \sa DisplayMode
+              - If delete operations must be confirmed. \sa confirmDeletes()
 
               \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
               for an ObserverWidget, don't read it when the widget is created.
@@ -286,6 +287,18 @@ namespace Qtilities {
             // --------------------------------
             // Functions Related To Selected Objects & Refreshing Of The Views
             // --------------------------------
+            //! Function to set the interaction with the user when deleting subjects.
+            /*!
+              \sa confirmDeletes(), selectionDelete(), selectionDeleteAll()
+              */
+            void setConfirmDeletes(bool confirm_deletes);
+            //! Function to get the interaction with the user when deleting subjects.
+            /*!
+              The default is true.
+
+              \sa setConfirmDeletes(), selectionDelete(), selectionDeleteAll()
+              */
+            bool confirmDeletes() const;
             //! Provides a list of QObject pointers to all the selected objects.
             QList<QObject*> selectedObjects() const;
             //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
@@ -416,12 +429,13 @@ namespace Qtilities {
             void selectionDetachAll();
             //! Deletes the current selected items.
             /*!
-              \sa selectedObjects(), selectedObjectsChanged()
+
+              \sa selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
             void selectionDelete();
-            //! Deletes all subjects under the current selection parent.
+            //! Deletes all subjects under the current selection parent or in the selected context.
             /*!
-              \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
+              \sa selectionParent(), selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
             void selectionDeleteAll();
             //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.

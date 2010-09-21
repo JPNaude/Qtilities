@@ -96,6 +96,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     proxy_model(0),
     activity_filter(0),
     action_provider(0),
+    confirm_deletes(true),
     searchBoxWidget(0),
     actionFilterNodes(0),
     actionFilterItems(0),
@@ -176,6 +177,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     ActionProvider* action_provider;
     //! The default row height used in TableView mode.
     int default_row_height;
+    //! Indicates if the user should confirm delete operations.
+    bool confirm_deletes;
 
     // Search related stuff:
     //! The search box widget.
@@ -362,7 +365,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Setup some flags and attributes for this widget the first time it is constructed.
         setAttribute(Qt::WA_DeleteOnClose, true);
         // Register contextString in the context manager.
-        OBJECT_MANAGER->registerObject(this);
+        OBJECT_MANAGER->registerObject(this,QtilitiesCategory("GUI::ObserverWidgets","::"));
         constructActions();
     }
 
@@ -875,6 +878,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     settings.setValue("display_mode", (int) d->display_mode);
     settings.setValue("state", saveState());
     settings.setValue("default_row_heigth", d->default_row_height);
+    settings.setValue("confirm_deletes", d->confirm_deletes);
     if (d->table_view)
         settings.setValue("table_view_show_grid", d->table_view->showGrid());
     settings.endGroup();
@@ -913,6 +917,9 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
     // Display grid
     if (d->table_view)
         d->table_view->setShowGrid(settings.value("table_view_show_grid", false).toBool());
+
+    // Confirm deletes
+    d->confirm_deletes = settings.value("confirm_deletes", true).toBool();
 
     settings.endGroup();
     settings.endGroup();
@@ -1527,6 +1534,28 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         return;
 
     int selected_count = selectedObjects().count();
+    if (selected_count == 0)
+        return;
+
+    if (d->confirm_deletes) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Confirm Deletion"));
+        if (selected_count == 1)
+            msgBox.setText(tr("Are you sure you want to delete the selected object?<br><br>This operation cannot be undone."));
+        else
+            msgBox.setText(tr("Are you sure you want to delete the selected objects?<br><br>This operation cannot be undone."));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Cancel:
+              return;
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+    }
 
     // Delete selected objects:
     for (int i = 0; i < selected_count; i++) {
@@ -1579,6 +1608,23 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
 void Qtilities::CoreGui::ObserverWidget::selectionDeleteAll() {
     if (!d->initialized)
         return;
+
+    if (d->confirm_deletes) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(tr("Confirm Deletion"));
+        msgBox.setText(tr("Are you sure you want to delete the selected object(s)?<br><br>This operation cannot be undone."));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        int ret = msgBox.exec();
+        switch (ret) {
+          case QMessageBox::Cancel:
+              return;
+              break;
+          default:
+              // should never be reached
+              break;
+        }
+    }
 
     if (d->display_mode == TableView && d->table_model) {
         d_observer->deleteAll();
@@ -1681,10 +1727,24 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
 
     QList<QObject*> current_selection = selectedObjects();
     if (d->display_mode == TableView && d->table_model) {
-        d_observer->refreshViewsData();
+        bool cycle_active = false;
+        if (d_observer->isProcessingCycleActive()) {
+            d_observer->endProcessingCycle();
+            cycle_active = true;
+        }
+        d_observer->refreshViewsLayout();
+        if (cycle_active)
+            d_observer->startProcessingCycle();
         resizeTableViewRows();
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        d_observer->refreshViewsData();
+        bool cycle_active = false;
+        if (d_observer->isProcessingCycleActive()) {
+            d_observer->endProcessingCycle();
+            cycle_active = true;
+        }
+        d_observer->refreshViewsLayout();
+        if (cycle_active)
+            d_observer->startProcessingCycle();
     }
 
     if (activeHints()->activityControlHint() == ObserverHints::FollowSelection && d->activity_filter) {
@@ -2298,6 +2358,14 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseGlobalActiveObjects(bool toggl
 
 bool Qtilities::CoreGui::ObserverWidget::useGlobalActiveObjects() const {
     return d->update_global_active_objects;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setConfirmDeletes(bool confirm_deletes) {
+    d->confirm_deletes = confirm_deletes;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::confirmDeletes() const {
+    return d->confirm_deletes;
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
