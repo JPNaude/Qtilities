@@ -70,7 +70,11 @@ Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportXML(Q
     return IExportable::Complete;
 }
 
-Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(doc)
+    Q_UNUSED(params)
+    Q_UNUSED(import_list)
+
     QDomNodeList dataNodes = object_node->childNodes();
     for(int i = 0; i < dataNodes.count(); i++)
     {
@@ -195,9 +199,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
     QDomNodeList childNodes = object_node->childNodes();
     for(int i = 0; i < childNodes.count(); i++)
@@ -221,7 +226,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
 
                 if (level.tagName() == "Category") {
                     CategoryLevel category_level;
-                    category_level.importXML(doc,&level);
+                    category_level.importXML(doc,&level,import_list);
                     continue;
                 }
             }

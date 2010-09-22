@@ -92,7 +92,7 @@ namespace Qtilities {
               This function adds a category level node under \p object_node with all the information about this category level.
               */
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             //! The name of the category level.
             QString                 d_name;
@@ -130,7 +130,7 @@ sure that categories are handled the same way everywhere. Example usages in %Qti
 - Factory classes allows grouping of registered interfaces into categories.
 - Qtilities::CoreGui::Interfaces::IConfigPage implementations allows grouping of the pages into categories in the Qtilities::CoreGui::ConfigurationWidget.
 
-This class was added in %Qtilities v0.2.
+<i>This class was added in %Qtilities v0.2.</i>
 */
         class QTILIITES_CORE_SHARED_EXPORT QtilitiesCategory : public IExportable
         {
@@ -284,7 +284,7 @@ This class was added in %Qtilities v0.2.
               This function adds a category node under \p object_node with all the information about this category.
               */
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             //! Adds a level to the category by providing the information needed to construct a CategoryLevel.
             void addLevel(const QString& name);
