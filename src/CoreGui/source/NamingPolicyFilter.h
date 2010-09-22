@@ -190,7 +190,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implemenation
@@ -259,12 +259,12 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void endValidationCycle();
             //! Returns true if a validation cycle is active at present.
             bool isValidationCycleActive() const;
+            //! Checks if this subject filter is the name manager of the specified object.
+            bool isObjectNameManager(QObject* obj) const;
 
         private:
             //! Attempt to assign a new name manager to the object, other than this filter.
             void assignNewNameManager(QObject* obj);
-            //! Checks if this subject filter is the name manager of the specified object.
-            bool isObjectNameManager(QObject* obj) const;
             //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the OBJECT_NAME property.
             bool isObjectNameDirty(QObject* obj) const;
             //! Attempt to generate a valid name in the context from the given input_name.
