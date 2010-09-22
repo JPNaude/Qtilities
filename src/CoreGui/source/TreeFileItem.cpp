@@ -81,7 +81,7 @@ QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
     return strippedFileExtension(treeFileItemBase->file_name);
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::TreeFileItem::factoryData() const {
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::CoreGui::TreeFileItem::factoryData() const {
     treeFileItemBase->factoryData.d_instance_name = objectName();
     return treeFileItemBase->factoryData;
 }
@@ -96,15 +96,24 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Tr
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    // First export the factory data of this item:
+    IFactoryTag factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
+    // Export the file name:
+    stream << treeFileItemBase->file_name;
+
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(import_list)
     Q_UNUSED(params)
 
+    // Import the file name:
+    stream >> treeFileItemBase->file_name;
 
-    return IExportable::Incomplete;
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
@@ -137,6 +146,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     return loadFormattingFromXML(doc,object_node);
 }
 
-void Qtilities::CoreGui::TreeFileItem::setFactoryData(IFactoryData factoryData) {
+void Qtilities::CoreGui::TreeFileItem::setFactoryData(IFactoryTag factoryData) {
     treeFileItemBase->factoryData = factoryData;
 }

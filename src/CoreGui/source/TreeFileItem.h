@@ -52,7 +52,7 @@ namespace Qtilities {
             factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
 
             QString file_name;
-            IFactoryData factoryData;
+            IFactoryTag factoryData;
         };
 
         /*!
@@ -130,7 +130,7 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IFactoryData factoryData() const;
+            IFactoryTag factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
@@ -141,7 +141,7 @@ namespace Qtilities {
             void fileNameChanged(const QString& new_file_name);
 
         protected:
-            void setFactoryData(IFactoryData factoryData);
+            void setFactoryData(IFactoryTag factoryData);
             TreeFileItemData* treeFileItemBase;
         };
     }
