@@ -129,7 +129,7 @@ namespace Qtilities {
                 // Factory Related Functionality
                 // ---------------------------------
                 //! Registers a factory interface inside the Qtilities factory.
-                virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag) = 0;
+                virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag) = 0;
                 //! Registers a factory interface in the global object pool. Factory interfaces can be accessed using any of the factoryTags() specified on the IFactory interface.
                 virtual void registerIFactory(IFactory* obj) = 0;
                 //! Provides a reference to the factory interface which was registered with the specified tag. If no factory interface was registered with the specified tag, 0 is returned.

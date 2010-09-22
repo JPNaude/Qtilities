@@ -74,11 +74,11 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
-    FactoryInterfaceTag activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryTag activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
-    FactoryInterfaceTag subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryTag subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
-    FactoryInterfaceTag observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
+    FactoryTag observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
     d->qtilities_factory.registerFactoryInterface(&Observer::factory,observer);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
@@ -209,7 +209,7 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCateg
         emit newObjectAdded(obj);
 }
 
-void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryInterfaceTag iface_tag) {
+void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag) {
     d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
 }
 
