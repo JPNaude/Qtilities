@@ -186,7 +186,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IFactoryData factoryData() const;
+            IFactoryTag factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;

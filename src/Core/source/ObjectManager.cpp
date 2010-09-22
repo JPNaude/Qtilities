@@ -78,6 +78,8 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
     d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
     FactoryInterfaceTag subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
+    FactoryInterfaceTag observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
+    d->qtilities_factory.registerFactoryInterface(&Observer::factory,observer);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
     registerIFactory(this);
@@ -105,11 +107,11 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
 
 QStringList Qtilities::Core::ObjectManager::factoryTags() const {
     QStringList tags;
-    tags << "Qtilities Factory";
+    tags << FACTORY_QTILITIES;
     return tags;
 }
 
-QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryData& ifactory_data) {
+QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryTag& ifactory_data) {
     if (ifactory_data.d_factory_tag == QString(FACTORY_QTILITIES)) {
         QObject* obj = d->qtilities_factory.createInstance(ifactory_data.d_instance_tag);
         if (obj) {
@@ -698,7 +700,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // We must stream the factory data for the observer first.
     QList<QPointer<QObject> > internal_import_list;
-    IFactoryData factoryData;
+    IFactoryTag factoryData;
     if (!factoryData.importBinary(stream))
         return IExportable::Failed;
 

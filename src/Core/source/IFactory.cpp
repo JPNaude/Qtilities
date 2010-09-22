@@ -38,11 +38,11 @@
 
 using namespace Qtilities::Core::Constants;
 
-Qtilities::Core::Interfaces::IFactoryData::IFactoryData(QDomDocument* doc, QDomElement* object_node) {
+Qtilities::Core::Interfaces::IFactoryTag::IFactoryTag(QDomDocument* doc, QDomElement* object_node) {
     importXML(doc,object_node);
 }
 
-bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDomElement* object_node) const {
+bool Qtilities::Core::Interfaces::IFactoryTag::exportXML(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
 
     if (d_factory_tag != QString(FACTORY_QTILITIES))
@@ -54,7 +54,7 @@ bool Qtilities::Core::Interfaces::IFactoryData::exportXML(QDomDocument* doc, QDo
     return true;
 }
 
-bool Qtilities::Core::Interfaces::IFactoryData::importXML(QDomDocument* doc, QDomElement* object_node) {
+bool Qtilities::Core::Interfaces::IFactoryTag::importXML(QDomDocument* doc, QDomElement* object_node) {
     Q_UNUSED(doc)
 
     if (object_node->hasAttribute("FactoryTag"))

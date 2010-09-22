@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     // Create the configuration widget here and then connect it to the above command:
     ConfigurationWidget config_widget;
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
+    QtilitiesApplication::setConfigWidget(&config_widget);
     file_menu->addAction(command);
     file_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
@@ -140,6 +141,7 @@ int main(int argc, char *argv[])
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
     LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
     exampleMainWindow.addModes(registered_modes);
+    PROJECT_MANAGER->refreshPartList();
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));

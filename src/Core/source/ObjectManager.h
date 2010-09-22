@@ -101,7 +101,7 @@ namespace Qtilities {
             // IFactory Implementation
             // -----------------------------------------
             QStringList factoryTags() const;
-            QObject* createInstance(const IFactoryData& ifactory_data);
+            QObject* createInstance(const IFactoryTag& ifactory_data);
 
             // --------------------------------
             // IObjectManager Implemenation

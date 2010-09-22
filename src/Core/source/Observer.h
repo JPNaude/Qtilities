@@ -156,7 +156,7 @@ namespace Qtilities {
             // Core Functions
             // --------------------------------
             //! Default constructor.
-            Observer(const QString& observer_name, const QString& observer_description, QObject* parent = 0);
+            Observer(const QString& observer_name = QString(), const QString& observer_description = QString(), QObject* parent = 0);
             //! Copy constructor.
             Observer(const Observer &other);
             virtual ~Observer();
@@ -189,6 +189,11 @@ namespace Qtilities {
             bool qtilitiesPropertyChangeEventsEnabled() const;
 
             // --------------------------------
+            // Factory Interface Implemenation
+            // --------------------------------
+            static FactoryItem<QObject, Observer> factory;
+
+            // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
@@ -198,7 +203,7 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IFactoryData factoryData() const;
+            IFactoryTag factoryData() const;
             virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!
@@ -233,7 +238,7 @@ namespace Qtilities {
               When subclassing from Observer, it might be neccesarry to set use different factory data settings from the default
               data used for a normal observer. Call this function in your subclass constructor to change your object's factory data.
               */
-            void setFactoryData(IFactoryData factory_data);
+            void setFactoryData(IFactoryTag factory_data);
 
             // --------------------------------
             // Functions related to item views viewing this observer and signal emission.

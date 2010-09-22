@@ -540,8 +540,8 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
+    IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
     return factoryData;
 }
 
@@ -555,7 +555,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Na
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    IFactoryData factory_data = factoryData();
+    IFactoryTag factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     stream << d->rollback_name;

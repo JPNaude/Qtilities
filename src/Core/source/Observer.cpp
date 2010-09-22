@@ -55,6 +55,12 @@
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 
+namespace Qtilities {
+    namespace Core {
+        FactoryItem<QObject, Observer> Observer::factory;
+    }
+}
+
 Qtilities::Core::Observer::Observer(const QString& observer_name, const QString& observer_description, QObject* parent) : QObject(parent) {
     // Initialize observer data
     observerData = new ObserverData();
@@ -63,9 +69,6 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     observerData->access_mode_scope = GlobalScope;
     observerData->access_mode = FullAccess;
     observerData->filter_subject_events_enabled = true;
-    observerData->subject_limit = -1;
-    observerData->subject_id_counter = 0;
-    observerData->subject_list.setObjectName(QString(tr("%1 Pointer List")).arg(observer_name));
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 
     // Register this observer with the observer manager
@@ -202,8 +205,8 @@ bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
     return observerData->deliver_qtilities_property_changed_events;
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::Observer::factoryData() const {
-    IFactoryData factory_data = observerData->factory_data;
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::Observer::factoryData() const {
+    IFactoryTag factory_data = observerData->factory_data;
     factory_data.d_instance_name = observerName();
     return factory_data;
 }
@@ -225,14 +228,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     bool complete = true;
 
     // First export the factory data of this observer:
-    IFactoryData factory_data = factoryData();
+    IFactoryTag factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // It also excludes the factory data which was stream above.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     stream << MARKER_OBSERVER_SECTION;
-    observerData->exportBinary(stream,params);
+    if (observerData->exportBinary(stream,params) == IExportable::Failed) {
+        LOG_ERROR(tr("Observer binary export failed during ObserverData export. Export will fail."));
+        return IExportable::Failed;
+    }
+
     stream << MARKER_OBSERVER_SECTION;
 
     // Stream details about the subject filters in to be added to the observer.
@@ -340,20 +347,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
-        LOG_ERROR("Observer binary import failed to detect marker located after factory data. Import will fail.");
+        LOG_ERROR(tr("Observer binary import failed to detect marker located after factory data. Import will fail."));
         endProcessingCycle();
         return IExportable::Failed;
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     if (observerData->importBinary(stream,import_list,params) == IExportable::Failed) {
-        LOG_ERROR("Observer binary import failed during observer data import. Import will fail.");
+        LOG_ERROR(tr("Observer binary import failed during ObserverData import. Import will fail."));
         endProcessingCycle();
         return IExportable::Failed;
     }
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
-        LOG_ERROR("Observer binary import failed to detect marker located after observer data. Import will fail.");
+        LOG_ERROR(tr("Observer binary import failed to detect marker located after ObserverData. Import will fail."));
         endProcessingCycle();
         return IExportable::Failed;
     }
@@ -365,7 +372,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     int subject_filter_count = ui32;
     for (int i = 0; i < subject_filter_count; i++) {
         // Get the factory data of the subject filter:
-        IFactoryData factoryData;
+        IFactoryTag factoryData;
         if (!factoryData.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
@@ -391,7 +398,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         return IExportable::Failed;
     }
 
-
     // Count the number of IExportable subjects first.
     qint32 iface_count = 0;
     stream >> iface_count;
@@ -403,27 +409,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (!success)
             break;
 
-        IFactoryData factoryData;
+        IFactoryTag factoryData;
         if (!factoryData.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
         }
-        if (!factoryData.isValid()) {
-            LOG_TRACE(QString(tr("%1/%2: Importing a standard observer...")).arg(i+1).arg(iface_count));
-            Observer* new_obs = new Observer(factoryData.d_instance_name,QString());
-            new_obs->setObjectName(factoryData.d_instance_name);
-            success = attachSubject(new_obs,Observer::ManualOwnership,0,true);
-            import_list.append(new_obs);
-            IExportable::Result result = new_obs->importBinary(stream, import_list);
-            if (result == IExportable::Complete) {
-                OBJECT_MANAGER->importObjectProperties(new_obs,stream);
-            } else if (result == IExportable::Incomplete) {
-                OBJECT_MANAGER->importObjectProperties(new_obs,stream);
-                complete = false;
-            } else if (result == IExportable::Failed) {
-                success = false;
-            }
-        } else {
+        if (factoryData.isValid()) {
             LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
             IFactory* ifactory = OBJECT_MANAGER->factoryReference(factoryData.d_factory_tag);
@@ -606,7 +597,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (dataChild.tagName() == "SubjectFilter") {
                     // Construct and init the subject filter:
-                    IFactoryData factoryData(doc,&dataChild);
+                    IFactoryTag factoryData(doc,&dataChild);
                     if (factoryData.isValid()) {
                         QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
                         if (obj) {
@@ -656,7 +647,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (childrenChild.tagName() == "TreeItem") {
                     // Construct and init the child:
-                    IFactoryData factoryData(doc,&childrenChild);
+                    IFactoryTag factoryData(doc,&childrenChild);
                     if (factoryData.isValid()) {
                         QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
                         if (obj) {
@@ -800,7 +791,7 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::Interfaces::IFactoryData factory_data) {
+void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::Interfaces::IFactoryTag factory_data) {
     if (factory_data.isValid())
         observerData->factory_data = factory_data;
 }

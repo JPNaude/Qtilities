@@ -82,7 +82,7 @@ namespace Qtilities {
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
                 virtual ExportModeFlags supportedFormats() const = 0;
                 //! The factory data which must be used when the exported object is reconstructed during an import.
-                virtual IFactoryData factoryData() const = 0;
+                virtual IFactoryTag factoryData() const = 0;
 
                 //----------------------------
                 // Binary Exporting

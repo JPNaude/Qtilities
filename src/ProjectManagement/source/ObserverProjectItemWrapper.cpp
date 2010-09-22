@@ -100,8 +100,8 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectMana
     return flags;
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
-    return IFactoryData();
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
+    return IFactoryTag();
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {

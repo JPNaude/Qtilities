@@ -149,30 +149,8 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
 bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
 
-    // Get a list of all the project items in the system.
-    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
-    QList<IProjectItem*> projectItems;
-    QStringList itemNames;
-    bool success = true;
-    // Check all items
-    for (int i = 0; i < projectItemObjects.count(); i++) {
-        IProjectItem* part = qobject_cast<IProjectItem*> (projectItemObjects.at(i));
-        if (part) {
-            if (!itemNames.contains(part->projectItemName())) {
-                projectItems.append(part);
-                LOG_INFO(QString(tr("Project Manager: Found project item: %1")).arg(part->projectItemName()));
-            } else {
-                LOG_ERROR(tr("The project manager found duplicate project items called: ") + part->projectItemName() + tr(", the second occurance is on object: ") + projectItemObjects.at(i)->objectName());
-                success = false;
-            }
-        } else {
-            LOG_ERROR(tr("The project manager found in invalid project item interface on object: ") + projectItemObjects.at(i)->objectName());
-            success = false;
-        }
-    }
-    PROJECT_MANAGER->setProjectItemList(projectItems);
-
-    return success;
+    PROJECT_MANAGER->refreshPartList();
+    return true;
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::finalize() {

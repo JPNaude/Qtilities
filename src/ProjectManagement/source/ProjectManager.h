@@ -178,6 +178,8 @@ namespace Qtilities {
             QString currentProjectFileName() const;
             //! Returns an interface to the current project.
             IProject* currentProject() const;
+            //! Refreshes the project part list by scanning the global object pool.
+            void refreshPartList();
 
             // ----------------------------------------------
             // Functions related to the project manager state

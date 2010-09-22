@@ -192,7 +192,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             file.close();
             return false;
         }
-        stream >>d->project_name;
+        stream >> d->project_name;
         quint32 project_item_count;
         stream >> project_item_count;
 

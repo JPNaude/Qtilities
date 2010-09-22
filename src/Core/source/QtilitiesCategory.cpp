@@ -47,8 +47,8 @@ Qtilities::Core::IExportable::ExportModeFlags Qtilities::Core::CategoryLevel::su
     return flags;
 }
 
-Qtilities::Core::IFactoryData Qtilities::Core::CategoryLevel::factoryData() const {
-    return IFactoryData();
+Qtilities::Core::IFactoryTag Qtilities::Core::CategoryLevel::factoryData() const {
+    return IFactoryTag();
 }
 
 Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportBinary(QDataStream& stream, QList<QVariant> params) const {
@@ -146,7 +146,7 @@ void Qtilities::Core::QtilitiesCategory::addLevel(CategoryLevel category_level) 
     d_category_levels.push_back(category_level);
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::QtilitiesCategory::factoryData() const {
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::QtilitiesCategory::factoryData() const {
     return factoryData();
 }
 

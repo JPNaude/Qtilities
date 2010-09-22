@@ -52,6 +52,8 @@ namespace Qtilities {
             const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "Activity Policy Filter";
             //! %Factory tag for subject type filters.
             const char * const FACTORY_TAG_SUBJECT_TYPE_FILTER      = "Subject Type Filter";
+            //! %Factory tag for observers.
+            const char * const FACTORY_TAG_OBSERVER                 = "Observer";
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
             const char * const CONTEXT_STANDARD                     = "General.Standard";
         }

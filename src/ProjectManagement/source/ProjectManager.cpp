@@ -35,7 +35,7 @@
 #include "Project.h"
 #include "ProjectManagementConfig.h"
 
-#include <Logger.h>
+#include <QtilitiesCore>
 
 #include <QMutex>
 #include <QCoreApplication>
@@ -46,10 +46,8 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-using namespace Qtilities::Core;
-using namespace Qtilities::Core::Interfaces;
+using namespace QtilitiesCore;
 using namespace Qtilities::ProjectManagement::Constants;
-using namespace Qtilities::Logging;
 
 struct Qtilities::ProjectManagement::ProjectManagerData  {
     ProjectManagerData() : current_project(0),
@@ -280,6 +278,31 @@ QString Qtilities::ProjectManagement::ProjectManager::currentProjectFileName() c
 
 Qtilities::ProjectManagement::IProject* Qtilities::ProjectManagement::ProjectManager::currentProject() const {
     return d->current_project;
+}
+
+void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
+    // Get a list of all the project items in the system.
+    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
+    QList<IProjectItem*> projectItems;
+    QStringList itemNames;
+    bool success = true;
+    // Check all items
+    for (int i = 0; i < projectItemObjects.count(); i++) {
+        IProjectItem* part = qobject_cast<IProjectItem*> (projectItemObjects.at(i));
+        if (part) {
+            if (!itemNames.contains(part->projectItemName())) {
+                projectItems.append(part);
+                LOG_INFO(QString(tr("Project Manager: Found project item: %1")).arg(part->projectItemName()));
+            } else {
+                LOG_ERROR(tr("The project manager found duplicate project items called: ") + part->projectItemName() + tr(", the second occurance is on object: ") + projectItemObjects.at(i)->objectName());
+                success = false;
+            }
+        } else {
+            LOG_ERROR(tr("The project manager found in invalid project item interface on object: ") + projectItemObjects.at(i)->objectName());
+            success = false;
+        }
+    }
+    setProjectItemList(projectItems);
 }
 
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() {

@@ -554,8 +554,8 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
     return false;
 }
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ActivityPolicyFilter::factoryData() const {
-    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::ActivityPolicyFilter::factoryData() const {
+    IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
     return factoryData;
 }
 
@@ -569,7 +569,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Activ
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    IFactoryData factory_data = factoryData();
+    IFactoryTag factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     stream << (quint32) d->activity_policy;
