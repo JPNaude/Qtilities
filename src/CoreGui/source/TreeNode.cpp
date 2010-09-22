@@ -206,18 +206,29 @@ Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QStrin
     }
 }
 
-bool Qtilities::CoreGui::TreeNode::addItem(TreeItem* item, const QtilitiesCategory& category) {
+bool Qtilities::CoreGui::TreeNode::addNodeFromFile(QString file_name, const QtilitiesCategory& category, QString* errorMsg) {
+    TreeNode* new_node = new TreeNode();
+    if (new_node->loadFromFile(file_name,errorMsg,false) != IExportable::Failed) {
+        new_node->setCategory(category,this);
+        return attachSubject(new_node,Observer::ObserverScopeOwnership);
+    } else {
+        delete new_node;
+        return false;
+    }
+}
+
+bool Qtilities::CoreGui::TreeNode::addItem(TreeItemBase* item, const QtilitiesCategory& category) {
     if (!item)
         return false;
     item->setCategory(category,this);
-    return attachSubject(item);
+    return attachSubject(item,Observer::ObserverScopeOwnership);
 }
 
 bool Qtilities::CoreGui::TreeNode::addNode(TreeNode* node, const QtilitiesCategory& category) {
     if (!node)
         return false;
     node->setCategory(category,this);
-    return attachSubject(node);
+    return attachSubject(node,Observer::ObserverScopeOwnership);
 }
 
 bool Qtilities::CoreGui::TreeNode::removeItem(const QString& name) {
@@ -228,18 +239,21 @@ bool Qtilities::CoreGui::TreeNode::removeItem(const QString& name) {
         return false;
 }
 
-bool Qtilities::CoreGui::TreeNode::removeItem(TreeItem* item) {
+bool Qtilities::CoreGui::TreeNode::removeItem(TreeItemBase* item) {
     return detachSubject(item);
 }
 
-bool Qtilities::CoreGui::TreeNode::removeNode(TreeNode* node) {
+bool Qtilities::CoreGui::TreeNode::removeNode(TreeItemBase* node) {
     return detachSubject(node);
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg) const {
     QFile file(file_name);
-    if(!file.open(QFile::WriteOnly))
+    if(!file.open(QFile::WriteOnly)) {
+        if (errorMsg)
+            *errorMsg = QString(tr("TreeNode could not be saved to file. File \"%1\" could not be opened in WriteOnly mode.")).arg(file_name);
         return IExportable::Failed;
+    }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -252,16 +266,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     // Do XML export in observer base class:
     QDomElement rootItem = doc.createElement("Root");
     root.appendChild(rootItem);
-    exportXML(&doc,&rootItem);
+    IExportable::Result result = exportXML(&doc,&rootItem);
+    if (result == IExportable::Failed && errorMsg)
+        *errorMsg = QString(tr("XML exporting on the observer base class failed. Please see the log for details."));
 
     // Put the complete doc in a string and save it to the file:
+    // Still write it even if it fails so that we can check the output file for debugging purposes.
     QString docStr = doc.toString(2);
     file.write(docStr.toAscii());
     file.close();
 
     QApplication::restoreOverrideCursor();
-
-    return IExportable::Complete;
+    return result;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::loadFromFile(const QString& file_name, QString* errorMsg, bool clear_first) {
@@ -291,6 +307,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
 
     startProcessingCycle();
 
+    IExportable::Result result = IExportable::Complete;
+    QList<QPointer<QObject> > internal_import_list;
     // Interpret the loaded doc:
     QDomElement root = doc.documentElement();
     QDomNodeList childNodes = root.childNodes();
@@ -302,7 +320,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
             continue;
 
         if (child.tagName() == "Root") {
-            importXML(&doc,&child);
+            // Restore the instance name:
+            if (child.hasAttribute("Name"))
+                setObjectName(child.attribute("Name"));
+
+            // Do import on observer base class:
+            IExportable::Result intermediate_result = importXML(&doc,&child,internal_import_list);
+            if (intermediate_result == IExportable::Failed) {
+                if (errorMsg)
+                    *errorMsg = QString(tr("XML importing on the observer base class failed. Please see the log for details."));
+                result = intermediate_result;
+                // Handle deletion of internal_import_list;
+                // Delete the first item in the list (the top item) and the rest should be deleted.
+                // For the subjects with manual ownership we delete the remaining items in the list manually.
+                while (internal_import_list.count() > 0) {
+                    if (internal_import_list.at(0) != 0) {
+                        delete internal_import_list.at(0);
+                        internal_import_list.removeAt(0);
+                    } else{
+                        internal_import_list.removeAt(0);
+                    }
+                }
+                break;
+            } else if (intermediate_result == IExportable::Incomplete)
+                result = intermediate_result;
         }
     }
 
@@ -310,5 +351,5 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     refreshViewsLayout();
 
     QApplication::restoreOverrideCursor();
-    return IExportable::Complete;
+    return result;
 }

@@ -35,27 +35,55 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "QtilitiesCoreConstants.h"
 
+#include <QDomElement>
+
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Constants;
 
-struct Qtilities::CoreGui::TreeFileItemData {
-    TreeFileItemData() : is_modified(false) { }
+namespace Qtilities {
+    namespace CoreGui {
+        FactoryItem<QObject, TreeFileItem> TreeFileItem::factory;
+    }
+}
 
-    //! Stores if this tree item is modified.
-    bool        is_modified;
-};
-
-Qtilities::CoreGui::TreeFileItem::TreeFileItem(QObject* parent) : QObject(parent) {
-    itemData = new TreeFileItemData;
+Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_name, QObject* parent) : TreeItemBase(TreeFileItem::strippedName(file_name), parent) {
+    treeFileItemBase = new TreeFileItemData;
+    setFileName(file_name);
 }
 
 Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
-    delete itemData;
+    delete treeFileItemBase;
+}
+
+void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, bool broadcast) {
+    if (file_name == treeFileItemBase->file_name)
+        return;
+
+    treeFileItemBase->file_name = file_name;
+    setObjectName(strippedName(file_name));
+
+    if (broadcast)
+        setModificationState(true,IModificationNotifier::NotifyListeners);
+
+    emit fileNameChanged(file_name);
+}
+
+QString Qtilities::CoreGui::TreeFileItem::fileName() const {
+    return treeFileItemBase->file_name;
+}
+
+bool Qtilities::CoreGui::TreeFileItem::exists() const {
+    QFileInfo file_info(treeFileItemBase->file_name);
+    return file_info.exists();
+}
+
+QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
+    return strippedFileExtension(treeFileItemBase->file_name);
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::TreeFileItem::factoryData() const {
-    IFactoryData factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,tr("Tree Building Blocks"));
-    return factoryData;
+    treeFileItemBase->factoryData.d_instance_name = objectName();
+    return treeFileItemBase->factoryData;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::TreeFileItem::supportedFormats() const {
@@ -80,30 +108,35 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
+    // 1. Factory attributes is added to this item's node:
+    factoryData().exportXML(doc,object_node);
+
+    // 2. The data of this item is added to a new data node:
+    QDomElement item_data = doc->createElement("Data");
+    object_node->appendChild(item_data);
+
+    // 2.1 Formatting:
+    IExportable::Result result = saveFormattingToXML(doc,&item_data);
+
+    // 2.2 File Information:
+    QDomElement file_data = doc->createElement("File");
+    item_data.appendChild(file_data);
+    file_data.setAttribute("FileName",treeFileItemBase->file_name);
+
+    return result;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
-    return IExportable::Incomplete;
+    return loadFormattingFromXML(doc,object_node);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
-    Q_UNUSED(params)
-
-    return IExportable::Incomplete;
+void Qtilities::CoreGui::TreeFileItem::setFactoryData(IFactoryData factoryData) {
+    treeFileItemBase->factoryData = factoryData;
 }
-
-
-bool Qtilities::CoreGui::TreeFileItem::isModified() const {
-    return itemData->is_modified;
-}
-
-void Qtilities::CoreGui::TreeFileItem::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
-    itemData->is_modified = new_state;
-    if (notification_targets & IModificationNotifier::NotifyListeners) {
-        emit modificationStateChanged(new_state);
-    }
-}
-

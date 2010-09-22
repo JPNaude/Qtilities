@@ -35,8 +35,11 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "QtilitiesCoreConstants.h"
 
+#include <IFactory>
+
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Constants;
+using namespace Qtilities::Core;
 
 #include <QDomElement>
 
@@ -47,19 +50,16 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::TreeItemData {
-    TreeItemData() : is_modified(false) { }
-
-    //! Stores if this tree item is modified.
-    bool        is_modified;
+    TreeItemData() { }
 };
 
-Qtilities::CoreGui::TreeItem::TreeItem(const QString& name, QObject* parent) : QObject(parent), AbstractTreeItem() {
-    itemData = new TreeItemData;
+Qtilities::CoreGui::TreeItem::TreeItem(const QString& name, QObject* parent) : TreeItemBase(name,parent) {
+    d = new TreeItemData;
     setObjectName(name);
 }
 
 Qtilities::CoreGui::TreeItem::~TreeItem() {
-    delete itemData;
+    delete d;
 }
 
 Qtilities::Core::Interfaces::IFactoryData Qtilities::CoreGui::TreeItem::factoryData() const {
@@ -104,22 +104,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
     return loadFormattingFromXML(doc,object_node);
-}
-
-bool Qtilities::CoreGui::TreeItem::isModified() const {
-    return itemData->is_modified;
-}
-
-void Qtilities::CoreGui::TreeItem::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
-    itemData->is_modified = new_state;
-    if (notification_targets & IModificationNotifier::NotifyListeners) {
-        emit modificationStateChanged(new_state);
-    }
 }
 

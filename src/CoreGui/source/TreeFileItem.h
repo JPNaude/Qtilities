@@ -35,63 +35,114 @@
 #define TREE_FILE_ITEM_H
 
 #include "QtilitiesCoreGui_global.h"
-#include "AbstractTreeItem.h"
-
-#include <IModificationNotifier>
-#include <IExportable>
+#include "TreeItem.h"
+#include "QtilitiesCoreGuiConstants.h"
 
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
+        using namespace Qtilities::CoreGui::Constants;
 
         /*!
         \struct TreeFileItemData
         \brief Structure used by TreeFileItem to store private data.
           */
-        struct TreeFileItemData;
+        struct TreeFileItemData {
+            TreeFileItemData() : file_name(QString()),
+            factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
+
+            QString file_name;
+            IFactoryData factoryData;
+        };
 
         /*!
           \class TreeFileItem
           \brief The TreeFileItem class is an item in a tree which can be used to easily represent files.
 
-          This class was added in %Qtilities v0.2.
+          The TreeFileItem tree item is derived from TreeItem can provided functionality to represent a file
+          in a tree. This functionality includes:
+          - A QFile representing the file is stored.
+          - Importing/exporting of the file path is done automatically.
+          - It is possible to format the tree item depending on the file. You can for example color files which does not exist
+          red and one that does exist green etc.
+
+          <i>This class was added in %Qtilities v0.2.</i>
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeFileItem : public QObject, public AbstractTreeItem, public IExportable, public IModificationNotifier
+        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeFileItem : public TreeItemBase
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
-            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
-            TreeFileItem(QObject* parent = 0);
+            TreeFileItem(const QString& file_name = QString(), QObject* parent = 0);
             virtual ~TreeFileItem();
+
+            //! Sets the file name of this file model.
+            /*!
+              \param file_name The new file name.
+              \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
+              */
+            virtual void setFileName(const QString& file_name, bool broadcast = true);
+            //! Returns the file name of the file represented by this file model.
+            QString fileName() const;
+            //! Returns true if the file exists, false otherwise.
+            virtual bool exists() const;
+            //! Returns the file extension of the file represented by this file model.
+            QString fileExtension() const;
+
+            //! Returns the file path of the specified file name.
+            static QString strippedPath(const QString &fullFileName) {
+                QFileInfo file_info(fullFileName);
+                return file_info.path();
+            }
+
+            //! Returns the file name stripped from the file path. Thus, only the file name.
+            static QString strippedName(const QString &fullFileName) {
+                QString stripped_name = QFileInfo(fullFileName).fileName();
+                if (stripped_name.endsWith("\""))
+                    stripped_name.chop(1);
+
+                return stripped_name;
+            }
+
+            //! Returns the file type stripped from the file path and file name. Thus, only the file extension.
+            static QString strippedFileExtension(const QString &fullFileName) {
+                QFileInfo file_info(fullFileName);
+                QString extension = file_info.fileName().split(".").last();
+                if (extension.endsWith("\""))
+                    extension.chop(1);
+
+                return extension;
+            }
+
+            // --------------------------------
+            // Factory Interface Implemenation
+            // --------------------------------
+            static FactoryItem<QObject, TreeFileItem> factory;
 
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
             QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
             // --------------------------------
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             IFactoryData factoryData() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
-            // --------------------------------
-            // IModificationNotifier Implementation
-            // --------------------------------
-            bool isModified() const;
-        public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
         signals:
-            void modificationStateChanged(bool is_modified) const;
+            //! Signal which is emitted when the file name of this tree file item changes:
+            void fileNameChanged(const QString& new_file_name);
 
         protected:
-            TreeFileItemData* itemData;
+            void setFactoryData(IFactoryData factoryData);
+            TreeFileItemData* treeFileItemBase;
         };
     }
 }

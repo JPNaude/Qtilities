@@ -35,7 +35,7 @@
 #define TREE_ITEM_H
 
 #include "QtilitiesCoreGui_global.h"
-#include "AbstractTreeItem.h"
+#include "TreeItemBase.h"
 
 #include <IModificationNotifier>
 #include <IExportable>
@@ -54,14 +54,12 @@ namespace Qtilities {
           \class TreeItem
           \brief The TreeItem class is an item in a tree. It can be attached to a TreeNode.
 
-          This class was added in %Qtilities v0.2.
+          <i>This class was added in %Qtilities v0.2.</i>
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeItem : public QObject, public AbstractTreeItem, public IExportable,
-                                                          public IModificationNotifier
+        class QTILITIES_CORE_GUI_SHARED_EXPORT TreeItem : public TreeItemBase
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
-            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_PROPERTY(QFont Font READ getFont WRITE setFont)
             Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
             Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
@@ -93,19 +91,10 @@ namespace Qtilities {
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
-
-            // --------------------------------
-            // IModificationNotifier Implementation
-            // --------------------------------
-            bool isModified() const;
-        public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
-        signals:
-            void modificationStateChanged(bool is_modified) const;
+            Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         protected:
-            TreeItemData* itemData;
+            TreeItemData* d;
         };
     }
 }

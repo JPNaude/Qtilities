@@ -65,7 +65,7 @@ namespace Qtilities {
           All items in a TreeNode is attached to the Qtilities::Core::Observer subclass using Qtilities::Core::Observer::ObserverScopeOwnership. Thus
           when an item appears once in a tree it will be deleted when removed from the TreeNode. However if an item
           appears multiple times, it will not be deleted when removed from a single TreeNode. This way trees build using
-          TreeNode and TreeItem manages the lifetimes of all items in the tree automatically and cleans up after the
+          TreeNode and TreeItemBase based objects manages the lifetimes of all items in the tree automatically and cleans up after the
           developer automatically.
 
           \section tree_node_building_trees Building trees using TreeNode and TreeItem
@@ -146,12 +146,20 @@ tree_widget->show();
           The above example will show a formatted tree as shown below:
           \image html trees_simple_example_formatted.jpg "Simple Tree Example With Formatting"
 
-          \section tree_node_subject_filters Easy to control names and activity
+          \section tree_node_other_features Other features.
+
           The TreeNode class provides the enableNamingControl() and enableActivityControl() functions which
           allows control over names and activity without having to create, set up and install subject
-          filters manually.
+          filters manually. Even if you did not call enableNamingControl() or enableActivityControl() and you
+          installed such filters manually on the Observer base class, you can access these filters using
+          namingPolicyFilter() or activityPolicyFilter().
 
-          This class was added in %Qtilities v0.2.
+          To get the number of tree items in the complete tree under this node, use treeCount(). The
+          treeChildren() function returns a list of all the tree items under this node and we can look for a specific
+          child using treeContains() function. A specific child can be accessed from the treeChildren() list using
+          treeAt().
+
+          <i>This class was added in %Qtilities v0.2.</i>
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT TreeNode : public Observer, public AbstractTreeItem, public IExportableFormatting
         {
@@ -175,6 +183,9 @@ tree_widget->show();
             IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const;
             IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node);
 
+            // --------------------------------
+            // TreeNode Implementation
+            // --------------------------------
             //! Enables categorized display on this node.
             /*!
               This is a convenience function which sets the Qtilities::Core::ObserverHints::CategorizedHierarchy hint on
@@ -266,7 +277,7 @@ tree_widget->show();
               \note This tree node will manage the lifetime of the new tree node.
               */
             TreeNode* addNode(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
-            //! Creates a new tree item and then add it as a tree item under this node.
+            //! Adds a tree item under this node.
             /*!
               \param item The reference to the item to be added to this tree.
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
@@ -274,8 +285,8 @@ tree_widget->show();
 
               \note This tree node will manage the lifetime of the tree item.
               */
-            bool addItem(TreeItem* item, const QtilitiesCategory& category = QtilitiesCategory());
-            //! Creates a new tree node and then add it as a tree item under this node.
+            bool addItem(TreeItemBase* item, const QtilitiesCategory& category = QtilitiesCategory());
+            //! Adds a tree mode under this node.
             /*!
               \param node The reference to the node to be added to this tree.
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
@@ -284,6 +295,16 @@ tree_widget->show();
               \note This tree node will manage the lifetime of the node item.
               */
             bool addNode(TreeNode* node, const QtilitiesCategory& category = QtilitiesCategory());
+            //! Adds a tree mode under this from a file.
+            /*!
+              \param file_name The file name to be parsed.
+              \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
+              \param errorMessage If this function returns false the reason why it failed is available through this parameter if a valid QString reference is provided.
+              \returns True if the node was attached successfully, false otherwise.
+
+              \note This tree node will manage the lifetime of the node item.
+              */
+            bool addNodeFromFile(QString file_name, const QtilitiesCategory& category = QtilitiesCategory(), QString* errorMsg = 0);
             //! Removes the tree item or tree node specified by \p name from this tree node.
             /*!
               \param item The name of the tree item or tree node to be removed.
@@ -300,17 +321,18 @@ tree_widget->show();
               \param item The reference to the item to be removed from this tree.
               \returns True if the item was removed successfully, false otherwise.
               */
-            bool removeItem(TreeItem* item);
+            bool removeItem(TreeItemBase* item);
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param item The reference to the node to be removed from this tree.
               \returns True if the node was removed successfully, false otherwise.
               */
-            bool removeNode(TreeNode* node);
+            bool removeNode(TreeItemBase* node);
 
             //! Saves the tree under this tree node to an XML file.
             /*!
               \param file_name The file name from to which the file must be saved.
+              \param errorMessage If this function returns IExportable::Failed the reason why it failed is available through this parameter if a valid QString reference is provided.
               \returns Result of the operation.
 
               \sa loadFromFile()
@@ -320,6 +342,7 @@ tree_widget->show();
             /*!
               \param file_name The file name from which the tree must be loaded.
               \param clear_first When true, all items under this tree is deleted first. When false, the items in the input file will be added to the current set of items under this tree node.
+              \param errorMessage If this function returns IExportable::Failed the reason why it failed is available through this parameter if a valid QString reference is provided.
               \returns Result of the operation.
 
               \sa saveToFile()
