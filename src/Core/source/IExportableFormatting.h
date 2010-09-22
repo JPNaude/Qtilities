@@ -47,6 +47,8 @@ namespace Qtilities {
             /*!
             \class IExportableFormatting
             \brief This interface allows object base classes to export formatting information which requires QtGui from within a library which does not use QtGui.
+
+            <i>This class was added in %Qtilities v0.2.</i>
               */
             class QTILIITES_CORE_SHARED_EXPORT IExportableFormatting : virtual public IObjectBase {
             public:
