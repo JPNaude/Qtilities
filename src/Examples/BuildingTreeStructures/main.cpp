@@ -34,9 +34,7 @@
 #include <QApplication>
 
 #include <QtilitiesCoreGui>
-using namespace Qtilities::Core;
-using namespace Qtilities::CoreGui;
-using namespace Qtilities::CoreGui::Icons;
+using namespace QtilitiesCoreGui;
 
 int main(int argc, char *argv[])
 {
@@ -49,27 +47,22 @@ int main(int argc, char *argv[])
     // Create the tree nodes:
     TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
-    TreeNode* nodeB = nodeA->addNode("Node B");
-    TreeNode* nodeC = nodeA->addNode("Node C");
-    nodeB->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
-    /*ObserverHints::DisplayFlags display_flags = 0;
-    display_flags |= ObserverHints::ItemView;
-    display_flags |= ObserverHints::NavigationBar;
-    display_flags |= ObserverHints::ActionToolBar;
-    nodeA->displayHints()->setDisplayFlagsHint(display_flags);
-    nodeB->displayHints()->setDisplayFlagsHint(display_flags);
-    nodeC->displayHints()->setDisplayFlagsHint(display_flags);*/
-    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
-    nodeB->setCategorizedDisplayEnabled(true);
 
-    // Create the tree items:
-    nodeA->addItem("Item 1")->setToolTip("Hello, I'm a ToolTip.");
-    nodeB->addItem("Item 2",QtilitiesCategory("Test Category::Sub Category","::"));
+    // Some TreeItem classes:
+    TreeNode* nodeB = nodeA->addNode("Tree Items");
+    nodeB->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
+    nodeB->addItem("Item 1");
+    nodeB->addItem("Item 2");
     nodeB->addItem("Item 3");
     nodeB->addItem("Item 4");
     nodeB->addItem("Item 5");
-    TreeItem* active_item = nodeB->addItem("Item 6");
+    nodeB->addItem("Item 6");
     nodeB->addItem("Item 7");
+
+    // Some TreeFileItem classes:
+    TreeNode* nodeC = nodeA->addNode("File Tree Items");
+    TreeFileItem* file_item = new TreeFileItem("c:/test_dir/test.xml");
+    nodeC->addItem(file_item);
 
     // Add some formatting to the nodes:
     /*nodeA->setForegroundRole(QBrush(Qt::darkRed));
@@ -92,14 +85,17 @@ int main(int argc, char *argv[])
     nodeC->endProcessingCycle();*/
 
     // Test activity:
-    QList<QObject*> active_subjects;
+    /*QList<QObject*> active_subjects;
     active_subjects << active_item;
-    nodeB->activityPolicyFilter()->setActiveSubjects(active_subjects);
+    nodeB->activityPolicyFilter()->setActiveSubjects(active_subjects);*/
 
     // Test XML tree streaming:
     QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
     nodeA->saveToFile(path_formatted);
     nodeA->loadFromFile(path_formatted);
+
+    QString path_test = QString("%1/working_tree.xml").arg(QApplication::applicationDirPath());
+    nodeA->addNodeFromFile(path_test);
 
     // Create an observer widget wih the items:
     ObserverWidget* tree_widget = new ObserverWidget();
