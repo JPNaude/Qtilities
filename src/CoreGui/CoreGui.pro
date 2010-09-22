@@ -96,8 +96,10 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/TreeNode.h \
     source/AbstractTreeItem.h \
     source/TreeItem.h \
-    source/ObserverTreeModelProxyFilter.h
-    # source/TreeFileItem.h
+    source/ObserverTreeModelProxyFilter.h \
+    source/TreeFileItem.h \
+    source/TreeItemBase.h
+
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
     source/ObserverWidget.cpp \
@@ -140,8 +142,9 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/TreeNode.cpp \
     source/AbstractTreeItem.cpp \
     source/TreeItem.cpp \
-    source/ObserverTreeModelProxyFilter.cpp
-    # source/TreeFileItem.cpp
+    source/ObserverTreeModelProxyFilter.cpp \
+    source/TreeFileItem.cpp \
+    source/TreeItemBase.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
