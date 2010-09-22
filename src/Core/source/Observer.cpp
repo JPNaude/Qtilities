@@ -346,8 +346,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
-    if (!observerData->importBinary(stream,import_list,params)) {
-        LOG_ERROR("Observer binary import failed to during observer data import. Import will fail.");
+    if (observerData->importBinary(stream,import_list,params) == IExportable::Failed) {
+        LOG_ERROR("Observer binary import failed during observer data import. Import will fail.");
         endProcessingCycle();
         return IExportable::Failed;
     }
@@ -377,7 +377,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                 new_filter->importBinary(stream,import_list);
                 installSubjectFilter(new_filter);
             } else {
-                LOG_ERROR(QString("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...").arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
+                LOG_ERROR(QString(tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...")).arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
                 endProcessingCycle();
                 return IExportable::Failed;
             }
@@ -386,7 +386,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
-        LOG_ERROR("Observer binary import failed to detect marker located after subject filters. Import will fail.");
+        LOG_ERROR(tr("Observer binary import failed to detect marker located after subject filters. Import will fail."));
         endProcessingCycle();
         return IExportable::Failed;
     }
@@ -481,8 +481,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    IExportable::Result result = IExportable::Complete;
+
     // 1. Factory attributes is added to this item's node:
-    factoryData().exportXML(doc,object_node);
+    if (factoryData().exportXML(doc,object_node) == IExportable::Failed)
+        return IExportable::Failed;
 
     // 2. The data of this item is added to a new data node:
     QDomElement subject_data = doc->createElement("Data");
@@ -499,7 +502,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
         if (observerData->display_hints->isExportable()) {
             QDomElement hints_data = doc->createElement("ObserverHints");
             subject_data.appendChild(hints_data);
-            observerData->display_hints->exportXML(doc,&hints_data,params);
+            if (observerData->display_hints->exportXML(doc,&hints_data,params) == IExportable::Failed)
+                return IExportable::Failed;
         }
     }
 
@@ -507,14 +511,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         QDomElement subject_filter = doc->createElement("SubjectFilter");
         subject_data.appendChild(subject_filter);
-        observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter);
-        observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params);
+        if (observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter) == IExportable::Failed)
+            return IExportable::Failed;
+        if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
+            return IExportable::Failed;
     }
 
     // 2.4 Formatting:
     IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (objectBase());
     if (formatting_iface) {
-        formatting_iface->exportFormattingXML(doc,&subject_data);
+        if (formatting_iface->exportFormattingXML(doc,&subject_data) == IExportable::Failed)
+            return IExportable::Failed;
     }
 
     // 3. All the children of this item is exported:
@@ -548,22 +555,26 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                 }
 
                 // 3. Factory Data:
-                export_iface->factoryData().exportXML(doc,&subject_item);
-                // Don't know why this does not work at this stage....
-                // Must sort out at some stage in the future.
-                //subject_item.removeAttribute(QString("InstanceTag"));
+                if (export_iface->factoryData().exportXML(doc,&subject_item) == IExportable::Failed)
+                    return IExportable::Failed;
 
                 // Now we let the export iface export whatever it need to export:
-                export_iface->exportXML(doc,&subject_item,params);
+                IExportable::Result intermediate_result = export_iface->exportXML(doc,&subject_item,params);
+                if (intermediate_result == IExportable::Failed)
+                    return IExportable::Failed;
+                else if (intermediate_result == IExportable::Incomplete)
+                    result = intermediate_result;
             }
         }
     }
 
-    return IExportable::Complete;
+    return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(params)
+
+    IExportable::Result result = IExportable::Complete;
 
     // All children underneath the root element gets constructed in here:
     QList<QObject*> constructed_list;
@@ -588,7 +599,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (dataChild.tagName() == "ObserverHints") {
                     useDisplayHints();
-                    observerData->display_hints->importXML(doc,&dataChild);
+                    if (observerData->display_hints->importXML(doc,&dataChild,import_list) == IExportable::Failed)
+                        return IExportable::Failed;
                     continue;
                 }
 
@@ -601,18 +613,29 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                             obj->setObjectName(factoryData.d_instance_name);
                             AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
                             if (abstract_filter) {
-                                abstract_filter->importXML(doc,&dataChild);
-                                installSubjectFilter(abstract_filter);
+                                if (abstract_filter->importXML(doc,&dataChild,import_list) == IExportable::Failed) {
+                                    LOG_ERROR(QString(tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                    delete abstract_filter;
+                                    result = IExportable::Failed;
+                                }
+                                if (!installSubjectFilter(abstract_filter)) {
+                                    LOG_ERROR(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                    delete abstract_filter;
+                                }
                             }
                         }
-                    }
+                    } else
+                        LOG_WARNING(QString(tr("Found invalid factory data for subject filter on tree node: %1")).arg(objectName()));
                     continue;
                 }
 
                 if (dataChild.tagName() == "Formatting") {
                     IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (objectBase());
                     if (formatting_iface) {
-                        formatting_iface->importFormattingXML(doc,&dataChild);
+                        if (formatting_iface->importFormattingXML(doc,&dataChild)) {
+                            LOG_WARNING(QString(tr("Failed to import formatting for tree node: \"%1\"")).arg(objectName()));
+                            result = IExportable::Incomplete;
+                        }
                     }
                     continue;
                 }
@@ -641,9 +664,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                             IExportable* iface = qobject_cast<IExportable*> (obj);
                             if (iface) {
                                 // Now that we created the item, init its data and children:
-                                iface->importXML(doc,&childrenChild);
+                                iface->importXML(doc,&childrenChild,import_list);
                                 constructed_list << iface->objectBase();
-                                attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership);
+                                if (attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership))
+                                    import_list << obj;
+                                else {
+                                    LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
+                                    delete obj;
+                                    result = IExportable::Incomplete;
+                                }
 
                                 // Check if it is active:
                                 if (childrenChild.hasAttribute("Activity")) {
@@ -659,9 +688,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                     category_property.setValue(qVariantFromValue(category),observerID());
                                     Observer::setObserverProperty(iface->objectBase(),category_property);
                                 }
+                            } else {
+                                LOG_WARNING(QString(tr("Found invalid exportable on reconstructed object in tree node: %1")).arg(objectName()));
+                                return IExportable::Failed;
                             }
                         }
-                    }
+                    } else
+                        LOG_WARNING(QString(tr("Found invalid factory data for child on tree node: %1")).arg(objectName()));
                     continue;
                 }
             }
@@ -681,7 +714,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
     }
 
-    return IExportable::Complete;
+    return result;
 }
 
 bool Qtilities::Core::Observer::isModified() const {
@@ -1216,7 +1249,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     LOG_DEBUG(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
 
     // Emit neccesarry signals
-    if (!observerData->process_cycle_active && objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (!observerData->process_cycle_active) {
         QList<QObject*> objects;
         objects << obj;
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
@@ -1688,7 +1721,7 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     return QString();
 }
 
-int Qtilities::Core::Observer::childCount(const Observer* observer) const {
+int Qtilities::Core::Observer::treeCount(const Observer* observer) const {
     static int child_count;
 
     // We need to iterate over all child observers recursively
@@ -1705,18 +1738,63 @@ int Qtilities::Core::Observer::childCount(const Observer* observer) const {
         // Handle the case where the child is an observer.
         child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
         if (child_observer)
-            childCount(child_observer);
+            treeCount(child_observer);
         else {
             // Handle the case where the child is the parent of an observer
             foreach (QObject* child, observer->subjectAt(i)->children()) {
                 child_observer = qobject_cast<Observer*> (child);
                 if (child_observer)
-                    childCount(child_observer);
+                    treeCount(child_observer);
             }
         }
     }
 
     return child_count;
+}
+
+QObject* Qtilities::Core::Observer::treeAt(int i) const {
+    if (i < 0)
+        return 0;
+
+    QList<QObject*> list = treeChildren();
+    if (i >= list.count())
+        return 0;
+
+    return list.at(i);
+}
+
+bool Qtilities::Core::Observer::treeContains(QObject* tree_item) const {
+     return treeChildren().contains(tree_item);
+}
+
+QList<QObject*> Qtilities::Core::Observer::treeChildren(const Observer* observer) const {
+    static QList<QObject*> children;
+
+    // We need to iterate over all children recursively:
+    if (!observer) {
+        children.clear();
+        observer = this;
+    }
+
+    children << observer->subjectReferences();
+
+    Observer* child_observer = 0;
+    for (int i = 0; i < observer->subjectCount(); i++) {
+        // Handle the case where the child is an observer.
+        child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
+        if (child_observer)
+            treeChildren(child_observer);
+        else {
+            // Handle the case where the child is the parent of an observer
+            foreach (QObject* child, observer->subjectAt(i)->children()) {
+                child_observer = qobject_cast<Observer*> (child);
+                if (child_observer)
+                    treeChildren(child_observer);
+            }
+        }
+    }
+
+    return children;
 }
 
 QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const {

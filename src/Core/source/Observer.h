@@ -211,7 +211,7 @@ namespace Qtilities {
               binary exports.
               */
             virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implementation
@@ -570,13 +570,30 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
             inline QString observerDescription() const { return observerData->observer_description; }
             //! Returns the uqniue ID assigned to this observer by the ObjectManager.
             inline int observerID() const { return observerData->observer_id; }
-            //! Returns the number of subjects currently observed by the observer. This function is different from getChildCount() which gets all the children underneath an observer (Thus, children of children etc.)
+            //! Returns the number of subjects currently observed by the observer.
+            /*!
+                This function is different from treeChildCount() which gets all the children underneath an observer (Thus, children of children etc.).
+                */
             inline int subjectCount() const { return observerData->subject_list.count(); }
             //! Function to get the number of children under the specified observer.
             /*!
                 This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
+
+                \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
                 */
-            int childCount(const Observer* observer = 0) const;
+            int treeCount(const Observer* observer = 0) const;
+            //! Function to get a QObject* reference at a specific location in the tree underneath this observer.
+            /*!
+              If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
+              */
+            QObject* treeAt(int i) const;
+            //! Function to check if a specific AbstractTreeItem is contained in the tree underneath this node.
+            bool treeContains(QObject* tree_item) const;
+            //! Function to get the QOBject references of all items in the tree underneath this observer.
+            /*!
+              \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
+              */
+            QList<QObject*> treeChildren(const Observer* observer = 0) const;
             //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subject names are returned.
             QStringList subjectNames(const QString& iface = QString()) const;
             //! Returns the subject reference at a given position.
