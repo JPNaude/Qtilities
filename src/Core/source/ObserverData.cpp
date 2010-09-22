@@ -111,6 +111,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         return display_hints->importBinary(stream,import_list,params);
     } else
         return IExportable::Complete;
+
+    return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
@@ -140,8 +142,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(doc)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
     if (object_node->hasAttribute("SubjectLimit"))
         subject_limit = object_node->attribute("SubjectLimit").toInt();
@@ -151,6 +155,38 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         access_mode = Observer::stringToAccessMode(object_node->attribute("AccessMode"));
     if (object_node->hasAttribute("AccessModeScope"))
         access_mode_scope = Observer::stringToAccessModeScope(object_node->attribute("AccessModeScope"));
+
+    // Category stuff:
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "Categories") {
+            QDomNodeList categoryNodes = child.childNodes();
+            for(int i = 0; i < categoryNodes.count(); i++)
+            {
+                QDomNode categoryNode = categoryNodes.item(i);
+                QDomElement category = categoryNode.toElement();
+
+                if (category.isNull())
+                    continue;
+
+                if (category.tagName() == "Categories") {
+                    QtilitiesCategory new_category;
+                    new_category.importXML(doc,&category,import_list);
+                    if (new_category.isValid())
+                        categories << new_category;
+                    continue;
+                }
+            }
+            continue;
+        }
+    }
 
     return IExportable::Complete;
 }
