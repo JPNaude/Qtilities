@@ -230,6 +230,8 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
         file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
+
+    PROJECT_MANAGER->openProject(file_name);
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectClose() {
@@ -263,6 +265,8 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
         file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
+
+    PROJECT_MANAGER->saveProject(file_name);
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_projectStateChanged() {
