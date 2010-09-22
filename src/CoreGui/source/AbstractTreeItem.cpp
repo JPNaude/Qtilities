@@ -59,7 +59,62 @@ QString Qtilities::CoreGui::AbstractTreeItem::getName(TreeNode* parent) const {
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, TreeNode* parent) {
+    Q_ASSERT(objectBase());
+    if (!objectBase())
+        return;
 
+    // First check if this item has a name manager, if not we just need to set the object name:
+    // If it has a name manager, it will have the OBJECT_NAME property.
+    QVariant name_property = parent->getObserverPropertyValue(objectBase(),OBJECT_NAME);
+    if (!name_property.isValid()) {
+        // Just set the object name, we also let views know that the data in the parent context needs to be updated:
+        objectBase()->setObjectName(new_name);
+        parent->refreshViewsData();
+    } else {
+        // If there is an OBJECT_NAME property we need to check if parent is the name manager or not.
+        // Three things can happen in here:
+        // 1. Parent is the name manager
+        // 2. Parent uses an instance name
+        // 3. Parent does not have a naming policy filter, in that case we need to set OBJECT_NAME and the name manager
+        //    will take care of the rest.
+
+        // Get the naming policy filter:
+        NamingPolicyFilter* filter = parent->namingPolicyFilter();
+        if (filter) {
+            if (filter->isObjectNameManager(objectBase())) {
+                // Case 1:
+                // We use the OBJECT_NAME property:
+                QVariant object_name_prop;
+                object_name_prop = objectBase()->property(OBJECT_NAME);
+                if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
+                    SharedObserverProperty name_property(QVariant(new_name),OBJECT_NAME);
+                    QVariant property = qVariantFromValue(name_property);
+                    objectBase()->setProperty(OBJECT_NAME,QVariant(property));
+                }
+            } else {
+                // We use the INSTANCE_NAMES property:
+                // Case 2:
+                QVariant instance_names_prop;
+                instance_names_prop = objectBase()->property(INSTANCE_NAMES);
+                if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>()) {
+                    ObserverProperty new_instance_name = instance_names_prop.value<ObserverProperty>();
+                    new_instance_name.setValue(QVariant(new_name),parent->observerID());
+                    objectBase()->setProperty(INSTANCE_NAMES,qVariantFromValue(new_instance_name));
+                }
+            }
+
+        } else {
+            // Case 3:
+            // We use the OBJECT_NAME property:
+            QVariant object_name_prop;
+            object_name_prop = objectBase()->property(OBJECT_NAME);
+            if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
+                SharedObserverProperty name_property(QVariant(new_name),OBJECT_NAME);
+                QVariant property = qVariantFromValue(name_property);
+                objectBase()->setProperty(OBJECT_NAME,QVariant(property));
+            }
+        }
+    }
 }
 
 IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node) const {
@@ -181,29 +236,66 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+    if (!category.isValid() || !tree_node)
+        return;
+
+    setCategory(category,tree_node->observerID());
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(TreeNode* tree_node) const {
+    if (!tree_node)
+        return QtilitiesCategory();
+    else
+        return getCategory(tree_node->observerID());
+}
+
+void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
     if (!category.isValid())
         return;
 
     QObject* obj = objectBase();
-    if (obj && tree_node) {
+    Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
+    if (obj && obs) {
         if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
             ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
-            category_property.setValue(qVariantFromValue(category),tree_node->observerID());
+            category_property.setValue(qVariantFromValue(category),observer_id);
             Observer::setObserverProperty(obj,category_property);
         } else {
             ObserverProperty category_property(OBJECT_CATEGORY);
-            category_property.setValue(qVariantFromValue(category),tree_node->observerID());
+            category_property.setValue(qVariantFromValue(category),observer_id);
             Observer::setObserverProperty(obj,category_property);
         }
     }
 }
 
-Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(TreeNode* tree_node) const {
-    const QObject* obj = objectBase();
-    if (obj && tree_node) {
-        QVariant category_variant = tree_node->getObserverPropertyValue(obj,OBJECT_CATEGORY);
-        if (category_variant.isValid()) {
-            return category_variant.value<QtilitiesCategory>();
+QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer_id) const {
+    // When observer_id = -1, we return the category of the first parent:
+    if (observer_id == -1) {
+        // Check the parent count:
+        if (Observer::parentCount(objectBase()) != 1) {
+            Q_ASSERT(Observer::parentCount(objectBase()) != 1);
+            LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+        } else {
+            ObserverProperty prop = Observer::getObserverProperty(objectBase(),OBSERVER_SUBJECT_IDS);
+            if (prop.isValid()) {
+                int id = prop.observerMap().keys().at(0);
+                Observer* obs = OBJECT_MANAGER->observerReference(id);
+                if (obs) {
+                    QVariant category_variant = obs->getObserverPropertyValue(objectBase(),OBJECT_CATEGORY);
+                    if (category_variant.isValid()) {
+                        return category_variant.value<QtilitiesCategory>();
+                    }
+                }
+            }
+        }
+    } else {
+        const QObject* obj = objectBase();
+        Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
+        if (obj && obs) {
+            QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            if (category_variant.isValid()) {
+                return category_variant.value<QtilitiesCategory>();
+            }
         }
     }
 

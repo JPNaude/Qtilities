@@ -63,7 +63,7 @@ namespace Qtilities {
           \class AbstractTreeItem
           \brief The AbstractTreeItem is an abstract base class which can be used to build tree items.
 
-          This class was added in %Qtilities v0.2.
+          <i>This class was added in %Qtilities v0.2.</i>
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT AbstractTreeItem : virtual public IObjectBase
         {
@@ -89,8 +89,8 @@ namespace Qtilities {
             /*!
               This function will add a formatting node to \p object_node with the formatting information of this item.
               At present the following information is part of the formatting export:
-              - Background Color
-              - Foreground Color
+              - Background Color (Only the color)
+              - Foreground Color (Only the color)
               - Size Hint
               - Status Tip
               - Tool Tip
@@ -109,10 +109,23 @@ namespace Qtilities {
             // -------------------------------
             // Getter & Setter functions for object role properties
             // -------------------------------
-            //! Sets the category of the tree item.
+            //! Sets the category of the tree item in the specified tree node.
             void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
-            //! Gets the category of the tree item.
-            QtilitiesCategory getCategory(TreeNode* tree_node) const;           
+            //! Gets the category of the tree item in the specified tree node.
+            /*!
+              \param tree_node The node context for which the category must be obtained for..
+              */
+            QtilitiesCategory getCategory(TreeNode* tree_node) const;
+            //! Sets the category of the tree item in the context specified by the given observer ID.
+            void setCategory(const QtilitiesCategory& category, int observer_id);
+            //! Gets the category of the tree item in the context specified by the given observer ID.
+            /*!
+              \param observer_id The observer ID of the context for which the category must be obtained for. When 0,
+              the function will assume that the item only has 1 parent and it will check if it has only one
+              parent and if so, return the category for that parent. If it has more than one parent, the function
+              will print an error message in release mode and assert id debug mode.
+              */
+            QtilitiesCategory getCategory(int observer_id = -1) const;
             //! Checks if the item has a category.
             bool hasCategory() const;
             //! Sets the tool tip of the tree item.
