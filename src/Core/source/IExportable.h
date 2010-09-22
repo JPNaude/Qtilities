@@ -107,7 +107,7 @@ namespace Qtilities {
                 //! Allows exporting to an XML document. A reference to the QDomElement to which the object's information must be added is provided, along with a reference to the QDomDocument.
                 virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const = 0;
                 //! Allows importing and reconstruction of data from information provided in a XML document. A reference to the QDomElement which contains the object's information is provided, along with a reference to the QDomDocument.
-                virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) = 0;
+                virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) = 0;
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
