@@ -119,9 +119,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
         return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     if (d->observer)
-        return d->observer->importXML(doc,object_node,params);
+        return d->observer->importXML(doc,object_node,import_list,params);
     else
         return IExportable::Incomplete;
 }
