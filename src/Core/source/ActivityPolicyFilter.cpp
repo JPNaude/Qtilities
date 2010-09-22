@@ -605,9 +605,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
     IExportable::Result result = IExportable::Incomplete;
 

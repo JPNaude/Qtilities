@@ -39,6 +39,8 @@
 
 #include <QMutex>
 #include <QVariant>
+#include <QDomElement>
+#include <QDomDocument>
 
 using namespace Qtilities::Core::Constants;
 
@@ -260,13 +262,79 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     Q_UNUSED(object_node)
     Q_UNUSED(params)
 
-    return IExportable::Incomplete;
+    QDomElement filter_data = doc->createElement("Data");
+    object_node->appendChild(filter_data);
+    if (d->inversed_filtering)
+        filter_data.setAttribute("InversedFiltering","True");
+    if (!d->known_objects_group_name.isEmpty())
+        filter_data.setAttribute("GroupName",d->known_objects_group_name);
+
+    // Categories:
+    if (d->known_subject_types.count() > 0) {
+        QDomElement known_type_node = doc->createElement("KnownTypes");
+        object_node->appendChild(known_type_node);
+        for (int i = 0; i < d->known_subject_types.count(); i++) {
+            QDomElement known_type = doc->createElement("Type");
+            known_type_node.appendChild(known_type);
+            known_type.setAttribute("MetaType",d->known_subject_types.at(i).d_meta_type);
+            known_type.setAttribute("Name",d->known_subject_types.at(i).d_name);
+        }
+    }
+
+    return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(params)
+    Q_UNUSED(import_list)
 
-    return IExportable::Incomplete;
+    if (object_node->hasAttribute("InversedFiltering")) {
+        if (object_node->attribute("InversedFiltering") == QString("True"))
+            d->inversed_filtering = true;
+        else
+            d->inversed_filtering = false;
+    }
+    if (object_node->hasAttribute("GroupName"))
+        d->known_objects_group_name = object_node->attribute("GroupName");
+
+    // Known types stuff:
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++)
+    {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "KnownTypes") {
+            QDomNodeList knownTypesNodes = child.childNodes();
+            for(int i = 0; i < knownTypesNodes.count(); i++)
+            {
+                QDomNode knownTypesNode = knownTypesNodes.item(i);
+                QDomElement knownType = knownTypesNode.toElement();
+
+                if (knownType.isNull())
+                    continue;
+
+                if (knownType.tagName() == "Type") {
+                    QString meta_type = knownType.attribute("MetaType");
+                    QString name = knownType.attribute("Name");
+                    if (meta_type.isEmpty() || name.isEmpty()) {
+                        LOG_ERROR(tr("Invalid subject type filter parameters detected. This filter will not be included in the parsed tree."));
+                        return IExportable::Failed;
+                    }
+                    SubjectTypeInfo new_type(meta_type, name);
+                    d->known_subject_types << new_type;
+                    continue;
+                }
+            }
+            continue;
+        }
+    }
+
+
+    return IExportable::Complete;
 }
