@@ -38,8 +38,8 @@
 
 using namespace Qtilities::Core::Interfaces;
 
-Qtilities::Core::Interfaces::IFactoryData Qtilities::Core::ObserverData::factoryData() const {
-    return IFactoryData();
+Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::ObserverData::factoryData() const {
+    return IFactoryTag();
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ObserverData::supportedFormats() const {
