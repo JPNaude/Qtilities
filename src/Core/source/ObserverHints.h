@@ -209,7 +209,7 @@ namespace Qtilities {
               \sa setDisplayFlagsHint(), displayFlagsHint()
               */
             enum DisplayFlag {
-                NoDisplayFlagsHint = 1,     /*!< No display flags hint. Uses ItemView by default. */
+                NoDisplayFlagsHint = 3,     /*!< No display flags hint. Uses ItemView | NavigationBar by default. */
                 ItemView = 1,               /*!< Display the item view (TreeView, TableView etc.). The item view is always displayed when using the Qtilities::CoreGui::ObserverWidget widget.*/
                 NavigationBar = 2,          /*!< Display the navigation bar in TableViews. */
                 PropertyBrowser = 4,        /*!< Display the property browser. When %Qtilities is build with the QTILITIES_NO_PROPERTY_BROWSER variable defined, this value is meaningless.*/
@@ -286,10 +286,10 @@ activity_display(ObserverHints::NoActivityDisplayHint),
 activity_control(ObserverHints::NoActivityControlHint),
 item_selection_control(ObserverHints::SelectableItems),
 hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
-display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
+display_flags(NoDisplayFlagsHint),
 item_view_column_hint(ObserverHints::NoItemViewColumnHint),
 drag_drop_flags(ObserverHints::NoDragDrop);
-action_hints(ObserverHints::None),
+action_hints(ObserverHints::ActionNoHints),
 category_list(QStringList()),
 inverse_categories(true),
 category_filter_enabled(false),
@@ -417,7 +417,7 @@ is_exportable(true)
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------
             // IModificationNotifier Implemenation

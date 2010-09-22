@@ -42,7 +42,7 @@ struct Qtilities::Core::ObserverHintsData {
         activity_control(ObserverHints::NoActivityControlHint),
         item_selection_control(ObserverHints::SelectableItems),
         hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
-        display_flags(ObserverHints::ItemView | ObserverHints::NavigationBar),
+        display_flags(ObserverHints::NoDisplayFlagsHint),
         item_view_column_hint(ObserverHints::ColumnNoHints),
         action_hints(ObserverHints::ActionNoHints),
         drag_drop_flags(ObserverHints::NoDragDrop),
@@ -578,13 +578,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
         object_node->setAttribute("DragDropFlags",dragDropFlagsToString(d->drag_drop_flags));
     if (d->hierarhical_display != NoHierarchicalDisplayHint)
         object_node->setAttribute("HierarchicalDisplay",hierarchicalDisplayToString(d->hierarhical_display));
-    if (d->item_view_column_hint != NoItemSelectionControlHint)
+    if (d->item_view_column_hint != SelectableItems)
         object_node->setAttribute("ItemSelectionControl",itemSelectionControlToString(d->item_selection_control));
     if (d->item_view_column_hint != ColumnNoHints)
         object_node->setAttribute("ItemViewColumnFlags",itemViewColumnFlagsToString(d->item_view_column_hint));
     if (d->naming_control != NoNamingControlHint)
         object_node->setAttribute("NamingControl",namingControlToString(d->naming_control));
-    if (d->observer_selection_context != NoObserverSelectionContextHint)
+    if (d->observer_selection_context != SelectionUseParentContext)
         object_node->setAttribute("ObserverSelectionContext",observerSelectionContextToString(d->observer_selection_context));
 
     // Export category related stuff only if it is neccesarry:
@@ -612,7 +612,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
     Q_UNUSED(params)
 
@@ -668,7 +668,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
 
                 if (category.tagName() == "Categories") {
                     QtilitiesCategory new_category;
-                    new_category.importXML(doc,&category);
+                    new_category.importXML(doc,&category,import_list);
                     if (new_category.isValid())
                         d->displayed_categories << new_category;
                     continue;
