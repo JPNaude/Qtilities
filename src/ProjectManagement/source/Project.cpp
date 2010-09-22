@@ -77,7 +77,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
     LOG_DEBUG(tr("Starting to save current project to file: ") + file_name);
 
     if (file_name.endsWith(".xml")) {
-    return true;
+        return true;
     } else if (file_name.endsWith(".prj")) {
         QTemporaryFile file;
         file.open();
@@ -176,17 +176,20 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
         if (marker != (quint32) QTILITIES_BINARY_EXPORT_FORMAT) {
             LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_BINARY_EXPORT_FORMAT));
+            file.close();
             return false;
         }
         stream >> marker;
         LOG_INFO(QString(tr("Inspecting project file format: Application binary export file format version: %1")).arg(marker));
         if (marker != PROJECT_MANAGER->projectFileVersion()) {
             LOG_ERROR(QString(tr("Project file format does not match the expected application binary export file format (expected version: %1). Project will not be loaded.")).arg(PROJECT_MANAGER->projectFileVersion()));
+            file.close();
             return false;
         }
         stream >> marker;
         if (marker != MARKER_PROJECT_SECTION) {
             LOG_ERROR(tr("Project file does not contain valid project data. Project will not be loaded. Path: ") + file_name);
+            file.close();
             return false;
         }
         stream >>d->project_name;
@@ -203,6 +206,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
         if (item_names != item_names_readback) {
             LOG_ERROR(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of projec items.") + file_name);
+            file.close();
             return false;
         }
 
@@ -214,7 +218,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
                 LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
                 IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
-                d->project_items.at(i)->exportBinary(stream);
                 if (item_result == IExportable::Failed) {
                     success = item_result;
                     break;
