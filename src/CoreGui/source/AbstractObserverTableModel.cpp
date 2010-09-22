@@ -291,14 +291,14 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
             Observer* observer = qobject_cast<Observer*> (obj);
             if (observer) {
-                return observer->childCount();
+                return observer->treeCount();
             } else {
                 // Handle the case where the child is the parent of an observer
                 int count = 0;
                 foreach (QObject* child, obj->children()) {
                     Observer* child_observer = qobject_cast<Observer*> (child);
                     if (child_observer)
-                        count += child_observer->childCount();
+                        count += child_observer->treeCount();
                 }
 
                 if (count == 0)

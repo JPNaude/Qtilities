@@ -407,10 +407,10 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
     // ------------------------------------
     } else if (index.column() == columnPosition(ColumnChildCount)) {
         if (role == Qt::DisplayRole) {
-            // Check if it is an observer, in that case we return childCount() on the observer
+            // Check if it is an observer, in that case we return treeCount() on the observer
             Observer* observer = qobject_cast<Observer*> (getItem(index)->getObject());
             if (observer) {
-                return observer->childCount();
+                return observer->treeCount();
             } else {
                 QObject* obj = getItem(index)->getObject();
                 // Handle the case where the child is the parent of an observer
@@ -418,7 +418,7 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
                 foreach (QObject* child, obj->children()) {
                     Observer* child_observer = qobject_cast<Observer*> (child);
                     if (child_observer)
-                        count += child_observer->childCount();
+                        count += child_observer->treeCount();
                 }
 
                 if (count == 0) {
