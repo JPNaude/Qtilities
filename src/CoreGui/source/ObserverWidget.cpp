@@ -365,7 +365,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Setup some flags and attributes for this widget the first time it is constructed.
         setAttribute(Qt::WA_DeleteOnClose, true);
         // Register contextString in the context manager.
-        OBJECT_MANAGER->registerObject(this,QtilitiesCategory("GUI::ObserverWidgets","::"));
+        OBJECT_MANAGER->registerObject(this,QtilitiesCategory("GUI::Observer Widgets","::"));
         constructActions();
     }
 
@@ -1573,7 +1573,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         object_list << d_observer;
         selectObjects(object_list);
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        // We must check if there is an selection parent, else use d_observer:
+        // We must check if there is a selection parent, else use d_observer:
         if (d->tree_model->selectionParent()) {
             Observer* selection_parent = d->tree_model->selectionParent();
             if (selection_parent->subjectCount() > 0)
@@ -2374,6 +2374,8 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
             d->initialized = false;
             refreshActions();
             d->initialized = true;
+            if (d->tree_view)
+                d->tree_view->setEnabled(false);
         } else {
             setObserverContext(d->top_level_observer);
             initialize();
@@ -2387,8 +2389,6 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
             d->update_selection_activity = true;
             */
         }
-        if (d->tree_view)
-            d->tree_view->setEnabled(false);
     } else if (d->display_mode == TableView) {
         d->initialized = false;
         refreshActions();
