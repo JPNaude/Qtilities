@@ -46,7 +46,9 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
         /*!
           \class CategoryLevel
-          \brief The CategoryLevel struct contains information for a single category level.
+          \brief The CategoryLevel class contains information for a single category level.
+
+          \sa QtilitiesCategory
 
           This class was added in %Qtilities v0.2.
          */

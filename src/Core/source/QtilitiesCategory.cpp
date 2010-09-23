@@ -146,7 +146,7 @@ void Qtilities::Core::QtilitiesCategory::addLevel(CategoryLevel category_level) 
     d_category_levels.push_back(category_level);
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::QtilitiesCategory::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::QtilitiesCategory::factoryData() const {
     return factoryData();
 }
 
