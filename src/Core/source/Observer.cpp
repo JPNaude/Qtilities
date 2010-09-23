@@ -119,22 +119,20 @@ Qtilities::Core::Observer::~Observer() {
                    delete obj;
                }
             } else if ((subject_ownership_variant.toInt() == ObserverScopeOwnership) && (parentCount(obj) == 1)) {
-               LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
-               if (!i.hasNext()) {
-                   delete obj;
-                   break;
-               }
-               else
-                   delete obj;
+                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
+                if (!i.hasNext()) {
+                    delete obj;
+                    break;
+                } else
+                    delete obj;
            } else if ((subject_ownership_variant.toInt() == OwnedBySubjectOwnership) && (parentCount(obj) == 1)) {
-              LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with OwnedBySubjectOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
-              if (!i.hasNext()) {
-                  delete obj;
-                  break;
-              } else {
-                  delete obj;
-              }
-           }
+                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with OwnedBySubjectOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
+                if (!i.hasNext()) {
+                    delete obj;
+                    break;
+                } else
+                    delete obj;
+            }
         }
     }
 
@@ -554,8 +552,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                     else
                         subject_item.setAttribute("Activity","Inactive");
                 }
-
-                // 3. Factory Data:
+                // 3. Ownership:
+                ObjectOwnership ownership = subjectOwnershipInContext(export_iface->objectBase());
+                if (ownership != ObserverScopeOwnership)
+                    subject_item.setAttribute("Ownership",objectOwnershipToString(ownership));
+                // 4. Factory Data:
                 if (export_iface->factoryData().exportXML(doc,&subject_item) == IExportable::Failed)
                     return IExportable::Failed;
 
@@ -633,7 +634,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                         result = IExportable::Failed;
                                     }
                                     if (!installSubjectFilter(abstract_filter)) {
-                                        LOG_ERROR(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\".")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                        LOG_DEBUG(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(factoryData.d_instance_tag).arg(objectName()));
                                         delete abstract_filter;
                                     }
                                 }
@@ -647,7 +648,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                 if (dataChild.tagName() == "Formatting") {
                     IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (objectBase());
                     if (formatting_iface) {
-                        if (formatting_iface->importFormattingXML(doc,&dataChild)) {
+                        if (formatting_iface->importFormattingXML(doc,&dataChild) != IExportable::Complete) {
                             LOG_WARNING(QString(tr("Failed to import formatting for tree node: \"%1\"")).arg(objectName()));
                             result = IExportable::Incomplete;
                         }
@@ -683,9 +684,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                 IExportable* iface = qobject_cast<IExportable*> (obj);
                                 if (iface) {
                                     // Now that we created the item, init its data and children:
-                                    iface->importXML(doc,&childrenChild,import_list);
+                                    IExportable::Result intermediate_result = iface->importXML(doc,&childrenChild,import_list);
+                                    if (intermediate_result != IExportable::Complete) {
+                                        LOG_WARNING(QString(tr("Failed to reconstruct object in tree node: %1. Import will be incomplete.")).arg(objectName()));
+                                        result = IExportable::Incomplete;
+                                    }
                                     constructed_list << iface->objectBase();
-                                    if (attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership))
+                                    // Check if we must restore the ownership is active:
+                                    ObjectOwnership ownership = Observer::ObserverScopeOwnership;
+                                    if (childrenChild.hasAttribute("Ownership")) {
+                                        ownership = stringToObjectOwnership(childrenChild.attribute("Ownership"));
+                                    }
+                                    if (attachSubject(iface->objectBase(),ownership))
                                         import_list << obj;
                                     else {
                                         LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
@@ -697,7 +707,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                     if (childrenChild.hasAttribute("Activity")) {
                                         if (childrenChild.attribute("Activity") == QString("Active"))
                                             active_subjects << iface->objectBase();
-                                    }
+                                    }                                    
 
                                    // We just created this object, it will not have a category property yet so no need to check if it has:
                                     if (childrenChild.hasAttribute("Category")) {
@@ -1731,7 +1741,7 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     if (!obj)
         return QString();
 
-    // Check if the object is in this context
+    // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
         // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
         QVariant instance_name = getObserverPropertyValue(obj,INSTANCE_NAMES);
@@ -1742,6 +1752,20 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     }
 
     return QString();
+}
+
+Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwnershipInContext(const QObject* obj) const {
+    if (!obj)
+        return ManualOwnership;
+
+    // Check if the object is in this context:
+    if (contains(obj) || contains(obj->parent())) {
+        QVariant current_ownership = getObserverPropertyValue(obj,OWNERSHIP);
+        Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
+        return ownership;
+    }
+
+    return ManualOwnership;
 }
 
 int Qtilities::Core::Observer::treeCount(const Observer* observer) const {

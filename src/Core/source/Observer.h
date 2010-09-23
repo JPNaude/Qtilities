@@ -89,7 +89,7 @@ namespace Qtilities {
             // --------------------------------
             // Enumerations
             // --------------------------------
-            //! This enumeration is used to return results when validating attaching and detaching of subjects.
+            //! This enumeration is used to return results when validating attachment and detachment of subjects.
             /*!
               \sa canAttach(), canDetach()
               */
@@ -574,6 +574,12 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
             QString observerName(int parent_id = -1) const;
             //! Returns the name used for the specified object in this context. QString() is returned if the object is not valid.
             QString subjectNameInContext(const QObject* obj) const;
+            //! Returns the ownership used for the specified object in this context.
+            /*!
+                If \p obj is not valid or contained in this context, ManualOwnership is returned. Thus you should
+                check if the object exists in this context using contains() before calling this function.
+              */
+            ObjectOwnership subjectOwnershipInContext(const QObject* obj) const;
             //! Returns the observer's description. For example, a variable workspace, or a logger engine manager etc.
             inline QString observerDescription() const { return observerData->observer_description; }
             //! Returns the uqniue ID assigned to this observer by the ObjectManager.
