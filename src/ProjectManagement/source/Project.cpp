@@ -347,11 +347,11 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO(tr("Successfully loaded complete project from file: ") + file_name);
+                LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete)
-                LOG_INFO(tr("Successfully loaded incomplete project from file: ") + file_name);
+                LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
         } else {
-            LOG_ERROR(tr("Failed to load project from file: ") + file_name);
+            LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
             return false;
         }
 
@@ -443,11 +443,11 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO(tr("Successfully loaded complete project from file: ") + file_name);
+                LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete)
-                LOG_INFO(tr("Successfully loaded incomplete project from file: ") + file_name);
+                LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
         } else {
-            LOG_ERROR(tr("Failed to load project from file: ") + file_name);
+            LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
             return false;
         }
 

@@ -152,6 +152,9 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::isModified() cons
 }
 
 void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (!d->observer)
+        return;
+
     if (notification_targets & IModificationNotifier::NotifyListeners)
         emit modificationStateChanged(new_state);
     if (notification_targets & IModificationNotifier::NotifySubjects)
