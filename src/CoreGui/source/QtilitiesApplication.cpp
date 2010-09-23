@@ -127,6 +127,9 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     // Register the naming policy filter in the object manager:
     FactoryTag tree_node_tag(FACTORY_TAG_TREE_NODE,QtilitiesCategory(tr("Tree Building Blocks")));
     QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&TreeNode::factory,tree_node_tag);
+    // Register the tree file item in the object manager:
+    FactoryTag tree_file_item_tag(FACTORY_TAG_TREE_FILE_ITEM,QtilitiesCategory(tr("Tree Building Blocks")));
+    QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&TreeFileItem::factory,tree_file_item_tag);
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {
