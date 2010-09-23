@@ -81,7 +81,7 @@ QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
     return strippedFileExtension(treeFileItemBase->file_name);
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::CoreGui::TreeFileItem::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::CoreGui::TreeFileItem::factoryData() const {
     treeFileItemBase->factoryData.d_instance_name = objectName();
     return treeFileItemBase->factoryData;
 }

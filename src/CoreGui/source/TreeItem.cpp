@@ -62,7 +62,7 @@ Qtilities::CoreGui::TreeItem::~TreeItem() {
     delete d;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::CoreGui::TreeItem::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::CoreGui::TreeItem::factoryData() const {
     IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
     return factoryData;
 }
@@ -77,16 +77,16 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Tr
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
+    // First export the factory data of this item:
+    IFactoryTag factory_data = factoryData();
+    factory_data.exportBinary(stream);
+
     return IExportable::Complete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(import_list)
     Q_UNUSED(params)
-
-    // First export the factory data of this item:
-    IFactoryTag factory_data = factoryData();
-    factory_data.exportBinary(stream);
 
     return IExportable::Complete;
 }

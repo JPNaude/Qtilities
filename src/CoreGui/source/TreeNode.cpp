@@ -60,7 +60,7 @@ Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""),
     IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_NODE,objectName());
     setFactoryData(factoryData);
 
-    // Tree nodes always uses display hints:
+    // Tree nodes always use display hints:
     useDisplayHints();
 }
 
@@ -307,10 +307,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
 
     startProcessingCycle();
 
-    IExportable::Result result = IExportable::Complete;
-    QList<QPointer<QObject> > internal_import_list;
     // Interpret the loaded doc:
     QDomElement root = doc.documentElement();
+
+    // Check the document version:
+    if (root.hasAttribute("DocumentVersion")) {
+        QString document_version = root.attribute("DocumentVersion");
+        if (document_version.toInt() > QTILITIES_XML_EXPORT_FORMAT) {
+            if (errorMsg)
+                *errorMsg = QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_XML_EXPORT_FORMAT);
+            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_XML_EXPORT_FORMAT));
+            QApplication::restoreOverrideCursor();
+            return IExportable::Failed;
+        }
+    } else {
+        if (errorMsg)
+            *errorMsg = QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed."));
+        LOG_ERROR(QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed.")));
+        QApplication::restoreOverrideCursor();
+        return IExportable::Failed;
+    }
+
+    // Now check out all the children below the root node:
+    IExportable::Result result = IExportable::Complete;
+    QList<QPointer<QObject> > internal_import_list;
     QDomNodeList childNodes = root.childNodes();
     for(int i = 0; i < childNodes.count(); i++) {
         QDomNode childNode = childNodes.item(i);

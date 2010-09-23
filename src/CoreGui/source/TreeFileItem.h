@@ -82,7 +82,7 @@ namespace Qtilities {
               \param file_name The new file name.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
               */
-            virtual void setFileName(const QString& file_name, bool broadcast = true);
+            void setFileName(const QString& file_name, bool broadcast = true);
             //! Returns the file name of the file represented by this file model.
             QString fileName() const;
             //! Returns true if the file exists, false otherwise.
