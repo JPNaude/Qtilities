@@ -130,7 +130,7 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::SubjectFilterTemplate::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::SubjectFilterTemplate::factoryData() const {
     IFactoryTag factoryData(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
     return factoryData;
 }

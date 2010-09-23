@@ -207,7 +207,7 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
     return d->inversed_filtering;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::SubjectTypeFilter::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::SubjectTypeFilter::factoryData() const {
     IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
     return factoryData;
 }
