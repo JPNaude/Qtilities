@@ -130,6 +130,22 @@ namespace Qtilities {
                       const QVariant& msg4 = QVariant(), const QVariant& msg5 = QVariant(),
                       const QVariant& msg6 = QVariant(), const QVariant& msg7 = QVariant(),
                       const QVariant& msg8 = QVariant(), const QVariant& msg9 = QVariant());
+            //! Function to log a priority message.
+            /*!
+              A priority message is handled in the same way as a normal message logged with logMessage() except that
+              it also emits the newPriorityMessage() signal. This allows selective messages to be emitted and
+              displayed in a convenient place in an application where all messages should not necessarily be displayed.
+              An example is the case where selective messages should be displayed in a status bar.
+
+              By default priority messages are unformatted and \p message is used.
+
+              \sa LOG_DEBUG_P, LOG_ERROR_P, LOG_WARNING_P, LOG_INFO_P, LOG_TRACE_P, LOG_FATAL_P
+              */
+            void logPriorityMessage(const QString& engine_name, MessageType message_type, const QVariant& message, const QVariant& msg1 = QVariant(),
+                      const QVariant& msg2 = QVariant(), const QVariant& msg3 = QVariant(),
+                      const QVariant& msg4 = QVariant(), const QVariant& msg5 = QVariant(),
+                      const QVariant& msg6 = QVariant(), const QVariant& msg7 = QVariant(),
+                      const QVariant& msg8 = QVariant(), const QVariant& msg9 = QVariant());
             /*void funcMessage(const QString& function_name, MessageType message_type, const QVariant& message, const QVariant& msg1 = QVariant(),
                       const QVariant& msg2 = QVariant(), const QVariant& msg3 = QVariant(),
                       const QVariant& msg4 = QVariant(), const QVariant& msg5 = QVariant(),
@@ -138,9 +154,27 @@ namespace Qtilities {
                       */
 
         public:
+            // -----------------------------------------
             // Functions related to formatting engines
+            // -----------------------------------------
+            //! Function to change the formatting engine used for priority messages.
+            /*!
+              \return True if successfull, thus a formatting engine called \p name could be found. False otherwise.
+              */
+            bool setPriorityFormattingEngine(const QString& name);
+            //! Function to change the formatting engine used for priority messages.
+            void setPriorityFormattingEngine(AbstractFormattingEngine* engine);
             //! Returns the names of all available formatting engines.
-            QStringList availableFormattingEngines();
+            /*!
+              The Logger provided a set of ready to use formatting engines and this function
+              provides the names which can be used to access these engines.
+
+              Note that the engines are registered in the logger during initialization,
+              thus you must call initialize() before this function will return anything meaningfull.
+
+              \sa initialize(), LOG_INITIALIZE
+              */
+            QStringList availableFormattingEngines() const;
             //! Returns a reference to the formatting engine specified by the name given.
             AbstractFormattingEngine* formattingEngineReference(const QString& name);
             //! Returns a reference to the formatting engine which provides the given file extension.
@@ -159,12 +193,12 @@ namespace Qtilities {
             void registerLoggerEngineFactory(const QString& tag, LoggerFactoryInterface<AbstractLoggerEngine>* factory_iface);
             //! Function used to get a QStringList with the tags of all available logger engines.
             QStringList availableLoggerEngines() const;
-            //! Provides a QStringList with the names of all attached formatting engines.
-            QStringList attachedFormattingEngineNames() const;
             //! Provides the number of attached formatting engines.
             int attachedFormattingEngineCount() const;
 
+            // -----------------------------------------
             // Functions related to enabled log level
+            // -----------------------------------------
             //! Sets the global log level. All messages are filtered by the logger according to the global log level before being sent to any logger engines.
             void setGlobalLogLevel(Logger::MessageType new_log_level);
             //! Returns the current global log level.
@@ -176,7 +210,9 @@ namespace Qtilities {
             //! Function which returns all available log level strings.
             QStringList allLogLevelStrings() const;
 
+            // -----------------------------------------
             // Functions related to updating of QSettings
+            // -----------------------------------------
             //! Stores the logging parameters using QSettings.
             void writeSettings() const;
             //! Reads the current logging paramaters stored in QSettings.
@@ -192,17 +228,21 @@ namespace Qtilities {
               */
             bool rememberSessionConfig() const;
 
+            // -----------------------------------------
             // Functions related to Qt Debugging output
+            // -----------------------------------------
             //! Installs the logger as the Qt Message Handler.
             void installAsQtMessageHandler(bool update_stored_settings = true);
             //! Uninstalls the logger as the Qt Message Handler.
             void uninstallAsQtMessageHandler();
             //! Returns true if the logger is the Qt Message Handler.
-            bool isQtMessageHandler();
+            bool isQtMessageHandler() const;
             //! Toggles the logger as the Qt Message Handler.
             void setIsQtMessageHandler(bool toggle);
 
+            // -----------------------------------------
             // Public functions related to attached logger eninges
+            // -----------------------------------------
             //! Deletes all logger engines, thus deactivate them.
             void deleteAllLoggerEngines();
             //! Disable all logger engines, thus deactivate them.
@@ -216,9 +256,9 @@ namespace Qtilities {
             //! Disables the specified backengineed.
             void disableEngine(const QString engine_name);
             //! Provides a QStringList with the names of all attached logger engines.
-            QStringList attachedLoggerEngineNames();            
+            QStringList attachedLoggerEngineNames() const;
             //! Provides the number of attached logger engines.
-            int attachedLoggerEngineCount();
+            int attachedLoggerEngineCount() const;
             //! Returns a reference to the logger known by the specified name.
             AbstractLoggerEngine* loggerEngineReference(const QString& engine_name);
             //! Returns a reference to the logger engine at a specific position.
@@ -226,7 +266,9 @@ namespace Qtilities {
             //! Creates a new logger with the parameters specified.
             AbstractLoggerEngine* newLoggerEngine(const QString& engine_tag, AbstractFormattingEngine* formatting_engine = 0);
 
+            // -----------------------------------------
             // Convenience functions to create engines
+            // -----------------------------------------
             //! Convenience function to create a new instance of a file engine.
             /*!
               \param engine The of the engine. This name can be used to reference the engine at a later stage.
@@ -259,6 +301,11 @@ namespace Qtilities {
         signals:
             //! Signal which is emitted when a new message was logged. The logger connects all logger engines to this signal.
             void newMessage(const QString& engine_name, Logger::MessageType message_type, const QList<QVariant>& message_contents);
+            //! Signal which is emitted when a new priority message was logged.
+            /*!
+              \sa logPriorityMessage();
+              */
+            void newPriorityMessage(Logger::MessageType message_type, const QString& formatted_message);
             //! Indicates that the number of logger engines changed.
             void loggerEngineCountChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication);
 
@@ -274,7 +321,9 @@ namespace Qtilities {
 
 Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 
-// Macro definitions
+// -----------------------------------
+// Macro Definitions
+// -----------------------------------
 //! The log macro which returns a pointer to the logger singleton instance.
 #define Log Qtilities::Logging::Logger::instance()
 //! Initializes the logger.
@@ -290,6 +339,9 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
     */
 #define LOG_FINALIZE() Log->finalize();
 
+// -----------------------------------
+// Basic Logging Macros
+// -----------------------------------
 //! Logs a trace message to all active engines.
 /*!
     \note Trace messages are not part of release mode builds.
@@ -309,7 +361,31 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 //! Logs an information message to all active engines.
 #define LOG_INFO(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Info, Msg)
 
-// - Engine Specific Logging
+// -----------------------------------
+// Priority Logging Macros
+// -----------------------------------
+//! Logs a priority trace message to all active engines.
+/*!
+    \note Trace messages are not part of release mode builds.
+  */
+#define LOG_TRACE_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Trace, Msg)
+//! Logs a priority debug message to all active engines.
+/*!
+    \note Debug messages are not part of release mode builds.
+  */
+#define LOG_DEBUG_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Debug, Msg)
+//! Logs a priority error message to all active engines.
+#define LOG_ERROR_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Error, Msg)
+//! Logs a priority warning message to all active engines.
+#define LOG_WARNING_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Warning, Msg)
+//! Logs a priority fatal message to all active engines.
+#define LOG_FATAL_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Fatal, Msg)
+//! Logs a priority information message to all active engines.
+#define LOG_INFO_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Info, Msg)
+
+// -----------------------------------
+// Engine Specific Logging
+// -----------------------------------
 //! Logs a trace message to the engine specified. Note that the engine must be active for the message to be logger.
 #define LOG_TRACE_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Trace, Msg)
 //! Logs a debug message to the engine specified. Note that the engine must be active for the message to be logger.

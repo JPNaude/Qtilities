@@ -53,6 +53,7 @@ struct Qtilities::Logging::LoggerData {
     bool initialized;
     bool is_qt_message_handler;
     bool remember_session_config;
+    QPointer<AbstractFormattingEngine> priority_formatting_engine;
 };
 
 Qtilities::Logging::Logger* Qtilities::Logging::Logger::m_Instance = 0;
@@ -81,6 +82,7 @@ Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
     d->global_log_level = Logger::Debug;
     d->initialized = false;
     d->remember_session_config = false;
+    d->priority_formatting_engine = 0;
 }
 
 Qtilities::Logging::Logger::~Logger()
@@ -181,12 +183,63 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
     emit newMessage(engine_name,message_type,message_contents);
 }
 
-QStringList Qtilities::Logging::Logger::availableFormattingEngines() {
+void Qtilities::Logging::Logger::logPriorityMessage(const QString& engine_name, MessageType message_type, const QVariant& message, const QVariant &msg1, const QVariant &msg2, const QVariant &msg3, const QVariant &msg4, const QVariant &msg5, const QVariant &msg6, const QVariant &msg7, const QVariant &msg8 , const QVariant &msg9) {
+    // In release mode we should not log debug and trace messages.
+    #ifdef QT_NO_DEBUG
+        if (message_type == Debug || message_type == Trace)
+            return;
+    #endif
+
+    if (message_type == AllLogLevels || message_type == None)
+        return;
+
+    if (message_type > d->global_log_level)
+        return;
+
+    QList<QVariant> message_contents;
+    message_contents.push_back(message);
+    if (!msg1.isNull()) message_contents.push_back(msg1);
+    if (!msg2.isNull()) message_contents.push_back(msg2);
+    if (!msg3.isNull()) message_contents.push_back(msg3);
+    if (!msg4.isNull()) message_contents.push_back(msg4);
+    if (!msg5.isNull()) message_contents.push_back(msg5);
+    if (!msg6.isNull()) message_contents.push_back(msg6);
+    if (!msg7.isNull()) message_contents.push_back(msg7);
+    if (!msg8.isNull()) message_contents.push_back(msg8);
+    if (!msg9.isNull()) message_contents.push_back(msg9);
+
+    emit newMessage(engine_name,message_type,message_contents);
+
+    QString formatted_message;
+    if (d->priority_formatting_engine) {
+        formatted_message = d->priority_formatting_engine->formatMessage(message_type,message_contents);
+    } else
+        formatted_message = message.toString();
+
+    emit newPriorityMessage(message_type,formatted_message);
+}
+
+bool Qtilities::Logging::Logger::setPriorityFormattingEngine(const QString& name) {
+    if (!availableFormattingEngines().contains(name))
+        return false;
+
+    if (d->priority_formatting_engine)
+        delete d->priority_formatting_engine;
+
+    d->priority_formatting_engine = formattingEngineReference(name);
+    return true;
+}
+
+void Qtilities::Logging::Logger::setPriorityFormattingEngine(AbstractFormattingEngine* engine) {
+    if (engine)
+        d->priority_formatting_engine = engine;
+}
+
+QStringList Qtilities::Logging::Logger::availableFormattingEngines() const {
     QStringList names;
     for (int i = 0; i < d->formatting_engines.count(); i++) {
-        names << d->formatting_engines.at(i)->objectName();
+        names << d->formatting_engines.at(i)->name();
     }
-
     return names;
 }
 
@@ -234,14 +287,6 @@ QStringList Qtilities::Logging::Logger::availableLoggerEngines() const {
     return d->logger_engine_factory.tags();
 }
 
-QStringList Qtilities::Logging::Logger::attachedFormattingEngineNames() const {
-    QStringList names;
-    for (int i = 0; i < d->formatting_engines.count(); i++) {
-        names << d->formatting_engines.at(i)->name();
-    }
-    return names;
-}
-
 int Qtilities::Logging::Logger::attachedFormattingEngineCount() const {
     return d->formatting_engines.count();
 }
@@ -254,7 +299,7 @@ bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_lo
     if (initialize_engine) {
         bool init_result = new_logger_engine->initialize();
         if (!init_result) {
-            LOG_ERROR("New file logger engine could not be added, it failed during initialization.");
+            LOG_ERROR(tr("New file logger engine could not be added, it failed during initialization."));
             delete new_logger_engine;
             new_logger_engine = 0;
             return false;
@@ -386,7 +431,7 @@ void Qtilities::Logging::Logger::disableEngine(const QString engine_name) {
     engine->setActive(true);
 }
 
-QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() {
+QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() const {
     QStringList names;
     for (int i = 0; i < d->logger_engines.count(); i++) {
         names << d->logger_engines.at(i)->name();
@@ -394,7 +439,7 @@ QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() {
     return names;
 }
 
-int Qtilities::Logging::Logger::attachedLoggerEngineCount() {
+int Qtilities::Logging::Logger::attachedLoggerEngineCount() const {
     return d->logger_engines.count();
 }
 
@@ -490,7 +535,7 @@ void Qtilities::Logging::Logger::uninstallAsQtMessageHandler() {
     LOG_INFO("Capturing of Qt debug system messages is now disabled.");
 }
 
-bool Qtilities::Logging::Logger::isQtMessageHandler() {
+bool Qtilities::Logging::Logger::isQtMessageHandler() const {
     return d->is_qt_message_handler;
 }
 
