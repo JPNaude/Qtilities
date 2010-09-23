@@ -42,7 +42,6 @@
 
 namespace Qtilities {
     namespace Core {
-
         //! Factory interface which is used by factories to create instances of registered class types.
         /*!
           This class defines the interface used by the Factory class. The FactoryItem class is an implementation
