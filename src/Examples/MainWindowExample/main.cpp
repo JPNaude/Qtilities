@@ -60,6 +60,14 @@ int main(int argc, char *argv[])
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
+    // We show a splash screen in this example:
+    QPixmap pixmap(QTILITIES_LOGO_BT_300x300);
+    QSplashScreen *splash = new QSplashScreen(pixmap);
+    splash->setWindowFlags(Qt::SplashScreen | Qt::WindowStaysOnTopHint);
+    splash->show();
+    QObject::connect(ExtensionSystemCore::instance(),SIGNAL(newProgressMessage(QString)),splash,SLOT(showMessage(QString)));
+    a.processEvents();
+
     // Create menu related things.
     bool existed;
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
@@ -120,6 +128,7 @@ int main(int argc, char *argv[])
     ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
     ExtensionSystemCore::instance()->loadPlugins();
     Log->toggleQtMsgEngine(false);
+    splash->clearMessage();
 
     // Create the example file system side widget and add it to the global object pool
     QList<int> modes;
@@ -164,6 +173,7 @@ int main(int argc, char *argv[])
 
     // Show the main window:
     exampleMainWindow.show();
+    splash->close();
 
     int result = a.exec();
     exampleMainWindow.writeSettings();

@@ -71,6 +71,12 @@ namespace Qtilities {
                 ~ExampleMode();
                 bool eventFilter(QObject *object, QEvent *event);
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+                const QObject* objectBase() const { return this; }
+
                 // --------------------------------------------
                 // IMode Implementation
                 // --------------------------------------------

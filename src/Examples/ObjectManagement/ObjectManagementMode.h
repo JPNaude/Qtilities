@@ -67,6 +67,12 @@ namespace Qtilities {
                     ObjectManagementMode(QObject* parent = 0);
                     ~ObjectManagementMode();
 
+                    // --------------------------------
+                    // IObjectBase Implementation
+                    // --------------------------------
+                    QObject* objectBase() { return this; }
+                    const QObject* objectBase() const { return this; }
+
                     // --------------------------------------------
                     // IMode Implementation
                     // --------------------------------------------
