@@ -38,7 +38,7 @@
 
 using namespace Qtilities::Core::Interfaces;
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::ObserverData::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::ObserverData::factoryData() const {
     return IFactoryTag();
 }
 
