@@ -36,17 +36,21 @@
 
 #include "QtilitiesCoreGui_global.h"
 
+#include <IObjectBase>
+
 #include <QWidget>
 #include <QIcon>
 
 namespace Qtilities {
     namespace CoreGui {
         namespace Interfaces {
+            using namespace Qtilities::Core::Interfaces;
+
             /*!
             \class IMode
             \brief Used by the ModeWidget to communicate with child modes.
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IMode
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IMode: virtual public IObjectBase
             {
 
             public:
