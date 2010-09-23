@@ -34,7 +34,11 @@
 #include "PluginInfoWidget.h"
 #include "ui_PluginInfoWidget.h"
 
+#include <QtilitiesCoreGuiConstants>
+
 #include <QDesktopWidget>
+
+using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, QWidget *parent) :
     QWidget(parent),
@@ -46,8 +50,8 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
     // Populate with plugin's contents:
     if (plugin) {
         ui->lblPluginName->setText(plugin->objectBase()->objectName());
-        ui->lblErrorString->setText(plugin->errorString());
         ui->lblContact->setText(plugin->pluginPublisherContact());
+        ui->lblContact->setTextInteractionFlags(Qt::TextSelectableByMouse);
         ui->lblPublisher->setText(plugin->pluginPublisher());
         ui->lblState->setText(plugin->pluginStateString());
         ui->lblVersion->setText(QString("v%1").arg(plugin->pluginVersion()));
@@ -56,6 +60,25 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
         ui->txtDescription->setPlainText(plugin->pluginDescription());
         ui->txtLicense->setPlainText(plugin->pluginLicense());
         ui->txtFileName->setText(plugin->pluginFileName());
+
+        if (plugin->errorString().isEmpty())
+            ui->txtErrorString->setPlainText(tr("No errors detected."));
+        else
+            ui->txtErrorString->setPlainText(plugin->errorString());
+
+        if (plugin->pluginCompatibilityVersions().count() > 0)
+            ui->listCompatabilityVersions->addItems(plugin->pluginCompatibilityVersions());
+        else
+            ui->listCompatabilityVersions->addItem(tr("This plugin does not depend on the application it is used in."));
+
+        if (plugin->pluginState() == IPlugin::Functional)
+            ui->lblStateImage->setPixmap(QIcon(ICON_SUCCESS_16x16).pixmap(16));
+        else if (plugin->pluginState() == IPlugin::CompatibilityError)
+            ui->lblStateImage->setPixmap(QIcon(ICON_WARNING_16x16).pixmap(16));
+        else if (plugin->pluginState() == IPlugin::InitializationError)
+            ui->lblStateImage->setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
+        else if (plugin->pluginState() == IPlugin::DependancyError)
+            ui->lblStateImage->setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
     }
 
     connect(ui->btnClose,SIGNAL(clicked()),SLOT(close()));

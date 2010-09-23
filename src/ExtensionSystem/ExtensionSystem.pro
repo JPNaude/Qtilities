@@ -41,9 +41,11 @@ HEADERS += source/ExtensionSystemCore.h \
         source/ExtensionSystemConstants.h \
         source/IPlugin.h \
         source/ExtensionSystemConfig.h \
-    source/PluginInfoWidget.h
+        source/PluginInfoWidget.h \
+        source/PluginTreeModel.h
 SOURCES += source/ExtensionSystemCore.cpp \
         source/ExtensionSystemConfig.cpp \
-    source/PluginInfoWidget.cpp
+        source/PluginInfoWidget.cpp \
+        source/PluginTreeModel.cpp
 FORMS   += source/ExtensionSystemConfig.ui \
-    source/PluginInfoWidget.ui
+        source/PluginInfoWidget.ui

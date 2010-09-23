@@ -37,12 +37,14 @@
 #include "ExtensionSystem_global.h"
 
 #include <IObjectBase>
+#include <QtilitiesCategory>
 
 #include <QObject>
 #include <QList>
 
 namespace Qtilities {
     namespace ExtensionSystem {
+        using namespace Qtilities::Core;
         using namespace Qtilities::Core::Interfaces;
 
         //! Namespace containing available interfaces which forms part of the ExtensionSystem Module.
@@ -120,9 +122,15 @@ namespace Qtilities {
                     */
                 virtual void finalize() { }
 
+                //! The category of the plugin.
+                virtual QtilitiesCategory pluginCategory() const = 0;
                 //! The version of the plugin.
                 virtual double pluginVersion() const = 0;
                 //! The version of the application for which the plugin is developed which the plugin was designed for.
+                /*!
+                  If your plugin does not depend on the application it is used in, you can return an empty QStringList()
+                  to let the extension system know not to check the compatibility of your plugin.
+                  */
                 virtual QStringList pluginCompatibilityVersions() const = 0;
                 //! The name of the plugin's publisher.
                 virtual QString pluginPublisher() const = 0;

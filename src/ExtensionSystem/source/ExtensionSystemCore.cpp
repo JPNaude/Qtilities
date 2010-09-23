@@ -35,6 +35,7 @@
 #include "ExtensionSystemConstants.h"
 #include "ExtensionSystemConfig.h"
 #include "IPlugin.h"
+#include "PluginTreeModel.h"
 
 #include <QtilitiesCoreGui>
 
@@ -50,12 +51,14 @@ using namespace Qtilities::ExtensionSystem::Interfaces;
 
 struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
     ExtensionSystemCoreData() : plugins("Plugins","Manages loaded plugins in the application."),
-    extension_system_config_widget(0) { }
+    extension_system_config_widget(0),
+    treeModel(0) { }
 
     Observer plugins;
     QDir pluginsDir;
     QStringList customPluginPaths;
     ExtensionSystemConfig* extension_system_config_widget;
+    PluginTreeModel* treeModel;
 };
 
 Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::m_Instance = 0;
@@ -93,6 +96,7 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     type_filter->addSubjectType(SubjectTypeInfo("Qtilities::ExtensionSystem::Interfaces::IPlugin",tr("Plugins")));
     d->plugins.installSubjectFilter(type_filter);
     d->plugins.displayHints()->setItemViewColumnHint(ObserverHints::ColumnNoHints);
+    d->plugins.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
     d->plugins.endProcessingCycle();
 }
@@ -144,20 +148,28 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                         SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
                         Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
 
-                        // Store the file name:
-                        pluginIFace->setPluginFileName(stripped_file_name);
+                        // Set the category property of the plugin:
+                        ObserverProperty category_property(OBJECT_CATEGORY);
+                        category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());
+                        Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
 
-                        // Do a plugin version check here:
+                        // Store the file name:
+                        pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
+
+                        // Set the default state of the plugin:
+                        pluginIFace->setPluginState(IPlugin::Functional);
+                        pluginIFace->setErrorString(tr("No errors detected."));
+
+                        // Do a plugin compatibility check here:
                         pluginIFace->pluginVersion();
-                        if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
-                            LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
-                            pluginIFace->setPluginState(IPlugin::CompatibilityError);
-                            pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
-                            SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
-                            Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
-                        } else {
-                            pluginIFace->setPluginState(IPlugin::Functional);
-                            pluginIFace->setErrorString(tr("No errors detected"));
+                        if (!pluginIFace->pluginCompatibilityVersions().isEmpty()) {
+                            if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
+                                LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
+                                pluginIFace->setPluginState(IPlugin::CompatibilityError);
+                                pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
+                                SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
+                                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                            }
                         }
 
                         d->plugins.attachSubject(obj);
@@ -206,13 +218,20 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     if (!d->extension_system_config_widget) {
-        ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
+        ObserverWidget* observer_widget = new ObserverWidget();
         observer_widget->setObserverContext(&d->plugins);
+        d->treeModel = new PluginTreeModel();
+        observer_widget->setCustomTreeModel(d->treeModel);
         observer_widget->initialize();
         observer_widget->layout()->setMargin(0);
 
         d->extension_system_config_widget = new ExtensionSystemConfig();
         d->extension_system_config_widget->setPluginListWidget(observer_widget);
+
+        if (observer_widget->treeView()) {
+            observer_widget->treeView()->expandAll();
+            observer_widget->treeView()->setRootIsDecorated(false);
+        }
     }
 
     return d->extension_system_config_widget;

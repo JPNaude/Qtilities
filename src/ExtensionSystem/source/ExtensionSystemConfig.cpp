@@ -115,8 +115,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleBtnDetailsClicked(
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionChanged(QList<QObject*> selection) {
-    if (selection.count() == 1)
-        ui->btnPluginDetails->setEnabled(true);
-    else
+    if (selection.count() == 1) {
+        IPlugin* plugin_iface = qobject_cast<IPlugin*> (observer_widget->selectedObjects().front());
+        if (plugin_iface)
+            ui->btnPluginDetails->setEnabled(true);
+        else
+            ui->btnPluginDetails->setEnabled(false);
+    } else
         ui->btnPluginDetails->setEnabled(false);
 }

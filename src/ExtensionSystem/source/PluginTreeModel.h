@@ -31,41 +31,45 @@
 **
 ****************************************************************************/
 
-#ifndef PLUGININFOWIDGET_H
-#define PLUGININFOWIDGET_H
+#ifndef PLUGIN_TREE_MODEL_H
+#define PLUGIN_TREE_MODEL_H
 
-#include <QWidget>
-#include "IPlugin.h"
+#include <QtilitiesCoreGui>
+using namespace QtilitiesCoreGui;
 
-namespace Ui {
-    class PluginInfoWidget;
-}
+#include <QAbstractItemModel>
+#include <QStack>
+#include <QItemSelection>
 
 namespace Qtilities {
     namespace ExtensionSystem {
-        using namespace Interfaces;
+        using namespace Qtilities::Core;
 
         /*!
-          \class PluginInfoWidget
-          \brief A widget that shows information about a plugin.
+          \class PluginTreeModel
+          \brief The PluginTreeModel class is an extension of AbstractObserverTreeModel used to display plugin information.
 
           <i>This class was added in %Qtilities v0.2.</i>
          */
-        class PluginInfoWidget : public QWidget
+        class PluginTreeModel : public AbstractObserverTreeModel
         {
             Q_OBJECT
 
         public:
-            explicit PluginInfoWidget(IPlugin* plugin, QWidget *parent = 0);
-            ~PluginInfoWidget();
+            PluginTreeModel(QObject *parent = 0);
+            virtual ~PluginTreeModel() {}
 
-        protected:
-            void changeEvent(QEvent *e);
-
-        private:
-            Ui::PluginInfoWidget *ui;
+            // --------------------------------
+            // ObserverTableModel Implementation
+            // --------------------------------
+            Qt::ItemFlags flags(const QModelIndex &index) const;
+            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+            QVariant data(const QModelIndex &index, int role) const;
+            int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            int columnCount(const QModelIndex &parent = QModelIndex()) const;
+            bool setData(const QModelIndex &index, const QVariant &value, int role);
         };
     }
 }
 
-#endif // PLUGININFOWIDGET_H
+#endif // PLUGIN_TREE_MODEL_H
