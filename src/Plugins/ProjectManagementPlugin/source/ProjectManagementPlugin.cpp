@@ -157,14 +157,16 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::finalize() 
 
 }
 
+QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCategory() const {
+    return QtilitiesCategory(tr("General"));
+}
+
 double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR).arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
 QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {
-    QStringList compatible_versions;
-    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
-    return compatible_versions;
+    return QStringList();
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisher() const {

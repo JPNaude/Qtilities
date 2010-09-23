@@ -36,8 +36,9 @@
 
 #include "ProjectManagementPlugin_global.h"
 
-#include <IPlugin.h>
-#include <IProject.h>
+#include <IPlugin>
+#include <QtilitiesCategory>
+#include <IProject>
 #include <QObject>
 
 namespace Qtilities {
@@ -45,6 +46,7 @@ namespace Qtilities {
             namespace ProjectManagement {
             using namespace Qtilities::ExtensionSystem::Interfaces;
             using namespace Qtilities::ProjectManagement::Interfaces;
+            using namespace Qtilities::Core;
 
             /*!
               \struct ProjectManagementPluginData
@@ -77,6 +79,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;
                 QString pluginPublisher() const;

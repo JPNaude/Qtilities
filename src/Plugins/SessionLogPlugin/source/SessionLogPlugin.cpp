@@ -88,14 +88,16 @@ void Qtilities::Plugins::SessionLog::SessionLogPlugin::finalize() {
 
 }
 
+QtilitiesCategory Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCategory() const {
+    return QtilitiesCategory(tr("General"));
+}
+
 double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(SESSION_LOG_PLUGIN_VERSION_MAJOR).arg(SESSION_LOG_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
 QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() const {
-    QStringList compatible_versions;
-    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
-    return compatible_versions;
+    return QStringList();
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() const {

@@ -87,14 +87,16 @@ void Qtilities::Plugins::Debug::DebugPlugin::finalize() {
 
 }
 
+QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const {
+    return QtilitiesCategory(tr("Debugging"));
+}
+
 double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(DEBUG_PLUGIN_VERSION_MAJOR).arg(DEBUG_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() const {
-    QStringList compatible_versions;
-    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
-    return compatible_versions;
+    return QStringList();
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() const {

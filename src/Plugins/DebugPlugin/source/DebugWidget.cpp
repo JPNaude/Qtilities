@@ -82,10 +82,10 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     d->objectPoolWidget->toggleSearchBox();
 
     // Factories:
-    ui->listFactories->addItems(OBJECT_MANAGER->factoryNames());
+    connect(ui->btnRefreshFactories,SIGNAL(clicked()),SLOT(handle_factoryListRefresh()));
     connect(ui->listFactories,SIGNAL(currentTextChanged(QString)),SLOT(handle_factoryListSelectionChanged(QString)));
-    if (ui->listFactories->count() > 0)
-        ui->listFactories->setCurrentRow(0);
+    ui->btnRefreshFactories->setIcon(QIcon(ICON_REFRESH_16x16));
+    handle_factoryListRefresh();
 }
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
@@ -117,7 +117,17 @@ void Qtilities::Plugins::Debug::DebugWidget::finalizeMode() {
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListSelectionChanged(const QString& factory_name) {
+    ui->listFactoryTags->clear();
     ui->listFactoryTags->addItems(OBJECT_MANAGER->tagsForFactory(factory_name));
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListRefresh() {
+    ui->listFactoryTags->clear();
+    ui->listFactories->clear();
+
+    ui->listFactories->addItems(OBJECT_MANAGER->allFactoryNames());
+    if (ui->listFactories->count() > 0)
+        ui->listFactories->setCurrentRow(0);
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::changeEvent(QEvent *e)

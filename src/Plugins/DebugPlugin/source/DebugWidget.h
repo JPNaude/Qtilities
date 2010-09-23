@@ -68,6 +68,12 @@ namespace Qtilities {
                 explicit DebugWidget(QWidget *parent = 0);
                 ~DebugWidget();
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+                const QObject* objectBase() const { return this; }
+
                 // --------------------------------------------
                 // IMode Implementation
                 // --------------------------------------------
@@ -85,6 +91,8 @@ namespace Qtilities {
             public slots:
                 //! Handles selection changes in the factory list widget.
                 void handle_factoryListSelectionChanged(const QString& factory_name);
+                //! Handles the factory refresh button.
+                void handle_factoryListRefresh();
 
             protected:
                 void changeEvent(QEvent *e);

@@ -36,13 +36,15 @@
 
 #include "PluginTemplate_global.h"
 
-#include <IPlugin.h>
+#include <IPlugin>
+#include <QtilitiesCategory>
 #include <QObject>
 
 namespace Qtilities {
     namespace Plugins {
         namespace Template {
             using namespace ExtensionSystem::Interfaces;
+            using namespace Qtilities::Core;
 
             /*!
               \struct PluginTemplateData
@@ -79,6 +81,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;
                 QString pluginPublisher() const;

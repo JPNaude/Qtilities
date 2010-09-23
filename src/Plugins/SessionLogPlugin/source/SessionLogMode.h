@@ -66,6 +66,12 @@ namespace Qtilities {
                     SessionLogMode(QObject* parent = 0);
                     ~SessionLogMode();
 
+                    // --------------------------------
+                    // IObjectBase Implementation
+                    // --------------------------------
+                    QObject* objectBase() { return this; }
+                    const QObject* objectBase() const { return this; }
+
                     // --------------------------------------------
                     // IMode Implementation
                     // --------------------------------------------

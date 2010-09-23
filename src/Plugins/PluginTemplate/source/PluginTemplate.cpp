@@ -76,14 +76,16 @@ void Qtilities::Plugins::Template::PluginTemplate::finalize() {
 
 }
 
+QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory() const {
+    return QtilitiesCategory(tr("General"));
+}
+
 double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
     return (QString("%1.%2").arg(PLUGIN_TEMPLATE_VERSION_MAJOR).arg(PLUGIN_TEMPLATE_VERSION_MINOR)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {
-    QStringList compatible_versions;
-    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
-    return compatible_versions;
+    return QStringList();
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() const {
