@@ -87,37 +87,37 @@ void Qtilities::Plugins::Debug::DebugPlugin::finalize() {
 
 }
 
-double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() {
+double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(DEBUG_PLUGIN_VERSION_MAJOR).arg(DEBUG_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() const {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() const {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherWebsite() {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherWebsite() const {
     return "http://www.qtilities.org";
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherContact() {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisherContact() const {
     return "support@qtilities.org";
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
     return tr("A plugin which helps to debug Qtilities applications.");
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense()  {
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {
     return tr("See the Qtilities Libraries license");
 }
 

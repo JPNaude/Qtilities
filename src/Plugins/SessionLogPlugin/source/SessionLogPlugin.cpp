@@ -88,37 +88,37 @@ void Qtilities::Plugins::SessionLog::SessionLogPlugin::finalize() {
 
 }
 
-double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() {
+double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(SESSION_LOG_PLUGIN_VERSION_MAJOR).arg(SESSION_LOG_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() const {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() const {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherWebsite() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherWebsite() const {
     return "http://www.qtilities.org";
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherContact() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisherContact() const {
     return "support@qtilities.org";
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() const {
     return tr("A plugin which adds a session log mode and a configuration page for the logger.");
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCopyright() {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCopyright() const {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense()  {
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense() const {
     return tr("See the Qtilities Libraries license");
 }
 

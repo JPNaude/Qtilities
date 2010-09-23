@@ -77,14 +77,14 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
-                double pluginVersion();
-                QStringList pluginCompatibilityVersions();
-                QString pluginPublisher();
-                QString pluginPublisherWebsite();
-                QString pluginPublisherContact();
-                QString pluginDescription();
-                QString pluginCopyright();
-                QString pluginLicense();
+                double pluginVersion() const;
+                QStringList pluginCompatibilityVersions() const;
+                QString pluginPublisher() const;
+                QString pluginPublisherWebsite() const;
+                QString pluginPublisherContact() const;
+                QString pluginDescription() const;
+                QString pluginCopyright() const;
+                QString pluginLicense() const;
 
             public slots:
                 void handle_actionProjectNew();

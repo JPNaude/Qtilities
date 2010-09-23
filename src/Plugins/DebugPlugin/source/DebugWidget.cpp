@@ -80,6 +80,12 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     d->objectPoolWidget->initialize();
     d->objectPoolWidget->show();
     d->objectPoolWidget->toggleSearchBox();
+
+    // Factories:
+    ui->listFactories->addItems(OBJECT_MANAGER->factoryNames());
+    connect(ui->listFactories,SIGNAL(currentTextChanged(QString)),SLOT(handle_factoryListSelectionChanged(QString)));
+    if (ui->listFactories->count() > 0)
+        ui->listFactories->setCurrentRow(0);
 }
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
@@ -108,6 +114,10 @@ void Qtilities::Plugins::Debug::DebugWidget::finalizeMode() {
         object_list << OBJECT_MANAGER->objectPool()->subjectAt(0);
         d->objectPoolWidget->selectObjects(object_list);
     }
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListSelectionChanged(const QString& factory_name) {
+    ui->listFactoryTags->addItems(OBJECT_MANAGER->tagsForFactory(factory_name));
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::changeEvent(QEvent *e)

@@ -157,37 +157,37 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::finalize() 
 
 }
 
-double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() {
+double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
     return (QString("%1.%2").arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR).arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisher() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisher() const {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherWebsite() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherWebsite() const {
     return "http://www.qtilities.org";
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherContact() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisherContact() const {
     return "support@qtilities.org";
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginDescription() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginDescription() const {
     return tr("A plugin which adds project management capabilities to the application.");
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCopyright() {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCopyright() const {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginLicense()  {
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginLicense() const  {
     return tr("See the Qtilities Libraries license");
 }
 

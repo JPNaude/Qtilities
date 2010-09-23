@@ -76,37 +76,37 @@ void Qtilities::Plugins::Template::PluginTemplate::finalize() {
 
 }
 
-double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() {
+double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
     return (QString("%1.%2").arg(PLUGIN_TEMPLATE_VERSION_MAJOR).arg(PLUGIN_TEMPLATE_VERSION_MINOR)).toDouble();
 }
 
-QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() {
+QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {
     QStringList compatible_versions;
     compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
     return compatible_versions;
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() const {
     return "Jaco Naude";
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherWebsite() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherWebsite() const {
     return "http://www.qtilities.org";
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherContact() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisherContact() const {
     return "support@qtilities.org";
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginDescription() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginDescription() const {
     return tr("An example Qtilities Extension System plugin.");
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginCopyright() {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginCopyright() const {
     return QString(tr("Copyright") + " 2010, Jaco Naude");
 }
 
-QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense()  {
+QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense() const {
     return tr("See the Qtilities Libraries license");
 }
 

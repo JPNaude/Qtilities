@@ -82,6 +82,10 @@ namespace Qtilities {
                 //! Finalize the mode, will be called in initializeDependencies().
                 void finalizeMode();
 
+            public slots:
+                //! Handles selection changes in the factory list widget.
+                void handle_factoryListSelectionChanged(const QString& factory_name);
+
             protected:
                 void changeEvent(QEvent *e);
 
