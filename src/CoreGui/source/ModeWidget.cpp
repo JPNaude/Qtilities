@@ -99,6 +99,12 @@ bool Qtilities::CoreGui::ModeWidget::addMode(IMode* mode, bool initialize_mode) 
             connect(d->verticalModeList,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
             d->verticalModeList->setCurrentItem(new_item);
         }
+
+        // Set the mode icon as the object decoration for mode:
+        if (mode->objectBase()) {
+            SharedObserverProperty icon_property(icon,OBJECT_ROLE_DECORATION);
+            Observer::setSharedProperty(mode->objectBase(),icon_property);
+        }
     }
 
     d->verticalModeList->setMinimumWidth(d->verticalModeList->sizeHint().width()+10);
