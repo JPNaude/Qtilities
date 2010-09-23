@@ -132,18 +132,51 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     // 2.2 File Information:
     QDomElement file_data = doc->createElement("File");
     item_data.appendChild(file_data);
-    file_data.setAttribute("FileName",treeFileItemBase->file_name);
+    file_data.setAttribute("Path",treeFileItemBase->file_name);
 
     return result;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(params)
     Q_UNUSED(import_list)
 
-    return loadFormattingFromXML(doc,object_node);
+    IExportable::Result result = IExportable::Incomplete;
+
+    QDomNodeList childNodes = object_node->childNodes();
+    for(int i = 0; i < childNodes.count(); i++) {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "Data") {
+            QDomNodeList dataNodes = child.childNodes();
+            for(int i = 0; i < dataNodes.count(); i++) {
+                QDomNode dataNode = dataNodes.item(i);
+                QDomElement data = dataNode.toElement();
+
+                if (data.isNull())
+                    continue;
+
+                if (data.tagName() == "File") {
+                    // Restore the file path/name:
+                    if (data.hasAttribute("Path")) {
+                        treeFileItemBase->file_name = data.attribute("Path");
+                        result = IExportable::Complete;
+                    }
+                }
+            }
+        }
+    }
+
+    IExportable::Result formatting_result = loadFormattingFromXML(doc,object_node);
+    if (formatting_result != IExportable::Complete)
+        result = formatting_result;
+
+    return result;
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFactoryData(IFactoryTag factoryData) {
