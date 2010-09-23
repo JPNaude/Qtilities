@@ -89,9 +89,9 @@ namespace Qtilities {
                   Because this interface does not use the Q_OBJECT macro, you cannot connect to this signal directly.
                   Instead you need to connect to the signal on the base object implementing this interface as follows:
 
-                  \code
-                  connect(iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(yourSlot(bool)));
-                  \endcode
+\code
+connect(iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(yourSlot(bool)));
+\endcode
                   */
                 virtual void modificationStateChanged(bool is_modified) const = 0;
 
