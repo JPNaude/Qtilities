@@ -97,8 +97,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     }
 
     // Add formatting engines:
-    ui->listWidgetFormattingEngines->addItems(Log->attachedFormattingEngineNames());
-    ui->comboBoxLoggerFormattingEngine->addItems(Log->attachedFormattingEngineNames());
+    ui->listWidgetFormattingEngines->addItems(Log->availableFormattingEngines());
+    ui->comboBoxLoggerFormattingEngine->addItems(Log->availableFormattingEngines());
 
     // Read the logging settings
     readSettings();
