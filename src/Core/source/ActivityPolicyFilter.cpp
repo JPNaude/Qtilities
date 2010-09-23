@@ -463,7 +463,6 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
             }
         }
 
-        //emit notifyDirtyProperty(OBJECT_ACTIVITY);
         emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
     }
 
@@ -554,7 +553,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
     return false;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::ActivityPolicyFilter::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::ActivityPolicyFilter::factoryData() const {
     IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
     return factoryData;
 }
