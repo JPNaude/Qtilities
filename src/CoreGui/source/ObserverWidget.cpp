@@ -437,7 +437,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
                 connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)));
-                connect(d->tree_view,SIGNAL(customContextMenuRequested(QPoint)),SLOT(mapCustomContextMenuPoint(QPoint)));
 
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
@@ -501,7 +500,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     d->table_model = new ObserverTableModel();
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
-                connect(d->table_view,SIGNAL(customContextMenuRequested(QPoint)),SLOT(mapCustomContextMenuPoint(QPoint)));
 
                 d->table_view->viewport()->installEventFilter(this);
                 d->table_view->installEventFilter(this);
@@ -989,16 +987,6 @@ void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
         for (int i = 0; i < d->table_model->rowCount(); i++) {
             d->table_view->setRowHeight(i,height);
         }
-    }
-}
-
-void Qtilities::CoreGui::ObserverWidget::mapCustomContextMenuPoint(const QPoint & pos) {
-    if (d->tree_view && d->display_mode == TreeView) {
-        QPoint globalPos = d->tree_view->mapToGlobal(pos);
-        emit customContextMenuRequested(globalPos);
-    } else if (d->table_view && d->display_mode == TableView) {
-        QPoint globalPos = d->table_view->mapToGlobal(pos);
-        emit customContextMenuRequested(globalPos);
     }
 }
 
@@ -2518,6 +2506,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
         else
             d->property_browser_widget->setObject(d_observer);
         addDockWidget(d->property_editor_dock_area, d->property_browser_dock);
+        //d->property_browser_dock->resize(d->property_browser_widget->sizeHint());
         d->property_browser_dock->show();
     } else {
         removeDockWidget(d->property_browser_dock);

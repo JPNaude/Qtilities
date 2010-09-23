@@ -506,10 +506,6 @@ namespace Qtilities {
             //! Constructs actions inside the observer widget.
             void constructActions();
 
-        private slots:
-            //! This slot maps the point requested for a custom context menu from the item view's position to global position and then emitts customContextMenuRequested() with the correct point.
-            void mapCustomContextMenuPoint(const QPoint & pos);
-
         signals:
             //! Signal which is emitted when the add new item action is triggered.
             /*!
