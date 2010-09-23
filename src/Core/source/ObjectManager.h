@@ -97,12 +97,15 @@ namespace Qtilities {
             ObjectManager(QObject* parent = 0);
             ~ObjectManager();
 
+        protected:
             // -----------------------------------------
             // IFactory Implementation
             // -----------------------------------------
-            QStringList factoryTags() const;
+            QStringList factoryNames() const;
             QObject* createInstance(const IFactoryTag& ifactory_data);
+            QStringList factoryTags(const QString& factory_name) const;
 
+        public:
             // --------------------------------
             // IObjectManager Implemenation
             // --------------------------------
@@ -113,8 +116,10 @@ namespace Qtilities {
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);
             void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory());
             void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag);
-            void registerIFactory(IFactory* factory_iface);
-            IFactory* factoryReference(const QString& tag) const;
+            bool registerIFactory(IFactory* factory_iface);
+            IFactory* referenceIFactory(const QString& factory_name) const;
+            QStringList allFactoryNames() const;
+            QStringList tagsForFactory(const QString& factory_name) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;
             QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const;
             void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type);

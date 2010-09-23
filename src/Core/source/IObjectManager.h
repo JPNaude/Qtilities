@@ -37,8 +37,8 @@
 #include "QtilitiesCore_global.h"
 #include "IExportable.h"
 #include "IFactory.h"
-#include "Factory.h"
 #include "AbstractSubjectFilter.h"
+#include "Factory.h"
 
 #include <QList>
 #include <QMap>
@@ -130,10 +130,28 @@ namespace Qtilities {
                 // ---------------------------------
                 //! Registers a factory interface inside the Qtilities factory.
                 virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag) = 0;
-                //! Registers a factory interface in the global object pool. Factory interfaces can be accessed using any of the factoryTags() specified on the IFactory interface.
-                virtual void registerIFactory(IFactory* obj) = 0;
-                //! Provides a reference to the factory interface which was registered with the specified tag. If no factory interface was registered with the specified tag, 0 is returned.
-                virtual IFactory* factoryReference(const QString& tag) const = 0;
+                //! Registers a factory interface in the object manager.
+                /*!
+                  The object manager keeps track of all IFactory interfaces registered using this function.
+                  It is then possible to access the IFactory interface for a specific factory using the referenceIFactory()
+                  function.
+
+                  The way that the object manager keeps track of factories and their respective IFactory interfaces
+                  is done in such a way that factory names exposed by IFactory must be unique for all IFactory
+                  interfaces registered using this function.
+
+                  If a duplicate factory name is found, an error is printed and this function returns false.
+                  */
+                virtual bool registerIFactory(IFactory* obj) = 0;
+                //! Provides a reference to the factory interface for a specific factory.
+                /*!
+                  This function returns the IFactory interface which contains the specified factory.
+                */
+                virtual IFactory* referenceIFactory(const QString& factory_name) const = 0;
+                //! Provides a list with the names of all the factories registered in the object manager.
+                virtual QStringList allFactoryNames() const = 0;
+                //! Provides a list of all the tags registered in a specific factory.
+                virtual QStringList tagsForFactory(const QString& factory_name) const = 0;
 
                 // ---------------------------------
                 // Global Active Objects Functionality

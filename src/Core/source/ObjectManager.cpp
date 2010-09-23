@@ -105,10 +105,17 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
     return -1;
 }
 
-QStringList Qtilities::Core::ObjectManager::factoryTags() const {
+QStringList Qtilities::Core::ObjectManager::factoryNames() const {
     QStringList tags;
     tags << FACTORY_QTILITIES;
     return tags;
+}
+
+QStringList Qtilities::Core::ObjectManager::factoryTags(const QString& factory_name) const {
+    if (factory_name == QString(FACTORY_QTILITIES))
+        return d->qtilities_factory.tags();
+    else
+        return QStringList();
 }
 
 QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryTag& ifactory_data) {
@@ -213,22 +220,60 @@ void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<Q
     d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
 }
 
-void Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
+bool Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
     if (!factory_iface)
-        return;
+        return false;
 
-    foreach(QString tag, factory_iface->factoryTags()) {
-        if (!d->factory_map.keys().contains(tag)) {
-            d->factory_map[tag] = factory_iface;
+    // Check if all factory names provided through factory_iface are unique first:
+    foreach(QString name, factory_iface->factoryNames()) {
+        if (d->factory_map.keys().contains(name)) {
+            LOG_ERROR(QString(tr("Object Manager: Ambiguous factory name \"%1\" detected in registerIFactory(). This IFactory interface will not be registered.")).arg(name));
+            return false;
         }
     }
+
+    foreach(QString name, factory_iface->factoryNames()) {
+        if (!d->factory_map.keys().contains(name)) {
+            d->factory_map[name] = factory_iface;
+        }
+    }
+
+    return true;
 }
 
-Qtilities::Core::Interfaces::IFactory* Qtilities::Core::ObjectManager::factoryReference(const QString& tag) const {
+Qtilities::Core::Interfaces::IFactory* Qtilities::Core::ObjectManager::referenceIFactory(const QString& tag) const {
     if (d->factory_map.contains(tag))
         return d->factory_map[tag];
     else
         return 0;
+}
+
+QStringList Qtilities::Core::ObjectManager::allFactoryNames() const {
+    QStringList names;
+    QStringList ifactory_keys = d->factory_map.keys();
+
+    foreach (QString ifactory_key, ifactory_keys) {
+        IFactory* ifactory = referenceIFactory(ifactory_key);
+        if (ifactory)
+            names << ifactory->factoryNames();
+    }
+
+    return names;
+}
+
+QStringList Qtilities::Core::ObjectManager::tagsForFactory(const QString& factory_name) const {
+    QStringList tags;
+    QStringList ifactory_keys = d->factory_map.keys();
+
+    foreach (QString ifactory_key, ifactory_keys) {
+        IFactory* ifactory = referenceIFactory(ifactory_key);
+        if (ifactory) {
+            foreach (QString factory_name, ifactory->factoryNames())
+                tags << ifactory->factoryTags(factory_name);
+        }
+    }
+
+    return tags;
 }
 
 QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QString& iface) const {
@@ -256,7 +301,10 @@ QList<QPointer<QObject> > Qtilities::Core::ObjectManager::metaTypeActiveObjects(
 quint32 MARKER_OBJECT_PROPERTY_SECTION = 0xCCCCCCCC;
 
 bool Qtilities::Core::ObjectManager::exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types) const {
-    Q_ASSERT(obj);
+    if (!obj) {
+        Q_ASSERT(obj);
+        return false;
+    }
 
     stream << MARKER_OBJECT_PROPERTY_SECTION;
     // First count the number of properties to be exported
@@ -503,6 +551,8 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
 
     LOG_TRACE("Processing objects in construction list:");
     for (int i = 0; i < objects.count(); i++) {
+        Q_ASSERT(objects.at(i));
+
         // Get the object Visitor ID property:
         int visitor_id = ObserverRelationalTable::getVisitorID(objects.at(i));
         LOG_TRACE(QString(tr("Busy with object %1/%2: %3")).arg(i+1).arg(objects.count()).arg(objects.at(i)->objectName()));
