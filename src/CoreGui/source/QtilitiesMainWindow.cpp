@@ -34,19 +34,27 @@
 #include "QtilitiesMainWindow.h"
 #include "ui_QtilitiesMainWindow.h"
 #include "ModeWidget.h"
+#include "QtilitiesCoreGuiConstants.h"
 
 #include <QBoxLayout>
 #include <QSettings>
+#include <QLabel>
 
 using namespace Qtilities::CoreGui::Interfaces;
+using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::QtilitiesMainWindowData {
     QtilitiesMainWindowData() : initialized(false),
-    current_widget(0) {}
+    current_widget(0),
+    priority_messages_enabled(true) {}
 
     bool initialized;
     QWidget* current_widget;
     ModeWidget mode_widget;
+    bool priority_messages_enabled;
+    QWidget priority_messages_widget;
+    QLabel priority_messages_icon;
+    QLabel priority_messages_text;
 };
 
 Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(QWidget* parent, Qt::WindowFlags flags) :
@@ -69,6 +77,18 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(QWidget* parent, Qt
     // Set the window title to the application name if not empty:
     if (!QApplication::applicationName().isEmpty())
         setWindowTitle(QApplication::applicationName());
+
+    connect(Log,SIGNAL(newPriorityMessage(Logger::MessageType,QString)),SLOT(processPriorityMessage(Logger::MessageType,QString)));
+
+    // Construct a proper priority_message_widget:
+    if (d->priority_messages_widget.layout())
+        delete d->priority_messages_widget.layout();
+
+    QHBoxLayout* priority_messages_layout = new QHBoxLayout(&d->priority_messages_widget);
+    priority_messages_layout->addWidget(&d->priority_messages_icon);
+    priority_messages_layout->addWidget(&d->priority_messages_text);
+    priority_messages_layout->setMargin(0);
+    statusBar()->addWidget(&d->priority_messages_widget);
 }
 
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
@@ -130,6 +150,14 @@ void Qtilities::CoreGui::QtilitiesMainWindow::readSettings() {
     settings.endGroup();
 }
 
+void Qtilities::CoreGui::QtilitiesMainWindow::enablePriorityMessages() {
+    d->priority_messages_enabled = true;
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::disablePriorityMessages() {
+    d->priority_messages_enabled = false;
+}
+
 void Qtilities::CoreGui::QtilitiesMainWindow::handleChangeCentralWidget(QWidget* new_central_widget) {
     // Hide current widget
     if (d->current_widget)
@@ -145,4 +173,20 @@ void Qtilities::CoreGui::QtilitiesMainWindow::handleChangeCentralWidget(QWidget*
     new_central_widget->show();
     layout->setMargin(0);
     d->current_widget = new_central_widget;
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {
+    if (d->priority_messages_enabled) {
+        if (message_type == Logger::Warning)
+            d->priority_messages_icon.setPixmap(QIcon(ICON_WARNING_16x16).pixmap(16));
+        else if (message_type == Logger::Error || message_type == Logger::Fatal)
+            d->priority_messages_icon.setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
+        else
+            d->priority_messages_icon.setPixmap(QPixmap());
+
+        d->priority_messages_text.setText(message);
+
+        QTimer::singleShot(5000, &d->priority_messages_text, SLOT(clear()));
+        QTimer::singleShot(5000, &d->priority_messages_icon, SLOT(clear()));
+    }
 }

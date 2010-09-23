@@ -38,6 +38,7 @@
 #include "IMode.h"
 
 #include <QMainWindow>
+#include <Logger>
 
 namespace Ui
 {
@@ -47,6 +48,7 @@ namespace Ui
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
+        using namespace Qtilities::Logging;
 
         /*!
         \struct QtilitiesMainWindowData
@@ -71,6 +73,10 @@ namespace Qtilities {
 
         \image html main_window_architecture.jpg "Example Of Main Window Architecture"
         \image latex main_window_architecture.eps "Example Of Main Window Architecture" width=\textwidth
+
+        The QtilitiesMainWindow widget supports the %Qtilities Logger's priority messaging functionality and
+        displays the priority messages in the status bar of the main window by default. To disable this feature
+        the disablePriorityMessages() function can be called.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {
@@ -93,7 +99,12 @@ namespace Qtilities {
             //! Saves the state of the main window.
             void writeSettings();
             //! Restores the state of the main window.
-            void readSettings();           
+            void readSettings();
+
+            //! Function to enabled priority messages in the status bar of the main window.
+            void enablePriorityMessages();
+            //! Function to disable priority messages in the status bar of the main window.
+            void disablePriorityMessages();
 
         public slots:
             //! The mode widget changes the central widget in the main window through this slot.
@@ -110,6 +121,8 @@ namespace Qtilities {
             void setActiveMode(const QString& mode_name);
             //! Slot through which a new mode can be set by specifying the mode interface.
             void setActiveMode(IMode* mode_iface);
+            //! Slot which received incomming priority messages from the &Qtilities logger.
+            void processPriorityMessage(Logger::MessageType message_type, const QString& message);
 
         private:
             Ui::QtilitiesMainWindow *ui;
