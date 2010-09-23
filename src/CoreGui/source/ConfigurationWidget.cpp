@@ -209,7 +209,7 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
             if (d->active_widget->layout())
                 d->active_widget->layout()->setMargin(0);
         } else {
-            d->active_widget = new QLabel("Failed to find configuartion page for selected item.");
+            d->active_widget = new QLabel(tr("Failed to find configuartion page for selected item."));
             d->active_widget->show();
         }
     }
