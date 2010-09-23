@@ -540,7 +540,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
     IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
     return factoryData;
 }
