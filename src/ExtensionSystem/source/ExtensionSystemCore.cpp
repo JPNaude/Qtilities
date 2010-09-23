@@ -86,7 +86,6 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     // Setup the plugin pool observer
     ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
-    display_flags |= ObserverHints::PropertyBrowser;
     d->plugins.displayHints()->setDisplayFlagsHint(display_flags);
     d->plugins.displayHints()->setActionHints(ObserverHints::ActionFindItem);
     d->plugins.displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
@@ -144,6 +143,9 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
                         // Give it a success icon by default:
                         SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
                         Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
+                        // Store the file name:
+                        pluginIFace->setPluginFileName(stripped_file_name);
 
                         // Do a plugin version check here:
                         pluginIFace->pluginVersion();
@@ -206,18 +208,7 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     if (!d->extension_system_config_widget) {
         ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
         observer_widget->setObserverContext(&d->plugins);
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
-        observer_widget->setPreferredPropertyEditorDockArea(Qt::BottomDockWidgetArea);
-        observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::GroupBoxBrowser);
-        #endif
         observer_widget->initialize();
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
-        if (observer_widget->propertyBrowser()) {
-            QStringList filter_list;
-            filter_list << "IPlugin";
-            observer_widget->propertyBrowser()->setFilterList(filter_list, true);
-        }
-        #endif
         observer_widget->layout()->setMargin(0);
 
         d->extension_system_config_widget = new ExtensionSystemConfig();
