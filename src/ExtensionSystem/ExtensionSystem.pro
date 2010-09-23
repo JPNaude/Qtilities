@@ -40,7 +40,10 @@ HEADERS += source/ExtensionSystemCore.h \
         source/ExtensionSystem_global.h \
         source/ExtensionSystemConstants.h \
         source/IPlugin.h \
-        source/ExtensionSystemConfig.h
+        source/ExtensionSystemConfig.h \
+    source/PluginInfoWidget.h
 SOURCES += source/ExtensionSystemCore.cpp \
-        source/ExtensionSystemConfig.cpp
-FORMS   += source/ExtensionSystemConfig.ui
+        source/ExtensionSystemConfig.cpp \
+    source/PluginInfoWidget.cpp
+FORMS   += source/ExtensionSystemConfig.ui \
+    source/PluginInfoWidget.ui

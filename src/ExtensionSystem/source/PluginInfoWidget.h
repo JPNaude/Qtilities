@@ -31,64 +31,39 @@
 **
 ****************************************************************************/
 
-#ifndef EXTENSIONSYSTEMCONFIG_H
-#define EXTENSIONSYSTEMCONFIG_H
-
-#include <IConfigPage>
-#include <ObserverWidget>
+#ifndef PLUGININFOWIDGET_H
+#define PLUGININFOWIDGET_H
 
 #include <QWidget>
+#include "IPlugin.h"
 
 namespace Ui {
-    class ExtensionSystemConfig;
+    class PluginInfoWidget;
 }
 
 namespace Qtilities {
     namespace ExtensionSystem {
-        using namespace Qtilities::CoreGui;
-        using namespace Qtilities::CoreGui::Interfaces;
+        using namespace Interfaces;
 
-        class ExtensionSystemConfig : public QWidget, public IConfigPage {
+        /*!
+          \class PluginInfoWidget
+          \brief A widget that shows information about a plugin.
+         */
+        class PluginInfoWidget : public QWidget
+        {
             Q_OBJECT
-            Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
-
-            friend class ExtensionSystemCore;
 
         public:
-            ExtensionSystemConfig(QWidget *parent = 0);
-            ~ExtensionSystemConfig();
-
-            // --------------------------------
-            // IObjectBase Implementation
-            // --------------------------------
-            QObject* objectBase() { return this; }
-            const QObject* objectBase() const { return this; }
-
-            // --------------------------------------------
-            // IConfigPage Implementation
-            // --------------------------------------------
-            QIcon configPageIcon() const;
-            QWidget* configPageWidget();
-            QtilitiesCategory configPageCategory() const;
-            QString configPageTitle() const;
-            void configPageApply();
-            bool supportsApply() const { return false; }
-
-        public slots:
-            void handleBtnDetailsClicked();
-            void handleSelectionChanged(QList<QObject*> selection);
+            explicit PluginInfoWidget(IPlugin* plugin, QWidget *parent = 0);
+            ~PluginInfoWidget();
 
         protected:
             void changeEvent(QEvent *e);
 
         private:
-            void setPluginListWidget(QWidget* plugin_list_widget);
-            ObserverWidget* observer_widget;
-
-            Ui::ExtensionSystemConfig *ui;
+            Ui::PluginInfoWidget *ui;
         };
     }
 }
 
-
-#endif // EXTENSIONSYSTEMCONFIG_H
+#endif // PLUGININFOWIDGET_H

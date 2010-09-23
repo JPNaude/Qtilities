@@ -34,6 +34,7 @@
 #include "ExtensionSystemConfig.h"
 #include "ui_ExtensionSystemConfig.h"
 #include "ExtensionSystemCore.h"
+#include "PluginInfoWidget.h"
 
 #include <QtilitiesCoreGuiConstants>
 using namespace Qtilities::CoreGui::Icons;
@@ -47,6 +48,8 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
         ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
     else
         ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
+    ui->listPluginPaths->addItems(ExtensionSystemCore::instance()->pluginPaths());
+    connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -94,4 +97,26 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::setPluginListWidget(QWid
     QHBoxLayout* new_layout = new QHBoxLayout(ui->widgetPluginListHolder);
     new_layout->addWidget(plugin_list_widget);
     new_layout->setMargin(0);
+
+    observer_widget = qobject_cast<ObserverWidget*> (plugin_list_widget);
+    if (observer_widget)
+        connect(observer_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handleSelectionChanged(QList<QObject*>)));
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleBtnDetailsClicked() {
+    if (observer_widget->selectedObjects().count() == 1) {
+        IPlugin* plugin_iface = qobject_cast<IPlugin*> (observer_widget->selectedObjects().front());
+        if (plugin_iface) {
+            PluginInfoWidget* info_widget = new PluginInfoWidget(plugin_iface);
+            info_widget->show();
+        }
+    }
+
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionChanged(QList<QObject*> selection) {
+    if (selection.count() == 1)
+        ui->btnPluginDetails->setEnabled(true);
+    else
+        ui->btnPluginDetails->setEnabled(false);
 }
