@@ -58,8 +58,8 @@ namespace Qtilities {
           \class TreeNode
           \brief The TreeNode class is a node in a tree which can have items attached to it and can also be attached to other nodes.
 
-          The TreeNode class is a node in a tree. That is, it is an item in the tree and other items or other nodes can be
-          attached/added underneath it. The node inherits Observer and therefore provides all the functionality of the
+          The TreeNode class represents a node in a tree. That is, it is an item in the tree to which other items or other nodes can be
+          attached/added. The node inherits Observer and therefore provides all the functionality of the
           Observer class such as installation of subject filters etc.
 
           All items in a TreeNode is attached to the Qtilities::Core::Observer subclass using Qtilities::Core::Observer::ObserverScopeOwnership. Thus
