@@ -41,6 +41,7 @@
 #include <IFactory.h>
 
 #include <QApplication>
+#include <QDomNodeList>
 
 struct Qtilities::ProjectManagement::ObserverProjectItemWrapperData {
     ObserverProjectItemWrapperData() : observer(0) {}
@@ -100,7 +101,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectMana
     return flags;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
     return IFactoryTag();
 }
 
@@ -113,17 +114,34 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    if (d->observer)
-        return d->observer->exportXML(doc,object_node,params);
-    else
+    if (d->observer) {
+        // Add a new node for this observer. We don't want it to add its factory data
+        // to the ProjectItem node.
+        QDomElement wrapper_data = doc->createElement("ObserverProjectItemWrapper");
+        object_node->appendChild(wrapper_data);
+        return d->observer->exportXML(doc,&wrapper_data,params);
+    } else
         return IExportable::Incomplete;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    if (d->observer)
-        return d->observer->importXML(doc,object_node,import_list,params);
-    else
-        return IExportable::Incomplete;
+    if (d->observer) {
+        QDomNodeList childNodes = object_node->childNodes();
+        for(int i = 0; i < childNodes.count(); i++)
+        {
+            QDomNode childNode = childNodes.item(i);
+            QDomElement child = childNode.toElement();
+
+            if (child.isNull())
+                continue;
+
+            if (child.tagName() == "ObserverProjectItemWrapper") {
+                return d->observer->importXML(doc,&child,import_list,params);
+            }
+        }
+    }
+
+    return IExportable::Incomplete;
 }
 
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::isModified() const {
