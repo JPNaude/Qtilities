@@ -268,8 +268,12 @@ QStringList Qtilities::Core::ObjectManager::tagsForFactory(const QString& factor
     foreach (QString ifactory_key, ifactory_keys) {
         IFactory* ifactory = referenceIFactory(ifactory_key);
         if (ifactory) {
-            foreach (QString factory_name, ifactory->factoryNames())
-                tags << ifactory->factoryTags(factory_name);
+            foreach (QString factory_name_int, ifactory->factoryNames()) {
+                if (factory_name_int == factory_name) {
+                    tags << ifactory->factoryTags(factory_name);
+                    break;
+                }
+            }
         }
     }
 
