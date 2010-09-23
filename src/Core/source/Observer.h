@@ -209,11 +209,14 @@ namespace Qtilities {
             /*!
               XML exporting of observers is intended to stream tree structures. It has some limitations compared to exportBinary():
               - It does not export relationships between objects and does not use the visitor pattern export mechanism used during binary exports. Thus if a item exists more than once in a tree, the reconstructed tree will create different items for all the places where it existed.
-              - It does not export all properties only activity and category information is exported.
+              - It does not export all properties only activity and category information are exported.
 
               Because of these limitations XML observer exports are best suited for visual tree structures, especially trees build using the Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem instances.
               For complex observer structures binary exports should be used. Note that XML exports is much faster than
               binary exports.
+
+              This function will add factory data to \p object_node and data and child information as new nodes underneath
+              \p object_node.
               */
             virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
@@ -344,6 +347,8 @@ namespace Qtilities {
               \param silent When true the function checks if the attachment can be done without using any dialog boxes. This is usefull when you need to attach subjects in an event filter where showing a dialog is a problem. An example of this is drag/drop operations in ObserverWidgets.
               */
             Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object, QString* rejectMsg = 0, bool silent = false) const;
+            //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
+            Observer::EvaluationResult canDetach(QObject* obj) const;
 
         public slots:
             //! Will attempt to detach the specified object from the observer.
@@ -358,8 +363,6 @@ namespace Qtilities {
               \returns A list of objects which was successfully detached.
               */
             virtual QList<QObject*> detachSubjects(QList<QObject*> objects);
-            //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
-            Observer::EvaluationResult canDetach(QObject* obj) const;
             //! Function to detach all currently observed subjects.
             virtual void detachAll();
             //! Function to delete all currenlty observed subjects.

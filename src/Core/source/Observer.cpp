@@ -205,7 +205,7 @@ bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
     return observerData->deliver_qtilities_property_changed_events;
 }
 
-Qtilities::Core::Interfaces::IFactoryTag Qtilities::Core::Observer::factoryData() const {
+Qtilities::Core::IFactoryTag Qtilities::Core::Observer::factoryData() const {
     IFactoryTag factory_data = observerData->factory_data;
     factory_data.d_instance_name = observerName();
     return factory_data;
@@ -221,7 +221,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
 quint32 MARKER_OBSERVER_SECTION = 0xDEADBEEF;
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    LOG_TRACE(tr("Binary export of observer ") + observerName() + tr(" section started."));
+    LOG_TRACE(tr("Binary export of observer ") + observerName() + tr(" started."));
 
     // We define a succesfull operation as an export which is able to export all subjects.
     bool success = true;
@@ -291,7 +291,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                     LOG_TRACE(QString("%1/%2: Limited export object \"%3\" excluded in this context...").arg(i).arg(iface_count).arg(subjectNameInContext(obj)));
                 }
             } else {
-                LOG_WARNING(tr("Binary export found an interface (") + subjectNameInContext(obj) + tr(" in context ") + observerName() + tr(") in context which does not support binary exporting. Binary export will be incomplete."));
+                LOG_WARNING(tr("Binary export found an interface (") + subjectNameInContext(obj) + tr(" in context ") + observerName() + tr(") which does not support binary exporting. Binary export will be incomplete."));
                 complete = false;
             }
         } else {
@@ -417,9 +417,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (factoryData.isValid()) {
             LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-            IFactory* ifactory = OBJECT_MANAGER->factoryReference(factoryData.d_factory_tag);
+            IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
             if (ifactory) {
-                factoryData.d_instance_context = observerData->observer_id;
                 QObject* new_instance = ifactory->createInstance(factoryData);
                 new_instance->setObjectName(factoryData.d_instance_name);
                 if (new_instance) {
@@ -486,7 +485,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     QDomElement observer_data = doc->createElement("ObserverData");
     observerData->exportXML(doc,&observer_data,params);
     if (observer_data.attributes().count() > 0 || observer_data.childNodes().count() > 0)
-        object_node->appendChild(observer_data);
+        subject_data.appendChild(observer_data);
 
     // 2.2. Observer hints:
     if (observerData->display_hints) {
@@ -520,6 +519,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     object_node->appendChild(subject_children);
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         IExportable* export_iface = qobject_cast<IExportable*> (subjectAt(i));
+        if (!export_iface) {
+            QObject* obj = observerData->subject_list.at(i);
+            foreach (QObject* child, obj->children()) {
+                Observer* obs = qobject_cast<Observer*> (child);
+                if (obs) {
+                    export_iface = obs;
+                    break;
+                }
+            }
+        }
+
         if (export_iface) {
             if (export_iface->supportedFormats() & IExportable::XML) {
                 // Create a data item with its factory data as attributes for i:
@@ -555,6 +565,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                     return IExportable::Failed;
                 else if (intermediate_result == IExportable::Incomplete)
                     result = intermediate_result;
+            } else {
+                LOG_WARNING(tr("XML export found an interface (") + subjectNameInContext(export_iface->objectBase()) + tr(" in context ") + observerName() + tr(") which does not support XML exporting. XML export will be incomplete."));
+                result = IExportable::Incomplete;
             }
         }
     }
@@ -595,23 +608,34 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     continue;
                 }
 
+                if (dataChild.tagName() == "ObserverData") {
+                    if (observerData->importXML(doc,&dataChild,import_list) == IExportable::Failed)
+                        return IExportable::Failed;
+                    continue;
+                }
+
                 if (dataChild.tagName() == "SubjectFilter") {
                     // Construct and init the subject filter:
                     IFactoryTag factoryData(doc,&dataChild);
                     if (factoryData.isValid()) {
-                        QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
-                        if (obj) {
-                            obj->setObjectName(factoryData.d_instance_name);
-                            AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
-                            if (abstract_filter) {
-                                if (abstract_filter->importXML(doc,&dataChild,import_list) == IExportable::Failed) {
-                                    LOG_ERROR(QString(tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
-                                    delete abstract_filter;
-                                    result = IExportable::Failed;
-                                }
-                                if (!installSubjectFilter(abstract_filter)) {
-                                    LOG_ERROR(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
-                                    delete abstract_filter;
+                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
+
+                        IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
+                        if (ifactory) {
+                            QObject* obj = ifactory->createInstance(factoryData);
+                            if (obj) {
+                                obj->setObjectName(factoryData.d_instance_name);
+                                AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
+                                if (abstract_filter) {
+                                    if (abstract_filter->importXML(doc,&dataChild,import_list) == IExportable::Failed) {
+                                        LOG_ERROR(QString(tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                        delete abstract_filter;
+                                        result = IExportable::Failed;
+                                    }
+                                    if (!installSubjectFilter(abstract_filter)) {
+                                        LOG_ERROR(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\".")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                        delete abstract_filter;
+                                    }
                                 }
                             }
                         }
@@ -649,40 +673,48 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     // Construct and init the child:
                     IFactoryTag factoryData(doc,&childrenChild);
                     if (factoryData.isValid()) {
-                        QObject* obj = OBJECT_MANAGER->createInstance(factoryData);
-                        if (obj) {
-                            obj->setObjectName(factoryData.d_instance_name);
-                            IExportable* iface = qobject_cast<IExportable*> (obj);
-                            if (iface) {
-                                // Now that we created the item, init its data and children:
-                                iface->importXML(doc,&childrenChild,import_list);
-                                constructed_list << iface->objectBase();
-                                if (attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership))
-                                    import_list << obj;
-                                else {
-                                    LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
-                                    delete obj;
-                                    result = IExportable::Incomplete;
-                                }
+                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-                                // Check if it is active:
-                                if (childrenChild.hasAttribute("Activity")) {
-                                    if (childrenChild.attribute("Activity") == QString("Active"))
-                                        active_subjects << iface->objectBase();
-                                }
+                        IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
+                        if (ifactory) {
+                            QObject* obj = ifactory->createInstance(factoryData);
+                            if (obj) {
+                                obj->setObjectName(factoryData.d_instance_name);
+                                IExportable* iface = qobject_cast<IExportable*> (obj);
+                                if (iface) {
+                                    // Now that we created the item, init its data and children:
+                                    iface->importXML(doc,&childrenChild,import_list);
+                                    constructed_list << iface->objectBase();
+                                    if (attachSubject(iface->objectBase(),Observer::OwnedBySubjectOwnership))
+                                        import_list << obj;
+                                    else {
+                                        LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
+                                        delete obj;
+                                        result = IExportable::Incomplete;
+                                    }
 
-                               // We just created this object, it will not have a category property yet so no need to check if it has:
-                                if (childrenChild.hasAttribute("Category")) {
-                                    QString category_string = childrenChild.attribute("Category");
-                                    QtilitiesCategory category(category_string,"::");
-                                    ObserverProperty category_property(OBJECT_CATEGORY);
-                                    category_property.setValue(qVariantFromValue(category),observerID());
-                                    Observer::setObserverProperty(iface->objectBase(),category_property);
+                                    // Check if it is active:
+                                    if (childrenChild.hasAttribute("Activity")) {
+                                        if (childrenChild.attribute("Activity") == QString("Active"))
+                                            active_subjects << iface->objectBase();
+                                    }
+
+                                   // We just created this object, it will not have a category property yet so no need to check if it has:
+                                    if (childrenChild.hasAttribute("Category")) {
+                                        QString category_string = childrenChild.attribute("Category");
+                                        QtilitiesCategory category(category_string,"::");
+                                        ObserverProperty category_property(OBJECT_CATEGORY);
+                                        category_property.setValue(qVariantFromValue(category),observerID());
+                                        Observer::setObserverProperty(iface->objectBase(),category_property);
+                                    }
+                                } else {
+                                    LOG_WARNING(QString(tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(objectName()));
+                                    return IExportable::Failed;
                                 }
-                            } else {
-                                LOG_WARNING(QString(tr("Found invalid exportable on reconstructed object in tree node: %1")).arg(objectName()));
-                                return IExportable::Failed;
                             }
+                        } else {
+                            LOG_ERROR(QString(tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(factoryData.d_factory_tag));
+                            result = IExportable::Incomplete;
                         }
                     } else
                         LOG_WARNING(QString(tr("Found invalid factory data for child on tree node: %1")).arg(objectName()));
@@ -791,7 +823,7 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::Interfaces::IFactoryTag factory_data) {
+void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::IFactoryTag factory_data) {
     if (factory_data.isValid())
         observerData->factory_data = factory_data;
 }
