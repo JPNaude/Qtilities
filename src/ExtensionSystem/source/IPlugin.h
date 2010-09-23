@@ -76,14 +76,30 @@ namespace Qtilities {
                     InitializationError,    /*!< The plugin detected an error during initialization. \sa initialize(). */
                     DependancyError         /*!< The plugin detected an error during depedancy initialization. \sa initializeDependancies(). */
                 };
+                //! Function which returns a string associated with a the plugin's state.
+                QString pluginStateString() const {
+                    if (d_state == Functional)
+                        return QString(QObject::tr("Functional"));
+                    else if (d_state == CompatibilityError)
+                        return QString(QObject::tr("Compatibility Error"));
+                    else if (d_state == InitializationError)
+                        return QString(QObject::tr("Initialization Error"));
+                    else if (d_state == DependancyError)
+                        return QString(QObject::tr("Dependancy Error"));
+                    return QString();
+                }
                 //! Sets the plugin state.
                 void setPluginState(PluginState state) { d_state = state; }
                 //! Gets the plugin state.
-                PluginState pluginState() { return d_state; }
+                PluginState pluginState() const { return d_state; }
+                //! Sets the plugin file name.
+                void setPluginFileName(const QString& file_name) { d_file_name = file_name; }
+                //! Gets the plugin file name.
+                QString pluginFileName() const { return d_file_name; }
                 //! Sets the error string.
                 void setErrorString(const QString& error_string) { d_error_string = error_string; }
                 //! Gets the error state.
-                QString errorString() { return d_error_string; }
+                QString errorString() const { return d_error_string; }
 
                 //! This function is called when the plugin is loaded.
                 /*!
@@ -105,25 +121,26 @@ namespace Qtilities {
                 virtual void finalize() { }
 
                 //! The version of the plugin.
-                virtual double pluginVersion() = 0;
+                virtual double pluginVersion() const = 0;
                 //! The version of the application for which the plugin is developed which the plugin was designed for.
-                virtual QStringList pluginCompatibilityVersions() = 0;
+                virtual QStringList pluginCompatibilityVersions() const = 0;
                 //! The name of the plugin's publisher.
-                virtual QString pluginPublisher() = 0;
+                virtual QString pluginPublisher() const = 0;
                 //! The website of the plugin's publisher.
-                virtual QString pluginPublisherWebsite() = 0;
+                virtual QString pluginPublisherWebsite() const = 0;
                 //! The contact details (in the form of an email address) of the plugin's publisher.
-                virtual QString pluginPublisherContact() = 0;
+                virtual QString pluginPublisherContact() const = 0;
                 //! A description for the plugin.
-                virtual QString pluginDescription() = 0;
+                virtual QString pluginDescription() const = 0;
                 //! The copyright information of the plugin.
-                virtual QString pluginCopyright() = 0;
+                virtual QString pluginCopyright() const = 0;
                 //! The licensing details of the plugin.
-                virtual QString pluginLicense() = 0;
+                virtual QString pluginLicense() const = 0;
 
             private:
                 PluginState d_state;
                 QString d_error_string;
+                QString d_file_name;
             };
         }
     }
