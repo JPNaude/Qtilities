@@ -290,104 +290,128 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
         // ------------------------------------
         } else if (role == Qt::DecorationRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_DECORATION);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_DECORATION);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::WhatsThisRole
         // ------------------------------------
         } else if (role == Qt::WhatsThisRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::SizeHintRole
         // ------------------------------------
         } else if (role == Qt::SizeHintRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::StatusTipRole
         // ------------------------------------
         } else if (role == Qt::StatusTipRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_STATUSTIP);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_STATUSTIP);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::FontRole
         // ------------------------------------
         } else if (role == Qt::FontRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FONT);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FONT);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::TextAlignmentRole
         // ------------------------------------
         } else if (role == Qt::TextAlignmentRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::BackgroundRole
         // ------------------------------------
         } else if (role == Qt::BackgroundRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_BACKGROUND);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_BACKGROUND);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::ForegroundRole
         // ------------------------------------
         } else if (role == Qt::ForegroundRole) {
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
 
             // Check if it has the OBJECT_ICON shared property set.
-            SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FOREGROUND);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            if (obj) {
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FOREGROUND);
+                if (icon_property.isValid()) {
+                    return icon_property.value();
+                }
             }
         // ------------------------------------
         // Qt::ToolTipRole
@@ -395,7 +419,8 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
         } else if (role == Qt::ToolTipRole) {
             // Check if the object has an OBJECT_TOOLTIP shared property to show.
             ObserverTreeItem* item = getItem(index);
-            Q_ASSERT(item);
+            if (!item)
+                return QVariant();
             QObject* obj = item->getObject();
             SharedObserverProperty tooltip = Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP);
             if (tooltip.isValid()) {
