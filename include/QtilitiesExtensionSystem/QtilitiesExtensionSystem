@@ -10,6 +10,8 @@
 #include "ExtensionSystemConstants.h"
 #include "ExtensionSystemCore.h"
 #include "IPlugin.h"
+#include "PluginInfoWidget.h"
+#include "PluginTreeModel.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Extension System module.
 namespace QtilitiesExtensionSystem { 
