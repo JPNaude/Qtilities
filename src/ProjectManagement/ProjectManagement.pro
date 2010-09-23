@@ -16,6 +16,7 @@ CONFIG += qt \
 
 QT += core
 #QT -= gui
+QT += xml
 
 CONFIG(debug, debug|release) {
     TARGET = QtilitiesProjectManagementd$${QTILITIES_FILE_VER}
