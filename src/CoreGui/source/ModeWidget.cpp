@@ -92,7 +92,6 @@ bool Qtilities::CoreGui::ModeWidget::addMode(IMode* mode, bool initialize_mode) 
         QListWidgetItem* new_item = new QListWidgetItem(icon,mode->text(),d->verticalModeList);
         d->verticalModeList->addItem(new_item);
         d->name_widget_map[mode->text()] = mode;
-        mode->initialize();
 
         // We set the first mode we find to be active
         if (d->name_widget_map.count() == 1) {
