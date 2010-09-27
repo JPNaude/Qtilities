@@ -75,26 +75,26 @@ int main(int argc, char *argv[])
     Log->toggleQtMsgEngine(false);
 
     // Log messages to each engine seperately:
-    LOG_INFO_TO_ENGINE("XML File Example","XML Information Message");
-    LOG_WARNING_TO_ENGINE("XML File Example","XML Warning Message");
-    LOG_ERROR_TO_ENGINE("XML File Example","XML Error Message");
-    LOG_FATAL_TO_ENGINE("XML File Example","XML Fatal Message");
-    LOG_DEBUG_TO_ENGINE("XML File Example","XML Debug Message");
-    LOG_TRACE_TO_ENGINE("XML File Example","XML Trace Message");
+    LOG_INFO_E("XML File Example","XML Information Message");
+    LOG_WARNING_E("XML File Example","XML Warning Message");
+    LOG_ERROR_E("XML File Example","XML Error Message");
+    LOG_FATAL_E("XML File Example","XML Fatal Message");
+    LOG_DEBUG_E("XML File Example","XML Debug Message");
+    LOG_TRACE_E("XML File Example","XML Trace Message");
 
-    LOG_INFO_TO_ENGINE("Plain File Example","Plain Information Message");
-    LOG_WARNING_TO_ENGINE("Plain File Example","Plain Warning Message");
-    LOG_ERROR_TO_ENGINE("Plain File Example","Plain Error Message");
-    LOG_FATAL_TO_ENGINE("Plain File Example","Plain Fatal Message");
-    LOG_DEBUG_TO_ENGINE("Plain File Example","Plain Debug Message");
-    LOG_TRACE_TO_ENGINE("Plain File Example","XML Trace Message");
+    LOG_INFO_E("Plain File Example","Plain Information Message");
+    LOG_WARNING_E("Plain File Example","Plain Warning Message");
+    LOG_ERROR_E("Plain File Example","Plain Error Message");
+    LOG_FATAL_E("Plain File Example","Plain Fatal Message");
+    LOG_DEBUG_E("Plain File Example","Plain Debug Message");
+    LOG_TRACE_E("Plain File Example","XML Trace Message");
 
-    LOG_INFO_TO_ENGINE("HTML File Example","HTML Information Message");
-    LOG_WARNING_TO_ENGINE("HTML File Example","HTML Warning Message");
-    LOG_ERROR_TO_ENGINE("HTML File Example","HTML Error Message");
-    LOG_FATAL_TO_ENGINE("HTML File Example","HTML Fatal Message");
-    LOG_DEBUG_TO_ENGINE("HTML File Example","HTML Debug Message");
-    LOG_TRACE_TO_ENGINE("HTML File Example","XML Trace Message");
+    LOG_INFO_E("HTML File Example","HTML Information Message");
+    LOG_WARNING_E("HTML File Example","HTML Warning Message");
+    LOG_ERROR_E("HTML File Example","HTML Error Message");
+    LOG_FATAL_E("HTML File Example","HTML Fatal Message");
+    LOG_DEBUG_E("HTML File Example","HTML Debug Message");
+    LOG_TRACE_E("HTML File Example","XML Trace Message");
 
     // Disable the console logger engine:
     Log->toggleConsoleEngine(false);

@@ -33,15 +33,11 @@
 
 #include "ExampleMode.h"
 #include "ui_ExampleMode.h"
-#include "SideWidgetFileSystem.h"
 
 #include <QtilitiesCoreGui>
 #include <QtGui>
 
-using namespace Qtilities::Core::Constants;
-using namespace Qtilities::CoreGui;
-using namespace Qtilities::CoreGui::Icons;
-using namespace Qtilities::CoreGui::Actions;
+using namespace QtilitiesCoreGui;
 
 struct Qtilities::Examples::MainWindow::ExampleModeData {
     ExampleModeData() : initialized(false),

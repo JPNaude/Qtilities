@@ -28,14 +28,11 @@ UI_DIR          = $$QTILITIES_TEMP/MainWindowExample
 # Application Files
 # --------------------------
 SOURCES += main.cpp \
-        ExampleMode.cpp \
-        SideWidgetFileSystem.cpp
+        ExampleMode.cpp
 
-HEADERS += ExampleMode.h \
-        SideWidgetFileSystem.h
+HEADERS += ExampleMode.h
 
-FORMS   += ExampleMode.ui \
-        SideWidgetFileSystem.ui
+FORMS   += ExampleMode.ui
 
 RC_FILE = rc_file.rc
 

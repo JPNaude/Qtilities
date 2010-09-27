@@ -37,7 +37,6 @@
 #include <QtilitiesExtensionSystem>
 
 #include "ExampleMode.h"
-#include "SideWidgetFileSystem.h"
 
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
