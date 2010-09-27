@@ -50,7 +50,7 @@ namespace Qtilities {
 
           \sa QtilitiesCategory
 
-          This class was added in %Qtilities v0.2.
+          <i>This class was added in %Qtilities v0.2.</i>
          */
         class QTILIITES_CORE_SHARED_EXPORT CategoryLevel : public IExportable {
         public:
@@ -105,28 +105,62 @@ namespace Qtilities {
 \brief An QtilitiesCategory object represents a category in %Qtilities.
 
 The QtilitiesCategory class can be used to define a category for an object. The category can be any number of
-levels deep.
+levels deep where each level is a CategoryLevel instance.
 
 We can construct a categroy object as follows:
 \code
-// If we want to use a category with multiple levels:
-QtilitiesCategory category;
-category << "Top Level Category" << "Middle Level Category" << "Lowest Level Category".
-
 // A category with a single level:
 QtiltiesCategory single_category("My Category");
+
+// If we want to use a category with multiple levels:
+// One way to do it:
+QtilitiesCategory category;
+category << "Top Level Category" << "Middle Level Category" << "Lowest Level Category";
+
+// Another way to do it:
+QtilitiesCategory category("Top Level Category::Middle Level Category::Lowest Level Category","::");
+
+// Yet another way to do it:
+QStringList category_list;
+category_list << "Top Level Category" << "Middle Level Category" << "Lowest Level Category";
+QtilitiesCategory category(category_list);
 \endcode
 
-The Observer class supports the grouping of objects into categories by inspecting objects attached to it
-for the OBJECT_CATEGORY property. We can add a category for an object like this:
+We can check if a category is valid using isValid() where a valid category is a category with at least one level.
+The category depth is available through categoryDepth() and the top and bottom level category names are
+available through categoryTop() and categoryBottom() respectively. The category can be converted to a string using
+toString() or to a string list using toStringList().
+
+It is possible to set the access mode of a category using setAccessMode() and the access mode can be accessed
+using accessMode(). A QtilitiesCategory object supports streaming to a QDataStream or saving its data
+to a XML QDomElement node. This is made possible by the implementation of Qtilities::Core::Interfaces::IExportable.
+
+\section qtilities_category_usage_scenario Usage Scenario
+
+Lets look at one example usage of QtilitiesCategory: The Observer class supports the grouping of objects into categories
+by inspecting objects attached to it for the OBJECT_CATEGORY property. We can add an object in a specific category to
+an Observer context in a couple of ways:
 \code
-ObserverProperty category_property3(OBJECT_CATEGORY);
-category_property3.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),observerC->observerID());
-Observer::setObserverProperty(object3,category_property3);
+// Using Observer directly:
+Observer* observer = new Observer("My Node");
+observer->useDisplayHints();
+observer->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedDisplay);
+QObject* object = new QObject();
+object->setObjectName("Categorized Item");
+ObserverProperty category_property(OBJECT_CATEGORY);
+category_property.setValue(qVariantFromValue(QtilitiesCategory("Item Category")),observer->observerID());
+Observer::setObserverProperty(object,category_property);
+observer->attachSubject(object);
+
+// Using TreeNode (which inherits from Observer):
+TreeNode* node = new TreeNode("My Node");
+node->setCategorizedDisplayEnabled(true);
+node->addItem("Categorized Item",QtilitiesCategory("Item Category"));
 \endcode
 
-In %Qtilities categories is used in a few places and using the QtilitiesCategory class everywhere we make
-sure that categories are handled the same way everywhere. Example usages in %Qtilities:
+\section qtilities_category_usages_in_qtilities Usage in Qtilities
+In %Qtilities categories are used in a few places and by using the QtilitiesCategory class everywhere we make
+sure that categories are handled the same way everywhere. Some usages in %Qtilities:
 - The Qtilities::CoreGui::Interfaces::IActionProvider interface allows grouping of actions into categories.
 - Observer classes allows grouping of subjects into categories.
 - Factory classes allows grouping of registered interfaces into categories.
