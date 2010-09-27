@@ -111,7 +111,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     Q_UNUSED(params)
 
     // Import the file name:
-    stream >> treeFileItemBase->file_name;
+    QString file_name;
+    stream >> file_name;
+    setFileName(treeFileItemBase->file_name);
 
     return IExportable::Complete;
 }
@@ -164,7 +166,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
                 if (data.tagName() == "File") {
                     // Restore the file path/name:
                     if (data.hasAttribute("Path")) {
-                        treeFileItemBase->file_name = data.attribute("Path");
+                        setFileName(data.attribute("Path"));
                         result = IExportable::Complete;
                     }
                 }
