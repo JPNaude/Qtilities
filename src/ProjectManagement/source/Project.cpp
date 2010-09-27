@@ -139,11 +139,11 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO(tr("Successfully saved complete project to file: ") + d->project_file);
+                LOG_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file);
             if (success == IExportable::Incomplete)
-                LOG_INFO(tr("Successfully saved incomplete project to file: ") + d->project_file);
+                LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
         } else {
-            LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
+            LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
             QApplication::restoreOverrideCursor();
             return false;
         }
@@ -211,11 +211,11 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO(tr("Successfully saved complete project to file: ") + d->project_file);
+                LOG_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file);
             if (success == IExportable::Incomplete)
-                LOG_INFO(tr("Successfully saved incomplete project to file: ") + d->project_file);
+                LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
         } else {
-            LOG_ERROR(tr("Failed to save current project to file: ") + d->project_file);
+            LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
             QApplication::restoreOverrideCursor();
             return false;
         }
