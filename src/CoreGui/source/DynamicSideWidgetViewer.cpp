@@ -83,8 +83,12 @@ Qtilities::CoreGui::DynamicSideWidgetViewer::~DynamicSideWidgetViewer()
 void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive) {
     d->is_exclusive = is_exclusive;
 
-    QMap<QString, ISideViewerWidget*> filtered_list;
+    // Clear previous widgets:
+    d->active_wrappers.clear();;
+    d->text_iface_map.clear();
+
     // Create a filtered list depending on the mode destination:
+    QMap<QString, ISideViewerWidget*> filtered_list;
     for (int i = 0; i < text_iface_map.count(); i++) {
         if (text_iface_map.values().at(i)->destinationModes().contains(d->mode_destination))
             filtered_list[text_iface_map.keys().at(i)] = text_iface_map.values().at(i);
