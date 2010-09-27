@@ -87,8 +87,11 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(QWidget* parent, Qt
     QHBoxLayout* priority_messages_layout = new QHBoxLayout(&d->priority_messages_widget);
     priority_messages_layout->addWidget(&d->priority_messages_icon);
     priority_messages_layout->addWidget(&d->priority_messages_text);
-    priority_messages_layout->setMargin(0);
+    priority_messages_layout->setContentsMargins(0,0,6,0);
     statusBar()->addWidget(&d->priority_messages_widget);
+
+    d->priority_messages_icon.setVisible(false);
+    d->priority_messages_text.setVisible(false);
 }
 
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
@@ -177,16 +180,23 @@ void Qtilities::CoreGui::QtilitiesMainWindow::handleChangeCentralWidget(QWidget*
 
 void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {
     if (d->priority_messages_enabled) {
-        if (message_type == Logger::Warning)
+        d->priority_messages_text.setVisible(true);
+        if (message_type == Logger::Warning) {
             d->priority_messages_icon.setPixmap(QIcon(ICON_WARNING_16x16).pixmap(16));
-        else if (message_type == Logger::Error || message_type == Logger::Fatal)
+            d->priority_messages_icon.setVisible(true);
+        } else if (message_type == Logger::Error || message_type == Logger::Fatal) {
             d->priority_messages_icon.setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
-        else
+            d->priority_messages_icon.setVisible(true);
+        } else {
             d->priority_messages_icon.setPixmap(QPixmap());
+            d->priority_messages_icon.setVisible(false);
+        }
 
         d->priority_messages_text.setText(message);
 
         QTimer::singleShot(5000, &d->priority_messages_text, SLOT(clear()));
+        QTimer::singleShot(5000, &d->priority_messages_text, SLOT(hide()));
         QTimer::singleShot(5000, &d->priority_messages_icon, SLOT(clear()));
+        QTimer::singleShot(5000, &d->priority_messages_icon, SLOT(hide()));
     }
 }
