@@ -56,6 +56,7 @@
 #include "TreeItem.h"
 #include "TreeFileItem.h"
 #include "TreeItemBase.h"
+#include "SideWidgetFileSystem.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
