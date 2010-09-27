@@ -463,7 +463,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup tree selection:
             d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
-            //d->tree_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
             // Setup proxy model
             d->proxy_model = new ObserverTreeModelProxyFilter(this);
@@ -2506,7 +2505,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
         else
             d->property_browser_widget->setObject(d_observer);
         addDockWidget(d->property_editor_dock_area, d->property_browser_dock);
-        //d->property_browser_dock->resize(d->property_browser_widget->sizeHint());
+
+        // Resize the doc depending on where it is:
+        //if (d->property_editor_dock_area == Qt::LeftDockWidgetArea || d->property_editor_dock_area == Qt::RightDockWidgetArea)
+        //    d->property_browser_widget->setFixedWidth(d->property_browser_widget->sizeHint().width());
+        if (d->property_editor_dock_area == Qt::TopDockWidgetArea || d->property_editor_dock_area == Qt::BottomDockWidgetArea)
+            d->property_browser_widget->setMaximumHeight(d->property_browser_widget->sizeHint().height());
         d->property_browser_dock->show();
     } else {
         removeDockWidget(d->property_browser_dock);
