@@ -118,6 +118,8 @@ namespace Qtilities {
             //! Toggle if read only properties should be disabled in the property editor. If not they will be editable, but changes won't be written back to the object.
             void toggleReadOnlyPropertiesDisabled(bool toggle);
 
+            QSize sizeHint() const;
+
         public slots:
             //! Sets the object for which the properties must be shown.
             /*!

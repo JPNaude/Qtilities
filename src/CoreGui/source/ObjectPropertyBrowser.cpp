@@ -109,6 +109,16 @@ Qtilities::CoreGui::ObjectPropertyBrowser::~ObjectPropertyBrowser() {
     delete d;
 }
 
+QSize Qtilities::CoreGui::ObjectPropertyBrowser::sizeHint() const {
+    if (d->property_browser) {
+        if (d->property_browser->sizeHint().isValid() && d->property_browser->sizeHint().width() != 0
+            && d->property_browser->sizeHint().height() != 0)
+            return d->property_browser->sizeHint();
+    }
+
+    return this->size();
+}
+
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object) {
     if (d->obj == object)
         return;
