@@ -51,9 +51,9 @@ namespace Qtilities {
 
         /*!
         \class Logger
-        \brief The Logger class is a singleton which manages logging in your application.
+        \brief The Logger class is a singleton which manages logging in Qt application.
 
-        The Logger class is a singleton which is used to create a single instance of the logger class in memory.
+        The Logger class provides logging functionality to any Qt application.
 
         See the \ref page_logging article for more information on how to use the logger.
           */
@@ -387,19 +387,21 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 // Engine Specific Logging
 // -----------------------------------
 //! Logs a trace message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_TRACE_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Trace, Msg)
+#define LOG_TRACE_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Trace, Msg)
 //! Logs a debug message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_DEBUG_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Debug, Msg)
+#define LOG_DEBUG_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Debug, Msg)
 //! Logs an error message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_ERROR_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Error, Msg)
+#define LOG_ERROR_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Error, Msg)
 //! Logs a warning message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_WARNING_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Warning, Msg)
+#define LOG_WARNING_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Warning, Msg)
 //! Logs a fatal message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_FATAL_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Fatal, Msg)
+#define LOG_FATAL_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Fatal, Msg)
 //! Logs an info message to the engine specified. Note that the engine must be active for the message to be logger.
-#define LOG_INFO_TO_ENGINE(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Info, Msg)
+#define LOG_INFO_E(Engine_Name, Msg) Log->logMessage(Engine_Name,Qtilities::Logging::Logger::Info, Msg)
 
-// - Function Specific Logging
+// -----------------------------------
+// Function Specific Logging
+// -----------------------------------
 /*#define FUNC_DEBUG(Function_Name, Msg) Log->funcMessage(Engine_Name,Qtilities::Logging::Logger::Debug, Msg)
 #define FUNC_ERROR(Function_Name, Msg) Log->funcMessage(Engine_Name,Qtilities::Logging::Logger::Error, Msg)
 #define FUNC_WARNING(Function_Name, Msg) Log->funcgMessage(Engine_Name,Qtilities::Logging::Logger::Warning, Msg)
