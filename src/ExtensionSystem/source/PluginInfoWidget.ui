@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>425</width>
-    <height>557</height>
+    <width>491</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -210,6 +210,9 @@
       <widget class="QPlainTextEdit" name="txtCopyright">
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+       <property name="backgroundVisible">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

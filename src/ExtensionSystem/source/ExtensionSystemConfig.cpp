@@ -49,6 +49,7 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     else
         ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
     ui->listPluginPaths->addItems(ExtensionSystemCore::instance()->pluginPaths());
+
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
 }
 
@@ -99,8 +100,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::setPluginListWidget(QWid
     new_layout->setMargin(0);
 
     observer_widget = qobject_cast<ObserverWidget*> (plugin_list_widget);
-    if (observer_widget)
+    if (observer_widget) {
         connect(observer_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handleSelectionChanged(QList<QObject*>)));
+        connect(observer_widget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handleSelectionDoubleClicked(QObject*)));
+    }
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleBtnDetailsClicked() {
@@ -123,4 +126,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionChanged(Q
             ui->btnPluginDetails->setEnabled(false);
     } else
         ui->btnPluginDetails->setEnabled(false);
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionDoubleClicked(QObject* selection) {
+    IPlugin* plugin_iface = qobject_cast<IPlugin*> (selection);
+    if (plugin_iface) {
+        PluginInfoWidget* info_widget = new PluginInfoWidget(plugin_iface);
+        info_widget->show();
+    }
 }

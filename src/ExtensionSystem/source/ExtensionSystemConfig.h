@@ -77,6 +77,7 @@ namespace Qtilities {
         public slots:
             void handleBtnDetailsClicked();
             void handleSelectionChanged(QList<QObject*> selection);
+            void handleSelectionDoubleClicked(QObject* selection);
 
         protected:
             void changeEvent(QEvent *e);
