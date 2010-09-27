@@ -905,6 +905,7 @@ int Qtilities::CoreGui::AbstractObserverTreeModel::columnCountHelper(const QMode
 
 void Qtilities::CoreGui::AbstractObserverTreeModel::rebuildTreeStructure() {
     // Rebuild the tree structure:
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reset();
     deleteRootItem();
     QVector<QVariant> columns;
@@ -923,6 +924,7 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::rebuildTreeStructure() {
 
     // Now attempt to reselect the previously selected objects:
     emit selectObjects(d->selected_objects);
+    QApplication::restoreOverrideCursor();
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::AbstractObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
