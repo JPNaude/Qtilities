@@ -57,6 +57,8 @@ Qtilities::CoreGui::SideViewerWidgetHelper::SideViewerWidgetHelper(FactoryInterf
     d->modes = modes;
     d->startup_modes = startup_modes;
     d->is_exclusive = is_exclusive;
+
+    setObjectName(widget_id);
 }
 
 Qtilities::CoreGui::SideViewerWidgetHelper::~SideViewerWidgetHelper() {
