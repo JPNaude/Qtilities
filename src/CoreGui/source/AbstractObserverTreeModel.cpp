@@ -87,6 +87,10 @@ bool Qtilities::CoreGui::AbstractObserverTreeModel::setObserverContext(Observer*
     connect(d_observer,SIGNAL(layoutChanged()),SLOT(rebuildTreeStructure()));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
+    // If a selection parent does not exist, we set observer as the selection parent:
+    if (!d->selection_parent)
+        d->selection_parent = observer;
+
     return true;
 }
 
