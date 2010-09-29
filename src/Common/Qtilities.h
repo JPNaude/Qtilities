@@ -35,74 +35,74 @@
 #define QTILITIES_H
 
 namespace Qtilities {
-//! The %Qtilities major version number.
-#define QTILITIES_VERSION_MAJOR 0
-//! The %Qtilities minor version number.
-#define QTILITIES_VERSION_MINOR 2
-//! The %Qtilities beta number.
-#define QTILITIES_VERSION_BETA 0
-//! The %Qtilities alpha number.
-#define QTILITIES_VERSION_ALPHA 0
+    //! The %Qtilities major version number.
+    #define QTILITIES_VERSION_MAJOR 0
+    //! The %Qtilities minor version number.
+    #define QTILITIES_VERSION_MINOR 2
+    //! The %Qtilities beta number.
+    #define QTILITIES_VERSION_BETA 0
+    //! The %Qtilities alpha number.
+    #define QTILITIES_VERSION_ALPHA 0
 
-//! The %Qtilities binary export formats version
-/*!
-The binary export format indicates how binary exports are done in %Qtilities. The export format
-defines the binary format used by the following functions and classes which implements
-Qtilities::Core::Interfaces::IExportable:
-<b>Classes:</b>
-- Qtilities::Core::Observer
-- Qtilities::Core::ObserverRelationalTable
-- Qtilities::Core::ObserverData
+    //! The %Qtilities binary export formats version
+    /*!
+    The binary export format indicates how binary exports are done in %Qtilities. The export format
+    defines the binary format used by the following functions and classes which implements
+    Qtilities::Core::Interfaces::IExportable:
+    <b>Classes:</b>
+    - Qtilities::Core::Observer
+    - Qtilities::Core::ObserverRelationalTable
+    - Qtilities::Core::ObserverData
 
-<b>Functions (corresponding import functions not shown here):</b>
-- Qtilities::Core::ObjectManager::exportObserverBinary()
-- Qtilities::Core::ObjectManager::exportObjectProperties()
-- Qtilities::ProjectManagement::Project::saveProject()
+    <b>Functions (corresponding import functions not shown here):</b>
+    - Qtilities::Core::ObjectManager::exportObserverBinary()
+    - Qtilities::Core::ObjectManager::exportObjectProperties()
+    - Qtilities::ProjectManagement::Project::saveProject()
 
-Binary exports is not backwards compatible at this stage.
+    Binary exports is not backwards compatible at this stage.
 
-History:
-0 - %Qtilities v0.1 Beta 1
-1 - %Qtilities v0.1
-2 - %Qtilities v0.2
-     The following changes were part of the new v2 format:
-     - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
-     - Observers now export their memory of category access modes using the new QtilitiesCategory class.
-*/
-#define QTILITIES_BINARY_EXPORT_FORMAT 2
+    History:
+    0 - %Qtilities v0.1 Beta 1
+    1 - %Qtilities v0.1
+    2 - %Qtilities v0.2
+         The following changes were part of the new v2 format:
+         - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
+         - Observers now export their memory of category access modes using the new QtilitiesCategory class.
+    */
+    #define QTILITIES_BINARY_EXPORT_FORMAT 2
 
-//! The shortcut export format version.
-/*!
-History:
-No version defined - %Qtilities v0.1 Beta 1
-1 - %Qtililties v0.1-v0.2 onwards
-*/
-#define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
+    //! The shortcut export format version.
+    /*!
+    History:
+    No version defined - %Qtilities v0.1 Beta 1
+    1 - %Qtililties v0.1-v0.2 onwards
+    */
+    #define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
 
-//! The %Qtilities binary export format.
-/*!
-The binary export format indicates how binary exports are done in the %Qtilities logging module.
-The export format defines the binary format used by the following functions and classes which implements
-Qtilities::Core::Interfaces::ILoggerExportable:
-<b>Classes:</b>
-- Qtilities::Logging::Logger
+    //! The %Qtilities binary export format.
+    /*!
+    The binary export format indicates how binary exports are done in the %Qtilities logging module.
+    The export format defines the binary format used by the following functions and classes which implements
+    Qtilities::Core::Interfaces::ILoggerExportable:
+    <b>Classes:</b>
+    - Qtilities::Logging::Logger
 
-History:
-No version defined - %Qtilities v0.1 Beta 1
-1 - %Qtilities v0.1
-2 - %Qtilities v0.2
-*/
-#define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 2
+    History:
+    No version defined - %Qtilities v0.1 Beta 1
+    1 - %Qtilities v0.1
+    2 - %Qtilities v0.2
+    */
+    #define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 2
 
-//! The %Qtilities XML export format.
-/*!
-The XML format defines the format which is used to export XML trees.
+    //! The %Qtilities XML export format.
+    /*!
+    The XML format defines the format which is used to export XML trees.
 
-History:
-XML exporting was introduced in %Qtilities v0.2
-1 - %Qtililties v0.2
-*/
-#define QTILITIES_XML_EXPORT_FORMAT 1
+    History:
+    XML exporting was introduced in %Qtilities v0.2
+    1 - %Qtililties v0.2
+    */
+    #define QTILITIES_XML_EXPORT_FORMAT 1
 
 }
 
