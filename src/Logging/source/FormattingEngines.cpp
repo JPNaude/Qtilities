@@ -195,7 +195,7 @@ QString Qtilities::Logging::FormattingEngine_QtMsgEngineFormat::formatMessage(Lo
     Q_UNUSED(message_type)
 
     QString message = QString();
-    message.append(QString("%1\n").arg(messages.front().toString()));
+    message.append(QString("%1").arg(messages.front().toString()));
     return message;
 }
 
