@@ -63,7 +63,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/ObserverHints.h \
     source/SubjectFilterTemplate.h \
     source/QtilitiesCategory.h \
-    source/IExportableFormatting.h
+    source/IExportableFormatting.h \
+    ../Common/Qtilities.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
