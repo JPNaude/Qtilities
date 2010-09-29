@@ -177,15 +177,22 @@ namespace Qtilities {
             void toggleSubjectEventFiltering(bool toggle);
             //! Indicates if subject event filtering is enabled.
             bool subjectEventFilteringEnabled() const;
-            //! This function toggles delivery of QtilitiesPropertyChangeEvents on objects when property changes occurs.
+            //! This function enables/disables delivery of QtilitiesPropertyChangeEvents on objects when property changes occurs.
             /*!
+              \param toggle When true, change events are delivered. When false they are not delivered.
+
               See monitoredPropertyChanged() for more details on when property change events can be used. If your implementation
               does not use property change events, you should disabled the events to optimize performance.
 
               \note These events are disabled by default.
+
+              \sa qtilitiesPropertyChangeEventsEnabled()
               */
             void toggleQtilitiesPropertyChangeEvents(bool toggle);
             //! Indicates if QtilitiesPropertyChangeEvents are enabled.
+            /*!
+              \sa toggleQtilitiesPropertyChangeEvents()
+              */
             bool qtilitiesPropertyChangeEventsEnabled() const;
 
             // --------------------------------

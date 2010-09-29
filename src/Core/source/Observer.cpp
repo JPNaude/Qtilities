@@ -2160,7 +2160,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                 return false;
             }
 
-            // Handle changes from different threads
+            // Handle changes from different threads:
             if (!observerData->observer_mutex.tryLock()) {
                 QList<QObject*> filtered_list;
                 filtered_list << object;
