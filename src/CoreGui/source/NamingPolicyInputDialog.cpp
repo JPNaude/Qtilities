@@ -37,8 +37,8 @@
 #include "ui_NamingPolicyInputDialog.h"
 #include "QtilitiesCoreGuiConstants.h"
 
-#include <ObserverProperty.h>
-#include <QtilitiesCoreConstants.h>
+#include <ObserverProperty>
+#include <QtilitiesCoreConstants>
 #include <Observer>
 
 using namespace Qtilities::CoreGui::Constants;

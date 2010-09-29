@@ -50,11 +50,6 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
         using namespace Qtilities::CoreGui::Constants;
         class NamingPolicyInputDialog;
-
-        /*!
-        \struct NamingPolicyFilterData
-        \brief A structure storing private data in the NamingPolicyFilter class.
-          */
         struct NamingPolicyFilterData;
 
         /*!
@@ -111,7 +106,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
         public:
             NamingPolicyFilter(QObject* parent = 0);
-            ~NamingPolicyFilter();
+            virtual ~NamingPolicyFilter();
 
             // --------------------------------
             // Enumerations
@@ -133,10 +128,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               setUniquenessPolicy(), uniquenessPolicy(), setUniquenessResolutionPolicy(), uniquenessResolutionPolicy(), setValidityResolutionPolicy(), validityResolutionPolicy()
               */
             enum ResolutionPolicy {
-                AutoRename,             /*!< Automatically rename new names. \sa generateValidName() */
-                PromptUser,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. */
-                Replace,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
-                Reject                  /*!< Reject unacceptable names. */
+                AutoRename = 0,             /*!< Automatically rename new names. \sa generateValidName() */
+                PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. */
+                Replace = 2,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
+                Reject = 3                  /*!< Reject unacceptable names. */
             };
             //! Function which returns a string associated with a specific ResolutionPolicy.
             static QString resolutionPolicyToString(ResolutionPolicy resolution_policy);
@@ -221,7 +216,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
 
             //! Evaluates a name in the observer context in which this subject filter is installed.
-            NamingPolicyFilter::NameValidity evaluateName(QString name) const;
+            virtual NamingPolicyFilter::NameValidity evaluateName(QString name) const;
             //! Gets the object which conflicts with the specified name. If no object conflicts, returns 0.
             QObject* getConflictingObject(QString name) const;
             //! Function to set the validator used to validate names.
@@ -262,11 +257,14 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Checks if this subject filter is the name manager of the specified object.
             bool isObjectNameManager(QObject* obj) const;
 
-        private:
+        protected:
             //! Attempt to assign a new name manager to the object, other than this filter.
             void assignNewNameManager(QObject* obj);
             //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the OBJECT_NAME property.
             bool isObjectNameDirty(QObject* obj) const;
+            //! Sets the conflicting object. Only used from NamingPolicyInputDialog.
+            virtual void setConflictingObject(QObject* obj);
+
             //! Attempt to generate a valid name in the context from the given input_name.
             /*!
               The valid name generation attempts the following in the order shown.
@@ -287,13 +285,33 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
               \return A valid QString value. If QString is returned empty the function could not succeed in generating a valid name.
               */
-            QString generateValidName(QString input_name = QString(), bool force_change = false);
+            virtual QString generateValidName(QString input_name = QString(), bool force_change = false);
             //! Validates if \p property_name is a valid name for \p obj in this context.
-            bool validateNamePropertyChange(QObject* obj, const char* property_name);
-            //! Sets the conflicting object. Only used from NamingPolicyInputDialog.
-            void setConflictingObject(QObject* obj);
+            virtual bool validateNamePropertyChange(QObject* obj, const char* property_name);
 
             NamingPolicyFilterData* d;
+        };
+
+        /*!
+        \struct NamingPolicyFilterData
+        \brief A structure storing protected data in the NamingPolicyFilter class.
+          */
+        struct NamingPolicyFilterData {
+            NamingPolicyFilterData() : is_modified(false),
+            is_exportable(true),
+            conflicting_object(0) { }
+
+            bool is_modified;
+            bool is_exportable;
+            QValidator* validator;
+            NamingPolicyInputDialog* name_dialog;
+
+            QString rollback_name;
+            QPointer<QObject> conflicting_object;
+            bool validation_cycle_active;
+            NamingPolicyFilter::UniquenessPolicy uniqueness_policy;
+            NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy;
+            NamingPolicyFilter::ResolutionPolicy validity_resolution_policy;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(NamingPolicyFilter::NameValidity)

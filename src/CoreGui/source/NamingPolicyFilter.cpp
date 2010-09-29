@@ -66,24 +66,6 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::NamingPolicyFilterData {
-    NamingPolicyFilterData() : is_modified(false),
-    is_exportable(true),
-    conflicting_object(0) { }
-
-    bool is_modified;
-    bool is_exportable;
-    QValidator* validator;
-    NamingPolicyInputDialog* name_dialog;
-
-    QString rollback_name;
-    QPointer<QObject> conflicting_object;
-    bool validation_cycle_active;
-    NamingPolicyFilter::UniquenessPolicy uniqueness_policy;
-    NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy;
-    NamingPolicyFilter::ResolutionPolicy validity_resolution_policy;
-};
-
 Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
     d = new NamingPolicyFilterData;
     d->uniqueness_policy = NamingPolicyFilter::ProhibitDuplicateNames;
