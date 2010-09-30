@@ -398,9 +398,11 @@ namespace Qtilities {
               The property editor type must be set before calling initialize().
               */
             void setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type);
+            //! Sets the desired property browser filter list to be used when constructing a property browser in this widget.
+            void setPreferredPropertyFilter(QStringList filter_list, bool inversed_filter = false);
+        protected:
             //! Constructs the property browser and show it. If it already exists, this function does nothing.
             void constructPropertyBrowser();
-        protected:
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.
             void refreshPropertyBrowser();
             #endif

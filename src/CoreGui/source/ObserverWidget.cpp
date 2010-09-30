@@ -148,6 +148,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QPointer<ObjectPropertyBrowser> property_browser_widget;
     Qt::DockWidgetArea property_editor_dock_area;
     ObjectPropertyBrowser::BrowserType property_editor_type;
+    QStringList property_filter;
+    bool property_filter_inversed;
     #endif
 
     //! Indicates if the widget is in an initialized state. Thus initialization was successful. \sa initialize()
@@ -201,6 +203,8 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->property_browser_widget = 0;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
     d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
+    d->property_filter_inversed = false;
+    d->property_filter = QStringList();
     #endif
 
     d->navigation_bar = 0;
@@ -973,6 +977,12 @@ void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorDockArea(Qt::
 void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type) {
     d->property_editor_type = property_editor_type;
 }
+
+void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyFilter(QStringList filter_list, bool inversed_filter) {
+    d->property_filter = filter_list;
+    d->property_filter_inversed = inversed_filter;
+}
+
 #endif
 
 Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::ObserverWidget::searchBoxWidget() {
@@ -2520,11 +2530,17 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
 void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
     if (!d->property_browser_dock) {
         d->property_browser_dock = new QDockWidget("Property Browser",0);
-        d->property_browser_widget = new ObjectPropertyBrowser(d->property_editor_type);
-        d->property_browser_widget->setObject(d_observer);
-        d->property_browser_dock->setWidget(d->property_browser_widget);
         connect(d->property_browser_dock,SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),SLOT(setPreferredPropertyEditorDockArea(Qt::DockWidgetArea)));
     }
+
+    if (!d->property_browser_widget) {
+        d->property_browser_widget = new ObjectPropertyBrowser(d->property_editor_type);
+        if (!d->property_filter.isEmpty())
+            d->property_browser_widget->setFilterList(d->property_filter,d->property_filter_inversed);
+        d->property_browser_widget->setObject(d_observer);
+    }
+
+    d->property_browser_dock->setWidget(d->property_browser_widget);
 }
 #endif
 
@@ -2585,7 +2601,6 @@ void Qtilities::CoreGui::ObserverWidget::changeEvent(QEvent *e)
         break;
     }
 }
-
 
 bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *event) {
     if (!d->initialized)
@@ -2842,7 +2857,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 QList<QPointer<QObject> > smart_objects;
                 for (int i = 0; i < simple_objects.count(); i++)
                     smart_objects << simple_objects.at(i);
-                ObserverMimeData* mimeData;
+                ObserverMimeData* mimeData = 0;
                 if (mouseEvent->buttons() == Qt::LeftButton)
                     mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::CopyAction);
                 else if (mouseEvent->buttons() == Qt::RightButton)
