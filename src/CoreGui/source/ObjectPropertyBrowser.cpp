@@ -272,7 +272,6 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::handle_property_changed(QtProper
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::handleObjectDeleted() {
     setObject(0);
-    clearFilter();
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *metaObject) {
