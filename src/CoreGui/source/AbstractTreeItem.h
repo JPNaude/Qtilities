@@ -110,17 +110,23 @@ namespace Qtilities {
             // Getter & Setter functions for object role properties
             // -------------------------------
             //! Sets the category of the tree item in the specified tree node.
-            void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
+            void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);           
             //! Gets the category of the tree item in the specified tree node.
             /*!
-              \param tree_node The node context for which the category must be obtained for..
+              \param tree_node The node context for which the category must be obtained for.
               */
             QtilitiesCategory getCategory(TreeNode* tree_node) const;
             //! Sets the category of the tree item in the context specified by the given observer ID.
-            void setCategory(const QtilitiesCategory& category, int observer_id);
+            /*!
+              \param observer_id The observer ID of the context for which the category must be set. When -1,
+              the function will assume that the item only has 1 parent and it will check if it has only one
+              parent and if so, set the category for that parent. If it has more than one parent, the function
+              will print an error message in release mode and assert id debug mode.
+              */
+            void setCategory(const QtilitiesCategory& category, int observer_id = -1);
             //! Gets the category of the tree item in the context specified by the given observer ID.
             /*!
-              \param observer_id The observer ID of the context for which the category must be obtained for. When 0,
+              \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
               the function will assume that the item only has 1 parent and it will check if it has only one
               parent and if so, return the category for that parent. If it has more than one parent, the function
               will print an error message in release mode and assert id debug mode.

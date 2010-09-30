@@ -253,23 +253,70 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     if (!category.isValid())
         return;
 
-    QObject* obj = objectBase();
-    Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
-    if (obj && obs) {
-        if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
-            ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
-            category_property.setValue(qVariantFromValue(category),observer_id);
-            Observer::setObserverProperty(obj,category_property);
+    // When observer_id = -1, we set the category of the only parent:
+    if (observer_id == -1) {
+        // Check the parent count:
+        if (Observer::parentCount(objectBase()) != 1) {
+            Q_ASSERT(Observer::parentCount(objectBase()) != 1);
+            LOG_ERROR(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
         } else {
-            ObserverProperty category_property(OBJECT_CATEGORY);
-            category_property.setValue(qVariantFromValue(category),observer_id);
-            Observer::setObserverProperty(obj,category_property);
+            ObserverProperty prop = Observer::getObserverProperty(objectBase(),OBSERVER_SUBJECT_IDS);
+            if (prop.isValid()) {
+                int id = prop.observerMap().keys().at(0);
+                QObject* obj = objectBase();
+                Observer* obs = OBJECT_MANAGER->observerReference(id);
+                if (obj && obs) {
+                    // Check if the category changed, if not we don't set it again.
+                    // Setting it again will trigger a view refresh which should be avoided if possible.
+                    QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+                    if (category_variant.isValid()) {
+                        QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
+                        if (old_category == category)
+                            return;
+                    }
+
+                    // Ok it changed, thus set it again:
+                    if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
+                        ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+                        category_property.setValue(qVariantFromValue(category),id);
+                        Observer::setObserverProperty(obj,category_property);
+                    } else {
+                        ObserverProperty category_property(OBJECT_CATEGORY);
+                        category_property.setValue(qVariantFromValue(category),id);
+                        Observer::setObserverProperty(obj,category_property);
+                    }
+                }
+            }
+        }
+    } else {
+        QObject* obj = objectBase();
+        Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
+        if (obj && obs) {
+            // Check if the category changed, if not we don't set it again.
+            // Setting it again will trigger a view refresh which should be avoided if possible.
+            QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            if (category_variant.isValid()) {
+                QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
+                if (old_category == category)
+                    return;
+            }
+
+            // Ok it changed, thus set it again:
+            if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
+                ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+                category_property.setValue(qVariantFromValue(category),observer_id);
+                Observer::setObserverProperty(obj,category_property);
+            } else {
+                ObserverProperty category_property(OBJECT_CATEGORY);
+                category_property.setValue(qVariantFromValue(category),observer_id);
+                Observer::setObserverProperty(obj,category_property);
+            }
         }
     }
 }
 
 QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer_id) const {
-    // When observer_id = -1, we return the category of the first parent:
+    // When observer_id = -1, we return the category of the only parent:
     if (observer_id == -1) {
         // Check the parent count:
         if (Observer::parentCount(objectBase()) != 1) {
