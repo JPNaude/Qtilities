@@ -60,6 +60,12 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
     d = new SideWidgetFileSystemData;
 
     d->model = new QFileSystemModel;
+
+    // Set up drag ability:
+    d->model->setSupportedDragActions(Qt::CopyAction);
+    m_ui->treeView->setDragEnabled(true);
+
+    // Set up model etc.:
     QDir dir(start_path);
     if (start_path.isEmpty() || !dir.exists(start_path))
         d->model->setRootPath(QDir::currentPath());
@@ -71,6 +77,8 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
     m_ui->treeView->hideColumn(3);
     m_ui->txtCurrentPath->setText(QDir::currentPath());
     m_ui->treeView->setRootIndex(d->model->index(QDir::currentPath()));
+
+    // Make neccesarry connections:
     connect(d->model,SIGNAL(rootPathChanged(QString)),SLOT(handleRootPathChanged(QString)));
     connect(m_ui->btnBrowse,SIGNAL(clicked()),SLOT(handleBtnBrowse()));
     connect(m_ui->treeView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClicked(QModelIndex)));
