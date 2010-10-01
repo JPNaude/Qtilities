@@ -10,7 +10,7 @@
 #include "IContext.h"
 #include "IContextManager.h"
 #include "IExportable.h"
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "IModificationNotifier.h"
 #include "IObjectBase.h"
 #include "IObjectManager.h"
