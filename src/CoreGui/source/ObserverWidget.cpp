@@ -93,9 +93,23 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionExpandAll(0),
     actionCollapseAll(0),
     actionFindItem(0),
+    navigation_bar(0),
+    table_view(0),
+    table_model(0),
+    tree_view(0),
+    tree_model(0),
     proxy_model(0),
+    table_name_column_delegate(0),
+    tree_name_column_delegate(0),
     activity_filter(0),
+    top_level_observer(0),
+    initialized(false),
+    update_selection_activity(true),
+    hints_selection_parent(0),
+    use_observer_hints(true),
+    update_global_active_objects(false),
     action_provider(0),
+    default_row_height(17),
     confirm_deletes(true),
     searchBoxWidget(0),
     actionFilterNodes(0),
@@ -195,6 +209,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     QMainWindow(parent, f),
     ui(new Ui::ObserverWidget)
 {
+    ui->setupUi(this);
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
 
@@ -207,29 +222,8 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->property_filter = QStringList();
     #endif
 
-    d->navigation_bar = 0;
     d->display_mode = display_mode;
-
-    d->table_model = 0;
-    d->table_view = 0;
-    d->table_name_column_delegate = 0;
-
-    d->tree_model = 0;
-    d->tree_view = 0;
-    d->tree_name_column_delegate = 0;
-
-    d->top_level_observer = 0;
-    d->default_row_height = 17;
-
-    // Init rest of parameters
     d->hints_default = new ObserverHints(this);
-    d->hints_selection_parent = 0;
-    d->use_observer_hints = true;
-
-    d->update_global_active_objects = false;
-    d->initialized = false;
-    d->update_selection_activity = true;
-    ui->setupUi(this);
 
     setWindowIcon(QIcon(ICON_QTILITIES_SYMBOL_WHITE_16x16));
     ui->widgetSearchBox->hide();
@@ -249,6 +243,51 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->global_meta_type = context_string;
     d->shared_global_meta_type = QString();
     setObjectName(context_string);
+}
+
+Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
+    QMainWindow(parent, f),
+    ui(new Ui::ObserverWidget)
+{
+    ui->setupUi(this);
+    d = new ObserverWidgetData;
+    d->action_provider = new ActionProvider(this);
+
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    d->property_browser_dock = 0;
+    d->property_browser_widget = 0;
+    d->property_editor_dock_area = Qt::RightDockWidgetArea;
+    d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
+    d->property_filter_inversed = false;
+    d->property_filter = QStringList();
+    #endif
+
+    d->display_mode = display_mode;
+    d->hints_default = new ObserverHints(this);
+
+    setWindowIcon(QIcon(ICON_QTILITIES_SYMBOL_WHITE_16x16));
+    ui->widgetSearchBox->hide();
+
+    // Assign a default meta type for this widget:
+    // We construct each action and then register it
+    QString context_string = "ObserverWidget";
+    int count = 0;
+    context_string.append(QString("%1").arg(count));
+    while (CONTEXT_MANAGER->hasContext(context_string)) {
+        QString count_string = QString("%1").arg(count);
+        context_string.chop(count_string.length());
+        ++count;
+        context_string.append(QString("%1").arg(count));
+    }
+    CONTEXT_MANAGER->registerContext(context_string);
+    d->global_meta_type = context_string;
+    d->shared_global_meta_type = QString();
+    setObjectName(context_string);
+
+    if (observer_context) {
+        setObserverContext(observer_context);
+        initialize();
+    }
 }
 
 Qtilities::CoreGui::ObserverWidget::~ObserverWidget()
@@ -954,10 +993,6 @@ QString Qtilities::CoreGui::ObserverWidget::globalMetaType() const {
 
 Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::ObserverWidget::actionProvider() {
     return d->action_provider;
-}
-
-void Qtilities::CoreGui::ObserverWidget::inheritDisplayHints(ObserverHints* display_hints) {
-    d->hints_selection_parent = display_hints;
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSettingsUpdateRequest(const QString& request_id) {

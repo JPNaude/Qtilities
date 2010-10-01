@@ -169,9 +169,9 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
                 none_failed = false;
                 break;
             } else if (result == Observer::LastScopedObserver) {
-                destination_observer->setObserverPropertyValue(objects.at(i),OWNERSHIP,QVariant(Observer::ManualOwnership));
+                destination_observer->setObserverPropertyValue(objects.at(i),OBJECT_OWNERSHIP,QVariant(Observer::ManualOwnership));
                 if (!source_observer->detachSubject(objects.at(i))) {
-                    destination_observer->setObserverPropertyValue(objects.at(i),OWNERSHIP,QVariant(Observer::ObserverScopeOwnership));
+                    destination_observer->setObserverPropertyValue(objects.at(i),OBJECT_OWNERSHIP,QVariant(Observer::ObserverScopeOwnership));
                     none_failed = false;
                     break;
                 } else {
@@ -547,7 +547,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     //    While going through the list we fill in the sessionID fields of each entry in the relational table.
     //    The sessionID is used again in step 3.
     // 2. Once the parents are sorted out, we need to sort out the object ownership.
-    //    This is done by simply setting the OBSERVER_OWNERSHIP property on the object.
+    //    This is done by simply setting the OBSERVER_OBJECT_OWNERSHIP property on the object.
     //    If the ownership is SpecificObserverOwnership, we need to set the OBSERVER_PARENT property
     //    as well.
     // 3. Correct the names of each object in all the contexts to which it is attached.
@@ -591,7 +591,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
         // Now set the ownership property on the object:
         LOG_TRACE("> Restoring correct ownership for object.");
         if ((Observer::ObjectOwnership) entry->d_ownership == Observer::ManualOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::ManualOwnership),OWNERSHIP);
+            SharedObserverProperty ownership_property(QVariant(Observer::ManualOwnership),OBJECT_OWNERSHIP);
             ownership_property.setIsExportable(false);
             Observer::setSharedProperty(objects.at(i),ownership_property);
             SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
@@ -599,7 +599,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
             Observer::setSharedProperty(objects.at(i),observer_parent_property);
             LOG_TRACE(">> Restored object ownership is ManualOwnership.");
         } else if ((Observer::ObjectOwnership) entry->d_ownership == Observer::ObserverScopeOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::ObserverScopeOwnership),OWNERSHIP);
+            SharedObserverProperty ownership_property(QVariant(Observer::ObserverScopeOwnership),OBJECT_OWNERSHIP);
             ownership_property.setIsExportable(false);
             Observer::setSharedProperty(objects.at(i),ownership_property);
             SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
@@ -611,7 +611,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
             RelationalTableEntry* parent_entry = table.entryWithVisitorID(entry->d_parentVisitorID);
             if (parent_entry) {
                 int session_id = parent_entry->d_sessionID;
-                SharedObserverProperty ownership_property(QVariant(Observer::SpecificObserverOwnership),OWNERSHIP);
+                SharedObserverProperty ownership_property(QVariant(Observer::SpecificObserverOwnership),OBJECT_OWNERSHIP);
                 ownership_property.setIsExportable(false);
                 Observer::setSharedProperty(objects.at(i),ownership_property);
                 SharedObserverProperty observer_parent_property(QVariant(session_id),OBSERVER_PARENT);
@@ -628,7 +628,7 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
                 }
             }
         } else if ((Observer::ObjectOwnership) entry->d_ownership == Observer::OwnedBySubjectOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::OwnedBySubjectOwnership),OWNERSHIP);
+            SharedObserverProperty ownership_property(QVariant(Observer::OwnedBySubjectOwnership),OBJECT_OWNERSHIP);
             ownership_property.setIsExportable(false);
             Observer::setSharedProperty(objects.at(i),ownership_property);
             SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
@@ -754,8 +754,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // We must stream the factory data for the observer first.
     QList<QPointer<QObject> > internal_import_list;
-    InstanceFactoryInfo factoryData;
-    if (!factoryData.importBinary(stream))
+    InstanceFactoryInfo instanceFactoryInfo;
+    if (!instanceFactoryInfo.importBinary(stream))
         return IExportable::Failed;
 
     IExportable::Result result = obs->importBinary(stream, internal_import_list, params);

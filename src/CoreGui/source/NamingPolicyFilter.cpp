@@ -319,7 +319,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         obj->setObjectName(observer->getObserverPropertyValue(obj,OBJECT_NAME).toString());
         if (obj->thread() == thread()) {
             if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-                // Post an QtilitiesPropertyChangeEvent on this object notifying that the name changed.
+                // Post a QtilitiesPropertyChangeEvent on this object notifying that the name changed.
                 QByteArray property_name_byte_array = QByteArray(OBJECT_NAME);
                 QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
                 QCoreApplication::postEvent(obj,user_event);
@@ -522,9 +522,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::NamingPolicyFilter::factoryData() const {
-    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
-    return factoryData;
+Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::NamingPolicyFilter::instanceFactoryInfo() const {
+    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_NAMING_POLICY_FILTER,FACTORY_TAG_NAMING_POLICY_FILTER);
+    return instanceFactoryInfo;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::NamingPolicyFilter::supportedFormats() const {
@@ -537,7 +537,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Na
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     stream << d->rollback_name;

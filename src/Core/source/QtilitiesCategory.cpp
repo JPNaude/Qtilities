@@ -47,7 +47,7 @@ Qtilities::Core::IExportable::ExportModeFlags Qtilities::Core::CategoryLevel::su
     return flags;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::CategoryLevel::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::CategoryLevel::instanceFactoryInfo() const {
     return InstanceFactoryInfo();
 }
 
@@ -146,8 +146,8 @@ void Qtilities::Core::QtilitiesCategory::addLevel(CategoryLevel category_level) 
     d_category_levels.push_back(category_level);
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::QtilitiesCategory::factoryData() const {
-    return factoryData();
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::QtilitiesCategory::instanceFactoryInfo() const {
+    return instanceFactoryInfo();
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::QtilitiesCategory::supportedFormats() const {

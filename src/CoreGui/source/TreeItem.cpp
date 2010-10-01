@@ -62,9 +62,9 @@ Qtilities::CoreGui::TreeItem::~TreeItem() {
     delete d;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeItem::factoryData() const {
-    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
-    return factoryData;
+Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeItem::instanceFactoryInfo() const {
+    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
+    return instanceFactoryInfo;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::TreeItem::supportedFormats() const {
@@ -78,7 +78,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
     Q_UNUSED(params)
 
     // First export the factory data of this item:
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     return IExportable::Complete;
@@ -95,7 +95,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
     Q_UNUSED(params)
 
     // 1. Factory attributes is added to this item's node:
-    factoryData().exportXML(doc,object_node);
+    instanceFactoryInfo().exportXML(doc,object_node);
 
     // 2. The data of this item is added to a new data node:
     QDomElement item_data = doc->createElement("Data");

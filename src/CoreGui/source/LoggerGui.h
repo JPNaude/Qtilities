@@ -53,7 +53,7 @@ namespace Qtilities {
 
         /*!
         \class LoggerGui
-        \brief A class providing static member functions to acccess and create GUIs related to the Qtilities Logging library.
+        \brief A class providing static member functions to acccess and create GUIs related to the %Qtilities Logging library.
 
         This class allows the creation of log widgets through static functions. These widgets includes:
         - A configuration widget for the logger.

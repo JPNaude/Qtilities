@@ -59,6 +59,28 @@ namespace Qtilities {
         }
 
         //! Namespace containing reserved observer properties used inside the Core Module.
+        /*!
+          Observer classes use the dynamic property features of QObject classes extensively to manage objects in different contexts.
+          This namespace contains a set of properties which are defined and used internally in %Qtilities.
+
+          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers
+          article.
+
+          Among property specific details, the following is defined for each property:
+          - Permission: Indicates the permission on the property. When \p Reserved the property cannot be changed
+          by the developer and when an attempt is made to change the property it will be filtered by the observer managing
+          the object on which the property exist. Observers emits the Qtilities::Core::Observer::propertyChangeFiltered() signal
+          when this happens. When the permission is specified as \p Read/Write the property can be changed by the
+          developer at any time.
+          - Data Type: This field indicates the type of data stored in a property.
+          - Property Type: All properties are QVariants of either ObserverProperty or SharedObserverProperty. This field indicates
+          the type of property.
+          - Is Exportable: Indicates if the property is exportable. See ObserverProperty::isExportable() for more information.
+          - Change Notifications: Indicates if a property is monitored. See Observer::monitoredProperties() for more information.
+
+          For an overview of property changes and changing properties see the \ref monitoring_property_changes section of the
+          \ref page_observers article.
+          */
         namespace Properties {
 
 //! %Observer Subject IDs Property
@@ -107,11 +129,11 @@ Observer* obs = new Observer("My Observer","");
 QObject* obj = new QObject();
 obs->attachSubject(obj);
 
-QVariant current_ownership = obs->getObserverPropertyValue(obj,OWNERSHIP);
+QVariant current_ownership = obs->getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
 Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
 \endcode
 */
-const char * const OWNERSHIP              = "Qtilities.Core.Ownership";
+const char * const OBJECT_OWNERSHIP              = "Qtilities.Core.Ownership";
 
 //! %Observer Parent Property
 /*!
@@ -132,16 +154,16 @@ Using the observer limit property it is possible to limit the number of observer
 which can observe any object at one time. The limit must be set before attaching
 the object to any observers and cannot be changed afterwards.
 
-<b>Permisson:</b> Read/Write, Read (after attachment)<br>
+<b>Permisson:</b> Read/Write, Reserved (after attachment)<br>
 <b>Data Type:</b> int<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> No<br>
 
-Below is an example of how to add the OBJECT_ACCESS_MODE property to an object.
+Below is an example of how to add the OBSERVER_LIMIT property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty observer_limit_property(QVariant((int) Observer::ReadOnlyAccess),OBSERVER_LIMIT);
+SharedObserverProperty observer_limit_property(QVariant(1),OBSERVER_LIMIT);
 Observer::setSharedProperty(obj, observer_limit_property);
 \endcode
 */

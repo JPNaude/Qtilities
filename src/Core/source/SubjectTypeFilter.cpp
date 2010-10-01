@@ -207,9 +207,9 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
     return d->inversed_filtering;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectTypeFilter::factoryData() const {
-    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
-    return factoryData;
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectTypeFilter::instanceFactoryInfo() const {
+    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
+    return instanceFactoryInfo;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectTypeFilter::supportedFormats() const {
@@ -221,7 +221,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Subje
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
     Q_UNUSED(params)
 
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     stream << d->inversed_filtering;

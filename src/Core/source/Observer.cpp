@@ -107,7 +107,7 @@ Qtilities::Core::Observer::~Observer() {
             if (obs)
                 obs->startProcessingCycle();
 
-            subject_ownership_variant = getObserverPropertyValue(obj,OWNERSHIP);
+            subject_ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
             parent_observer_variant = getObserverPropertyValue(obj,OBSERVER_PARENT);
             if ((subject_ownership_variant.toInt() == SpecificObserverOwnership) && (observerData->observer_id == parent_observer_variant.toInt())) {
                 // Subjects with SpecificObserverOwnership must be deleted as soon as this observer is deleted if this observer is their parent.
@@ -179,7 +179,7 @@ QStringList Qtilities::Core::Observer::monitoredProperties() const {
 
 QStringList Qtilities::Core::Observer::reservedProperties() const {
     QStringList properties;
-    properties << QString(OBSERVER_SUBJECT_IDS) << QString(OWNERSHIP) << QString(OBSERVER_PARENT) << QString(OBSERVER_VISITOR_ID) << QString(OBJECT_LIMITED_EXPORTS);
+    properties << QString(OBSERVER_SUBJECT_IDS) << QString(OBJECT_OWNERSHIP) << QString(OBSERVER_PARENT) << QString(OBSERVER_VISITOR_ID) << QString(OBJECT_LIMITED_EXPORTS);
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         properties << observerData->subject_filters.at(i)->reservedProperties();
@@ -203,7 +203,7 @@ bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
     return observerData->deliver_qtilities_property_changed_events;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::Observer::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::Observer::instanceFactoryInfo() const {
     InstanceFactoryInfo factory_data = observerData->factory_data;
     factory_data.d_instance_name = observerName();
     return factory_data;
@@ -226,7 +226,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     bool complete = true;
 
     // First export the factory data of this observer:
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
@@ -370,19 +370,19 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     int subject_filter_count = ui32;
     for (int i = 0; i < subject_filter_count; i++) {
         // Get the factory data of the subject filter:
-        InstanceFactoryInfo factoryData;
-        if (!factoryData.importBinary(stream)) {
+        InstanceFactoryInfo instanceFactoryInfo;
+        if (!instanceFactoryInfo.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
         } else {
-            AbstractSubjectFilter* new_filter = qobject_cast<AbstractSubjectFilter*> (OBJECT_MANAGER->createInstance(factoryData));
+            AbstractSubjectFilter* new_filter = qobject_cast<AbstractSubjectFilter*> (OBJECT_MANAGER->createInstance(instanceFactoryInfo));
             if (new_filter) {
-                new_filter->setObjectName(factoryData.d_instance_name);
-                LOG_TRACE(QString("%1/%2: Importing subject filter \"%3\"...").arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
+                new_filter->setObjectName(instanceFactoryInfo.d_instance_name);
+                LOG_TRACE(QString("%1/%2: Importing subject filter \"%3\"...").arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name));
                 new_filter->importBinary(stream,import_list);
                 installSubjectFilter(new_filter);
             } else {
-                LOG_ERROR(QString(tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...")).arg(i+1).arg(subject_filter_count).arg(factoryData.d_instance_name));
+                LOG_ERROR(QString(tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...")).arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name));
                 endProcessingCycle();
                 return IExportable::Failed;
             }
@@ -407,18 +407,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (!success)
             break;
 
-        InstanceFactoryInfo factoryData;
-        if (!factoryData.importBinary(stream)) {
+        InstanceFactoryInfo instanceFactoryInfo;
+        if (!instanceFactoryInfo.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
         }
-        if (factoryData.isValid()) {
-            LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
+        if (instanceFactoryInfo.isValid()) {
+            LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
 
-            IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
+            IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
             if (ifactory) {
-                QObject* new_instance = ifactory->createInstance(factoryData);
-                new_instance->setObjectName(factoryData.d_instance_name);
+                QObject* new_instance = ifactory->createInstance(instanceFactoryInfo);
+                new_instance->setObjectName(instanceFactoryInfo.d_instance_name);
                 if (new_instance) {
                     import_list.append(new_instance);
                     IExportable* exp_iface = qobject_cast<IExportable*> (new_instance);
@@ -472,7 +472,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     IExportable::Result result = IExportable::Complete;
 
     // 1. Factory attributes is added to this item's node:
-    if (factoryData().exportXML(doc,object_node) == IExportable::Failed)
+    if (instanceFactoryInfo().exportXML(doc,object_node) == IExportable::Failed)
         return IExportable::Failed;
 
     // 2. The data of this item is added to a new data node:
@@ -499,7 +499,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         QDomElement subject_filter = doc->createElement("SubjectFilter");
         subject_data.appendChild(subject_filter);
-        if (observerData->subject_filters.at(i)->factoryData().exportXML(doc,&subject_filter) == IExportable::Failed)
+        if (observerData->subject_filters.at(i)->instanceFactoryInfo().exportXML(doc,&subject_filter) == IExportable::Failed)
             return IExportable::Failed;
         if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
             return IExportable::Failed;
@@ -557,7 +557,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                 if (ownership != ObserverScopeOwnership)
                     subject_item.setAttribute("Ownership",objectOwnershipToString(ownership));
                 // 4. Factory Data:
-                if (export_iface->factoryData().exportXML(doc,&subject_item) == IExportable::Failed)
+                if (export_iface->instanceFactoryInfo().exportXML(doc,&subject_item) == IExportable::Failed)
                     return IExportable::Failed;
 
                 // Now we let the export iface export whatever it need to export:
@@ -617,24 +617,24 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (dataChild.tagName() == "SubjectFilter") {
                     // Construct and init the subject filter:
-                    InstanceFactoryInfo factoryData(doc,&dataChild);
-                    if (factoryData.isValid()) {
-                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
+                    InstanceFactoryInfo instanceFactoryInfo(doc,&dataChild);
+                    if (instanceFactoryInfo.isValid()) {
+                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
 
-                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
+                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
                         if (ifactory) {
-                            QObject* obj = ifactory->createInstance(factoryData);
+                            QObject* obj = ifactory->createInstance(instanceFactoryInfo);
                             if (obj) {
-                                obj->setObjectName(factoryData.d_instance_name);
+                                obj->setObjectName(instanceFactoryInfo.d_instance_name);
                                 AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
                                 if (abstract_filter) {
                                     if (abstract_filter->importXML(doc,&dataChild,import_list) == IExportable::Failed) {
-                                        LOG_ERROR(QString(tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                        LOG_ERROR(QString(tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(instanceFactoryInfo.d_instance_tag).arg(objectName()));
                                         delete abstract_filter;
                                         result = IExportable::Failed;
                                     }
                                     if (!installSubjectFilter(abstract_filter)) {
-                                        LOG_DEBUG(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(factoryData.d_instance_tag).arg(objectName()));
+                                        LOG_DEBUG(QString(tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(instanceFactoryInfo.d_instance_tag).arg(objectName()));
                                         delete abstract_filter;
                                     }
                                 }
@@ -672,15 +672,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (childrenChild.tagName() == "TreeItem") {
                     // Construct and init the child:
-                    InstanceFactoryInfo factoryData(doc,&childrenChild);
-                    if (factoryData.isValid()) {
-                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
+                    InstanceFactoryInfo instanceFactoryInfo(doc,&childrenChild);
+                    if (instanceFactoryInfo.isValid()) {
+                        LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
 
-                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
+                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
                         if (ifactory) {
-                            QObject* obj = ifactory->createInstance(factoryData);
+                            QObject* obj = ifactory->createInstance(instanceFactoryInfo);
                             if (obj) {
-                                obj->setObjectName(factoryData.d_instance_name);
+                                obj->setObjectName(instanceFactoryInfo.d_instance_name);
                                 IExportable* iface = qobject_cast<IExportable*> (obj);
                                 if (iface) {
                                     // Now that we created the item, init its data and children:
@@ -723,7 +723,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                 }
                             }
                         } else {
-                            LOG_ERROR(QString(tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(factoryData.d_factory_tag));
+                            LOG_ERROR(QString(tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_factory_tag));
                             result = IExportable::Incomplete;
                         }
                     } else
@@ -898,18 +898,18 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         #endif
         // Check if the object is already managed, and if so with what ownership flag it was attached to those observers.
         if (parentCount(obj) > 1) {
-            QVariant current_ownership = getObserverPropertyValue(obj,OWNERSHIP);
+            QVariant current_ownership = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
             if (current_ownership.toInt() != OwnedBySubjectOwnership) {
                 if (object_ownership == ObserverScopeOwnership) {
                     // Update the ownership to ObserverScopeOwnership
-                    setObserverPropertyValue(obj,OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
                     setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(-1));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Observer Scope Ownership";
                     #endif
                 } else if (object_ownership == SpecificObserverOwnership) {
                     // Update the ownership to SpecificObserverOwnership
-                    setObserverPropertyValue(obj,OWNERSHIP,QVariant(SpecificObserverOwnership));
+                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(SpecificObserverOwnership));
                     setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(observerID()));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Specific Observer Ownership";
@@ -944,12 +944,12 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                     } else {
                         // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                         if (!obj->parent()) {
-                            setObserverPropertyValue(obj,OWNERSHIP,QVariant(ObserverScopeOwnership));
+                            setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                             #endif
                         } else {
-                            setObserverPropertyValue(obj,OWNERSHIP,QVariant(ManualOwnership));
+                            setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ManualOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                             #endif
@@ -973,7 +973,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                 #endif
             }
         } else {
-            SharedObserverProperty ownership_property(QVariant(object_ownership),OWNERSHIP);
+            SharedObserverProperty ownership_property(QVariant(object_ownership),OBJECT_OWNERSHIP);
             ownership_property.setIsExportable(false);
             setSharedProperty(obj,ownership_property);
             SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
@@ -987,19 +987,19 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             } else if (object_ownership == AutoOwnership) {
                 // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                 if (!obj->parent()) {
-                    setObserverPropertyValue(obj,OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                     #endif
                 } else {
-                    setObserverPropertyValue(obj,OWNERSHIP,QVariant(ManualOwnership));
+                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ManualOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                     #endif
                 }
             } else if (object_ownership == SpecificObserverOwnership) {
                 // This observer must be its parent.
-                setObserverPropertyValue(obj,OWNERSHIP,QVariant(SpecificObserverOwnership));
+                setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(SpecificObserverOwnership));
                 setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(observerID()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Specific Observer Ownership";
@@ -1331,7 +1331,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         #endif
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getObserverPropertyValue(obj,OWNERSHIP);
+        QVariant ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
         if (ownership_variant.isValid() && (ownership_variant.toInt() == ObserverScopeOwnership)) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
@@ -1417,7 +1417,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getObserverPropertyValue(obj,OWNERSHIP);
+        QVariant ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
         if (ownership_variant.isValid() && (ownership_variant.toInt() == ObserverScopeOwnership)) {
             if (parentCount(obj) == 1)
                 return Observer::LastScopedObserver;
@@ -1760,7 +1760,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
-        QVariant current_ownership = getObserverPropertyValue(obj,OWNERSHIP);
+        QVariant current_ownership = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
         Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
         return ownership;
     }

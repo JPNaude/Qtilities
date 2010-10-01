@@ -88,10 +88,8 @@ nodeC->addItem("Item 5");
 nodeC->addItem("Item 6");
 nodeC->addItem("Item 7");
 
-// Create an observer widget wih the items:
-ObserverWidget* tree_widget = new ObserverWidget();
-tree_widget->setObserverContext(nodeA);
-tree_widget->initialize();
+// Create an observer widget showing the tree:
+ObserverWidget* tree_widget = new ObserverWidget(nodeA);
 tree_widget->show();
 \endcode
 
@@ -135,7 +133,7 @@ nodeC->addItem("Item 5")->setWhatsThis("Hello, I'm a What's This message.");
 nodeC->addItem("Item 6")->setToolTip("Hello, I'm a ToolTip text");
 nodeC->addItem("Item 7")->setCategory(QtilitiesCategory("Category 1"),nodeC);
 
-// Create an observer widget wih the items:
+// Create an observer widget showing the tree:
 ObserverWidget* tree_widget = new ObserverWidget();
 QtilitiesApplication::setMainWindow(tree_widget);
 tree_widget->setObserverContext(nodeA);

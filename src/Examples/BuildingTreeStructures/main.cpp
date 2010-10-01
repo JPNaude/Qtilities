@@ -104,5 +104,46 @@ int main(int argc, char *argv[])
     tree_widget->initialize();
     tree_widget->show();
 
+    // ----------------------------------
+    // Categorized Tree
+    // ------------------------------------
+    TreeNode* rootNode = new TreeNode("Root");
+    rootNode->setCategorizedDisplayEnabled(true);
+    rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
+    rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
+    rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
+    rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
+    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
+
+    // ----------------------------------
+    // Uncategorized Tree
+    // ------------------------------------
+    /*TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    parentNode2->addItem("Child 5");*/
+
+    // ----------------------------------
+    // More Advanced Tree
+    // ------------------------------------
+    /*TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    parentNode1->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode2->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    parentNode2->addItem("Child 5");*/
+
+    rootNode->saveToFile(QApplication::applicationDirPath() + "/example_tree.xml");
+    ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
+    uncategorized_widget->show();
+
     return a.exec();
 }

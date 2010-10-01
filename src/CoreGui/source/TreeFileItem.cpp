@@ -81,9 +81,9 @@ QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
     return strippedFileExtension(treeFileItemBase->file_name);
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeFileItem::factoryData() const {
-    treeFileItemBase->factoryData.d_instance_name = objectName();
-    return treeFileItemBase->factoryData;
+Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeFileItem::instanceFactoryInfo() const {
+    treeFileItemBase->instanceFactoryInfo.d_instance_name = objectName();
+    return treeFileItemBase->instanceFactoryInfo;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::TreeFileItem::supportedFormats() const {
@@ -97,7 +97,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     Q_UNUSED(params)
 
     // First export the factory data of this item:
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     // Export the file name:
@@ -122,7 +122,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     Q_UNUSED(params)
 
     // 1. Factory attributes is added to this item's node:
-    factoryData().exportXML(doc,object_node);
+    instanceFactoryInfo().exportXML(doc,object_node);
 
     // 2. The data of this item is added to a new data node:
     QDomElement item_data = doc->createElement("Data");
@@ -181,6 +181,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     return result;
 }
 
-void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo factoryData) {
-    treeFileItemBase->factoryData = factoryData;
+void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo instanceFactoryInfo) {
+    treeFileItemBase->instanceFactoryInfo = instanceFactoryInfo;
 }

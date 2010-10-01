@@ -102,6 +102,29 @@ namespace Qtilities {
               \param f The Qt::WindowFlags which must be used for the widget.
               */
             ObserverWidget(DisplayMode display_mode = TreeView, QWidget * parent = 0, Qt::WindowFlags f = 0);
+            //! A constructor which takes the observer context to be displayed as the first parameter.
+            /*!
+              This constructor can be used if no functions need to be called on the observer widget object
+              before initializing it. The result is less code:
+
+\code
+// The long way:
+ObserverWidget* categorized_widget = new ObserverWidget();
+categorized_widget->setObserverContext(contextPtr);
+categorized_widget->initialize();
+categorized_widget->show();
+
+// The long way:
+ObserverWidget* categorized_widget = new ObserverWidget(contextPtr);
+categorized_widget->show();
+\endcode
+
+              \param observer_context The observer context to be displayed. If invalid, the constructor will not call setObserverContext() and initialize().
+              \param display_mode The display mode that should be used.
+              \param parent The parent widget.
+              \param f The Qt::WindowFlags which must be used for the widget.
+              */
+            ObserverWidget(Observer* observer_context, DisplayMode display_mode = TreeView, QWidget * parent = 0, Qt::WindowFlags f = 0);
             //! Default destructor.
             virtual ~ObserverWidget();
             //! Implementation of virtual function ObserverAwareBase::setObserverContext().
@@ -176,13 +199,11 @@ namespace Qtilities {
             // Functions Related To Display Hints
             // --------------------------------
             //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
-            void toggleUseObserverHints(bool toggle);
-            //! This function will set the hints used for the current selection parent.
             /*!
-              \sa toggleUseObserverHints()
+              \note When using category filtering the hints to do that must be set on the observer context
+              on which category filtering must be enabled. For more information see Qtilities::Core::ObserverHints::setDisplayedCategories()
               */
-            void inheritDisplayHints(ObserverHints* display_hints);
-        private:
+            void toggleUseObserverHints(bool toggle);
             //! This function will provide the hints which should be used by this widget at any time.
             /*!
               \sa toggleUseObserverHints()

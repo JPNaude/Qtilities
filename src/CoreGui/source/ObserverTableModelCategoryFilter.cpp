@@ -67,9 +67,9 @@ bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int 
                     QObject* object_at_index = table_model->getObject(index);
                     if (object_at_index) {
                         QVariant category_variant = observer->getObserverPropertyValue(object_at_index,OBJECT_CATEGORY);
-                        QString category = category_variant.toString();
-                        if (category.isEmpty())
-                            category = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+                        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+                        if (!category.isValid())
+                            category << QString(OBSERVER_UNCATEGORIZED_CATEGORY);
 
                         if (observer->displayHints()->categoryFilterEnabled()) {
                             if (observer->displayHints()->hasInversedCategoryDisplay()) {

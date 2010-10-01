@@ -57,8 +57,8 @@ Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""),
     setObjectName(name);
 
     // Set the factory data in the observer base class:
-    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_NODE,objectName());
-    setFactoryData(factoryData);
+    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_NODE,objectName());
+    setFactoryData(instanceFactoryInfo);
 
     // Tree nodes always use display hints:
     useDisplayHints();

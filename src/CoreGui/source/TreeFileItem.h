@@ -49,10 +49,10 @@ namespace Qtilities {
           */
         struct TreeFileItemData {
             TreeFileItemData() : file_name(QString()),
-            factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
+            instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
 
             QString file_name;
-            InstanceFactoryInfo factoryData;
+            InstanceFactoryInfo instanceFactoryInfo;
         };
 
         /*!
@@ -130,7 +130,7 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            InstanceFactoryInfo factoryData() const;
+            InstanceFactoryInfo instanceFactoryInfo() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
@@ -141,7 +141,7 @@ namespace Qtilities {
             void fileNameChanged(const QString& new_file_name);
 
         protected:
-            void setFactoryData(InstanceFactoryInfo factoryData);
+            void setFactoryData(InstanceFactoryInfo instanceFactoryInfo);
             TreeFileItemData* treeFileItemBase;
         };
     }

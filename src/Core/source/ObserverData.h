@@ -99,7 +99,7 @@ namespace Qtilities {
             /*!
               \note ObserverData returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            InstanceFactoryInfo factoryData() const;
+            InstanceFactoryInfo instanceFactoryInfo() const;
             virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;

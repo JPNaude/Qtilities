@@ -50,7 +50,7 @@ namespace Qtilities {
 
         /*!
           \class QtilitiesApplication
-          \brief The QtilitiesApplication is the same as QApplication with added functionality.
+          \brief The QtilitiesApplication class is the same as QApplication with added functionality.
 
           The QtilitiesApplication class is an extension of QApplication and should be used when building
           %Qtilities applications. For example:
@@ -168,7 +168,7 @@ QtilitiesApplication::initialize();
             void settingsUpdateRequest(const QString& request_id);
 
         public slots:
-            //! Displays an Qtilities::CoreGui::AboutWindow with information about the Qtilities libraries.
+            //! Displays a Qtilities::CoreGui::AboutWindow with information about the Qtilities libraries.
             void aboutQtilities();
 
         private:

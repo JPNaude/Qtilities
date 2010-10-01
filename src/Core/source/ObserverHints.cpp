@@ -485,8 +485,8 @@ Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::st
     return (DragDropFlags) drag_drop_flags_string.toInt();
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverHints::factoryData() const {
-    return factoryData();
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverHints::instanceFactoryInfo() const {
+    return instanceFactoryInfo();
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::ObserverHints::supportedFormats() const {

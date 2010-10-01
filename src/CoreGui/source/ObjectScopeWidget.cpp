@@ -238,7 +238,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         m_ui->txtObserverLimit->setText(QString("%1").arg(observer_limit));
 
     // Ownership
-    shared_property = getSharedProperty(OWNERSHIP);
+    shared_property = getSharedProperty(OBJECT_OWNERSHIP);
     if (shared_property.isValid())
         ownership = shared_property.value().toInt();
 

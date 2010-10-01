@@ -54,9 +54,9 @@ namespace Qtilities {
 
             /*!
               \class PluginTemplate
-              \brief A template which can is a starting point to creating plugins to be used with the Qtilities extension system.
+              \brief A template which can is a starting point to creating plugins to be used with the %Qtilities extension system.
 
-              This plugin provides a template which can be used to create plugins based on the Qtilities
+              This plugin provides a template which can be used to create plugins based on the %Qtilities
               extension system. This class is the entry point into the plugin and is an implementation of the
               Qtilities::ExtensionSystem::Interfaces::IPlugin interface.
              */

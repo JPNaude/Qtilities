@@ -65,6 +65,19 @@ namespace Qtilities {
         \class ObjectScopeWidget
         \brief The ObjectScopeWidget class provides details about the scope & contexts in which an object is present in the form of a widget.
 
+        As explained in the \ref page_observers article, an object can be attached to multiple observers.
+        In such cases it be useful to display the scope of an object within the application using the
+        ObjectScopeWidget widget. An example object scope widget is shown below. Tooltips provide more information about
+        specific contexts to which an object is attached and different columns are available to
+        provide details about each context.
+
+        \image html object_scope_widget_without_owner.jpg "Object Scope Widget Without Owner"
+
+        When an object is attached to an observer context using Qtilities::Core::Observer::SpecificObserverOwnership
+        a new column appear in the ObjectScopeWidget indicating object ownership as shown below.
+
+        \image html object_scope_widget_with_owner.jpg "Object Scope Widget With Owner"
+
         \todo
         - Does not catch detachment if last scoped observer is detached under manual ownership.
           */

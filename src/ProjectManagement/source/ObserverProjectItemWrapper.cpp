@@ -101,7 +101,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectMana
     return flags;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProjectItemWrapper::instanceFactoryInfo() const {
     return InstanceFactoryInfo();
 }
 

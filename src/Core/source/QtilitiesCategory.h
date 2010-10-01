@@ -87,7 +87,7 @@ namespace Qtilities {
             /*!
               \note CategoryLevel returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            InstanceFactoryInfo factoryData() const;
+            InstanceFactoryInfo instanceFactoryInfo() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!
@@ -102,7 +102,7 @@ namespace Qtilities {
 
 /*!
 \class Qtilities::Core::QtilitiesCategory
-\brief An QtilitiesCategory object represents a category in %Qtilities.
+\brief A QtilitiesCategory object represents a category in %Qtilities.
 
 The QtilitiesCategory class can be used to define a category for an object. The category can be any number of
 levels deep where each level is a CategoryLevel instance.
@@ -313,7 +313,7 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             /*!
               \note QtilitiesCategory returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            InstanceFactoryInfo factoryData() const;
+            InstanceFactoryInfo instanceFactoryInfo() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!

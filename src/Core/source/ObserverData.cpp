@@ -38,7 +38,7 @@
 
 using namespace Qtilities::Core::Interfaces;
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverData::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverData::instanceFactoryInfo() const {
     return InstanceFactoryInfo();
 }
 

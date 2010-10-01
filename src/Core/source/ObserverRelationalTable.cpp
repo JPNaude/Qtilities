@@ -376,7 +376,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
 }
 
 int Qtilities::Core::ObserverRelationalTable::getOwnership(QObject* obj) const {
-    QVariant prop_variant = obj->property(OWNERSHIP);
+    QVariant prop_variant = obj->property(OBJECT_OWNERSHIP);
     if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
         SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
         if (prop.isValid()) {

@@ -413,7 +413,7 @@ is_exportable(true)
             // IExportable Implemenation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
-            InstanceFactoryInfo factoryData() const;
+            InstanceFactoryInfo instanceFactoryInfo() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;

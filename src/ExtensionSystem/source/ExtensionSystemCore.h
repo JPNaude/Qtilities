@@ -51,7 +51,7 @@ namespace Qtilities {
           \class ExtensionSystemCore
           \brief The ExtensionSystemCore class is the core of the Qtilities extension system library.
 
-          The extension system core class is a singleton which isused to load plugins.
+          The extension system core class is a singleton which is used to load plugins.
 
           See the \ref page_extension_system article for more information about the %Qtilities extension system.
 

@@ -130,9 +130,9 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectFilterTemplate::factoryData() const {
-    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
-    return factoryData;
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectFilterTemplate::instanceFactoryInfo() const {
+    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
+    return instanceFactoryInfo;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectFilterTemplate::supportedFormats() const {
@@ -145,7 +145,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterT
     Q_UNUSED(params)
     Q_UNUSED(stream)
 
-    InstanceFactoryInfo factory_data = factoryData();
+    InstanceFactoryInfo factory_data = instanceFactoryInfo();
     factory_data.exportBinary(stream);
 
     return IExportable::Complete;

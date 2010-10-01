@@ -52,7 +52,7 @@ namespace Qtilities {
         window architecture. The example is almost the same as the Object Management Example in terms of
         action management, plugin management etc. The main difference is that a mode was added to the main
         window which demonstrates the use of dynamic side widgets. One thing that this plugin does as well
-        is to show a splash window at startup providing progress messages from the extension system during startup.
+        is to show a splash window at startup providing progress messages from the extension system.
 
         This example uses the following modules and plugins:
         - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
