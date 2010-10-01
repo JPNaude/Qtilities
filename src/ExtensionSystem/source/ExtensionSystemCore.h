@@ -82,7 +82,7 @@ namespace Qtilities {
 
               In order for \p path to be added it must exist and it should not exist as a custom plugin path yet.
 
-              \note Add all the paths you need before you call loadPlugins().
+              \note Add all the needed paths before calling loadPlugins().
               */
             void addPluginPath(const QString& path);
             //! Function to get the paths from where plugins are loaded.

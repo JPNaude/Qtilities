@@ -35,7 +35,7 @@
 #define IEXPORTALE_H
 
 #include "QtilitiesCore_global.h"
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "IObjectBase.h"
 
 #include <QList>
@@ -82,7 +82,7 @@ namespace Qtilities {
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
                 virtual ExportModeFlags supportedFormats() const = 0;
                 //! The factory data which must be used when the exported object is reconstructed during an import.
-                virtual IFactoryTag factoryData() const = 0;
+                virtual InstanceFactoryInfo factoryData() const = 0;
 
                 //----------------------------
                 // Binary Exporting

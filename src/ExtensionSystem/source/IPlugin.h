@@ -53,24 +53,15 @@ namespace Qtilities {
             \class IPlugin
             \brief Interface used to communicate with plugins.
               */
-            class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : public QObject, virtual public IObjectBase
+            class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : virtual public IObjectBase
             {
-                Q_OBJECT
-                Q_ENUMS(PluginState)
-                Q_PROPERTY(PluginState State READ pluginState)
-                Q_PROPERTY(QString ErrorString READ errorString)
-                Q_PROPERTY(QString Description READ pluginDescription)
-                Q_PROPERTY(double Version READ pluginVersion)
-                Q_PROPERTY(QString Publisher READ pluginPublisher)
-                Q_PROPERTY(QString PublisherWebsite READ pluginPublisherWebsite)
-                Q_PROPERTY(QString PublisherContact READ pluginPublisherContact)
-                Q_PROPERTY(QString Copyright READ pluginCopyright)
-                Q_PROPERTY(QString License READ pluginLicense)
-
             public:
-                IPlugin(QObject* parent = 0) : QObject(parent) {}
+                IPlugin() {}
                 virtual ~IPlugin() {}
 
+                // -----------------------------------
+                // Plugin State Functions
+                // -----------------------------------
                 //! The possible states in which a plugin can be.
                 enum PluginState {
                     Functional,             /*!< The plugin is fully functional. */
@@ -122,6 +113,11 @@ namespace Qtilities {
                     */
                 virtual void finalize() { }
 
+                // -----------------------------------
+                // Plugin Information Functions
+                // -----------------------------------
+                //! The name of the plugin.
+                virtual QString pluginName() const = 0;
                 //! The category of the plugin.
                 virtual QtilitiesCategory pluginCategory() const = 0;
                 //! The version of the plugin.

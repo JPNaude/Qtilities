@@ -41,7 +41,7 @@
 #include "ObserverProperty.h"
 #include "ObserverData.h"
 #include "IExportable.h"
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "IModificationNotifier.h"
 #include "SubjectTypeFilter.h"
 #include "QtilitiesCategory.h"
@@ -210,7 +210,7 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IFactoryTag factoryData() const;
+            InstanceFactoryInfo factoryData() const;
             virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!
@@ -248,7 +248,7 @@ namespace Qtilities {
               When subclassing from Observer, it might be neccesarry to set use different factory data settings from the default
               data used for a normal observer. Call this function in your subclass constructor to change your object's factory data.
               */
-            void setFactoryData(IFactoryTag factory_data);
+            void setFactoryData(InstanceFactoryInfo factory_data);
 
             // --------------------------------
             // Functions related to item views viewing this observer and signal emission.

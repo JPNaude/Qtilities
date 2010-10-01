@@ -38,8 +38,6 @@
 
 #include "ExampleMode.h"
 
-using namespace QtilitiesCore;
-using namespace QtilitiesCoreGui;
 using namespace QtilitiesExtensionSystem;
 using namespace Qtilities::Examples::MainWindow;
 

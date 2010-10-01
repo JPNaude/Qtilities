@@ -52,7 +52,7 @@ HEADERS += source/QtilitiesCore_global.h \
     source/IObjectManager.h \
     source/SubjectTypeFilter.h \
     source/IExportable.h \
-    source/IFactory.h \
+    source/IFactoryProvider.h \
     source/ObserverRelationalTable.h \
     source/Factory.h \
     source/IModificationNotifier.h \
@@ -80,5 +80,5 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/ObserverHints.cpp \
     source/SubjectFilterTemplate.cpp \
     source/QtilitiesCategory.cpp \
-    source/IFactory.cpp \
+    source/IFactoryProvider.cpp \
     source/PointerList.cpp

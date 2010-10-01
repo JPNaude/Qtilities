@@ -39,6 +39,9 @@
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the Template plugin.
+        /*!
+        A skeleton of plugins in the Extension System. Use this plugin as a starting point (template) when creating new plugins to be used with the %Qtilities Extension System module.
+          */
         namespace Template {
             //! Namespace containing constants defined in the Template plugin.
             namespace Constants {

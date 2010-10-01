@@ -47,6 +47,8 @@ namespace Qtilities {
           This class defines the interface used by the Factory class. The FactoryItem class is an implementation
           of this interface.
 
+          For more information see the \ref page_factories article.
+
           \sa Factory, FactoryItem
         */
         template <class BaseClass>
@@ -63,6 +65,8 @@ namespace Qtilities {
           This class is an implementation of the FactoryInterface interface used by the Factory class. Use this class
           if you want a factory to be able to create instances of your class.
 
+          For more information see the \ref page_factories article.
+
           \sa Factory, FactoryInterface
         */
         template <class BaseClass,class ActualClass>
@@ -77,34 +81,36 @@ namespace Qtilities {
            };
 
         /*!
-        \struct FactoryTag
+        \struct FactoryItemID
         \brief A structure storing data related to a factory interface.
 
-        The FactoryTag struct is used to store information about a factory interface within the factory.
+        The FactoryItemID struct is used to store information about a factory interface registered within a factory.
+
+        For more information see the \ref page_factories article.
           */
-        struct FactoryTag {
-            //! Constructs an empty FactoryTag structure.
-            FactoryTag() {}
-            ~FactoryTag() {}
+        struct FactoryItemID {
+            //! Constructs an empty FactoryItemID structure.
+            FactoryItemID() {}
+            ~FactoryItemID() {}
             //! Creates a new factory data object.
             /*!
               \param iface_tag The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.
               \param iface_category The category to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
               \param iface_contexts A list of contexts which must be associated with this interface.
               */
-            FactoryTag(const QString& iface_tag, const QtilitiesCategory& iface_category = QtilitiesCategory(), const QStringList& iface_contexts = QStringList()) {
+            FactoryItemID(const QString& iface_tag, const QtilitiesCategory& iface_category = QtilitiesCategory(), const QStringList& iface_contexts = QStringList()) {
                 tag = iface_tag;
                 contexts = iface_contexts;
                 category = iface_category;
             }
-            //! FactoryTag copy constructor.
-            FactoryTag(const FactoryTag& ref) {
+            //! FactoryItemID copy constructor.
+            FactoryItemID(const FactoryItemID& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
                 category = ref.category;
             }
             //! Overload of the = operator.
-            void operator=(const FactoryTag& ref) {
+            void operator=(const FactoryItemID& ref) {
                 tag = ref.tag;
                 contexts = ref.contexts;
                 category = ref.category;
@@ -117,13 +123,15 @@ namespace Qtilities {
 
         //! A factory class which can produce class instances through registered factory interfaces.
         /*!
-          The Factory class is a template based Qt implementation of the factory progamming pattern. The class allows
-          you to register factory interfaces, defined by the FactoryInterface class, where each interface is defined by
-          a tag in the form of a QString. New instances of factory items (defined by FactoryItem) can then be created
-          by only providing the factory with the needed interface tag.
+          The Qtilities::Core::Factory class is a template based Qt implementation of the factory
+          programming pattern. The class allows you to register factory interfaces, defined by the
+          Qtilities::Core::FactoryInterface class. New instances of factory items (defined by
+          Qtilities::Core::FactoryItem) can then be created by only providing the factory with the needed
+           interface ID defined by Qtilities::Core::FactoryItemID.
 
           For more information see the \ref page_factories article.
-          \sa FactoryInterface, FactoryItem, IFactory
+
+          \sa FactoryInterface, FactoryItem, IFactoryProvider
         */
         template <class BaseClass>
         class Factory
@@ -138,7 +146,7 @@ namespace Qtilities {
                 \param iface_data A structure providing information about the factory item interface. If another item interface with the same tag already exists, the function call will fail and false will be returned. The tag must also contain a value.
                 \returns True if the interface was registered successfully, false otherwise.
                 */
-              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryTag iface_data) {
+              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryItemID iface_data) {
                   if (!iface_data.tag.isEmpty()) {
                       // Check that multiple tags don't exist
                       // Don't check the interface itself, sometimes it is desirable to
@@ -209,7 +217,7 @@ namespace Qtilities {
 
            private:
               QMap<QString,FactoryInterface<BaseClass>* > reg_ifaces;
-              QMap<QString,FactoryTag> data_ifaces;
+              QMap<QString,FactoryItemID> data_ifaces;
            };
     }
 }

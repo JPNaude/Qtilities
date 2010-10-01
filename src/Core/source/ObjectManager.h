@@ -90,22 +90,21 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IObjectManager)
-            Q_INTERFACES(Qtilities::Core::Interfaces::IFactory)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IFactoryProvider)
             friend class Observer;
 
         public:
             ObjectManager(QObject* parent = 0);
             ~ObjectManager();
 
-        protected:
-            // -----------------------------------------
-            // IFactory Implementation
-            // -----------------------------------------
-            QStringList factoryNames() const;
-            QObject* createInstance(const IFactoryTag& ifactory_data);
-            QStringList factoryTags(const QString& factory_name) const;
-
         public:
+            // -----------------------------------------
+            // IFactoryProvider Implementation
+            // -----------------------------------------
+            QStringList providedFactories() const;
+            QObject* createInstance(const InstanceFactoryInfo& ifactory_data);
+            QStringList providedFactoryTags(const QString& factory_name) const;
+
             // --------------------------------
             // IObjectManager Implemenation
             // --------------------------------
@@ -115,9 +114,9 @@ namespace Qtilities {
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false);
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);
             void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory());
-            void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag);
-            bool registerIFactory(IFactory* factory_iface);
-            IFactory* referenceIFactory(const QString& factory_name) const;
+            void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag);
+            bool registerIFactoryProvider(IFactoryProvider* factory_iface);
+            IFactoryProvider* referenceIFactoryProvider(const QString& factory_name) const;
             QStringList allFactoryNames() const;
             QStringList tagsForFactory(const QString& factory_name) const;
             QList<QObject*> registeredInterfaces(const QString& iface) const;

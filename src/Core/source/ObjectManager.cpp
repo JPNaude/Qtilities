@@ -59,7 +59,7 @@ struct Qtilities::Core::ObjectManagerData {
     id(1)  { }
 
     QMap<int,QPointer<Observer> >               observer_map;
-    QMap<QString, IFactory*>                    factory_map;
+    QMap<QString, IFactoryProvider*>                    factory_map;
     QMap<QString, QList<QPointer<QObject> > >   meta_type_map;
     Observer                                    object_pool;
     int                                         id;
@@ -74,15 +74,15 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
-    FactoryTag activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryItemID activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
-    FactoryTag subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryItemID subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
-    FactoryTag observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
+    FactoryItemID observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
     d->qtilities_factory.registerFactoryInterface(&Observer::factory,observer);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
-    registerIFactory(this);
+    registerIFactoryProvider(this);
 
     // Register some stream operators:
     qRegisterMetaType<Qtilities::Core::QtilitiesCategory>("Qtilities::Core::QtilitiesCategory");
@@ -105,20 +105,20 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
     return -1;
 }
 
-QStringList Qtilities::Core::ObjectManager::factoryNames() const {
+QStringList Qtilities::Core::ObjectManager::providedFactories() const {
     QStringList tags;
     tags << FACTORY_QTILITIES;
     return tags;
 }
 
-QStringList Qtilities::Core::ObjectManager::factoryTags(const QString& factory_name) const {
+QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name) const {
     if (factory_name == QString(FACTORY_QTILITIES))
         return d->qtilities_factory.tags();
     else
         return QStringList();
 }
 
-QObject* Qtilities::Core::ObjectManager::createInstance(const IFactoryTag& ifactory_data) {
+QObject* Qtilities::Core::ObjectManager::createInstance(const InstanceFactoryInfo& ifactory_data) {
     if (ifactory_data.d_factory_tag == QString(FACTORY_QTILITIES)) {
         QObject* obj = d->qtilities_factory.createInstance(ifactory_data.d_instance_tag);
         if (obj) {
@@ -216,23 +216,23 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCateg
         emit newObjectAdded(obj);
 }
 
-void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag) {
+void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) {
     d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
 }
 
-bool Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
+bool Qtilities::Core::ObjectManager::registerIFactoryProvider(IFactoryProvider* factory_iface) {
     if (!factory_iface)
         return false;
 
     // Check if all factory names provided through factory_iface are unique first:
-    foreach(QString name, factory_iface->factoryNames()) {
+    foreach(QString name, factory_iface->providedFactories()) {
         if (d->factory_map.keys().contains(name)) {
-            LOG_ERROR(QString(tr("Object Manager: Ambiguous factory name \"%1\" detected in registerIFactory(). This IFactory interface will not be registered.")).arg(name));
+            LOG_ERROR(QString(tr("Object Manager: Ambiguous factory name \"%1\" detected in registerIFactoryProvider(). This IFactoryProvider interface will not be registered.")).arg(name));
             return false;
         }
     }
 
-    foreach(QString name, factory_iface->factoryNames()) {
+    foreach(QString name, factory_iface->providedFactories()) {
         if (!d->factory_map.keys().contains(name)) {
             d->factory_map[name] = factory_iface;
         }
@@ -241,7 +241,7 @@ bool Qtilities::Core::ObjectManager::registerIFactory(IFactory* factory_iface) {
     return true;
 }
 
-Qtilities::Core::Interfaces::IFactory* Qtilities::Core::ObjectManager::referenceIFactory(const QString& tag) const {
+Qtilities::Core::Interfaces::IFactoryProvider* Qtilities::Core::ObjectManager::referenceIFactoryProvider(const QString& tag) const {
     if (d->factory_map.contains(tag))
         return d->factory_map[tag];
     else
@@ -253,9 +253,9 @@ QStringList Qtilities::Core::ObjectManager::allFactoryNames() const {
     QStringList ifactory_keys = d->factory_map.keys();
 
     foreach (QString ifactory_key, ifactory_keys) {
-        IFactory* ifactory = referenceIFactory(ifactory_key);
+        IFactoryProvider* ifactory = referenceIFactoryProvider(ifactory_key);
         if (ifactory)
-            names << ifactory->factoryNames();
+            names << ifactory->providedFactories();
     }
 
     return names;
@@ -266,11 +266,11 @@ QStringList Qtilities::Core::ObjectManager::tagsForFactory(const QString& factor
     QStringList ifactory_keys = d->factory_map.keys();
 
     foreach (QString ifactory_key, ifactory_keys) {
-        IFactory* ifactory = referenceIFactory(ifactory_key);
+        IFactoryProvider* ifactory = referenceIFactoryProvider(ifactory_key);
         if (ifactory) {
-            foreach (QString factory_name_int, ifactory->factoryNames()) {
+            foreach (QString factory_name_int, ifactory->providedFactories()) {
                 if (factory_name_int == factory_name) {
-                    tags << ifactory->factoryTags(factory_name);
+                    tags << ifactory->providedFactoryTags(factory_name);
                     break;
                 }
             }
@@ -754,7 +754,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObjectManager:
 
     // We must stream the factory data for the observer first.
     QList<QPointer<QObject> > internal_import_list;
-    IFactoryTag factoryData;
+    InstanceFactoryInfo factoryData;
     if (!factoryData.importBinary(stream))
         return IExportable::Failed;
 

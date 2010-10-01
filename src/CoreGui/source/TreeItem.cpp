@@ -35,7 +35,7 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "QtilitiesCoreConstants.h"
 
-#include <IFactory>
+#include <IFactoryProvider>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Constants;
@@ -62,8 +62,8 @@ Qtilities::CoreGui::TreeItem::~TreeItem() {
     delete d;
 }
 
-Qtilities::Core::IFactoryTag Qtilities::CoreGui::TreeItem::factoryData() const {
-    IFactoryTag factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
+Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeItem::factoryData() const {
+    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
     return factoryData;
 }
 
@@ -78,7 +78,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
     Q_UNUSED(params)
 
     // First export the factory data of this item:
-    IFactoryTag factory_data = factoryData();
+    InstanceFactoryInfo factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     return IExportable::Complete;

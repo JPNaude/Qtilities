@@ -56,7 +56,7 @@ namespace Qtilities {
               \class SessionLogPlugin
               \brief A plugin which provides a session log mode to the application.
              */
-            class SESSION_LOG_PLUGIN_SHARED_EXPORT SessionLogPlugin : public IPlugin
+            class SESSION_LOG_PLUGIN_SHARED_EXPORT SessionLogPlugin : public QObject, public IPlugin
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
@@ -77,6 +77,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;

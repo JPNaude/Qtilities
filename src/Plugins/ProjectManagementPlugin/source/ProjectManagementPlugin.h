@@ -58,7 +58,7 @@ namespace Qtilities {
               \class ProjectManagementPlugin
               \brief A plugin which adds project management capabilities to the application.
              */
-            class PROJECT_MANAGEMENT_PLUGIN_SHARED_EXPORT ProjectManagementPlugin : public IPlugin
+            class PROJECT_MANAGEMENT_PLUGIN_SHARED_EXPORT ProjectManagementPlugin : public QObject, public IPlugin
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
@@ -79,6 +79,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;

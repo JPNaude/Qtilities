@@ -92,9 +92,6 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     d->plugins.displayHints()->setDisplayFlagsHint(display_flags);
     d->plugins.displayHints()->setActionHints(ObserverHints::ActionFindItem);
     d->plugins.displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
-    SubjectTypeFilter* type_filter = new SubjectTypeFilter(tr("Loaded Plugins"));
-    type_filter->addSubjectType(SubjectTypeInfo("Qtilities::ExtensionSystem::Interfaces::IPlugin",tr("Plugins")));
-    d->plugins.installSubjectFilter(type_filter);
     d->plugins.displayHints()->setItemViewColumnHint(ObserverHints::ColumnNoHints);
     d->plugins.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
@@ -199,7 +196,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(i));
         if (pluginIFace) {
             QString error_string;
-            emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->objectName()));
+            emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
             QCoreApplication::processEvents();
             if (!pluginIFace->initializeDependancies(&error_string)) {
                 LOG_ERROR(error_string);

@@ -46,6 +46,25 @@ namespace Qtilities {
     //! Namespace containing all the %Qtilities examples.
     namespace Examples {
         //! Namespace containing all the classes which forms part of the Main Window Example.
+        /*!
+        An example which allows the user to browse the file system and open files in the file system.
+        The main goal of this example is to demonstrate the dynamic side widget concept of the %Qtilities main
+        window architecture. The example is almost the same as the Object Management Example in terms of
+        action management, plugin management etc. The main difference is that a mode was added to the main
+        window which demonstrates the use of dynamic side widgets. One thing that this plugin does as well
+        is to show a splash window at startup providing progress messages from the extension system during startup.
+
+        This example uses the following modules and plugins:
+        - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_extension_system.html">Extension System Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_session_log.html">Session Log Plugin</a>
+        - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_debug.html">Debug Plugin</a>
+
+        Below is a screenshot of this example in action:
+        \image html example_main_window.jpg "Main Window Example"
+          */
         namespace MainWindow {
             using namespace Qtilities::CoreGui::Interfaces;
 

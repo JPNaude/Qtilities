@@ -40,6 +40,15 @@ namespace Qtilities {
     //! Namespace containing all available plugins.
     namespace Plugins {
         //! Namespace containing all classes which is part of the SessionLogPlugin.
+        /*!
+        The session log plugin can be used to add a ready to use session log mode to your application when you use the %Qtilities main window architecture and the extension system module.
+
+        The plugin will do the following when loaded:
+        - Add a logging mode to your application if you use the Qtilities::CoreGui::QtilitiesMainWindow widget as your main window.
+        - Create three log dock widgets (see Qtilities::CoreGui::LoggerGui) for warnings, errors and all messages. These docks will be accessible through the logging mode in your application.
+        - Add the logger configuration page to the global object pool.
+        - Register the context of the session log mode.
+          */
         namespace SessionLog {
             //! Namespace containing constants defined in the SessionLogPlugin.
             namespace Constants {

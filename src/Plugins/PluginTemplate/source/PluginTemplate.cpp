@@ -48,10 +48,10 @@ struct Qtilities::Plugins::Template::PluginTemplateData {
     PluginTemplateData() {}
 };
 
-Qtilities::Plugins::Template::PluginTemplate::PluginTemplate(QObject* parent) : IPlugin(parent)
+Qtilities::Plugins::Template::PluginTemplate::PluginTemplate(QObject* parent) : QObject(parent)
 {
     d = new PluginTemplateData;
-    setObjectName("Qtilities Libraries Plugin Template");
+    setObjectName(pluginName());
 }
 
 Qtilities::Plugins::Template::PluginTemplate::~PluginTemplate()
@@ -76,6 +76,10 @@ void Qtilities::Plugins::Template::PluginTemplate::finalize() {
 
 }
 
+QString Qtilities::Plugins::Template::PluginTemplate::pluginName() const {
+    return "Plugin Template";
+}
+
 QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory() const {
     return QtilitiesCategory(tr("General"));
 }
@@ -85,6 +89,9 @@ double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
 }
 
 QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {
+    // Returning an empty QStringList() indicates that the plugin can be used in any application, thus
+    // it is not dependent on the application it is used. Examples are the Session Log and Project
+    // Management plugins that comes with %Qtilities.
     return QStringList();
 }
 

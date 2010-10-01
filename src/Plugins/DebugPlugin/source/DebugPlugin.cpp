@@ -51,14 +51,12 @@ struct Qtilities::Plugins::Debug::DebugPluginData {
     DebugWidget* debug_mode;
 };
 
-Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : IPlugin(parent)
-{
+Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : QObject(parent) {
     d = new DebugPluginData;
-    setObjectName("Qtilities Debug Plugin");
+    setObjectName(pluginName());
 }
 
-Qtilities::Plugins::Debug::DebugPlugin::~DebugPlugin()
-{
+Qtilities::Plugins::Debug::DebugPlugin::~DebugPlugin() {
     delete d;
 }
 
@@ -85,6 +83,10 @@ bool Qtilities::Plugins::Debug::DebugPlugin::initializeDependancies(QString *err
 
 void Qtilities::Plugins::Debug::DebugPlugin::finalize() {
 
+}
+
+QString Qtilities::Plugins::Debug::DebugPlugin::pluginName() const {
+    return "Qtilities Debug Plugin";
 }
 
 QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const {

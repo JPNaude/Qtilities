@@ -85,9 +85,9 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             /*!
-              \note CategoryLevel returns an invalid IFactoryTag object since it is not registered in any factory.
+              \note CategoryLevel returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            IFactoryTag factoryData() const;
+            InstanceFactoryInfo factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!
@@ -311,9 +311,9 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             /*!
-              \note QtilitiesCategory returns an invalid IFactoryTag object since it is not registered in any factory.
+              \note QtilitiesCategory returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            IFactoryTag factoryData() const;
+            InstanceFactoryInfo factoryData() const;
             IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             /*!

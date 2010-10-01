@@ -36,7 +36,7 @@
 
 #include "QtilitiesCore_global.h"
 #include "IExportable.h"
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "AbstractSubjectFilter.h"
 #include "Factory.h"
 
@@ -55,7 +55,7 @@ namespace Qtilities {
             \class IObjectManager
             \brief Interface used to communicate with the observer manager.
               */
-            class QTILIITES_CORE_SHARED_EXPORT IObjectManager : public QObject, virtual public IFactory
+            class QTILIITES_CORE_SHARED_EXPORT IObjectManager : public QObject, virtual public IFactoryProvider
             {
                 Q_OBJECT
 
@@ -76,6 +76,10 @@ namespace Qtilities {
                 // Global Object Pool Functionality
                 // ---------------------------------
                 //! Gets the reference to an observer.
+                /*!
+                  \param id The observer id of the observer for which the reference must be fetched.
+                  \returns The observer with the specified id. If the id is invalid 0 is returned.
+                  */
                 virtual Observer* observerReference(int id) const = 0;
                 //! Function which returns a reference to the global object pool.
                 /*!
@@ -120,34 +124,60 @@ namespace Qtilities {
                 virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false) = 0;
                 //! Registers an observer in the observer manager.
                 virtual int registerObserver(Observer* observer) = 0;
-                //! Registers an object to be included in the global object pool. The integer value returned will be the object's unique ID in the global object pool.
+                //! Registers an object to be included in the global object pool.
+                /*!
+                    \param category The category under which the object must be registered. This parameter can
+                    be left out in most cases, however it is usefull when visualizing the global object pool
+                    using the Qtilities::Plugins::Debug plugin for example.
+                    \returns The integer value returned will be the object's unique ID in the global object pool.
+                    */
                 virtual void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory()) = 0;
                 //! Returns all objects in the global object pool which implements the specified interface.
+                /*!
+For example:
+\code
+// Get a list of all the project items in the object pool, that is objects
+// implementing the IProjectItem interface:
+QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
+QList<IProjectItem*> projectItems;
+
+// Cast all items:
+for (int i = 0; i < projectItemObjects.count(); i++) {
+    IProjectItem* part = qobject_cast<IProjectItem*> (projectItemObjects.at(i));
+    if (part)
+        projectItems.append(part);
+}
+\endcode
+                  */
                 virtual QList<QObject*> registeredInterfaces(const QString& iface) const = 0;
 
                 // ---------------------------------
-                // Factory Related Functionality
+                // Qtilities Factory Related Functionality
                 // ---------------------------------
                 //! Registers a factory interface inside the Qtilities factory.
-                virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryTag iface_tag) = 0;
+                virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) = 0;
+
+                // ---------------------------------
+                // Factory Management Related Functionality
+                // ---------------------------------
                 //! Registers a factory interface in the object manager.
                 /*!
-                  The object manager keeps track of all IFactory interfaces registered using this function.
-                  It is then possible to access the IFactory interface for a specific factory using the referenceIFactory()
-                  function.
+                  The object manager keeps track of all IFactoryProvider interfaces registered using this function.
+                  It is then possible to access the IFactoryProvider interface for a specific factory using the
+                  referenceIFactoryProvider() function.
 
-                  The way that the object manager keeps track of factories and their respective IFactory interfaces
-                  is done in such a way that factory names exposed by IFactory must be unique for all IFactory
+                  The way that the object manager keeps track of factories and their respective IFactoryProvider interfaces
+                  is done in such a way that factory names exposed by IFactoryProvider must be unique for all IFactoryProvider
                   interfaces registered using this function.
 
                   If a duplicate factory name is found, an error is printed and this function returns false.
                   */
-                virtual bool registerIFactory(IFactory* obj) = 0;
+                virtual bool registerIFactoryProvider(IFactoryProvider* obj) = 0;
                 //! Provides a reference to the factory interface for a specific factory.
                 /*!
-                  This function returns the IFactory interface which contains the specified factory.
+                  This function returns the IFactoryProvider interface which contains the specified factory.
                 */
-                virtual IFactory* referenceIFactory(const QString& factory_name) const = 0;
+                virtual IFactoryProvider* referenceIFactoryProvider(const QString& factory_name) const = 0;
                 //! Provides a list with the names of all the factories registered in the object manager.
                 virtual QStringList allFactoryNames() const = 0;
                 //! Provides a list of all the tags registered in a specific factory.

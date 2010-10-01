@@ -81,7 +81,7 @@ QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
     return strippedFileExtension(treeFileItemBase->file_name);
 }
 
-Qtilities::Core::IFactoryTag Qtilities::CoreGui::TreeFileItem::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeFileItem::factoryData() const {
     treeFileItemBase->factoryData.d_instance_name = objectName();
     return treeFileItemBase->factoryData;
 }
@@ -97,7 +97,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     Q_UNUSED(params)
 
     // First export the factory data of this item:
-    IFactoryTag factory_data = factoryData();
+    InstanceFactoryInfo factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     // Export the file name:
@@ -181,6 +181,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     return result;
 }
 
-void Qtilities::CoreGui::TreeFileItem::setFactoryData(IFactoryTag factoryData) {
+void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo factoryData) {
     treeFileItemBase->factoryData = factoryData;
 }

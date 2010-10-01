@@ -51,7 +51,7 @@ struct Qtilities::CoreGui::SideViewerWidgetHelperData {
 Qtilities::CoreGui::SideViewerWidgetHelper::SideViewerWidgetHelper(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive) : QObject(0) {
     d = new SideViewerWidgetHelperData;
 
-    FactoryTag factory_data("Produce Me");
+    FactoryItemID factory_data("Produce Me");
     d->factory.registerFactoryInterface(interface,factory_data);
     d->widget_id = widget_id;
     d->modes = modes;

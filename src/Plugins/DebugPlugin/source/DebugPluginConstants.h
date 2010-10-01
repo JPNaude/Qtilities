@@ -39,6 +39,17 @@
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the debug plugin.
+        /*!
+        The debug plugin adds a debug mode to your application which provides the following information at runtime:
+        - An overview of the global object pool during runtime.
+        - An overview of all factories registered in the object manager and the tags registered in them.
+
+        Below is a screenshot of this plugin in action visualizing the global object pool:
+        \image html global_object_pool_view.jpg "Global Object Pool Visualization"
+
+        Below is a screenshot of this plugin in action providing an overview of the factories in an application:
+        \image html factory_debugging.jpg "Factory Debugging"
+          */
         namespace Debug {
             //! Namespace containing constants defined in the debug plugin.
             namespace Constants {

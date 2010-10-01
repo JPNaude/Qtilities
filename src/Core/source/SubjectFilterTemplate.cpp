@@ -130,8 +130,8 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
     return false;
 }
 
-Qtilities::Core::IFactoryTag Qtilities::Core::SubjectFilterTemplate::factoryData() const {
-    IFactoryTag factoryData(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectFilterTemplate::factoryData() const {
+    InstanceFactoryInfo factoryData(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
     return factoryData;
 }
 
@@ -145,7 +145,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterT
     Q_UNUSED(params)
     Q_UNUSED(stream)
 
-    IFactoryTag factory_data = factoryData();
+    InstanceFactoryInfo factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     return IExportable::Complete;

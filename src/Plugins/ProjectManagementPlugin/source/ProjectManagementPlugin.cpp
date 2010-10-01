@@ -72,15 +72,13 @@ struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
     QString         appended_project_name;
 };
 
-Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : IPlugin(parent)
-{
+Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : QObject(parent) {
     d = new ProjectManagementPluginData;
-    setObjectName("Project Management Plugin");
+    setObjectName(pluginName());
     connect(PROJECT_MANAGER,SIGNAL(modificationStateChanged(bool)),SLOT(handle_projectStateChanged()));
 }
 
-Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::~ProjectManagementPlugin()
-{
+Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::~ProjectManagementPlugin() {
     delete d;
 }
 
@@ -155,6 +153,10 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeD
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::finalize() {
 
+}
+
+QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginName() const {
+    return "Project Management Plugin";
 }
 
 QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCategory() const {

@@ -46,6 +46,24 @@ namespace Ui {
 namespace Qtilities {
     namespace Examples {
         //! Namespace containing all the classes which forms part of the Clipboard Example.
+        /*!
+        The clipboard example demonstrates some of the more advanced features of the
+        Qtilities::CoreGui::ObserverWidget class:
+        - Demonstrates drag & drop operations between different observer widgets.
+        - Demonstrates copy, cut & paste operations between different observer widgets using the Qtilities::CoreGui::ClipboardManager.
+        - Demonstrates the use of global meta objects (see \ref meta_type_object_management for more details).
+        - Demonstrates saving and loading of individual observer widget settings.
+        - Demonstrates the use of the navigation stack in observer widgets.
+        - Demonstrates observer widget updating and activity tracking.
+
+        This example uses the following modules:
+        - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
+
+        Below is a screenshot of this example in action:
+        \image html example_clipboard.jpg "Clipboard Example"
+          */
         namespace Clipboard {
             /*!
             \class ObserverWidgetConfig

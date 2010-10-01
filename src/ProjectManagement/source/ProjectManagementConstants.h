@@ -42,7 +42,7 @@ namespace Qtilities {
             // File Extensions
             //! The file extension used for binary project files.
             const char * const FILE_EXT_BINARY_PROJECT  = ".prj";
-            //! The file extension used for xml project files. By default xml formatted in the Qtilities Tree Format.
+            //! The file extension used for xml project files. By default xml and formatted in the %Qtilities Tree Format.
             const char * const FILE_EXT_XML_PROJECT     = ".xml";
         }
     }

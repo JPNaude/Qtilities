@@ -31,30 +31,30 @@
 **
 ****************************************************************************/
 
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "QtilitiesCoreConstants.h"
 
 #include <QtXml>
 
 using namespace Qtilities::Core::Constants;
 
-Qtilities::Core::IFactoryTag::IFactoryTag(QDomDocument* doc, QDomElement* object_node) {
+Qtilities::Core::InstanceFactoryInfo::InstanceFactoryInfo(QDomDocument* doc, QDomElement* object_node) {
     importXML(doc,object_node);
 }
 
-bool Qtilities::Core::IFactoryTag::exportXML(QDomDocument* doc, QDomElement* object_node) const {
+bool Qtilities::Core::InstanceFactoryInfo::exportXML(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
 
     if (d_factory_tag != QString(FACTORY_QTILITIES))
         object_node->setAttribute("FactoryTag", d_factory_tag);
-    object_node->setAttribute("InstanceTag", d_instance_tag);
+    object_node->setAttribute("InstanceFactoryInfo", d_instance_tag);
     if (d_instance_tag != d_instance_name)
         object_node->setAttribute("Name", d_instance_name);
 
     return true;
 }
 
-bool Qtilities::Core::IFactoryTag::importXML(QDomDocument* doc, QDomElement* object_node) {
+bool Qtilities::Core::InstanceFactoryInfo::importXML(QDomDocument* doc, QDomElement* object_node) {
     Q_UNUSED(doc)
 
     if (object_node->hasAttribute("FactoryTag"))
@@ -62,7 +62,7 @@ bool Qtilities::Core::IFactoryTag::importXML(QDomDocument* doc, QDomElement* obj
     else
         d_factory_tag = QString(FACTORY_QTILITIES);
 
-    d_instance_tag = object_node->attribute("InstanceTag");
+    d_instance_tag = object_node->attribute("InstanceFactoryInfo");
 
     if (!object_node->hasAttribute("Name"))
         d_instance_name = d_instance_tag;

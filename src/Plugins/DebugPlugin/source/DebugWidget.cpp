@@ -117,12 +117,12 @@ void Qtilities::Plugins::Debug::DebugWidget::finalizeMode() {
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListSelectionChanged(const QString& factory_name) {
-    ui->listFactoryTags->clear();
-    ui->listFactoryTags->addItems(OBJECT_MANAGER->tagsForFactory(factory_name));
+    ui->listFactoryItemIDs->clear();
+    ui->listFactoryItemIDs->addItems(OBJECT_MANAGER->tagsForFactory(factory_name));
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListRefresh() {
-    ui->listFactoryTags->clear();
+    ui->listFactoryItemIDs->clear();
     ui->listFactories->clear();
 
     ui->listFactories->addItems(OBJECT_MANAGER->allFactoryNames());

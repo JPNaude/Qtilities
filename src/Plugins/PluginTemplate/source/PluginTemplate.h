@@ -60,7 +60,7 @@ namespace Qtilities {
               extension system. This class is the entry point into the plugin and is an implementation of the
               Qtilities::ExtensionSystem::Interfaces::IPlugin interface.
              */
-            class PLUGIN_TEMPLATE_SHARED_EXPORT PluginTemplate : public IPlugin
+            class PLUGIN_TEMPLATE_SHARED_EXPORT PluginTemplate : public QObject, public IPlugin
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
@@ -81,6 +81,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;

@@ -41,6 +41,32 @@
 namespace Qtilities {
     namespace Examples {
         //! Namespace containing all the classes which forms part of the Object Management Example.
+        /*!
+            This example allows the user to create new objects and build up a tree visually using a
+            Qtilities::CoreGui::ObserverWidget widget as the frontend to a Qtilities::Core::Observer class.
+
+            The example uses all the %Qtilities libraries and showcases many of the concepts and features found in the different modules, more specifically:
+            - Uses the %Qtilities main window architecture and shows how to add custom modes to the main window.
+            - Uses different plugins alongside the Extension System module.
+            - Demonstrates project management where the project item is the top level observer which the user can build a tree structure under.
+            - Demonstrates logging capabilities of the Logging module, including priority logging.
+            - Demonstrates action management and the configuration widget.
+            - Demonstrates the full use of observer hints and using an observer widget to manage an observer context.
+            - Loads the %Qtilities debugging plugin which provides an overview of the internals of the %Qtilities managers during runtime.
+
+            This example uses the following modules and plugins:
+            - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
+            - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
+            - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
+            - <a class="el" href="namespace_qtilities_1_1_project_management.html">Project Management Module</a>
+            - <a class="el" href="namespace_qtilities_1_1_extension_system.html">Extension System Module</a>
+            - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_session_log.html">Session Log Plugin</a>
+            - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_project_management.html">Project Management Plugin</a>
+            - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_debug.html">Debug Plugin</a>
+
+            Below is a screenshot of this example in action:
+            \image html example_object_management.jpg "Object Management Example"
+          */
         namespace ObjectManagement {
             // Object Management Mode Parameters
             #define MODE_OBJECT_MANAGEMENT_ID                   999

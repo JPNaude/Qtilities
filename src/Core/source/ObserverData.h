@@ -37,7 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "QtilitiesCoreConstants.h"
 #include "PointerList.h"
-#include "IFactory.h"
+#include "IFactoryProvider.h"
 #include "QtilitiesCategory.h"
 #include "AbstractSubjectFilter.h"
 #include "IExportable.h"
@@ -68,7 +68,7 @@ namespace Qtilities {
             ObserverData() : subject_limit(-1), subject_id_counter(0),
             filter_subject_events_enabled(false), deliver_qtilities_property_changed_events(false),
             access_mode(0), display_hints(0),
-            factory_data(IFactoryTag(FACTORY_QTILITIES,FACTORY_TAG_OBSERVER,QString())),
+            factory_data(InstanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_OBSERVER,QString())),
             process_cycle_active(false), is_modified(false) {}
 
             ObserverData(const ObserverData &other) : QSharedData(other), subject_list(other.subject_list) ,
@@ -97,9 +97,9 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             /*!
-              \note ObserverData returns an invalid IFactoryTag object since it is not registered in any factory.
+              \note ObserverData returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
               */
-            IFactoryTag factoryData() const;
+            InstanceFactoryInfo factoryData() const;
             virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
@@ -120,7 +120,7 @@ namespace Qtilities {
             // only categories for which access modes were defined.
             QList<QtilitiesCategory> categories;
             ObserverHints* display_hints;
-            IFactoryTag factory_data;
+            InstanceFactoryInfo factory_data;
             bool process_cycle_active;
             bool is_modified;
         };

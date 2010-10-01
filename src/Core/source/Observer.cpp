@@ -203,8 +203,8 @@ bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
     return observerData->deliver_qtilities_property_changed_events;
 }
 
-Qtilities::Core::IFactoryTag Qtilities::Core::Observer::factoryData() const {
-    IFactoryTag factory_data = observerData->factory_data;
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::Observer::factoryData() const {
+    InstanceFactoryInfo factory_data = observerData->factory_data;
     factory_data.d_instance_name = observerName();
     return factory_data;
 }
@@ -226,7 +226,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
     bool complete = true;
 
     // First export the factory data of this observer:
-    IFactoryTag factory_data = factoryData();
+    InstanceFactoryInfo factory_data = factoryData();
     factory_data.exportBinary(stream);
 
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
@@ -370,7 +370,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     int subject_filter_count = ui32;
     for (int i = 0; i < subject_filter_count; i++) {
         // Get the factory data of the subject filter:
-        IFactoryTag factoryData;
+        InstanceFactoryInfo factoryData;
         if (!factoryData.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
@@ -407,7 +407,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (!success)
             break;
 
-        IFactoryTag factoryData;
+        InstanceFactoryInfo factoryData;
         if (!factoryData.importBinary(stream)) {
             endProcessingCycle();
             return IExportable::Failed;
@@ -415,7 +415,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         if (factoryData.isValid()) {
             LOG_TRACE(QString(tr("%1/%2: Importing subject type \"%3\" in factory \"%4\"...")).arg(i+1).arg(iface_count).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-            IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
+            IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
             if (ifactory) {
                 QObject* new_instance = ifactory->createInstance(factoryData);
                 new_instance->setObjectName(factoryData.d_instance_name);
@@ -617,11 +617,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (dataChild.tagName() == "SubjectFilter") {
                     // Construct and init the subject filter:
-                    IFactoryTag factoryData(doc,&dataChild);
+                    InstanceFactoryInfo factoryData(doc,&dataChild);
                     if (factoryData.isValid()) {
                         LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-                        IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
+                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
                         if (ifactory) {
                             QObject* obj = ifactory->createInstance(factoryData);
                             if (obj) {
@@ -672,11 +672,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
                 if (childrenChild.tagName() == "TreeItem") {
                     // Construct and init the child:
-                    IFactoryTag factoryData(doc,&childrenChild);
+                    InstanceFactoryInfo factoryData(doc,&childrenChild);
                     if (factoryData.isValid()) {
                         LOG_TRACE(QString(tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(factoryData.d_instance_tag).arg(factoryData.d_factory_tag));
 
-                        IFactory* ifactory = OBJECT_MANAGER->referenceIFactory(factoryData.d_factory_tag);
+                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(factoryData.d_factory_tag);
                         if (ifactory) {
                             QObject* obj = ifactory->createInstance(factoryData);
                             if (obj) {
@@ -833,7 +833,7 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::IFactoryTag factory_data) {
+void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::InstanceFactoryInfo factory_data) {
     if (factory_data.isValid())
         observerData->factory_data = factory_data;
 }

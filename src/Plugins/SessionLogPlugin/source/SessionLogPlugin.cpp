@@ -50,10 +50,10 @@ struct Qtilities::Plugins::SessionLog::SessionLogPluginData {
     SessionLogPluginData() {}
 };
 
-Qtilities::Plugins::SessionLog::SessionLogPlugin::SessionLogPlugin(QObject* parent) : IPlugin(parent)
+Qtilities::Plugins::SessionLog::SessionLogPlugin::SessionLogPlugin(QObject* parent) : QObject(parent)
 {
     d = new SessionLogPluginData;
-    setObjectName("Session Log Plugin");
+    setObjectName(pluginName());
 }
 
 Qtilities::Plugins::SessionLog::SessionLogPlugin::~SessionLogPlugin()
@@ -86,6 +86,10 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initializeDependancies(QS
 
 void Qtilities::Plugins::SessionLog::SessionLogPlugin::finalize() {
 
+}
+
+QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginName() const {
+    return "Session Log Plugin";
 }
 
 QtilitiesCategory Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCategory() const {

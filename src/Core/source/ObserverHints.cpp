@@ -485,7 +485,7 @@ Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::st
     return (DragDropFlags) drag_drop_flags_string.toInt();
 }
 
-Qtilities::Core::IFactoryTag Qtilities::Core::ObserverHints::factoryData() const {
+Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverHints::factoryData() const {
     return factoryData();
 }
 

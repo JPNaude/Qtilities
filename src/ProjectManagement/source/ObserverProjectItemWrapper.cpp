@@ -38,7 +38,7 @@
 #include <ObserverRelationalTable.h>
 #include <QtilitiesCoreApplication.h>
 #include <Logger.h>
-#include <IFactory.h>
+#include <IFactoryProvider.h>
 
 #include <QApplication>
 #include <QDomNodeList>
@@ -101,8 +101,8 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectMana
     return flags;
 }
 
-Qtilities::Core::IFactoryTag Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
-    return IFactoryTag();
+Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProjectItemWrapper::factoryData() const {
+    return InstanceFactoryInfo();
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {

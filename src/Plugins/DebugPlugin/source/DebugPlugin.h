@@ -56,7 +56,7 @@ namespace Qtilities {
               \class DebugPlugin
               \brief A debug plugin which helps to debug %Qtilities applications.
              */
-            class DEBUG_PLUGIN_SHARED_EXPORT DebugPlugin : public IPlugin
+            class DEBUG_PLUGIN_SHARED_EXPORT DebugPlugin : public QObject, public IPlugin
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
@@ -77,6 +77,7 @@ namespace Qtilities {
                 bool initialize(const QStringList &arguments, QString *errorString);
                 bool initializeDependancies(QString *errorString);
                 void finalize();
+                QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
                 double pluginVersion() const;
                 QStringList pluginCompatibilityVersions() const;
