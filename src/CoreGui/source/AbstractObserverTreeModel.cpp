@@ -466,7 +466,7 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
     // ------------------------------------
     // Handle Subject Type Info Column
     // ------------------------------------
-    } else if (index.column() == columnPosition(ColumnTypeInfo) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)) {
+    } else if (index.column() == columnPosition(ColumnTypeInfo)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = getObject(index);
             if (obj) {
@@ -480,7 +480,7 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
     // ------------------------------------
     // Handle Access Column
     // ------------------------------------
-    } else if (index.column() == columnPosition(ColumnAccess) && (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)) {
+    } else if (index.column() == columnPosition(ColumnAccess)) {
         if (role == Qt::DecorationRole) {
             // First handle categories:
             ObserverTreeItem* item = getItem(index);
@@ -665,23 +665,17 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::headerDataHelper(int sec
     if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         return tr("Contents Tree");
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
-            return QIcon(ICON_CHILD_COUNT_22x22);
+        return QIcon(ICON_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint)
-            return tr("Child Count");
+        return tr("Child Count");
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
-            return QIcon(ICON_TYPE_INFO_22x22);
+        return QIcon(ICON_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint)
-            return tr("Type");
+        return tr("Type");
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
-            return QIcon(ICON_ACCESS_16x16);
+        return QIcon(ICON_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
-        if (activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint)
-            return tr("Access");
+        return tr("Access");
     }
 
      return QVariant();
