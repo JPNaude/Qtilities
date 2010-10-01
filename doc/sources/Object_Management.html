@@ -104,7 +104,11 @@ foreach (QObject* obj, iface_list) {
 }
 \endcode
 
-A good example of using the global object pool is the methodology behind how plugins work in the %Qtilities extension system where plugins register objects in which the rest of the application might be interested in during plugin initialization. Once  all plugins were initialized, the plugins initializes their dependencies where it will inspect the global object pool for registered objects my other plugins and/or the main application that it is interested in.
+A good example of using the global object pool is the methodology behind how plugins are used in the %Qtilities extension system. Plugins register objects in which the rest of the application might be interested during plugin initialization. Once all plugins were initialized, plugins initializes their dependencies where it will inspect the global object pool for registered objects in which it is interested in.
+
+The Qtilities::Plugins::Debug plugin provides a visual overview of the global object pool state during runtime which simplifies debugging. This is shown in the image below:
+
+\image html global_object_pool_view.jpg "Global Object Pool View In Debug Plugin"
 
 \subsection observer_features Observer object management features
 

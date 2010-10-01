@@ -11,7 +11,7 @@
 <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
 <h1 style="margin:0px; padding:0px">Overview</h1>
 
-%Qtilities comes with a set of examples which demonstrates some of the features of the different modules. Alongside the set of examples, there is also a set of ready to use plugins. These plugins can be used in any application which uses the %Qtilities Extension System. This page will give an overview of the different examples and plugins which are available.
+%Qtilities comes with a set of examples which demonstrates some of the features of the different modules. Alongside the set of examples, there is also a set of ready to use plugins. These plugins can be used in any application which uses the %Qtilities Extension System. This page will give an overview of the available examples and plugins.
 
 Table of contents:
 - \ref examples_overview
@@ -67,7 +67,7 @@ Table of contents:
 
 \section examples_overview Examples Overview
 
-%Qtilities provides the following examples which can all be built using the /src/Examples/QtilitiesExamples.pro project. Once you built the examples, you can run them directly. They are placed under the /bin/Examples output folder. The examples which demonstrate and use plugins (Object Management Example and Main Window Example), the multiple plugin paths feature of the Extension System module is used. Thus they will automatically load the plugins from the /bin/Plugins folder. You must make sure you build the plugins in the same mode (debug or release) as the example application in order for the plugins to load correctly.
+%Qtilities provides the following examples which can all be built using the \p /src/Examples/QtilitiesExamples.pro project. Once you built the examples, you can run them directly. They are placed under the \p /bin/Examples output folder. Examples which demonstrate and use plugins (Object Management Example and Main Window Example) uses the multiple plugin paths feature of the Extension System module, thus they will automatically load the plugins from the \p /bin/Plugins folder which is the default output path of the \p src/Plugins/QtilitiesPlugins.pro project. 
 
 <table style="table-layout:auto;
 	margin: auto; 
@@ -86,7 +86,7 @@ Table of contents:
 <td style="vertical-align: text-top;width:700px;text-align=justify">
 An example which demonstrates basic logging operations using the Logging Module. The example logs messages to different logger engines and demostrates the output formats of the available formatting engines in the module.
 
-This examples uses the following modules:
+This example uses the following modules:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 </td>
 </tr>
@@ -96,9 +96,9 @@ This examples uses the following modules:
 <b>Building Tree Structures Example:</b>
 </td>
 <td style="vertical-align: text-top;width:700px;text-align=justify">
-An example which demonstrates basic tree building operations. The example builds the tree structure shown in the \ref page_tree_structures page and displays the tree using an Qtilities::CoreGui::ObserverWidget widget.
+An example which demonstrates basic tree building operations using the classes available in the Qtilities::CoreGui module. The example builds a simple tree structure and shows it in an Qtilities::CoreGui::ObserverWidget. The \ref page_tree_structures page provides more details on the tree building classes available in %Qtilities.
 
-This examples uses the following modules:
+This example uses the following modules:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
@@ -110,24 +110,26 @@ This examples uses the following modules:
 <a class="el" href="namespace_qtilities_1_1_examples_1_1_object_management.html">Object Management Example:</a>
 </td>
 <td style="vertical-align: text-top;width:700px;text-align=justify">
-An example which allows the user to create new objects and build up a tree visually using an Qtilities::CoreGui::ObserverWidget widget as the frontend to an Qtilities::Core::Observer class.
+An example which allows the user to create new objects and build up a tree visually using a Qtilities::CoreGui::ObserverWidget widget as the frontend to a Qtilities::Core::Observer class.
 
 The example uses all the %Qtilities libraries and showcases many of the concepts and features found in the different modules, more specifically:
 - Uses the %Qtilities main window architecture and shows how to add custom modes to the main window.
 - Uses different plugins alongside the Extension System module.
 - Demonstrates project management where the project item is the top level observer which the user can build a tree structure under.
-- Demonstrates logging abilities of the Logging module.
+- Demonstrates logging capabilities of the Logging module, including priority logging.
 - Demonstrates action management and the configuration widget.
 - Demonstrates the full use of observer hints and using an observer widget to manage an observer context.
+- Loads the %Qtilities debugging plugin which provides an overview of the internals of the %Qtilities managers during runtime.
 
-This examples uses the following modules and plugins:
+This example uses the following modules and plugins:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
 - <a class="el" href="namespace_qtilities_1_1_project_management.html">Project Management Module</a>
 - <a class="el" href="namespace_qtilities_1_1_extension_system.html">Extension System Module</a>
 - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_session_log.html">Session Log Plugin</a>
-- <a class="el" href="namespace_qtilities_1_1_project_management.html">Project Management Plugin</a>
+- <a class="el" href="namespace_qtilities_1_1_plugins_1_1_project_management.html">Project Management Plugin</a>
+- <a class="el" href="namespace_qtilities_1_1_plugins_1_1_debug.html">Debug Plugin</a>
 </td>
 </tr>
 
@@ -138,13 +140,13 @@ This examples uses the following modules and plugins:
 <td style="vertical-align: text-top;width:700px;text-align=justify">
 The clipboard example demonstrates some of the more advanced features of the Qtilities::CoreGui::ObserverWidget class:
 - Demonstrates drag & drop operations between different observer widgets.
-- Demonstrates copy, cut & paste operations between different observer widgets, using the Qtilities::CoreGui::ClipboardManager.
-- Demonstrates the user of global meta objects (see \ref meta_type_object_management for more details).
+- Demonstrates copy, cut & paste operations between different observer widgets using the Qtilities::CoreGui::ClipboardManager.
+- Demonstrates the use of global meta objects (see \ref meta_type_object_management for more details).
 - Demonstrates saving and loading of individual observer widget settings. 
 - Demonstrates the use of the navigation stack in observer widgets.
 - Demonstrates observer widget updating and activity tracking.
 
-This examples uses the following modules:
+This example uses the following modules:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
@@ -156,16 +158,15 @@ This examples uses the following modules:
 <a class="el" href="namespace_qtilities_1_1_examples_1_1_main_window.html">Main Window Example:</a>
 </td>
 <td style="vertical-align: text-top;width:700px;text-align=justify">
-An example which allows the user to browse the file system and open files in the file system. The main goal of this example is to demonstrate the dynamic side widget concept of the %Qtilities main window architecture. The example is almost the same as the Object Management Example in terms of action management, plugin management etc. The main difference is that a mode was added to the main window which demonstrates the use of dynamic side widgets.
+An example which allows the user to browse the file system and open files in the file system. The main goal of this example is to demonstrate the dynamic side widget concept of the %Qtilities main window architecture. The example is almost the same as the Object Management Example in terms of action management, plugin management etc. The main difference is that a mode was added to the main window which demonstrates the use of dynamic side widgets. One thing that this plugin does as well is to show a splash window at startup providing progress messages from the extension system.
 
-This examples uses the following modules and plugins:
+This example uses the following modules and plugins:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
 - <a class="el" href="namespace_qtilities_1_1_extension_system.html">Extension System Module</a>
 - <a class="el" href="namespace_qtilities_1_1_plugins_1_1_session_log.html">Session Log Plugin</a>
-
-A screenshot of this example is shown in the \ref qtilities_main_window section of the \ref page_widget_set page.
+- <a class="el" href="namespace_qtilities_1_1_plugins_1_1_debug.html">Debug Plugin</a>
 </td>
 </tr>
 
@@ -176,7 +177,7 @@ A screenshot of this example is shown in the \ref qtilities_main_window section 
 <td style="vertical-align: text-top;width:700px;text-align=justify">
 This example demonstrates how Qtilities::CoreGui::ObserverWidget widgets interact with observer hints and contains the code uses to generate the screenshots in the \ref page_observer_widgets article.
 
-This examples uses the following modules:
+This example uses the following modules:
 - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
 - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
@@ -187,7 +188,9 @@ This examples uses the following modules:
 
 \section plugins_overview Plugins Overview
 
-%Qtilities provides the following plugins which can all be build using the /src/Plugins/QtilitiesPlugins.pro project.
+%Qtilities provides the following plugins which can all be build using the \p /src/Plugins/QtilitiesPlugins.pro project. All these plugins uses a feature of the %Qtilities Extension System which allows the plugins to be independent of the application they are used in. Thus they can be used in any %Qtilities application if the following requirements are met:
+- The same version of %Qtilities must be used to build the plugins as well as the application in which they are used.
+- The plugins and the application in which they are used must be built in the same mode (debug or release) and with the same compiler.
 
 <table style="table-layout:auto;
 	margin: auto; 
@@ -210,19 +213,18 @@ A skeleton of plugins in the Extension System. Use this plugin as a starting poi
 
 <tr>
 <td style="vertical-align: text-top;width:250px">
-<a class="el" href="namespace_qtilities_1_1_project_management.html">Project Management Plugin:</a>
+<a class="el" href="namespace_qtilities_1_1_plugins_1_1_project_management.html">Project Management Plugin:</a>
 </td>
 <td style="vertical-align: text-top;width:700px;text-align=justify">
 The project management plugin can be used to add project management functionality to any application which contains objects implementing the Qtilities::ProjectManagement::IProjectItem interface which are registered in the global object pool. 
 
 The plugin will do the following when loaded:
-- Automatically register all project items found in the global object pool.
+- Automatically register all project items found in the global object pool with the project manager.
 - The project management configuration page will be added to the global object pool.
-- Add project management actions to the application's File menu (see image below).
-- Add the name of the current project and its modification state will be added to your application's main window (see image below).
+- Add project management actions to the application's \p File menu (see image below).
+- The name of the current project and its modification state will be added to your application's main window (see image below).
 
 \image html project_menu_items.jpg "Project Management Plugin Menu Items"
-\image latex project_menu_items.eps "Project Management Plugin Menu Items" width=3in
 </td>
 </tr>
 
@@ -234,10 +236,21 @@ The plugin will do the following when loaded:
 The session log plugin can be used to add a ready to use session log mode to your application when you use the %Qtilities main window architecture and the extension system module.
 
 The plugin will do the following when loaded:
-- Add a logging mode to your application if you use the Qtilities::CoreGuy::QtilitiesMainWindow widget as your main window.
+- Add a logging mode to your application if you use the Qtilities::CoreGui::QtilitiesMainWindow widget as your main window.
 - Create three log dock widgets (see Qtilities::CoreGui::LoggerGui) for warnings, errors and all messages. These docks will be accessible through the logging mode in your application.
 - Add the logger configuration page to the global object pool.
 - Register the context of the session log mode.
+</td>
+</tr>
+
+<tr>
+<td style="vertical-align: text-top;width:250px">
+<a class="el" href="namespace_qtilities_1_1_plugins_1_1_debug.html">Debug Plugin:</a>
+</td>
+<td style="vertical-align: text-top;width:700px;text-align=justify">
+The debug plugin adds a debug mode to your application which provides the following information at runtime:
+- An overview of the state of the global object pool during runtime.
+- An overview of all factories and the tags registered in them.
 </td>
 </tr>
 
