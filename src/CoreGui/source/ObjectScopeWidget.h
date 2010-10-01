@@ -63,7 +63,7 @@ namespace Qtilities {
 
         /*!
         \class ObjectScopeWidget
-        \brief The ObjectScopeWidget class provides details about the scope & contexts in which an object is present in the form of a widget.
+        \brief The ObjectScopeWidget class provides details about the contexts to which an object is attached to.
 
         As explained in the \ref page_observers article, an object can be attached to multiple observers.
         In such cases it be useful to display the scope of an object within the application using the
