@@ -10,6 +10,7 @@
 
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
+INCLUDEPATH += QTILITIES_SOURCE/Common
 
 CONFIG += qt \
     dll \

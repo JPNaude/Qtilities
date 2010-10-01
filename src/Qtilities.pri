@@ -12,6 +12,7 @@
 
 #****************************************************************************
 # Project paths
+# Note: Don't use folders with spaces.
 #****************************************************************************
 QTILITIES_BASE          = d:/projects/Qt/Qtilities/trunk
 QTILITIES_SOURCE        = $$QTILITIES_BASE/src

@@ -31,16 +31,18 @@
 **
 ****************************************************************************/
 
-#include <Logger.h>
-#include <LoggerFactory.h>
-#include <AbstractFormattingEngine.h>
-#include <AbstractLoggerEngine.h>
-#include <FormattingEngines.h>
-#include <LoggerEngines.h>
-#include <LoggingConstants.h>
+#include "Logger.h"
+#include "LoggerFactory.h"
+#include "AbstractFormattingEngine.h"
+#include "AbstractLoggerEngine.h"
+#include "FormattingEngines.h"
+#include "LoggerEngines.h"
+#include "LoggingConstants.h"
+
+#include <Qtilities.h>
+
 #include <QtDebug>
 #include <QMutex>
-#include <Qtilities.h>
 
 using namespace Qtilities::Logging::Constants;
 
