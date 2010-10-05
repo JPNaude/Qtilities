@@ -216,6 +216,10 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCateg
         emit newObjectAdded(obj);
 }
 
+void Qtilities::Core::ObjectManager::removeObject(QObject* obj) {
+    d->object_pool.detachSubject(obj);
+}
+
 void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) {
     d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
 }

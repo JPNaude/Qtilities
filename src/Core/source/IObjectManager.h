@@ -132,6 +132,12 @@ namespace Qtilities {
                     \returns The integer value returned will be the object's unique ID in the global object pool.
                     */
                 virtual void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory()) = 0;
+                //! Removes an object to from the global object pool.
+                /*!
+                    This function will detach the object from the global object pool observer. It will not however
+                    delete the object, it will just detach it.
+                    */
+                virtual void removeObject(QObject* obj) = 0;
                 //! Returns all objects in the global object pool which implements the specified interface.
                 /*!
 For example:

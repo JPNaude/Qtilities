@@ -396,7 +396,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         stream >> item_names_readback;
         LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
         if (item_names != item_names_readback) {
-            LOG_ERROR(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of projec items.") + file_name);
+            LOG_ERROR(QString(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of project items, or they are not loaded in the same order.")).arg(file_name));
             file.close();
             return false;
         }

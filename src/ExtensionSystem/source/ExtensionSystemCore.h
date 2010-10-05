@@ -66,12 +66,19 @@ namespace Qtilities {
             static ExtensionSystemCore* instance();
             ~ExtensionSystemCore();
 
-            //! Loads plugins.
+            //! Initializes the plugin manager by loading all found plugins.
             /*!
               Will load all plugins in the specified plugin paths. Once an IPlugin interface is discovered, initialize() will be
               called on it. When all the plugins in the system are loaded, the initializeDependancies() funciton will be called on each plugin.
+
+              \sa pluginPaths()
               */
-            void loadPlugins();
+            void initialize();
+            //! Finalizes the plugin manager by unloading and finalizing all plugins.
+            /*!
+              Will call finalize on all plugins in the order that they were loaded. Thus the order can be random.
+              */
+            void finalize();
 
             //! Returns a widget with information about loaded plugins.
             QWidget* configWidget();
@@ -83,9 +90,14 @@ namespace Qtilities {
               In order for \p path to be added it must exist and it should not exist as a custom plugin path yet.
 
               \note Add all the needed paths before calling loadPlugins().
+
+              \sa pluginPaths()
               */
             void addPluginPath(const QString& path);
             //! Function to get the paths from where plugins are loaded.
+            /*!
+              \sa addPluginPath()
+              */
             QStringList pluginPaths() const;
 
         signals:

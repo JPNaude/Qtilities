@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
-    ExtensionSystemCore::instance()->loadPlugins();
+    ExtensionSystemCore::instance()->initialize();
     Log->toggleQtMsgEngine(false);
     splash->clearMessage();
 

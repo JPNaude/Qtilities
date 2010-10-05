@@ -114,6 +114,7 @@ namespace Qtilities {
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false);
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);
             void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory());
+            void removeObject(QObject* obj);
             void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag);
             bool registerIFactoryProvider(IFactoryProvider* factory_iface);
             IFactoryProvider* referenceIFactoryProvider(const QString& factory_name) const;

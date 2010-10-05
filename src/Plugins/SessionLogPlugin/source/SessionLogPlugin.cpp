@@ -85,7 +85,7 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initializeDependancies(QS
 }
 
 void Qtilities::Plugins::SessionLog::SessionLogPlugin::finalize() {
-
+    LOG_INFO("Finalizing session log plugin");
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginName() const {

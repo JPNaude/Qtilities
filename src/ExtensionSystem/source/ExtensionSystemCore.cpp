@@ -103,7 +103,7 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
     delete d;
 }
 
-void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
+void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     d->pluginsDir = QDir(QCoreApplication::applicationDirPath());
 
     #if defined(Q_OS_WIN)
@@ -211,6 +211,21 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::loadPlugins() {
 
     emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
+    // Loop through all plugins and call finalize on them:
+    int plugin_count = d->plugins.subjectCount();
+    for (int i = 0; i < plugin_count; i++) {
+        IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(0));
+        if (pluginIFace) {
+            emit newProgressMessage(QString(tr("Finalizing plugin: %1")).arg(pluginIFace->pluginName()));
+            QCoreApplication::processEvents();
+            pluginIFace->finalize();
+            OBJECT_MANAGER->removeObject(d->plugins.subjectAt(0));
+            d->plugins.detachSubject(d->plugins.subjectAt(0));
+        }
+    }
 }
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {

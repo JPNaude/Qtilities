@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
-    ExtensionSystemCore::instance()->loadPlugins();
+    ExtensionSystemCore::instance()->initialize();
     Log->toggleQtMsgEngine(false);
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
