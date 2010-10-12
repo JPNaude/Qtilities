@@ -66,7 +66,11 @@ namespace Qtilities {
 
         public:
             ActivityPolicyFilter(QObject* parent = 0);
-            ~ActivityPolicyFilter() {}
+            ~ActivityPolicyFilter();
+            bool eventFilter(QObject *object, QEvent *event);
+
+            //! Reimplemented from AbstractSubjectFilter in order to install event filter on \p observer_context.
+            bool setObserverContext(Observer* observer_context);
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -88,6 +92,35 @@ namespace Qtilities {
             static QString activityPolicyToString(ActivityPolicy activity_policy);
             //! Function which returns the ActivityPolicy associated with a string.
             static ActivityPolicy stringToActivityPolicy(const QString& activity_policy_string);
+            //! Policy to control if this activity filter follows the activity of it's parent observer.
+            /*!
+              This policy allows developers to implement the functionality where clicking on a node in a tree will
+              enable/disabled (check/uncheck) all items underneath the node.
+
+              \note To track the activity of the observer parent, the observer parent must have only one parent itself (othwerise
+              it won't be possible to know in which context the activity must be tracked) and the parent must have an activity
+              policy filter installed.
+
+              \note In order for the activity property changes to be delivered to this filter, the delivery of QtilitiesPropertyChangeEvents
+              must be enabled on the parent observer. See Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents().
+
+              \note When minimumActivityPolicy() is set to ProhibitNoneActive, setting the activity to false on the
+              observer parent will attempt to disable all objects within this context. However this will be prohibited and
+              nothing will change. The opposite, that is setting the activity to true on the observer parent will still work as expected.
+
+              \note When activityPolicy() is set to UniqueActivity, this policy does nothing when set to ParentFollowActivity since
+              only one subject can be active at any time.
+
+              \sa setParentTrackingPolicy(), parentTrackingPolicy()
+              */
+            enum ParentTrackingPolicy {
+                ParentIgnoreActivity,     /*!< This filter does not track or care about the activity of its observer parent. */
+                ParentFollowActivity      /*!< This filter tracks the activity of its observer parent. */
+            };
+            //! Function which returns a string associated with a specific ParentTrackingPolicy.
+            static QString parentTrackingPolicyToString(ParentTrackingPolicy parent_tracking_policy);
+            //! Function which returns the ParentTrackingPolicy associated with a string.
+            static ParentTrackingPolicy stringToParentTrackingPolicy(const QString& parent_tracking_policy_string);
             //! Policy to control the minimum number of subjects which can be active at any time.
             /*!
               \sa setMinimumActivityPolicy(), minimumActivityPolicy()
@@ -116,23 +149,58 @@ namespace Qtilities {
             //! Sets the activity policy used by this subject filter.
             /*!
              The policy can only be changed if no observer context has been set yet.
+
+             \sa activityPolicy()
              */
             void setActivityPolicy(ActivityPolicyFilter::ActivityPolicy activity_policy);
             //! Gets the activity policy used by this subject filter.
+            /*!
+              Default is MultipleActivity.
+
+              \sa setActivityPolicy()
+              */
             ActivityPolicyFilter::ActivityPolicy activityPolicy() const;
+            //! Sets the parent tracking policy used by this subject filter.
+            /*!
+             The policy can only be changed if no observer context has been set yet.
+
+             \sa parentTrackingPolicy()
+             */
+            void setParentTrackingPolicy(ActivityPolicyFilter::ParentTrackingPolicy parent_tracking_policy);
+            //! Gets the parent tracking policy used by this subject filter.
+            /*!
+              Default is ParentIgnoreActivity.
+
+              \sa setParentTrackingPolicy()
+              */
+            ActivityPolicyFilter::ParentTrackingPolicy parentTrackingPolicy() const;
             //! Sets the minimum activity policy used by this subject filter.
             /*!
              The policy can only be changed if no observer context has been set yet.
+
+             \sa minimumActivityPolicy()
              */
             void setMinimumActivityPolicy(ActivityPolicyFilter::MinimumActivityPolicy minimum_naming_policy);
             //! Gets the minumum activity policy used by this subject filter.
+            /*!
+              Default is AllowNoneActive.
+
+              \sa setMinimumActivityPolicy()
+              */
             ActivityPolicyFilter::MinimumActivityPolicy minimumActivityPolicy() const;
             //! Sets the new subject activity policy used by this subject filter.
             /*!
              The policy can only be changed if no observer context has been set yet.
+
+             \sa newSubjectActivityPolicy()
              */
             void setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy);
             //! Gets the new subject activity policy used by this subject filter.
+            /*!
+              Default is SetNewInactive.
+
+              \sa setNewSubjectActivityPolicy()
+              */
             ActivityPolicyFilter::NewSubjectActivityPolicy newSubjectActivityPolicy() const;
 
             //! Gets the number of active subjects in the current observer context.
