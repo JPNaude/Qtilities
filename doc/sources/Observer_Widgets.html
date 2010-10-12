@@ -1,1 +1,372 @@
-/**\page page_observer_widgets Observer Widgets<table CELLPADDING=0 style="width:100%;  table-layout:fixed;	margin:0px 0px 0px 0px;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;"><tr> <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left"><h1 style="margin:0px; padding:0px">Overview</h1>%Qtilities provides a powerful implementation of the subject-observer pattern and an easy way to display the contents of such an observer context. The main class to use when viewing observers is Qtilities::CoreGui::ObserverWidget. The observer widget is able to show the contents as a tree widget or as a table widget and the user can specify the view which is required as a parameter in the constructor, or change the view at runtime. Observers provide hints to item views which specify how the context must be shown, what actions can be performed on the items in the context, what the access mode of the observer is etc. This article will show how to use the observer widget class and how it is linked with the observer context it is displaying. Note that the \p ObserverWidgetExample example in the \p QtilitiesExamples project contains the code used in this article.Table of contents:- \ref first_steps_observer_widgets	- \ref table_view	- \ref selected_object_integration	.- \ref observer_and_widget_integration	- \ref action_hints	- \ref selection_control	- \ref item_view_display	- \ref controlling_names	- \ref hierarchical_display	- \ref controlling_activity	- \ref controlling_displayed_columns	- \ref access_mode	- \ref observer_widget_searching	.- \ref advanced_topics	- \ref widget_meta_types	- \ref saving_state	- \ref models_overview	.  </td><td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;"><table style="table-layout:auto;	margin:0px 0px 0px 0px;   width: 100%;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;  background-color: #d1d3d4;"><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">First Steps</h2></td></tr><tr><td>- <a href="page_getting_started.html">Getting Started</a><br>- <a href="page_the_basics.html">The Basics</a><br>- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br></td></tr><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">Overviews</h2></td></tr><tr><td>- <a href="page_action_management.html">Action Management</a><br>- <a href="page_extension_system.html">Extension System</a><br>- <a href="page_factories.html">Factories</a><br>- <a href="page_logging.html">Logging</a><br>- <a href="page_modules_overview.html">Modules</a><br>- <a href="page_object_management.html">Object Management</a><br>- <a href="page_observers.html">Observers</a><br>- <a href="page_observer_widgets.html">Observer Widgets</a><br>- <a href="page_project_management.html">Project Management</a><br>- <a href="page_tree_structures.html">Building Trees</a><br>- <a href="page_widget_set.html">Widget Set</a><br></td></tr></table></td></tr></table>\section first_steps_observer_widgets First steps: Creating your first observer widgetTo create an observer widget is very simple, first we need an observer context and then we can initialize the observer widget for that observer context. We will use the same tree structure that was introduced in the \ref page_tree_structures article in here. Now lets look at an example where we construct that tree structure and create an observer widget for it.\code#include <QApplication>#include <QtilitiesCoreGui>using namespace QtilitiesCoreGui;int main(int argc, char *argv[]){  QtilitiesApplication a(argc, argv);  // Create a tree using TreeNode, a class inheriting Observer:  TreeNode* rootNode = new TreeNode("Root");  TreeNode* nodeA = rootNode->addNode("Node A");  TreeNode* nodeB = rootNode->addNode("Node B");  rootNode->addItem("Child 1");  rootNode->addItem("Child 2");  nodeA->addItem("Child 3");  nodeA->addItem("Child 4");  nodeB->addItem("Child 5");  nodeB->addItem("Child 6");  nodeB->addItem("Child 7");  // Create the observer widget, set its context and then initialize it  ObserverWidget* observer_widget = new ObserverWidget();  QtilitiesApplication::setMainWindow(observer_widget);  observer_widget->setObserverContext(rootNode);  observer_widget->initialize();  observer_widget->show();  return a.exec();}\endcodeThe above application produces the following widget:\image html observer_widget_doc_tree_view_simple.jpg "Observer Widget (Tree View Mode)"\subsection table_view Constructing the observer widget as a table viewObserver widgets are by default initialized as tree widgets. However we can decide we want a table view rather than a tree view by passing the correct parameter in the observer widget constructor. For example:\codeObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);\endcodeThe resulting widget looks like this:\image html observer_widget_doc_table_view_simple.jpg "Observer Widget (Table View Mode)"For flat observer structures the above widget would be sufficient, however for hierarchical tree structures such as the example structure we are using, this is not going to work. The user must be able to push down into an observer and push up the tree as well. In order to do this, we need to add actions for to the observer widget which the user can then use to perform these tasks. We use Qtilities::Core::ObserverHints to do this which are described in detail later in this article in the \ref observer_and_widget_integration section. For now we don't go into the details. \code// Indicate to the widget that it should use its own hints, not that of the selected observer:observer_widget->toggleUseObserverHints(false);// Tell the observer widget which actions it must display:ObserverHints::ActionHints action_hints = 0;action_hints |= ObserverHints::ActionPushDown;action_hints |= ObserverHints::ActionPushUp;action_hints |= ObserverHints::ActionSwitchView;observer_widget->activeHints()->setActionHints(action_hints);// We also tell the widget that we want a toolbar with the actions at the top of the widget:ObserverHints::DisplayFlags display_flags = 0;display_flags |= ObserverHints::ItemView;display_flags |= ObserverHints::NavigationBar;display_flags |= ObserverHints::ActionToolBar;observer_widget->activeHints()->setDisplayFlagsHint(display_flags);\endcodeThese additions will result in the observer widget shown below:\image html observer_widget_doc_table_view_push_hints.jpg "Observer Widget With Action Toolbar"A third action, specified by Qtilities::Core::ObserverHints::ActionSwitchView was also added to our example. When this action is present the user can switch the type of view at runtime. Lastly, observer widgets automatically provide actions to expand or collapse tree structures when the observer widget is in the tree mode. In the above widget they are not shown since the observer widget is in table mode.\subsection selected_object_integration Interacting with selected objectsThe observer widget class provides functions which makes it easy to interact with selected objects in the item view presented to the user. It is possible to retrieve selected objects at any time using the Qtilities::CoreGui::ObserverWidget::selectedObjects() function. The Qtilities::CoreGui::ObserverWidget::selectedObjectsChanged() signal is emitted when the active objects changes and the Qtilities::CoreGui::ObserverWidget::observerContextChanged() signal is emitted as soon as the observer context in the widget change. This would happen for example when the user push down into a tree hierarchy.\section observer_and_widget_integration Observer hints: Telling item views how they should show an observer contextObservers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::activeHints() function. Observers does not automatically provide hints and the Qtilities::Core::Observer::useDisplayHints() function must be called on the observer after it is constructed and before any subjects are attached to it. Qtilities::CoreGui::TreeNode on the other hand calls this function in its constructor.The hints are interpreted when the observer widget is initialized, thus they must be set before the initialization function call on the observer widget. The rest of this section will explore the different hints.\subsection action_hints Overview of different action hintsAction hints are hints which tells observer widgets which actions must be available for a specific context. The observer widget class implements the Qtilities::CoreGui::Interfaces::IActionProvider interface through which it provides all the actions for a specific observer context. Actions are created as needed during initialization calls on the observer widget, thus if an observer context does not provide any action hints, no actions will be created and the interface will provide an empty list of actions. The possible action hints are defined in the Qtilities::Core::ObserverHints::ActionItem enumeration.\subsection selection_control Control over object selectionIf is possible to control if objects can be selected in the observer widget. For more information see Qtilities::Core::ObserverHints::setItemSelectionControlHint() and Qtilities::Core::ObserverHints::itemSelectionControlHint().\subsection item_view_display Control over which widgets appears in the observer widgetIn the examples thus far we only showed the item view (table or tree view) and for table views an navigation bar and an action toolbar at the top of the widget. It is possible to control this through the Qtilities::Core::ObserverHints::setDisplayFlagsHint() and Qtilities::Core::ObserverHints::displayFlagsHint() functions as shown already. Lets modify our example to also display a Qtilities::CoreGui::ObjectPropertyBrowser through which users can edit Q_PROPERTY properties of the selected object.\code// We need to tell all three observers that they should provide hints for the actions we want to observer widgets displaying themObserverHints::DisplayFlags display_flags = 0;display_flags |= ObserverHints::ItemView;display_flags |= ObserverHints::NavigationBar;display_flags |= ObserverHints::PropertyBrowser;display_flags |= ObserverHints::ActionToolBar;observer_widget->activeHints()->setDisplayFlagsHint(display_flags);// Before the observer widget initialization we can specify where the editor should be, and of what type the editor must be:observer_widget->setPreferredPropertyEditorDockArea(Qt::RightDockWidgetArea);observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::TreeBrowser);// After the observer widget was initialized we can access the property editor and call functions on it:if (observer_widget->propertyBrowser()) {  QStringList filter_list;  filter_list << "QObject";  observer_widget->propertyBrowser()->setFilterList(filter_list);}\endcodeThese additions will result in the observer widget shown below:\image html observer_widget_doc_tree_view_property_editor.jpg "Observer Widget With Property Browser"\subsection controlling_names Controlling namesThe Qtilities::Core::ObserverHints::setNamingControlHint() function can be called to provide a hint which will determine if object names should be editable or not. The Qtilities::CoreGui::NamingPolicyFilter was created to help with name management inside an observer context and when a context with a naming policy filter installed is set as the observer context of an observer widget, the naming policy filter will automatically be used to help with name management by providing a Qtilities::CoreGui::NamingPolicyDelegate delegate which is used during the editing of object names. Lets adapt our example by installing a naming policy filter set to use unique names to our top level observer, and we set the naming control hint on the observer to editable names. \code// Enable naming control on the root node:// Note: This must be done before attaching any objects to it.rootNode->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);\endcodeThe image below shows what happens when we want to change an object name inside the top level observer context to the name of an existing object.\image html observer_widget_doc_tree_view_naming_delegate.jpg "Observer Widget Handling Context Naming Policies"\subsection hierarchical_display Hierarchical (categorized) display optionsAn useful feature of the Qtilities::Core::Observer class is that it supports the grouping of objects within the context into categories. Lets change our example again by adding intended categories for objects that we attach to \p nodeB.\codenodeB->setCategorizedDisplayEnabled(true);nodeB->addItem("Child 5",QtilitiesCategory("Category 1"));nodeB->addItem("Child 6",QtilitiesCategory("Category 2"));nodeB->addItem("Child 7",QtilitiesCategory("Category 2"));\endcodeThese changes will result in the observer widget shown below (in tree mode):\image html observer_widget_doc_tree_view_categorized.jpg "Observer Widget With Categories (Tree View Mode)"In table view mode the categories are shown in an extra column. To enable this column we need to specify the correct column hint:\codeobserver_widget->activeHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);\endcodeColumns are described in more detail in the \ref controlling_displayed_column section.\image html observer_widget_doc_table_view_categorized.jpg "Observer Widget With Categories (Table View Mode)"It possible to filter the displayed categories. However to use the filter we need to change the hint on the observer we want to enable the filtering on since the models producing the data showed by the observer widget needs this information.\codeQList<QtilitiesCategory> displayed_categories;displayed_categories << QtilitiesCategory("Category 1");nodeB->displayHints()->setDisplayedCategories(displayed_categories);nodeB->displayHints()->setCategoryFilterEnabled(true);\endcodeAfter adding the category filter, the observer widget looks this:\image html observer_widget_doc_tree_view_category_filter.jpg "Observer Widget With Filtered Categories (Tree View Mode)"\subsection controlling_activity Controlling activityIn the same way that observer widgets integrate with naming policy filters, automatic integration with activity policy filters also happens when an observer context displayed has a Qtilities::Core::ActivityPolicyFilter installed. Observers can provide two hints related to activity control: a hint indicating how activity must be displayed (see Qtilities::Core::ObserverHints::ActivityDisplay) and a hint indicating how activity changes should happen (see Qtilities::Core::ObserverHints::ActivityControl). Lets adapt our example by installing an activity policy filter on \p rootNode and \p nodeA using the convenience functions of Qtilities::CoreGui::TreeNode. \coderootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);\endcodeAfter adding the activity filter, the observer widget will look like this:\image html observer_widget_doc_tree_view_activity_control.jpg "Observer Widget Handling Context Activity Policy"The Qtilities::Core::ActivityPolicyFilter class also provides other activity management options which allows control over the activity of subjects within an observer context. It is up to the reader to explore the other activity control options.\subsection controlling_displayed_columns Control over displayed columnsThe Qtilities::Core::ObserverHints::ItemViewColumn hint provides control over pre-defined columns that can be shown in the observer widget. Lets enable all columns and look at the resulting observer widget.\code// We need to set the item view column hint on our observer:observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);\endcodeAfter setting the item view column hint, the observer widget will look like this:\image html observer_widget_doc_tree_view_columns.jpg "Observer Widget With All Columns Enabled"It is easy to extend an observer widget with custom columns. The Qtilities::Examples::Clipboard example demonstrates this. Also see the following section of this article: \ref models_overview.\subsection access_mode Access mode and access mode scopeObserver access modes provides the ability to control the changes which can be made to an observer and are defined in the Qtilities::Core::Observer::AccessMode enumeration. Observers provide the ability to specify access modes on a global scope or on a category level through the Qtilities::Core::Observer::setAccessModeScope() function. Again, lets modify our example by setting the access mode of the observers in the example (Note that we do this after the attachments for our example).\code// Set access modes. This must be done after we attached objects to these nodes.nodeA->setAccessMode(Observer::ReadOnlyAccess);nodeB->setAccessMode(Observer::LockedAccess);\endcodeThe resulting observer widget is shown below. It must be noted that the ColumnAccess item view column must be provided by the observer context:\image html observer_widget_doc_tree_view_access_modes.jpg "Observer Widget Handling Observer Access Mode (Tree View Mode)"The table mode's hierarchy navigation bar goes a step further and colors the name of a read only context in red as a direct indication that the context is read only.\image html observer_widget_doc_table_view_access_modes.jpg "Observer Widget Handling Observer Access Mode (Table View Mode)"\subsection observer_widget_searching Searching for objects inside the observer widgetObserver widgets can automatically show a search box widget embedded at the bottom of the widget when the active hints specifies that finding items is supported.\codeObserverHints::ActionHints active_hints = observer_widget->activeHints()->actionHints();active_hints |= ObserverHints::ActionFindItem;observer_widget->activeHints()->setActionHints(active_hints);\endcodeThe resulting widget will display a find action, and when clicked it will provide an integrated Qtilities::CoreGui::SearchBoxWidget to the user.\image html observer_widget_doc_tree_view_searching.jpg "Observer Widget Search Functionality"\section advanced_topics Advanced topics\subsection widget_meta_types Setting observer widget meta typesThe %Qtilities object manager is able to manage global active objects, for more information see \ref meta_type_object_management. The observer widget class can integrate with the object manager and the meta type which is used for a specific observer widget can be set using the Qtilities::CoreGui::ObserverWidget::setGlobalMetaType() function.\subsection saving_state Saving the state of different observer widgetsThe ObserverWidget class provides the Qtilities::CoreGui::ObserverWidget::writeSettings() and Qtilities::CoreGui::ObserverWidget::readSettings() functions which can be used to store information about an observer widget. The settings is stored using QSettings under a group called \p Gui/Widget_Name, with the application settings prepended to this group. This is shown below:\code// This must be set in your application's main() function with your parametersQtilitiesApplication::setOrganizationName("Jaco Naude");QtilitiesApplication::setOrganizationDomain("Qtilities");QtilitiesApplication::setApplicationName("Observer Widget Example");// This is the way settings are storedQSettings settings;settings.beginGroup("GUI");settings.beginGroup(widget_name);// Store detailssettings.endGroup();settings.endGroup();\endcodeQtilities::CoreGui::ObserverWidget::globalMetaType() is used as the \p Widget_Name field in the group where the settings are stored. Observer widget classes are connected to the Qtilities::Core::QtilitiesCoreApplication::settingsUpdateRequest() signal by default and responds to settings update requests for the specific global meta type. See the function documentation for more details on this topic. See the \p ClipboardExample in the \p QtilitiesExamples project for a demonstration of how observer widget settings are managed.\subsection models_overview The models doing the work behind the scenesDepending on the mode in which the observer widget is, it uses data models designed specifically for the observer implementation. In tree mode, the model doing the work is Qtilities::CoreGui::ObserverTreeModel, and in table mode Qtilities::CoreGui::ObserverTableModel is used. It is possible to extend models pretty easily. Again, see the \p ClipboardExample in the \p QtilitiesExamples project for more information, more specifically see the Qtilities::Examples::Clipboard::ExtendedObserverTableModel and Qtilities::Examples::Clipboard::ExtendedObserverTreeModel classes.*/
+/**
+\page page_observer_widgets Observer Widgets
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+%Qtilities provides a powerful implementation of the subject-observer pattern and an easy way to display the contents of such an observer context. The main class to use when viewing observers is Qtilities::CoreGui::ObserverWidget. The observer widget is able to show the contents as a tree widget or as a table widget and the user can specify the view which is required as a parameter in the constructor, or change the view at runtime. Observers provide hints to item views which specify how the context must be shown, what actions can be performed on the items in the context, what the access mode of the observer is etc. 
+
+This article will show how to use the observer widget class and how it is linked with the observer context it is displaying. Note that the \p ObserverWidgetExample example in the \p QtilitiesExamples project contains the code used in this article.
+
+Table of contents:
+- \ref first_steps_observer_widgets
+	- \ref table_view
+	- \ref selected_object_integration
+	.
+- \ref observer_and_widget_integration
+	- \ref action_hints
+	- \ref selection_control
+	- \ref item_view_display
+	- \ref controlling_names
+	- \ref hierarchical_display
+	- \ref controlling_activity
+	- \ref controlling_displayed_columns
+	- \ref access_mode
+	- \ref observer_widget_searching
+	.
+- \ref advanced_topics
+	- \ref widget_meta_types
+	- \ref saving_state
+	- \ref models_overview
+	.
+  
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section first_steps_observer_widgets First steps: Creating your first observer widget
+
+To create an observer widget is very simple, first we need an observer context and then we can initialize the observer widget for that observer context. We will use the same tree structure that was introduced in the \ref page_tree_structures article in here. Now lets look at an example where we construct that tree structure and create an observer widget for it.
+
+\code
+#include <QApplication>
+
+#include <QtilitiesCoreGui>
+using namespace QtilitiesCoreGui;
+
+int main(int argc, char *argv[])
+{
+  QtilitiesApplication a(argc, argv);
+
+  // Create a tree using TreeNode, a class inheriting Observer:
+  TreeNode* rootNode = new TreeNode("Root");
+  TreeNode* nodeA = rootNode->addNode("Node A");
+  TreeNode* nodeB = rootNode->addNode("Node B");
+  rootNode->addItem("Child 1");
+  rootNode->addItem("Child 2");
+  nodeA->addItem("Child 3");
+  nodeA->addItem("Child 4");
+  nodeB->addItem("Child 5");
+  nodeB->addItem("Child 6");
+  nodeB->addItem("Child 7");
+
+  // Create the observer widget, set its context and then initialize it
+  ObserverWidget* observer_widget = new ObserverWidget();
+  QtilitiesApplication::setMainWindow(observer_widget);
+  observer_widget->setObserverContext(rootNode);
+  observer_widget->initialize();
+  observer_widget->show();
+
+  return a.exec();
+}
+\endcode
+
+The above application produces the following widget:
+
+\image html observer_widget_doc_tree_view_simple.jpg "Observer Widget (Tree View Mode)"
+
+\subsection table_view Constructing the observer widget as a table view
+
+Observer widgets are by default initialized as tree widgets. However we can decide we want a table view rather than a tree view by passing the correct parameter in the observer widget constructor. For example:
+
+\code
+ObserverWidget* observer_widget = new ObserverWidget(Qtilities::TableView);
+\endcode
+
+The resulting widget looks like this:
+
+\image html observer_widget_doc_table_view_simple.jpg "Observer Widget (Table View Mode)"
+
+For flat observer structures the above widget would be sufficient, however for hierarchical tree structures such as the example structure we are using, this is not going to work. The user must be able to push down into an observer and push up the tree as well. In order to do this, we need to add actions for to the observer widget which the user can then use to perform these tasks. We use Qtilities::Core::ObserverHints to do this which are described in detail later in this article in the \ref 
+observer_and_widget_integration section. For now we don't go into the details. 
+
+\code
+// Indicate to the widget that it should use its own hints, not that of the selected observer:
+observer_widget->toggleUseObserverHints(false);
+
+// Tell the observer widget which actions it must display:
+ObserverHints::ActionHints action_hints = 0;
+action_hints |= ObserverHints::ActionPushDown;
+action_hints |= ObserverHints::ActionPushUp;
+action_hints |= ObserverHints::ActionSwitchView;
+observer_widget->activeHints()->setActionHints(action_hints);
+
+// We also tell the widget that we want a toolbar with the actions at the top of the widget:
+ObserverHints::DisplayFlags display_flags = 0;
+display_flags |= ObserverHints::ItemView;
+display_flags |= ObserverHints::NavigationBar;
+display_flags |= ObserverHints::ActionToolBar;
+observer_widget->activeHints()->setDisplayFlagsHint(display_flags);
+\endcode
+
+These additions will result in the observer widget shown below:
+
+\image html observer_widget_doc_table_view_push_hints.jpg "Observer Widget With Action Toolbar"
+
+A third action, specified by Qtilities::Core::ObserverHints::ActionSwitchView was also added to our example. When this action is present the user can switch the type of view at runtime. Lastly, observer widgets automatically provide actions to expand or collapse tree structures when the observer widget is in the tree mode. In the above widget they are not shown since the observer widget is in table mode.
+
+\subsection selected_object_integration Interacting with selected objects
+
+The observer widget class provides functions which makes it easy to interact with selected objects in the item view presented to the user. It is possible to retrieve selected objects at any time using the Qtilities::CoreGui::ObserverWidget::selectedObjects() function. The Qtilities::CoreGui::ObserverWidget::selectedObjectsChanged() signal is emitted when the active objects changes and the Qtilities::CoreGui::ObserverWidget::observerContextChanged() signal is emitted as soon as the observer context in the widget change. This would happen for example when the user push down into a tree hierarchy.
+
+\section observer_and_widget_integration Observer hints: Telling item views how they should show an observer context
+
+Observers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::activeHints() function. 
+
+Observers does not automatically provide hints and the Qtilities::Core::Observer::useDisplayHints() function must be called on the observer after it is constructed and before any subjects are attached to it. Qtilities::CoreGui::TreeNode on the other hand calls this function in its constructor.
+
+The hints are interpreted when the observer widget is initialized, thus they must be set before the initialization function call on the observer widget. The rest of this section will explore the different hints.
+
+\subsection action_hints Overview of different action hints
+
+Action hints are hints which tells observer widgets which actions must be available for a specific context. The observer widget class implements the Qtilities::CoreGui::Interfaces::IActionProvider interface through which it provides all the actions for a specific observer context. Actions are created as needed during initialization calls on the observer widget, thus if an observer context does not provide any action hints, no actions will be created and the interface will provide an empty list of actions. The possible action hints are defined in the Qtilities::Core::ObserverHints::ActionItem enumeration.
+
+\subsection selection_control Control over object selection
+
+If is possible to control if objects can be selected in the observer widget. For more information see Qtilities::Core::ObserverHints::setItemSelectionControlHint() and Qtilities::Core::ObserverHints::itemSelectionControlHint().
+
+\subsection item_view_display Control over which widgets appears in the observer widget
+
+In the examples thus far we only showed the item view (table or tree view) and for table views an navigation bar and an action toolbar at the top of the widget. It is possible to control this through the Qtilities::Core::ObserverHints::setDisplayFlagsHint() and Qtilities::Core::ObserverHints::displayFlagsHint() functions as shown already. 
+
+Lets modify our example to also display a Qtilities::CoreGui::ObjectPropertyBrowser through which users can edit Q_PROPERTY properties of the selected object.
+
+\code
+// We need to tell all three observers that they should provide hints for the actions we want to observer widgets displaying them
+ObserverHints::DisplayFlags display_flags = 0;
+display_flags |= ObserverHints::ItemView;
+display_flags |= ObserverHints::NavigationBar;
+display_flags |= ObserverHints::PropertyBrowser;
+display_flags |= ObserverHints::ActionToolBar;
+observer_widget->activeHints()->setDisplayFlagsHint(display_flags);
+
+// Before the observer widget initialization we can specify where the editor should be, and of what type the editor must be:
+observer_widget->setPreferredPropertyEditorDockArea(Qt::RightDockWidgetArea);
+observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::TreeBrowser);
+
+// After the observer widget was initialized we can access the property editor and call functions on it:
+if (observer_widget->propertyBrowser()) {
+  QStringList filter_list;
+  filter_list << "QObject";
+  observer_widget->propertyBrowser()->setFilterList(filter_list);
+}
+\endcode
+
+These additions will result in the observer widget shown below:
+
+\image html observer_widget_doc_tree_view_property_editor.jpg "Observer Widget With Property Browser"
+
+\subsection controlling_names Controlling names
+
+The Qtilities::Core::ObserverHints::setNamingControlHint() function can be called to provide a hint which will determine if object names should be editable or not. The Qtilities::CoreGui::NamingPolicyFilter was created to help with name management inside an observer context and when a context with a naming policy filter installed is set as the observer context of an observer widget, the naming policy filter will automatically be used to help with name management by providing a Qtilities::CoreGui::NamingPolicyDelegate delegate which is used during the editing of object names. 
+
+Lets adapt our example by installing a naming policy filter set to use unique names to our top level observer, and we set the naming control hint on the observer to editable names. 
+
+\code
+// Enable naming control on the root node:
+// Note: This must be done before attaching any objects to it.
+rootNode->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+\endcode
+
+The image below shows what happens when we want to change an object name inside the top level observer context to the name of an existing object.
+
+\image html observer_widget_doc_tree_view_naming_delegate.jpg "Observer Widget Handling Context Naming Policies"
+
+\subsection hierarchical_display Hierarchical (categorized) display options
+
+An useful feature of the Qtilities::Core::Observer class is that it supports the grouping of objects within the context into categories. Lets change our example again by adding intended categories for objects that we attach to \p nodeB.
+
+\code
+nodeB->setCategorizedDisplayEnabled(true);
+nodeB->addItem("Child 5",QtilitiesCategory("Category 1"));
+nodeB->addItem("Child 6",QtilitiesCategory("Category 2"));
+nodeB->addItem("Child 7",QtilitiesCategory("Category 2"));
+\endcode
+
+These changes will result in the observer widget shown below (in tree mode):
+
+\image html observer_widget_doc_tree_view_categorized.jpg "Observer Widget With Categories (Tree View Mode)"
+
+In table view mode the categories are shown in an extra column. To enable this column we need to specify the correct column hint:
+
+\code
+observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
+\endcode
+
+Columns are described in more detail in the \ref controlling_displayed_columns section.
+
+\image html observer_widget_doc_table_view_categorized.jpg "Observer Widget With Categories (Table View Mode)"
+
+It possible to filter the displayed categories. However to use the filter we need to change the hint on the observer we want to enable the filtering on since the models producing the data showed by the observer widget needs this information.
+
+\code
+QList<QtilitiesCategory> displayed_categories;
+displayed_categories << QtilitiesCategory("Category 1");
+nodeB->displayHints()->setDisplayedCategories(displayed_categories);
+nodeB->displayHints()->setCategoryFilterEnabled(true);
+\endcode
+
+After adding the category filter, the observer widget looks this:
+
+\image html observer_widget_doc_tree_view_category_filter.jpg "Observer Widget With Filtered Categories (Tree View Mode)"
+
+\subsection controlling_activity Controlling activity
+
+In the same way that observer widgets integrate with naming policy filters, automatic integration with activity policy filters also happens when an observer context displayed has a Qtilities::Core::ActivityPolicyFilter installed. Observers can provide two hints related to activity control: a hint indicating how activity must be displayed (see Qtilities::Core::ObserverHints::ActivityDisplay) and a hint indicating how activity changes should happen (see Qtilities::Core::ObserverHints::ActivityControl). 
+
+Lets adapt our example by installing an activity policy filter on \p rootNode and \p nodeA using the convenience functions of Qtilities::CoreGui::TreeNode. 
+
+\code
+rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+\endcode
+
+After adding the activity filter, the observer widget will look like this:
+
+\image html observer_widget_doc_tree_view_activity_control.jpg "Observer Widget Handling Context Activity Policy"
+
+The Qtilities::Core::ActivityPolicyFilter class also provides other activity management options which allows control over the activity of subjects within an observer context. It is up to the reader to explore the other activity control options.
+
+\subsection controlling_displayed_columns Control over displayed columns
+
+The Qtilities::Core::ObserverHints::ItemViewColumn hint provides control over pre-defined columns that can be shown in the observer widget. Lets enable all columns and look at the resulting observer widget.
+
+\code
+// We need to set the item view column hint on our observer:
+observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+\endcode
+
+After setting the item view column hint, the observer widget will look like this:
+
+\image html observer_widget_doc_tree_view_columns.jpg "Observer Widget With All Columns Enabled"
+
+It is easy to extend an observer widget with custom columns. The Qtilities::Examples::Clipboard example demonstrates this. Also see the following section of this article: \ref models_overview.
+
+\subsection access_mode Access mode and access mode scope
+
+Observer access modes provides the ability to control the changes which can be made to an observer and are defined in the Qtilities::Core::Observer::AccessMode enumeration. Observers provide the ability to specify access modes on a global scope or on a category level through the Qtilities::Core::Observer::setAccessModeScope() function. Again, lets modify our example by setting the access mode of the observers in the example (Note that we do this after the attachments for our example).
+
+\code
+// Set access modes. This must be done after we attached objects to these nodes.
+nodeA->setAccessMode(Observer::ReadOnlyAccess);
+nodeB->setAccessMode(Observer::LockedAccess);
+\endcode
+
+The resulting observer widget is shown below. It must be noted that the ColumnAccess item view column must be provided by the observer context:
+
+\image html observer_widget_doc_tree_view_access_modes.jpg "Observer Widget Handling Observer Access Mode (Tree View Mode)"
+
+The table mode's hierarchy navigation bar goes a step further and colors the name of a read only context in red as a direct indication that the context is read only.
+
+\image html observer_widget_doc_table_view_access_modes.jpg "Observer Widget Handling Observer Access Mode (Table View Mode)"
+
+\subsection observer_widget_searching Searching for objects inside the observer widget
+
+Observer widgets can automatically show a search box widget embedded at the bottom of the widget when the active hints specifies that finding items is supported.
+
+\code
+ObserverHints::ActionHints active_hints = observer_widget->activeHints()->actionHints();
+active_hints |= ObserverHints::ActionFindItem;
+observer_widget->activeHints()->setActionHints(active_hints);
+\endcode
+
+The resulting widget will display a find action, and when clicked it will provide an integrated Qtilities::CoreGui::SearchBoxWidget to the user.
+
+\image html observer_widget_doc_tree_view_searching.jpg "Observer Widget Search Functionality"
+
+\section advanced_topics Advanced topics
+
+\subsection widget_meta_types Setting observer widget meta types
+
+The %Qtilities object manager is able to manage global active objects, for more information see \ref meta_type_object_management. The observer widget class can integrate with the object manager and the meta type which is used for a specific observer widget can be set using the Qtilities::CoreGui::ObserverWidget::setGlobalMetaType() function.
+
+\subsection saving_state Saving the state of different observer widgets
+
+The ObserverWidget class provides the Qtilities::CoreGui::ObserverWidget::writeSettings() and Qtilities::CoreGui::ObserverWidget::readSettings() functions which can be used to store information about an observer widget. 
+
+The settings is stored using QSettings under a group called \p Gui/Widget_Name, with the application settings prepended to this group. This is shown below:
+
+\code
+// This must be set in your application's main() function with your parameters
+QtilitiesApplication::setOrganizationName("Jaco Naude");
+QtilitiesApplication::setOrganizationDomain("Qtilities");
+QtilitiesApplication::setApplicationName("Observer Widget Example");
+
+// This is the way settings are stored
+QSettings settings;
+settings.beginGroup("GUI");
+settings.beginGroup(widget_name);
+// Store details
+settings.endGroup();
+settings.endGroup();
+\endcode
+
+Qtilities::CoreGui::ObserverWidget::globalMetaType() is used as the \p Widget_Name field in the group where the settings are stored. Observer widget classes are connected to the Qtilities::Core::QtilitiesCoreApplication::settingsUpdateRequest() signal by default and responds to settings update requests for the specific global meta type. See the function documentation for more details on this topic. See the \p ClipboardExample in the \p QtilitiesExamples project for a demonstration of how observer widget settings are managed.
+
+\subsection models_overview The models doing the work behind the scenes
+
+Depending on the mode in which the observer widget is, it uses data models designed specifically for the observer implementation. In tree mode, the model doing the work is Qtilities::CoreGui::ObserverTreeModel, and in table mode Qtilities::CoreGui::ObserverTableModel is used. 
+
+It is possible to extend models pretty easily. Again, see the \p ClipboardExample in the \p QtilitiesExamples project for more information, more specifically see the Qtilities::Examples::Clipboard::ExtendedObserverTableModel and Qtilities::Examples::Clipboard::ExtendedObserverTreeModel classes.
+
+*/
