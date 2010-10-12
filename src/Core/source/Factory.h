@@ -127,11 +127,11 @@ namespace Qtilities {
           programming pattern. The class allows you to register factory interfaces, defined by the
           Qtilities::Core::FactoryInterface class. New instances of factory items (defined by
           Qtilities::Core::FactoryItem) can then be created by only providing the factory with the needed
-           interface ID defined by Qtilities::Core::FactoryItemID.
+          interface ID defined by Qtilities::Core::FactoryItemID.
 
           For more information see the \ref page_factories article.
 
-          \sa FactoryInterface, FactoryItem, IFactoryProvider
+          \sa FactoryInterface, FactoryItem, Interfaces::IFactoryProvider
         */
         template <class BaseClass>
         class Factory
