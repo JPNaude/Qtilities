@@ -78,8 +78,7 @@ namespace Qtilities {
         /*!
         The PointerList provides monitoring and accessing of object pointers which are attached to it. Other than
         QObjectCleanupHandler the PointerList class provides access functions to the objects attached to it and
-        emits signals to indicate its activity. PointerList is a template class, with the requirement that
-        T must inherit from QObject.
+        emits signals to indicate its activity.
 
         When creating a new PointerList object with the cleanup_when_done constructor parameter set to true, the PointerList
         will delete all objects attached to it when it is destructed.
@@ -88,7 +87,7 @@ namespace Qtilities {
 \code
 QObject* test = new QObject;
 QObject* test2 = new QObject;
-PointerList<QObject>* test_list = new PointerList<QObject>(true);
+PointerList* test_list = new PointerList(true);
 test_list->addObject(test);
 test_list->addObject(test2);
 
