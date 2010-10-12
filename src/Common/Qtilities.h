@@ -38,7 +38,7 @@ namespace Qtilities {
     //! The %Qtilities major version number.
     #define QTILITIES_VERSION_MAJOR 0
     //! The %Qtilities minor version number.
-    #define QTILITIES_VERSION_MINOR 2
+    #define QTILITIES_VERSION_MINOR 2.1
     //! The %Qtilities beta number.
     #define QTILITIES_VERSION_BETA 0
     //! The %Qtilities alpha number.
@@ -46,51 +46,38 @@ namespace Qtilities {
 
     //! The %Qtilities binary export formats version
     /*!
-    The binary export format indicates how binary exports are done in %Qtilities. The export format
-    defines the binary format used by the following functions and classes which implements
-    Qtilities::Core::Interfaces::IExportable:
-    <b>Classes:</b>
-    - Qtilities::Core::Observer
-    - Qtilities::Core::ObserverRelationalTable
-    - Qtilities::Core::ObserverData
+    The binary export format defines the binary format used by the classes implementing Qtilities::Core::Interfaces::IExportable.
 
-    <b>Functions (corresponding import functions not shown here):</b>
-    - Qtilities::Core::ObjectManager::exportObserverBinary()
-    - Qtilities::Core::ObjectManager::exportObjectProperties()
-    - Qtilities::ProjectManagement::Project::saveProject()
+    Binary exports are not backwards compatible at this stage.
 
-    Binary exports is not backwards compatible at this stage.
+    History: <br>
+    0 - %Qtilities v0.1 Beta 1 <br>
+    1 - %Qtilities v0.1 <br>
+    2 - %Qtilities v0.2 <br>
+        - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
+        - Observers now export their memory of category access modes using the new QtilitiesCategory class.<br>
 
-    History:
-    0 - %Qtilities v0.1 Beta 1
-    1 - %Qtilities v0.1
-    2 - %Qtilities v0.2
-         The following changes were part of the new v2 format:
-         - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
-         - Observers now export their memory of category access modes using the new QtilitiesCategory class.
+    3 - %Qtilities v0.2.1 onwards<br>
+        - ActivityPolicyFilter::parentTrackingPolicy() now part of activity filter exports.
     */
-    #define QTILITIES_BINARY_EXPORT_FORMAT 2
+    #define QTILITIES_BINARY_EXPORT_FORMAT 3
 
     //! The shortcut export format version.
     /*!
-    History:
-    No version defined - %Qtilities v0.1 Beta 1
-    1 - %Qtililties v0.1-v0.2 onwards
+    History:<br>
+    No version defined - %Qtilities v0.1 Beta 1<br>
+    1 - %Qtililties v0.1 onwards
     */
     #define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
 
-    //! The %Qtilities binary export format.
+    //! The %Qtilities logger's binary export format.
     /*!
-    The binary export format indicates how binary exports are done in the %Qtilities logging module.
-    The export format defines the binary format used by the following functions and classes which implements
-    Qtilities::Core::Interfaces::ILoggerExportable:
-    <b>Classes:</b>
-    - Qtilities::Logging::Logger
+    The logger binary export format defines the binary format used by the classes implementing Qtilities::Logging::Interfaces::ILoggerExportable.
 
-    History:
-    No version defined - %Qtilities v0.1 Beta 1
-    1 - %Qtilities v0.1
-    2 - %Qtilities v0.2
+    History:<br>
+    No version defined - %Qtilities v0.1 Beta 1<br>
+    1 - %Qtilities v0.1<br>
+    2 - %Qtilities v0.2 onwards<br>
     */
     #define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 2
 
@@ -98,12 +85,11 @@ namespace Qtilities {
     /*!
     The XML format defines the format which is used to export XML trees.
 
-    History:
-    XML exporting was introduced in %Qtilities v0.2
-    1 - %Qtililties v0.2
+    History:<br>
+    XML exporting was introduced in %Qtilities v0.2<br>
+    1 - %Qtililties v0.2 onwards<br>
     */
     #define QTILITIES_XML_EXPORT_FORMAT 1
-
 }
 
 #endif // QTILITIES_H
