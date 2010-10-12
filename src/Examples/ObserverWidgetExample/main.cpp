@@ -55,10 +55,11 @@ int main(int argc, char *argv[])
 
     // Create a tree using TreeNode, a class inherting Observer:
     TreeNode* rootNode = new TreeNode("Root");
+    rootNode->toggleQtilitiesPropertyChangeEvents(true);
     rootNode->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
-    rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+    rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered,ActivityPolicyFilter::MultipleActivity);
     TreeNode* nodeA = rootNode->addNode("Node A");
-    nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+    nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered,ActivityPolicyFilter::MultipleActivity,ActivityPolicyFilter::ParentFollowActivity);
     TreeNode* nodeB = rootNode->addNode("Node B");
     nodeB->setCategorizedDisplayEnabled(true);
     rootNode->addItem("Child 1");
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
     display_flags |= ObserverHints::ActionToolBar;
     //display_flags |= ObserverHints::PropertyBrowser;
     observer_widget->activeHints()->setDisplayFlagsHint(display_flags);
+    observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     observer_widget->activeHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     QList<QtilitiesCategory> displayed_categories;

@@ -107,13 +107,13 @@ int main(int argc, char *argv[])
     // ----------------------------------
     // Categorized Tree
     // ------------------------------------
-    TreeNode* rootNode = new TreeNode("Root");
+    /*TreeNode* rootNode = new TreeNode("Root");
     rootNode->setCategorizedDisplayEnabled(true);
     rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
     rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
-    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
+    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));*/
 
     // ----------------------------------
     // Uncategorized Tree
@@ -141,9 +141,9 @@ int main(int argc, char *argv[])
     parentNode2->addItem("Child 4");
     parentNode2->addItem("Child 5");*/
 
-    rootNode->saveToFile(QApplication::applicationDirPath() + "/example_tree.xml");
+    /*rootNode->saveToFile(QApplication::applicationDirPath() + "/example_tree.xml");
     ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
-    uncategorized_widget->show();
+    uncategorized_widget->show();*/
 
     return a.exec();
 }

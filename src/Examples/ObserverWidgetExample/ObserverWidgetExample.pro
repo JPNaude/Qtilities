@@ -30,3 +30,4 @@ UI_DIR          = $$QTILITIES_TEMP/ObserverWidgetExample
 SOURCES += main.cpp
 RC_FILE = rc_file.rc
 
+OTHER_FILES +=
