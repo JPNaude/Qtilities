@@ -131,6 +131,7 @@ Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::namingPoli
 Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                            ObserverHints::ActivityControl activity_control,
                            ActivityPolicyFilter::ActivityPolicy activity_policy,
+                           ActivityPolicyFilter::ParentTrackingPolicy parent_tracking_policy,
                            ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy,
                            ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {
 
@@ -138,6 +139,7 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActiv
     nodeData->activity_policy_filter->setMinimumActivityPolicy(minimum_activity_policy);
     nodeData->activity_policy_filter->setNewSubjectActivityPolicy(new_subject_activity_policy);
     nodeData->activity_policy_filter->setActivityPolicy(activity_policy);
+    nodeData->activity_policy_filter->setParentTrackingPolicy(parent_tracking_policy);
     if (installSubjectFilter(nodeData->activity_policy_filter)) {
         displayHints()->setActivityControlHint(activity_control);
         displayHints()->setActivityDisplayHint(activity_display);

@@ -81,8 +81,7 @@ namespace Qtilities {
 
           Below is an example of a basic observer widget in tree mode.
 
-          \image html observer_widget_tree.jpg "Observer Widget (Tree View Mode)"
-          \image latex observer_widget_tree.eps "Observer Widget (Tree View Mode)" width=3in
+          \image html observer_widget_doc_tree_view_simple.jpg "Observer Widget (Tree View Mode)"
 
           The \ref page_observer_widgets article provides a comprehensive overview of the different ways that the observer widget can be used.
           */
@@ -114,7 +113,7 @@ categorized_widget->setObserverContext(contextPtr);
 categorized_widget->initialize();
 categorized_widget->show();
 
-// The long way:
+// The short way:
 ObserverWidget* categorized_widget = new ObserverWidget(contextPtr);
 categorized_widget->show();
 \endcode

@@ -240,9 +240,10 @@ tree_widget->show();
               */
             ActivityPolicyFilter* enableActivityControl(ObserverHints::ActivityDisplay activity_display,
                                        ObserverHints::ActivityControl activity_control = ObserverHints::NoActivityControlHint,
-                                       ActivityPolicyFilter::ActivityPolicy activity_policy = ActivityPolicyFilter::UniqueActivity,
-                                       ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy = ActivityPolicyFilter::ProhibitNoneActive,
-                                       ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy = ActivityPolicyFilter::SetNewActive);
+                                       ActivityPolicyFilter::ActivityPolicy activity_policy = ActivityPolicyFilter::MultipleActivity,
+                                       ActivityPolicyFilter::ParentTrackingPolicy parent_tracking_policy = ActivityPolicyFilter::ParentIgnoreActivity,
+                                       ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy = ActivityPolicyFilter::AllowNoneActive,
+                                       ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy = ActivityPolicyFilter::SetNewInactive);
             //! Disables actvity control in this node.
             void disableActivityControl();
             //! Function which returns a reference to the activity control filter used by this node, if any.
