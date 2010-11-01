@@ -38,7 +38,9 @@ namespace Qtilities {
     //! The %Qtilities major version number.
     #define QTILITIES_VERSION_MAJOR 0
     //! The %Qtilities minor version number.
-    #define QTILITIES_VERSION_MINOR 2.1
+    #define QTILITIES_VERSION_MINOR 2
+    //! The %Qtilities revision version number.
+    #define QTILITIES_VERSION_REVISION 1
     //! The %Qtilities beta number.
     #define QTILITIES_VERSION_BETA 0
     //! The %Qtilities alpha number.
