@@ -48,7 +48,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>220</width>
+          <width>180</width>
           <height>16777215</height>
          </size>
         </property>
@@ -165,7 +165,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>220</width>
+          <width>180</width>
           <height>16777215</height>
          </size>
         </property>
@@ -207,6 +207,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="btnReplaceAll">
+        <property name="text">
+         <string>Replace All</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="spacerBottom">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -221,6 +231,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblMessage">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

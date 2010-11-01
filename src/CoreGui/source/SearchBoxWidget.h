@@ -36,6 +36,8 @@
 
 #include <QWidget>
 #include <QMenu>
+#include <QTextEdit>
+#include <QPlainTextEdit>
 
 #include "QtilitiesCoreGui_global.h"
 
@@ -58,15 +60,30 @@ namespace Qtilities {
           \brief The SearchBoxWidget class provides a ready to use search/replace widget.
 
           The search box widget is a generic, parameterizable search box widget. It is usually embedded into other widgets
-          and connected to those widgets. It supports both a search only mode, and a search and replace mode.
+          and connected to those widgets. It supports both a search only mode and a search and replace mode set using the setWidgetMode()
+          function. The buttons shown are set using setButtonFlags() and the search options available to the user is set using
+          setSearchOptions().
 
-          The search and replace mode with all buttons enabled is shown below:
+          The widget in search and replace mode with all buttons enabled is shown below:
           \image html search_box_widget.jpg "Search Box Widget"
           \image latex search_box_widget.eps "Search Box Widget" width=\textwidth
+
+          By default, the widget can be embedded anywhere as shown in the example below. When used in this way, the widget
+          emits signals such as searchStringChanged(), searchOptionsChanged(), btnFindNext_clicked() etc. A signal is emitted for each button
+          that is pressed.
 
           Below is an example where the search box widget is embedded at the bottom of an observer widget:
           \image html observer_widget_searching.jpg "Observer Widget Search Demonstration"
           \image latex observer_widget_searching.eps "Observer Widget Search Demonstration" width=4in
+
+          The widget can also be used directly on a QTextEdit window by calling the setTextEdit() function. Alternatively it can
+          be used on a QPlainTextEdit by calling the setPlainTextEditor() functions. When calling both these functions, the one that was
+          called last will be used and at any time you can check what the widget target is using widgetTarget().
+
+          When using the search box widget with text edit and plain text edit targets, the buttons (except the HideButton) will not trigger
+          their signals and the search string related signals will not trigger either. The widget will handle these buttons directly on the
+          specified text edit. The behavior of the replace buttons will also change. They will only be enabled when text is selected in the text
+          editor.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SearchBoxWidget : public QWidget {
             Q_OBJECT
@@ -79,6 +96,12 @@ namespace Qtilities {
             enum WidgetMode {
                 SearchOnly,             /*!< The widget will only show search related items. */
                 SearchAndReplace        /*!< The widget will show both show search and replace related items. */
+            };
+            //! An enumeration which is used to indicate the target on which the search and place operations must be performed.
+            enum WidgetTarget {
+                ExternalTarget,         /*!< External target. Will emit needed signals for external target to connect to. */
+                TextEdit,               /*!< Text edit set using setTextEdit(). */
+                PlainTextEdit           /*!< Plain text edit set using setPlainTextEdit(). */
             };
             //! An enumeration which is used to indicate which buttons should be visible in the widget.
             enum ButtonFlag {
@@ -122,6 +145,30 @@ namespace Qtilities {
             void setRegExpression(bool toggle);
             //! Sets focus to the search string text editor.
             void setEditorFocus();
+            //! Sets the text editor on which this widget must operate.
+            /*!
+              The widget can also be used directly on a QTextEdit window by calling the setTextEdit() function. When using the
+              search box widget in this way, the buttons (except the HideButton) will not trigger their signals and the search string
+              related signals will not trigger either. The widget will handle these buttons directly on the specified text edit.
+
+              \sa setPlainTextEditor();
+              */
+            void setTextEditor(QTextEdit* textEdit);
+            //! Returns a reference to the text editor on which this widget performs its operations.
+            QTextEdit* textEditor() const;
+            //! Sets the text editor on which this widget must operate.
+            /*!
+              The widget can also be used directly on a QPlainTextEdit window by calling the setTextEdit() function. When using the
+              search box widget in this way, the buttons (except the HideButton) will not trigger their signals and the search string
+              related signals will not trigger either. The widget will handle these buttons directly on the specified text edit.
+
+              \sa setTextEditor();
+              */
+            void setPlainTextEditor(QPlainTextEdit* plainTextEdit);
+            //! Returns a reference to the plain text editor on which this widget performs its operations.
+            QPlainTextEdit* plainTextEditor() const;
+            //! Current widget target.
+            WidgetTarget widgetTarget() const;
 
             //! Function to set the button flags of the widget.
             void setButtonFlags(ButtonFlags button_flags);
@@ -140,6 +187,10 @@ namespace Qtilities {
               This reference can be used to add menu items to the search options menu.
               */
             QMenu* searchOptionsMenu();
+            //! Function to set the message string displayed in the search box.
+            void setMessage(const QString& message);
+            //! Function which returns the QTextDocument::FindFlags for the current search options.
+            QTextDocument::FindFlags findFlags() const;
 
         public slots:
             //! Sets the current search string in the search text box.
@@ -151,12 +202,21 @@ namespace Qtilities {
             void changeEvent(QEvent *e);
 
         private slots:
-            void on_txtSearchString_textChanged(const QString & text);
-            void on_txtReplaceString_textChanged(const QString & text);
+            void handleSearchStringChanged(const QString& string);
+            void handleReplaceStringChanged(const QString& string);
+            void handleOptionsChanged();
+            void handleClose();
+            void handleFindNext();
+            void handleFindPrevious();
+            void handleReplaceNext();
+            void handleReplacePrevious();
+            void handleReplaceAll();
 
         signals:
             //! Signal emitted when the search string changes with the new string passed as the paramater.
-            void searchStringChanged(const QString & text);
+            void searchStringChanged(const QString& string);
+            //! Signal emitted when the replace string changes with the new string passed as the paramater.
+            void replaceStringChanged(const QString& string);
             //! Indicates that the search options changed.
             void searchOptionsChanged();
             //! Indicates that the close button was clicked.
@@ -169,6 +229,8 @@ namespace Qtilities {
             void btnReplacePrevious_clicked();
             //! Indicates that the replace next button was clicked.
             void btnReplaceNext_clicked();
+            //! Indicates that the replace all button was clicked.
+            void btnReplaceAll_clicked();
 
         private:
             Ui::SearchBoxWidget* ui;

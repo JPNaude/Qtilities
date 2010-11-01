@@ -42,10 +42,16 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::SearchBoxWidgetData {
+    SearchBoxWidgetData() : textEdit(0),
+        plainTextEdit(0) {}
     QMenu*      searchOptionsMenu;
     QAction*    searchOptionCaseSensitive;
     QAction*    searchOptionWholeWordsOnly;
     QAction*    searchOptionRegEx;
+
+    SearchBoxWidget::WidgetTarget   widget_target;
+    QTextEdit*                      textEdit;
+    QPlainTextEdit*                 plainTextEdit;
 
     SearchBoxWidget::ButtonFlags    button_flags;
     SearchBoxWidget::SearchOptions  search_options;
@@ -58,15 +64,19 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
 {
     ui->setupUi(this);
     d = new SearchBoxWidgetData;
+    d->widget_target = SearchBoxWidget::ExternalTarget;
 
     setWindowTitle(tr("Search Box Widget"));
 
     // Connect ui signals to own signals which will be monitored by this widget's parent
-    connect(ui->btnClose,SIGNAL(clicked()),SIGNAL(btnClose_clicked()));
-    connect(ui->btnFindPrevious,SIGNAL(clicked()),SIGNAL(btnFindPrevious_clicked()));
-    connect(ui->btnFindNext,SIGNAL(clicked()),SIGNAL(btnFindNext_clicked()));
-    connect(ui->btnReplacePrevious,SIGNAL(clicked()),SIGNAL(btnReplacePrevious_clicked()));
-    connect(ui->btnReplaceNext,SIGNAL(clicked()),SIGNAL(btnReplaceNext_clicked()));
+    connect(ui->btnFindPrevious,SIGNAL(clicked()),SLOT(handleFindPrevious()));
+    connect(ui->btnFindNext,SIGNAL(clicked()),SLOT(handleFindNext()));
+    connect(ui->btnReplacePrevious,SIGNAL(clicked()),SLOT(handleReplacePrevious()));
+    connect(ui->btnReplaceNext,SIGNAL(clicked()),SLOT(handleReplaceNext()));
+    connect(ui->btnReplaceAll,SIGNAL(clicked()),SLOT(handleReplaceAll()));
+    connect(ui->btnClose,SIGNAL(clicked()),SLOT(handleClose()));
+    connect(ui->txtSearchString,SIGNAL(textChanged(QString)),SLOT(handleSearchStringChanged(QString)));
+    connect(ui->txtReplaceString,SIGNAL(textChanged(QString)),SLOT(handleReplaceStringChanged(QString)));
 
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu("Search Options");
@@ -75,7 +85,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     d->searchOptionCaseSensitive = new QAction("Case Sensitive",0);
     d->searchOptionCaseSensitive->setCheckable(true);
     d->searchOptionsMenu->addAction(d->searchOptionCaseSensitive);
-    connect(d->searchOptionCaseSensitive,SIGNAL(triggered()),SIGNAL(searchOptionsChanged()));
+    connect(d->searchOptionCaseSensitive,SIGNAL(triggered()),SLOT(handleOptionsChanged()));
     d->searchOptionWholeWordsOnly = new QAction("Whole Words Only",0);
     d->searchOptionsMenu->addAction(d->searchOptionWholeWordsOnly);
     d->searchOptionWholeWordsOnly->setCheckable(true);
@@ -123,14 +133,6 @@ void Qtilities::CoreGui::SearchBoxWidget::changeEvent(QEvent *e)
     default:
         break;
     }
-}
-
-void Qtilities::CoreGui::SearchBoxWidget::on_txtSearchString_textChanged(const QString & text) {
-    emit searchStringChanged(text);
-}
-
-void Qtilities::CoreGui::SearchBoxWidget::on_txtReplaceString_textChanged(const QString & text) {
-    ui->btnReplaceNext->click();
 }
 
 bool Qtilities::CoreGui::SearchBoxWidget::caseSensitive() const {
@@ -248,4 +250,181 @@ Qtilities::CoreGui::SearchBoxWidget::WidgetMode Qtilities::CoreGui::SearchBoxWid
 
 QMenu* Qtilities::CoreGui::SearchBoxWidget::searchOptionsMenu() {
     return d->searchOptionsMenu;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setTextEditor(QTextEdit* textEdit) {
+    d->textEdit = textEdit;
+
+    if (d->textEdit)
+        d->widget_target = SearchBoxWidget::TextEdit;
+}
+
+QTextEdit* Qtilities::CoreGui::SearchBoxWidget::textEditor() const {
+    return d->textEdit;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setPlainTextEditor(QPlainTextEdit* plainTextEdit) {
+    d->plainTextEdit = plainTextEdit;
+
+    if (d->plainTextEdit) {
+        d->widget_target = SearchBoxWidget::PlainTextEdit;
+
+        // Enable/Disable the replace buttons:
+        /*if (d->plainTextEdit->textCursor().hasSelection()) {
+            ui->btnReplaceNext->setEnabled(true);
+            ui->btnReplacePrevious->setEnabled(true);
+        } else {
+            ui->btnReplaceNext->setEnabled(false);
+            ui->btnReplacePrevious->setEnabled(false);
+        }
+
+        // Make sure the replace buttons becomes active at the right time:
+        connect(d->plainTextEdit,SIGNAL(copyAvailable(bool)),ui->btnReplaceNext,SLOT(setEnabled(bool)));
+        connect(d->plainTextEdit,SIGNAL(copyAvailable(bool)),ui->btnReplacePrevious,SLOT(setEnabled(bool)));*/
+    }
+}
+
+QPlainTextEdit* Qtilities::CoreGui::SearchBoxWidget::plainTextEditor() const {
+    return d->plainTextEdit;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleOptionsChanged() {
+
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleSearchStringChanged(const QString& string) {
+    handleFindPrevious();
+    handleFindNext();
+    emit searchStringChanged(string);
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleReplaceStringChanged(const QString& string) {
+    emit replaceStringChanged(string);
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
+    if (d->widget_target == ExternalTarget)
+        emit btnClose_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleFindNext() {
+    if (d->widget_target == ExternalTarget)
+        emit btnFindNext_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+        QTextDocument::FindFlags find_flags = findFlags();
+
+        if (d->plainTextEdit->find(currentSearchString(),find_flags)) {
+            d->plainTextEdit->centerCursor();
+        } else {
+            QTextCursor cursor = d->plainTextEdit->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            d->plainTextEdit->setTextCursor(cursor);
+            d->plainTextEdit->find(currentSearchString(),find_flags);
+        }
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleFindPrevious() {
+    if (d->widget_target == ExternalTarget)
+        emit btnFindPrevious_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+        if (d->plainTextEdit->find(currentSearchString(), findFlags() | QTextDocument::FindBackward))
+            d->plainTextEdit->centerCursor();
+        else {
+            QTextCursor cursor = d->plainTextEdit->textCursor();
+            cursor.movePosition(QTextCursor::End);
+            d->plainTextEdit->setTextCursor(cursor);
+            d->plainTextEdit->find(currentSearchString(), findFlags() | QTextDocument::FindBackward);
+        }
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleReplaceNext() {
+    if (d->widget_target == ExternalTarget)
+        emit btnReplaceNext_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+        if (!d->plainTextEdit->textCursor().hasSelection())
+            handleFindNext();
+        else {
+            d->plainTextEdit->textCursor().insertText(ui->txtReplaceString->text());
+            handleFindNext();
+        }
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleReplacePrevious() {
+    if (d->widget_target == ExternalTarget)
+        emit btnReplacePrevious_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+        if (!d->plainTextEdit->textCursor().hasSelection())
+            handleFindPrevious();
+        else {
+            d->plainTextEdit->textCursor().insertText(ui->txtReplaceString->text());
+            handleFindPrevious();
+        }
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleReplaceAll() {
+    if (d->widget_target == ExternalTarget)
+        emit btnReplaceAll_clicked();
+    else if (d->widget_target == TextEdit) {
+
+    } else if (d->widget_target == PlainTextEdit) {
+        int count = 0;
+
+        QTextCursor cursor = d->plainTextEdit->textCursor();
+        int position = cursor.position();
+        cursor.setPosition(0);
+        cursor.beginEditBlock();
+
+        d->plainTextEdit->setTextCursor(cursor);
+        d->plainTextEdit->find(currentSearchString(),findFlags());
+        while (d->plainTextEdit->textCursor().hasSelection()) {
+            d->plainTextEdit->textCursor().insertText(ui->txtReplaceString->text());
+            ++count;
+            d->plainTextEdit->find(currentSearchString(),findFlags());
+        }
+
+        cursor.endEditBlock();
+        cursor.setPosition(position);
+        d->plainTextEdit->setTextCursor(cursor);
+
+        if (count == 1)
+            setMessage(QString("<font color='green'>Replaced 1 occurance.</font>"));
+        else if (count > 1)
+            setMessage(QString("<font color='green'>Replaced %1 occurances.</font>").arg(count));
+        else
+            setMessage(QString("<font color='orange'>No occurance of your search string was found.</font>"));
+    }
+}
+
+QTextDocument::FindFlags Qtilities::CoreGui::SearchBoxWidget::findFlags() const {
+    QTextDocument::FindFlags find_flags = 0;
+    if (wholeWordsOnly())
+        find_flags |= QTextDocument::FindWholeWords;
+    if (caseSensitive())
+        find_flags |= QTextDocument::FindCaseSensitively;
+    return find_flags;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setMessage(const QString& message) {
+    ui->lblMessage->setText(message);
+}
+
+Qtilities::CoreGui::SearchBoxWidget::WidgetTarget Qtilities::CoreGui::SearchBoxWidget::widgetTarget() const {
+    return d->widget_target;
 }
