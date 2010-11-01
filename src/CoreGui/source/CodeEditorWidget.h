@@ -197,18 +197,6 @@ namespace Qtilities {
             void constructActions();
             void refreshActions();
 
-            // --------------------------------
-            // Handle Search Functionality
-            // --------------------------------
-        public slots:
-            void handleSearchOptionsChanged();
-            void handleSearchStringChanged(const QString& filter_string);
-            void handleSearchReset();
-            void handleSearchFindNext();
-            void handleSearchFindPrevious();
-            void handleSearchReplaceNext();
-            void handleSearchReplacePrevious();
-
         public:
             // --------------------------------
             // File Loading Interface

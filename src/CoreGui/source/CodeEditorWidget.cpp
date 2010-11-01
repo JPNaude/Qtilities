@@ -433,17 +433,9 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         button_flags |= SearchBoxWidget::PreviousButtons;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
         d->searchBoxWidget->setWholeWordsOnly(false);
+        d->searchBoxWidget->setPlainTextEditor(d->codeEditor);
 
-        connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
-        connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));
-        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->searchBoxWidget,SLOT(hide()));
-        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),SLOT(handleSearchReset()));
-        connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handleSearchFindNext()));
-        connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handleSearchFindPrevious()));
-        connect(d->searchBoxWidget,SIGNAL(btnReplaceNext_clicked()),SLOT(handleSearchReplaceNext()));
-        connect(d->searchBoxWidget,SIGNAL(btnReplacePrevious_clicked()),SLOT(handleSearchReplacePrevious()));
     }
-
     d->searchBoxWidget->setEditorFocus();
 
     // We check if there is a selection in the user visible cursor. If so we set that as the search string.
@@ -451,30 +443,6 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
     if (visible_cursor.hasSelection()) {
         d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
     }
-
-    handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchOptionsChanged() {
-    handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchStringChanged(const QString& filter_string) {
-    QTextDocument::FindFlags find_flags = 0;
-    if (d->searchBoxWidget->wholeWordsOnly())
-        find_flags |= QTextDocument::FindWholeWords;
-    if (d->searchBoxWidget->caseSensitive())
-        find_flags |= QTextDocument::FindCaseSensitively;
-
-    d->codeEditor->find(filter_string,find_flags | QTextDocument::FindBackward);
-    d->codeEditor->find(filter_string,find_flags);
-
-    //QBrush brush(Qt::green);
-    //highlightWord(filter_string,brush);
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchReset() {
-    handleSearchStringChanged("");
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {
@@ -482,37 +450,6 @@ void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {
         d->actionSave->setEnabled(true);
     else
         d->actionSave->setEnabled(false);
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchFindNext() {
-    QTextDocument::FindFlags find_flags = 0;
-    if (d->searchBoxWidget->wholeWordsOnly())
-        find_flags |= QTextDocument::FindWholeWords;
-    if (d->searchBoxWidget->caseSensitive())
-        find_flags |= QTextDocument::FindCaseSensitively;
-
-    if (!d->codeEditor->find(d->searchBoxWidget->currentSearchString(),find_flags)) {
-        // Implement ability to go to start of document and search again. This does not work.
-        d->codeEditor->textCursor().movePosition(QTextCursor::Start);
-    }
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchFindPrevious() {
-    QTextDocument::FindFlags find_flags = 0;
-    if (d->searchBoxWidget->wholeWordsOnly())
-        find_flags |= QTextDocument::FindWholeWords;
-    if (d->searchBoxWidget->caseSensitive())
-        find_flags |= QTextDocument::FindCaseSensitively;
-
-    d->codeEditor->find(d->searchBoxWidget->currentSearchString(),find_flags | QTextDocument::FindBackward);
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchReplaceNext() {
-
-}
-
-void Qtilities::CoreGui::CodeEditorWidget::handleSearchReplacePrevious() {
-
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
