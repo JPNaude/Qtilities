@@ -85,7 +85,7 @@ QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory()
 }
 
 double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
-    return (QString("%1.%2").arg(PLUGIN_TEMPLATE_VERSION_MAJOR).arg(PLUGIN_TEMPLATE_VERSION_MINOR)).toDouble();
+    return (QString("%1.%2.%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {

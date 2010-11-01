@@ -164,7 +164,7 @@ QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin
 }
 
 double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
-    return (QString("%1.%2").arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR).arg(PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR)).toDouble();
+    return (QString("%1.%2.%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {

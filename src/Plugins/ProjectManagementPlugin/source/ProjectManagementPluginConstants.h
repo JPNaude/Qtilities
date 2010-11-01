@@ -34,8 +34,6 @@
 #ifndef PROJECT_MANAGEMENT_PLUGIN_CONSTANTS_H
 #define PROJECT_MANAGEMENT_PLUGIN_CONSTANTS_H
 
-#include <Qtilities.h>
-
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the ProjectManagement plugin.
@@ -53,9 +51,6 @@ namespace Qtilities {
         namespace ProjectManagement {
             //! Namespace containing constants defined in the ProjectManagement plugin.
             namespace Constants {
-                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MAJOR QTILITIES_VERSION_MAJOR
-                #define PROJECT_MANAGEMENT_PLUGIN_VERSION_MINOR QTILITIES_VERSION_MINOR
-
                 // Actions & Action Containers
                 const char * const MENU_PROJECTS_NEW        = "Projects.New";
                 const char * const MENU_PROJECTS_OPEN       = "Projects.Open";
