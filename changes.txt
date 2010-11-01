@@ -1,0 +1,88 @@
+v0.2.1
+======
+New Features:
+- New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
+  - TreeNode::enableActivityControl() updated to include this new policy.
+  - This policy is now part of binary and XML tree exports.
+  - Default policies for ActivityPolicyFilter changed. See the documentation for the new defaults.
+
+Improvements:
+- ConfigurationPage has new setApplyAllPages() function which allows the 'Apply' button to apply changes on all pages, not just the current one.
+- SearchBoxWidget
+- TreeFileItem XML import & export methods are now virtual.
+
+Documented Classes:
+At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
+- Qtilities::CoreGui::SearchBoxWidget
+
+Bug Fixes:
+- Fixed memory leak in ActivityPolicyFilter.
+
+v0.2
+====
+- Big updates to the following documentation pages:
+  - Logging
+  - Extension System
+  - Tree Building
+  - Factories
+  - Observer Widgets
+  - As always many many small doc updates everywhere in the API.
+- Categories:
+  - Qtilities uses the concept of categories in many places. For example you can add objects to an observer in different categories, or when you register a factory interface in a factory you can assign a category to it. Previously categories were defined as QStringList in some places and QString in other places. To make things consistent a new class called QtilitiesCategory was created and all the places where categories are used now uses this class.
+  - ActionProvider was optimized and uses the new QtilitiesCategory class for its categories.
+  - FactoryInterfaceData struct now called FactoryInterfaceTag which also uses the new QtilitiesCategory class to categorize factory interfaces.
+- Tree Building:
+  - New classes was added to make tree building very very easy. The classes are TreeNode, TreeItem, TreeFileItem and couple of classes doing work in the background: AbstractTreeItem and TreeItemBase. The building trees documentation was rewritten and shows how the new classes can be used.
+  - XML exporting and importing was implemented for tree structures. You can now save a tree to a XML file and load it again from the file at a later stage.
+- Binary Exporting:
+  - ObserverHints now provides function to change its exportability. That is, the hints are not part of observer exports by default anymore.
+  - Since binary exporting exports all observer properties on an object, the formatting properties of tree items (defined in the new AbstractTreeItem class) are now part of binary exports as well.
+- Object Manager & Factories:
+  - The object manager now contains a QObject based factory, called the Qtilities factory. This factory can be used to produce Qtilities classes such as tree nodes, tree items, observers, subject filters etc. It can also be used to register and produce custom QObject based user classes.
+  - Factory classes was updated and better documented. Important changes: 
+    - IFactoryData is now called InstanceFactoryInfo
+    - IFactory is now called IFactoryProvider.
+    - FactoryData is now called FactoryItemID
+  - The object manager got extra functions to make working with factories easier.
+  - The global object pool is now accessible. All Qtilities classes now registers objects in proper categories thus you can debug your global object pool by looking at it using an observer widget.
+- Observer Widgets and Models. 
+  - The big change is that, when in TreeView mode, the tree does not lose its selection when the observer tree is modified or when the user modified the tree using the ObserverWidget actions (Delete Item, Switch View etc.). 
+  - Drag & Drop in both TreeView and TableView modes are now supported. It is controlled by the ObserverHints::DragDropHint set on the different observers in the tree. ObserverHints got a new hint called DragDropHint which can be used to control drag drop operations on observer trees.
+  - Access functions for the table and tree views are now provided.
+  - Actions are added to the SearchBoxWidget to allow control over which items in a tree must be filtered by the search string (See the next point).
+  - Icons used are much better and nicer, fixed many bugs with custom action handlers, and the enabled state of actions.
+  - Many problems fixed related to deletion of the current context and setting a new context after that.
+  - Category access modes are now shown in the access column, and locked access categories are not built in tree views.
+  - New class AbstractObserverTreeProxyFilter was added and is integrated into ObserverWidget. This allows searching of trees to be more effective. You can now choose what the filter must be applied to: Nodes, Items, Categories.
+- The ConfigurationWidget was improved a lot: 
+  - You can now show the config pages as a tree or a list.
+  - The pages can now be searched.
+  - All config pages which are part of Qtilities now provide proper icons.
+  - The icon of the page is now shown along with the name of the active page above the config page widget.
+  - QtilitiesApplication now stores a reference to the configuration page. This allows it to be accessed from anywhere in the application. 
+  - A new setActivePage() method was added. Thus it is now possible to show a specific page directly. A Logging Settings action as added to the WidgetLoggerEngineFrontend widget which uses this approach to open the log settings.
+- The SearchBoxWidget was improved. It is now easy to add more search options to the search options popup menu.
+- Project management got some major improvements:
+  - There was multiple problems when using more than one project part in an application. These are fixed.
+  - The project manager now support saving of XML project files in addition to the binary projects and it is possible to specify which project types (XML and/or binary) should be available to the user, and which project type should be used a the default in an application.
+  - A few convenience functions have been added to the ProjectManager to make working with different project types easier. See the class documentation for details.
+  - The project manager now has a configuration option to use a custom projects path.
+  - It is now possible to control the verbosity of logging and testing done during saving and loading of projects. 
+- Extension System:
+  - Plugins can now be loaded from custom paths.
+  - The plugin configuration dialog got a major overhaul and looks and works much better especially in applications which has many plugins.
+  - IPlugin improved: It does not inherit QObject anymore making it very lightweigth and any QObject based class can now implement it. It also contains new functions such as the pluginName(), pluginCategory() and pluginFileName().
+  - Plugins which are independent of the application they are used can now be created. All Qtilities plugins are now created in this way.
+  - Plugins:
+    - A new Debug plugin which allows debugging of Qtilities is now included. This plugin allows debugging by providing an overview of the state of the global object pool at any moment, as well as the available factories registered with the object manager.The plugin will get more useful features like a list of registered contexts in the future.
+- Logging:
+  - The logger now supports priority messages and the QtilitiesMainWindow can be enabled/disabled to show priority messages in its status bar.
+- Observers & Subject Filters:
+  - attachSubject(s) and canAttach() functions got a new rejection/error message string parameter which is set with a rejection message when the attachment fails. canAttach() also got a parameter to indicate if the attachment must be silent or not (no dialogs shown).
+  - NamingPolicyFilter can now be subclassed properly to create custom naming filters.
+  - Many other improvements and updates to observers and subject filters.
+- Building and Using Qtilities:
+  - Qtilities was built using MS Visual Studio 2008 on Windows 7. This required many many small changes to the codebase which otherwise built on Ubuntu (g++) and Windows (mingw). Some testing was done using this build but everything was not tested. Some problems related to template classes (factories etc.) were experienced after the build was done and the headers were included in a different project. These were not fixed for this release. If you stumble upon it and know a fix, please contribute it.
+  - New QTILITIES_NO_PROPERTY_BROWSER variable in Qtilities.pri which can be set to build Qtilities without the Qt Property Browser Solution as a dependency.
+  - Namespaces in Qtilities are now easier to use. Previously it was necessary to call "use namespace" on the module used and its dependencies. Now you can just call it once on the module you are using.
+- Many bug fixes and enhancements apart from the once which were fixed on the issue tracker.
