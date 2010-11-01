@@ -77,6 +77,16 @@ namespace Qtilities {
             //! Initializes the widget with a list of QObjects. All objects in the list which implements the IConfigPage interface will be added.
             void initialize(QList<QObject*> config_pages);
 
+            //! Sets the way the configuration widget handles the \p Apply button.
+            /*!
+              \param apply_all_pages When true, the apply button will call apply on all the configuration pages. When false, only the active page will be applied.
+
+              Default is true;
+              */
+            void setApplyAllPages(bool apply_all_pages);
+            //! Gets the way the configuration widget handles the \p Apply button.
+            bool applyAllPages() const;
+
         public slots:
             //! Handles the close button.
             void on_btnClose_clicked();

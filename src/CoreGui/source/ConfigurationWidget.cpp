@@ -46,7 +46,8 @@ using namespace Qtilities::CoreGui::Interfaces;
 struct Qtilities::CoreGui::ConfigurationWidgetData {
     ConfigurationWidgetData() : config_pages("Application Settings","Manages IConfigPages in an application"),
     activity_filter(0),
-    active_widget(0) {}
+    active_widget(0),
+    apply_all_pages(true) {}
 
     //! Observer widget which is used to display the categories of the config pages.
     ObserverWidget pageTree;
@@ -60,6 +61,8 @@ struct Qtilities::CoreGui::ConfigurationWidgetData {
     QPointer<QWidget> active_widget;
     //! The display mode of this widget.
     Qtilities::DisplayMode display_mode;
+    //! The apply all pages setting for this widget.
+    bool apply_all_pages;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :
@@ -172,10 +175,26 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnClose_clicked() {
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
-    if (d->activity_filter->activeSubjects().count() == 1) {
-        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
-        config_page->configPageApply();
+    if (d->apply_all_pages) {
+        for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+            IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+            if (config_page)
+                config_page->configPageApply();
+        }
+    } else {
+        if (d->activity_filter->activeSubjects().count() == 1) {
+            IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
+            config_page->configPageApply();
+        }
     }
+}
+
+void Qtilities::CoreGui::ConfigurationWidget::setApplyAllPages(bool apply_all_pages) {
+    d->apply_all_pages = apply_all_pages;
+}
+
+bool Qtilities::CoreGui::ConfigurationWidget::applyAllPages() const {
+    return d->apply_all_pages;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObject*> active_pages) {
