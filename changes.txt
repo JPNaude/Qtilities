@@ -1,22 +1,62 @@
-v0.2.1
+v0.3
 ======
 New Features:
 - New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
-  - TreeNode::enableActivityControl() updated to include this new policy.
-  - This policy is now part of binary and XML tree exports.
-  - Default policies for ActivityPolicyFilter changed. See the documentation for the new defaults.
+    - TreeNode::enableActivityControl() updated to include this new policy.
+    - This policy is now part of binary and XML tree exports.
+    - Default policies for ActivityPolicyFilter changed. See the documentation for the new defaults.
+- New ObserverHints::ModificationStateDisplayHint hint which allows the modification state of items to be displayed in observer widgets. This hint is now part of binary and XML tree exports.
 
-Improvements:
+Improvements & Notable Changes:
 - ConfigurationPage has new setApplyAllPages() function which allows the 'Apply' button to apply changes on all pages, not just the current one.
-- SearchBoxWidget
 - TreeFileItem XML import & export methods are now virtual.
+- ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
+- Observer::setDisplayHints() is now obsolete. It is replaced by Observer::inheritDisplayHints().
+- OBSERVER_UNCATEGORIZED_CATEGORY is now removed. Thus you can add categorized and uncategorized subjects to the same observer.
+- Changed behavior where ActivityPolicyFilter's policy set function would not have worked if the activity filter had an observer context associated with it.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
 - Qtilities::CoreGui::SearchBoxWidget
 
 Bug Fixes:
-- Fixed memory leak in ActivityPolicyFilter.
+- Fixed memory leak in ActivityPolicyFilter destructor.
+- Fixed bug in AbstractObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
+- Fixed example in "The Basics" documentation page.
+- Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
+
+Outstanding roadmap items for this version:
+- ObserverRelationalTableModel must be able to provide diff information between two observers.
+- Linux problems:
+    - Sort out Linux icon problem
+    - Sort out Linux dll versioning
+    - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
+    - Supress all those warnings...
+    - Column resizing in observer widget.
+- Extension system ability to create plugin loading configurations
+    - XML Loading Config File (done)
+    - GUI config sets management
+    - Config set implementation when loading plugins (done)
+    - Must specify plugins which are core plugins, thus they should not be able to be unloaded. (done, maybe improve GUI still...)
+    - 3 possible plugin loading possibilities: loaded & uninitialized, loaded & initialized, not loaded at all (Done)
+- ObserverDotGraph finish & blog post...
+- Finish new SearchBoxWidget
+- Unit testing
+- CoreGui.pro does not respect QTILITIES_NO_PROPERTY_BROWSER
+- Observers:
+    - Before doing this: implement observer unit testing since it is all working now. Then it will be easier to verify
+      changes made.
+    - Split ObserverData so that we have shared data and unique data. Then we can use a QExplicitlySharedDataPointer
+      to share stuff (for example: hints) between observers. To do this, all stuff that should not be shared between observers
+      should go into the observer class itself, not in the ObserverData class. We should rename ObserverData to something
+      like SharedObserverData to make this clear. Using this approach we must make sure that we handle the ObserverHints
+      class in the correct way in SharedObserverData.
+    - Observers should get a function to handle detachment from each other and/or get proper functions to handle hints sharing.
+      Thus, it should be easy to achieve fall through observer properties. This should be default for TreeNodes.
+- Category activity control... Don't think this is feasable. Users should use TreeNodes for fall through activity.
+- ExtensionSystem overview page still have loadPlugins() in initialization image.
+- Conan integration?
+- Dependency graph: Extension System now depends on QtXML
 
 v0.2
 ====
