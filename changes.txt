@@ -24,6 +24,9 @@ Bug Fixes:
 - Fixed bug in AbstractObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
+- Got rid of all the "warning: type qualifiers ignored on function return type" warnings when building with gcc.
+- Fixed bug where TreeNode::setCategorizedDisplayEnabled(false) would not have worked.
+- Fixed bug in CodeEditorWidgetConfig constructor where window flags was not passed to base QWidget class correctly.
 
 Outstanding roadmap items for this version:
 - ObserverRelationalTableModel must be able to provide diff information between two observers.
@@ -33,6 +36,7 @@ Outstanding roadmap items for this version:
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
     - Supress all those warnings...
     - Column resizing in observer widget.
+    - TopBottomList layout issue...
 - Extension system ability to create plugin loading configurations
     - XML Loading Config File (done)
     - GUI config sets management
@@ -41,7 +45,7 @@ Outstanding roadmap items for this version:
     - 3 possible plugin loading possibilities: loaded & uninitialized, loaded & initialized, not loaded at all (Done)
 - ObserverDotGraph finish & blog post...
 - Finish new SearchBoxWidget
-- Unit testing
+- Unit testing + some tests off course
 - CoreGui.pro does not respect QTILITIES_NO_PROPERTY_BROWSER
 - Observers:
     - Before doing this: implement observer unit testing since it is all working now. Then it will be easier to verify
@@ -57,6 +61,9 @@ Outstanding roadmap items for this version:
 - ExtensionSystem overview page still have loadPlugins() in initialization image.
 - Conan integration?
 - Dependency graph: Extension System now depends on QtXML
+- Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
+- Add detailed log messages macro maybe?
+- AbstractSubjectFilters, do not make all evaluation function abstract...
 
 v0.2
 ====
