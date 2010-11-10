@@ -74,11 +74,11 @@ Qtilities::CoreGui::QtilitiesApplicationPrivate::~QtilitiesApplicationPrivate() 
 
 }
 
-Qtilities::CoreGui::Interfaces::IActionManager* const Qtilities::CoreGui::QtilitiesApplicationPrivate::actionManager() const {
+Qtilities::CoreGui::Interfaces::IActionManager* Qtilities::CoreGui::QtilitiesApplicationPrivate::actionManager() const {
     return d_actionManagerIFace;
 }
 
-Qtilities::CoreGui::Interfaces::IClipboard* const Qtilities::CoreGui::QtilitiesApplicationPrivate::clipboardManager() const {
+Qtilities::CoreGui::Interfaces::IClipboard* Qtilities::CoreGui::QtilitiesApplicationPrivate::clipboardManager() const {
     return d_clipboardManagerIFace;
 }
 
@@ -86,7 +86,7 @@ void Qtilities::CoreGui::QtilitiesApplicationPrivate::setMainWindow(QWidget* mai
     d_mainWindow = mainWindow;
 }
 
-QWidget* const Qtilities::CoreGui::QtilitiesApplicationPrivate::mainWindow() const {
+QWidget* Qtilities::CoreGui::QtilitiesApplicationPrivate::mainWindow() const {
     return d_mainWindow;
 }
 
@@ -94,6 +94,6 @@ void Qtilities::CoreGui::QtilitiesApplicationPrivate::setConfigWidget(QWidget* c
     d_configWindow = configWidget;
 }
 
-QWidget* const Qtilities::CoreGui::QtilitiesApplicationPrivate::configWidget() {
+QWidget* Qtilities::CoreGui::QtilitiesApplicationPrivate::configWidget() {
     return d_configWindow;
 }

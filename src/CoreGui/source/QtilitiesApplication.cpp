@@ -80,19 +80,19 @@ Qtilities::CoreGui::QtilitiesApplication::~QtilitiesApplication() {
 
 }
 
-Qtilities::Core::Interfaces::IObjectManager* const Qtilities::CoreGui::QtilitiesApplication::objectManager() {
+Qtilities::Core::Interfaces::IObjectManager* Qtilities::CoreGui::QtilitiesApplication::objectManager() {
      return QtilitiesCoreApplicationPrivate::instance()->objectManager();
 }
 
-Qtilities::Core::Interfaces::IContextManager* const Qtilities::CoreGui::QtilitiesApplication::contextManager() {
+Qtilities::Core::Interfaces::IContextManager* Qtilities::CoreGui::QtilitiesApplication::contextManager() {
     return QtilitiesCoreApplicationPrivate::instance()->contextManager();
 }
 
-Qtilities::CoreGui::Interfaces::IActionManager* const Qtilities::CoreGui::QtilitiesApplication::actionManager() {
+Qtilities::CoreGui::Interfaces::IActionManager* Qtilities::CoreGui::QtilitiesApplication::actionManager() {
     return QtilitiesApplicationPrivate::instance()->actionManager();
 }
 
-Qtilities::CoreGui::Interfaces::IClipboard* const Qtilities::CoreGui::QtilitiesApplication::clipboardManager() {
+Qtilities::CoreGui::Interfaces::IClipboard* Qtilities::CoreGui::QtilitiesApplication::clipboardManager() {
     return QtilitiesApplicationPrivate::instance()->clipboardManager();
 }
 
@@ -100,7 +100,7 @@ void Qtilities::CoreGui::QtilitiesApplication::setMainWindow(QWidget* mainWindow
     QtilitiesApplicationPrivate::instance()->setMainWindow(mainWindow);
 }
 
-QWidget* const Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
+QWidget* Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
     return QtilitiesApplicationPrivate::instance()->mainWindow();
 }
 
@@ -112,7 +112,7 @@ void Qtilities::CoreGui::QtilitiesApplication::setConfigWidget(QWidget* configWi
     QtilitiesApplicationPrivate::instance()->setConfigWidget(configWidget);
 }
 
-QWidget* const Qtilities::CoreGui::QtilitiesApplication::configWidget() {
+QWidget* Qtilities::CoreGui::QtilitiesApplication::configWidget() {
     return QtilitiesApplicationPrivate::instance()->configWidget();
 }
 

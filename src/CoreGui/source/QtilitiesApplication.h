@@ -86,25 +86,25 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             ~QtilitiesApplication();
 
             //! Returns a reference to the object manager.
-            static IObjectManager* const objectManager();
+            static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
-            static IContextManager* const contextManager();
+            static IContextManager* contextManager();
             //! Returns a reference to the action manager.
             /*!
               If you are using the action manager, you must specify a main window using setMainWindow() for
               the action manager to work correctly.
               */
-            static IActionManager* const actionManager();
+            static IActionManager* actionManager();
             //! Returns a reference to the clipboard manager.
-            static IClipboard* const clipboardManager();
+            static IClipboard* clipboardManager();
             //! Sets the main window reference for the application.
             static void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
-            static QWidget* const mainWindow();
+            static QWidget* mainWindow();
             //! Sets the configuration widget reference for the application.
             static void setConfigWidget(QWidget* configWidget);
             //! Gets the configuration widget reference for the application.
-            static QWidget* const configWidget();
+            static QWidget* configWidget();
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.

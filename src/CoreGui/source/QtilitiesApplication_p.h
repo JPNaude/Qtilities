@@ -55,17 +55,17 @@ namespace Qtilities {
             ~QtilitiesApplicationPrivate();
 
             //! Function to access action manager pointer.
-            Qtilities::CoreGui::Interfaces::IActionManager* const actionManager() const;
+            Qtilities::CoreGui::Interfaces::IActionManager* actionManager() const;
             //! Function to access clipboard manager pointer.
-            Qtilities::CoreGui::Interfaces::IClipboard* const clipboardManager() const;
+            Qtilities::CoreGui::Interfaces::IClipboard* clipboardManager() const;
             //! Sets the main window reference for the application.
             void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
-            QWidget* const mainWindow() const;
+            QWidget* mainWindow() const;
             //! Sets the configuration widget reference for the application.
             void setConfigWidget(QWidget* configWidget);
             //! Gets the configuration widget reference for the application.
-            QWidget* const configWidget();
+            QWidget* configWidget();
 
         private:
             QtilitiesApplicationPrivate();
