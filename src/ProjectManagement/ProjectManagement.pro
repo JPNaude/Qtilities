@@ -15,7 +15,6 @@ CONFIG += qt \
     ordered
 
 QT += core
-#QT -= gui
 QT += xml
 
 CONFIG(debug, debug|release) {
