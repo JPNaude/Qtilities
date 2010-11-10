@@ -670,7 +670,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 
               \sa useDisplayHints(), setDisplayHints()
               */
-            ObserverHints* const displayHints() const;
+            ObserverHints* displayHints() const;
             //! Function which constructs hints for this observer.
             /*!
               If the observer does not have any hints, this function will construct an ObserverHints instance

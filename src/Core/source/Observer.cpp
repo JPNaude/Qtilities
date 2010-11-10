@@ -2110,7 +2110,7 @@ bool Qtilities::Core::Observer::hasSubjectFilter(const QString& filter_name) con
     return false;
 }
 
-Qtilities::Core::ObserverHints* const Qtilities::Core::Observer::displayHints() const {
+Qtilities::Core::ObserverHints* Qtilities::Core::Observer::displayHints() const {
     return observerData->display_hints;
 }
 
