@@ -110,7 +110,11 @@ namespace Qtilities {
             // Getter & Setter functions for object role properties
             // -------------------------------
             //! Sets the category of the tree item in the specified tree node.
-            void setCategory(const QtilitiesCategory& category, TreeNode* tree_node);           
+            /*!
+              \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
+              category and therefore will not be changed.
+              */
+            virtual bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
             //! Gets the category of the tree item in the specified tree node.
             /*!
               \param tree_node The node context for which the category must be obtained for.
@@ -122,8 +126,11 @@ namespace Qtilities {
               the function will assume that the item only has 1 parent and it will check if it has only one
               parent and if so, set the category for that parent. If it has more than one parent, the function
               will print an error message in release mode and assert id debug mode.
+
+              \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
+              category and therefore will not be changed.
               */
-            void setCategory(const QtilitiesCategory& category, int observer_id = -1);
+            virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
             //! Gets the category of the tree item in the context specified by the given observer ID.
             /*!
               \param observer_id The observer ID of the context for which the category must be obtained for. When -1,

@@ -235,11 +235,11 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(
     return IExportable::Complete;
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
     if (!category.isValid() || !tree_node)
-        return;
+        return false;
 
-    setCategory(category,tree_node->observerID());
+    return setCategory(category,tree_node->observerID());
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(TreeNode* tree_node) const {
@@ -249,9 +249,9 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCate
         return getCategory(tree_node->observerID());
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
+bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
     if (!category.isValid())
-        return;
+        return false;
 
     // When observer_id = -1, we set the category of the only parent:
     if (observer_id == -1) {
@@ -259,6 +259,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
         if (Observer::parentCount(objectBase()) != 1) {
             Q_ASSERT(Observer::parentCount(objectBase()) != 1);
             LOG_ERROR(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+            return false;
         } else {
             ObserverProperty prop = Observer::getObserverProperty(objectBase(),OBSERVER_SUBJECT_IDS);
             if (prop.isValid()) {
@@ -272,7 +273,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                     if (category_variant.isValid()) {
                         QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                         if (old_category == category)
-                            return;
+                            return false;
                     }
 
                     // Ok it changed, thus set it again:
@@ -285,6 +286,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                         category_property.setValue(qVariantFromValue(category),id);
                         Observer::setObserverProperty(obj,category_property);
                     }
+                    return true;
                 }
             }
         }
@@ -298,7 +300,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
             if (category_variant.isValid()) {
                 QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                 if (old_category == category)
-                    return;
+                    return false;
             }
 
             // Ok it changed, thus set it again:
@@ -311,8 +313,11 @@ void Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                 category_property.setValue(qVariantFromValue(category),observer_id);
                 Observer::setObserverProperty(obj,category_property);
             }
+            return true;
         }
     }
+
+    return false;
 }
 
 QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer_id) const {
