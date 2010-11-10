@@ -41,8 +41,6 @@
 #include <QtilitiesProjectManagement>
 using namespace QtilitiesProjectManagement;
 
-#include "../../Core/source/ObserverDotGraph.h"
-
 struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
      ObjectManagementModeWidgetData() : top_level_node(0),
      observer_widget(0),

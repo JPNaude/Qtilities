@@ -37,7 +37,6 @@
 #include "ActionManager.h"
 #include "ClipboardManager.h"
 #include "AboutWindow.h"
-#include "NamingPolicyFilter.h"
 #include "TreeItem.h"
 #include "TreeFileItem.h"
 #include "TreeNode.h"

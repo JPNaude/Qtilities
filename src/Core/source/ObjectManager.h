@@ -109,7 +109,7 @@ namespace Qtilities {
             // IObjectManager Implemenation
             // --------------------------------
             Observer* observerReference(int id) const;
-            Observer* const objectPool();
+            Observer* objectPool();
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false);
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);

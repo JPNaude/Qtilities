@@ -33,35 +33,47 @@
 
 #include "ObserverDotGraph.h"
 #include "ObserverRelationalTable.h"
+#include "Observer.h"
 
 struct Qtilities::Core::ObserverDotGraphData {
-    ObserverDotGraphData() {}
+    ObserverDotGraphData() : observer(0) {}
 
-
+    Observer* observer;
 };
 
-Qtilities::Core::ObserverDotGraph::ObserverDotGraph(Observer* observer) : QObject(observer), ObserverAwareBase() {
+Qtilities::Core::ObserverDotGraph::ObserverDotGraph(Observer* observer) : QObject(observer) {
     d = new ObserverDotGraphData;
-
-    setObserverContext(observer);
-
+    d->observer = observer;
 }
 
 Qtilities::Core::ObserverDotGraph::~ObserverDotGraph() {
     delete d;
 }
 
-Qtilities::Core::ObserverDotGraph::ObserverDotGraph(const ObserverDotGraph& other) : QObject(other.parent()), ObserverAwareBase() {
-    d = new ObserverDotGraphData;
+bool Qtilities::Core::ObserverDotGraph::setObserverContext(Observer* observer) {
+    if (observer) {
+        d->observer = observer;
+        return true;
+    } else {
+        return false;
+    }
+}
 
+Qtilities::Core::Observer* Qtilities::Core::ObserverDotGraph::observerContext() const {
+    return d->observer;
+}
+
+Qtilities::Core::ObserverDotGraph::ObserverDotGraph(const ObserverDotGraph& other) : QObject(other.parent()) {
+    d = new ObserverDotGraphData;
+    d->observer = other.observerContext();
 }
 
 void Qtilities::Core::ObserverDotGraph::operator=(const ObserverDotGraph& other) {
-    d_observer = other.d_observer;
+    d->observer = other.observerContext();
 }
 
 bool Qtilities::Core::ObserverDotGraph::saveToFile(const QString& fileName) const {
-    if (!d_observer)
+    if (!d->observer)
         return false;
 
     QFile file(fileName);
@@ -75,14 +87,14 @@ bool Qtilities::Core::ObserverDotGraph::saveToFile(const QString& fileName) cons
 }
 
 QString Qtilities::Core::ObserverDotGraph::generateDotScript() const {
-    if (!d_observer)
+    if (!d->observer)
         return QString();
 
     // Create the dot string:
-    QString dotString = QString("digraph \"%1\" {\n").arg(d_observer->observerName());
+    QString dotString = QString("digraph \"%1\" {\n").arg(d->observer->observerName());
 
     // Then do the relationships between items:
-    ObserverRelationalTable table(d_observer);
+    ObserverRelationalTable table(d->observer);
     for (int i = 0; i < table.count(); i++) {
         RelationalTableEntry* entry = table.entryAt(i);
 

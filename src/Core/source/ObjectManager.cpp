@@ -137,7 +137,7 @@ Qtilities::Core::Observer* Qtilities::Core::ObjectManager::observerReference(int
         return 0;
 }
 
-Qtilities::Core::Observer* const Qtilities::Core::ObjectManager::objectPool() {
+Qtilities::Core::Observer* Qtilities::Core::ObjectManager::objectPool() {
     return &d->object_pool;
 }
 

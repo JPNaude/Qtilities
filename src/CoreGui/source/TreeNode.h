@@ -38,11 +38,11 @@
 #include "AbstractTreeItem.h"
 #include "TreeItem.h"
 #include "NamingPolicyFilter.h"
-#include "ActivityPolicyFilter.h"
 
 #include <Observer>
 #include <ObserverHints>
-#include <IExportableFormatting.h>
+#include <ActivityPolicyFilter>
+#include <IExportableFormatting>
 
 namespace Qtilities {
     namespace CoreGui {

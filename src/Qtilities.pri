@@ -20,14 +20,14 @@ QTILITIES_INCLUDE       = $$QTILITIES_BASE/include
 QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
 QTILITIES_BIN           = $$QTILITIES_BASE/bin
 QTILITIES_DEPENDENCIES  = $$QTILITIES_BASE/dependencies
-QTILITIES_FILE_VER      = -0.2.1
+QTILITIES_FILE_VER      = -0.3
 
 #****************************************************************************
 # Build Options:
 #****************************************************************************
 # Builds Qtilities without the ObjectPropertyBrowser class, thus you
 # don't need the Qt Property Browser Solution.
-# DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+DEFINES += QTILITIES_NO_PROPERTY_BROWSER
 # Enables verbose action management messages.
 # DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
 
@@ -164,6 +164,19 @@ contains( QTILITIES, project_management ) {
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
+    }
+}
+
+contains( QTILITIES, unit_tests ) {
+    message( "Using Unit Testing module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesUnitTests
+
+    CONFIG(debug, debug|release) {
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTestsd$${QTILITIES_FILE_VER}.a
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTestsd$${QTILITIES_FILE_VER}
+    } else {
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTests$${QTILITIES_FILE_VER}.a
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTests$${QTILITIES_FILE_VER}
     }
 }
 

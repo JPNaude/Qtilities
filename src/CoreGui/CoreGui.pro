@@ -25,20 +25,25 @@ UI_DIR = $$QTILITIES_TEMP/CoreGui
 # --------------------------
 # Propery Editor Stuff
 # --------------------------
-DEFINES += QT_QTPROPERTYBROWSER_IMPORT
-LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
-PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
-DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
-INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
-CONFIG(debug, debug|release) { 
-    win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
-    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-        -lQtSolutions_PropertyBrowser-2.5d
-}
-else { 
-    win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
-    unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-        -lQtSolutions_PropertyBrowser-2.5
+!contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
+    DEFINES += QT_QTPROPERTYBROWSER_IMPORT
+    LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
+    PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
+    DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
+    INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
+    CONFIG(debug, debug|release) {
+        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
+        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
+            -lQtSolutions_PropertyBrowser-2.5d
+    }
+    else {
+        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
+        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
+            -lQtSolutions_PropertyBrowser-2.5
+    }
+
+    HEADERS += source/ObjectPropertyBrowser.h
+    SOURCES += source/ObjectPropertyBrowser.cpp
 }
 
 # --------------------------
@@ -61,7 +66,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObjectHierarchyNavigator.h \
     source/ObserverTreeItem.h \
     source/SearchBoxWidget.h \
-    source/ObjectPropertyBrowser.h \
     source/ObjectInfoTreeWidget.h \
     source/ObserverTableModelCategoryFilter.h \
     source/IActionProvider.h \
@@ -115,7 +119,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObjectHierarchyNavigator.cpp \
     source/ObserverTreeItem.cpp \
     source/SearchBoxWidget.cpp \
-    source/ObjectPropertyBrowser.cpp \
     source/ObjectInfoTreeWidget.cpp \
     source/ObserverTableModelCategoryFilter.cpp \
     source/ActionProvider.cpp \

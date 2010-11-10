@@ -32,15 +32,16 @@
 ****************************************************************************/
 
 #ifndef OBSERVERDOTGRAPH_H
-#define OBSERVERHINTS_H
+#define OBSERVERDOTGRAPH_H
 
 #include "QtilitiesCore_global.h"
-#include "Observer.h"
 
 #include <QObject>
 
 namespace Qtilities {
-    namespace Core {
+    namespace Core {  
+        class Observer;
+
         /*!
         \struct ObserverDotGraphData
         \brief Structure used by ObserverDotGraph to store private data.
@@ -159,7 +160,7 @@ digraph "Root Node" {
         the type of graph: undirected or directed.
 
           */
-        class QTILIITES_CORE_SHARED_EXPORT ObserverDotGraph : public QObject, public ObserverAwareBase
+        class QTILIITES_CORE_SHARED_EXPORT ObserverDotGraph : public QObject
         {
             Q_OBJECT
             Q_ENUMS(GraphType)
@@ -177,6 +178,11 @@ digraph "Root Node" {
             void operator=(const ObserverDotGraph& other);
             //! Destructor.
             virtual ~ObserverDotGraph();
+
+            //! Sets the observer context.
+            bool setObserverContext(Observer* observer);
+            //! Gets a pointer to the observer context.
+            Observer* observerContext() const;
 
             //! The possible graph types.
             /*!
@@ -211,4 +217,4 @@ digraph "Root Node" {
     }
 }
 
-#endif // OBSERVERHINTS_H
+#endif // OBSERVERDOTGRAPH_H
