@@ -76,6 +76,22 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::i
     return loadFormattingFromXML(doc,object_node);
 }
 
+bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+    if (AbstractTreeItem::setCategory(category,tree_node)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
+}
+
+bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category, int observer_id) {
+    if (AbstractTreeItem::setCategory(category,observer_id)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
+}
+
 void Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled(bool is_enabled) {
     displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 }

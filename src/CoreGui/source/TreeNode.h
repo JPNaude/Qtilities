@@ -182,6 +182,12 @@ tree_widget->show();
             IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node);
 
             // --------------------------------
+            // AbstractTreeItem virtual overwrites
+            // --------------------------------
+            bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
+            bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
+
+            // --------------------------------
             // TreeNode Implementation
             // --------------------------------
             //! Enables categorized display on this node.

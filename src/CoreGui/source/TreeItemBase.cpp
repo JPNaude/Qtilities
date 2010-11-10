@@ -58,3 +58,19 @@ void Qtilities::CoreGui::TreeItemBase::setModificationState(bool new_state, IMod
         emit modificationStateChanged(new_state);
     }
 }
+
+bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+    if (AbstractTreeItem::setCategory(category,tree_node)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
+}
+
+bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& category, int observer_id) {
+    if (AbstractTreeItem::setCategory(category,observer_id)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
+}
