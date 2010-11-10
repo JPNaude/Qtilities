@@ -157,9 +157,12 @@ Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core:
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setActivityPolicy(ActivityPolicyFilter::ActivityPolicy activity_policy) {
-    // Only change the policy if the observer context is not defined for the subject filter.
-    if (!observer)
+    if (!observer) {
         d->activity_policy = activity_policy;
+    } else {
+        if (observer->subjectCount() == 0)
+            d->activity_policy = activity_policy;
+    }
 }
 
 Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityPolicyFilter::activityPolicy() const {
@@ -167,9 +170,12 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicy Qtilities::Core::ActivityP
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setParentTrackingPolicy(ActivityPolicyFilter::ParentTrackingPolicy parent_tracking_policy) {
-    // Only change the policy if the observer context is not defined for the subject filter.
-    if (!observer)
+    if (!observer) {
         d->parent_tracking_policy = parent_tracking_policy;
+    } else {
+        if (observer->subjectCount() == 0)
+            d->parent_tracking_policy = parent_tracking_policy;
+    }
 }
 
 Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter::ParentTrackingPolicy Qtilities::Core::ActivityPolicyFilter::parentTrackingPolicy() const {
@@ -177,19 +183,25 @@ Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter::ParentTrackingPolic
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setMinimumActivityPolicy(ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy) {
-    // Only change the policy if the observer context is not defined for the subject filter.
-    if (!observer)
+    if (!observer) {
         d->minimum_activity_policy = minimum_activity_policy;
+    } else {
+        if (observer->subjectCount() == 0)
+            d->minimum_activity_policy = minimum_activity_policy;
+    }
 }
 
 Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::ActivityPolicyFilter::minimumActivityPolicy() const {
     return d->minimum_activity_policy;
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {
-    // Only change the policy if the observer context is not defined for the subject filter.
-    if (!observer)
+void Qtilities::Core::ActivityPolicyFilter::setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {  
+    if (!observer) {
         d->new_subject_activity_policy = new_subject_activity_policy;
+    } else {
+        if (observer->subjectCount() == 0)
+            d->new_subject_activity_policy = new_subject_activity_policy;
+    }
 }
 
 Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicy() const {
@@ -323,6 +335,12 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QOb
     for (int i = 0; i < objects.count(); i++)
         simple_objects << objects.at(i);
     setActiveSubjects(simple_objects);
+}
+
+void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj) {
+    QList<QObject*> objects;
+    objects << obj;
+    setActiveSubjects(objects);
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {

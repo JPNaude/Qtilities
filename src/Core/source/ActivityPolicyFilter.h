@@ -148,7 +148,7 @@ namespace Qtilities {
 
             //! Sets the activity policy used by this subject filter.
             /*!
-             The policy can only be changed if no observer context has been set yet.
+            The policy can only be changed if no observer context has been set yet or if an observer context with no subjects have been set.
 
              \sa activityPolicy()
              */
@@ -162,7 +162,7 @@ namespace Qtilities {
             ActivityPolicyFilter::ActivityPolicy activityPolicy() const;
             //! Sets the parent tracking policy used by this subject filter.
             /*!
-             The policy can only be changed if no observer context has been set yet.
+             The policy can only be changed if no observer context has been set yet or if an observer context with no subjects have been set.
 
              \sa parentTrackingPolicy()
              */
@@ -176,7 +176,7 @@ namespace Qtilities {
             ActivityPolicyFilter::ParentTrackingPolicy parentTrackingPolicy() const;
             //! Sets the minimum activity policy used by this subject filter.
             /*!
-             The policy can only be changed if no observer context has been set yet.
+             The policy can only be changed if no observer context has been set yet or if an observer context with no subjects have been set.
 
              \sa minimumActivityPolicy()
              */
@@ -190,7 +190,7 @@ namespace Qtilities {
             ActivityPolicyFilter::MinimumActivityPolicy minimumActivityPolicy() const;
             //! Sets the new subject activity policy used by this subject filter.
             /*!
-             The policy can only be changed if no observer context has been set yet.
+             The policy can only be changed if no observer context has been set yet or if an observer context with no subjects have been set.
 
              \sa newSubjectActivityPolicy()
              */
@@ -255,12 +255,11 @@ namespace Qtilities {
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.
-            /*!
-              Note that this function only works in Table View mode at present. Tree views will support this function in a future version.
-              */
             void setActiveSubjects(QList<QObject*> objects);
             //! Sets the active subjects.
             void setActiveSubjects(QList<QPointer<QObject> > objects);
+            //! Sets a single active subject.
+            void setActiveSubject(QObject* obj);
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.
