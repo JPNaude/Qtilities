@@ -84,10 +84,10 @@ Qtilities::Core::Interfaces::IContextManager* const Qtilities::Core::QtilitiesCo
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersion() const {
     QString version_string;
     if (QTILITIES_VERSION_BETA != 0)
-        version_string = QString(QObject::tr("%1.%2 Beta %3")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_BETA);
+        version_string = QString(QObject::tr("%1.%2.%3 Beta %4")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION).arg(QTILITIES_VERSION_BETA);
     else if (QTILITIES_VERSION_ALPHA != 0)
-        version_string = QString(QObject::tr("%1.%2 Alpha %3")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_ALPHA);
+        version_string = QString(QObject::tr("%1.%2.%3 Alpha %4")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION).arg(QTILITIES_VERSION_ALPHA);
     else
-        version_string = QString("%1.%2").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR);
+        version_string = QString("%1.%2.%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION);
     return version_string;
 }

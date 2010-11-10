@@ -44,8 +44,6 @@ namespace Qtilities {
 
             //! The name of the global object pool observer.
             const char * const GLOBAL_OBJECT_POOL                   = "Qtilities.Core.ObjectPool";
-            //! The string used by observers to group uncategorized subjects in the case where the observer has a hierarchical display hint.
-            const char * const OBSERVER_UNCATEGORIZED_CATEGORY      = "Uncategorized";
             //! %Factory name of the Qtilities factory.
             const char * const FACTORY_QTILITIES                    = "Factory.Qtilities";
             //! %Factory tag for activity policy filters.
