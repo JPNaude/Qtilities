@@ -779,6 +779,13 @@ bool Qtilities::Core::Observer::isModified() const {
 }
 
 void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (observerData->display_hints) {
+        if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
+            if (observerData->is_modified != new_state)
+                refreshViewsData();
+        }
+    }
+
     observerData->is_modified = new_state;
     if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
         emit modificationStateChanged(new_state);
@@ -1849,7 +1856,7 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
-            // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+            // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
             QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
             if (instance_name.isValid())
                 subject_names << instance_name.toString();
@@ -1862,14 +1869,14 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
 
 QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCategory& category) const {
     QStringList subject_names;
-    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        // Handles cases where category is valid, thus it contains levels.
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category) {
-                // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+                // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
                 QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
@@ -1877,8 +1884,10 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
                     subject_names << observerData->subject_list.at(i)->objectName();
             }
         } else {
-            if (category == uncategorized_category) {
-                // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+            // Handle cases where the category is not valid on a subject.
+            // Thus subjects without a category specified for them.
+            if (!category.isValid()) {
+                // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
                 QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
@@ -1924,7 +1933,6 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessM
 
 QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCategories() const {
     QList<QtilitiesCategory> subject_categories;
-    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {    
         QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
@@ -1935,13 +1943,7 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
             if (!current_category.isEmpty()) {
                 if (!subject_categories.contains(current_category))
                     subject_categories << current_category;
-            } else {
-                if (!subject_categories.contains(uncategorized_category))
-                    subject_categories << uncategorized_category;
             }
-        } else {
-            if (!subject_categories.contains(uncategorized_category))
-                subject_categories << uncategorized_category;
         }
     }
 
@@ -1979,7 +1981,6 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& ifac
 QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const QtilitiesCategory& category) const {
     // Get all subjects which has the OBJECT_CATEGORY property set to category.
     QList<QObject*> list;
-    QtilitiesCategory uncategorized_category(OBSERVER_UNCATEGORIZED_CATEGORY);
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
@@ -1988,7 +1989,7 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
             if (current_category == category)
                 list << subjectAt(i);
         } else {
-            if (category == uncategorized_category)
+            if (!category.isValid())
                 list << subjectAt(i);
         }
     }
@@ -2113,8 +2114,8 @@ Qtilities::Core::ObserverHints* const Qtilities::Core::Observer::displayHints() 
     return observerData->display_hints;
 }
 
-bool Qtilities::Core::Observer::setDisplayHints(ObserverHints* display_hints) {
-    if (observerData->subject_list.count() > 0 || !display_hints)
+bool Qtilities::Core::Observer::inheritDisplayHints(ObserverHints display_hints) {
+    /*if (observerData->subject_list.count() > 0 || !display_hints)
         return false;
 
     if (observerData->display_hints) {
@@ -2123,8 +2124,8 @@ bool Qtilities::Core::Observer::setDisplayHints(ObserverHints* display_hints) {
         observerData->display_hints = 0;
     }
 
-    observerData->display_hints = display_hints;
-    return true;
+    observerData->display_hints = display_hints;*/
+    return false;
 }
 
 Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {

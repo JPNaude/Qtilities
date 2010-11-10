@@ -671,27 +671,30 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               \sa useDisplayHints(), setDisplayHints()
               */
             ObserverHints* const displayHints() const;
-            //! Function which sets the display hints used by this observer.
-            /*!
-              Note that display hints can only be set when the observer has no subjects attached to it. If the observer
-              already has display hints, they will be deleted.
-
-              \returns True if successful, false otherwise.
-
-              \sa useDisplayHints(), displayHints()
-              */
-            bool setDisplayHints(ObserverHints* display_hints);
             //! Function which constructs hints for this observer.
             /*!
               If the observer does not have any hints, this function will construct an ObserverHints instance
               and assign it to this observer. If the observer already has hints associated with it, this function does
               nothing.
 
-              \returns The constructed hints instance, if hints were already present, return 0.
+              \returns The constructed hints instance, if hints were already present, returns 0.
 
               \sa displayHints(), setDisplayHints()
               */
             ObserverHints* useDisplayHints();
+            //! Function to let this observer inherit a set of display hints.
+            /*!
+              This function allows you to share hints between a set of
+
+              \note If you call this function on the observer which does not have any displayHints() yet (thus useDisplayHints()
+              have not been called yet) this function will call useDisplayHints() before inheriting the hints.
+
+              \returns True if successful, false otherwise.
+
+              \sa useDisplayHints(), displayHints()
+              */
+            bool inheritDisplayHints(ObserverHints display_hints);
+
 
             // --------------------------------
             // Subject category related functions
