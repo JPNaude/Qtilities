@@ -38,9 +38,9 @@ namespace Qtilities {
     //! The %Qtilities major version number.
     #define QTILITIES_VERSION_MAJOR 0
     //! The %Qtilities minor version number.
-    #define QTILITIES_VERSION_MINOR 2
+    #define QTILITIES_VERSION_MINOR 3
     //! The %Qtilities revision version number.
-    #define QTILITIES_VERSION_REVISION 1
+    #define QTILITIES_VERSION_REVISION 0
     //! The %Qtilities beta number.
     #define QTILITIES_VERSION_BETA 0
     //! The %Qtilities alpha number.
@@ -59,8 +59,9 @@ namespace Qtilities {
         - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
         - Observers now export their memory of category access modes using the new QtilitiesCategory class.<br>
 
-    3 - %Qtilities v0.2.1 onwards<br>
+    3 - %Qtilities v0.3 onwards<br>
         - ActivityPolicyFilter::parentTrackingPolicy() now part of activity filter exports.
+        - ObserverHints::modificationStateDisplayHint() now part of observer hints exports.
     */
     #define QTILITIES_BINARY_EXPORT_FORMAT 3
 
@@ -92,6 +93,16 @@ namespace Qtilities {
     1 - %Qtililties v0.2 onwards<br>
     */
     #define QTILITIES_XML_EXPORT_FORMAT 1
+
+    //! The %Qtilities Extension System plugin configuration export format.
+    /*!
+    The plugin configuration format defines the format which is used to export plugin configuration set files.
+
+    History:<br>
+    Plugin configuration sets exporting was introduced in %Qtilities v0.3<br>
+    1 - %Qtililties v0.3 onwards<br>
+    */
+    #define QTILITIES_PLUGIN_CONFIG_FORMAT 1
 }
 
 #endif // QTILITIES_H
