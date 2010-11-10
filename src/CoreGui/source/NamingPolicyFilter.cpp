@@ -763,7 +763,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::setValidator(QValidator* valid_nami
     d->validator = valid_naming_validator;
 }
 
-QValidator* const Qtilities::CoreGui::NamingPolicyFilter::getValidator() {
+QValidator* Qtilities::CoreGui::NamingPolicyFilter::getValidator() {
     return d->validator;
 }
 

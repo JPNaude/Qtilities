@@ -341,12 +341,12 @@ categorized_widget->show();
             /*!
               \note This reference is only valid in TableView mode.
               */
-            QTableView* const tableView();
+            QTableView* tableView();
             //! Function providing access to the contained tree view.
             /*!
               \note This reference is only valid in TreeView mode.
               */
-            QTreeView* const treeView();
+            QTreeView* treeView();
         private slots:
             //! Updates the current selection parent context.
             /*!

@@ -52,11 +52,16 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::Core::CategoryLevel::instanceFac
 }
 
 Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     stream << d_name;
     return IExportable::Complete;
 }
 
 Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+    Q_UNUSED(params)
+
     stream >> d_name;
     return IExportable::Complete;
 }
@@ -158,6 +163,8 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Qtili
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     stream << (quint32) d_access_mode;
     stream << (quint32) d_category_levels.count();
     IExportable::Result result = IExportable::Complete;

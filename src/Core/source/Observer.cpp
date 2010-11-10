@@ -2115,6 +2115,8 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::displayHints() const 
 }
 
 bool Qtilities::Core::Observer::inheritDisplayHints(ObserverHints display_hints) {
+    Q_UNUSED(display_hints)
+
     /*if (observerData->subject_list.count() > 0 || !display_hints)
         return false;
 

@@ -604,6 +604,8 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_currentItemChanged(QTableWidgetItem * current) {
+    Q_UNUSED(current)
+
     refreshActions();
 }
 
