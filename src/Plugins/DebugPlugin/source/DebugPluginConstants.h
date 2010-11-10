@@ -34,8 +34,6 @@
 #ifndef DEBUG_PLUGIN_CONSTANTS_H
 #define DEBUG_PLUGIN_CONSTANTS_H
 
-#include <Qtilities.h>
-
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the debug plugin.
@@ -53,8 +51,7 @@ namespace Qtilities {
         namespace Debug {
             //! Namespace containing constants defined in the debug plugin.
             namespace Constants {
-                #define DEBUG_PLUGIN_VERSION_MAJOR QTILITIES_VERSION_MAJOR
-                #define DEBUG_PLUGIN_VERSION_MINOR QTILITIES_VERSION_MINOR
+
             }
         }
     }

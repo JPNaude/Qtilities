@@ -20,6 +20,8 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin
+LIBS += D:/Projects/Qt/Canon/Conan-build-desktop/lib/libConand0.a
+INCLUDEPATH += D:/Projects/Qt/Canon/conan_v0.9.8/include
 
 # ------------------------------
 # Temp Output Paths

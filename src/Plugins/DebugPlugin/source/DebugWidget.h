@@ -93,6 +93,10 @@ namespace Qtilities {
                 void handle_factoryListSelectionChanged(const QString& factory_name);
                 //! Handles the factory refresh button.
                 void handle_factoryListRefresh();
+                //! Global object pool double click.
+                void handle_objectPoolDoubleClick(QObject *object);
+                //! Handles the plugin info refresh button.
+                void handle_pluginInfoRefresh();
 
             protected:
                 void changeEvent(QEvent *e);

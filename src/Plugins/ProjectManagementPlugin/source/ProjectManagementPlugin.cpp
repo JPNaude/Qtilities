@@ -62,7 +62,8 @@ struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
     actionProjectClose(0),
     actionProjectSave(0),
     actionProjectSaveAs(0),
-    appended_project_name(QString()) {}
+    appended_project_name(QString()),
+    is_initialized(false) {}
 
     QAction*        actionProjectNew;
     QAction*        actionProjectOpen;
@@ -70,6 +71,7 @@ struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
     QAction*        actionProjectSave;
     QAction*        actionProjectSaveAs;
     QString         appended_project_name;
+    bool            is_initialized;
 };
 
 Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : QObject(parent) {
@@ -141,6 +143,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // Register project management config page.
     OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
+    d->is_initialized = true;
     return true;
 }
 
@@ -164,7 +167,7 @@ QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin
 }
 
 double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
-    return (QString("%1.%2.%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
+    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {
@@ -252,6 +255,9 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_projectStateChanged() {
+    if (!d->is_initialized)
+        return;
+
     IProject* project = PROJECT_MANAGER->currentProject();
 
     if (project) {

@@ -94,7 +94,7 @@ QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const
 }
 
 double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() const {
-    return (QString("%1.%2").arg(DEBUG_PLUGIN_VERSION_MAJOR).arg(DEBUG_PLUGIN_VERSION_MINOR)).toDouble();
+    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() const {

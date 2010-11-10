@@ -34,13 +34,17 @@
 #include "DebugWidget.h"
 #include "ui_DebugWidget.h"
 
-#include <QtilitiesCoreGui>
-using namespace QtilitiesCoreGui;
+#include <Conan.h>
+
+#include <QtilitiesExtensionSystem>
+using namespace QtilitiesExtensionSystem;
 
 struct Qtilities::Plugins::Debug::DebugWidgetData {
-    DebugWidgetData() : objectPoolWidget(0) {}
+    DebugWidgetData() : objectPoolWidget(0),
+                        conanWidget(0) {}
 
     ObserverWidget* objectPoolWidget;
+    ConanWidget*    conanWidget;
 };
 
 Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
@@ -74,18 +78,34 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     if (ui->widgetObjectPoolHolder->layout())
         delete ui->widgetObjectPoolHolder->layout();
 
-    QHBoxLayout* layout = new QHBoxLayout(ui->widgetObjectPoolHolder);
+    // Conan Widget:
+    d->conanWidget = new ConanWidget();
+
+    // Splitter:
+    QSplitter* splitter = new QSplitter(Qt::Vertical);
+    splitter->addWidget(d->objectPoolWidget);
+    splitter->addWidget(d->conanWidget);
+
+    // Layout:
+    QVBoxLayout* layout = new QVBoxLayout(ui->widgetObjectPoolHolder);
     layout->setMargin(0);
-    layout->addWidget(d->objectPoolWidget);
+    layout->addWidget(splitter);
+
+    // Now that the widgets are in a layout we show & init them:
     d->objectPoolWidget->initialize();
     d->objectPoolWidget->show();
     d->objectPoolWidget->toggleSearchBox();
+    connect(d->objectPoolWidget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
+    d->conanWidget->show();
 
     // Factories:
     connect(ui->btnRefreshFactories,SIGNAL(clicked()),SLOT(handle_factoryListRefresh()));
     connect(ui->listFactories,SIGNAL(currentTextChanged(QString)),SLOT(handle_factoryListSelectionChanged(QString)));
     ui->btnRefreshFactories->setIcon(QIcon(ICON_REFRESH_16x16));
     handle_factoryListRefresh();
+
+    // Plugins:
+    connect(ui->btnRefreshPluginInfo,SIGNAL(clicked()),SLOT(handle_pluginInfoRefresh()));
 }
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
@@ -128,6 +148,25 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListRefresh() {
     ui->listFactories->addItems(OBJECT_MANAGER->allFactoryNames());
     if (ui->listFactories->count() > 0)
         ui->listFactories->setCurrentRow(0);
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolDoubleClick(QObject *object) {
+    d->conanWidget->AddRootObject(object);
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::handle_pluginInfoRefresh() {
+    if (ExtensionSystemCore::instance()->activePluginConfiguration().isEmpty())
+        ui->txtPluginsActiveSet->setText(tr("No plugin configuration set loaded"));
+    else
+        ui->txtPluginsActiveSet->setText(ExtensionSystemCore::instance()->activePluginConfiguration());
+
+    ui->listPluginsActive->clear();
+    ui->listPluginsInactive->clear();
+    ui->listPluginsFiltered->clear();
+
+    ui->listPluginsActive->addItems(ExtensionSystemCore::instance()->activePlugins());
+    ui->listPluginsInactive->addItems(ExtensionSystemCore::instance()->inactivePlugins());
+    ui->listPluginsFiltered->addItems(ExtensionSystemCore::instance()->filteredPlugins());
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::changeEvent(QEvent *e)
