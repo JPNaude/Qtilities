@@ -78,9 +78,14 @@ namespace Qtilities {
             void handleBtnDetailsClicked();
             void handleSelectionChanged(QList<QObject*> selection);
             void handleSelectionDoubleClicked(QObject* selection);
+            void setStatusMessage(const QString& status_message);
+            void setSaveConfigButtonVisibility(bool is_visible);
 
         protected:
             void changeEvent(QEvent *e);
+
+        private slots:
+            void on_btnSaveAsNewConfiguration_clicked();
 
         private:
             void setPluginListWidget(QWidget* plugin_list_widget);

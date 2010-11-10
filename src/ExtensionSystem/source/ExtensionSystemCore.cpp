@@ -45,20 +45,36 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QDomDocument>
 
 using namespace QtilitiesCoreGui;
 using namespace Qtilities::ExtensionSystem::Interfaces;
 
 struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
-    ExtensionSystemCoreData() : plugins("Plugins","Manages loaded plugins in the application."),
+    ExtensionSystemCoreData() : plugins("Plugins"),
+    plugin_activity_filter(0),
     extension_system_config_widget(0),
-    treeModel(0) { }
+    treeModel(0),
+    is_initialized(false) { }
 
-    Observer plugins;
+    TreeNode plugins;
+    ActivityPolicyFilter* plugin_activity_filter;
     QDir pluginsDir;
     QStringList customPluginPaths;
     ExtensionSystemConfig* extension_system_config_widget;
     PluginTreeModel* treeModel;
+
+    QString             active_configuration;
+    QStringList         set_inactive_plugins;
+    QStringList         set_filtered_plugins;
+
+    QStringList         current_active_plugins;
+    QStringList         current_inactive_plugins;
+    QStringList         current_filtered_plugins;
+
+    QStringList         core_plugins;
+
+    bool                is_initialized;
 };
 
 Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::m_Instance = 0;
@@ -82,11 +98,12 @@ Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::Ext
 Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* parent) : QObject(parent)
 {
     d = new ExtensionSystemCoreData;
-    d->plugins.useDisplayHints();
-
     d->plugins.startProcessingCycle();
 
-    // Setup the plugin pool observer
+    d->plugin_activity_filter = d->plugins.enableActivityControl(ObserverHints::NoActivityDisplay,
+                                                                 ObserverHints::NoActivityControl);
+    d->plugin_activity_filter->setNewSubjectActivityPolicy(ActivityPolicyFilter::SetNewActive);
+
     ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;
     d->plugins.displayHints()->setDisplayFlagsHint(display_flags);
@@ -129,88 +146,146 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
         foreach (QString fileName, dir.entryList(QDir::Files)) {
             QFileInfo file_info(fileName);
             QString stripped_file_name = file_info.fileName();
-            if (QLibrary::isLibrary(dir.absoluteFilePath(fileName))) {
-                LOG_INFO(tr("Found library: ") + stripped_file_name);
-                QPluginLoader loader(dir.absoluteFilePath(fileName));
-                QObject *obj = loader.instance();
-                if (obj) {
-                    // Check if the object implements IPlugin:
-                    IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
-                    if (pluginIFace) {
-                        emit newProgressMessage(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
-                        LOG_INFO(QString(tr("Initializing plugin from file: %1")).arg(stripped_file_name));
-                        QCoreApplication::processEvents();
 
-                        // Give it a success icon by default:
-                        SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
-                        Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+            bool is_filtered_plugin = false;
+            foreach (QString filteredPluginName, d->set_filtered_plugins) {
+                if (stripped_file_name.startsWith(filteredPluginName)) {
+                    is_filtered_plugin = true;
+                    break;
+                }
+            }
 
-                        // Set the category property of the plugin:
-                        ObserverProperty category_property(OBJECT_CATEGORY);
-                        category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());
-                        Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
+            if (!is_filtered_plugin) {
+                if (QLibrary::isLibrary(dir.absoluteFilePath(fileName))) {
+                    LOG_INFO(tr("Found library: ") + stripped_file_name);
+                    QPluginLoader loader(dir.absoluteFilePath(fileName));
+                    QObject *obj = loader.instance();
+                    if (obj) {
+                        // Check if the object implements IPlugin:
+                        IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
+                        if (pluginIFace) {
+                            emit newProgressMessage(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
+                            LOG_INFO(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
+                            QCoreApplication::processEvents();
 
-                        // Store the file name:
-                        pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
+                            // Set the category property of the plugin:
+                            ObserverProperty category_property(OBJECT_CATEGORY);
+                            category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());
+                            Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
 
-                        // Set the default state of the plugin:
-                        pluginIFace->setPluginState(IPlugin::Functional);
-                        pluginIFace->setErrorString(tr("No errors detected."));
+                            // Store the file name:
+                            pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
 
-                        // Do a plugin compatibility check here:
-                        pluginIFace->pluginVersion();
-                        if (!pluginIFace->pluginCompatibilityVersions().isEmpty()) {
-                            if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
-                                LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
-                                pluginIFace->setPluginState(IPlugin::CompatibilityError);
-                                pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
-                                SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
-                                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                            // Do a plugin compatibility check here:
+                            pluginIFace->pluginVersion();
+                            if (!pluginIFace->pluginCompatibilityVersions().isEmpty()) {
+                                if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
+                                    LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
+                                    pluginIFace->setPluginState(IPlugin::CompatibilityError);
+                                    pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
+                                    SharedObserverProperty icon_property(QIcon(ICON_WARNING_16x16),OBJECT_ROLE_DECORATION);
+                                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                                }
                             }
-                        }
 
-                        d->plugins.attachSubject(obj);
+                            d->plugins.attachSubject(obj);
 
-                        QString error_string;
-                        if (!pluginIFace->initialize(QStringList(), &error_string)) {
-                            LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
-                            pluginIFace->setPluginState(IPlugin::InitializationError);
-                            pluginIFace->setErrorString(error_string);
-                            SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
-                            Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                            bool is_inactive_plugin = false;
+                            foreach (QString inactivePluginName, d->set_inactive_plugins) {
+                                if (pluginIFace->pluginName() == inactivePluginName) {
+                                    is_inactive_plugin = true;
+                                    break;
+                                }
+                            }
+
+                            if (!is_inactive_plugin) {
+                                QString error_string;
+                                if (!pluginIFace->initialize(QStringList(), &error_string)) {
+                                    LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
+                                    pluginIFace->setPluginState(IPlugin::InitializationError);
+                                    pluginIFace->setErrorString(error_string);
+                                    SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+                                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                                }
+                            }
+                        } else {
+                            LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
                         }
                     } else {
-                        LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
+                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this is that the plugin was built in a different mode (release or debug) as your application, or it was built with a different compiler."));
                     }
-                } else {
-                    LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name);
                 }
+            } else {
+                LOG_DEBUG("Skipped filtered plugin during plugin loading: " + stripped_file_name);
+                d->current_filtered_plugins << stripped_file_name;
             }
         }
 
         emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(path));
     }
 
-    // Now that all plugins were loaded, we call initializeDependancies() on all of them
+    // Now that all plugins were loaded, we call initializeDependancies() on all active ones:
     for (int i = 0; i < d->plugins.subjectCount(); i++) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(i));
         if (pluginIFace) {
-            QString error_string;
-            emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
-            QCoreApplication::processEvents();
-            if (!pluginIFace->initializeDependancies(&error_string)) {
-                LOG_ERROR(error_string);
-                pluginIFace->setPluginState(IPlugin::DependancyError);
-                pluginIFace->setErrorString(error_string);
-                SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+            bool is_inactive_plugin = false;
+            foreach (QString inactivePluginName, d->set_inactive_plugins) {
+                if (pluginIFace->pluginName() == inactivePluginName) {
+                    is_inactive_plugin = true;
+                    break;
+                }
+            }
+
+            if (!is_inactive_plugin) {
+                QString error_string;
+                emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
+                QCoreApplication::processEvents();
+                if (!pluginIFace->initializeDependancies(&error_string)) {
+                    LOG_ERROR(error_string);
+                    pluginIFace->setPluginState(IPlugin::DependancyError);
+                    pluginIFace->setErrorString(error_string);
+                    SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
+                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                } else {
+                    // Set the default state of the plugin:
+                    pluginIFace->setPluginState(IPlugin::Functional);
+                    pluginIFace->setErrorString(tr("No errors detected."));
+
+                    // Give it a success icon by default:
+                    SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
+                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
+                    // Add it to the active list:
+                    d->current_active_plugins << pluginIFace->pluginName();
+                }
+            } else {
+                // Set the default state of the plugin:
+                pluginIFace->setPluginState(IPlugin::InActive);
+                pluginIFace->setErrorString(tr("Inactive."));
+                d->current_inactive_plugins << pluginIFace->pluginName();
+
+                // Make it inactive:
+                ObserverProperty category_property(OBJECT_ACTIVITY);
+                category_property.setValue(false,d->plugins.observerID());
+                Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
+
+                // Give it a success icon by default:
+                SharedObserverProperty icon_property(QIcon(ICON_SUCCESS_16x16),OBJECT_ROLE_DECORATION);
                 Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
+                LOG_INFO(QString(tr("Inactive plugin found which will not be initialized: %1")).arg(pluginIFace->pluginName()));
             }
             OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i),QtilitiesCategory("Core::Plugins (IPlugin)","::"));
         }
     }
 
+    // Only connect here since the signal will be emitted in above code:
+    connect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
+
     emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
+
+    d->is_initialized = true;
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
@@ -260,4 +335,262 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::addPluginPath(const QStrin
 
 QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPaths() const {
     return d->customPluginPaths;
+}
+
+QString Qtilities::ExtensionSystem::ExtensionSystemCore::activePluginConfiguration() const {
+    return d->active_configuration;
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::setPluginConfiguration(const QString& active_configuration) {
+    d->active_configuration = active_configuration;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::activePlugins() const {
+    return d->current_active_plugins;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::inactivePlugins() const {
+    return d->current_inactive_plugins;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::filteredPlugins() const {
+    return d->current_filtered_plugins;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::corePlugins() const{
+    return d->core_plugins;
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(const QString& file_name) {
+    // Load the file into doc:
+    QDomDocument doc("QtilitiesPluginConfiguration");
+    QFile file(file_name);
+    if (!file.open(QIODevice::ReadOnly)) {
+        LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+        return false;
+    }
+
+    QString docStr = file.readAll();
+    QString error_string;
+    int error_line;
+    int error_column;
+    if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
+        LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
+        file.close();
+        LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+        return false;
+    }
+    file.close();
+
+
+    // Interpret the loaded doc:
+    QDomElement root = doc.documentElement();
+
+    // Check the document version:
+    if (root.hasAttribute("DocumentVersion")) {
+        QString document_version = root.attribute("DocumentVersion");
+        if (document_version.toInt() > QTILITIES_PLUGIN_CONFIG_FORMAT) {
+            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_PLUGIN_CONFIG_FORMAT));
+            LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+            return false;
+        }
+    } else {
+        LOG_ERROR(QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed.")));
+        LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
+        return false;
+    }
+
+    d->set_inactive_plugins.clear();
+    d->set_filtered_plugins.clear();
+
+    // Now check out all the children below the root node:
+    QDomNodeList childNodes = root.childNodes();
+    for(int i = 0; i < childNodes.count(); i++) {
+        QDomNode childNode = childNodes.item(i);
+        QDomElement child = childNode.toElement();
+
+        if (child.isNull())
+            continue;
+
+        if (child.tagName() == "InactivePlugins") {
+            QDomNodeList inactiveItems = child.childNodes();
+            for(int i = 0; i < inactiveItems.count(); i++) {
+                QDomNode inactiveNode = inactiveItems.item(i);
+                QDomElement inactiveItem = inactiveNode.toElement();
+
+                if (inactiveItem.isNull())
+                    continue;
+
+                if (inactiveItem.hasAttribute("Value")) {
+                    QString plugin_name = inactiveItem.attribute("Value");
+                    if (!d->core_plugins.contains(plugin_name))
+                        d->set_inactive_plugins << plugin_name;
+                    else
+                        LOG_ERROR(QString(tr("%1 is a core plugin. The plugin configuration attempted to set it as an inactive plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                }
+            }
+        }
+
+        if (child.tagName() == "FilteredPlugins") {
+            QDomNodeList filteredItems = child.childNodes();
+            for(int i = 0; i < filteredItems.count(); i++) {
+                QDomNode filteredNode = filteredItems.item(i);
+                QDomElement filteredItem = filteredNode.toElement();
+
+                if (filteredItem.isNull())
+                    continue;
+
+                if (filteredItem.hasAttribute("Value")) {
+                    QString plugin_name = filteredItem.attribute("Value");
+                    if (!d->core_plugins.contains(plugin_name))
+                        d->set_filtered_plugins << plugin_name;
+                    else
+                        LOG_ERROR(QString(tr("%1 is a core plugin. The plugin configuration attempted to set it as a filtered plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                }
+            }
+        }
+    }
+
+    d->set_inactive_plugins.removeDuplicates();
+    d->set_filtered_plugins.removeDuplicates();
+
+    LOG_INFO(tr("Successfully loaded plugin configuration from file: ") + file_name);
+    LOG_DEBUG("Inactive Plugins: " + d->set_inactive_plugins.join(","));
+    LOG_DEBUG("Filtered Plugins: " + d->set_filtered_plugins.join(","));
+
+    setPluginConfiguration(file_name);
+    return true;
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(const QString& file_name) const {
+    QFile file(file_name);
+    if(!file.open(QFile::WriteOnly))
+        return false;
+
+    // Create the QDomDocument:
+    QDomDocument doc("QtilitiesPluginConfiguration");
+    QDomElement root = doc.createElement("QtilitiesPluginConfiguration");
+    root.setAttribute("DocumentVersion",QTILITIES_PLUGIN_CONFIG_FORMAT);
+    doc.appendChild(root);
+
+    // Do XML of inactive and filter lists:
+    // Inactive Plugins:
+    QDomElement inactive_node = doc.createElement("InactivePlugins");
+    root.appendChild(inactive_node);
+    foreach (QString name, d->set_inactive_plugins) {
+        QDomElement inactive_item = doc.createElement("PluginName");
+        inactive_item.setAttribute("Value",name);
+        inactive_node.appendChild(inactive_item);
+    }
+
+    // Filtered Plugins:
+    QDomElement filtered_node = doc.createElement("FilteredPlugins");
+    root.appendChild(filtered_node);
+    foreach (QString name, d->set_filtered_plugins) {
+        QDomElement filtered_item = doc.createElement("FileNameStart");
+        filtered_item.setAttribute("Value",name);
+        filtered_node.appendChild(filtered_item);
+    }
+
+    // Put the complete doc in a string and save it to the file:
+    // Still write it even if it fails so that we can check the output file for debugging purposes.
+    QString docStr = doc.toString(2);
+    file.write(docStr.toAscii());
+    file.close();
+
+    return true;
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::setInactivePlugins(QStringList inactive_plugins) {
+    d->set_inactive_plugins = inactive_plugins;
+    d->set_inactive_plugins.removeDuplicates();
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::setFilteredPlugins(QStringList filtered_plugins) {
+    d->set_filtered_plugins = filtered_plugins;
+    d->set_filtered_plugins.removeDuplicates();
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins(QStringList core_plugins) {
+    if (!d->is_initialized) {
+        d->core_plugins = core_plugins;
+
+        // Make sure no core plugins are found in the inactive or filter plugin lists:
+        foreach (QString core_plugin, d->core_plugins) {
+            if (d->set_inactive_plugins.contains(core_plugin))
+                d->set_inactive_plugins.removeOne(core_plugin);
+        }
+
+        // TODO - finish...
+    }
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationChange(QList<QObject*> active_plugins, QList<QObject*> inactive_plugins) {
+    Q_UNUSED(active_plugins)
+
+    d->set_inactive_plugins.clear();
+    for (int i = 0; i < inactive_plugins.count(); i++) {
+         IPlugin* iface = qobject_cast<IPlugin*> (inactive_plugins.at(i));
+         if (iface) {
+             // Check if any core plugins were made inactive, if so we notify the user and make them active again:
+             if (d->core_plugins.contains(iface->pluginName())) {
+                QMessageBox msgBox;
+                msgBox.setText(QString(tr("%1 is a core plugin and must be active at all times.")).arg(iface->pluginName()));
+                msgBox.exec();
+
+                ObserverProperty category_property(OBJECT_ACTIVITY);
+                category_property.setValue(true,d->plugins.observerID());
+                Observer::setObserverProperty(iface->objectBase(),category_property);
+                d->plugins.refreshViewsData();
+             } else
+                d->set_inactive_plugins << iface->pluginName();
+         }
+    }
+
+    // If there is a config widget, we update its status message:
+    if (d->extension_system_config_widget) {
+        // If the inactive plugins are different from the current plugins:
+        if (d->current_inactive_plugins != d->set_inactive_plugins) {
+            d->extension_system_config_widget->setStatusMessage("Restart Required");
+            d->extension_system_config_widget->setSaveConfigButtonVisibility(true);
+        } else {
+            d->extension_system_config_widget->setStatusMessage("");
+            d->extension_system_config_widget->setSaveConfigButtonVisibility(false);
+        }
+    }
+
+    // Now write the settings to the default configuration file, unless a config file was loaded, in that
+    // case ask the user if they want to save it.
+
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityDisplay() {
+    d->plugins.displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::disablePluginActivityDisplay() {
+    d->plugins.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::isPluginActivityDisplayEnabled() const {
+    if (d->plugins.displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay)
+        return true;
+    else
+        return false;
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityControl() {
+    d->plugins.displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
+    d->plugins.displayHints()->setActivityControlHint(ObserverHints::CheckboxTriggered);
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemCore::disablePluginActivityControl() {
+    d->plugins.displayHints()->setActivityControlHint(ObserverHints::NoActivityControl);
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::isPluginActivityControlEnabled() const {
+    if (d->plugins.displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered)
+        return true;
+    else
+        return false;
 }

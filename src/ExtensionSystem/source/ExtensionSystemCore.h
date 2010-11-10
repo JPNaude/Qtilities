@@ -36,11 +36,15 @@
 
 #include "ExtensionSystem_global.h"
 
+#include <ObserverHints>
+
 #include <QObject>
 #include <QStringList>
 
 namespace Qtilities {
     namespace ExtensionSystem {
+        using namespace Qtilities::Core;
+
         /*!
           \struct ExtensionSystemCoreData
           \brief The ExtensionSystemCoreData class stores data used by the ExtensionSystemCore class.
@@ -63,6 +67,9 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
+            // --------------------------------
+            // Core Functions
+            // --------------------------------
             static ExtensionSystemCore* instance();
             ~ExtensionSystemCore();
 
@@ -82,6 +89,10 @@ namespace Qtilities {
 
             //! Returns a widget with information about loaded plugins.
             QWidget* configWidget();
+
+            // --------------------------------
+            // Plugin Paths
+            // --------------------------------
             //! Function to add a custom plugin path.
             /*!
               By default plugins are loaded only from the /plugins folder in the application directory.
@@ -100,9 +111,102 @@ namespace Qtilities {
               */
             QStringList pluginPaths() const;
 
+            // --------------------------------
+            // Plugin Configuration Sets
+            // --------------------------------
+            //! Gets the name of the current plugin configuration set.
+            QString activePluginConfiguration() const;
+            //! Sets the name of the current plugin configuration set.
+            void setPluginConfiguration(const QString& active_configuration);
+
+            //! Disables plugin activity display in the plugin details widget.
+            void enablePluginActivityDisplay();
+            //! Disables plugin activity display in the plugin details widget.
+            void disablePluginActivityDisplay();
+            //! Indicates if plugin activity is displayed in the plugin details widget.
+            /*!
+              False by default.
+
+              \sa enablePluginActivityDisplay(), disablePluginActivityDisplay(), setInactivePlugins()
+              */
+            bool isPluginActivityDisplayEnabled() const;
+
+            //! Disables plugin activity control in the plugin details widget.
+            void enablePluginActivityControl();
+            //! Disables plugin activity control in the plugin details widget.
+            void disablePluginActivityControl();
+            //! Indicates if plugin activity can be changed by the user in the plugin details widget.
+            /*!
+              False by default.
+
+              \note isPluginActivityDisplayEnabled() must also be true for the activity control to be available, thus
+              if plugin activity display is not yet enabled, this function call will enabled it.
+
+              \sa enablePluginActivityControl(), disablePluginActivityControl(), setInactivePlugins()
+              */
+            bool isPluginActivityControlEnabled() const;
+
+            //! Function to return the names of all plugins that are loaded and initialized at present.
+            /*!
+              \note This function only provided usefull information after initialize() have been called.
+              */
+            QStringList activePlugins() const;
+            //! Function to return the names of all plugins that are loaded but not initialized at present.
+            /*!
+              \note This function only provided usefull information after initialize() have been called.
+              */
+            QStringList inactivePlugins() const;
+            //! Function to return the file names of all plugins which as not loaded during the initialize() function call.
+            QStringList filteredPlugins() const;
+            //! Function to return the file names of all core plugins.
+            /*!
+              \sa setCorePlugins()
+              */
+            QStringList corePlugins() const;
+
+            //! Function to set the names of all plugins that is loaded but not initialized at present.
+            /*!
+              Sets a list of plugin names which <b>corresponds to the IPlugin::pluginName()</b> implementation
+              of the plugins which should be inactive on startup.
+
+              \note This function only does something usefull when called before initialize().
+              */
+            void setInactivePlugins(QStringList inactive_plugins);
+            //! Function to set the file names of all plugins which as not loaded during the initialize() function call.
+            /*!
+              Sets a list of <b>file names</b> which will be evaluated during initialize(). Each plugin file that
+              is found will be checked if it starts with any of the file names specified and if so, it will not be loaded.
+
+              \note This function only does something usefull when called before initialize().
+              */
+            void setFilteredPlugins(QStringList filtered_plugins);
+            //! Function to set the names of all plugins which should be handled as core plugins. That is, they cannot be made inactive by an user.
+            /*!
+              Sets a list of plugin names which <b>corresponds to the IPlugin::pluginName()</b> implementation
+              of the plugins which should be handled as core plugins.
+
+              \note This function only does something usefull when called before initialize().
+              */
+            void setCorePlugins(QStringList core_plugins);
+
+            //! Function which load a plugin configuration file.
+            /*!
+              \note This function only does something usefull when called before initialize().
+              */
+            bool loadPluginConfiguration(const QString& file_name);
+            //! Function which saves a plugin configuration file.
+            /*!
+              \note This function only does something usefull when called after initialize().
+              */
+            bool savePluginConfiguration(const QString& file_name) const;
+
         signals:
             //! Progress messages submitted during application startup.
             void newProgressMessage(const QString& message);
+
+        public slots:
+            //! Handle plugin configuration changes.
+            void handlePluginConfigurationChange(QList<QObject*> active_plugins, QList<QObject*> inactive_plugins);
 
         private:
             ExtensionSystemCore(QObject* parent = 0);

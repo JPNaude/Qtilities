@@ -67,7 +67,8 @@ namespace Qtilities {
                     Functional,             /*!< The plugin is fully functional. */
                     CompatibilityError,     /*!< The plugin is loaded, but a compatibility error was detected. The plugin might not work as intended with the current version of the application. */
                     InitializationError,    /*!< The plugin detected an error during initialization. \sa initialize(). */
-                    DependancyError         /*!< The plugin detected an error during depedancy initialization. \sa initializeDependancies(). */
+                    DependancyError,        /*!< The plugin detected an error during depedancy initialization. \sa initializeDependancies(). */
+                    InActive                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
                 //! Function which returns a string associated with a the plugin's state.
                 QString pluginStateString() const {

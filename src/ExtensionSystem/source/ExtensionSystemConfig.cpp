@@ -31,6 +31,8 @@
 **
 ****************************************************************************/
 
+#include <QFileDialog>
+
 #include "ExtensionSystemConfig.h"
 #include "ui_ExtensionSystemConfig.h"
 #include "ExtensionSystemCore.h"
@@ -51,6 +53,7 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     ui->listPluginPaths->addItems(ExtensionSystemCore::instance()->pluginPaths());
 
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
+    ui->btnSaveAsNewConfiguration->setVisible(false);
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -134,4 +137,24 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionDoubleCli
         PluginInfoWidget* info_widget = new PluginInfoWidget(plugin_iface);
         info_widget->show();
     }
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::setStatusMessage(const QString& status_message) {
+    ui->lblStatusMessage->setText(status_message);
+
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::on_btnSaveAsNewConfiguration_clicked() {
+    QString file_name = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QApplication::applicationDirPath() + "/plugins", "Plugin Configuration File (*.pconfig)");
+    if (file_name.isEmpty())
+        return;
+
+    if (ExtensionSystemCore::instance()->savePluginConfiguration(file_name)) {
+        ui->btnSaveAsNewConfiguration->setVisible(false);
+        ui->lblStatusMessage->clear();
+    }
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::setSaveConfigButtonVisibility(bool is_visible) {
+    ui->btnSaveAsNewConfiguration->setVisible(is_visible);
 }
