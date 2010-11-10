@@ -81,6 +81,7 @@ namespace Qtilities {
             Q_ENUMS(HierarchicalDisplay)
             Q_ENUMS(ItemViewColumn)
             Q_ENUMS(DragDropHint)
+            Q_ENUMS(ModificationStateDisplayHint)
 
         public:
             // --------------------------------
@@ -270,6 +271,18 @@ namespace Qtilities {
             static QString dragDropFlagsToString(DragDropFlags drag_drop_flags);
             //! Function which returns the DragDropFlags associated with a string.
             static DragDropFlags stringToDragDropFlags(const QString& drag_drop_flags_string);
+            //! The possible modification state display hints.
+            /*!
+              \sa setModificationStateDisplayHint(), modificationStateDisplayHint()
+              */
+            enum ModificationStateDisplayHint {
+                NoModificationStateDisplayHint = 0,         /*!< No modification state display hint. The modification state is not displayed in any way. */
+                CharacterModificationStateDisplay = 1       /*!< The modification state of items is displayed by appending a specific character "*" to names of modified items. */
+            };
+            //! Function which returns a string associated with a specific ActivityDisplay.
+            static QString modificationStateDisplayToString(ModificationStateDisplayHint modification_display);
+            //! Function which returns the ActivityDisplay associated with a string.
+            static ModificationStateDisplayHint stringToModificationStateDisplay(const QString& modification_display_string);
 
             // --------------------------------
             // Implementation
@@ -278,6 +291,7 @@ namespace Qtilities {
             /*!
                \param parent The parent of the observer hint object. If the parent is an observer, setObserverContext() will automatically
                 be called using the parent.
+
               The defaults for all hints are initialized as shown below:
 \code
 observer_selection_context(ObserverHints::SelectionUseParentContext),
@@ -290,6 +304,7 @@ display_flags(NoDisplayFlagsHint),
 item_view_column_hint(ObserverHints::NoItemViewColumnHint),
 drag_drop_flags(ObserverHints::NoDragDrop);
 action_hints(ObserverHints::ActionNoHints),
+modification_state_display(ObserverHints::NoModificationStateDisplayHint),
 category_list(QStringList()),
 inverse_categories(true),
 category_filter_enabled(false),
@@ -368,6 +383,10 @@ is_exportable(true)
             void setDragDropHint(ObserverHints::DragDropFlags drag_drop_flags);
             //! Function to get the drag drop hint for this observer's context.
             ObserverHints::DragDropFlags dragDropHint() const;
+            //! Function to set the modification state display hint for this observer's context.
+            void setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display_hint);
+            //! Function to get the modification state display hint for this observer's context.
+            ObserverHints::ModificationStateDisplayHint modificationStateDisplayHint() const;
 
             // --------------------------------
             // Category Display Functionality

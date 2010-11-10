@@ -46,6 +46,7 @@ struct Qtilities::Core::ObserverHintsData {
         item_view_column_hint(ObserverHints::ColumnNoHints),
         action_hints(ObserverHints::ActionNoHints),
         drag_drop_flags(ObserverHints::NoDragDrop),
+        modification_state_display(ObserverHints::NoModificationStateDisplayHint),
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false),
@@ -61,6 +62,7 @@ struct Qtilities::Core::ObserverHintsData {
     ObserverHints::ItemViewColumnFlags          item_view_column_hint;
     ObserverHints::ActionHints                  action_hints;
     ObserverHints::DragDropFlags                drag_drop_flags;
+    ObserverHints::ModificationStateDisplayHint modification_state_display;
     QList<QtilitiesCategory>                    displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
@@ -232,6 +234,17 @@ void Qtilities::Core::ObserverHints::setDragDropHint(ObserverHints::DragDropFlag
 
 Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::dragDropHint() const {
     return d->drag_drop_flags;
+}
+
+void Qtilities::Core::ObserverHints::setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display_hint) {
+    d->modification_state_display = modification_state_display_hint;
+
+    if (observerContext())
+        observerContext()->setModificationState(true);
+}
+
+Qtilities::Core::ObserverHints::ModificationStateDisplayHint Qtilities::Core::ObserverHints::modificationStateDisplayHint() const {
+    return d->modification_state_display;
 }
 
 void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
@@ -485,6 +498,27 @@ Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::st
     return (DragDropFlags) drag_drop_flags_string.toInt();
 }
 
+QString Qtilities::Core::ObserverHints::modificationStateDisplayToString(ModificationStateDisplayHint modification_display) {
+    if (modification_display == NoModificationStateDisplayHint) {
+        return "NoModificationStateDisplayHint";
+    } else if (modification_display == CharacterModificationStateDisplay) {
+        return "CharacterModificationStateDisplay";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::ObserverHints::ModificationStateDisplayHint Qtilities::Core::ObserverHints::stringToModificationStateDisplay(const QString& modification_display_string) {
+    if (modification_display_string == "NoModificationStateDisplayHint") {
+        return NoModificationStateDisplayHint;
+    } else if (modification_display_string == "CharacterModificationStateDisplay") {
+        return CharacterModificationStateDisplay;
+    }
+
+    Q_ASSERT(0);
+    return NoModificationStateDisplayHint;
+}
+
 Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ObserverHints::instanceFactoryInfo() const {
     return instanceFactoryInfo();
 }
@@ -509,6 +543,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     stream << (quint32) d->item_view_column_hint;
     stream << (quint32) d->action_hints;
     stream << (quint32) d->drag_drop_flags;
+    stream << (quint32) d->modification_state_display;
 
     stream << (quint32) d->displayed_categories.count();
     for (int i = 0; i < d->displayed_categories.count(); i++)
@@ -545,6 +580,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     d->action_hints = ObserverHints::ActionHints (qi32);
     stream >> qi32;
     d->drag_drop_flags = ObserverHints::DragDropFlags (qi32);
+    stream >> qi32;
+    d->modification_state_display = ObserverHints::ModificationStateDisplayHint (qi32);
 
     stream >> qi32;
     int category_count = qi32;
@@ -586,6 +623,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
         object_node->setAttribute("NamingControl",namingControlToString(d->naming_control));
     if (d->observer_selection_context != SelectionUseParentContext)
         object_node->setAttribute("ObserverSelectionContext",observerSelectionContextToString(d->observer_selection_context));
+    if (d->modification_state_display != NoModificationStateDisplayHint)
+        object_node->setAttribute("ModificationStateDisplay",modificationStateDisplayToString(d->modification_state_display));
 
     // Export category related stuff only if it is neccesarry:
     if (d->displayed_categories.count() > 0) {
@@ -637,6 +676,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
         d->naming_control = stringToNamingControl(object_node->attribute("NamingControl"));
     if (object_node->hasAttribute("ObserverSelectionContext"))
         d->observer_selection_context = stringToObserverSelectionContext(object_node->attribute("ObserverSelectionContext"));
+    if (object_node->hasAttribute("ModificationStateDisplay"))
+        d->modification_state_display = stringToModificationStateDisplay(object_node->attribute("ModificationStateDisplay"));
 
     // Category stuff:
     QDomNodeList childNodes = object_node->childNodes();
