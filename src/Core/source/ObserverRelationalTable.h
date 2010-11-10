@@ -165,6 +165,8 @@ namespace Qtilities {
 
           The table support streaming data to and from QDataStream and is used whenever a binary export/import operation is performed
           on an observer object.
+
+          \sa Observer
           */
 
         class QTILIITES_CORE_SHARED_EXPORT ObserverRelationalTable
