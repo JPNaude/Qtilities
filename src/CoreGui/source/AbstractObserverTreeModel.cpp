@@ -249,11 +249,26 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
                             obs = qobject_cast<Observer*> (item->parent()->getObject());
                         }
                     }
+
+                    // Check the modification state of the object if it implements IModificationNotifier:
+                    bool is_modified = false;
+                    if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay) {
+                        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
+                        if (mod_iface)
+                            is_modified = mod_iface->isModified();
+                    }
+
+                    QString return_string;
                     // If observer is valid, we get the name, otherwise we just use object name.
-                    if (obs)
-                        return obs->subjectNameInContext(obj);
+                    if (obs) {
+                        return_string = obs->subjectNameInContext(obj);
+                    } else
+                        return_string =  obj->objectName();
+
+                    if (is_modified)
+                        return return_string + "*";
                     else
-                        return obj->objectName();
+                        return return_string;
                 }
             } else
                 return tr("Invalid object");
@@ -269,18 +284,15 @@ QVariant Qtilities::CoreGui::AbstractObserverTreeModel::dataHelper(const QModelI
 
             // Once we have the local parent, we can check if it must display activity and if so, we return
             // the activity of obj in that context.
-            if (local_selection_parent) {
-                if (local_selection_parent->displayHints()) {
-                    if (local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
-                        // Now we need to check if the observer has an activity policy filter installed
-                        ActivityPolicyFilter* activity_filter = 0;
-                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
-                            activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
-                            if (activity_filter) {
-                                subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
-                            }
+            if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
+                // Now we need to check if the observer has an activity policy filter installed
+                if (local_selection_parent) {
+                    ActivityPolicyFilter* activity_filter = 0;
+                    for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                        activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
+                        if (activity_filter) {
+                            subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
                         }
-
                     }
                 }
             }
@@ -1085,6 +1097,22 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                                 ++level_counter;
                             }
                         }
+                    }
+
+                    // Here we need to add all items which do not belong to a specific category:
+                    // Get the list of uncategorized items from the observer
+                    QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
+                    QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
+                    for (int i = 0; i < uncat_list.count(); i++) {
+                        Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
+                        QVector<QVariant> column_data;
+                        column_data << QVariant(uncat_names.at(i));
+                        if (obs)
+                            new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
+                        else
+                            new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
+                        item->appendChild(new_item);
+                        setupChildData(new_item);
                     }
                 }
             }

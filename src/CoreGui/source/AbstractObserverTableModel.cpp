@@ -180,7 +180,20 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
         // Qt::DisplayRole and Qt::EditRole
         // ------------------------------------
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            return d_observer->subjectNames().at(index.row());
+            // Check the modification state of the object if it implements IModificationNotifier:
+            bool is_modified = false;
+            if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay) {
+                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d_observer->subjectAt(index.row()));
+                if (mod_iface)
+                    is_modified = mod_iface->isModified();
+            }
+
+            QString return_string = d_observer->subjectNames().at(index.row());
+            if (is_modified)
+                return return_string + "*";
+            else
+                return return_string;
+
         // ------------------------------------
         // Qt::CheckStateRole
         // ------------------------------------
@@ -281,7 +294,7 @@ QVariant Qtilities::CoreGui::AbstractObserverTableModel::dataHelper(const QModel
                     return category.toString();
                 }
             }
-            return QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+            return QString();
         }
     // ------------------------------------
     // Handle Child Count Column
