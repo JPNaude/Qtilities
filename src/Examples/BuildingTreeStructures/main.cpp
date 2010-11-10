@@ -36,6 +36,8 @@
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 
+#include "../../Core/source/ObserverDotGraph.h"
+
 int main(int argc, char *argv[])
 {
     QtilitiesApplication a(argc, argv);
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Create the tree nodes:
-    TreeNode* nodeA = new TreeNode("Node A");
+    /*TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
 
     // Some TreeItem classes:
@@ -62,7 +64,7 @@ int main(int argc, char *argv[])
     // Some TreeFileItem classes:
     TreeNode* nodeC = nodeA->addNode("File Tree Items");
     TreeFileItem* file_item = new TreeFileItem("c:/test_dir/test.xml");
-    nodeC->addItem(file_item);
+    nodeC->addItem(file_item);*/
 
     // Add some formatting to the nodes:
     /*nodeA->setForegroundRole(QBrush(Qt::darkRed));
@@ -90,7 +92,7 @@ int main(int argc, char *argv[])
     nodeB->activityPolicyFilter()->setActiveSubjects(active_subjects);*/
 
     // Test XML tree streaming:
-    QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
+    /*QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
     nodeA->saveToFile(path_formatted);
     nodeA->loadFromFile(path_formatted);
 
@@ -102,18 +104,19 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setMainWindow(tree_widget);
     tree_widget->setObserverContext(nodeA);
     tree_widget->initialize();
-    tree_widget->show();
+    tree_widget->show();*/
 
     // ----------------------------------
     // Categorized Tree
     // ------------------------------------
-    /*TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* rootNode = new TreeNode("Root");
     rootNode->setCategorizedDisplayEnabled(true);
     rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
-    rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
+    rootNode->addItem("Child 3");
     rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
-    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));*/
+    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
+    rootNode->displayHints()->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
 
     // ----------------------------------
     // Uncategorized Tree
@@ -126,6 +129,9 @@ int main(int argc, char *argv[])
     parentNode2->addItem("Child 3");
     parentNode2->addItem("Child 4");
     parentNode2->addItem("Child 5");*/
+
+    ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
+    uncategorized_widget->show();
 
     // ----------------------------------
     // More Advanced Tree
@@ -144,6 +150,21 @@ int main(int argc, char *argv[])
     /*rootNode->saveToFile(QApplication::applicationDirPath() + "/example_tree.xml");
     ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
     uncategorized_widget->show();*/
+
+    /*TreeNode* node = new TreeNode("Root Node");
+    TreeNode* nodeA = node->addNode("Node A");
+    TreeNode* nodeB = node->addNode("Node B");
+    nodeA->addItem("Item 1");
+    nodeA->addItem("Item 2");
+    TreeItem* sharedItem = nodeA->addItem("Shared Item");
+    nodeB->attachSubject(sharedItem);
+    nodeB->addItem("Item 3");
+    nodeB->addItem("Item 4");
+
+    // Create a dot script for this tree:
+    ObserverDotGraph dotGraph(node);
+    dotGraph.generateDotScript();
+    dotGraph.saveToFile(QApplication::applicationDirPath() + "/output_file.gv");*/
 
     return a.exec();
 }

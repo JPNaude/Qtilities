@@ -41,6 +41,8 @@
 #include <QtilitiesProjectManagement>
 using namespace QtilitiesProjectManagement;
 
+#include "../../Core/source/ObserverDotGraph.h"
+
 struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
      ObjectManagementModeWidgetData() : top_level_node(0),
      observer_widget(0),
@@ -52,6 +54,7 @@ struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
     ObjectScopeWidget* scope_widget;
 
     QAction *actionAddExampleObjects;
+    QAction *dot_file_action;
     QAction *exitAct;
 
     // Example toolbar and actions to control widgets in the tree
@@ -87,13 +90,17 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     // Add Example Objects
     // ---------------------------
-    d->actionAddExampleObjects = new QAction("Add Example Objects To Selection",this);
-    connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
-    Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
-
     ActionContainer* file_menu = ACTION_MANAGER->menu(MENU_FILE);
     Q_ASSERT(file_menu);
 
+    d->actionAddExampleObjects = new QAction("Add Example Objects To Selection",this);
+    connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
+    Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
+    file_menu->addAction(command,MENU_FILE_EXIT);
+
+    d->dot_file_action = new QAction("Create Dot Graph",this);
+    connect(d->dot_file_action,SIGNAL(triggered()),SLOT(createDotFile()));
+    command = ACTION_MANAGER->registerAction("Example.CreateDotFile",d->dot_file_action,context);
     file_menu->addAction(command,MENU_FILE_EXIT);
     file_menu->addSeperator(MENU_FILE_EXIT);
 
@@ -231,7 +238,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create an node:
     TreeNode* nodeA = new TreeNode("Node A");
-    nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
+    nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
     nodeA->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
@@ -245,7 +252,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create a second node:
     TreeNode* nodeB = new TreeNode("Node B");
-    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
+    nodeB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
     nodeB->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeB->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
@@ -260,7 +267,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
 
     // Create a node with some QWidgets:
     TreeNode* nodeC = new TreeNode("Node C");
-    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::PromptUser);
+    nodeC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
     nodeC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeC->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
@@ -345,4 +352,13 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_s
             widget->setWindowOpacity(opacity);
         }
     }
+}
+
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDotFile() {
+    ObserverDotGraph dotGraph(d->top_level_node);
+    dotGraph.generateDotScript();
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QApplication::applicationDirPath(),tr("Dot Input Files (*.gv)"));
+    if (!fileName.isEmpty())
+        dotGraph.saveToFile(fileName);
 }

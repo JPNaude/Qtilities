@@ -64,7 +64,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/SubjectFilterTemplate.h \
     source/QtilitiesCategory.h \
     source/IExportableFormatting.h \
-    ../Common/Qtilities.h
+    ../Common/Qtilities.h \
+    source/ObserverDotGraph.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -81,4 +82,5 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/SubjectFilterTemplate.cpp \
     source/QtilitiesCategory.cpp \
     source/IFactoryProvider.cpp \
-    source/PointerList.cpp
+    source/PointerList.cpp \
+    source/ObserverDotGraph.cpp

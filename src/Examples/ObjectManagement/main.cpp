@@ -133,6 +133,9 @@ int main(int argc, char *argv[])
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
+    ExtensionSystemCore::instance()->enablePluginActivityControl();
+    ExtensionSystemCore::instance()->loadPluginConfiguration(QApplication::applicationDirPath() + "/plugins/default.pconfig");
+    ExtensionSystemCore::instance()->setCorePlugins(QStringList("Session Log Plugin"));
     ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
     ExtensionSystemCore::instance()->initialize();
     Log->toggleQtMsgEngine(false);
