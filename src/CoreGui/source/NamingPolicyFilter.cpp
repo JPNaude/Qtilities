@@ -207,6 +207,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
     if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
         if (rejectMsg)
             *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context.")).arg(obj->objectName());
+        LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context.")).arg(obj->objectName()));
         return AbstractSubjectFilter::Rejected;
     } else if ((validity_result & Invalid) && d->validity_resolution_policy == PromptUser) {
         if (silent) {
