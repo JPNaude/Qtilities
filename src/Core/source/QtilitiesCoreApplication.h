@@ -73,9 +73,9 @@ namespace Qtilities {
             ~QtilitiesCoreApplication();
 
             //! Returns a reference to the observer manager.
-            static IObjectManager* const objectManager();
+            static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
-            static IContextManager* const contextManager();
+            static IContextManager* contextManager();
 
             //! Returns a reference to the QtilitiesCoreApplication instance.
             /*!

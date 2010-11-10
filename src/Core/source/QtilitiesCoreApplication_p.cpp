@@ -73,11 +73,11 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPriva
 
 }
 
-Qtilities::Core::Interfaces::IObjectManager* const Qtilities::Core::QtilitiesCoreApplicationPrivate::objectManager() const {
+Qtilities::Core::Interfaces::IObjectManager* Qtilities::Core::QtilitiesCoreApplicationPrivate::objectManager() const {
     return d_objectManagerIFace;
 }
 
-Qtilities::Core::Interfaces::IContextManager* const Qtilities::Core::QtilitiesCoreApplicationPrivate::contextManager() const {
+Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreApplicationPrivate::contextManager() const {
     return d_contextManagerIFace;
 }
 

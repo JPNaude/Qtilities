@@ -52,9 +52,9 @@ namespace Qtilities {
             ~QtilitiesCoreApplicationPrivate();
 
             //! Function to access object manager pointer.
-            Qtilities::Core::Interfaces::IObjectManager* const objectManager() const;
+            Qtilities::Core::Interfaces::IObjectManager* objectManager() const;
             //! Function to access context manager pointer.
-            Qtilities::Core::Interfaces::IContextManager* const contextManager() const;
+            Qtilities::Core::Interfaces::IContextManager* contextManager() const;
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
