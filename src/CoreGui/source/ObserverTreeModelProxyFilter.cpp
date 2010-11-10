@@ -69,8 +69,6 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sour
             if (!sourceModel()->data(name_index).toString().contains(filterRegExp()))
                 return false;
         }
-
-        // Category filtering is done during the building of the tree in AbstractObserverTreeModel.
     }
     return true;
 }

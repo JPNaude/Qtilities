@@ -285,9 +285,9 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
             if (category_prop.observerMap().keys().contains(observer->observerID()))
                 category_string = category_prop.value(observer->observerID()).toString();
             else
-                category_string = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+                category_string = tr("None");
         } else {
-            category_string = QString(OBSERVER_UNCATEGORIZED_CATEGORY);
+            category_string = tr("None");
         }
         tooltip_string.append(QString(tr("<br><b>Context Category</b>: %1")).arg(category_string));
 
