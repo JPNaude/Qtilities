@@ -93,7 +93,10 @@ bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category
 }
 
 void Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled(bool is_enabled) {
-    displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    if (is_enabled)
+        displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    else
+        displayHints()->setHierarchicalDisplayHint(ObserverHints::FlatHierarchy);
 }
 
 bool Qtilities::CoreGui::TreeNode::getCategorizedDisplayEnabled() const {

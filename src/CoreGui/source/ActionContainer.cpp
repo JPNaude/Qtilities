@@ -181,10 +181,13 @@ QMenu* Qtilities::CoreGui::MenuBarContainer::menu() const {
 }
 
 void Qtilities::CoreGui::MenuBarContainer::addAction(Command *command, const QString &before) {
+    Q_UNUSED(command)
+    Q_UNUSED(before)
     return;
 }
 
 void Qtilities::CoreGui::MenuBarContainer::addSeperator(const QString &before) {
+    Q_UNUSED(before)
     return;
 }
 

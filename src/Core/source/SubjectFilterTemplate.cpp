@@ -60,6 +60,9 @@ Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::Subjec
 }
 
 bool Qtilities::Core::SubjectFilterTemplate::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
+    Q_UNUSED(obj)
+    Q_UNUSED(import_cycle)
+
     #ifndef QT_NO_DEBUG
     Q_ASSERT(observer != 0);
     #endif
@@ -84,6 +87,7 @@ bool Qtilities::Core::SubjectFilterTemplate::initializeAttachment(QObject* obj, 
 void Qtilities::Core::SubjectFilterTemplate::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
     Q_UNUSED(obj)
     Q_UNUSED(attachment_successful)
+    Q_UNUSED(import_cycle)
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
@@ -104,6 +108,7 @@ bool Qtilities::Core::SubjectFilterTemplate::initializeDetachment(QObject* obj, 
 void Qtilities::Core::SubjectFilterTemplate::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
     Q_UNUSED(obj)
     Q_UNUSED(detachment_successful)
+    Q_UNUSED(subject_deleted)
 }
 
 void Qtilities::Core::SubjectFilterTemplate::setIsExportable(bool is_exportable) {

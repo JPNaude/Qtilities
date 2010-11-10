@@ -732,6 +732,7 @@ QModelIndex Qtilities::CoreGui::AbstractObserverTreeModel::parent(const QModelIn
 
 bool Qtilities::CoreGui::AbstractObserverTreeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
     Q_UNUSED(data)
+    Q_UNUSED(action)
 
     Observer* obs = 0;
     if (row == -1 && column == -1) {

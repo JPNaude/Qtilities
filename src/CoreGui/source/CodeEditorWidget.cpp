@@ -235,7 +235,7 @@ bool Qtilities::CoreGui::CodeEditorWidget::eventFilter(QObject *object, QEvent *
     return false;
 }
 
-Qtilities::CoreGui::CodeEditor* const Qtilities::CoreGui::CodeEditorWidget::codeEditor() {
+Qtilities::CoreGui::CodeEditor* Qtilities::CoreGui::CodeEditorWidget::codeEditor() {
     return d->codeEditor;
 }
 

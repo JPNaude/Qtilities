@@ -106,10 +106,14 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProje
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     return OBJECT_MANAGER->exportObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(import_list)
+
     return OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
 }
 

@@ -221,7 +221,7 @@ namespace Qtilities {
             // Access To Contained Elements
             // --------------------------------
             //! Returns the code editor contained in this code editor widget.
-            CodeEditor* const codeEditor();
+            CodeEditor* codeEditor();
             //! Sets the syntax highlighter to be used in this code editor.
             /*!
               \note The code editor widget will manage the lifetime of the syntax highlighter.

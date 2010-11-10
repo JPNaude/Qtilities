@@ -113,6 +113,8 @@ int Qtilities::CoreGui::CodeEditor::lineNumberAreaWidth() {
 }
 
 void Qtilities::CoreGui::CodeEditor::updateLineNumberAreaWidth(int newBlockCount) {
+    Q_UNUSED(newBlockCount)
+
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 

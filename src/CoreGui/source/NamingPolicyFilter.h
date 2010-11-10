@@ -226,7 +226,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               */
             void setValidator(QValidator* valid_naming_validator);
             //! Gets the validator used to validate names.
-            QValidator* const getValidator();
+            QValidator* getValidator();
 
             //! Function which makes this naming policy filter the object name manager of the given object.
             void makeNameManager(QObject* obj);

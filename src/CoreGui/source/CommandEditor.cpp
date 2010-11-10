@@ -161,6 +161,8 @@ void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
 }
 
 void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous) {
+    Q_UNUSED(previous)
+
     if (d->proxy_model) {
         if (current.row() >= 0 && current.row() < ACTION_MANAGER->commandMap().count()) {
             QModelIndex original_index = d->proxy_model->mapToSource(current);

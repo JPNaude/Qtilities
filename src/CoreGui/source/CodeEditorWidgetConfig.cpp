@@ -29,7 +29,7 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* parent, Qt::WindowFlags f) :
-    QWidget(parent),
+    QWidget(parent,f),
     ui(new Ui::CodeEditorWidgetConfig)
 {
     ui->setupUi(this);

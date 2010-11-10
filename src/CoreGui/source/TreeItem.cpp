@@ -85,6 +85,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(stream)
     Q_UNUSED(import_list)
     Q_UNUSED(params)
 

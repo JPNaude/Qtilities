@@ -577,7 +577,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
     if (unsupported_items.count() > 0)  {
         QMessageBox msgBox;
         msgBox.setText(tr("All other contexts does not support removing of child items."));
-        msgBox.setInformativeText("Do you want to continue and remove the contexts which does support this?");
+        msgBox.setInformativeText(tr("Do you want to continue and remove the contexts which does support this?"));
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::Yes);
         int ret = msgBox.exec();
@@ -604,6 +604,8 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_currentItemChanged(QTableWidgetItem * current) {
+    Q_UNUSED(current)
+
     refreshActions();
 }
 

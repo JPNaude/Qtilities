@@ -163,6 +163,8 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QD
 }
 
 IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node) {
+    Q_UNUSED(doc)
+
     // First get all attributes:
     //if (object_node->hasAttribute("Alignment")) {
     //    setAlignment((Qt::Alignment) (object_node->attribute("Alignment").toInt()));

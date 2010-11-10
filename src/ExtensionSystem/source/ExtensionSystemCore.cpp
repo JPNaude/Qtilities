@@ -206,6 +206,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                                     pluginIFace->setErrorString(error_string);
                                     SharedObserverProperty icon_property(QIcon(ICON_ERROR_16x16),OBJECT_ROLE_DECORATION);
                                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                                } else {
+                                    LOG_DEBUG(tr("Plugin (") + stripped_file_name + tr(") initialized successfully."));
                                 }
                             }
                         } else {
