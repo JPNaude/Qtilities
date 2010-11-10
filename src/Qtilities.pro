@@ -17,6 +17,7 @@ SUBDIRS    += Core
 SUBDIRS    += CoreGui
 SUBDIRS    += ExtensionSystem
 SUBDIRS    += ProjectManagement
+SUBDIRS    += UnitTests
 
 OTHER_FILES += ../doc/sources/Action_Management.html
 OTHER_FILES += ../doc/sources/Documentation_Overview.html

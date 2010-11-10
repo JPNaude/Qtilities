@@ -98,7 +98,7 @@ void Qtilities::Logging::Logger::initialize() {
         return;
 
     // In the initialize function we use the Qt Debug logging system to log messages since no logger engines would be present at this stage.
-    qDebug() << tr("Qtilities Logging Framework, initialization started...");
+    // qDebug() << tr("Qtilities Logging Framework, initialization started...");
 
     // Register the formatting engines that comes as part of the Qtilities Logging Framework
     d->formatting_engines << &FormattingEngine_Default::instance();
@@ -111,8 +111,8 @@ void Qtilities::Logging::Logger::initialize() {
     // Register the logger enigines that comes as part of the Qtilities Logging Framework
     d->logger_engine_factory.registerFactoryInterface(TAG_LOGGER_ENGINE_FILE, &FileLoggerEngine::factory);
 
-    qDebug() << tr("> Number of formatting engines available: ") << d->formatting_engines.count();
-    qDebug() << tr("> Number of logger engine factories available: ") << d->logger_engine_factory.tags().count();
+    //qDebug() << tr("> Number of formatting engines available: ") << d->formatting_engines.count();
+    //qDebug() << tr("> Number of logger engine factories available: ") << d->logger_engine_factory.tags().count();
 
     // Attach a QtMsgLoggerEngine and a ConsoleLoggerEngine and disable them both.
     AbstractLoggerEngine* tmp_engine_ptr = QtMsgLoggerEngine::instance();
@@ -133,7 +133,7 @@ void Qtilities::Logging::Logger::initialize() {
     }
 
     d->initialized = true;
-    qDebug() << tr("Qtilities Logging Framework, initialization finished successfully...");
+    // qDebug() << tr("Qtilities Logging Framework, initialization finished successfully...");
 }
 
 void Qtilities::Logging::Logger::finalize() {
@@ -146,7 +146,7 @@ void Qtilities::Logging::Logger::finalize() {
 
 void Qtilities::Logging::Logger::clear() {
     // Delete all logger engines
-    qDebug() << tr("Qtilities Logging Framework, clearing started...");
+    //qDebug() << tr("Qtilities Logging Framework, clearing started...");
     for (int i = 0; i < d->logger_engines.count(); i++) {
         if (d->logger_engines.at(i) != QtMsgLoggerEngine::instance() && d->logger_engines.at(i) != ConsoleLoggerEngine::instance()) {
             qDebug() << tr("> Deleting logger engine: ") << d->logger_engines.at(i)->objectName();
@@ -154,7 +154,7 @@ void Qtilities::Logging::Logger::clear() {
         }
     }
     d->logger_engines.clear();
-    qDebug() << tr("Qtilities Logging Framework, clearing finished successfully...");
+    //qDebug() << tr("Qtilities Logging Framework, clearing finished successfully...");
 }
 
 void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageType message_type, const QVariant& message, const QVariant &msg1, const QVariant &msg2, const QVariant &msg3, const QVariant &msg4, const QVariant &msg5, const QVariant &msg6, const QVariant &msg7, const QVariant &msg8 , const QVariant &msg9) {

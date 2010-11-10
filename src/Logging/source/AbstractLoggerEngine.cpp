@@ -62,14 +62,14 @@ void Qtilities::Logging::AbstractLoggerEngine::setActive(bool is_active) {
     if (is_active == abstractLoggerEngineData->is_enabled)
         return;
 
-    QList<QVariant> message;
+    /*QList<QVariant> message;
     if (is_active) {
         message << QString(tr("Engine is now active."));
     } else {
         message << QString(tr("Engine is now inactive."));
     }
     QString formatted_message = abstractLoggerEngineData->formatting_engine->formatMessage(Logger::Info,message);
-    logMessage(formatted_message);
+    logMessage(formatted_message);*/
     abstractLoggerEngineData->is_enabled = is_active;
 }
 
