@@ -100,8 +100,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
 }
 
 bool Qtilities::CoreGui::QtilitiesMainWindow::addMode(IMode* mode, bool initialize_mode) {
-    bool success = d->mode_widget.addMode(mode,initialize_mode);
-    return success;
+    return d->mode_widget.addMode(mode,initialize_mode);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::addModes(QList<IMode*> modes, bool initialize_modes) {
