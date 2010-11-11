@@ -100,7 +100,8 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
 }
 
 bool Qtilities::CoreGui::QtilitiesMainWindow::addMode(IMode* mode, bool initialize_mode) {
-    return d->mode_widget.addMode(mode,initialize_mode);
+    bool success = d->mode_widget.addMode(mode,initialize_mode);
+    return success;
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::addModes(QList<IMode*> modes, bool initialize_modes) {
@@ -176,6 +177,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::handleChangeCentralWidget(QWidget*
     new_central_widget->show();
     layout->setMargin(0);
     d->current_widget = new_central_widget;
+    ui->modeList->setMinimumSize(ui->modeList->sizeHint());
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {
