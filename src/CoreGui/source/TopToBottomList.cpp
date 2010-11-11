@@ -33,10 +33,8 @@
 
 #include "TopToBottomList.h"
 
-TopToBottomList::TopToBottomList(QWidget* parent) :
-    QListWidget(parent)
-{
-
+TopToBottomList::TopToBottomList(QWidget* parent) : QListWidget(parent) {
+    setMovement(QListView::Static);
 }
 
 QSize TopToBottomList::sizeHint() const
