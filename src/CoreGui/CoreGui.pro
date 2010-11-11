@@ -49,7 +49,8 @@ UI_DIR = $$QTILITIES_TEMP/CoreGui
 # --------------------------
 # Qtilities Core Gui Files
 # --------------------------
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/CoreGui.qrc
 HEADERS += source/QtilitiesCoreGui_global.h \
     source/QtilitiesApplication.h \
     source/QtilitiesApplication_p.h \

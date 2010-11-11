@@ -32,6 +32,6 @@ SOURCES += main.cpp \
 
 FORMS += ObjectManagementModeWidget.ui
 
-RESOURCES += resources.qrc
+RESOURCES += \
+    ObjectManagementExample.qrc
 RC_FILE = rc_file.rc
-

@@ -37,4 +37,5 @@ HEADERS += source/PluginTemplate.h \
 
 SOURCES += source/PluginTemplate.cpp
 
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/PluginTemplate.qrc

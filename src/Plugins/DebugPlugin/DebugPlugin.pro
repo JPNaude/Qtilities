@@ -42,7 +42,8 @@ HEADERS += source/DebugPlugin.h \
 SOURCES += source/DebugPlugin.cpp \
            source/DebugWidget.cpp
 
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/DebugPlugin.qrc
 
 FORMS += \
     source/DebugWidget.ui

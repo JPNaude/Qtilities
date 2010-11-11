@@ -39,4 +39,5 @@ HEADERS +=  source/SessionLogPlugin.h \
 SOURCES +=  source/SessionLogPlugin.cpp \
             source/SessionLogMode.cpp
 
-RESOURCES += resources/resources.qrc
+RESOURCES += \
+    resources/SessionLogPlugin.qrc
