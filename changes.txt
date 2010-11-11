@@ -24,26 +24,25 @@ Bug Fixes:
 - Fixed bug in AbstractObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
-- Got rid of all the "warning: type qualifiers ignored on function return type" warnings when building with gcc.
+- Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
 - Fixed bug where TreeNode::setCategorizedDisplayEnabled(false) would not have worked.
 - Fixed bug in CodeEditorWidgetConfig constructor where window flags was not passed to base QWidget class correctly.
+- Ubuntu: Fixed icon display problems.
 
 Outstanding roadmap items for this version:
 - ObserverRelationalTableModel must be able to provide diff information between two observers.
 - Linux problems:
-    - Sort out Linux icon problem
     - Sort out Linux dll versioning
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
-    - Supress all those warnings...
-    - Column resizing in observer widget.
-    - TopBottomList layout issue...
+    - Column resizing in observer widget
+    - TopBottomList layout issue
 - Extension system ability to create plugin loading configurations
     - XML Loading Config File (done)
     - GUI config sets management
     - Config set implementation when loading plugins (done)
     - Must specify plugins which are core plugins, thus they should not be able to be unloaded. (done, maybe improve GUI still...)
     - 3 possible plugin loading possibilities: loaded & uninitialized, loaded & initialized, not loaded at all (Done)
-- ObserverDotGraph finish & blog post...
+- ObserverDotGraph finish & blog post
 - Finish new SearchBoxWidget
 - Unit testing + some tests off course
 - CoreGui.pro does not respect QTILITIES_NO_PROPERTY_BROWSER
