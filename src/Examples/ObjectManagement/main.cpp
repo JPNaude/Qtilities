@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Create a QtilitiesMainWindow to show our different modes.
-    QtilitiesMainWindow exampleMainWindow(0);
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Initialize the logger.
@@ -77,14 +77,7 @@ int main(int argc, char *argv[])
 
     // Register action place holders for this application. This allows control of your menu structure:
     // File Menu
-    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT,QObject::tr("Print"),QKeySequence(QKeySequence::Print));
-    file_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT_PREVIEW,QObject::tr("Print Preview"),QKeySequence());
-    file_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_PRINT_PDF,QObject::tr("Print PDF"),QKeySequence());
-    file_menu->addAction(command);
-    file_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     // Create the configuration widget here and then connect it to the above command:
     ConfigurationWidget config_widget;
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
@@ -133,23 +126,32 @@ int main(int argc, char *argv[])
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
-    ExtensionSystemCore::instance()->enablePluginActivityControl();
-    ExtensionSystemCore::instance()->loadPluginConfiguration(QApplication::applicationDirPath() + "/plugins/default.pconfig");
-    ExtensionSystemCore::instance()->setCorePlugins(QStringList("Session Log Plugin"));
-    ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
-    ExtensionSystemCore::instance()->initialize();
+    EXTENSION_SYSTEM->enablePluginActivityControl();
+    EXTENSION_SYSTEM->loadPluginConfiguration(QApplication::applicationDirPath() + "/plugins/default.pconfig");
+    EXTENSION_SYSTEM->setCorePlugins(QStringList("Session Log Plugin"));
+    EXTENSION_SYSTEM->addPluginPath("../../plugins/");
+    EXTENSION_SYSTEM->initialize();
     Log->toggleQtMsgEngine(false);
 
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
     LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
-    exampleMainWindow.addModes(registered_modes);
+    exampleMainWindow.modeManager()->addModes(registered_modes);
+    QStringList mode_order;
+    mode_order << "Qtilities Debugging";
+    mode_order << "Object Management";
+    mode_order << "Session Log";
+    exampleMainWindow.modeManager()->setPreferredModeOrder(mode_order);
+    //mode_order.removeAt(0);
+    //mode_order.removeAt(0);
+    //exampleMainWindow.modeManager()->setDisabledModes(mode_order);
+    //exampleMainWindow.modeManager()->setActiveMode("Object Management");
     PROJECT_MANAGER->refreshPartList();
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     // Register extension system config page.
-    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+    OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     // Report on the number of config pages found.
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");

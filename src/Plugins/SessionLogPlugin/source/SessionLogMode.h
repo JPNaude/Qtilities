@@ -39,7 +39,6 @@
 #include <QObject>
 
 // Session Mode Parameters
-#define MODE_SESSION_LOG_ID                      998
 const char * const CONTEXT_SESSION_LOG_MODE     = "Context.SessionLogMode";
 
 using namespace Qtilities::CoreGui::Interfaces;
@@ -80,8 +79,6 @@ namespace Qtilities {
                     QIcon icon() const;
                     QString text() const;
                     QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
-                    QString contextHelpId() const { return QString(); }
-                    int modeID() const { return MODE_SESSION_LOG_ID; }
 
                 public slots:
                     void handle_dockVisibilityChanged(bool visible);

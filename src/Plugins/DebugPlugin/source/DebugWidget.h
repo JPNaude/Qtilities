@@ -41,10 +41,6 @@ namespace Ui {
     class DebugWidget;
 }
 
-// Session Mode Parameters
-#define MODE_DEBUG_ID                           997
-const char * const CONTEXT_DEBUG_MODE           = "Context.DebugMode";
-
 namespace Qtilities {
     namespace Plugins {
         namespace Debug {
@@ -81,9 +77,6 @@ namespace Qtilities {
                 void initialize() {}
                 QIcon icon() const;
                 QString text() const;
-                QString contextString() const { return CONTEXT_DEBUG_MODE; }
-                QString contextHelpId() const { return QString(); }
-                int modeID() const { return MODE_DEBUG_ID; }
 
                 //! Finalize the mode, will be called in initializeDependencies().
                 void finalizeMode();

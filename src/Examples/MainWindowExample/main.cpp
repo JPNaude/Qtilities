@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
     // Create a QtilitiesMainWindow to show our different modes.
-    QtilitiesMainWindow exampleMainWindow(0);
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Initialize the logger.
@@ -131,13 +131,13 @@ int main(int argc, char *argv[])
     QList<int> modes;
     modes << MODE_EXAMPLE_ID;
     ExampleMode* example_mode = new ExampleMode();
-    SideViewerWidgetHelper* file_system_side_widget_helper = new SideViewerWidgetHelper(&SideWidgetFileSystem::factory,"File System",modes,modes);
+    SideViewerWidgetFactory* file_system_side_widget_helper = new SideViewerWidgetFactory(&SideWidgetFileSystem::factory,"File System",modes,modes);
     OBJECT_MANAGER->registerObject(file_system_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
-    SideViewerWidgetHelper* object_scope_side_widget_helper = new SideViewerWidgetHelper(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
+    SideViewerWidgetFactory* object_scope_side_widget_helper = new SideViewerWidgetFactory(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
     OBJECT_MANAGER->registerObject(object_scope_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    SideViewerWidgetHelper* property_editor_side_widget_helper = new SideViewerWidgetHelper(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
+    SideViewerWidgetFactory* property_editor_side_widget_helper = new SideViewerWidgetFactory(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
     OBJECT_MANAGER->registerObject(property_editor_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #endif
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
     registered_modes << example_mode;
     LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
-    exampleMainWindow.addModes(registered_modes);
+    exampleMainWindow.modeManager()->addModes(registered_modes);
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));

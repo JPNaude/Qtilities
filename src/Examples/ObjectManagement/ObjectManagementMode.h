@@ -69,7 +69,6 @@ namespace Qtilities {
           */
         namespace ObjectManagement {
             // Object Management Mode Parameters
-            #define MODE_OBJECT_MANAGEMENT_ID                   999
             const char * const CONTEXT_OBJECT_MANAGEMENT_MODE   = "Context.ObjectManagementMode";
 
             using namespace Qtilities::CoreGui::Interfaces;
@@ -107,8 +106,6 @@ namespace Qtilities {
                     QIcon icon() const;
                     QString text() const;
                     QString contextString() const { return CONTEXT_OBJECT_MANAGEMENT_MODE; }
-                    QString contextHelpId() const { return QString(); }
-                    int modeID() const { return MODE_OBJECT_MANAGEMENT_ID; }
 
                 private:
                     ObjectManagementModeData* d;

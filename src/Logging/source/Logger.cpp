@@ -149,7 +149,7 @@ void Qtilities::Logging::Logger::clear() {
     //qDebug() << tr("Qtilities Logging Framework, clearing started...");
     for (int i = 0; i < d->logger_engines.count(); i++) {
         if (d->logger_engines.at(i) != QtMsgLoggerEngine::instance() && d->logger_engines.at(i) != ConsoleLoggerEngine::instance()) {
-            qDebug() << tr("> Deleting logger engine: ") << d->logger_engines.at(i)->objectName();
+            //qDebug() << tr("> Deleting logger engine: ") << d->logger_engines.at(i)->objectName();
             delete d->logger_engines.at(i);
         }
     }
