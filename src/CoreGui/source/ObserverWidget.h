@@ -88,7 +88,6 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverWidget : public QMainWindow, public ObserverAwareBase, public IContext {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
-            Q_ENUMS(DisplayMode)
 
         public:
             // --------------------------------
