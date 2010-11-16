@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
   // Set the Qt message engine active, this will log messages to the Qt debugging system during the plugin loading process:
   Log->toggleQtMsgEngine(true);
   // Load plugins using the extension system:
-  ExtensionSystemCore::instance()->initialize();
+  EXTENSION_SYSTEM->initialize();
   // Set the Qt message engine inactive once the process loading process is completed:
   Log->toggleQtMsgEngine(false);
 
