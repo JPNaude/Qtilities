@@ -71,7 +71,7 @@ int Qtilities::Core::ContextManager::registerContext(const QString& context) {
         LOG_DEBUG("Context Manager: Registering new context: " + context);
         return id;
     } else
-        return -1;
+        return id;
 }
 
 QList<int> Qtilities::Core::ContextManager::allContexts() const {

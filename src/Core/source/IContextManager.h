@@ -62,7 +62,7 @@ namespace Qtilities {
                 /*!
                     The recommended way to do this is to let your object implement IContext and then register it with the global object pool which will automate the registration of your context.
 
-                    \returns The unique ID assigned by the context manager for the new context. If the context already existed -1 is returned and the context is not added.
+                    \returns The unique ID assigned by the context manager for the new context. If the context already existed its existing ID is returned.
                     */
                 virtual int registerContext(const QString& context) = 0;
                 //! Returns a list of all the contexts currently registered.
