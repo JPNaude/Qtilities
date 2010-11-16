@@ -84,10 +84,10 @@ namespace Qtilities {
 
                     It is however desired to specify your own mode ID in some cases, more specifically if you use the Qtilities::CoreGui::DynamicSideWidgetViewer
                     widget in your application and you want dynamic side viewer widgets to appear only in specific application modes. To achieve this
-                    your modeID() must appear in the list of Qtilities::CoreGui::Interfaces::ISideViewer::destinationModes() for a specific side viewer widget
+                    your modeID() must appear in the list of Qtilities::CoreGui::Interfaces::ISideViewerWidget::destinationModes() for a specific side viewer widget
                     implementation.
 
-                    \note Mode IDs available for user modes start from 100 onwards. The mode manager starts to assign unique mode IDs from 1000 onwards.
+                    \note Mode IDs available for user modes range from 100 - 999. The mode manager starts to assign unique mode IDs from 1000 onwards.
                   */
                 virtual int modeID() const { return d_mode_id; }
                 //! Sets the mode ID for this mode.

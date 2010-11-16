@@ -319,7 +319,6 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
         }
     }
 
-
     // If no modes has been set active yet, we set a mode to be active here:
     // We take the first mode that does not appear in the list of disabled modes.
     if (!set_active_done) {
