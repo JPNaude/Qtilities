@@ -33,7 +33,6 @@
 
 #include "QtilitiesMainWindow.h"
 #include "ui_QtilitiesMainWindow.h"
-#include "ModeWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
 
 #include <QBoxLayout>
@@ -46,32 +45,34 @@ using namespace Qtilities::CoreGui::Icons;
 struct Qtilities::CoreGui::QtilitiesMainWindowData {
     QtilitiesMainWindowData() : initialized(false),
     current_widget(0),
+    mode_manager(0),
+    central_widget(0),
     priority_messages_enabled(true) {}
 
-    bool initialized;
-    QWidget* current_widget;
-    ModeWidget mode_widget;
-    bool priority_messages_enabled;
-    QWidget priority_messages_widget;
-    QLabel priority_messages_icon;
-    QLabel priority_messages_text;
+    bool                            initialized;
+    QWidget*                        current_widget;
+    ModeManager*                     mode_manager;
+    QWidget*                        central_widget;
+    bool                            priority_messages_enabled;
+    QWidget                         priority_messages_widget;
+    QLabel                          priority_messages_icon;
+    QLabel                          priority_messages_text;
+    QtilitiesMainWindow::ModeLayout mode_layout;
 };
 
-Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(QWidget* parent, Qt::WindowFlags flags) :
+Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayout, QWidget* parent, Qt::WindowFlags flags) :
         QMainWindow(parent, flags), ui(new Ui::QtilitiesMainWindow)
 {
     ui->setupUi(this);
     d = new QtilitiesMainWindowData;
+    d->mode_layout = modeLayout;
 
-    if (ui->modeList->layout())
-        delete ui->modeList->layout();
+    if (modeLayout != ModesNone) {
+        d->central_widget = new QWidget();
+        d->current_widget = new QWidget();
+        changeCurrentWidget(d->current_widget);
+    }
 
-    QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->modeList);
-    layout->addWidget(&d->mode_widget);
-    layout->setMargin(0);
-    d->mode_widget.show();
-
-    connect(&d->mode_widget,SIGNAL(changeCentralWidget(QWidget*)),SLOT(handleChangeCentralWidget(QWidget*)));
     readSettings();
 
     // Set the window title to the application name if not empty:
@@ -97,38 +98,6 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(QWidget* parent, Qt
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
     delete ui;
     delete d;
-}
-
-bool Qtilities::CoreGui::QtilitiesMainWindow::addMode(IMode* mode, bool initialize_mode) {
-    return d->mode_widget.addMode(mode,initialize_mode);
-}
-
-void Qtilities::CoreGui::QtilitiesMainWindow::addModes(QList<IMode*> modes, bool initialize_modes) {
-    d->mode_widget.addModes(modes,initialize_modes);
-}
-
-void Qtilities::CoreGui::QtilitiesMainWindow::addModes(QList<QObject*> modes, bool initialize_modes) {
-    d->mode_widget.addModes(modes,initialize_modes);
-}
-
-QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::QtilitiesMainWindow::modes() const {
-    return d->mode_widget.modes();
-}
-
-Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::QtilitiesMainWindow::activeMode() const {
-    return d->mode_widget.activeMode();
-}
-
-void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(int mode_id) {
-    d->mode_widget.setActiveMode(mode_id);
-}
-
-void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(const QString& mode_name) {
-    d->mode_widget.setActiveMode(mode_name);
-}
-
-void Qtilities::CoreGui::QtilitiesMainWindow::setActiveMode(IMode* mode_iface) {
-    d->mode_widget.setActiveMode(mode_iface);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
@@ -161,22 +130,71 @@ void Qtilities::CoreGui::QtilitiesMainWindow::disablePriorityMessages() {
     d->priority_messages_enabled = false;
 }
 
-void Qtilities::CoreGui::QtilitiesMainWindow::handleChangeCentralWidget(QWidget* new_central_widget) {
+Qtilities::CoreGui::ModeManager* Qtilities::CoreGui::QtilitiesMainWindow::modeManager() {
+    return d->mode_manager;
+}
+
+Qtilities::CoreGui::QtilitiesMainWindow::ModeLayout Qtilities::CoreGui::QtilitiesMainWindow::modeLayout() const {
+    return d->mode_layout;
+}
+
+void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_central_widget) {
+    if (!new_central_widget)
+        return;
+
     // Hide current widget
     if (d->current_widget)
         d->current_widget->hide();
 
-    Q_ASSERT(new_central_widget);
-
-    if (ui->modeSelectedWidget->layout())
-        delete ui->modeSelectedWidget->layout();
-
-    QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->modeSelectedWidget);
-    layout->addWidget(new_central_widget);
-    new_central_widget->show();
-    layout->setMargin(0);
     d->current_widget = new_central_widget;
-    ui->modeList->setMinimumSize(ui->modeList->sizeHint());
+
+    if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
+        if (!d->mode_manager) {
+            d->mode_manager = new ModeManager(Qt::Vertical,this);
+            connect(d->mode_manager,SIGNAL(changeCentralWidget(QWidget*)),SLOT(changeCurrentWidget(QWidget*)));
+        }
+
+        if (d->central_widget->layout())
+            delete d->central_widget->layout();
+
+        QVBoxLayout* layout = new QVBoxLayout(d->central_widget);
+        if (d->mode_layout == ModesTop) {
+            layout->addWidget(d->mode_manager->modeListWidget());
+            layout->addWidget(d->current_widget);
+        } else {
+            layout->addWidget(d->current_widget);
+            layout->addWidget(d->mode_manager->modeListWidget());
+        }
+        layout->setMargin(0);
+        d->mode_manager->modeListWidget()->setMinimumSize(d->mode_manager->modeListWidget()->sizeHint());
+        d->mode_manager->modeListWidget()->show();
+        d->current_widget->show();
+        setCentralWidget(d->central_widget);
+        d->central_widget->show();
+    } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
+        if (!d->mode_manager) {
+            d->mode_manager = new ModeManager(Qt::Horizontal,this);
+            connect(d->mode_manager,SIGNAL(changeCentralWidget(QWidget*)),SLOT(changeCurrentWidget(QWidget*)));
+        }
+
+        if (d->central_widget->layout())
+            delete d->central_widget->layout();
+
+        QHBoxLayout* layout = new QHBoxLayout(d->central_widget);
+        if (d->mode_layout == ModesLeft) {
+            layout->addWidget(d->mode_manager->modeListWidget());
+            layout->addWidget(d->current_widget);
+        } else {
+            layout->addWidget(d->current_widget);
+            layout->addWidget(d->mode_manager->modeListWidget());
+        }
+        layout->setMargin(0);
+        d->mode_manager->modeListWidget()->setMinimumSize(d->mode_manager->modeListWidget()->sizeHint());
+        d->mode_manager->modeListWidget()->show();
+        d->current_widget->show();
+        setCentralWidget(d->central_widget);
+        d->central_widget->show();
+    }
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {

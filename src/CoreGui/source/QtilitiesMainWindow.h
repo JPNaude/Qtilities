@@ -36,6 +36,7 @@
 
 #include "QtilitiesCoreGui_global.h"
 #include "IMode.h"
+#include "ModeManager.h"
 
 #include <QMainWindow>
 #include <Logger>
@@ -60,10 +61,15 @@ namespace Qtilities {
         \class QtilitiesMainWindow
         \brief A class which can be used as a frontend of applications using the %Qtilities libraries.
 
+        The QtilitiesMainWindow extends the normal QMainWindow class by adding the following:
+        - Automatic state storing/loading
+        - Ability to display application modes through objects implementing the Qtilities::CoreGui::Interfaces::IMode interface.
+        - Provides ready to use integration with the %Qtilities logger's priority messages.
+
         %Qtilities provides a main window architecture which allows you to create complex main windows easily. The Qtilities::CoreGui::QtilitiesMainWindow
         class is the main class. It supports modes that can be added to it, where modes are classes implementing the Qtilities::CoreGui::Interfaces::IMode interface.
-        Each mode provide a widget and an icon identifying the mode. Modes are listed in in a top to bottom list view on the left hand of the main window and when a mode is clicked,
-        its widget is set as the active widget in the main window.
+        Each mode provide a widget and an icon identifying the mode. Modes are listed in somewhere in the main window depending on modeLayout() list view on the left hand
+        of the main window and when a mode is clicked, its widget is set as the active widget in the main window.
 
         The Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
         Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
@@ -72,7 +78,6 @@ namespace Qtilities {
         Below is an example of the main window architecture in action. This screenshot was taken form the MainWindowExample in the QtilitiesExamples project:
 
         \image html main_window_architecture.jpg "Example Of Main Window Architecture"
-        \image latex main_window_architecture.eps "Example Of Main Window Architecture" width=\textwidth
 
         The QtilitiesMainWindow widget supports the %Qtilities Logger's priority messaging functionality and
         displays the priority messages in the status bar of the main window by default. To disable this feature
@@ -81,26 +86,42 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {
             Q_OBJECT
+            Q_ENUMS(ModeLayout)
+
         public:
-            QtilitiesMainWindow(QWidget * parent = 0, Qt::WindowFlags flags = 0);
+            //! The possible places where modes can be displayed.
+            /*!
+              The default is ModesNone.
+              */
+            enum ModeLayout {
+                ModesNone = 0,         /*!< No mode display. */
+                ModesTop = 1,          /*!< Display modes as a horizontal list in the top of the widget. */
+                ModesRight = 2,        /*!< Display modes as a vertical list in the right of the widget. */
+                ModesBottom = 3,       /*!< Display modes as a horizontal list in the bottom of the widget. */
+                ModesLeft = 4          /*!< Display modes as a vertical list in the left of the widget. */
+            };
+
+            QtilitiesMainWindow(ModeLayout modeLayout = ModesNone, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~QtilitiesMainWindow();
 
-            //! Adds a mode to the main window.
-            bool addMode(IMode* mode, bool initialize_mode = true);
-            //! Adds a list of modes to the main window.
-            void addModes(QList<IMode*> modes, bool initialize_modes = true);
-            //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
-            void addModes(QList<QObject*> modes, bool initialize_modes = true);
-            //! A list of the modes in this main window.
-            QList<IMode*> modes() const;
-            //! Returns the active mode.
-            IMode* activeMode() const;
+            // ----------------------------------
+            // Functions related to modes
+            // ----------------------------------
+            //! Returns a reference to the mode widget which allows management of modes in the main window.
+            /*!
+              \note If modeLayout() is ModesNone, this function returns null.
+              */
+            ModeManager* modeManager();
+            //! Returns the current mode layout of the widget.
+            ModeLayout modeLayout() const;
 
+            // ----------------------------------
+            // Functions related to widget setup
+            // ----------------------------------
             //! Saves the state of the main window.
             void writeSettings();
             //! Restores the state of the main window.
             void readSettings();
-
             //! Function to enabled priority messages in the status bar of the main window.
             void enablePriorityMessages();
             //! Function to disable priority messages in the status bar of the main window.
@@ -108,19 +129,7 @@ namespace Qtilities {
 
         public slots:
             //! The mode widget changes the central widget in the main window through this slot.
-            void handleChangeCentralWidget(QWidget* new_central_widget);
-            //! Slot through which a new mode can be set by specifying the mode ID.
-            /*!
-              \param mode_id The mode ID of the mode. \sa IMode::modeID().
-              */
-            void setActiveMode(int mode_id);
-            //! Slot through which a new mode can be set by specifying the mode name.
-            /*!
-              \param mode_name The name of the mode. \sa IMode::text().
-              */
-            void setActiveMode(const QString& mode_name);
-            //! Slot through which a new mode can be set by specifying the mode interface.
-            void setActiveMode(IMode* mode_iface);
+            void changeCurrentWidget(QWidget* new_central_widget);
             //! Slot which received incomming priority messages from the &Qtilities logger.
             void processPriorityMessage(Logger::MessageType message_type, const QString& message);
 

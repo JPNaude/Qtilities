@@ -59,7 +59,7 @@ namespace Qtilities {
                 //! Function which returns the side viewer widget.
                 /*!
                   Widget() must be able to produce a new widget every time it is called.
-                  The Qtilities::CoreGui::SideViewerWidgetHelper class was designed to help with this process.
+                  The Qtilities::CoreGui::SideViewerWidgetFactory class was designed to help with this process.
 
                   The dynamic side viewer widget will manage the lifetime of widgets returned.
                     */

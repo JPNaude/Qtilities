@@ -90,11 +90,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/DynamicSideWidgetViewer.h \
     source/IMode.h \
     source/ISideViewerWidget.h \
-    source/ModeWidget.h \
     source/DynamicSideWidgetWrapper.h \
-    source/TopToBottomList.h \
     source/QtilitiesMainWindow.h \
-    source/SideViewerWidgetHelper.h \
     source/CodeEditor.h \
     source/CodeEditorWidget.h \
     source/CodeEditorWidgetConfig.h \
@@ -104,7 +101,10 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModelProxyFilter.h \
     source/TreeFileItem.h \
     source/TreeItemBase.h \
-    source/SideWidgetFileSystem.h
+    source/SideWidgetFileSystem.h \
+    source/ModeManager.h \
+    source/SideViewerWidgetFactory.h \
+    source/ModeListWidget.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -136,11 +136,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ConfigurationWidget.cpp \
     source/AboutWindow.cpp \
     source/DynamicSideWidgetViewer.cpp \
-    source/ModeWidget.cpp \
     source/DynamicSideWidgetWrapper.cpp \
-    source/TopToBottomList.cpp \
     source/QtilitiesMainWindow.cpp \
-    source/SideViewerWidgetHelper.cpp \
     source/CodeEditor.cpp \
     source/CodeEditorWidget.cpp \
     source/CodeEditorWidgetConfig.cpp \
@@ -150,7 +147,10 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTreeModelProxyFilter.cpp \
     source/TreeFileItem.cpp \
     source/TreeItemBase.cpp \
-    source/SideWidgetFileSystem.cpp
+    source/SideWidgetFileSystem.cpp \
+    source/ModeManager.cpp \
+    source/SideViewerWidgetFactory.cpp \
+    source/ModeListWidget.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
@@ -163,7 +163,6 @@ FORMS += source/ObserverWidget.ui \
     source/AboutWindow.ui \
     source/DynamicSideWidgetViewer.ui \
     source/DynamicSideWidgetWrapper.ui \
-    source/ModeWidget.ui \
     source/QtilitiesMainWindow.ui \
     source/CodeEditorWidget.ui \
     source/CodeEditorWidgetConfig.ui \
