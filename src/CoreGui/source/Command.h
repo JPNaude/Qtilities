@@ -92,9 +92,9 @@ namespace Qtilities {
             QKeySequence defaultKeySequence() const;
             //! Returns the current key sequence.
             QKeySequence keySequence() const;
-            //! Sets the default text associated with this command.
+            //! Sets the default text (id) associated with this command.
             void setDefaultText(const QString &text);
-            //! Gets the default text associated with this command.
+            //! Gets the default text (id) associated with this command.
             QString defaultText() const;
 
             //! The action associated with this command. If the command is a wrapper for a shortcut, 0 is returned.
@@ -161,6 +161,43 @@ namespace Qtilities {
 
         private:
             MultiContextActionData* d;
+        };
+
+        /*!
+        \struct ShortcutCommandData
+        \brief A structure storing private data in the ShortcutCommand class.
+          */
+        struct ShortcutCommandData;
+
+        /*!
+        \class ShortcutCommand
+        \brief A class which represents a shortcut which is enabled depending on the active context(s).
+
+
+          */
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ShortcutCommand : public Command
+        {
+            Q_OBJECT
+
+        public:
+            ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, QObject* parent = 0);
+            virtual ~ShortcutCommand();
+
+            // --------------------------------
+            // Command Implemenation
+            // --------------------------------
+            QAction *action() const;
+            QShortcut *shortcut() const;
+            QString text() const;
+            void handleKeySequenceChange(const QKeySequence& old_key);
+
+            //! Returns true if the shortcut command is active in any of the current active contexts.
+            bool isActive();
+            //! Let this shortcut command know what contexts are currently active.
+            bool setCurrentContext(QList<int> context_ids);
+
+        private:
+            ShortcutCommandData* d;
         };
     }
 }

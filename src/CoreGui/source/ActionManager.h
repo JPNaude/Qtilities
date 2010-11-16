@@ -74,7 +74,7 @@ namespace Qtilities {
             ActionContainer* menuBar(const QString &id);
             Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>());
             Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& shortcut = QKeySequence(), const QList<int> &context = QList<int>());
-            //Command* registerShortcut(QShortcut *shortcut, const QString &default_text, const QList<int> &context);
+            Command* registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>());
             Command* command(const QString &id) const;
             ActionContainer *actionContainer(const QString &id) const;
             QHash<QString, Command* > commandMap();
@@ -85,6 +85,7 @@ namespace Qtilities {
 
         public slots:
             void handleContextChanged(QList<int> new_contexts);
+            void handleCommandDeleted(QObject* obj);
 
         private:
             ActionManagerData* d;

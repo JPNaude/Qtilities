@@ -65,7 +65,7 @@ struct Qtilities::CoreGui::ActionManagerData {
     ActionManagerData() { }
 
     QPointer<CommandEditor> command_editor;
-    QHash<QString, Command* > id_command_map;
+    QHash<QString, Command*> id_command_map;
     QHash<QString, ActionContainer*> id_container_map;
 };
 
@@ -139,18 +139,18 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         return 0;
 
     // Check if there is already a front end action for this action id:
-    Command* cmd = 0;
+    Command* command = 0;
     if (d->id_command_map.keys().contains(id))
-        cmd = d->id_command_map[id];
+        command = d->id_command_map[id];
     else
-        cmd = registerActionPlaceHolder(id,action->text());
+        command = registerActionPlaceHolder(id,action->text());
 
-    if (cmd) {
+    if (command) {
         // Check if we need to assign the text from the original action place holder creation call:
         if (action->text().isEmpty())
-            action->setText(cmd->text());
+            action->setText(command->text());
 
-        MultiContextAction* multi = qobject_cast<MultiContextAction*> (cmd);
+        MultiContextAction* multi = qobject_cast<MultiContextAction*> (command);
         if (multi) {           
             multi->addAction(action,context);
             // Handle the default key sequence
@@ -186,7 +186,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
     // First check if an action with the specified id already exist:
     if (d->id_command_map.keys().contains(id)) {
-        LOG_ERROR(tr("Attempting to register action place holder for an action which already exist with ID: ") + user_text);
+        LOG_ERROR(tr("Attempting to register action place holder for a command which already exist with ID: ") + id);
         return 0;
     }
 
@@ -230,13 +230,39 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
             delete frontend_action;
         return 0;
     }
+}
+
+Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts) {
+    if (!shortcut)
+        return 0;
+
+    // First check if a command with the specified id already exist:
+    if (d->id_command_map.keys().contains(id)) {
+        LOG_ERROR(tr("Attempting to register a shortcut for a command which already exist with ID: ") + id);
+        return 0;
+    }
+
+    QList<int> contexts = active_contexts;
+    if (contexts.isEmpty()) {
+        // We associate it with the standard context:
+        contexts << CONTEXT_MANAGER->contextID(Qtilities::Core::Constants::CONTEXT_STANDARD);
+    }
+
+    // Create new shortcut:
+    ShortcutCommand* new_shortcut = new ShortcutCommand(user_text,shortcut,contexts,QtilitiesApplication::mainWindow());
+    if (new_shortcut) {
+        new_shortcut->setDefaultText(id);
+        new_shortcut->setCurrentContext(CONTEXT_MANAGER->currentContexts());
+        d->id_command_map[id] = new_shortcut;
+
+        new_shortcut->setKeySequence(shortcut->key());
+        new_shortcut->setDefaultKeySequence(shortcut->key());
+        emit numberOfCommandsChanged();
+        return new_shortcut;
+    }
 
     return 0;
 }
-
-/*Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(QShortcut *shortcut, const QString &default_text, const QList<int> &context) {
-    return 0;
-}*/
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::command(const QString &id) const {
     if (d->id_command_map.keys().contains(id))
@@ -384,4 +410,9 @@ QWidget* Qtilities::CoreGui::ActionManager::commandEditor() {
     }
 
     return d->command_editor;
+}
+
+void Qtilities::CoreGui::ActionManager::handleCommandDeleted(QObject* obj) {
+    // We need to remove obj for our lists:
+
 }

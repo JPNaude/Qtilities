@@ -169,7 +169,7 @@ bool Qtilities::CoreGui::MultiContextAction::isActive() {
 
 bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> context_ids) {
     #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-    LOG_TRACE("Context update request on command: " + defaultText());
+    LOG_TRACE("Context update request on command (multi context action): " + defaultText());
     #endif
 
     // If this is just a place holder without any backend action we do nothing in here.
@@ -295,7 +295,7 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
     d->frontend_action->setShortcut(c->current_key_sequence);
 
     // Add new key sequence to frontend action and all backend actions (backend actions only if there is a shortcut):
-    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(keySequence().toString(QKeySequence::NativeText));
+    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(keySequence().toString(QKeySequence::NativeText));
     if (d->frontend_action->shortcut().isEmpty()) {
         if (d->active_backend_action)
             d->frontend_action->setToolTip(d->active_backend_action->toolTip());
@@ -314,5 +314,78 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
                 backend_action->setToolTip(backend_action->toolTip() + " " + new_key_tooltip);
         }
     }
+}
+
+
+// --------------------------------
+// ShortcutCommand Implemenation
+// --------------------------------
+struct Qtilities::CoreGui::ShortcutCommandData {
+    ShortcutCommandData() : initialized(false),
+    is_active(false) { }
+
+    QShortcut*      shortcut;
+    bool            initialized;
+    bool            is_active;
+    QString         user_text;
+    QList<int>      active_contexts;
+};
+
+Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, QObject* parent) : Command(parent) {
+    d = new ShortcutCommandData;
+
+    d->user_text = user_text;
+    d->shortcut = shortcut;
+    d->active_contexts = active_contexts;
+
+    d->shortcut->setEnabled(false);
+}
+
+Qtilities::CoreGui::ShortcutCommand::~ShortcutCommand() {
+    delete d;
+}
+
+QAction* Qtilities::CoreGui::ShortcutCommand::action() const {
+    return 0;
+}
+
+QShortcut* Qtilities::CoreGui::ShortcutCommand::shortcut() const {
+    return d->shortcut;
+}
+
+QString Qtilities::CoreGui::ShortcutCommand::text() const {
+    return d->user_text;
+}
+
+bool Qtilities::CoreGui::ShortcutCommand::isActive() {
+    return d->is_active;
+}
+
+bool Qtilities::CoreGui::ShortcutCommand::setCurrentContext(QList<int> context_ids) {
+    #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+    LOG_TRACE("Context update request on command (shortcut): " + defaultText());
+    #endif
+
+    bool must_become_active = false;
+
+    for (int i = 0; i < d->active_contexts.size(); ++i) {
+        if (context_ids.contains(d->active_contexts.at(i))) {
+            must_become_active = true;
+
+            // This break will ensure that the first context is used for the case where multiple contexts are active at once.
+            break;
+        }
+    }
+
+    if (must_become_active)
+        d->shortcut->setEnabled(true);
+    else
+        d->shortcut->setEnabled(false);
+
+    return true;
+}
+
+void Qtilities::CoreGui::ShortcutCommand::handleKeySequenceChange(const QKeySequence& old_key) {
+    d->shortcut->setKey(keySequence());
 }
 

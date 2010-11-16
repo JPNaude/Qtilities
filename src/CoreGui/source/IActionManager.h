@@ -100,8 +100,8 @@ namespace Qtilities {
                   the shortcut provided by \p action, an error message will be printed and the original shortcut will be used.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the action manager.
-                  \param context The context for which this action should be registered. The action manager is linked with the context manager and when the context changes, all the actions will be updated for the new context. When an action does not have a backend action specified for a given context, it will be disabled. Leaving the context the default QList<int>() will register it in the standard application context (always active).
                   \param action The backend action associated with the id & context pairing.
+                  \param context The context for which this action should be registered. The action manager is linked with the context manager and when the context changes, all the actions will be updated for the new context. When an action does not have a backend action specified for a given context, it will be disabled. Leaving the context the default QList<int>() will register it in the standard application context (always active).
                   \return The command created for the given id.
                   */
                 virtual Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>()) = 0;
@@ -118,15 +118,22 @@ namespace Qtilities {
                   case you connect directly to the command->action() triggered() signal to access the action. If you want to use
                   the registerActionPlaceHolder function in this way you must provide an context for the action.
 
-                  \param id The internal id used to represent the action. This is the name used to display the action in the action manager.
-                  \param context Pass an empty QList<int>() if you do want to use the action as an mutli backed action, pass the needed context otherwise.
-                  \param shortcut A shortcut to be associated with the command.
+                  \param id The internal id used to represent the action. This is the name used to display the action in the command editor.
                   \param user_text The user visible text that will be used for this command.
+                  \param shortcut A shortcut to be associated with the command.
+                  \param context Pass an empty QList<int>() if you do want to use the action as an mutli backed action, pass the needed context otherwise.
                   \return The command created for the given id.
                   */
                 virtual Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence = QKeySequence(), const QList<int> &context = QList<int>()) = 0;
                 //! Function to register a shortcut in the action manager.
-                //virtual Command *registerShortcut(QShortcut *shortcut, const QString &id, const QList<int> &context) = 0;
+                /*!
+                  \param id The internal id used to represent the shortcut. This is the name used to display the shortcut in the command editor.
+                  \param user_text The user visible text that will be used for this command.
+                  \param shortcut A reference to the shortcut to be registered. If this reference is invalid, this function does nothing.
+                  \param active_contexts Pass an empty QList<int>() if you do want to use the shortcut to be always active.
+                  \return The command created for the given id.
+                  */
+                virtual Command *registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>()) = 0;
                 //! Access function for actions and shortcuts.
                 virtual Command *command(const QString &id) const = 0;
                 //! Access function for menus and menu bars.
