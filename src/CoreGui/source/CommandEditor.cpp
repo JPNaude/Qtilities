@@ -92,7 +92,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     d->property_browser = new ObjectPropertyBrowser(ObjectPropertyBrowser::GroupBoxBrowser,0);
     if (d->property_browser) {
         QStringList filter_list;
-        filter_list << "QObject" << "Action" << "MultiContextAction" << "Shortcut";
+        filter_list << "QObject" << "Action" << "MultiContextAction" << "ShortcutCommand";
         d->property_browser->setFilterList(filter_list);
         d->property_browser->layout()->setMargin(0);
     }
