@@ -85,6 +85,13 @@ Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
     d->initialized = false;
     d->remember_session_config = false;
     d->priority_formatting_engine = 0;
+
+    // Make sure App_Path/plugins always exists:
+    QDir sessionDir = QDir(QCoreApplication::applicationDirPath() + "/session");
+    if (!sessionDir.exists()) {
+        sessionDir.cdUp();
+        sessionDir.mkdir("/session");
+    }
 }
 
 Qtilities::Logging::Logger::~Logger()
