@@ -113,15 +113,15 @@ Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
     delete ui;
 }
 
-QWidget* Qtilities::Plugins::Debug::DebugWidget::widget() {
+QWidget* Qtilities::Plugins::Debug::DebugWidget::modeWidget() {
     return this;
 }
 
-QIcon Qtilities::Plugins::Debug::DebugWidget::icon() const {
+QIcon Qtilities::Plugins::Debug::DebugWidget::modeIcon() const {
     return QIcon(":/debug_log_mode.png");
 }
 
-QString Qtilities::Plugins::Debug::DebugWidget::text() const {
+QString Qtilities::Plugins::Debug::DebugWidget::modeName() const {
     return tr("Qtilities Debugging");
 }
 
@@ -155,18 +155,18 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolDoubleClick(QObjec
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_pluginInfoRefresh() {
-    if (ExtensionSystemCore::instance()->activePluginConfiguration().isEmpty())
+    if (EXTENSION_SYSTEM->activePluginConfigurationFile().isEmpty())
         ui->txtPluginsActiveSet->setText(tr("No plugin configuration set loaded"));
     else
-        ui->txtPluginsActiveSet->setText(ExtensionSystemCore::instance()->activePluginConfiguration());
+        ui->txtPluginsActiveSet->setText(EXTENSION_SYSTEM->activePluginConfigurationFile());
 
     ui->listPluginsActive->clear();
     ui->listPluginsInactive->clear();
     ui->listPluginsFiltered->clear();
 
-    ui->listPluginsActive->addItems(ExtensionSystemCore::instance()->activePlugins());
-    ui->listPluginsInactive->addItems(ExtensionSystemCore::instance()->inactivePlugins());
-    ui->listPluginsFiltered->addItems(ExtensionSystemCore::instance()->filteredPlugins());
+    ui->listPluginsActive->addItems(EXTENSION_SYSTEM->activePlugins());
+    ui->listPluginsInactive->addItems(EXTENSION_SYSTEM->inactivePlugins());
+    ui->listPluginsFiltered->addItems(EXTENSION_SYSTEM->filteredPlugins());
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::changeEvent(QEvent *e)

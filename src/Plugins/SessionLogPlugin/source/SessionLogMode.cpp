@@ -75,15 +75,15 @@ Qtilities::Plugins::SessionLog::SessionLogMode::~SessionLogMode() {
     delete d;
 }
 
-QWidget* Qtilities::Plugins::SessionLog::SessionLogMode::widget() {
+QWidget* Qtilities::Plugins::SessionLog::SessionLogMode::modeWidget() {
     return d->session_mode_widget;
 }
 
-QIcon Qtilities::Plugins::SessionLog::SessionLogMode::icon() const {
+QIcon Qtilities::Plugins::SessionLog::SessionLogMode::modeIcon() const {
     return QIcon(SESSION_LOG_MODE_ICON_48x48);
 }
 
-QString Qtilities::Plugins::SessionLog::SessionLogMode::text() const {
+QString Qtilities::Plugins::SessionLog::SessionLogMode::modeName() const {
     return tr("Session Log");
 }
 

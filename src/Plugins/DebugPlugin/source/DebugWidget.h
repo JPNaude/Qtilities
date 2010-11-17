@@ -73,10 +73,10 @@ namespace Qtilities {
                 // --------------------------------------------
                 // IMode Implementation
                 // --------------------------------------------
-                QWidget* widget();
-                void initialize() {}
-                QIcon icon() const;
-                QString text() const;
+                QWidget* modeWidget();
+                void initializeMode() {}
+                QIcon modeIcon() const;
+                QString modeName() const;
 
                 //! Finalize the mode, will be called in initializeDependencies().
                 void finalizeMode();
