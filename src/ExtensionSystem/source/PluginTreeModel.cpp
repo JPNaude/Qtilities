@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "PluginTreeModel.h"
+#include "ExtensionSystemCore.h"
 
 #include "IPlugin.h"
 
@@ -47,12 +48,28 @@ QVariant Qtilities::ExtensionSystem::PluginTreeModel::data(const QModelIndex &in
         if (obj) {
             IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
             if (pluginIFace)
-                return pluginIFace->pluginVersion();
+                return pluginIFace->pluginVersion();         
         }
         return QVariant();
+    } else if ((index.column() == columnCount() - 1) && (role == Qt::ForegroundRole)) {
+        // Check if the plugin is a core plugin, in which case we must give it a disabled foreground color:
+        QObject* obj = getObject(index);
+        if (obj) {
+            IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
+            if (pluginIFace) {
+                QString plugin_name = pluginIFace->pluginName();
+                if (EXTENSION_SYSTEM->corePlugins().contains(plugin_name)) {
+                    return QApplication::palette().brush(QPalette::Disabled,QPalette::Text);
+                } else {
+                    return QApplication::palette().brush(QPalette::Active,QPalette::Text);
+                }
+            }
+        }
     } else {
         return AbstractObserverTreeModel::dataHelper(index,role);
     }
+
+    return QVariant();
 }
 
 Qt::ItemFlags Qtilities::ExtensionSystem::PluginTreeModel::flags(const QModelIndex &index) const {

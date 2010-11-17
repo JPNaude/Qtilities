@@ -46,14 +46,13 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     ui(new Ui::ExtensionSystemConfig)
 {
     ui->setupUi(this);
-    if (ExtensionSystemCore::instance()->pluginPaths().count() == 1)
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
+    if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
     else
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(ExtensionSystemCore::instance()->pluginPaths().count()));
-    ui->listPluginPaths->addItems(ExtensionSystemCore::instance()->pluginPaths());
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
+    ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
 
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
-    ui->btnSaveAsNewConfiguration->setVisible(false);
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -75,10 +74,6 @@ QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() con
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {
     return QtilitiesCategory(tr("General"));
-}
-
-void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageApply() {
-
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::changeEvent(QEvent *e)
@@ -142,19 +137,4 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionDoubleCli
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::setStatusMessage(const QString& status_message) {
     ui->lblStatusMessage->setText(status_message);
 
-}
-
-void Qtilities::ExtensionSystem::ExtensionSystemConfig::on_btnSaveAsNewConfiguration_clicked() {
-    QString file_name = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QApplication::applicationDirPath() + "/plugins", "Plugin Configuration File (*.pconfig)");
-    if (file_name.isEmpty())
-        return;
-
-    if (ExtensionSystemCore::instance()->savePluginConfiguration(file_name)) {
-        ui->btnSaveAsNewConfiguration->setVisible(false);
-        ui->lblStatusMessage->clear();
-    }
-}
-
-void Qtilities::ExtensionSystem::ExtensionSystemConfig::setSaveConfigButtonVisibility(bool is_visible) {
-    ui->btnSaveAsNewConfiguration->setVisible(is_visible);
 }

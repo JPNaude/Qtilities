@@ -78,6 +78,10 @@ namespace Qtilities {
               Will load all plugins in the specified plugin paths. Once an IPlugin interface is discovered, initialize() will be
               called on it. When all the plugins in the system are loaded, the initializeDependancies() funciton will be called on each plugin.
 
+              When enablePluginActivityControl() is true, the initialize() function will attempt to load the default plugin configuration set
+              in the file specified by activePluginConfigurationFile(). If you want to load a file other than the default configuration file
+              you can set it using setActivePluginConfigurationFile() before calling initialize().
+
               \sa pluginPaths()
               */
             void initialize();
@@ -114,10 +118,14 @@ namespace Qtilities {
             // --------------------------------
             // Plugin Configuration Sets
             // --------------------------------
-            //! Gets the name of the current plugin configuration set.
-            QString activePluginConfiguration() const;
-            //! Sets the name of the current plugin configuration set.
-            void setPluginConfiguration(const QString& active_configuration);
+            //! Gets the name of the current plugin configuration set's file.
+            /*!
+              When loadPluginConfiguration() is loaded with a valid file, this function will return the file name that
+              was loaded. Otherwise it will return \p App_Path/plugins/default.pconfig.
+              */
+            QString activePluginConfigurationFile() const;
+            //! Sets the name of the current plugin configuration set's file.
+            void setActivePluginConfigurationFile(const QString& file_name);
 
             //! Disables plugin activity display in the plugin details widget.
             void enablePluginActivityDisplay();
@@ -191,14 +199,16 @@ namespace Qtilities {
 
             //! Function which load a plugin configuration file.
             /*!
+              \param file_name When empty the file name in activePluginConfigurationFile() will be used.
+
               \note This function only does something usefull when called before initialize().
               */
-            bool loadPluginConfiguration(const QString& file_name);
+            bool loadPluginConfiguration(QString file_name = QString());
             //! Function which saves a plugin configuration file.
             /*!
-              \note This function only does something usefull when called after initialize().
+              \param file_name When empty the file name in activePluginConfigurationFile() will be used.
               */
-            bool savePluginConfiguration(const QString& file_name) const;
+            bool savePluginConfiguration(QString file_name = QString()) const;
 
         signals:
             //! Progress messages submitted during application startup.

@@ -64,14 +64,13 @@ struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
     ExtensionSystemConfig* extension_system_config_widget;
     PluginTreeModel* treeModel;
 
-    QString             active_configuration;
+    QString             active_configuration_file;
     QStringList         set_inactive_plugins;
     QStringList         set_filtered_plugins;
 
     QStringList         current_active_plugins;
     QStringList         current_inactive_plugins;
     QStringList         current_filtered_plugins;
-
     QStringList         core_plugins;
 
     bool                is_initialized;
@@ -79,8 +78,7 @@ struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
 
 Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::m_Instance = 0;
 
-Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::instance()
-{
+Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::instance() {
     static QMutex mutex;
     if (!m_Instance)
     {
@@ -95,8 +93,7 @@ Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::Ext
     return m_Instance;
 }
 
-Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* parent) : QObject(parent)
-{
+Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* parent) : QObject(parent) {
     d = new ExtensionSystemCoreData;
     d->plugins.startProcessingCycle();
 
@@ -113,6 +110,14 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     d->plugins.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
     d->plugins.endProcessingCycle();
+
+    // Make sure App_Path/plugins always exists:
+    QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");
+    if (!pluginsDir.exists()) {
+        pluginsDir.cdUp();
+        pluginsDir.mkdir("/plugins");
+    }
+    d->active_configuration_file = QCoreApplication::applicationDirPath() + "/plugins/default.pconfig";
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
@@ -121,6 +126,14 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
+    // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
+    // In that case, load the default plugin file:
+    if (isPluginActivityControlEnabled()) {
+        // This will fail if there was no default file:
+        loadPluginConfiguration();
+    }
+
+    // Now go get all the plugins:
     d->pluginsDir = QDir(QCoreApplication::applicationDirPath());
 
     #if defined(Q_OS_WIN)
@@ -260,6 +273,13 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                     // Add it to the active list:
                     d->current_active_plugins << pluginIFace->pluginName();
                 }
+
+                // Set the foreground color of core plugins:
+                if (d->core_plugins.contains(pluginIFace->pluginName())) {
+                    QBrush disabled_brush = QApplication::palette().brush(QPalette::Disabled,QPalette::Text);
+                    SharedObserverProperty property(disabled_brush,OBJECT_ROLE_FOREGROUND);
+                    Observer::setSharedProperty(pluginIFace->objectBase(), property);
+                }
             } else {
                 // Set the default state of the plugin:
                 pluginIFace->setPluginState(IPlugin::InActive);
@@ -320,6 +340,7 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
         if (observer_widget->treeView()) {
             observer_widget->treeView()->expandAll();
             observer_widget->treeView()->setRootIsDecorated(false);
+            observer_widget->treeView()->setSelectionBehavior(QAbstractItemView::SelectRows);
         }
     }
 
@@ -339,12 +360,12 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPaths() const
     return d->customPluginPaths;
 }
 
-QString Qtilities::ExtensionSystem::ExtensionSystemCore::activePluginConfiguration() const {
-    return d->active_configuration;
+QString Qtilities::ExtensionSystem::ExtensionSystemCore::activePluginConfigurationFile() const {
+    return d->active_configuration_file;
 }
 
-void Qtilities::ExtensionSystem::ExtensionSystemCore::setPluginConfiguration(const QString& active_configuration) {
-    d->active_configuration = active_configuration;
+void Qtilities::ExtensionSystem::ExtensionSystemCore::setActivePluginConfigurationFile(const QString& file_name) {
+    d->active_configuration_file = file_name;
 }
 
 QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::activePlugins() const {
@@ -363,7 +384,10 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::corePlugins() const
     return d->core_plugins;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(const QString& file_name) {
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QString file_name) {
+    if (file_name.isEmpty())
+        file_name = d->active_configuration_file;
+
     // Load the file into doc:
     QDomDocument doc("QtilitiesPluginConfiguration");
     QFile file(file_name);
@@ -460,11 +484,14 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(co
     LOG_DEBUG("Inactive Plugins: " + d->set_inactive_plugins.join(","));
     LOG_DEBUG("Filtered Plugins: " + d->set_filtered_plugins.join(","));
 
-    setPluginConfiguration(file_name);
+    d->active_configuration_file = file_name;
     return true;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(const QString& file_name) const {
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name) const {
+    if (file_name.isEmpty())
+        file_name = d->active_configuration_file;
+
     QFile file(file_name);
     if(!file.open(QFile::WriteOnly))
         return false;
@@ -549,20 +576,20 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
          }
     }
 
-    // If there is a config widget, we update its status message:
-    if (d->extension_system_config_widget) {
-        // If the inactive plugins are different from the current plugins:
-        if (d->current_inactive_plugins != d->set_inactive_plugins) {
-            d->extension_system_config_widget->setStatusMessage("Restart Required");
-            d->extension_system_config_widget->setSaveConfigButtonVisibility(true);
+    // If the inactive plugins are different from the current plugins:
+    if (d->current_inactive_plugins != d->set_inactive_plugins) {
+        // Now write the settings to the default configuration file, unless a config file was loaded, in that
+        // case ask the user if they want to save it.
+        if (savePluginConfiguration()) {
+            // If there is a config widget, we update its status message:
+            if (d->extension_system_config_widget)
+                d->extension_system_config_widget->setStatusMessage("Restart Required");
         } else {
-            d->extension_system_config_widget->setStatusMessage("");
-            d->extension_system_config_widget->setSaveConfigButtonVisibility(false);
+            // If there is a config widget, we update its status message:
+            if (d->extension_system_config_widget)
+                d->extension_system_config_widget->setStatusMessage("<font color='red'>Failed to save new configuration</font>");
         }
     }
-
-    // Now write the settings to the default configuration file, unless a config file was loaded, in that
-    // case ask the user if they want to save it.
 
 }
 
