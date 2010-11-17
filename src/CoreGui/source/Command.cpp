@@ -386,6 +386,7 @@ bool Qtilities::CoreGui::ShortcutCommand::setCurrentContext(QList<int> context_i
 }
 
 void Qtilities::CoreGui::ShortcutCommand::handleKeySequenceChange(const QKeySequence& old_key) {
+    Q_UNUSED(old_key)
     d->shortcut->setKey(keySequence());
 }
 
