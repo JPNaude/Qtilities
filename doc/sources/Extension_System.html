@@ -22,11 +22,15 @@ The Qtilities::ExtensionSystem::ExtensionSystemCore singleton provides the inter
 Table of contents:
 - \ref define_plugins
 - \ref define_lifetime_management
-  - \ref loading_plugins
-  - \ref init_and_finalization_sequence
-  .
+    - \ref loading_plugins
+    - \ref init_and_finalization_sequence
+    .
 - \ref plugin_information
 - \ref plugin_config_sets
+    - \ref plugin_different_types
+    - \ref plugin_creating_sets
+    - \ref plugin_creating_sets_user
+    .
 
 </td>
 
@@ -208,7 +212,7 @@ int main(int argc, char *argv[])
   Log->toggleQtMsgEngine(false);
 
   // Register extension system config page:
-  OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget());
+  OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
 
   // Report on the number of config pages found:
   QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
@@ -222,7 +226,7 @@ int main(int argc, char *argv[])
   int result = a.exec();
   
   // Finalize all plugins:
-  ExtensionSystemCore::instance()->finalize();
+  EXTENSION_SYSTEM->finalize();
   // Finalize the logger:
   LOG_FINALIZE();
   
@@ -283,16 +287,7 @@ bool ProjectPartFinderPlugin::initializeDependancies(QString *errorString) {
 }
 \endcode
 
-\section plugin_config_sets Goal 3: Provide management of plugin configuration sets
-
-In advanced applications it is often desirable to specify a set of plugins which should be loaded for different scenarios. In %Qtilities we call a set of plugins that must be loaded for a specific scenario a plugin configuration set. The extension system allow management of different configuration sets and before explaining this in more detail, lets define three things that can happen to a valid plugin found in any of the plugin paths specified:
-- <b>Active Plugins:</b> Plugins which are loaded an initialized.
-- <b>Inactive Plugins:</b> Plugins which are loaded but not initialized. This is needed in order for the plugin to still be shown in the plugin details widget and to allow user control over creation of configuration sets.
-- <b>Filtered Plugins:</b> Plugins which are filtered/skipped, thus not loaded or initialized. This is usefull in scenarios where the same application is deployed to different places and only specific plugins should be exposed to users when they create plugin configuration sets.
-
-A configuration set gives the names of the plugins which falls into each of the three categories above. When a plugin is found during the Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() function call, the plugin is checked agains the information provided by the configuration set and handled accordingly. When a plugin is found which is not categorized in the configuration set, it automatically falls under the Active Plugins category. In the same way, if a plugin occurs under more than one category in the configuration set, it automatically falls under the Active Plugins set.
-
-\section plugin_information Goal 4: Provide plugin information at runtime
+\section plugin_information Goal 3: Provide plugin information at runtime
 
 The main access point to information about loaded plugins is the extension system configuration widget class (Qtilities::ExtensionSystem::ExtensionSystemConfig). The configuration widget is shown below:
 
@@ -301,5 +296,52 @@ The main access point to information about loaded plugins is the extension syste
 The "Plugin Paths" tab in the configuration widget provides details about the paths searched for plugins, thus it shows the paths returned by Qtilities::ExtensionSystem::ExtensionSystemCore::pluginPaths(). For each plugin we can get detailed information by double clicking its name, or by clicking the "Details" button. The image below shows the detailed information of one of the provided %Qtilities plugins.
 
 \image html extension_system_details_widget.jpg "Plugin Details"
+
+\section plugin_config_sets Goal 4: Provide management of plugin configuration sets
+
+In advanced applications it is often desirable to specify a set of plugins which should be loaded for different scenarios. In %Qtilities we call a set of plugins that must be loaded for a specific scenario a plugin configuration set.
+
+\subsection plugin_different_types Plugin Classification
+
+The extension system allow management of different configuration sets which groups plugins int the following groups:
+- <b>Active Plugins:</b> Plugins which are loaded and initialized.
+- <b>Inactive Plugins:</b> Plugins which are loaded but not initialized. This is needed in order for the plugin to still be shown in the plugin details widget and to allow user control over creation of configuration sets.
+- <b>Filtered Plugins:</b> Plugins which are filtered/skipped, thus not loaded or initialized. This is usefull in scenarios where the same application is deployed to different places and only specific plugins should be exposed to users when they create plugin configuration sets.
+- <b>Core Plugins:</b> These plugins forms the core of an application. Thus they must always be treated as active plugins (thus loaded and initialized).
+
+A configuration set gives the names of the plugins which falls into the inactive and filtered plugin groups. When a plugin is found during the Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() function call, the plugin is checked agains the information provided by the configuration set and handled accordingly. When a plugin is found which is not categorized in the configuration set, it automatically falls under the Active Plugins category. In the same way, if a plugin occurs under more than one category in the configuration set, it automatically falls under the Active Plugins set.
+
+The Qtilities::ExtensionSystem::ExtensionSystemCore class provides different functions to get information about the plugins that fell into the different categories during initialization.
+
+\subsection plugin_creating_sets Creating Configuration Sets
+
+Creating configuration sets is easy and flexible. The important thing to remember is: The plugin configuration set that will be used is the one that is active at the time that the extension system's \p initialize() function is called. There are different ways to set it up:
+- Manually calling the functions that grounp plugins into different categories, like Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins() for example.
+- Loading the configuration from a XML file (ending with \p .pconfig by default). The configuration setup can be saved to a XML file at any stage. The following is an example plugin configuration file that specified that the "Session Log Plugin" must be handled as an incative plugin and that any plugin files starting with \p ProjectManagement must be filtered and not loaded at all.
+
+\code
+<!DOCTYPE QtilitiesPluginConfiguration>
+<QtilitiesPluginConfiguration DocumentVersion="1">
+    <InactivePlugins>
+        <PluginName Value="Session Log Plugin"/>
+    </InactivePlugins>
+    <FilteredPlugins>
+        <FileNameStart Value="ProjectManagement"/>
+    </FilteredPlugins>
+</QtilitiesPluginConfiguration>
+\endcode
+
+\subsection plugin_creating_sets_user Allowing Users Control Over Sets
+
+The developer will have a specific way in mind that he or she wants to manage configuration sets their of application. To accomodate different scenarios the way that sets are handled can be customized through the \p ExtensionSystemCore class. It is for example possible to define some core plugins and then let the user decide which plugins they want to be active and incative.
+
+The plugin details widget can either show the current active and inactive plugins without allowing the user to change it, or it can give full control to the user.
+To show the activity of plugins the Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityDisplay() function can be called and to allow the users to control the activity the Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityControl() function can be called.
+
+Below is an example of the plugin configuration widget with the above two activity options enabled and with the "Session Log Plugin" specified to be a core plugin (thus it is greyed out to indicate this and a proper message is displayed when an attempt is made to deactivate it). The image shows the state of the widget just after the user disabled the "Project Management Plugin".
+
+\image html extension_system_widget_with_config_control.jpg "Plugin Configuration Set Display"
+
+When the user is given control over plugin configuration sets, changing the current set will automatically save the new configuration to the file name of the loaded set. By default this is \p App_Path/plugins/default.pconfig. However if a valid plugin configuration has been loaded using the Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration() function, this loaded configuration file will be updated to reflect the changes the user made. The Qtilities::ExtensionSystem::ExtensionSystemCore::setActivePluginConfigurationFile() function can be specified. It is important to note that the extension system's \p initialize() function loads the active plugin configuration file automatically if it exists. Thus is does not make sense to load the configuration before calling \p initialize() unless you want to modify it.
  
 */
