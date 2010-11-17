@@ -53,21 +53,21 @@ Qtilities::Examples::ObjectManagement::ObjectManagementMode::~ObjectManagementMo
     delete d;
 }
 
-QWidget* Qtilities::Examples::ObjectManagement::ObjectManagementMode::widget() {
+QWidget* Qtilities::Examples::ObjectManagement::ObjectManagementMode::modeWidget() {
     if (!d->widget)
         d->widget = new ObjectManagementModeWidget();
     return d->widget;
 }
 
-void Qtilities::Examples::ObjectManagement::ObjectManagementMode::initialize() {
+void Qtilities::Examples::ObjectManagement::ObjectManagementMode::initializeMode() {
     if (!d->widget)
         d->widget = new ObjectManagementModeWidget();
 }
 
-QIcon Qtilities::Examples::ObjectManagement::ObjectManagementMode::icon() const {
+QIcon Qtilities::Examples::ObjectManagement::ObjectManagementMode::modeIcon() const {
     return QIcon(":/object_management_mode_48x48.png");
 }
 
-QString Qtilities::Examples::ObjectManagement::ObjectManagementMode::text() const {
+QString Qtilities::Examples::ObjectManagement::ObjectManagementMode::modeName() const {
     return tr("Object Management");
 }

@@ -99,10 +99,10 @@ namespace Qtilities {
                 // --------------------------------------------
                 // IMode Implementation
                 // --------------------------------------------
-                QWidget* widget();
-                void initialize();
-                QIcon icon() const;
-                QString text() const;
+                QWidget* modeWidget();
+                void initializeMode();
+                QIcon modeIcon() const;
+                QString modeName() const;
                 QString contextString() const { return CONTEXT_EXAMPLE_MODE; }
                 QString contextHelpId() const { return QString(); }
                 int modeID() const { return MODE_EXAMPLE_ID; }

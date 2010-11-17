@@ -136,11 +136,11 @@ Qtilities::Examples::MainWindow::ExampleMode::~ExampleMode()
     delete d;
 }
 
-QWidget* Qtilities::Examples::MainWindow::ExampleMode::widget() {
+QWidget* Qtilities::Examples::MainWindow::ExampleMode::modeWidget() {
     return this;
 }
 
-void Qtilities::Examples::MainWindow::ExampleMode::initialize() {
+void Qtilities::Examples::MainWindow::ExampleMode::initializeMode() {
     if (d->initialized)
         return;
 
@@ -159,11 +159,11 @@ void Qtilities::Examples::MainWindow::ExampleMode::initialize() {
     d->initialized = true;
 }
 
-QIcon Qtilities::Examples::MainWindow::ExampleMode::icon() const {
+QIcon Qtilities::Examples::MainWindow::ExampleMode::modeIcon() const {
     return QIcon(ICON_QTILITIES_SYMBOL_64x64);
 }
 
-QString Qtilities::Examples::MainWindow::ExampleMode::text() const {
+QString Qtilities::Examples::MainWindow::ExampleMode::modeName() const {
     return tr("Example Mode");
 }
 

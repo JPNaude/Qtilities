@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     QSplashScreen *splash = new QSplashScreen(pixmap);
     splash->setWindowFlags(Qt::SplashScreen | Qt::WindowStaysOnTopHint);
     splash->show();
-    QObject::connect(ExtensionSystemCore::instance(),SIGNAL(newProgressMessage(QString)),splash,SLOT(showMessage(QString)));
+    QObject::connect(EXTENSION_SYSTEM,SIGNAL(newProgressMessage(QString)),splash,SLOT(showMessage(QString)));
     a.processEvents();
 
     // Create menu related things.
@@ -122,8 +122,9 @@ int main(int argc, char *argv[])
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
-    ExtensionSystemCore::instance()->addPluginPath("../../plugins/");
-    ExtensionSystemCore::instance()->initialize();
+    EXTENSION_SYSTEM->enablePluginActivityControl();
+    EXTENSION_SYSTEM->addPluginPath("../../plugins/");
+    EXTENSION_SYSTEM->initialize();
     Log->toggleQtMsgEngine(false);
     splash->clearMessage();
 
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
     // Register extension system config page.
-    OBJECT_MANAGER->registerObject(ExtensionSystemCore::instance()->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+    OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     // Report on the number of config pages found.
     QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");

@@ -101,10 +101,10 @@ namespace Qtilities {
                     // --------------------------------------------
                     // IMode Implementation
                     // --------------------------------------------
-                    QWidget* widget();
-                    void initialize();
-                    QIcon icon() const;
-                    QString text() const;
+                    QWidget* modeWidget();
+                    void initializeMode();
+                    QIcon modeIcon() const;
+                    QString modeName() const;
                     QString contextString() const { return CONTEXT_OBJECT_MANAGEMENT_MODE; }
 
                 private:
