@@ -80,6 +80,13 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
     Observer::setSharedProperty(this,shared_icon_property);
 
     showed_warning = false;
+
+    // Make sure App_Path/plugins always exists:
+    QDir sessionDir = QDir(QCoreApplication::applicationDirPath() + "/session");
+    if (!sessionDir.exists()) {
+        sessionDir.cdUp();
+        sessionDir.mkdir("/session");
+    }
 }
 
 Qtilities::CoreGui::ActionManager::~ActionManager()
