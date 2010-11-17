@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 
 #include <IObjectBase>
+#include <IContext>
 
 #include <QWidget>
 #include <QIcon>
@@ -50,7 +51,7 @@ namespace Qtilities {
             \class IMode
             \brief Used by the ModeManager to communicate with child modes.
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IMode: virtual public IObjectBase
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IMode: virtual public IObjectBase, public IContext
             {
 
             public:
@@ -58,16 +59,16 @@ namespace Qtilities {
                 virtual ~IMode() {}
 
                 //! The main window's central widget for the mode.
-                virtual QWidget* widget() = 0;
+                virtual QWidget* modeWidget() = 0;
                 //! This function is called in the initializeDependancies() function, thus all objects implementing interfaces in which a mode might be interested will be present in the global object pool.
-                virtual void initialize() = 0;
+                virtual void initializeMode() = 0;
                 //! An icon for the mode.
                 /*!
                   The expected mode icon size is 48x48.
                   */
-                virtual QIcon icon() const = 0;
-                //! The text used to represent the mode.
-                virtual QString text() const = 0;
+                virtual QIcon modeIcon() const = 0;
+                //! The name of the mode which is the text used to represent it.
+                virtual QString modeName() const = 0;
                 //! Returns a context string for the context associated with this mode.
                 /*!
                   By default no context will be associated with a mode.

@@ -112,11 +112,11 @@ QListWidget* Qtilities::CoreGui::ModeManager::modeListWidget() {
 void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode, bool refresh_list) {
     if (mode) {   
         // First check if it has a valid widget, otherwise we don't add the mode.
-        if (!mode->widget())
+        if (!mode->modeWidget())
             return;
 
         if (initialize_mode)
-            mode->initialize();
+            mode->initializeMode();
 
         if (isValidModeID(mode->modeID())) {
             // Check if the mode needs to be assigned a mode ID:
@@ -125,7 +125,7 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
                     ++d->mode_id_counter;
                 }
                 mode->setModeID(d->mode_id_counter);
-                LOG_DEBUG(QString("Mode Manager: Auto-assigning mode ID %1 found for mode \"%2\".").arg(d->mode_id_counter).arg(mode->text()));
+                LOG_DEBUG(QString("Mode Manager: Auto-assigning mode ID %1 found for mode \"%2\".").arg(d->mode_id_counter).arg(mode->modeName()));
                 ++d->mode_id_counter;
             }
 
@@ -139,7 +139,7 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
                 QShortcut* shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(mode->modeID())),QtilitiesApplication::mainWindow());
                 d->mode_shortcuts[mode->modeID()] = shortcut;
                 shortcut->setContext(Qt::ApplicationShortcut);
-                ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->text(),shortcut);
+                ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->modeName(),shortcut);
                 connect(shortcut,SIGNAL(activated()),SLOT(handleModeShortcutActivated()));
             }
 
@@ -147,7 +147,7 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
             if (refresh_list)
                 refreshList();
         } else {
-            LOG_ERROR(QString(tr("Mode Manager: Duplicate mode IDs found for mode \"%1\" with ID %2. Mode \"%3\" already uses this ID.")).arg(mode->text()).arg(mode->modeID()).arg(d->id_iface_map[mode->modeID()]->text()));
+            LOG_ERROR(QString(tr("Mode Manager: Duplicate mode IDs found for mode \"%1\" with ID %2. Mode \"%3\" already uses this ID.")).arg(mode->modeName()).arg(mode->modeID()).arg(d->id_iface_map[mode->modeID()]->modeName()));
         }
     }
 }
@@ -183,7 +183,7 @@ int Qtilities::CoreGui::ModeManager::activeModeID() const {
 }
 
 QString Qtilities::CoreGui::ModeManager::activeModeName() const {
-    return d->id_iface_map[d->active_mode]->text();
+    return d->id_iface_map[d->active_mode]->modeName();
 }
 
 void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(const QStringList& preferred_order) {
@@ -257,13 +257,13 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
         IMode* mode = d->id_iface_map[id];
 
         if (mode) {
-            QListWidgetItem* new_item = new QListWidgetItem(mode->icon(),mode->text(),d->mode_list_widget,mode->modeID());
+            QListWidgetItem* new_item = new QListWidgetItem(mode->modeIcon(),mode->modeName(),d->mode_list_widget,mode->modeID());
             if (d->disabled_modes.contains(mode->modeID())) {
                 Qt::ItemFlags flags = new_item->flags();
                 flags &= ~Qt::ItemIsEnabled;
                 new_item->setFlags(flags);
             }
-            new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->text()));
+            new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
 
             d->mode_list_widget->addItem(new_item);
 
@@ -277,7 +277,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
 
             // Set the mode icon as the object decoration for mode:
             if (mode->objectBase()) {
-                SharedObserverProperty icon_property(mode->icon(),OBJECT_ROLE_DECORATION);
+                SharedObserverProperty icon_property(mode->modeIcon(),OBJECT_ROLE_DECORATION);
                 Observer::setSharedProperty(mode->objectBase(),icon_property);
             }
             added_ids << id;
@@ -289,13 +289,13 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     foreach(IMode* mode, d->id_iface_map.values()) {
         if (mode) {
             if (!added_ids.contains(mode->modeID())) {
-                QListWidgetItem* new_item = new QListWidgetItem(mode->icon(),mode->text(),d->mode_list_widget,mode->modeID());
+                QListWidgetItem* new_item = new QListWidgetItem(mode->modeIcon(),mode->modeName(),d->mode_list_widget,mode->modeID());
                 if (d->disabled_modes.contains(mode->modeID())) {
                     Qt::ItemFlags flags = new_item->flags();
                     flags &= ~Qt::ItemIsEnabled;
                     new_item->setFlags(flags);
                 }
-                new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->text()));
+                new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
 
                 d->mode_list_widget->addItem(new_item);
 
@@ -309,7 +309,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
 
                 // Set the mode icon as the object decoration for mode:
                 if (mode->objectBase()) {
-                    SharedObserverProperty icon_property(mode->icon(),OBJECT_ROLE_DECORATION);
+                    SharedObserverProperty icon_property(mode->modeIcon(),OBJECT_ROLE_DECORATION);
                     Observer::setSharedProperty(mode->objectBase(),icon_property);
                 }
 
@@ -372,7 +372,7 @@ QList<int> Qtilities::CoreGui::ModeManager::modeNamesToIDs(QStringList name_list
     foreach (QString name, name_list) {
         foreach (IMode* mode, d->id_iface_map.values()) {
             // Get the IMode interface corresponding to the name:
-            if (mode->text() == name) {
+            if (mode->modeName() == name) {
                 int_list << mode->modeID();
                 break;
             }
@@ -399,7 +399,7 @@ QStringList Qtilities::CoreGui::ModeManager::modeIDsToNames(QList<int> mode_ids)
     foreach(int id, mode_ids) {
         if (d->id_iface_map.contains(id)) {
             if (d->id_iface_map[id])
-                name_list << d->id_iface_map[id]->text();
+                name_list << d->id_iface_map[id]->modeName();
         }
     }
 
@@ -431,7 +431,7 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
     if (d->id_iface_map.keys().contains(item->type())) {
         if (!d->id_iface_map[item->type()]->contextString().isEmpty())
             CONTEXT_MANAGER->setNewContext(d->id_iface_map[item->type()]->contextString());
-        emit changeCentralWidget(d->id_iface_map[item->type()]->widget());
+        emit changeCentralWidget(d->id_iface_map[item->type()]->modeWidget());
     }
 
     d->active_mode = item->type();
@@ -460,7 +460,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id) {
 void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name) {
     // Go through all the registered mode and try to match each mode with new_mode.
     for (int i = 0; i < d->id_iface_map.count(); i++) {
-        if (d->id_iface_map.values().at(i)->text() == mode_name) {
+        if (d->id_iface_map.values().at(i)->modeName() == mode_name) {
             if (d->disabled_modes.contains(d->id_iface_map.values().at(i)->modeID()))
                 return;
 
