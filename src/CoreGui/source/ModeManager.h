@@ -124,16 +124,26 @@ modeListWidget()->setStyleSheet(stylesheet);
             //! Adds a mode to the mode widget.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
+
+              \param mode The mode to be added.
+              \param initialize_mode When true, the mode will be initialized and its context will be added to the context manager if it is not empty.
+              \param refresh_list When true, the mode list widget will be refreshed.
               */
             void addMode(IMode* mode, bool initialize_mode = true, bool refresh_list = true);
             //! Adds a list of modes to the main window.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
+
+              \param modes A list of modes to be added.
+              \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
               */
             void addModes(QList<IMode*> modes, bool initialize_modes = true);
             //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
+
+              \param modes A list of modes to be added.
+              \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
               */
             void addModes(QList<QObject*> modes, bool initialize_modes = true);
             //! A list of the modes in this mode widget.

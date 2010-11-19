@@ -71,9 +71,10 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Access to a context manager through contextManager().
          - Access to an action manager through actionManager().
          - Access to a clipboard manager through clipboardManager().
-         - The ability to define your top level main window in your application using setMainWindow() and mainWindow().
+         - The ability to define and access your top level main window in your application using setMainWindow() and mainWindow().
          - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
          - Information about %Qtilities through qtilitiesVersion() and aboutQtilities().
+         - Access to the application's configuration page through configWidget().
 
           \sa Qtilities::Core::QtilitiesCoreApplication
          */

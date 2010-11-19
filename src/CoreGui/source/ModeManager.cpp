@@ -115,8 +115,11 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
         if (!mode->modeWidget())
             return;
 
-        if (initialize_mode)
+        if (initialize_mode) {
             mode->initializeMode();
+            if (!mode->contextString().isEmpty())
+                CONTEXT_MANAGER->registerContext(mode->contextString());
+        }
 
         if (isValidModeID(mode->modeID())) {
             // Check if the mode needs to be assigned a mode ID:

@@ -109,7 +109,7 @@ namespace Qtilities {
             // ----------------------------------
             //! Returns a reference to the mode widget which allows management of modes in the main window.
             /*!
-              \note If modeLayout() is ModesNone, this function returns null.
+              \note <b>Important:</b> If modeLayout() is ModesNone, this function returns null. To use modes make sure you pass your mode layout in the constructor.
               */
             ModeManager* modeManager();
             //! Returns the current mode layout of the widget.
