@@ -83,7 +83,7 @@ Contexts are represented using a QString value which is assigned to an unique ID
 
 %Qtilities provides an action manager class which is responsible to manage actions in Qt applications. The architecture of the action manager was inspired by the action management architecture used in Qt Creator since it is in very well done and powerful in my opinion.
 
-The action manager is part of the Qtilities::CoreGui module and can be accessed using the ACTION_MANAGER macro definition which returns a pointer to the context manager. The action manager implements the Qtilities::CoreGui::Interfaces::IActionManager interface through which developers can communicate with it.
+The action manager is part of the Qtilities::CoreGui module and can be accessed using the ACTION_MANAGER macro definition which returns a pointer to the action manager. The action manager implements the Qtilities::CoreGui::Interfaces::IActionManager interface through which developers can communicate with it.
 
 The action manager is used to manage action related items in applications using the %Qtilities libraries. These items includes:
 - Menus
@@ -91,7 +91,7 @@ The action manager is used to manage action related items in applications using 
 - Actions
 - Shortcuts
 
-All items are referenced using a string id and should be created directly through the action manager interface. 
+All items are referenced using a string ID through the action manager interface.
 
 \subsection menus_and_menubars Menus and menu bars
 
