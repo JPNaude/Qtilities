@@ -53,8 +53,10 @@ Bug Fixes:
 - Ubuntu: Fixed icon display & resource loading problems.
 - Fixed ModeListWidget layout bug in QtilitiesMainWindow.
 - ModeListWidget does not allow users to move mode icons anymore.
+- Fixed bugs in Observer::treeCount(), Observer::treeChildren() and Observer::isParentInHierarchy() when using the containment tree building approach.
 
 Outstanding roadmap items for this version:
+- Help stuff is part of docs...
 - Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
 - Command editor widget, remove dependency on property browser lib.
 - Action manager should act as a pointer list when commands are deleted. Thus they should be removed.
