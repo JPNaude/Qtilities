@@ -282,7 +282,7 @@ namespace Qtilities {
               your processing cycle is completed. The function you must call will depend on what you changed during the
               processing cycle.
 
-              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering()
+              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive()
               */
             virtual void startProcessingCycle();
             //! Ends a processing cycle.
@@ -293,7 +293,7 @@ namespace Qtilities {
               Note that you must manually call the needed update signals refreshViewsData() or refreshViewsLayout()
               after ending a processing cycle.
 
-              \sa startProcessingCycle();
+              \sa startProcessingCycle(), isProcessingCycleActive()
               */
             virtual void endProcessingCycle();
             //! Indicates if a processing cycle is active.

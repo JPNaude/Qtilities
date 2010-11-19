@@ -1608,27 +1608,24 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
                 return true;
         }
     } else {
-        // Check above all contained observers:
-        if (obj_to_check) {
-            if (obj_to_check->parent()) {
-                ObserverProperty parent_observer_map_prop = getObserverProperty(obj_to_check->parent(), OBSERVER_SUBJECT_IDS);
-                int observer_count;
-                if (parent_observer_map_prop.isValid())
-                    observer_count = parent_observer_map_prop.observerMap().count();
-                else
-                    return false;
-
+        // Check above all contained observer parents:
+        if (observer->parent()) {
+            ObserverProperty parent_observer_map_prop = getObserverProperty(observer->parent(), OBSERVER_SUBJECT_IDS);
+            int observer_count;
+            if (parent_observer_map_prop.isValid())
                 observer_count = parent_observer_map_prop.observerMap().count();
-                // Check all direct parents:
-                for (int i = 0; i < observer_count; i++) {
-                    Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
-                    if (parent != obj_to_check) {
-                        is_parent = isParentInHierarchy(obj_to_check,parent);
-                        if (is_parent)
-                            break;
-                    } else
-                        return true;
-                }
+            else
+                return false;
+
+            // Check all direct parents:
+            for (int i = 0; i < observer_count; i++) {
+                Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
+                if (parent != obj_to_check) {
+                    is_parent = isParentInHierarchy(obj_to_check,parent);
+                    if (is_parent)
+                        break;
+                } else
+                    return true;
             }
         }
     }
@@ -1776,34 +1773,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 }
 
 int Qtilities::Core::Observer::treeCount(const Observer* observer) const {
-    static int child_count;
-
-    // We need to iterate over all child observers recursively
-    if (!observer) {
-        child_count = 0;
-        observer = this;
-    }
-
-    Observer* child_observer = 0;
-
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        ++child_count;
-
-        // Handle the case where the child is an observer.
-        child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
-        if (child_observer)
-            treeCount(child_observer);
-        else {
-            // Handle the case where the child is the parent of an observer
-            foreach (QObject* child, observer->subjectAt(i)->children()) {
-                child_observer = qobject_cast<Observer*> (child);
-                if (child_observer)
-                    treeCount(child_observer);
-            }
-        }
-    }
-
-    return child_count;
+    return treeChildren().count();
 }
 
 QObject* Qtilities::Core::Observer::treeAt(int i) const {
@@ -1842,8 +1812,11 @@ QList<QObject*> Qtilities::Core::Observer::treeChildren(const Observer* observer
             // Handle the case where the child is the parent of an observer
             foreach (QObject* child, observer->subjectAt(i)->children()) {
                 child_observer = qobject_cast<Observer*> (child);
-                if (child_observer)
+                if (child_observer) {
+                    children << child_observer;
                     treeChildren(child_observer);
+                }
+                break;
             }
         }
     }
