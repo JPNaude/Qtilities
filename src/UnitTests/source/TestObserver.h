@@ -44,6 +44,21 @@ namespace Qtilities {
         {
             Q_OBJECT
         private slots:
+            // -----------------------------
+            // Attachment/Detachment related tests
+            // -----------------------------
+            //! Tests recursive attachment.
+            void testRecursiveAttachment();
+            //! Tests recursive attachment where the tree was constructed using the containment approach.
+            void testRecursiveAttachmentContained();
+            //! Tests attachment where the subject has the OBSERVER_LIMIT property set.
+            void testAttachWithObserverLimit();
+            //! Tests the subject limit functionality Observer.
+            void testSubjectLimit();
+
+            // -----------------------------
+            // Ownership related tests
+            // -----------------------------
             //! A test which tests the different Observer::ManualOwnership ownership.
             void testOwnershipManual();
             //! A test which tests the different Observer::AutoOwnership ownership.
@@ -54,6 +69,27 @@ namespace Qtilities {
             void testOwnershipObserverScope();
             //! A test which tests the different Observer::OwnedBySubjectOwnership ownership.
             void testOwnershipOwnedByParent();
+
+            // -----------------------------
+            // Tests for access function for objects in complete tree under an observer.
+            // -----------------------------
+            //! A test which tests treeCount() function.
+            void testTreeCount();
+            //! A test which tests treeAt() function.
+            void testTreeAt();
+            //! A test which tests treeAt() function.
+            void testTreeContains();
+            //! A test which tests treeChildren() function.
+            void testTreeChildren();
+            //! A test which tests treeCount() function where the tree was constructed using the containment approach.
+            void testTreeCountContainment();
+            //! A test which tests treeAt() function where the tree was constructed using the containment approach.
+            void testTreeAtContainment();
+            //! A test which tests treeAt() function where the tree was constructed using the containment approach.
+            void testTreeContainsContainment();
+            //! A test which tests treeChildren() function where the tree was constructed using the containment approach.
+            void testTreeChildrenContainment();
+
         };
     }
 }

@@ -33,8 +33,50 @@
 
 #include "TestObserver.h"
 
-#include <QtilitiesCore>
-using namespace QtilitiesCore;
+#include <QtilitiesCoreGui>
+using namespace QtilitiesCoreGui;
+
+void Qtilities::UnitTests::TestObserver::testRecursiveAttachment() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* childNode = rootNode->addNode("Parent 1");
+    QVERIFY(childNode->attachSubject(rootNode) == false);
+}
+
+void Qtilities::UnitTests::TestObserver::testRecursiveAttachmentContained() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* childNode = rootNode->addNode("Parent Node");
+    TreeItem* item = childNode->addItem("Child Item");
+
+    // Now create and add a contained observer:
+    TreeNode* containedNode = new TreeNode("Contained Node");
+    containedNode->setParent(item);
+    QVERIFY(containedNode->attachSubject(rootNode) == false);
+}
+
+void Qtilities::UnitTests::TestObserver::testAttachWithObserverLimit() {
+    QObject* obj = new QObject();
+    SharedObserverProperty observer_limit_property(QVariant(1),OBSERVER_LIMIT);
+    Observer::setSharedProperty(obj, observer_limit_property);
+
+    Observer observer1;
+    Observer observer2;
+    QVERIFY(observer1.attachSubject(obj) == true);
+    QVERIFY(observer2.attachSubject(obj) == false);
+}
+
+void Qtilities::UnitTests::TestObserver::testSubjectLimit() {
+    TreeNode node;
+    node.setSubjectLimit(2);
+
+    QVERIFY(node.addItem("Item 1") != 0);
+    QVERIFY(node.addItem("Item 2") != 0);
+    QVERIFY(node.addItem("Item 3") == 0);
+    QVERIFY(node.setSubjectLimit(1) == false);
+    QVERIFY(node.setSubjectLimit(3) == true);
+    QVERIFY(node.addItem("Item 3") != 0);
+}
 
 void Qtilities::UnitTests::TestObserver::testOwnershipManual() {
     LOG_INFO("TestObserver::testOwnershipManual() start:");
@@ -174,8 +216,174 @@ void Qtilities::UnitTests::TestObserver::testOwnershipOwnedByParent() {
     delete object1;
 
     // Check the validity of the observer:
-    QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to deletee the object yet.", Continue);
+    QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to delete the object yet.", Continue);
     QVERIFY(observerA == 0);
 
     LOG_INFO("TestObserver::testOwnershipOwnedByParent() end.");
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeCount() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    parentNode2->addItem("Child 5");
+
+    QVERIFY(rootNode->treeCount() == 7);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeAt() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    TreeItem* item = parentNode2->addItem("Child 5");
+
+    QVERIFY(rootNode->treeAt(6) == item);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeContains() {
+    // Example tree using tree node classes to simplify test:
+    QList<QObject*> children;
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    children << parentNode1;
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    children << parentNode2;
+    children << parentNode1->addItem("Child 1");
+    children << parentNode1->addItem("Child 2");
+    children << parentNode2->addItem("Child 3");
+    children << parentNode2->addItem("Child 4");
+    children << parentNode2->addItem("Child 5");
+
+    foreach (QObject* obj, children)
+        QVERIFY(rootNode->treeContains(obj) == true);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeChildren() {
+    // Example tree using tree node classes to simplify test:
+    QList<QObject*> children;
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    children << parentNode1;
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    children << parentNode2;
+    children << parentNode1->addItem("Child 1");
+    children << parentNode1->addItem("Child 2");
+    children << parentNode2->addItem("Child 3");
+    children << parentNode2->addItem("Child 4");
+    children << parentNode2->addItem("Child 5");
+
+    QList<QObject*> children_verify = rootNode->treeChildren();
+    foreach (QObject* obj, children)
+        QVERIFY(children_verify.contains(obj) == true);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeCountContainment() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    TreeItem* item = parentNode2->addItem("Child 5");
+
+    // Now create and add a contained observer:
+    TreeNode* containedNode = new TreeNode("Contained Node");
+    containedNode->addItem("Contained Item 1");
+    containedNode->addItem("Contained Item 2");
+    containedNode->addItem("Contained Item 3");
+    containedNode->setParent(item);
+
+    LOG_INFO(QString::number(rootNode->treeCount()));
+    QVERIFY(rootNode->treeCount() == 11);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeAtContainment() {
+    // Example tree using tree node classes to simplify test:
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode2->addItem("Child 3");
+    parentNode2->addItem("Child 4");
+    TreeItem* item = parentNode2->addItem("Child 5");
+
+    // Now create and add a contained observer:
+    TreeNode* containedNode = new TreeNode("Contained Node");
+    containedNode->addItem("Contained Item 1");
+    containedNode->addItem("Contained Item 2");
+    TreeItem* test_item = containedNode->addItem("Contained Item 3");
+    containedNode->setParent(item);
+
+    LOG_INFO(QString::number(rootNode->treeCount()));
+    QVERIFY(rootNode->treeAt(10) == test_item);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeContainsContainment() {
+    // Example tree using tree node classes to simplify test:
+    QList<QObject*> children;
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    children << parentNode1;
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    children << parentNode2;
+    children << parentNode1->addItem("Child 1");
+    children << parentNode1->addItem("Child 2");
+    children << parentNode2->addItem("Child 3");
+    children << parentNode2->addItem("Child 4");
+    TreeItem* item = parentNode2->addItem("Child 5");
+    children << item;
+
+    // Now create and add a contained observer:
+    TreeNode* containedNode = new TreeNode("Contained Node");
+    children << containedNode;
+    children << containedNode->addItem("Contained Item 1");
+    children << containedNode->addItem("Contained Item 2");
+    children << containedNode->addItem("Contained Item 3");
+
+    containedNode->setParent(item);
+
+    foreach (QObject* obj, children)
+        QVERIFY(rootNode->treeContains(obj) == true);
+}
+
+void Qtilities::UnitTests::TestObserver::testTreeChildrenContainment() {
+    // Example tree using tree node classes to simplify test:
+    QList<QObject*> children;
+    TreeNode* rootNode = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+    children << parentNode1;
+    TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+    children << parentNode2;
+    children << parentNode1->addItem("Child 1");
+    children << parentNode1->addItem("Child 2");
+    children << parentNode2->addItem("Child 3");
+    children << parentNode2->addItem("Child 4");
+    TreeItem* item = parentNode2->addItem("Child 5");
+    children << item;
+
+    // Now create and add a contained observer:
+    TreeNode* containedNode = new TreeNode("Contained Node");
+    children << containedNode;
+    children << containedNode->addItem("Contained Item 1");
+    children << containedNode->addItem("Contained Item 2");
+    children << containedNode->addItem("Contained Item 3");
+
+    containedNode->setParent(item);
+
+    QList<QObject*> children_verify = rootNode->treeChildren();
+    foreach (QObject* obj, children)
+        QVERIFY(children_verify.contains(obj) == true);
 }
