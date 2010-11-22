@@ -38,6 +38,8 @@ UI_DIR = $$QTILITIES_TEMP/UnitTests
 # --------------------------
 HEADERS += source/UnitTestsConstants.h \
         source/UnitTests_global.h \
-        source/TestObserver.h
-SOURCES += source/TestObserver.cpp
+        source/TestObserver.h \
+        source/TestObserverRelationalTable.h
+SOURCES += source/TestObserver.cpp \
+        source/TestObserverRelationalTable.cpp
 
