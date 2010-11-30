@@ -95,6 +95,9 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     }
 
     bool is_known_type = false;
+    // If inversed and there is no known types is_known_type must be true:
+    if (d->inversed_filtering && d->known_subject_types.count() == 0)
+        is_known_type = true;
 
     // Check the obj meta info against the known filter types
     for (int i = 0; i < d->known_subject_types.count(); i++) {
