@@ -60,8 +60,12 @@ int main(int argc, char *argv[])
     main_window->show();
 
     // Observer Tests:
-    TestObserver test1;
-    QTest::qExec(&test1);
+    TestObserver testObserver;
+    QTest::qExec(&testObserver);
+
+    // ObserverRelationalTable Tests:
+    TestObserverRelationalTable testObserverRelationalTable;
+    QTest::qExec(&testObserverRelationalTable);
 
     return a.exec();
 }
