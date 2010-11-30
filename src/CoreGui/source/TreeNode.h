@@ -264,6 +264,8 @@ tree_widget->show();
               This function must be called only once, after the construction of your tree node before
               any tree items have been attached to the node. Calling it a second time will just return
               the already constructed filter.
+
+              \note This function will enable inversed filtering on the subject type filter.
               */
             SubjectTypeFilter* setChildType(const QString& child_group_name);
             //! Disables naming control in this node.

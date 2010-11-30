@@ -199,6 +199,7 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPol
 
 Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::setChildType(const QString& child_group_name) {
     nodeData->subject_type_filter = new SubjectTypeFilter(child_group_name);
+    nodeData->subject_type_filter->enableInverseFiltering(true);
     if (!installSubjectFilter(nodeData->subject_type_filter))
         delete nodeData->subject_type_filter;
 
