@@ -1,6 +1,7 @@
 v0.3 
 ======
 New Features:
+- Test
 - New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
     - TreeNode::enableActivityControl() updated to include this new policy.
     - This policy is now part of binary and XML tree exports.
