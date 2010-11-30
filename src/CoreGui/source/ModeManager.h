@@ -151,6 +151,8 @@ modeListWidget()->setStyleSheet(stylesheet);
               \sa addMode(), addModes()
               */
             QList<IMode*> modes() const;
+            //! Function which returns a string representation of the shortcut assigned to a specific mode.
+            QString modeShortcut(int mode_id) const;
 
             // ----------------------------------
             // Functions related to mode activity

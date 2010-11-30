@@ -115,11 +115,11 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
         if (!mode->modeWidget())
             return;
 
-        if (initialize_mode) {
+        if (initialize_mode)
             mode->initializeMode();
-            if (!mode->contextString().isEmpty())
-                CONTEXT_MANAGER->registerContext(mode->contextString());
-        }
+
+        if (!mode->contextString().isEmpty())
+            CONTEXT_MANAGER->registerContext(mode->contextString());
 
         if (isValidModeID(mode->modeID())) {
             // Check if the mode needs to be assigned a mode ID:
@@ -175,6 +175,13 @@ void Qtilities::CoreGui::ModeManager::addModes(QList<QObject*> modes, bool initi
 
 QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeManager::modes() const {
     return d->id_iface_map.values();
+}
+
+QString Qtilities::CoreGui::ModeManager::modeShortcut(int mode_id) const {
+    if (d->mode_shortcuts.keys().contains(mode_id))
+        return d->mode_shortcuts[mode_id]->key().toString();
+    else
+        return QString();
 }
 
 Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::ModeManager::activeModeIFace() const {
