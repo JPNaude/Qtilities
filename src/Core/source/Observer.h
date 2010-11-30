@@ -603,7 +603,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
                 \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
                 */
             int treeCount(const Observer* observer = 0) const;
-            //! Function to get a QObject* reference at a specific location in the tree underneath this observer.
+            //! Function to get a QObject reference at a specific location in the tree underneath this observer.
             /*!
               If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
               */
@@ -732,7 +732,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 
               \note The list of monitored properties includes monitored properties of any installed subject filters.
 
-              \sa monitoredPropertyChanged(), enableSubjectEventFiltering(), propertyChangeFiltered()
+              \sa monitoredPropertyChanged(), toggleSubjectEventFiltering(), propertyChangeFiltered()
               */
             QStringList monitoredProperties() const;
             //! This function returns a QStringList with the names of all the reserved properties inside this observer context.
@@ -756,7 +756,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               \param property_name The name of the property which changed.
               \param objects The objects on which the property changed.
 
-              \sa monitoredProperties(), enableSubjectEventFiltering(), propertyChangeFiltered()
+              \sa monitoredProperties(), toggleSubjectEventFiltering(), propertyChangeFiltered()
               */
             void monitoredPropertyChanged(const char* property_name, QList<QObject*> objects = QList<QObject*>());
             //! A signal which is emitted as soon as an property change event is filtered.

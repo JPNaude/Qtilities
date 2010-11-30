@@ -497,12 +497,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
     // 2.3. Subject filters:
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        QDomElement subject_filter = doc->createElement("SubjectFilter");
-        subject_data.appendChild(subject_filter);
-        if (observerData->subject_filters.at(i)->instanceFactoryInfo().exportXML(doc,&subject_filter) == IExportable::Failed)
-            return IExportable::Failed;
-        if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
-            return IExportable::Failed;
+        if (observerData->subject_filters.at(i)->isExportable()) {
+            QDomElement subject_filter = doc->createElement("SubjectFilter");
+            subject_data.appendChild(subject_filter);
+            if (observerData->subject_filters.at(i)->instanceFactoryInfo().exportXML(doc,&subject_filter) == IExportable::Failed)
+                return IExportable::Failed;
+            if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
+                return IExportable::Failed;
+        }
     }
 
     // 2.4 Formatting:
@@ -1472,7 +1474,7 @@ void Qtilities::Core::Observer::deleteAll() {
 
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
-        // Validate operation against access mode if access mode scope is category
+        // Validate operation against access mode if access mode scope is category:
         QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),OBJECT_CATEGORY);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
@@ -1482,6 +1484,7 @@ void Qtilities::Core::Observer::deleteAll() {
     endProcessingCycle();
     emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
     emit layoutChanged();
+    setModificationState(true);
 }
 
 QVariant Qtilities::Core::Observer::getObserverPropertyValue(const QObject* obj, const char* property_name) const {
@@ -2147,11 +2150,9 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             // We now route the event that changed to the subject filter responsible for this property to validate the change.
             // If no subject filter is responsible, the observer needs to handle it itself.
             bool filter_event = false;
-            bool is_filter_property = false;
             for (int i = 0; i < observerData->subject_filters.count(); i++) {
                 if (observerData->subject_filters.at(i)) {
                     if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-                        is_filter_property = true;
                         filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
                     }
                 }
@@ -2159,10 +2160,10 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 
             // If the event should not be filtered, we need to post a user event on the object which will indicate
             // that the property change was valid and succesfull.
-            // Note that subject filters must emit do the following themselves. Although this makes implementation
+            // Note that subject filters must do the following themselves. Although this makes implementation
             // of subject filters more difficult, it is more powerfull in this way since one property change can
             // affect other objects as well and only the subject filter will have knowledge about this.
-            if (!filter_event && !is_filter_property) {
+            if (!filter_event) {
                 // We need to do a few things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
                 // First check if this object is in the same thread as this observer:
