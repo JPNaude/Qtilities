@@ -475,9 +475,9 @@ if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
 
 If an observer has an activity policy filter installed and the Qtilities::Core::Properties::OBJECT_ACTIVITY property on an object within the context is changed, the change will be detected by the observer and passed to the activity policy filter. The filter will then validate the activity state of all objects in the context. The way the validation is performed depends on the setup of the activity policy filter. The property change is thus validated by all the attached subject filters and by the observer itself. 
 
-For properties which has the "Change Notifications" parameter as Yes in their documentation, notifications are provided when property changes were valid in the following ways (always both):
+For properties which has the "Change Notifications" parameter as Yes in their documentation, notifications are available when property changes were valid in the following ways (always both):
 - The Qtilities::Core::Observer::monitoredPropertyChanged() signal is emitted with information about the change.
-- A Qtilities::Core::QtilitiesPropertyChangeEvent event is delivered to the object on which the change took place. It is important to note that events can only be delivered to objects which are in the same thread as the observer. This is a Qt limitation and if this is a problem in your implementation you should rather use the first notification method. If an object is attached to two observers, the notifications will not happen more than once if necessary.
+- When Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents() is enabled a Qtilities::Core::QtilitiesPropertyChangeEvent event is delivered to the object on which the change took place. It is important to note that events can only be delivered to objects which are in the same thread as the observer. This is a Qt limitation and if this is a problem in your implementation you should rather use the first notification method. If an object is attached to two observers, the notifications will not happen more than once if necessary.
 
 It is easy to catch property change events on an object to which it is delivered. For example:
 \code
