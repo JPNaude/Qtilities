@@ -59,7 +59,7 @@ namespace Qtilities {
         filter types by calling the enableInverseFiltering() function. In this scenario the filter will only allow attachment
         of unknown filter type and it will filter all known types.
 
-        Note: You need to set up your filter before attaching it to an observer.
+        \note You need to set up your filter before attaching any subjects to its observer context.
 
         \sa Observer, AbstractSubjectFilter, ActivityPolicyFilter, NamingPolicyFilter
           */	

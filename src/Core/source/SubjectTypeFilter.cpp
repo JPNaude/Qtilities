@@ -52,7 +52,7 @@ namespace Qtilities {
 
 struct Qtilities::Core::SubjectTypeFilterData {
     SubjectTypeFilterData() : inversed_filtering(false),
-    is_exportable(true) {}
+    is_exportable(false) {}
 
     bool inversed_filtering;
     bool is_exportable;
@@ -176,8 +176,12 @@ QString Qtilities::Core::SubjectTypeFilter::groupName() const {
 }
 
 void Qtilities::Core::SubjectTypeFilter::addSubjectType(SubjectTypeInfo subject_type_info) {
-    if (!observer)
-        d->known_subject_types.append(subject_type_info);
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
+
+    d->known_subject_types.append(subject_type_info);
 }
 
 bool Qtilities::Core::SubjectTypeFilter::isKnownType(const QString& meta_type) const {
@@ -199,8 +203,12 @@ QList<Qtilities::Core::SubjectTypeInfo> Qtilities::Core::SubjectTypeFilter::know
 }
 
 void Qtilities::Core::SubjectTypeFilter::enableInverseFiltering(bool enabled) {
-    if (!observer)
-        d->inversed_filtering = enabled;
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
+
+    d->inversed_filtering = enabled;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
