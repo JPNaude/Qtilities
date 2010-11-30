@@ -106,6 +106,15 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
     // Plugins:
     connect(ui->btnRefreshPluginInfo,SIGNAL(clicked()),SLOT(handle_pluginInfoRefresh()));
+    ui->btnRefreshPluginInfo->setIcon(QIcon(ICON_REFRESH_16x16));
+    handle_pluginInfoRefresh();
+
+    // Modes:
+    connect(ui->btnRefreshModes,SIGNAL(clicked()),SLOT(handle_modeInfoRefresh()));
+    ui->btnRefreshModes->setIcon(QIcon(ICON_REFRESH_16x16));
+    handle_modeInfoRefresh();
+    ui->tableModes->setAlternatingRowColors(true);
+    ui->tableModes->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
@@ -167,6 +176,47 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_pluginInfoRefresh() {
     ui->listPluginsActive->addItems(EXTENSION_SYSTEM->activePlugins());
     ui->listPluginsInactive->addItems(EXTENSION_SYSTEM->inactivePlugins());
     ui->listPluginsFiltered->addItems(EXTENSION_SYSTEM->filteredPlugins());
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::handle_modeInfoRefresh() {
+    ui->tableModes->clear();
+    QStringList headers;
+    headers << "Mode Name" << "Mode ID" << "Mode Shortcut" << "Context String" << "Help ID";
+    ui->tableModes->setHorizontalHeaderLabels(headers);
+    ui->tableModes->setSortingEnabled(false);
+
+    QtilitiesMainWindow* mainWindow = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
+    if (mainWindow) {
+        ui->tableModes->setRowCount(mainWindow->modeManager()->modes().count());
+        for (int i = 0; i < mainWindow->modeManager()->modes().count(); i++) {
+            IMode* mode = mainWindow->modeManager()->modes().at(i);
+
+            // Mode Name
+            QTableWidgetItem *newItem = new QTableWidgetItem(mode->modeName());
+            ui->tableModes->setItem(i, 0, newItem);
+            // Mode ID
+            newItem = new QTableWidgetItem(QString::number(mode->modeID()));
+            ui->tableModes->setItem(i, 1, newItem);
+            // Mode Shortcut
+            newItem = new QTableWidgetItem(mainWindow->modeManager()->modeShortcut(mode->modeID()));
+            ui->tableModes->setItem(i, 2, newItem);
+            // Mode Context String
+            newItem = new QTableWidgetItem(mode->contextString());
+            ui->tableModes->setItem(i, 3, newItem);
+            // Mode Help ID
+            newItem = new QTableWidgetItem(mode->contextHelpId());
+            ui->tableModes->setItem(i, 4, newItem);
+
+            ui->tableModes->setRowHeight(i,17);
+        }
+    }
+
+    ui->tableModes->resizeColumnsToContents();
+    ui->tableModes->horizontalHeader()->setStretchLastSection(true);
+    ui->tableModes->setSortingEnabled(true);
+    ui->tableModes->sortByColumn(0,Qt::AscendingOrder);
+    ui->tableModes->setShowGrid(false);
+    ui->tableModes->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::changeEvent(QEvent *e)
