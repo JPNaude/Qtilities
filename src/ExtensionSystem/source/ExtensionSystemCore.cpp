@@ -408,7 +408,6 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
     }
     file.close();
 
-
     // Interpret the loaded doc:
     QDomElement root = doc.documentElement();
 
