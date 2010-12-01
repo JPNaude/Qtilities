@@ -703,6 +703,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                         LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
                                         delete obj;
                                         result = IExportable::Incomplete;
+                                        continue;
                                     }
 
                                     // Check if it is active:
