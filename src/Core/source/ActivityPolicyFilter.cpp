@@ -54,7 +54,7 @@ namespace Qtilities {
 
 struct Qtilities::Core::ActivityPolicyFilterData {
     ActivityPolicyFilterData() : is_modified(false),
-    is_exportable(true) { }
+    is_exportable(false) { }
 
     bool is_modified;
     bool is_exportable;

@@ -41,25 +41,31 @@ using namespace Qtilities::Core::Constants;
 
 struct Qtilities::Core::ObserverRelationalTableData {
     ObserverRelationalTableData() : observer(0),
-    visitor_id_count(0) {}
+    visitor_id_count(0),
+    exportable_subjects_only(false) {}
 
     Observer*                           observer;
     QMap<int, RelationalTableEntry*>    entries;
     int                                 visitor_id_count;
+    bool                                exportable_subjects_only;
 };
 
-Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(Observer* observer, bool exportable_subject_only) {
+Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(Observer* observer, bool exportable_subjects_only) {
     d = new ObserverRelationalTableData;
     d->observer = observer;
+    d->exportable_subjects_only = exportable_subjects_only;
+
     removeRelationalProperties(d->observer);
-    constructTable(d->observer, exportable_subject_only);
+    constructTable(d->observer);
 
     // ToDo: Make sure multiple observer relational tables does not exist for this observer.
+    // It should not really be possible since we remove the relational table properties before constructTable().
 }
 
 Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(const ObserverRelationalTable &other) {
     d = new ObserverRelationalTableData;
     d->observer = other.d->observer;
+    d->exportable_subjects_only = other.d->exportable_subjects_only;
     for (int i = 0; i < other.count(); i++) {
         RelationalTableEntry* other_entry_ptr = other.entryAt(i);
         RelationalTableEntry* entry_ptr = new RelationalTableEntry(*other_entry_ptr);
@@ -68,13 +74,34 @@ Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(const Observer
     }
 }
 
+Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable() {
+    d = new ObserverRelationalTableData;
+}
+
 Qtilities::Core::ObserverRelationalTable::~ObserverRelationalTable() {
+    removeRelationalProperties(d->observer);
+
     // Delete all entries
     for (int i = 0; i < d->entries.count(); i++) {
         delete d->entries.values().at(i);
         d->entries[d->entries.keys().at(i)] = 0;
     }
     delete d;
+}
+
+void Qtilities::Core::ObserverRelationalTable::refresh() {
+    // Clear up everything:
+    removeRelationalProperties(d->observer);
+    // Delete all entries
+    for (int i = 0; i < d->entries.count(); i++) {
+        delete d->entries.values().at(i);
+        d->entries[d->entries.keys().at(i)] = 0;
+    }
+    d->entries.clear();
+    d->visitor_id_count = 0;
+
+    // Now construct the table again:
+    constructTable(d->observer);
 }
 
 bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable other) {
@@ -98,6 +125,14 @@ bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable o
 
     // We compare by looking up each item in table in this table and compare each item individially.
     for (int i = 0; i < d->entries.count(); i++) {
+        if (!d->entries.values().at(i)) {
+            LOG_FATAL(QObject::tr("Null entry found in current observer in method ObserverRelationalTable::compare()."));
+            return false;
+        }
+        if (!other.entryAt(i)) {
+            LOG_FATAL(QObject::tr("Null entry found in other observer in method ObserverRelationalTable::compare()."));
+            return false;
+        }
         if (*d->entries.values().at(i) != *other.entryAt(i)) {
             return false;
         }
@@ -182,7 +217,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
     return d->entries.values().at(index);
 }
 
-void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() {
+void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() const {
     LOG_INFO("");
     LOG_INFO(QObject::tr("Table Dump Start."));
     LOG_INFO("");
@@ -238,7 +273,7 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() {
     LOG_INFO("");
 }
 
-Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable::constructTable(Observer* observer, bool exportable_subject_only) {
+Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable::constructTable(Observer* observer) {
     if (!observer)
         return 0;
 
@@ -301,7 +336,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
 
         if (is_iface && is_observer) {
             // Now inspect the subject.
-            subject_entry = constructTable(obs,exportable_subject_only);
+            subject_entry = constructTable(obs);
             subject_id = subject_entry->d_visitorID;
             // Now add this observer as a parent to the subject
             if (subject_entry)
@@ -316,7 +351,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
                     break;
             }
 
-            subject_entry = constructTable(obs,exportable_subject_only);
+            subject_entry = constructTable(obs);
             subject_id = subject_entry->d_visitorID;
             // Now add this observer as a parent to the subject
             if (subject_entry)
@@ -328,7 +363,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
             subject_id = addVisitorID(obj);
 
             // If only exportable subjects must be added, we need to check for that here
-            if (exportable_subject_only) {
+            if (d->exportable_subjects_only) {
                 IExportable* export_iface = qobject_cast<IExportable*> (obj);
                 if (!export_iface)
                     break;
@@ -431,10 +466,6 @@ int Qtilities::Core::ObserverRelationalTable::getSpecificParent(QObject* obj) co
 }
 
 quint32 MARKER_RELATIONAL_TABLE_SECTION = 0xEEEEEEEE;
-
-Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable() {
-    d = new ObserverRelationalTableData;
-}
 
 bool Qtilities::Core::ObserverRelationalTable::exportBinary(QDataStream& stream) const {
     stream << MARKER_RELATIONAL_TABLE_SECTION;

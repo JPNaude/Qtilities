@@ -298,13 +298,13 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
           */
         struct NamingPolicyFilterData {
             NamingPolicyFilterData() : is_modified(false),
-            is_exportable(true),
+            is_exportable(false),
             conflicting_object(0) { }
 
             bool is_modified;
             bool is_exportable;
             QValidator* validator;
-            NamingPolicyInputDialog* name_dialog;
+            QPointer<NamingPolicyInputDialog> name_dialog;
 
             QString rollback_name;
             QPointer<QObject> conflicting_object;

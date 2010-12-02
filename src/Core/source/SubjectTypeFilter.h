@@ -54,12 +54,15 @@ namespace Qtilities {
         \brief A subject filter which only allows attachement of specific object types.
 
         The SubjectTypeFilter allows control over the types of objects which can be attached to an observer context. The filter
-        only allows known subject types to be attached. A subject type is defined by the SubjectTypeInfo struct and you
-        A filter only knows about subject types added to it using the addSubjectType() function. You can inverse the known
+        only allows known subject types to be attached. A subject type is defined by the SubjectTypeInfo struct and each
+        filter only knows about subject types added to it using the addSubjectType() function. You can inverse the known
         filter types by calling the enableInverseFiltering() function. In this scenario the filter will only allow attachment
         of unknown filter type and it will filter all known types.
 
-        Note: You need to set up your filter before attaching it to an observer.
+        Another usefull feature of the SubjectTypeFilter class is that it provides a name for the group of subjects that is known to
+        it which is accessable through groupName(). The group name is set in the constructor of the filter.
+
+        \note You need to set up your filter before attaching any subjects to its observer context.
 
         \sa Observer, AbstractSubjectFilter, ActivityPolicyFilter, NamingPolicyFilter
           */	

@@ -90,6 +90,8 @@ namespace Qtilities {
                 void handle_objectPoolDoubleClick(QObject *object);
                 //! Handles the plugin info refresh button.
                 void handle_pluginInfoRefresh();
+                //! Handles the mode info refresh button.
+                void handle_modeInfoRefresh();
 
             protected:
                 void changeEvent(QEvent *e);

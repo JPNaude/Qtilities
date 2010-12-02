@@ -113,11 +113,6 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
             LOG_TRACE(debug_string);
         }
         return;
-    } else if (d->active_contexts.contains(context) && !notify) {
-        emit aboutToSetNewContext(context);
-        emit finishedSetNewContext(context);
-        emit contextChanged(currentContexts());
-        return;
     }
 
     if (notify)
@@ -137,7 +132,7 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
             LOG_TRACE(debug_string);
         }
     } else
-        LOG_WARNING(tr("Attempting to append unregistered context in function setNewContext with ID: ") + context);
+        LOG_WARNING(tr("Attempting to set new unregistered context in function setNewContext with ID: ") + context);
 
     if (notify) {
         emit finishedSetNewContext(context);

@@ -1,1 +1,480 @@
-/**\page page_tree_structures Building Trees <table CELLPADDING=0 style="width:100%;  table-layout:fixed;	margin:0px 0px 0px 0px;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;"><tr> <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left"><h1 style="margin:0px; padding:0px">Overview</h1>%Qtilities provides a set of classes which make tree building a trivial task. This article will explore these classes and show different ways to build trees. The tree classes also provides many additional features which comes in handy and saves time. The main class doing the work behind the scenes is Qtilities::Core::Observer. However this article will not look at the details of how things work, it will just show how to use the classes and build trees without worrying how it works in the background. The \ref page_observers article is a good place to start if you are interested in the details.Table of contents:- \ref tree_building_classes- \ref lets_build_some_trees  - \ref tree_categorized_leafs  - \ref tree_uncategorized_leafs  - \ref tree_xml  - \ref tree_formatted  - \ref tree_specialized_nodes  .- \ref tree_structures_features	- \ref tree_parent_child_access	- \ref monitor_changes	- \ref compare_trees	- \ref trees_lifetime_monitoring	.- \ref tree_parsing  - \ref tree_parsing_areas  - \ref tree_parsing_observer_observer  - \ref tree_parsing_observer_contained_observer  .</td><td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;"><table style="table-layout:auto;	margin:0px 0px 0px 0px;   width: 100%;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;  background-color: #d1d3d4;"><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">First Steps</h2></td></tr><tr><td>- <a href="page_getting_started.html">Getting Started</a><br>- <a href="page_the_basics.html">The Basics</a><br>- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br></td></tr><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">Overviews</h2></td></tr><tr><td>- <a href="page_action_management.html">Action Management</a><br>- <a href="page_extension_system.html">Extension System</a><br>- <a href="page_factories.html">Factories</a><br>- <a href="page_logging.html">Logging</a><br>- <a href="page_modules_overview.html">Modules</a><br>- <a href="page_object_management.html">Object Management</a><br>- <a href="page_observers.html">Observers</a><br>- <a href="page_observer_widgets.html">Observer Widgets</a><br>- <a href="page_project_management.html">Project Management</a><br>- <a href="page_tree_structures.html">Building Trees</a><br>- <a href="page_widget_set.html">Widget Set</a><br></td></tr></table></td></tr></table>\section tree_building_classes Tree building classesBefore starting to build actual trees, lets look at the set of tree building classes provided which are shown below, where classes doing work behind the scenes are colored in grey.\image html tree_building_classes.jpg "Tree Building Classes"The different classes has different responsibilities:- Qtilities::Core::Observer : A normal Observer class which allows attachment of items to tree nodes. It is also responsible to monitor the modification state of TreeNode as well as the exportability.- Qtilities::CoreGui::AbstractTreeItem : A base class which is implemented by all tree items and nodes. This class provides easy access to the name, formatting and category of any item which can appear in the tree.- Qtilities::CoreGui::TreeNode : A tree item which allows attachment of other items or nodes to it.- Qtilities::CoreGui::TreeItemBase : Implements the modification state of tree items inheriting from it. It also expose formatting options using Q_PROPERTY.- Qtilities::CoreGui::TreeItem : A basic tree item (Leaf Node).- Qtilities::CoreGui::TreeFileItem : A specific type of tree item which allows easy attachment of files to a tree structure.It is easy extend the set of tree items by creating objects which inherit from Qtilities::CoreGui::TreeItemBase.\section lets_build_some_trees Lets build some treesTrees are constructed on the principle that the  Qtilities::CoreGui::TreeNode class can contain child items (leaf nodes) or other tree nodes. This allows us to build any tree structure that we want and in this section we will discuss and show how to build trees with different requirements.\subsection tree_categorized_leafs Tree with categorized leafsAn important feature of a tree node is that is can group child items into categories where a category icon will automatically be assigned to category nodes. This functionality is controlled by the Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled() function. The first tree is a simple tree which uses this feature to group items into different categories. The advantage of the categorized approach is that it is very simple to use and we can easily construct very deep trees since we don't have to construct the category nodes manually. The disadvantage is that we don't have access to the category nodes, thus we cannot control their formatting or define the context used for items inside the category (activity or naming control for example).\image html tree_docs_categorized_tree.jpg "Tree With Categorized Leaf Nodes"The actual implementation is show below:\codeTreeNode* rootNode = new TreeNode("Root");rootNode->setCategorizedDisplayEnabled(true);rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));ObserverWidget* categorized_widget = new ObserverWidget(rootNode);categorized_widget->show();\endcodeNote that deep trees can be constructed by using different constructors of Qtilities::Core::QtilitiesCategory. For example:\coderootNode->addItem("Child 1",QtilitiesCategory("Top Category::Middle Category::Bottom Category","::"));\endcode\subsection tree_uncategorized_leafs Tree without categorized leafsBuilding trees without categories is powerful but becomes tedious when a tree gets deep and the nodes have to be created manually. Lets build the same tree again, but this time without using categories. To keep the examples to follow short, the code to create and show the observer widget is not repeated again.\image html tree_docs_uncategorized_tree.jpg "Tree With Categorized Leaf Nodes"The actual implementation is show below:\codeTreeNode* rootNode = new TreeNode("Root");TreeNode* parentNode1 = rootNode->addNode("Parent 1");TreeNode* parentNode2 = rootNode->addNode("Parent 2");parentNode1->addItem("Child 1");parentNode1->addItem("Child 2");parentNode2->addItem("Child 3");parentNode2->addItem("Child 4");parentNode2->addItem("Child 5");\endcodeIt is clear from the above example that deep trees will take much more lines of code than the categorized approach. This approach does however allows for much more complex trees to be build. In the trees that follow this will become apparent.\subsection tree_xml Saving and loading trees using XMLA very powerful feature of %Qtilities trees are that they can save any created tree to a XML file and reconstruct it at a later time. A tree can also be defined entirely in XML and then constructed in memory and shown to the user.Lets demonstrate this using the example tree presented thus far. Lets assume we append this to the above example:\codeQString fileName = QApplication::applicationDirPath() + "/example_tree.xml";// Save the tree to a file:rootNode->saveToFile(fileName);// Load the tree from a file:rootNode->loadFromFile(fileName);// Or add the node produced from a file as a child to a node:rootNode->addNodeFromFile(fileName);\endcodeThe XML files to construct the two trees discussed so far looks is shown next. First the tree with categorized nodes:\code<!DOCTYPE QtilitiesTreeDoc><QtilitiesTree DocumentVersion="1">  <Root InstanceFactoryInfo="Tree Node" Name="Root">    <Data>      <ObserverHints HierarchicalDisplay="CategorizedHierarchy"/>    </Data>    <Children>      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 1"/>      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 2"/>      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 3"/>      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 4"/>      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 5"/>    </Children>  </Root></QtilitiesTree>\endcodeNext the tree without categorized nodes:\code<!DOCTYPE QtilitiesTreeDoc><QtilitiesTree DocumentVersion="1">  <Root InstanceFactoryInfo="Tree Node" Name="Root">    <Children>      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">        <Children>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2"/>        </Children>      </TreeItem>      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">        <Children>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>        </Children>      </TreeItem>    </Children>  </Root></QtilitiesTree>\endcodeNote that these are some the most basic trees you can build. A more advanced XML tree is shown later in this document.\subsection tree_formatted Formatted tree which combines categorized and uncategorized nodesTree nodes and items (excluding category nodes) all inherit Qtilities::CoreGui::AbstractTreeItem which provides functions to format these items. For more details on the allowed formatting, see the class documentation. It is possible to combine the two approaches described thus far. That is, we can create a tree with tree nodes using categories along with other tree nodes which does not use categories. Lets create a formatted tree to demonstrate this. \codeTreeNode* nodeA = new TreeNode("Node A");TreeNode* nodeB = nodeA->addNode("Node B");TreeNode* nodeC = nodeA->addNode("Node C");nodeC->setCategorizedDisplayEnabled(true);// Add some formatting to the nodes:nodeA->setForegroundRole(QBrush(Qt::darkRed));nodeA->setFont(QFont("Helvetica [Cronyx]",20));nodeA->setAlignment(Qt::AlignCenter);nodeA->setBackgroundRole(QBrush(Qt::gray));nodeB->setForegroundRole(QBrush(Qt::darkGreen));nodeB->setFont(QFont("Helvetica [Cronyx]",20));nodeB->setAlignment(Qt::AlignCenter);nodeB->setBackgroundRole(QBrush(Qt::gray));nodeC->setForegroundRole(QBrush(Qt::darkYellow));nodeC->setFont(QFont("Helvetica [Cronyx]",20));nodeC->setAlignment(Qt::AlignCenter);nodeC->setBackgroundRole(QBrush(Qt::gray));// Create the tree items:// Be careful to use it like this, this is just to keep the example short.// If the addItem() call fails it returns 0.nodeA->addItem("Item 1")->setStatusTip("Hello, I'm a status tip.");nodeB->addItem("Item 2")->setIcon(QIcon(ICON_EDIT_COPY_16x16));nodeB->addItem("Item 3")->setIcon(QIcon(ICON_EDIT_CLEAR_16x16));nodeB->addItem("Item 4")->setIcon(QIcon(ICON_EDIT_CUT_16x16));nodeC->addItem("Item 5")->setWhatsThis("Hello, I'm a What's This message.");nodeC->addItem("Item 6")->setToolTip("Hello, I'm a ToolTip text");nodeC->addItem("Item 7")->setCategory(QtilitiesCategory("Category 1"),nodeC);// Create an observer widget with the items:ObserverWidget* tree_widget = new ObserverWidget(nodeA);tree_widget->show();\endcodeThe resulting tree is shown below. Note that "Node C" contains categorized items while the other two nodes does not use categories. There is no limitation on combining different nodes. It is for example possible to attach an uncategorized node to a specific category in a categorized node.\image html trees_simple_example_formatted.jpg "Formatted Tree Combining Categorized and Uncategorized Nodes"\subsection tree_specialized_nodes More advanced trees: Controlling activity and names of items under a nodeControlling the activity and/or names of items under a node is a common requirement found in applications. The tree building classes makes this very easy. The image below shows the required tree and its implementation.\image html tree_docs_more_advanced_tree.jpg "More Advanced Tree: Activity and Naming Control"The actual implementation is show below:\codeTreeNode* rootNode = new TreeNode("Root");TreeNode* parentNode1 = rootNode->addNode("Parent 1");parentNode1->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);TreeNode* parentNode2 = rootNode->addNode("Parent 2");parentNode2->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);parentNode1->addItem("Child 1");parentNode1->addItem("Child 2");parentNode2->addItem("Child 3");parentNode2->addItem("Child 4");parentNode2->addItem("Child 5");\endcodeThe XML file of this tree looks like this:\code<!DOCTYPE QtilitiesTreeDoc><QtilitiesTree DocumentVersion="1">  <Root InstanceFactoryInfo="Tree Node" Name="Root">    <Data>      <ObserverHints/>    </Data>    <Children>      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">        <Data>          <ObserverHints ActivityControl="CheckboxTriggered" ActivityDisplay="CheckboxActivityDisplay"/>          <SubjectFilter InstanceFactoryInfo="Activity Policy Filter">            <Data NewSubjectActivityPolicy="SetNewActive" MinimumActivityPolicy="ProhibitNoneActive" ActivityPolicy="UniqueActivity"/>          </SubjectFilter>        </Data>        <Children>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1" Activity="Inactive"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2" Activity="Active"/>        </Children>      </TreeItem>      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">        <Data>          <ObserverHints NamingControl="EditableNames"/>          <SubjectFilter InstanceFactoryInfo="Naming Policy Filter">            <Data ValidityResolutionPolicy="PromptUser" UniquenessPolicy="ProhibitDuplicateNames" UniquenessResolutionPolicy="PromptUser"/>          </SubjectFilter>        </Data>        <Children>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>        </Children>      </TreeItem>    </Children>  </Root></QtilitiesTree>\endcodeFor the above code we see that it is possible to easily define how activity and naming control must be handled for items under a tree node. This example is only the tip of the iceberg and only shows the solution to one required tree. The activity control provides many options to the user. We can for example tell \p parentNode1 that only one child can be active at one time, or that the activity must follow the user's selection when items underneath \p parentNode1 are selected. It is also possible to define custom policies for a tree node or policies can be combined. The goal of this article is not to explore these features in depth. If you are interested in all the features available to developers, the following places is are good places to start:<b>Articles</b>- The \ref page_observer_widgets article.- The \ref subject_filters section of the \ref page_observers article.<b>API Documentation</b>- Qtilities::Core::ObserverHints- Qtilities::Core::Observer which is the base class of tree nodes and does all the work in the background.- Qtilities::Core::ActivityPolicyFilter- Qtilities::CoreGui::NamingPolicyFilter- Qtilities::Core::SubjectTypeFilterIt would not be possible to meet the requirements of the above tree using the categorized approach. The important thing to remember when building trees is that each node defines a context for the items attached to it. This allows us to control for example activity, or names for items underneath a node. Using the categorized approach results in a node which contains all its children, does not matter in which category they are, in one context. This can be desired in specific cases and in those cases categorized nodes in a tree is the way to go.\section tree_structures_features Handy tree featuresNow that we've shown how to build some example trees, we look at other features and advantages of the %Qtilities tree structure.\subsection tree_parent_child_access Parent and child access functionsAny object can have multiple parents and can be attached anywhere in the tree multiple times. Thus we can get the reference of a tree item under a node and attach it to a different node. From a user's perspective the result looks the same but from a developers perspective this open the door to additional possibilities when building trees. We can get the parents or children of any item in the tree as follows:\code// Get the number of parents:int parent_count = Observer::parentCount(obj);// Get the references of any objects' parents:QList<Observer*> parents = Observer::parentReferences(obj);// Get the number of children:int child_count = node->subjectCount();// Get the references to all children:QList<QObject*> children = node->subjectReferences();\endcodeA limitation of this flexibility is that recursive tree structures are not allowed and this is automatically checked each time a new child is attached to a node. The Qtilities::CoreGui::TreeNode class provides many other useful functions to use. See the class documentation for more information. \subsection monitor_changes Monitoring changes to the treeA powerful feature is the ability to monitor modifications to a tree. This is done through the Qtilities::Core::Interfaces::IModificationNotifier interface. This interface allows any object in the tree to broadcast any changes to its modification state. An example of where this is useful is where a tree is part of a project. In that case we want to indicate to the user that the project must be saved as soon as the tree structure or any of the objects in the tree change.We can check if a the example tree is modified, and change the modification state of the tree as follows:\code// Check if the tree is modifiedif (rootNode->isModified()){  // If it is modified, we change its modification state to false for this example:  rootNode->setModificationState(false,IModificationNotifier::NotifySubjects);}\endcodeTree nodes also provide a number of signals which can be monitored if you are interested in specific changes in a tree. See the Qtilities::Core::Observer class documentation for more information.\subsection compare_trees Compare trees with each otherTrees can be compared to each other, and information about a tree can be serialized to a QDataStream using the Qtilities::Core::ObserverRelationalTable class.\codeObserverRelationalTable tableA(parentNode1);// Now we can dump detailed information about the tree to the loggertableA.dumpTableInfo();// We can compare two trees with each other:ObserverRelationalTable tableB(parentNode2);if (!tableA.compare(tableB)) {  // Tables are different, which will be the case for the example tree}\endcodeWe can also export detailed information about a table to a QDataStream and read it back at a later time.\codeQTemporaryFile test_file;test_file.open();QDataStream test_stream_out(&test_file);tableA.exportBinary(test_stream_out);test_file.close();test_file.open();QDataStream test_stream_in(&test_file);ObserverRelationalTable readback_table;readback_table.importBinary(test_stream_in);test_file.close();if (tableA.compare(readback_table)) {  // We will always get here since the table was compared to itself.}\endcodeThe exporting and importing of table information is very useful when validating trees after they are imported. For more information about observer importing and exporting see Qtilities::Core::Interfaces::IExportable and Qtilities::Core::IObjectManager::exportObserverBinary().\subsection trees_lifetime_monitoring Trees automatically monitors the lifetime of objects in the treeTrees automatically monitor the lifetime of objects inside the tree. Thus if we delete any item or node in a tree the tree will automatically refresh any observer widgets displaying it.\code// We can also delete all objects in the tree like this:rootNode->deleteAll();// If we want to remove all objects from the tree but we don't want to delete them we do this:rootNode->detachAll();\endcodeNote that \p rootNode will still have its objects attached to them after the \p detachAll() call. It is important to avoid memory leaks when detaching objects, thus you must then manually manage the lifetime. See \ref object_lifetimes for more information on this topic.\section tree_parsing Under the hood: How trees are parsedThe tree building classes presented thus far deal with trees from a user's perspective. We defined how the must look to the user and then created it. The %Qtilities tree structure provides the ability to build trees with any objects. That is, we can create a tree node and attach any \p QObject to it. When the tree is displayed the \p objectName() of the attached object is used as the name of the item. We can also build trees that will never be shown to the user, for example we create a tree and define the ownerships of the items in the tree in such a way that the lifetimes of objects in the tree is managed in a specific way (think of garbage collection).Because trees can be so generic, they are parsed in a very specific way depending on what you are doing with the tree. This section provides details of how the parsing happens inside the %Qtilities classes. \subsection tree_parsing_areas Tree parsing areasIn %Qtilities trees are parsed in several places and it is important to make sure parsing happens in the same way everywhere. The following list gives an overview of classes where tree parsing happens:- Qtilities::Core::ObserverRelationalTable- Qtilities::Core::Observer which is, as mentioned before, the base class of tree nodes.- Qtilities::CoreGui::AbstractObserverTreeModel- Qtilities::CoreGui::AbstractObserverTableModel- Qtilities::CoreGui::ObserverWidgetAll of these classes support the following approaches to parsing trees.\subsection tree_parsing_observer_observer Approach 1: Observer with child observersThis approach is the most common and easiest and was used in the examples presented in this article so far. The tree is made up of Observers with other observers underneath it, with other observers underneath these observers etc. \subsection tree_parsing_observer_contained_observer Approach 2: Observer containment approachIt is also possible to create trees in a more advanced way. For example:\code// Create a couple of observersObserver* observerA = new Observer("Observer A","Top level observer");Observer* observerB = new Observer("Observer B","Contained observer");// Create the objectsQObject* object1 = new QObject();object1->setObjectName("Object 1");QObject* object2 = new QObject();object2->setObjectName("Object 2");QObject* object3 = new QObject();object3->setObjectName("Object 3");// Attach object2 and object3 to observerBobserverB->attachSubject(object2);observerB->attachSubject(object3);// Set object1 as the parent of observerB:observerB->setParent(object1);\endcodeThe above code would create a tree which looks as follows:\image html tree_structure_containment_approach.jpg "Tree Structure: Containment Approach"This approach allows for creation of complex trees. It solves the problem where you want to attach a class instance with children underneath it to a tree but the class already inherits \p QObject and since Qtilities::Core::Observer also inherits \p QObject the class cannot inherit Qtilities::Core::Observer. The limitation of this approach is that only the first observer child of an object is parsed. If we would add another observer child to \p object1 in the example above, it will not be part of the parsed tree.*/
+/**
+\page page_tree_structures Building Trees 
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+%Qtilities provides a set of classes which make tree building a trivial task. This article will explore these classes and show different ways to build trees. The tree classes also provides many additional features which comes in handy and saves time. The main class doing the work behind the scenes is Qtilities::Core::Observer. However this article will not look at the details of how things work, it will just show how to use the classes and build trees without worrying how it works in the background. The \ref page_observers article is a good place to start if you are interested in the details.
+
+Table of contents:
+- \ref tree_building_classes
+- \ref lets_build_some_trees
+  - \ref tree_categorized_leafs
+  - \ref tree_uncategorized_leafs
+  - \ref tree_xml
+  - \ref tree_formatted
+  - \ref tree_specialized_nodes
+  .
+- \ref tree_structures_features
+	- \ref tree_parent_child_access
+	- \ref monitor_changes
+	- \ref compare_trees
+	- \ref trees_lifetime_monitoring
+	.
+- \ref tree_parsing
+  - \ref tree_parsing_areas
+  - \ref tree_parsing_observer_observer
+  - \ref tree_parsing_observer_contained_observer
+  .
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section tree_building_classes Tree building classes
+
+Before starting to build actual trees, lets look at the set of tree building classes provided which are shown below, where classes doing work behind the scenes are colored in grey.
+
+\image html tree_building_classes.jpg "Tree Building Classes"
+
+The different classes has different responsibilities:
+- Qtilities::Core::Observer : A normal Observer class which allows attachment of items to tree nodes. It is also responsible to monitor the modification state of TreeNode as well as the exportability.
+- Qtilities::CoreGui::AbstractTreeItem : A base class which is implemented by all tree items and nodes. This class provides easy access to the name, formatting and category of any item which can appear in the tree.
+- Qtilities::CoreGui::TreeNode : A tree item which allows attachment of other items or nodes to it.
+- Qtilities::CoreGui::TreeItemBase : Implements the modification state of tree items inheriting from it. It also expose formatting options using Q_PROPERTY.
+- Qtilities::CoreGui::TreeItem : A basic tree item (Leaf Node).
+- Qtilities::CoreGui::TreeFileItem : A specific type of tree item which allows easy attachment of files to a tree structure.
+
+It is easy extend the set of tree items by creating objects which inherit from Qtilities::CoreGui::TreeItemBase.
+
+\section lets_build_some_trees Lets build some trees
+
+Trees are constructed on the principle that the  Qtilities::CoreGui::TreeNode class can contain child items (leaf nodes) or other tree nodes. This allows us to build any tree structure that we want and in this section we will discuss and show how to build trees with different requirements.
+
+\subsection tree_categorized_leafs Tree with categorized leafs
+
+An important feature of a tree node is that is can group child items into categories where a category icon will automatically be assigned to category nodes. This functionality is controlled by the Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled() function. The first tree is a simple tree which uses this feature to group items into different categories. The advantage of the categorized approach is that it is very simple to use and we can easily construct very deep trees since we don't have to construct the category nodes manually. The disadvantage is that we don't have access to the category nodes, thus we cannot control their formatting or define the context used for items inside the category (activity or naming control for example).
+
+\image html tree_docs_categorized_tree.jpg "Tree With Categorized Leaf Nodes"
+
+The actual implementation is show below:
+
+\code
+TreeNode* rootNode = new TreeNode("Root");
+rootNode->setCategorizedDisplayEnabled(true);
+rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
+rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
+rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
+rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
+rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
+
+ObserverWidget* categorized_widget = new ObserverWidget(rootNode);
+categorized_widget->show();
+\endcode
+
+Note that deep trees can be constructed by using different constructors of Qtilities::Core::QtilitiesCategory. For example:
+\code
+rootNode->addItem("Child 1",QtilitiesCategory("Top Category::Middle Category::Bottom Category","::"));
+\endcode
+
+\subsection tree_uncategorized_leafs Tree without categorized leafs
+
+Building trees without categories is powerful but becomes tedious when a tree gets deep and the nodes have to be created manually. Lets build the same tree again, but this time without using categories. To keep the examples to follow short, the code to create and show the observer widget is not repeated again.
+
+\image html tree_docs_uncategorized_tree.jpg "Tree With Categorized Leaf Nodes"
+
+The actual implementation is show below:
+
+\code
+TreeNode* rootNode = new TreeNode("Root");
+TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+parentNode1->addItem("Child 1");
+parentNode1->addItem("Child 2");
+parentNode2->addItem("Child 3");
+parentNode2->addItem("Child 4");
+parentNode2->addItem("Child 5");
+\endcode
+
+It is clear from the above example that deep trees will take much more lines of code than the categorized approach. This approach does however allows for much more complex trees to be build. In the trees that follow this will become apparent.
+
+\subsection tree_xml Saving and loading trees using XML
+
+A very powerful feature of %Qtilities trees are that they can save any created tree to a XML file and reconstruct it at a later time. A tree can also be defined entirely in XML and then constructed in memory and shown to the user.
+
+Lets demonstrate this using the example tree presented thus far. Lets assume we append this to the above example:
+\code
+QString fileName = QApplication::applicationDirPath() + "/example_tree.xml";
+
+// Save the tree to a file:
+rootNode->saveToFile(fileName);
+
+// Load the tree from a file:
+rootNode->loadFromFile(fileName);
+
+// Or add the node produced from a file as a child to a node:
+rootNode->addNodeFromFile(fileName);
+\endcode
+
+The XML files to construct the two trees discussed so far looks is shown next. First the tree with categorized nodes:
+\code
+<!DOCTYPE QtilitiesTreeDoc>
+<QtilitiesTree DocumentVersion="1">
+  <Root InstanceFactoryInfo="Tree Node" Name="Root">
+    <Data>
+      <ObserverHints HierarchicalDisplay="CategorizedHierarchy"/>
+    </Data>
+    <Children>
+      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 1"/>
+      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 2"/>
+      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 3"/>
+      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 4"/>
+      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 5"/>
+    </Children>
+  </Root>
+</QtilitiesTree>
+\endcode
+
+Next the tree without categorized nodes:
+\code
+<!DOCTYPE QtilitiesTreeDoc>
+<QtilitiesTree DocumentVersion="1">
+  <Root InstanceFactoryInfo="Tree Node" Name="Root">
+    <Children>
+      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">
+        <Children>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2"/>
+        </Children>
+      </TreeItem>
+      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">
+        <Children>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>
+        </Children>
+      </TreeItem>
+    </Children>
+  </Root>
+</QtilitiesTree>
+\endcode
+
+Note that these are some the most basic trees you can build. A more advanced XML tree is shown later in this document.
+
+\subsection tree_formatted Formatted tree which combines categorized and uncategorized nodes
+
+Tree nodes and items (excluding category nodes) all inherit Qtilities::CoreGui::AbstractTreeItem which provides functions to format these items. For more details on the allowed formatting, see the class documentation. It is possible to combine the two approaches described thus far. That is, we can create a tree with tree nodes using categories along with other tree nodes which does not use categories. 
+
+Lets create a formatted tree to demonstrate this. 
+
+\code
+TreeNode* nodeA = new TreeNode("Node A");
+TreeNode* nodeB = nodeA->addNode("Node B");
+TreeNode* nodeC = nodeA->addNode("Node C");
+nodeC->setCategorizedDisplayEnabled(true);
+
+// Add some formatting to the nodes:
+nodeA->setForegroundRole(QBrush(Qt::darkRed));
+nodeA->setFont(QFont("Helvetica [Cronyx]",20));
+nodeA->setAlignment(Qt::AlignCenter);
+nodeA->setBackgroundRole(QBrush(Qt::gray));
+nodeB->setForegroundRole(QBrush(Qt::darkGreen));
+nodeB->setFont(QFont("Helvetica [Cronyx]",20));
+nodeB->setAlignment(Qt::AlignCenter);
+nodeB->setBackgroundRole(QBrush(Qt::gray));
+nodeC->setForegroundRole(QBrush(Qt::darkYellow));
+nodeC->setFont(QFont("Helvetica [Cronyx]",20));
+nodeC->setAlignment(Qt::AlignCenter);
+nodeC->setBackgroundRole(QBrush(Qt::gray));
+
+// Create the tree items:
+// Be careful to use it like this, this is just to keep the example short.
+// If the addItem() call fails it returns 0.
+nodeA->addItem("Item 1")->setStatusTip("Hello, I'm a status tip.");
+nodeB->addItem("Item 2")->setIcon(QIcon(ICON_EDIT_COPY_16x16));
+nodeB->addItem("Item 3")->setIcon(QIcon(ICON_EDIT_CLEAR_16x16));
+nodeB->addItem("Item 4")->setIcon(QIcon(ICON_EDIT_CUT_16x16));
+nodeC->addItem("Item 5")->setWhatsThis("Hello, I'm a What's This message.");
+nodeC->addItem("Item 6")->setToolTip("Hello, I'm a ToolTip text");
+nodeC->addItem("Item 7")->setCategory(QtilitiesCategory("Category 1"),nodeC);
+
+// Create an observer widget with the items:
+ObserverWidget* tree_widget = new ObserverWidget(nodeA);
+tree_widget->show();
+\endcode
+
+The resulting tree is shown below. Note that "Node C" contains categorized items while the other two nodes does not use categories. There is no limitation on combining different nodes. It is for example possible to attach an uncategorized node to a specific category in a categorized node.
+
+\image html trees_simple_example_formatted.jpg "Formatted Tree Combining Categorized and Uncategorized Nodes"
+
+\subsection tree_specialized_nodes More advanced trees: Controlling activity and names of items under a node
+
+Controlling the activity and/or names of items under a node is a common requirement found in applications. The tree building classes makes this very easy. The image below shows the required tree and its implementation.
+
+\image html tree_docs_more_advanced_tree.jpg "More Advanced Tree: Activity and Naming Control"
+
+The actual implementation is show below:
+
+\code
+TreeNode* rootNode = new TreeNode("Root");
+TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+parentNode1->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+parentNode2->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+parentNode1->addItem("Child 1");
+parentNode1->addItem("Child 2");
+parentNode2->addItem("Child 3");
+parentNode2->addItem("Child 4");
+parentNode2->addItem("Child 5");
+\endcode
+
+The XML file of this tree looks like this:
+
+\code
+<!DOCTYPE QtilitiesTreeDoc>
+<QtilitiesTree DocumentVersion="1">
+  <Root InstanceFactoryInfo="Tree Node" Name="Root">
+    <Data>
+      <ObserverHints/>
+    </Data>
+    <Children>
+      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">
+        <Data>
+          <ObserverHints ActivityControl="CheckboxTriggered" ActivityDisplay="CheckboxActivityDisplay"/>
+          <SubjectFilter InstanceFactoryInfo="Activity Policy Filter">
+            <Data NewSubjectActivityPolicy="SetNewActive" MinimumActivityPolicy="ProhibitNoneActive" ActivityPolicy="UniqueActivity"/>
+          </SubjectFilter>
+        </Data>
+        <Children>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1" Activity="Inactive"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2" Activity="Active"/>
+        </Children>
+      </TreeItem>
+      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">
+        <Data>
+          <ObserverHints NamingControl="EditableNames"/>
+          <SubjectFilter InstanceFactoryInfo="Naming Policy Filter">
+            <Data ValidityResolutionPolicy="PromptUser" UniquenessPolicy="ProhibitDuplicateNames" UniquenessResolutionPolicy="PromptUser"/>
+          </SubjectFilter>
+        </Data>
+        <Children>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>
+          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>
+        </Children>
+      </TreeItem>
+    </Children>
+  </Root>
+</QtilitiesTree>
+\endcode
+
+For the above code we see that it is possible to easily define how activity and naming control must be handled for items under a tree node. This example is only the tip of the iceberg and only shows the solution to one required tree. The activity control provides many options to the user. We can for example tell \p parentNode1 that only one child can be active at one time, or that the activity must follow the user's selection when items underneath \p parentNode1 are selected. It is also possible to define custom policies for a tree node or policies can be combined. The goal of this article is not to explore these features in depth. If you are interested in all the features available to developers, the following are good places to start:
+
+<b>Articles</b>
+- The \ref page_observer_widgets article.
+- The \ref subject_filters section of the \ref page_observers article.
+
+<b>API Documentation</b>
+- Qtilities::Core::ObserverHints
+- Qtilities::Core::Observer which is the base class of tree nodes and does all the work in the background.
+- Qtilities::Core::ActivityPolicyFilter
+- Qtilities::CoreGui::NamingPolicyFilter
+- Qtilities::Core::SubjectTypeFilter
+
+It would not be possible to meet the requirements of the above tree using the categorized approach. The important thing to remember when building trees is that each node defines a context for the items attached to it. This allows us to control for example activity, or names for items underneath a node. Using the categorized approach results in a node which contains all its children, does not matter in which category they are, in one context. This can be desired in specific cases and in those cases categorized nodes in a tree is the way to go.
+
+\section tree_structures_features Handy tree features
+
+Now that we've shown how to build some example trees, we look at other features and advantages of the %Qtilities tree structure.
+
+\subsection tree_parent_child_access Parent and child access functions
+
+Any object can have multiple parents and can be attached anywhere in the tree multiple times. Thus we can get the reference of a tree item under a node and attach it to a different node. From a user's perspective the result looks the same but from a developers perspective this open the door to additional possibilities when building trees. We can get the parents or children of any item in the tree as follows:
+
+\code
+// Get the number of parents:
+int parent_count = Observer::parentCount(obj);
+
+// Get the references of any objects' parents:
+QList<Observer*> parents = Observer::parentReferences(obj);
+
+// Get the number of children:
+int child_count = node->subjectCount();
+
+// Get the references to all children:
+QList<QObject*> children = node->subjectReferences();
+
+\endcode
+
+A limitation of this flexibility is that recursive tree structures are not allowed and this is automatically checked each time a new child is attached to a node. The Qtilities::CoreGui::TreeNode class provides many other useful functions to use. See the class documentation for more information. 
+
+\subsection monitor_changes Monitoring changes to the tree
+
+A powerful feature is the ability to monitor modifications to a tree. This is done through the Qtilities::Core::Interfaces::IModificationNotifier interface. This interface allows any object in the tree to broadcast any changes to its modification state. An example of where this is useful is where a tree is part of a project. In that case we want to indicate to the user that the project must be saved as soon as the tree structure or any of the objects in the tree change.
+
+We can check if a the example tree is modified, and change the modification state of the tree as follows:
+
+\code
+// Check if the tree is modified
+if (rootNode->isModified()){
+  // If it is modified, we change its modification state to false for this example:
+  rootNode->setModificationState(false,IModificationNotifier::NotifySubjects);
+}
+\endcode
+
+Tree nodes also provide a number of signals which can be monitored if you are interested in specific changes in a tree. See the Qtilities::Core::Observer class documentation for more information.
+
+\subsection compare_trees Compare trees with each other
+
+Trees can be compared to each other, and information about a tree can be serialized to a QDataStream using the Qtilities::Core::ObserverRelationalTable class.
+
+\code
+ObserverRelationalTable tableA(parentNode1);
+// Now we can dump detailed information about the tree to the logger
+tableA.dumpTableInfo();
+
+// We can compare two trees with each other:
+ObserverRelationalTable tableB(parentNode2);
+if (!tableA.compare(tableB)) {
+  // Tables are different, which will be the case for the example tree
+}
+\endcode
+
+We can also export detailed information about a table to a QDataStream and read it back at a later time.
+
+\code
+QTemporaryFile test_file;
+test_file.open();
+QDataStream test_stream_out(&test_file);
+tableA.exportBinary(test_stream_out);
+test_file.close();
+
+test_file.open();
+QDataStream test_stream_in(&test_file);
+ObserverRelationalTable readback_table;
+readback_table.importBinary(test_stream_in);
+test_file.close();
+if (tableA.compare(readback_table)) {
+  // We will always get here since the table was compared to itself.
+}
+\endcode
+
+The exporting and importing of table information is very useful when validating trees after they are imported. For more information about observer importing and exporting see Qtilities::Core::Interfaces::IExportable and Qtilities::Core::IObjectManager::exportObserverBinary().
+
+\subsection trees_lifetime_monitoring Trees automatically monitor the lifetime of objects in it
+
+Trees automatically monitor the lifetime of objects inside the tree. Thus if we delete any item or node in a tree the tree will automatically refresh any observer widgets displaying it.
+
+\code
+// We can also delete all objects in the tree like this:
+rootNode->deleteAll();
+
+// If we want to remove all objects from the tree but we don't want to delete them we do this:
+rootNode->detachAll();
+\endcode
+
+Note that \p rootNode will still have its objects attached to them after the \p detachAll() call. It is important to avoid memory leaks when detaching objects, thus you must then manually manage the lifetime. See \ref object_lifetimes for more information on this topic.
+
+\section tree_parsing Under the hood: How trees are parsed
+
+The tree building classes presented thus far deal with trees from a user's perspective. We defined how the must look to the user and then created it. The %Qtilities tree structure provides the ability to build trees with any objects. That is, we can create a tree node and attach any \p QObject to it. When the tree is displayed the \p objectName() of the attached object is used as the name of the item. We can also build trees that will never be shown to the user, for example we create a tree and define the ownerships of the items in the tree in such a way that the lifetimes of objects in the tree is managed in a specific way (think of garbage collection).
+
+Because trees can be so generic, they are parsed in a very specific way depending on what you are doing with the tree. This section provides details of how the parsing happens inside the %Qtilities classes. 
+
+\subsection tree_parsing_areas Tree parsing areas
+
+In %Qtilities trees are parsed in several places and it is important to make sure parsing happens in the same way everywhere. The following list gives an overview of classes where tree parsing happens:
+- Qtilities::Core::ObserverRelationalTable
+- Qtilities::Core::Observer which is, as mentioned before, the base class of tree nodes.
+- Qtilities::CoreGui::AbstractObserverTreeModel
+- Qtilities::CoreGui::AbstractObserverTableModel
+- Qtilities::CoreGui::ObserverWidget
+
+All of these classes support the following approaches to parsing trees.
+
+\subsection tree_parsing_observer_observer Approach 1: Observer with child observers
+
+This approach is the most common and easiest and was used in the examples presented in this article so far. The tree is made up of Observers with other observers underneath it, with other observers underneath these observers etc. 
+
+\subsection tree_parsing_observer_contained_observer Approach 2: Observer containment approach
+
+It is also possible to create trees in a more advanced way. For example:
+
+\code
+// Create a couple of observers
+Observer* observerA = new Observer("Observer A","Top level observer");
+Observer* observerB = new Observer("Observer B","Contained observer");
+
+// Create the objects
+QObject* object1 = new QObject();
+object1->setObjectName("Object 1");
+QObject* object2 = new QObject();
+object2->setObjectName("Object 2");
+QObject* object3 = new QObject();
+object3->setObjectName("Object 3");
+
+// Attach object2 and object3 to observerB
+observerB->attachSubject(object2);
+observerB->attachSubject(object3);
+
+// Set object1 as the parent of observerB:
+observerB->setParent(object1);
+\endcode
+
+The above code would create a tree which looks as follows:
+
+\image html tree_structure_containment_approach.jpg "Tree Structure: Containment Approach"
+
+This approach allows for creation of complex trees. It solves the problem where you want to attach a class instance with children underneath it to a tree but the class already inherits \p QObject and since Qtilities::Core::Observer also inherits \p QObject the class cannot derive from Qtilities::Core::Observer. The limitation of this approach is that only the first observer child of an object is parsed. If we would add another observer child to \p object1 in the example above, it will not be part of the parsed tree.
+
+*/

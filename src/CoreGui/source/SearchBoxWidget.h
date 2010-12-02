@@ -72,10 +72,6 @@ namespace Qtilities {
           emits signals such as searchStringChanged(), searchOptionsChanged(), btnFindNext_clicked() etc. A signal is emitted for each button
           that is pressed.
 
-          Below is an example where the search box widget is embedded at the bottom of an observer widget:
-          \image html observer_widget_searching.jpg "Observer Widget Search Demonstration"
-          \image latex observer_widget_searching.eps "Observer Widget Search Demonstration" width=4in
-
           The widget can also be used directly on a QTextEdit window by calling the setTextEdit() function. Alternatively it can
           be used on a QPlainTextEdit by calling the setPlainTextEditor() functions. When calling both these functions, the one that was
           called last will be used and at any time you can check what the widget target is using widgetTarget().

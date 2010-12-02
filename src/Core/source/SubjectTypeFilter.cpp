@@ -52,7 +52,7 @@ namespace Qtilities {
 
 struct Qtilities::Core::SubjectTypeFilterData {
     SubjectTypeFilterData() : inversed_filtering(false),
-    is_exportable(true) {}
+    is_exportable(false) {}
 
     bool inversed_filtering;
     bool is_exportable;
@@ -95,6 +95,9 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     }
 
     bool is_known_type = false;
+    // If inversed and there is no known types is_known_type must be true:
+    if (d->inversed_filtering && d->known_subject_types.count() == 0)
+        is_known_type = true;
 
     // Check the obj meta info against the known filter types
     for (int i = 0; i < d->known_subject_types.count(); i++) {
@@ -176,8 +179,12 @@ QString Qtilities::Core::SubjectTypeFilter::groupName() const {
 }
 
 void Qtilities::Core::SubjectTypeFilter::addSubjectType(SubjectTypeInfo subject_type_info) {
-    if (!observer)
-        d->known_subject_types.append(subject_type_info);
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
+
+    d->known_subject_types.append(subject_type_info);
 }
 
 bool Qtilities::Core::SubjectTypeFilter::isKnownType(const QString& meta_type) const {
@@ -199,8 +206,12 @@ QList<Qtilities::Core::SubjectTypeInfo> Qtilities::Core::SubjectTypeFilter::know
 }
 
 void Qtilities::Core::SubjectTypeFilter::enableInverseFiltering(bool enabled) {
-    if (!observer)
-        d->inversed_filtering = enabled;
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
+
+    d->inversed_filtering = enabled;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {

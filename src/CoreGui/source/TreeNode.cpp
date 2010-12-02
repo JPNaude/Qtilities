@@ -46,10 +46,11 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::TreeNodeData {
-    TreeNodeData() : naming_policy_filter(0) { }
+    TreeNodeData() { }
 
     QPointer<NamingPolicyFilter> naming_policy_filter;
     QPointer<ActivityPolicyFilter> activity_policy_filter;
+    QPointer<SubjectTypeFilter> subject_type_filter;
 };
 
 Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
@@ -138,8 +139,10 @@ Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::namingPoli
     if (!nodeData->naming_policy_filter) {
         for (int i = 0; i < subjectFilters().count(); i++) {
             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (subjectFilters().at(i));
-            if (naming_filter)
+            if (naming_filter) {
+                nodeData->naming_policy_filter = naming_filter;
                 return naming_filter;
+            }
         }
     } else
         return nodeData->naming_policy_filter;
@@ -183,8 +186,10 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPol
     if (!nodeData->activity_policy_filter) {
         for (int i = 0; i < subjectFilters().count(); i++) {
             ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
-            if (activity_filter)
+            if (activity_filter) {
+                nodeData->activity_policy_filter = activity_filter;
                 return activity_filter;
+            }
         }
     } else
         return nodeData->activity_policy_filter;
@@ -192,6 +197,37 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPol
     return 0;
 }
 
+Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::setChildType(const QString& child_group_name) {
+    nodeData->subject_type_filter = new SubjectTypeFilter(child_group_name);
+    nodeData->subject_type_filter->enableInverseFiltering(true);
+    if (!installSubjectFilter(nodeData->subject_type_filter))
+        delete nodeData->subject_type_filter;
+
+    return nodeData->subject_type_filter;
+}
+
+void Qtilities::CoreGui::TreeNode::clearChildType() {
+    if (nodeData->subject_type_filter) {
+         delete nodeData->subject_type_filter;
+    }
+}
+
+Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::subjectTypeFilter() const {
+    // If the pointer we have is 0, the subject type filter might have been set using the observer base class.
+    // Therefore we must check the subject filters in the base class here first:
+    if (!nodeData->subject_type_filter) {
+        for (int i = 0; i < subjectFilters().count(); i++) {
+            SubjectTypeFilter* type_filter = qobject_cast<SubjectTypeFilter*> (subjectFilters().at(i));
+            if (type_filter) {
+                nodeData->subject_type_filter = type_filter;
+                return type_filter;
+            }
+        }
+    } else
+        return nodeData->subject_type_filter;
+
+    return 0;
+}
 
 void Qtilities::CoreGui::TreeNode::startProcessingCycle() {
     if (nodeData->naming_policy_filter)
@@ -273,6 +309,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     if(!file.open(QFile::WriteOnly)) {
         if (errorMsg)
             *errorMsg = QString(tr("TreeNode could not be saved to file. File \"%1\" could not be opened in WriteOnly mode.")).arg(file_name);
+        LOG_ERROR(QString(tr("TreeNode could not be saved to file. File \"%1\" could not be opened in WriteOnly mode.")).arg(file_name));
         return IExportable::Failed;
     }
 

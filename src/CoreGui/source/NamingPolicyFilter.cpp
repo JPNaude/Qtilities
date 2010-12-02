@@ -214,6 +214,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
             if (rejectMsg)
                 *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName());
             LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName()));
+            LOG_ERROR_P(tr("Attachment now allowed since it will result in duplicate entries."));
             return AbstractSubjectFilter::Rejected;
         } else
             return AbstractSubjectFilter::Conditional;
@@ -228,6 +229,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
             if (rejectMsg)
                 *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context. The uniqueness resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName());
             LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not unique in this context. The uniqueness resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName()));
+            LOG_ERROR_P(tr("Attachment now allowed since it will result in duplicate entries."));
             return AbstractSubjectFilter::Rejected;
         } else
             return AbstractSubjectFilter::Conditional;
@@ -676,11 +678,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
                 d->name_dialog->setObject(obj);
                 d->name_dialog->setContext(observer->observerID(),observer->observerName());
                 d->name_dialog->initialize(validity_result);
-                if (d->name_dialog->exec()) {
-                    if (d->name_dialog->selectedResolution() == Reject)
-                        return_value = false;
-                    else
-                        return_value = true;
+                    if (d->name_dialog->exec()) {
+                        if (d->name_dialog->selectedResolution() == Reject)
+                            return_value = false;
+                        else
+                            return_value = true;
                 } else
                     return_value = false;
             }

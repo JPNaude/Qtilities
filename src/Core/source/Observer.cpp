@@ -497,12 +497,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
     // 2.3. Subject filters:
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        QDomElement subject_filter = doc->createElement("SubjectFilter");
-        subject_data.appendChild(subject_filter);
-        if (observerData->subject_filters.at(i)->instanceFactoryInfo().exportXML(doc,&subject_filter) == IExportable::Failed)
-            return IExportable::Failed;
-        if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
-            return IExportable::Failed;
+        if (observerData->subject_filters.at(i)->isExportable()) {
+            QDomElement subject_filter = doc->createElement("SubjectFilter");
+            subject_data.appendChild(subject_filter);
+            if (observerData->subject_filters.at(i)->instanceFactoryInfo().exportXML(doc,&subject_filter) == IExportable::Failed)
+                return IExportable::Failed;
+            if (observerData->subject_filters.at(i)->exportXML(doc,&subject_filter,params) == IExportable::Failed)
+                return IExportable::Failed;
+        }
     }
 
     // 2.4 Formatting:
@@ -701,6 +703,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                         LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
                                         delete obj;
                                         result = IExportable::Incomplete;
+                                        continue;
                                     }
 
                                     // Check if it is active:
@@ -1472,7 +1475,7 @@ void Qtilities::Core::Observer::deleteAll() {
 
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
-        // Validate operation against access mode if access mode scope is category
+        // Validate operation against access mode if access mode scope is category:
         QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),OBJECT_CATEGORY);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
@@ -1482,6 +1485,7 @@ void Qtilities::Core::Observer::deleteAll() {
     endProcessingCycle();
     emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
     emit layoutChanged();
+    setModificationState(true);
 }
 
 QVariant Qtilities::Core::Observer::getObserverPropertyValue(const QObject* obj, const char* property_name) const {
@@ -1608,27 +1612,24 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
                 return true;
         }
     } else {
-        // Check above all contained observers:
-        if (obj_to_check) {
-            if (obj_to_check->parent()) {
-                ObserverProperty parent_observer_map_prop = getObserverProperty(obj_to_check->parent(), OBSERVER_SUBJECT_IDS);
-                int observer_count;
-                if (parent_observer_map_prop.isValid())
-                    observer_count = parent_observer_map_prop.observerMap().count();
-                else
-                    return false;
-
+        // Check above all contained observer parents:
+        if (observer->parent()) {
+            ObserverProperty parent_observer_map_prop = getObserverProperty(observer->parent(), OBSERVER_SUBJECT_IDS);
+            int observer_count;
+            if (parent_observer_map_prop.isValid())
                 observer_count = parent_observer_map_prop.observerMap().count();
-                // Check all direct parents:
-                for (int i = 0; i < observer_count; i++) {
-                    Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
-                    if (parent != obj_to_check) {
-                        is_parent = isParentInHierarchy(obj_to_check,parent);
-                        if (is_parent)
-                            break;
-                    } else
-                        return true;
-                }
+            else
+                return false;
+
+            // Check all direct parents:
+            for (int i = 0; i < observer_count; i++) {
+                Observer* parent = OBJECT_MANAGER->observerReference(parent_observer_map_prop.observerMap().keys().at(i));
+                if (parent != obj_to_check) {
+                    is_parent = isParentInHierarchy(obj_to_check,parent);
+                    if (is_parent)
+                        break;
+                } else
+                    return true;
             }
         }
     }
@@ -1776,34 +1777,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 }
 
 int Qtilities::Core::Observer::treeCount(const Observer* observer) const {
-    static int child_count;
-
-    // We need to iterate over all child observers recursively
-    if (!observer) {
-        child_count = 0;
-        observer = this;
-    }
-
-    Observer* child_observer = 0;
-
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        ++child_count;
-
-        // Handle the case where the child is an observer.
-        child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
-        if (child_observer)
-            treeCount(child_observer);
-        else {
-            // Handle the case where the child is the parent of an observer
-            foreach (QObject* child, observer->subjectAt(i)->children()) {
-                child_observer = qobject_cast<Observer*> (child);
-                if (child_observer)
-                    treeCount(child_observer);
-            }
-        }
-    }
-
-    return child_count;
+    return treeChildren().count();
 }
 
 QObject* Qtilities::Core::Observer::treeAt(int i) const {
@@ -1842,8 +1816,11 @@ QList<QObject*> Qtilities::Core::Observer::treeChildren(const Observer* observer
             // Handle the case where the child is the parent of an observer
             foreach (QObject* child, observer->subjectAt(i)->children()) {
                 child_observer = qobject_cast<Observer*> (child);
-                if (child_observer)
+                if (child_observer) {
+                    children << child_observer;
                     treeChildren(child_observer);
+                }
+                break;
             }
         }
     }
@@ -2174,11 +2151,9 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
             // We now route the event that changed to the subject filter responsible for this property to validate the change.
             // If no subject filter is responsible, the observer needs to handle it itself.
             bool filter_event = false;
-            bool is_filter_property = false;
             for (int i = 0; i < observerData->subject_filters.count(); i++) {
                 if (observerData->subject_filters.at(i)) {
                     if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-                        is_filter_property = true;
                         filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
                     }
                 }
@@ -2186,10 +2161,10 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 
             // If the event should not be filtered, we need to post a user event on the object which will indicate
             // that the property change was valid and succesfull.
-            // Note that subject filters must emit do the following themselves. Although this makes implementation
+            // Note that subject filters must do the following themselves. Although this makes implementation
             // of subject filters more difficult, it is more powerfull in this way since one property change can
             // affect other objects as well and only the subject filter will have knowledge about this.
-            if (!filter_event && !is_filter_property) {
+            if (!filter_event) {
                 // We need to do a few things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
                 // First check if this object is in the same thread as this observer:

@@ -49,6 +49,7 @@ namespace Qtilities {
 Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_name, QObject* parent) : TreeItemBase(TreeFileItem::strippedName(file_name), parent) {
     treeFileItemBase = new TreeFileItemData;
     setFileName(file_name);
+    installEventFilter(this);
 }
 
 Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
@@ -56,29 +57,38 @@ Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, bool broadcast) {
-    if (file_name == treeFileItemBase->file_name)
+    if (file_name == fileName())
         return;
 
-    treeFileItemBase->file_name = file_name;
-    setObjectName(strippedName(file_name));
+    // We need to check if an object name exists
+    if (Observer::propertyExists(this,OBJECT_NAME)) {
+        SharedObserverProperty new_subject_name_property(QVariant(strippedName(file_name)),OBJECT_NAME);
+        new_subject_name_property.setIsExportable(false);
+        Observer::setSharedProperty(this,new_subject_name_property);
+        treeFileItemBase->file_path = strippedPath(file_name);
+    } else {
+        setObjectName(strippedName(file_name));
+        treeFileItemBase->file_path = strippedPath(file_name);
+    }
+
+    emit fileNameChanged(fileName());
 
     if (broadcast)
         setModificationState(true,IModificationNotifier::NotifyListeners);
-
-    emit fileNameChanged(file_name);
 }
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
-    return treeFileItemBase->file_name;
+    // The objectName() will be sync'ed with the OBJECT_NAME property by the name manager.
+    return treeFileItemBase->file_path + "/" + objectName();
 }
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
-    QFileInfo file_info(treeFileItemBase->file_name);
+    QFileInfo file_info(fileName());
     return file_info.exists();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::fileExtension() const {
-    return strippedFileExtension(treeFileItemBase->file_name);
+    return strippedFileExtension(objectName());
 }
 
 Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeFileItem::instanceFactoryInfo() const {
@@ -101,7 +111,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     factory_data.exportBinary(stream);
 
     // Export the file name:
-    stream << treeFileItemBase->file_name;
+    stream << fileName();
 
     return IExportable::Complete;
 }
@@ -113,7 +123,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     // Import the file name:
     QString file_name;
     stream >> file_name;
-    setFileName(treeFileItemBase->file_name);
+    setFileName(file_name);
 
     return IExportable::Complete;
 }
@@ -134,7 +144,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     // 2.2 File Information:
     QDomElement file_data = doc->createElement("File");
     item_data.appendChild(file_data);
-    file_data.setAttribute("Path",treeFileItemBase->file_name);
+    file_data.setAttribute("Path",fileName());
 
     return result;
 }

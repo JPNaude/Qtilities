@@ -79,7 +79,7 @@ namespace Qtilities {
               */
             enum EvaluationResult {
                 Allowed,        /*!< Successful validation. */
-                Conditional,    /*!< Validation is conditional. Examples of this is when the user still needs to decide how to rename an object, thus it is not possible to know before hand what the result will be. */
+                Conditional,    /*!< Validation is conditional. %Examples of this is when the user still needs to decide how to rename an object, thus it is not possible to know before hand what the result will be. */
                 Rejected        /*!< Validation failed. */
             };
 
@@ -89,11 +89,16 @@ namespace Qtilities {
             virtual void setIsExportable(bool is_exportable) = 0;
             //! Indicates if this subject filter must be exported.
             /*!
-              Default is true.
+              All subject filters which forms part of %Qtilities return false by default.
               */
             virtual bool isExportable() const = 0;
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
+            /*!
+              \param obj The object to be evaluated
+              \param rejectMsg Provides a reject message when the function failed.
+              \param silent When true, the attachment must be done in a silent way. That is, it should not show any dialogs. This is usefull when objects must be attached to observers without calling exec() on a dialog (such as the user input dialog for NamingPolicyFilters) which can lead to crashes when for example attaching objects inside an event filter. For more information on this topic see <a href="http://labs.qt.nokia.com/2010/02/23/unpredictable-exec/">Unpredictable exec()</a>.
+              */
             virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const = 0;
             //! Initialize the attachment of a new subject to the filter's observer context.
             /*!

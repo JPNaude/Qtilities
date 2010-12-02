@@ -31,41 +31,32 @@
 **
 ****************************************************************************/
 
-#include <QApplication>
+#ifndef TEST_OBSERVER_RELATIONAL_TABLE_H
+#define TEST_OBSERVER_RELATIONAL_TABLE_H
 
-#include <QtilitiesCoreGui>
-using namespace QtilitiesCoreGui;
+#include "UnitTests_global.h"
 
-#include <QtilitiesUnitTests>
-using namespace QtilitiesUnitTests;
+#include <QtTest/QtTest>
 
-int main(int argc, char *argv[])
-{
-    QtilitiesApplication a(argc, argv);
-    QtilitiesApplication::setOrganizationName("Jaco Naude");
-    QtilitiesApplication::setOrganizationDomain("Qtilities");
-    QtilitiesApplication::setApplicationName("Qtilities Tester");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+namespace Qtilities {
+    namespace UnitTests {
+        class UNIT_TESTS_SHARED_EXPORT TestObserverRelationalTable: public QObject
+        {
+            Q_OBJECT
+        private slots:
+            // -----------------------------
+            // Attachment/Detachment related tests
+            // -----------------------------
+            //! Tests stuff related to the VISITOR_ID property added to objects in the tree by the ObserverRelationalTable.
+            void testVisitorIDs();
+            //! Tests table comparison.
+            void testCompare();
+            //! Binary streaming test.
 
-    QMainWindow* main_window = new QMainWindow();
-    QtilitiesApplication::setMainWindow(main_window);
-    LOG_INITIALIZE();
-    Log->setGlobalLogLevel(Logger::Debug);
-    Log->setIsQtMessageHandler(true);
-    Log->toggleQtMsgEngine(false);
-    QWidget* log_widget = LoggerGui::createLogWidget("Test Log",true);
-    main_window->setCentralWidget(log_widget);
-    log_widget->show();
-    main_window->resize(900,400);
-    main_window->show();
+            //! Containment tests.
 
-    // Observer Tests:
-    TestObserver testObserver;
-    QTest::qExec(&testObserver);
-
-    // ObserverRelationalTable Tests:
-    TestObserverRelationalTable testObserverRelationalTable;
-    QTest::qExec(&testObserverRelationalTable);
-
-    return a.exec();
+        };
+    }
 }
+
+#endif // TEST_OBSERVER_RELATIONAL_TABLE_H

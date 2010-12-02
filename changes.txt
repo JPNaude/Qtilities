@@ -1,6 +1,7 @@
-v0.3
+v0.3 
 ======
 New Features:
+- Test
 - New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
     - TreeNode::enableActivityControl() updated to include this new policy.
     - This policy is now part of binary and XML tree exports.
@@ -14,6 +15,14 @@ New Features:
     - GUI control over active configuration sets and indication of core plugins.
     - The debug plugin now provides information about loaded plugin configuration sets.
     - See the updated Extension System Overview documentation for more information.
+- New ObserverRelationalTable::refresh() method which can be used to refresh the table data after an observer changed.
+- Much improved Debug Plugin:
+    - New application state tab that gives runtime information about:
+        - Application modes
+        - Contexts
+        - Factories
+        - Plugins
+- TreeNode got new functions to easily set up a SubjectTypeFilter on itself. This allows observer widgets to use meaningfull text in the name column's header.
 
 Improvements & Notable Changes:
 - As always, documentation updates:
@@ -33,14 +42,18 @@ Improvements & Notable Changes:
 - ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
 - Observer::setDisplayHints() is now obsolete. It is replaced by Observer::inheritDisplayHints().
 - OBSERVER_UNCATEGORIZED_CATEGORY is now removed. Thus you can add categorized and uncategorized subjects to the same observer.
-- Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the activity filter had an observer context associated with it.
+- Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the filter already had an observer context associated with it.
+- Changed behavior where SubjectTypeFilter's set functions would not have worked if the filter already had an observer context associated with it.
 - When CONTEXT_MANAGER->registerContext() is called with a context which already exists, the ID of the context is returned, not -1 as in previous versions.
 - SideViewerWidgetHelper is now called SideViewerWidgetFactory
 - Some places in Qtilities uses folders under the application directory, for example: "/session" to save data like logging configurations, shortcut mappings etc. Previously these save operations failed if there was no session directory under the application folder. In this version the "/session" directory is automatically created when needed.
+- All subject filters which forms part of %Qtilities are not exportable by default.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
 - Qtilities::CoreGui::SearchBoxWidget
+- Qtilities::Core::ObserverRelationalTable
+- Qtilities::Core::RelationalTableEntry
 
 Bug Fixes:
 - Fixed memory leak in ActivityPolicyFilter destructor.
@@ -53,12 +66,23 @@ Bug Fixes:
 - Ubuntu: Fixed icon display & resource loading problems.
 - Fixed ModeListWidget layout bug in QtilitiesMainWindow.
 - ModeListWidget does not allow users to move mode icons anymore.
+- Fixed bugs in Observer::treeCount(), Observer::treeChildren() and Observer::isParentInHierarchy() when using the containment tree building approach.
+- Fixed bug where ObserverRelationalTable did not remove OBSERVER_VISITOR_ID properties in its destructor.
+- Fixed bug in ObserverWidget::contextDeleted() where the function attempted to set the observer context to an invalid context in some scenarios.
+- Fixed bug where Observer::exportXML() did not take the exportability property of subject filters into account. This resulted in subject filters always being exported.
+- Fixed bug where Observer::deleteAll() did not change the modification state of the observer.
+- Fixed numerous bugs in TreeFileItem.
+- Fixed bug in Observer where the QtilitiesPropertyChangeEvent for subject filter's monitoredProperties() were not delivered correctly.
 
 Outstanding roadmap items for this version:
+- Property editor must refresh when properties changes...
+- ObserverWidget: allow custom control of column spanning.
+- ObserverWidget: allow easy setting of a different header for the "Items" column in tree view mode.
+- Widget logger engines: rich text, and does not save formatting engines.
+- Help stuff is part of docs...
 - Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
 - Command editor widget, remove dependency on property browser lib.
 - Action manager should act as a pointer list when commands are deleted. Thus they should be removed.
-- ObserverRelationalTableModel must be able to provide diff information between two observers.
 - Linux problems:
     - Sort out Linux dll versioning
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
@@ -79,7 +103,6 @@ Outstanding roadmap items for this version:
 - Category activity control... Don't think this is feasable. Users should use TreeNodes for fall through activity.
 - Conan integration?
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
-- Add detailed log messages macro maybe?
 - AbstractSubjectFilters, do not make all evaluation functions abstract...
 - Getting started article should show more: QtilitiesMainWindow.
 - Must update images in ObjectManagement and MainWindow examples.

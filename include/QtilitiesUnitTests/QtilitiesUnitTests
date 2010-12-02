@@ -2,6 +2,7 @@
 #define QTILITIES_UNIT_TEST_MODULE_H
 
 #include "TestObserver.h"
+#include "TestObserverRelationalTable.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesUnitTests { 

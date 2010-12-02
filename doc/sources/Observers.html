@@ -22,7 +22,7 @@ Table of contents:
 	- \ref observer_subject_IDs
 	- \ref object_categories
 	- \ref object_lifetimes
-  .
+        .
 - \ref observer_properties
 	- \ref different_properties
 	- \ref changing_properties
@@ -106,13 +106,11 @@ This example shows how to create your first observer class and attach objects to
 using namespace QtilitiesCore;
 
 // Create the observer
-Observer* observerA = new Observer("Observer A");
+Observer* observerA = new Observer;
 
 // Create the objects
 QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
 QPointer<QObject> object2 = new QObject();
-object2->setObjectName("Object 2");
 
 // Attach objects to observers
 observerA->attachSubject(object1);
@@ -125,7 +123,7 @@ A very powerful feature of the way observers handle attached subjects is that th
 
 \code
 // Create another observer
-Observer* observerB = new Observer("Observer B","My second observer");
+Observer* observerB = new Observer;
 
 // Attach objects to observers
 observerB->attachSubject(object1);
@@ -154,9 +152,9 @@ When an object is attached to one or more observers it is assigned an unique ID 
 
 \subsection object_categories Object categories: Organizing objects into categories inside a context
 
-When objects should be managed into categories inside an observer it can be done by setting the Qtilities::Core::Properties::OBJECT_CATEGORY property on an object before attaching it to an observer which has its Qtilities::Core::Observer::HierarhicalDisplay hint set to categorized hierarchy. When viewing such an observer using the Qtilities::CoreGui::ObserverWidget class it will show the objects under such observers using the categories specified on the objects. When objects without categories are attached to such observers, they will automatically be added under the Qtilities::Core::Constants::OBSERVER_UNCATEGORIZED_CATEGORY category.
+When objects should be managed into categories inside an observer it can be done by setting the Qtilities::Core::Properties::OBJECT_CATEGORY property on an object before attaching it to an observer which has its Qtilities::Core::Observer::HierarchicalDisplay hint set to categorized hierarchy. When viewing such an observer using the Qtilities::CoreGui::ObserverWidget class it will show the objects under such observers using the categories specified on the objects.
 
-For examples of how observer widgets visualize categories, see the \ref hierarchical_display section of the \ref page_tree_structures article.
+For examples of how observer widgets visualize categories, see the \ref hierarchical_display section of the \ref page_observer_widgets article.
 
 \subsection object_lifetimes Object lifetimes: Managing object lifetimes using observers
 
@@ -477,9 +475,9 @@ if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
 
 If an observer has an activity policy filter installed and the Qtilities::Core::Properties::OBJECT_ACTIVITY property on an object within the context is changed, the change will be detected by the observer and passed to the activity policy filter. The filter will then validate the activity state of all objects in the context. The way the validation is performed depends on the setup of the activity policy filter. The property change is thus validated by all the attached subject filters and by the observer itself. 
 
-For properties which has the "Change Notifications" parameter as Yes in their documentation, notifications are provided when property changes were valid in the following ways (always both):
+For properties which has the "Change Notifications" parameter as Yes in their documentation, notifications are available when property changes were valid in the following ways (always both):
 - The Qtilities::Core::Observer::monitoredPropertyChanged() signal is emitted with information about the change.
-- A Qtilities::Core::QtilitiesPropertyChangeEvent event is delivered to the object on which the change took place. It is important to note that events can only be delivered to objects which are in the same thread as the observer. This is a Qt limitation and if this is a problem in your implementation you should rather use the first notification method. If an object is attached to two observers, the notifications will not happen more than once if necessary.
+- When Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents() is enabled a Qtilities::Core::QtilitiesPropertyChangeEvent event is delivered to the object on which the change took place. It is important to note that events can only be delivered to objects which are in the same thread as the observer. This is a Qt limitation and if this is a problem in your implementation you should rather use the first notification method. If an object is attached to two observers, the notifications will not happen more than once if necessary.
 
 It is easy to catch property change events on an object to which it is delivered. For example:
 \code

@@ -255,6 +255,24 @@ tree_widget->show();
             //! Function which returns a reference to the activity control filter used by this node, if any.
             ActivityPolicyFilter* activityPolicyFilter() const;
 
+            //! Convenience function to set up subject type on this tree node.
+            /*!
+              This function will create a Qtilities::Core::SubjectTypeFilter with the specified
+              parameters and install it on the tree node. It is usefull to use when you want to give a name for
+              items under a context. Observer widgets use this name in it's header for the name column.
+
+              This function must be called only once, after the construction of your tree node before
+              any tree items have been attached to the node. Calling it a second time will just return
+              the already constructed filter.
+
+              \note This function will enable inversed filtering on the subject type filter.
+              */
+            SubjectTypeFilter* setChildType(const QString& child_group_name);
+            //! Disables naming control in this node.
+            void clearChildType();
+            //! Function which returns a reference to the naming control filter used by this node, if any.
+            SubjectTypeFilter* subjectTypeFilter() const;
+
             /*!
               This overloaded function will also start a naming validation cycle on the naming policy filter if enableNamingControl() called.
               */

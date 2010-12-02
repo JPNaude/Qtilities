@@ -2080,8 +2080,8 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
                     OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
                     CLIPBOARD_MANAGER->acceptMimeData();
                 } else if (CLIPBOARD_MANAGER->clipboardOrigin() == IClipboard::CopyAction) {
-                    // Attempt to copy the objects
-                    // For now we discard objects that cause problems during attachment and detachment
+                    // Attempt to copy the objects:
+                    // For now we discard objects that cause problems during attachment and detachment:
                     for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
                         // Attach to destination
                         d_observer->attachSubject(observer_mime_data->subjectList().at(i));
@@ -2271,6 +2271,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // Update the global object list
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
     if (!d->property_browser_widget) {
+        refreshPropertyBrowser();
     #endif
         updateGlobalActiveSubjects();
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
@@ -2409,8 +2410,17 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
             if (d->tree_view)
                 d->tree_view->setEnabled(false);
         } else {
-            setObserverContext(d->top_level_observer);
-            initialize();
+            if (!d->top_level_observer) {
+                d->initialized = false;
+                refreshActions();
+                d->initialized = true;
+                if (d->tree_view)
+                    d->tree_view->setEnabled(false);
+            } else {
+                setObserverContext(d->top_level_observer);
+                initialize();
+            }
+
             /*d->update_selection_activity = false;
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             if (selection_model) {

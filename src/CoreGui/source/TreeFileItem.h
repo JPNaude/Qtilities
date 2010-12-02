@@ -48,10 +48,10 @@ namespace Qtilities {
         \brief Structure used by TreeFileItem to store private data.
           */
         struct TreeFileItemData {
-            TreeFileItemData() : file_name(QString()),
-            instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
+            TreeFileItemData() : file_path(QString()),
+                instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
 
-            QString file_name;
+            QString file_path;
             InstanceFactoryInfo instanceFactoryInfo;
         };
 
@@ -66,6 +66,12 @@ namespace Qtilities {
           - It is possible to format the tree item depending on the file. You can for example color files which does not exist
           red and one that does exist green etc.
 
+          <b>Important:</b> This object depends on Qtilities property change event being delivered to it. Thus if you attach it to
+          an observer, you must enable property changed events by calling Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents() on
+          the observer.
+
+          \note This class is meant to be used where the tree item will only be attached to a single observer context.
+
           <i>This class was added in %Qtilities v0.2.</i>
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT TreeFileItem : public TreeItemBase
@@ -79,6 +85,9 @@ namespace Qtilities {
 
             //! Sets the file name of this file model.
             /*!
+              This function will check if there is an OBJECT_NAME property on this object and set it. If it does not exist it will
+              just set objectName(). Note that this does not set the names in the INSTANCE_NAMES property if it exists.
+
               \param file_name The new file name.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
               */
