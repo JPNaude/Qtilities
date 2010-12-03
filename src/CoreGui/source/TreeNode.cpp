@@ -109,13 +109,14 @@ bool Qtilities::CoreGui::TreeNode::getCategorizedDisplayEnabled() const {
 
 Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::enableNamingControl(ObserverHints::NamingControl naming_control,
                          NamingPolicyFilter::UniquenessPolicy uniqueness_policy,
-                         NamingPolicyFilter::ResolutionPolicy resolution_policy) {
+                         NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy,
+                         NamingPolicyFilter::ResolutionPolicy validity_resolution_policy) {
 
     if (!nodeData->naming_policy_filter) {
         nodeData->naming_policy_filter = new NamingPolicyFilter();
         nodeData->naming_policy_filter->setUniquenessPolicy(uniqueness_policy);
-        nodeData->naming_policy_filter->setUniquenessResolutionPolicy(resolution_policy);
-        nodeData->naming_policy_filter->setValidityResolutionPolicy(resolution_policy);
+        nodeData->naming_policy_filter->setUniquenessResolutionPolicy(uniqueness_resolution_policy);
+        nodeData->naming_policy_filter->setValidityResolutionPolicy(validity_resolution_policy);
         if (installSubjectFilter(nodeData->naming_policy_filter)) {
             displayHints()->setNamingControlHint(naming_control);
         } else {
