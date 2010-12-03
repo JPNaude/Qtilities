@@ -184,6 +184,11 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> config_pages) {
+    if (config_pages.isEmpty()) {
+        config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
+        LOG_DEBUG(QString("%1 configuration page(s) found.").arg(config_pages.count()));
+    }
+
     QList<IConfigPage*> config_ifaces;
     for (int i = 0; i < config_pages.count(); i++) {
         IConfigPage* config_iface = qobject_cast<IConfigPage*> (config_pages.at(i));
