@@ -275,7 +275,7 @@ for (int i = 0; i < table.count(); i++) {
                 return !compare(other);
             }
 
-            //! Function which will refresh to refresh the table after the observer changed.
+            //! Function to refresh the table after the observer changed.
             /*!
               When the observer changed you must call refresh manually.
               */
