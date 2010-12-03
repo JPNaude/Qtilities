@@ -34,7 +34,8 @@
 #include "ObjectPropertyBrowser.h"
 
 #ifndef QTILITIES_NO_PROPERTY_BROWSER
-#include <QtilitiesCoreConstants.h>
+#include <QtilitiesCoreConstants>
+#include <IModificationNotifier>
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -119,7 +120,13 @@ QSize Qtilities::CoreGui::ObjectPropertyBrowser::sizeHint() const {
     return this->size();
 }
 
-void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object) {
+void Qtilities::CoreGui::ObjectPropertyBrowser::refresh(bool has_changes) {
+    if (d->obj && has_changes) {
+        inspectClass(d->obj->metaObject());
+    }
+}
+
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
     if (d->obj == object)
         return;
 
@@ -129,24 +136,25 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object) {
             d->property_browser->removeProperty(it.next());
         }
         d->top_level_properties.clear();
+        d->obj->disconnect(this);
     }
 
     d->obj = object;
+
+    if (monitor_changes) {
+        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+        if (mod_iface)
+            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+    }
 
     if (!d->obj)
         return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
     inspectClass(d->obj->metaObject());
-
-    /*if (object && (d->top_level_properties.count() > 0))
-        d->property_browser->setEnabled(true);
-    else
-        d->property_browser->setEnabled(false);
-        */
 }
 
-void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> object) {
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> object, bool monitor_changes) {
     if (d->obj == object)
         return;
 
@@ -156,29 +164,30 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> obje
             d->property_browser->removeProperty(it.next());
         }
         d->top_level_properties.clear();
+        d->obj->disconnect(this);
     }
 
     d->obj = object;
+
+    if (monitor_changes) {
+        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+        if (mod_iface)
+            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+    }
 
     if (!d->obj)
         return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
     inspectClass(d->obj->metaObject());
-
-    /*if (object && (d->top_level_properties.count() > 0))
-        d->property_browser->setEnabled(true);
-    else
-        d->property_browser->setEnabled(false);
-        */
 }
 
-void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects) {
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects, bool monitor_changes) {
     if (objects.count() == 1)
         setObject(objects.front());
 }
 
-void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QPointer<QObject> > objects) {
+void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QPointer<QObject> > objects, bool monitor_changes) {
     if (objects.count() == 1)
         setObject(objects.front());
 }
@@ -251,6 +260,9 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::toggleReadOnlyPropertiesDisabled
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::handle_property_changed(QtProperty * property, const QVariant & value) {
+    if (!d->obj)
+        return;
+
     if (!d->map_property_index.contains(property))
         return;
 
@@ -272,6 +284,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::handle_property_changed(QtProper
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::handleObjectDeleted() {
     setObject(0);
+    QListIterator<QtProperty *> it(d->top_level_properties);
+    while (it.hasNext()) {
+        d->property_browser->removeProperty(it.next());
+    }
+    d->top_level_properties.clear();
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *metaObject) {

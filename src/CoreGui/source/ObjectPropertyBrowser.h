@@ -121,25 +121,41 @@ namespace Qtilities {
             QSize sizeHint() const;
 
         public slots:
+            //! Refresh function which checks all properties on the current object and refreshes the property editor.
+            /*!
+              \sa setObject()
+              */
+            void refresh(bool has_changes = true);
             //! Sets the object for which the properties must be shown.
             /*!
               \param obj The object which must be used.
+              \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
+                interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */
-            void setObject(QObject* obj);
+            void setObject(QObject* obj, bool monitor_changes = true);
             //! Sets the object for which the properties must be shown.
             /*!
               \param obj The object which must be used.
+              \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
+                interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */
-            void setObject(QPointer<QObject> obj);
+            void setObject(QPointer<QObject> obj, bool monitor_changes = true);
             //! Sets the object for which the properties must be shown.
             /*!
               Function which allows this widget to be connected to the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal.
 
               \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
+              \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
+                interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */
-            void setObject(QList<QObject*> objects);
+            void setObject(QList<QObject*> objects, bool monitor_changes = true);
             //! Sets the object by providing a list of smart pointers.
-            void setObject(QList<QPointer<QObject> > objects);
+            /*!
+              \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
+              \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
+                interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
+              */
+            void setObject(QList<QPointer<QObject> > objects, bool monitor_changes = true);
 
         private slots:
             void handle_property_changed(QtProperty *, const QVariant &);
