@@ -79,7 +79,10 @@ void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, boo
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
     // The objectName() will be sync'ed with the OBJECT_NAME property by the name manager.
-    return treeFileItemBase->file_path + "/" + objectName();
+    if (!treeFileItemBase->file_path.isEmpty() && !objectName().isEmpty()) {
+        return treeFileItemBase->file_path + "/" + objectName();
+    } else
+        return QString();
 }
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
