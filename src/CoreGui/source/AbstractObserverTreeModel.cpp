@@ -54,10 +54,11 @@ using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::AbstractObserverTreeModelData {
-    ObserverTreeItem*   rootItem;
-    QPointer<Observer>  selection_parent;
-    QModelIndex         selection_index;
-    QList<QPointer<QObject> > selected_objects;
+    ObserverTreeItem*           rootItem;
+    QPointer<Observer>          selection_parent;
+    QModelIndex                 selection_index;
+    QList<QPointer<QObject> >   selected_objects;
+    QString                     type_grouping_name;
 };
 
 Qtilities::CoreGui::AbstractObserverTreeModel::AbstractObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
@@ -67,6 +68,7 @@ Qtilities::CoreGui::AbstractObserverTreeModel::AbstractObserverTreeModel(QObject
     // Init root data
     d->rootItem = new ObserverTreeItem();
     d->selection_parent = 0;
+    d->type_grouping_name = QString();
 }
 
 bool Qtilities::CoreGui::AbstractObserverTreeModel::setObserverContext(Observer* observer) {
@@ -80,6 +82,17 @@ bool Qtilities::CoreGui::AbstractObserverTreeModel::setObserverContext(Observer*
 
     if (!AbstractObserverItemModel::setObserverContext(observer))
         return false;
+
+    // Check if this observer has a subject type filter installed
+    for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+        SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (d_observer->subjectFilters().at(i));
+        if (subject_type_filter) {
+            if (!subject_type_filter->groupName().isEmpty()) {
+                d->type_grouping_name = subject_type_filter->groupName();
+            }
+            break;
+        }
+    }
 
     rebuildTreeStructure();
 
@@ -675,7 +688,10 @@ Qt::ItemFlags Qtilities::CoreGui::AbstractObserverTreeModel::flagsHelper(const Q
 QVariant Qtilities::CoreGui::AbstractObserverTreeModel::headerDataHelper(int section, Qt::Orientation orientation, int role) const
 {
     if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
-        return tr("Contents Tree");
+        if (d->type_grouping_name.isEmpty())
+            return tr("Contents Tree");
+        else
+            return d->type_grouping_name;
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         return QIcon(ICON_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
@@ -944,8 +960,9 @@ Qtilities::Core::Observer* Qtilities::CoreGui::AbstractObserverTreeModel::calcul
         d->selection_index = index_list.front();
 
         // Get the hints from the observer:
-        if (d->selection_parent)
+        if (d->selection_parent) {
             inheritObserverHints(d->selection_parent);
+        }
 
         emit selectionParentChanged(d->selection_parent);
         return d->selection_parent;

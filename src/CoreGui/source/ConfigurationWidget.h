@@ -75,7 +75,10 @@ namespace Qtilities {
             //! Initializes the config widget.
             void initialize(QList<IConfigPage*> config_pages);
             //! Initializes the widget with a list of QObjects. All objects in the list which implements the IConfigPage interface will be added.
-            void initialize(QList<QObject*> config_pages);
+            /*!
+              \note If the list is empty, the function will search the global object pool and automatically add all found config pages. A debug message with information about the found pages will be created.
+              */
+            void initialize(QList<QObject*> config_pages = QList<QObject*>());
 
             //! Sets the way the configuration widget handles the \p Apply button.
             /*!

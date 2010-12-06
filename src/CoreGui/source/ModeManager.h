@@ -121,6 +121,13 @@ modeListWidget()->setStyleSheet(stylesheet);
             // ----------------------------------
             // Functions related to adding/removing modes
             // ----------------------------------
+            //! Initializes the mode widget with all modes found in the global object pool.
+            /*!
+              This function will search the global object pool and automatically add all found modes. A debug message with information about the found pages will be created. All found modes will automatically be initialized.
+
+              More modes can be added at a later stage using the addMode() and addModes() functions. A list of modes can be found using modes().
+              */
+            void initialize();
             //! Adds a mode to the mode widget.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.

@@ -216,12 +216,14 @@ tree_widget->show();
 
               \param naming_control The ObserverHints::NamingControl hint to use in this tree node.
               \param uniqueness_policy The NamingPolicyFilter::UniquenessPolicy to use in this tree node.
-              \param resolution_policy The NamingPolicyFilter::ResolutionPolicy to use in this tree node. This resolution policy will be used for NamingPolicyFilter::uniquenessResolutionPolicy() and validityResolutionPolicy().
+              \param uniqueness_resolution_policy The NamingPolicyFilter::ResolutionPolicy to use in for duplicate items under this tree node.
+              \param validity_resolution_policy The NamingPolicyFilter::ResolutionPolicy to use in for invalid items under this tree node.
               \returns The naming policy filter used in this node. If the filter could not be constructed, null is returned.
               */
             NamingPolicyFilter* enableNamingControl(ObserverHints::NamingControl naming_control,
                                      NamingPolicyFilter::UniquenessPolicy uniqueness_policy,
-                                     NamingPolicyFilter::ResolutionPolicy resolution_policy = NamingPolicyFilter::PromptUser);
+                                     NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy = NamingPolicyFilter::PromptUser,
+                                     NamingPolicyFilter::ResolutionPolicy validity_resolution_policy = NamingPolicyFilter::PromptUser);
             //! Disables naming control in this node.
             void disableNamingControl();
             //! Function which returns a reference to the naming control filter used by this node, if any.

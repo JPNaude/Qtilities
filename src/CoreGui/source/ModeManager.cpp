@@ -163,6 +163,12 @@ void Qtilities::CoreGui::ModeManager::addModes(QList<IMode*> modes, bool initial
     refreshList();
 }
 
+void Qtilities::CoreGui::ModeManager::initialize() {
+    QList<QObject*> modes = OBJECT_MANAGER->registeredInterfaces("IMode");
+    LOG_DEBUG(QString("%1 mode(s) found.").arg(modes.count()));
+    addModes(modes);
+}
+
 void Qtilities::CoreGui::ModeManager::addModes(QList<QObject*> modes, bool initialize_modes) {
     for (int i = 0; i < modes.count(); i++) {
         IMode* mode = qobject_cast<IMode*> (modes.at(i));

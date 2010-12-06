@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="3">
-    <widget class="QWidget" name="pageTreeHolder" native="true">
+    <widget class="QWidget" name="configPagesWidgetHolder" native="true">
      <property name="minimumSize">
       <size>
        <width>210</width>

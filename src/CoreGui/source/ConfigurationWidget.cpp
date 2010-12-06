@@ -50,7 +50,7 @@ struct Qtilities::CoreGui::ConfigurationWidgetData {
     apply_all_pages(true) {}
 
     //! Observer widget which is used to display the categories of the config pages.
-    ObserverWidget pageTree;
+    ObserverWidget config_pages_widget;
     //! The configuration pages observer.
     Observer config_pages;
     //! Indicates if the page have been initialized.
@@ -75,11 +75,11 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     d->display_mode = display_mode;
 
     // Layout and placement of observer widget:
-    if (ui->pageTreeHolder->layout())
-        delete ui->pageTreeHolder->layout();
+    if (ui->configPagesWidgetHolder->layout())
+        delete ui->configPagesWidgetHolder->layout();
 
-    QHBoxLayout* layout = new QHBoxLayout(ui->pageTreeHolder);
-    layout->addWidget(&d->pageTree);
+    QHBoxLayout* layout = new QHBoxLayout(ui->configPagesWidgetHolder);
+    layout->addWidget(&d->config_pages_widget);
     layout->setMargin(0);
 
     // Put the widget in the center of the screen:
@@ -109,6 +109,10 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
 
+    // Figure out what the maximum sizes are in all pages.
+    int max_width = -1;
+    int max_height = -1;
+
     // Add all the pages to the config pages observer:
     for (int i = 0; i < config_pages.count(); i++) {
         IConfigPage* config_page = config_pages.at(i);
@@ -136,30 +140,55 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                 }
 
                 d->config_pages.attachSubject(config_page->objectBase());
+
+                if (config_page->configPageWidget()->size().width() > max_width)
+                    max_width = config_page->configPageWidget()->sizeHint().width();
+                if (config_page->configPageWidget()->size().height() > max_height)
+                    max_height = config_page->configPageWidget()->sizeHint().height();
             } else {
                 LOG_DEBUG("Found configuration page without a valid configuration widget. This page will not be shown.");
             }
         }
     }
 
+    // Check if the max sizes are bigger than the current size. If so we need to resize:
+    int new_width = size().width();
+    int new_heigth = size().height();
+    if (max_width > size().width())
+        new_width = max_width;
+    if (max_height > size().height())
+        new_heigth = max_height;
+    resize(new_width,new_heigth);
+
     // Set up the observer widget:
-    d->pageTree.setDisplayMode(d->display_mode);
-    d->pageTree.setObserverContext(&d->config_pages);
-    d->pageTree.initialize();
-    d->pageTree.resizeTableViewRows(22);
-    d->pageTree.toggleSearchBox();
-    if (d->pageTree.searchBoxWidget())
-        d->pageTree.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
-    if (d->pageTree.tableView() && d->display_mode == TableView) {
-        d->pageTree.tableView()->horizontalHeader()->hide();
-    } else if (d->pageTree.treeView() && d->display_mode == TreeView) {
-        d->pageTree.treeView()->setRootIsDecorated(false);
+    d->config_pages_widget.setDisplayMode(d->display_mode);
+    d->config_pages_widget.setObserverContext(&d->config_pages);
+    d->config_pages_widget.initialize();
+    d->config_pages_widget.resizeTableViewRows(22);
+    d->config_pages_widget.toggleSearchBox();
+    if (d->config_pages_widget.searchBoxWidget())
+        d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+    if (d->config_pages_widget.tableView() && d->display_mode == TableView) {
+        d->config_pages_widget.tableView()->horizontalHeader()->hide();
+    } else if (d->config_pages_widget.treeView() && d->display_mode == TreeView) {
+        d->config_pages_widget.treeView()->setRootIsDecorated(false);
     }
+
+    // Sort pages alphabetically:
+    if (d->display_mode == Qtilities::TableView && d->config_pages_widget.tableView())
+        d->config_pages_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
+    else if (d->display_mode == Qtilities::TreeView && d->config_pages_widget.treeView())
+        d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
 
     d->initialized = true;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> config_pages) {
+    if (config_pages.isEmpty()) {
+        config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
+        LOG_DEBUG(QString("%1 configuration page(s) found.").arg(config_pages.count()));
+    }
+
     QList<IConfigPage*> config_ifaces;
     for (int i = 0; i < config_pages.count(); i++) {
         IConfigPage* config_iface = qobject_cast<IConfigPage*> (config_pages.at(i));
@@ -252,7 +281,7 @@ void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& activ
         QList<QObject*> active_pages;
         active_pages << page;
         d->activity_filter->setActiveSubjects(active_pages);
-        d->pageTree.selectObjects(active_pages);
+        d->config_pages_widget.selectObjects(active_pages);
     }
 }
 
