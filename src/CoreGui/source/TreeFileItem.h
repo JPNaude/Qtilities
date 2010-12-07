@@ -66,10 +66,6 @@ namespace Qtilities {
           - It is possible to format the tree item depending on the file. You can for example color files which does not exist
           red and one that does exist green etc.
 
-          <b>Important:</b> This object depends on Qtilities property change event being delivered to it. Thus if you attach it to
-          an observer, you must enable property changed events by calling Qtilities::Core::Observer::toggleQtilitiesPropertyChangeEvents() on
-          the observer.
-
           \note This class is meant to be used where the tree item will only be attached to a single observer context.
 
           <i>This class was added in %Qtilities v0.2.</i>
@@ -82,6 +78,7 @@ namespace Qtilities {
         public:
             TreeFileItem(const QString& file_name = QString(), QObject* parent = 0);
             virtual ~TreeFileItem();
+            bool eventFilter(QObject *object, QEvent *event);
 
             //! Sets the file name of this file model.
             /*!

@@ -197,3 +197,19 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
 void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo instanceFactoryInfo) {
     treeFileItemBase->instanceFactoryInfo = instanceFactoryInfo;
 }
+
+bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *event) {
+    if (object == this && event->type() == QEvent::DynamicPropertyChange) {
+        QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
+        if (propertyChangeEvent) {
+            QString property_name = QString(propertyChangeEvent->propertyName().data());
+            if (property_name == QString(OBJECT_NAME)) {
+                QString new_name = Observer::getSharedProperty(this,OBJECT_NAME).value().toString();
+                if (objectName() != new_name)
+                    setObjectName(new_name);
+                emit fileNameChanged(new_name);
+            }
+        }
+    }
+    return false;
+}
