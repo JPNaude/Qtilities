@@ -1031,7 +1031,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
     if (observer) {
         // If this observer is locked we don't show its children:
         if (observer->accessMode() != Observer::LockedAccess) {
-            bool flat_structure = true;
             // Check the HierarchicalDisplay hint of the observer:
             if (observer->displayHints()) {
                 if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
@@ -1105,8 +1104,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                                     } else {
                                         break;
                                     }
-
-                                    flat_structure = false;
                                 } else {
                                     tree_item_list.push_back(existing_item);
                                 }
@@ -1121,21 +1118,25 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                     // Get the list of uncategorized items from the observer
                     QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
                     QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
+                    Log->toggleQtMsgEngine(true);
+                    LOG_INFO(QString("Uncategorized item count: %1").arg(uncat_list.count()));
                     for (int i = 0; i < uncat_list.count(); i++) {
                         Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
                         QVector<QVariant> column_data;
                         column_data << QVariant(uncat_names.at(i));
-                        if (obs)
+                        if (obs) {
                             new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
-                        else
+                            item->appendChild(new_item);
+                            // If this item has locked access, we don't dig into any items underneath it:
+                            if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
+                                setupChildData(new_item);
+                        } else {
                             new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
-                        item->appendChild(new_item);
-                        setupChildData(new_item);
+                            item->appendChild(new_item);
+                        }
                     }
                 }
-            }
-
-            if (flat_structure) {
+            } else {
                 for (int i = 0; i < observer->subjectCount(); i++) {
                     // Storing all information in the data vector here can improve performance:
                     Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
