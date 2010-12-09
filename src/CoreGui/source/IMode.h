@@ -59,6 +59,9 @@ namespace Qtilities {
                 virtual ~IMode() {}
 
                 //! The main window's central widget for the mode.
+                /*!
+                  This widget must have a proper layout in order to be displayed correctly.
+                  */
                 virtual QWidget* modeWidget() = 0;
                 //! This function is called in the initializeDependancies() function, thus all objects implementing interfaces in which a mode might be interested will be present in the global object pool.
                 virtual void initializeMode() = 0;
