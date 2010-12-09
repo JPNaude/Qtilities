@@ -49,10 +49,12 @@ namespace Qtilities {
           */
         struct TreeFileItemData {
             TreeFileItemData() : file_path(QString()),
-                instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()) { }
+                instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()),
+                ignore_events(false) { }
 
             QString file_path;
             InstanceFactoryInfo instanceFactoryInfo;
+            bool ignore_events;
         };
 
         /*!
@@ -97,9 +99,19 @@ namespace Qtilities {
             QString fileExtension() const;
 
             //! Returns the file path of the specified file name.
+            /*!
+              If no path exists, returns an empty string. If the path ends with /. it is removed.
+              */
             static QString strippedPath(const QString &fullFileName) {
                 QFileInfo file_info(fullFileName);
-                return file_info.path();
+                QString path = file_info.path();
+                if (path == "./" || path == ".")
+                    return QString();
+                else if (path.endsWith("/.")) {
+                    path.chop(2);
+                    return path;
+                } else
+                    return path;
             }
 
             //! Returns the file name stripped from the file path. Thus, only the file name.
