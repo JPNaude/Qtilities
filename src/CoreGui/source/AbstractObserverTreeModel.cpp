@@ -1118,8 +1118,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                     // Get the list of uncategorized items from the observer
                     QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
                     QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
-                    Log->toggleQtMsgEngine(true);
-                    LOG_INFO(QString("Uncategorized item count: %1").arg(uncat_list.count()));
                     for (int i = 0; i < uncat_list.count(); i++) {
                         Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
                         QVector<QVariant> column_data;
@@ -1135,19 +1133,19 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                             item->appendChild(new_item);
                         }
                     }
-                }
-            } else {
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    // Storing all information in the data vector here can improve performance:
-                    Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
-                    QVector<QVariant> column_data;
-                    column_data << QVariant(observer->subjectNames().at(i));
-                    if (obs)
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
-                    else
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
-                    item->appendChild(new_item);
-                    setupChildData(new_item);
+                } else {
+                    for (int i = 0; i < observer->subjectCount(); i++) {
+                        // Storing all information in the data vector here can improve performance:
+                        Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
+                        QVector<QVariant> column_data;
+                        column_data << QVariant(observer->subjectNames().at(i));
+                        if (obs)
+                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
+                        else
+                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
+                        item->appendChild(new_item);
+                        setupChildData(new_item);
+                    }
                 }
             }
         }
