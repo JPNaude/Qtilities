@@ -57,13 +57,14 @@ Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, bool broadcast) {
+
     // We need to check if an object name exists
     if (Observer::propertyExists(this,OBJECT_NAME)) {
         SharedObserverProperty new_subject_name_property(QVariant(strippedName(file_name)),OBJECT_NAME);
         new_subject_name_property.setIsExportable(false);
-        treeFileItemBase->ignore_events = true;
+
         Observer::setSharedProperty(this,new_subject_name_property);
-        treeFileItemBase->ignore_events = false;
+
         treeFileItemBase->file_path = strippedPath(file_name);
     } else {
         setObjectName(strippedName(file_name));
