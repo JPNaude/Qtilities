@@ -1118,8 +1118,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                     // Get the list of uncategorized items from the observer
                     QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
                     QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
-                    Log->toggleQtMsgEngine(true);
-                    LOG_INFO(QString("Uncategorized item count: %1").arg(uncat_list.count()));
                     for (int i = 0; i < uncat_list.count(); i++) {
                         Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
                         QVector<QVariant> column_data;
