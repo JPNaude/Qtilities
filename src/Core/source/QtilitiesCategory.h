@@ -154,7 +154,7 @@ observer->attachSubject(object);
 
 // Using TreeNode (which inherits from Observer):
 TreeNode* node = new TreeNode("My Node");
-node->setCategorizedDisplayEnabled(true);
+node->enableCategorizedDisplay();
 node->addItem("Categorized Item",QtilitiesCategory("Item Category"));
 \endcode
 

@@ -195,12 +195,17 @@ tree_widget->show();
               This is a convenience function which sets the Qtilities::Core::ObserverHints::CategorizedHierarchy hint on
               this node's observer base class.
 
-              \sa getCategorizedDisplayEnabled()
+              \sa getCategorizedDisplayEnabled(), disableCategorizedDisplay()
               */
-            void setCategorizedDisplayEnabled(bool is_enabled);
+            void enableCategorizedDisplay();;
+            //! Disables categorized display on this node.
+            /*!
+              \sa getCategorizedDisplayEnabled(), enableCategorizedDisplay();
+              */
+            void disableCategorizedDisplay();
             //! Function indicating if categorized display is used on this tree node.
             /*!
-              \sa setCategorizedDisplayEnabled()
+              \sa enableCategorizedDisplay();, enableCategorizedDisplay();
               */
             bool getCategorizedDisplayEnabled() const;
 

@@ -1031,7 +1031,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
     if (observer) {
         // If this observer is locked we don't show its children:
         if (observer->accessMode() != Observer::LockedAccess) {
-            bool flat_structure = true;
             // Check the HierarchicalDisplay hint of the observer:
             if (observer->displayHints()) {
                 if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
@@ -1105,8 +1104,6 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                                     } else {
                                         break;
                                     }
-
-                                    flat_structure = false;
                                 } else {
                                     tree_item_list.push_back(existing_item);
                                 }
@@ -1125,28 +1122,30 @@ void Qtilities::CoreGui::AbstractObserverTreeModel::setupChildData(ObserverTreeI
                         Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
                         QVector<QVariant> column_data;
                         column_data << QVariant(uncat_names.at(i));
-                        if (obs)
+                        if (obs) {
                             new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
-                        else
+                            item->appendChild(new_item);
+                            // If this item has locked access, we don't dig into any items underneath it:
+                            if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
+                                setupChildData(new_item);
+                        } else {
                             new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
+                            item->appendChild(new_item);
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < observer->subjectCount(); i++) {
+                        // Storing all information in the data vector here can improve performance:
+                        Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
+                        QVector<QVariant> column_data;
+                        column_data << QVariant(observer->subjectNames().at(i));
+                        if (obs)
+                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
+                        else
+                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
                         item->appendChild(new_item);
                         setupChildData(new_item);
                     }
-                }
-            }
-
-            if (flat_structure) {
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    // Storing all information in the data vector here can improve performance:
-                    Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
-                    QVector<QVariant> column_data;
-                    column_data << QVariant(observer->subjectNames().at(i));
-                    if (obs)
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
-                    else
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
-                    item->appendChild(new_item);
-                    setupChildData(new_item);
                 }
             }
         }

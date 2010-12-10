@@ -111,7 +111,7 @@ The actual implementation is show below:
 
 \code
 TreeNode* rootNode = new TreeNode("Root");
-rootNode->setCategorizedDisplayEnabled(true);
+rootNode->enableCategorizedDisplay();
 rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
 rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
 rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
@@ -221,7 +221,7 @@ Lets create a formatted tree to demonstrate this.
 TreeNode* nodeA = new TreeNode("Node A");
 TreeNode* nodeB = nodeA->addNode("Node B");
 TreeNode* nodeC = nodeA->addNode("Node C");
-nodeC->setCategorizedDisplayEnabled(true);
+nodeC->enableCategorizedDisplay();
 
 // Add some formatting to the nodes:
 nodeA->setForegroundRole(QBrush(Qt::darkRed));

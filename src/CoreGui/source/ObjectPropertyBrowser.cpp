@@ -141,11 +141,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
 
     d->obj = object;
 
-    if (monitor_changes) {
+    /*if (monitor_changes) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }
+    }*/
 
     if (!d->obj)
         return;
@@ -169,11 +169,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> obje
 
     d->obj = object;
 
-    if (monitor_changes) {
+    /*if (monitor_changes) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }
+    }*/
 
     if (!d->obj)
         return;
@@ -279,7 +279,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::handle_property_changed(QtProper
         metaProperty.write(d->obj, value);
     }
 
-    refreshClass(metaObject, true);
+    //refreshClass(metaObject, true);
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::handleObjectDeleted() {

@@ -57,30 +57,31 @@ Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, bool broadcast) {
-    if (file_name == fileName())
-        return;
-
     // We need to check if an object name exists
     if (Observer::propertyExists(this,OBJECT_NAME)) {
         SharedObserverProperty new_subject_name_property(QVariant(strippedName(file_name)),OBJECT_NAME);
         new_subject_name_property.setIsExportable(false);
+
         Observer::setSharedProperty(this,new_subject_name_property);
+
         treeFileItemBase->file_path = strippedPath(file_name);
     } else {
         setObjectName(strippedName(file_name));
         treeFileItemBase->file_path = strippedPath(file_name);
     }
 
-    emit fileNameChanged(fileName());
-
-    if (broadcast)
+    if (broadcast) {
+        emit fileNameChanged(fileName());
         setModificationState(true,IModificationNotifier::NotifyListeners);
+    }
 }
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
     // The objectName() will be sync'ed with the OBJECT_NAME property by the name manager.
     if (!treeFileItemBase->file_path.isEmpty() && !objectName().isEmpty()) {
         return treeFileItemBase->file_path + "/" + objectName();
+    } else if (treeFileItemBase->file_path.isEmpty() && !objectName().isEmpty()) {
+        return objectName();
     } else
         return QString();
 }
@@ -196,4 +197,23 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
 
 void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo instanceFactoryInfo) {
     treeFileItemBase->instanceFactoryInfo = instanceFactoryInfo;
+}
+
+bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *event) {
+    if (!treeFileItemBase->ignore_events) {
+        if (object == this && event->type() == QEvent::DynamicPropertyChange) {
+            QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
+            if (propertyChangeEvent) {
+                QString property_name = QString(propertyChangeEvent->propertyName().data());
+                if (property_name == QString(OBJECT_NAME)) {
+                    QString new_name = Observer::getSharedProperty(this,OBJECT_NAME).value().toString();
+                    if (objectName() != new_name) {
+                        setObjectName(new_name);
+                        emit fileNameChanged(new_name);
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }

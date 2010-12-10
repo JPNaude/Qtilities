@@ -237,7 +237,7 @@ The image below shows what happens when we want to change an object name inside 
 An useful feature of the Qtilities::Core::Observer class is that it supports the grouping of objects within the context into categories. Lets change our example again by adding intended categories for objects that we attach to \p nodeB.
 
 \code
-nodeB->setCategorizedDisplayEnabled(true);
+nodeB->enableCategorizedDisplay();
 nodeB->addItem("Child 5",QtilitiesCategory("Category 1"));
 nodeB->addItem("Child 6",QtilitiesCategory("Category 2"));
 nodeB->addItem("Child 7",QtilitiesCategory("Category 2"));

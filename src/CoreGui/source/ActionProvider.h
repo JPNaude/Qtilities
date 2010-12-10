@@ -77,7 +77,8 @@ namespace Qtilities {
             QActionGroup *addActionGroup(QActionGroup * action_group, const QtilitiesCategory& category_filter = QtilitiesCategory());
             void disableAllActions();
             void enableAllActions();
-
+            QAction* findActionByText(const QString& action_text);
+            QAction* findActionByObjectName(const QString& object_name);
 
         private:
             ActionProviderData* d;

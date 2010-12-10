@@ -109,6 +109,7 @@ namespace Qtilities {
             // -------------------------------
             // Getter & Setter functions for object role properties
             // -------------------------------
+
             //! Sets the category of the tree item in the specified tree node.
             /*!
               \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
@@ -139,6 +140,10 @@ namespace Qtilities {
               will print an error message in release mode and assert id debug mode.
               */
             QtilitiesCategory getCategory(int observer_id = -1) const;
+            //! Gets the category in a string format where different hierarchies of the category is split using \p sep.
+            QString getCategoryString(const QString& sep = "::") const;
+            //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
+            void setCategoryString(const QString& category_string, const QString& sep = "::");
             //! Checks if the item has a category.
             bool hasCategory() const;
             //! Sets the tool tip of the tree item.
