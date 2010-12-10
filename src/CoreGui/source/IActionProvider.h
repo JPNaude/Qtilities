@@ -120,6 +120,10 @@ namespace Qtilities {
                 virtual void disableAllActions() = 0;
                 //! Enables all actions registered in this action provider.
                 virtual void enableAllActions() = 0;
+                //! Finds an action that has the specified text and returns a reference to it, otherwise return 0 if it was not found.
+                virtual QAction* findActionByText(const QString& action_text) = 0;
+                //! Finds an action with the specified objectName() and returns a reference to it, otherwise return 0 if it was not found.
+                virtual QAction* findActionByObjectName(const QString& object_name) = 0;
             };
         }
     }

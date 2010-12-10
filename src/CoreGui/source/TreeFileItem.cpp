@@ -57,7 +57,6 @@ Qtilities::CoreGui::TreeFileItem::~TreeFileItem() {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, bool broadcast) {
-
     // We need to check if an object name exists
     if (Observer::propertyExists(this,OBJECT_NAME)) {
         SharedObserverProperty new_subject_name_property(QVariant(strippedName(file_name)),OBJECT_NAME);
@@ -70,8 +69,6 @@ void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& file_name, boo
         setObjectName(strippedName(file_name));
         treeFileItemBase->file_path = strippedPath(file_name);
     }
-    LOG_INFO("Stripped name: " + objectName());
-    LOG_INFO("Base class file path: " + treeFileItemBase->file_path);
 
     if (broadcast) {
         emit fileNameChanged(fileName());
