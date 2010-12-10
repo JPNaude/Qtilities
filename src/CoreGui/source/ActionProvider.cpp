@@ -177,3 +177,23 @@ void Qtilities::CoreGui::ActionProvider::enableAllActions() {
         d->actions.keys().at(i)->setEnabled(true);
     }
 }
+
+QAction* Qtilities::CoreGui::ActionProvider::findActionByText(const QString& action_text) {
+    for (int i = 0; i < d->actions.count(); i++) {
+        if (d->actions.keys().at(i)->text() == action_text) {
+            return d->actions.keys().at(i);
+        }
+    }
+
+    return 0;
+}
+
+QAction* Qtilities::CoreGui::ActionProvider::findActionByObjectName(const QString& object_name) {
+    for (int i = 0; i < d->actions.count(); i++) {
+        if (d->actions.keys().at(i)->objectName() == object_name) {
+            return d->actions.keys().at(i);
+        }
+    }
+
+    return 0;
+}

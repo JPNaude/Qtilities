@@ -160,6 +160,10 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         MultiContextAction* multi = qobject_cast<MultiContextAction*> (command);
         if (multi) {           
             multi->addAction(action,context);
+
+            // Set the action's object name equal to the id:
+            action->setObjectName(id);
+
             // Handle the default key sequence
             if (multi->defaultKeySequence().isEmpty())
                 multi->setDefaultKeySequence(action->shortcut());
