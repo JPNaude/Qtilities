@@ -95,22 +95,48 @@ namespace Qtilities {
                   \param stream A reference to the QDataStream to which the object's information must be appended is provided.
                   \param params A list of QVariants which can be used to pass parameters to the object implementing the interface. An example of such a parameter is the export version.
                   */
-                virtual Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const = 0;
+                virtual Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const {
+                    Q_UNUSED(params)
+
+                    // First export the factory data of this item:
+                    InstanceFactoryInfo factory_data = instanceFactoryInfo();
+                    factory_data.exportBinary(stream);
+
+                    return IExportable::Complete;
+                }
                 //! Allows importing and reconstruction of the object state from information provided in a QDataStream.
                 /*!
                     \param stream The QDataStream which contains the object's information.
                     \param import_list All objects constructed during the import operation must be added to the import list. When the operation fails, all objects in this list will be deleted.
                     \param params A list of QVariants which can be used to pass parameters to the object implementing the interface. An example of such a parameter is the export version.
                     */
-                virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) = 0;
+                virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) {
+                    Q_UNUSED(stream)
+                    Q_UNUSED(import_list)
+                    Q_UNUSED(params)
+                    return IExportable::Complete;
+                }
 
                 //----------------------------
                 // XML Exporting
                 //----------------------------
                 //! Allows exporting to an XML document. A reference to the QDomElement to which the object's information must be added is provided, along with a reference to the QDomDocument.
-                virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const = 0;
+                virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const {
+                    Q_UNUSED(params)
+
+                    instanceFactoryInfo().exportXML(doc,object_node);
+
+                    return IExportable::Complete;
+                }
                 //! Allows importing and reconstruction of data from information provided in a XML document. A reference to the QDomElement which contains the object's information is provided, along with a reference to the QDomDocument.
-                virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) = 0;
+                virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>()) {
+                    Q_UNUSED(doc)
+                    Q_UNUSED(object_node)
+                    Q_UNUSED(import_list)
+                    Q_UNUSED(params)
+                    return IExportable::Complete;
+
+                }
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
