@@ -52,6 +52,10 @@ Improvements & Notable Changes:
 - TreeNode::enabledNamingControl() got a new parameter to set up the invalid resolution policy.
 - ObjectPropertyBrowser got a new refresh() function to refresh the displayed properties.
 - ConfigurationWidget now sorts config pages and figures out the max sizes of all pages and resizes itself according to this when constructed.
+- TreeItem::setCategorizedDisplayEnabled() replaced by enableCategorizedDisplay() and disableCategorizedDisplay().
+- IExportable is now much easier to use. All export functions now have default implementations which exports the InstanceFactoryInfo of the object. Thus you can create objects which will be exported/imported successfully without having to implement any of the export/import functions.
+- AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
+- IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
