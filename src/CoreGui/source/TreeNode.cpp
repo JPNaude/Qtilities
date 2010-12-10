@@ -93,11 +93,12 @@ bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category
         return false;
 }
 
-void Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled(bool is_enabled) {
-    if (is_enabled)
-        displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    else
-        displayHints()->setHierarchicalDisplayHint(ObserverHints::FlatHierarchy);
+void Qtilities::CoreGui::TreeNode::enableCategorizedDisplay() {
+    displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+}
+
+void Qtilities::CoreGui::TreeNode::disableCategorizedDisplay() {
+    displayHints()->setHierarchicalDisplayHint(ObserverHints::FlatHierarchy);
 }
 
 bool Qtilities::CoreGui::TreeNode::getCategorizedDisplayEnabled() const {
