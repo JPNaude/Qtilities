@@ -108,9 +108,11 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
 }
 
 Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) {
-    QStringList category_name_list = category_levels.split(seperator);
-    foreach(QString level,category_name_list)
-        addLevel(level);
+    QStringList category_name_list = category_levels.split(seperator,QString::SkipEmptyParts);
+    foreach(QString level,category_name_list) {
+        if (level.trimmed().length() > 0)
+            addLevel(level);
+    }
     d_access_mode = 3;
 }
 
