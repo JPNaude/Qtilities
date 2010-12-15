@@ -125,11 +125,17 @@ namespace Qtilities {
 
               \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
               category and therefore will not be changed.
+
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              returns false.
               */
             virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
             //! Gets the category of the tree item in the specified tree node.
             /*!
               \param tree_node The node context for which the category must be obtained for.
+
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              returns false.
               */
             virtual QtilitiesCategory getCategory(TreeNode* tree_node) const;
             //! Gets the category of the tree item in the context specified by the given observer ID.
@@ -138,11 +144,23 @@ namespace Qtilities {
               the function will assume that the item only has 1 parent and it will check if it has only one
               parent and if so, return the category for that parent. If it has more than one parent, the function
               will print an error message in release mode and assert id debug mode.
+
+
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              returns an empty category.
               */
             virtual QtilitiesCategory getCategory(int observer_id = -1) const;
             //! Gets the category in a string format where different hierarchies of the category is split using \p sep.
+            /*!
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              return false.
+              */
             virtual QString getCategoryString(const QString& sep = "::") const;
             //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
+            /*!
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              return false.
+              */
             virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             //! Checks if the item has a category.
             virtual bool hasCategory() const;
