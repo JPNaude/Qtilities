@@ -69,7 +69,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
     if (!name_property.isValid()) {
         // Just set the object name, we also let views know that the data in the parent context needs to be updated:
         objectBase()->setObjectName(new_name);
-        parent->refreshViewsData();
+        if (parent)
+            parent->refreshViewsData();
     } else {
         // If there is an OBJECT_NAME property we need to check if parent is the name manager or not.
         // Three things can happen in here:
