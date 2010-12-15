@@ -69,7 +69,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
     if (!name_property.isValid()) {
         // Just set the object name, we also let views know that the data in the parent context needs to be updated:
         objectBase()->setObjectName(new_name);
-        parent->refreshViewsData();
+        if (parent)
+            parent->refreshViewsData();
     } else {
         // If there is an OBJECT_NAME property we need to check if parent is the name manager or not.
         // Three things can happen in here:
@@ -255,8 +256,8 @@ QString Qtilities::CoreGui::AbstractTreeItem::getCategoryString(const QString& s
     return getCategory().toString(sep);
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::setCategoryString(const QString& category_string, const QString& sep) {
-    setCategory(QtilitiesCategory(category_string,sep));
+bool Qtilities::CoreGui::AbstractTreeItem::setCategoryString(const QString& category_string, const QString& sep) {
+    return setCategory(QtilitiesCategory(category_string,sep));
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {

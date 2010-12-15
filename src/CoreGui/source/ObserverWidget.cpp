@@ -1005,6 +1005,10 @@ Qtilities::CoreGui::ObjectPropertyBrowser* Qtilities::CoreGui::ObserverWidget::p
     return d->property_browser_widget;
 }
 
+QDockWidget* Qtilities::CoreGui::ObserverWidget::propertyBrowserDock() {
+    return d->property_browser_dock;
+}
+
 void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyEditorDockArea(Qt::DockWidgetArea property_editor_dock_area) {
     d->property_editor_dock_area = property_editor_dock_area;
 }

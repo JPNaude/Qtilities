@@ -226,6 +226,14 @@ namespace Qtilities {
               \p object_node.
               */
             virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            /*!
+              For children, the sequence in which the object reconstruction happens is as follows:
+              - Construct object and set object name according to factory data.
+              - Attach object.
+              - Set object category if it exists.
+              - Call the importXML() function on the object's IExportable implementation.
+              - Set object activity.
+              */
             virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
             // --------------------------------

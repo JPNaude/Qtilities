@@ -122,6 +122,15 @@ QSize Qtilities::CoreGui::ObjectPropertyBrowser::sizeHint() const {
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::refresh(bool has_changes) {
     if (d->obj && has_changes) {
+        if (d->obj) {
+            QListIterator<QtProperty *> it(d->top_level_properties);
+            while (it.hasNext()) {
+                d->property_browser->removeProperty(it.next());
+            }
+            d->top_level_properties.clear();
+            d->obj->disconnect(this);
+        }
+
         inspectClass(d->obj->metaObject());
     }
 }
@@ -141,11 +150,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
 
     d->obj = object;
 
-    /*if (monitor_changes) {
+    if (monitor_changes) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }*/
+    }
 
     if (!d->obj)
         return;
@@ -169,11 +178,11 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> obje
 
     d->obj = object;
 
-    /*if (monitor_changes) {
+    if (monitor_changes) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }*/
+    }
 
     if (!d->obj)
         return;
