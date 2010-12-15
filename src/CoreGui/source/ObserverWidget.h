@@ -397,7 +397,15 @@ categorized_widget->show();
         public:
             #ifndef QTILITIES_NO_PROPERTY_BROWSER
             //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
+            /*!
+              \sa propertyBrowserDock()
+              */
             ObjectPropertyBrowser* propertyBrowser();
+            //! Returns the dock widget containing the property browser.
+            /*!
+              \sa propertyBrowser();
+              */
+            QDockWidget* propertyBrowserDock();
             #endif
             //! Returns the SearchBoxWidget contained inside the observer widget.
             /*!
