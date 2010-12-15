@@ -116,11 +116,6 @@ namespace Qtilities {
               category and therefore will not be changed.
               */
             virtual bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
-            //! Gets the category of the tree item in the specified tree node.
-            /*!
-              \param tree_node The node context for which the category must be obtained for.
-              */
-            QtilitiesCategory getCategory(TreeNode* tree_node) const;
             //! Sets the category of the tree item in the context specified by the given observer ID.
             /*!
               \param observer_id The observer ID of the context for which the category must be set. When -1,
@@ -132,6 +127,11 @@ namespace Qtilities {
               category and therefore will not be changed.
               */
             virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
+            //! Gets the category of the tree item in the specified tree node.
+            /*!
+              \param tree_node The node context for which the category must be obtained for.
+              */
+            virtual QtilitiesCategory getCategory(TreeNode* tree_node) const;
             //! Gets the category of the tree item in the context specified by the given observer ID.
             /*!
               \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
@@ -139,13 +139,13 @@ namespace Qtilities {
               parent and if so, return the category for that parent. If it has more than one parent, the function
               will print an error message in release mode and assert id debug mode.
               */
-            QtilitiesCategory getCategory(int observer_id = -1) const;
+            virtual QtilitiesCategory getCategory(int observer_id = -1) const;
             //! Gets the category in a string format where different hierarchies of the category is split using \p sep.
-            QString getCategoryString(const QString& sep = "::") const;
+            virtual QString getCategoryString(const QString& sep = "::") const;
             //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
-            void setCategoryString(const QString& category_string, const QString& sep = "::");
+            virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             //! Checks if the item has a category.
-            bool hasCategory() const;
+            virtual bool hasCategory() const;
             //! Sets the tool tip of the tree item.
             void setToolTip(const QString& tooltip);
             //! Gets the tool tip of the tree item.

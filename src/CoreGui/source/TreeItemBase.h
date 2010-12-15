@@ -79,10 +79,15 @@ namespace Qtilities {
             virtual ~TreeItemBase();
 
             // --------------------------------
-            // AbstractTreeItem virtual overwrites
+            // AbstractTreeItem virtual overwrites for category functions:
             // --------------------------------
-            bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
-            bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
+            virtual bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
+            virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
+            virtual QtilitiesCategory getCategory(TreeNode* tree_node) const;
+            virtual QtilitiesCategory getCategory(int observer_id = -1) const;
+            virtual QString getCategoryString(const QString& sep = "::") const;
+            virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
+            virtual bool hasCategory() const;
 
             // --------------------------------
             // IModificationNotifier Implementation

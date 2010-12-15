@@ -74,3 +74,27 @@ bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& cate
     } else
         return false;
 }
+
+Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::TreeItemBase::getCategory(TreeNode* tree_node) const {
+    return AbstractTreeItem::getCategory(tree_node);
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::TreeItemBase::getCategory(int observer_id) const {
+    return AbstractTreeItem::getCategory(observer_id);
+}
+
+QString Qtilities::CoreGui::TreeItemBase::getCategoryString(const QString& sep) const {
+    return AbstractTreeItem::getCategoryString(sep);
+}
+
+bool Qtilities::CoreGui::TreeItemBase::setCategoryString(const QString& category_string, const QString& sep) {
+    if (AbstractTreeItem::setCategoryString(category_string,sep)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
+}
+
+bool Qtilities::CoreGui::TreeItemBase::hasCategory() const {
+    return AbstractTreeItem::hasCategory();
+}
