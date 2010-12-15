@@ -201,10 +201,10 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
     if (d->priority_messages_enabled) {
         d->priority_messages_text.setVisible(true);
         if (message_type == Logger::Warning) {
-            d->priority_messages_icon.setPixmap(QIcon(ICON_WARNING_16x16).pixmap(16));
+            d->priority_messages_icon.setPixmap(QIcon(ICON_WARNING_16x16).pixmap(12));
             d->priority_messages_icon.setVisible(true);
         } else if (message_type == Logger::Error || message_type == Logger::Fatal) {
-            d->priority_messages_icon.setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
+            d->priority_messages_icon.setPixmap(QIcon(ICON_ERROR_16x16).pixmap(12));
             d->priority_messages_icon.setVisible(true);
         } else {
             d->priority_messages_icon.setPixmap(QPixmap());
