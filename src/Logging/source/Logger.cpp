@@ -48,8 +48,8 @@ using namespace Qtilities::Logging::Constants;
 
 struct Qtilities::Logging::LoggerData {
     LoggerFactory<AbstractLoggerEngine> logger_engine_factory;
-    QList<AbstractLoggerEngine*> logger_engines;
-    QList<AbstractFormattingEngine*> formatting_engines;
+    QList<QPointer<AbstractLoggerEngine> > logger_engines;
+    QList<QPointer<AbstractFormattingEngine> > formatting_engines;
     QString default_formatting_engine;
     Logger::MessageType global_log_level;
     bool initialized;
@@ -682,10 +682,12 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
     if (success) {
         stream << (quint32) d->logger_engines.count();
         for (int i = 0; i < d->logger_engines.count(); i++) {
-            LOG_DEBUG(tr("Saving properties for engine: ") + d->logger_engines.at(i)->name());
-            stream << d->logger_engines.at(i)->name();
-            stream << d->logger_engines.at(i)->formattingEngineName();
-            stream << d->logger_engines.at(i)->isActive();
+            if (d->logger_engines.at(i)) {
+                LOG_DEBUG(tr("Saving properties for engine: ") + d->logger_engines.at(i)->name());
+                stream << d->logger_engines.at(i)->name();
+                stream << d->logger_engines.at(i)->formattingEngineName();
+                stream << d->logger_engines.at(i)->isActive();
+            }
         }
     }
 

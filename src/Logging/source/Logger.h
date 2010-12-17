@@ -337,7 +337,7 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
     The finalization will store your logging parameters and also clean up the logger, thus it will delete all engines.
     \sa Qtilities::Logging::Logger::finalize()
     */
-#define LOG_FINALIZE() Log->finalize();
+#define LOG_FINALIZE() Log->finalize()
 
 // -----------------------------------
 // Basic Logging Macros
