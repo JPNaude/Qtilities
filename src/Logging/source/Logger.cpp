@@ -456,7 +456,12 @@ QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() const {
 }
 
 int Qtilities::Logging::Logger::attachedLoggerEngineCount() const {
-    return d->logger_engines.count();
+    QStringList names;
+    for (int i = 0; i < d->logger_engines.count(); i++) {
+        if (d->logger_engines.at(i))
+            names << d->logger_engines.at(i)->name();
+    }
+    return names.count();
 }
 
 Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngineReference(const QString& engine_name) {
