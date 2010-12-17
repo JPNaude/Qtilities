@@ -155,10 +155,13 @@ void Qtilities::Logging::Logger::clear() {
     // Delete all logger engines
     //qDebug() << tr("Qtilities Logging Framework, clearing started...");
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        if (d->logger_engines.at(i) != QtMsgLoggerEngine::instance() && d->logger_engines.at(i) != ConsoleLoggerEngine::instance()) {
-            //qDebug() << tr("> Deleting logger engine: ") << d->logger_engines.at(i)->objectName();
-            delete d->logger_engines.at(i);
+        if (d->logger_engines.at(i)) {
+            if (d->logger_engines.at(i) != QtMsgLoggerEngine::instance() && d->logger_engines.at(i) != ConsoleLoggerEngine::instance()) {
+                //qDebug() << tr("> Deleting logger engine: ") << d->logger_engines.at(i)->objectName();
+                delete d->logger_engines.at(i);
+            }
         }
+
     }
     d->logger_engines.clear();
     //qDebug() << tr("Qtilities Logging Framework, clearing finished successfully...");
@@ -396,20 +399,23 @@ QStringList Qtilities::Logging::Logger::allLogLevelStrings() const {
 void Qtilities::Logging::Logger::deleteAllLoggerEngines() {
     // Delete all logger engines
     for (int i = 0; i << d->logger_engines.count(); i++) {
-        delete d->logger_engines.at(0);
+        if (d->logger_engines.at(0))
+            delete d->logger_engines.at(0);
     }
     d->logger_engines.clear();
 }
 
 void Qtilities::Logging::Logger::disableAllLoggerEngines() {
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        d->logger_engines.at(i)->setActive(false);
+        if (d->logger_engines.at(i))
+            d->logger_engines.at(i)->setActive(false);
     }
 }
 
 void Qtilities::Logging::Logger::enableAllLoggerEngines() {
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        d->logger_engines.at(i)->setActive(true);
+        if (d->logger_engines.at(i))
+            d->logger_engines.at(i)->setActive(true);
     }
 }
 
@@ -443,7 +449,8 @@ void Qtilities::Logging::Logger::disableEngine(const QString engine_name) {
 QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() const {
     QStringList names;
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        names << d->logger_engines.at(i)->name();
+        if (d->logger_engines.at(i))
+            names << d->logger_engines.at(i)->name();
     }
     return names;
 }
@@ -659,9 +666,11 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
     // Stream exportable engines:
     QList<ILoggerExportable*> export_list;
     for (int i = 0; i < d->logger_engines.count(); i++) {
-        ILoggerExportable* log_export_iface = qobject_cast<ILoggerExportable*> (d->logger_engines.at(i));
-        if (log_export_iface)
-            export_list.append(log_export_iface);
+        if (d->logger_engines.at(i)) {
+            ILoggerExportable* log_export_iface = qobject_cast<ILoggerExportable*> (d->logger_engines.at(i));
+            if (log_export_iface)
+                export_list.append(log_export_iface);
+        }
     }
 
     stream << MARKER_LOGGER_CONFIG_TAG;
