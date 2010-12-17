@@ -56,6 +56,7 @@ Improvements & Notable Changes:
 - IExportable is now much easier to use. All export functions now have default implementations which exports the InstanceFactoryInfo of the object. Thus you can create objects which will be exported/imported successfully without having to implement any of the export/import functions.
 - AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
 - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
+- Improved XML importing/exporting of observers.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -82,8 +83,7 @@ Bug Fixes:
 - Fixed numerous bugs in TreeFileItem.
 - Fixed bug in Observer where the QtilitiesPropertyChangeEvent for subject filter's monitoredProperties() were not delivered correctly.
 - Fixed bug in ObjectPropertyBrowser where it would have crashes after trying to edit a property of the object after the object was deleted. The properties are now removed when the object is deleted.
-- Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
-
+- Fixed bug in QtilitiesCategory where its QString,QString constructor calculated the depth wrong in some situations.- Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
 Outstanding roadmap items for this version:
 - Fix observer models' helper function structure, it should just use virtual functions.
 - Property editor must refresh when properties changes...
