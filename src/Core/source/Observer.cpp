@@ -690,30 +690,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                 obj->setObjectName(instanceFactoryInfo.d_instance_name);
                                 IExportable* iface = qobject_cast<IExportable*> (obj);
                                 if (iface) {
-                                     // Attach first before doing import on object:
-                                     constructed_list << iface->objectBase();
-                                     // Check if we must restore the ownership is active:
-                                     ObjectOwnership ownership = Observer::ObserverScopeOwnership;
-                                     if (childrenChild.hasAttribute("Ownership")) {
-                                         ownership = stringToObjectOwnership(childrenChild.attribute("Ownership"));
-                                     }
-                                     if (attachSubject(iface->objectBase(),ownership))
-                                         import_list << obj;
-                                     else {
-                                         LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
-                                         delete obj;
-                                         result = IExportable::Incomplete;
-                                         continue;
-                                     }
+                                    // Attach first before doing import on object:
+                                    constructed_list << iface->objectBase();
+                                    // Check if we must restore the ownership is active:
+                                    ObjectOwnership ownership = Observer::ObserverScopeOwnership;
+                                    if (childrenChild.hasAttribute("Ownership")) {
+                                        ownership = stringToObjectOwnership(childrenChild.attribute("Ownership"));
+                                    }
+                                    if (attachSubject(iface->objectBase(),ownership))
+                                        import_list << obj;
+                                    else {
+                                        LOG_WARNING(QString(tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(objectName()));
+                                        delete obj;
+                                        result = IExportable::Incomplete;
+                                        continue;
+                                    }
 
-                                     // We just created this object, it will not have a category property yet so no need to check if it has:
-                                      if (childrenChild.hasAttribute("Category")) {
-                                          QString category_string = childrenChild.attribute("Category");
-                                          QtilitiesCategory category(category_string,"::");
-                                          ObserverProperty category_property(OBJECT_CATEGORY);
-                                          category_property.setValue(qVariantFromValue(category),observerID());
-                                          Observer::setObserverProperty(iface->objectBase(),category_property);
-                                      }
+                                    // We just created this object, it will not have a category property yet so no need to check if it has:
+                                     if (childrenChild.hasAttribute("Category")) {
+                                         QString category_string = childrenChild.attribute("Category");
+                                         QtilitiesCategory category(category_string,"::");
+                                         ObserverProperty category_property(OBJECT_CATEGORY);
+                                         category_property.setValue(qVariantFromValue(category),observerID());
+                                         Observer::setObserverProperty(iface->objectBase(),category_property);
+                                     }
 
                                     // Now that we created the item, init its data and children:
                                     IExportable::Result intermediate_result = iface->importXML(doc,&childrenChild,import_list);
