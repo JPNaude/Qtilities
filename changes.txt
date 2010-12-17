@@ -82,8 +82,10 @@ Bug Fixes:
 - Fixed numerous bugs in TreeFileItem.
 - Fixed bug in Observer where the QtilitiesPropertyChangeEvent for subject filter's monitoredProperties() were not delivered correctly.
 - Fixed bug in ObjectPropertyBrowser where it would have crashes after trying to edit a property of the object after the object was deleted. The properties are now removed when the object is deleted.
+- Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
 
 Outstanding roadmap items for this version:
+- Fix observer models' helper function structure, it should just use virtual functions.
 - Property editor must refresh when properties changes...
 - ObserverWidget: allow custom control of column spanning.
 - ObserverWidget: allow easy setting of a different header for the "Items" column in tree view mode.

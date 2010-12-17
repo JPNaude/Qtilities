@@ -80,7 +80,11 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
         //    will take care of the rest.
 
         // Get the naming policy filter:
-        NamingPolicyFilter* filter = parent->namingPolicyFilter();
+        NamingPolicyFilter* filter = 0;
+
+        if (parent)
+            parent->namingPolicyFilter();
+
         if (filter) {
             if (filter->isObjectNameManager(objectBase())) {
                 // Case 1:
