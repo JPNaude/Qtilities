@@ -90,9 +90,9 @@ namespace Qtilities {
               \param file_name The new file name.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
               */
-            void setFileName(const QString& file_name, bool broadcast = true);
+            virtual void setFileName(const QString& file_name, bool broadcast = true);
             //! Returns the file name of the file represented by this file model.
-            QString fileName() const;
+            virtual QString fileName() const;
             //! Returns true if the file exists, false otherwise.
             virtual bool exists() const;
             //! Returns the file extension of the file represented by this file model.
@@ -114,7 +114,7 @@ namespace Qtilities {
                     return path;
             }
 
-            //! Returns the file name stripped from the file path. Thus, only the file name.
+            //! Returns the file name stripped from the file path. Thus, only the file name & the extension.
             static QString strippedName(const QString &fullFileName) {
                 QString stripped_name = QFileInfo(fullFileName).fileName();
                 if (stripped_name.endsWith("\""))
