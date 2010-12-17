@@ -88,6 +88,9 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     connect(ui->radioSaveAutomatically,SIGNAL(toggled(bool)),SLOT(handle_radioSaveAutomatically(bool)));
     connect(ui->txtCustomProjectsPath,SIGNAL(textChanged(QString)),SLOT(handle_txtCustomProjectsPathTextChanged(QString)));
     connect(ui->btnOpenProjectsPath,SIGNAL(clicked()),SLOT(handle_btnOpenProjectsPath()));
+
+    if (!(PROJECT_MANAGER->allowedProjectTypes() & IExportable::Binary))
+        ui->checkVerboseLogging->setVisible(false);
 }
 
 Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()

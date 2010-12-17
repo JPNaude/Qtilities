@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
+    <width>442</width>
     <height>300</height>
    </rect>
   </property>
@@ -117,7 +117,7 @@
       <string>This setting enables verbose logging output during project loading and saving operations. This provides detailed information about the saving and loading processes, but it comes at the cost of slower saving and loading.</string>
      </property>
      <property name="text">
-      <string>Verbose logging during project saving and loading.</string>
+      <string>Verbose logging during project saving and loading of binary projects.</string>
      </property>
     </widget>
    </item>
