@@ -259,6 +259,8 @@ Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::CodeEditorWidget::searc
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::loadFile(const QString &file_name) {
+    maybeSave();
+
     // Read everything from the file
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -284,6 +286,8 @@ bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
 
     file.write(d->codeEditor->toPlainText().toLocal8Bit());
     file.close();
+
+    d->codeEditor->document()->setModified(false);
 
     updateSaveAction();
     return true;
@@ -434,7 +438,6 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
         d->searchBoxWidget->setWholeWordsOnly(false);
         d->searchBoxWidget->setPlainTextEditor(d->codeEditor);
-
     }
     d->searchBoxWidget->setEditorFocus();
 
@@ -443,6 +446,11 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
     if (visible_cursor.hasSelection()) {
         d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
     }
+
+    if (d->searchBoxWidget->isVisible())
+        d->searchBoxWidget->hide();
+    else
+        d->searchBoxWidget->show();
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {

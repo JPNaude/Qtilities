@@ -44,10 +44,10 @@ using namespace Qtilities::CoreGui::Icons;
 struct Qtilities::CoreGui::SearchBoxWidgetData {
     SearchBoxWidgetData() : textEdit(0),
         plainTextEdit(0) {}
-    QMenu*      searchOptionsMenu;
-    QAction*    searchOptionCaseSensitive;
-    QAction*    searchOptionWholeWordsOnly;
-    QAction*    searchOptionRegEx;
+    QMenu*                          searchOptionsMenu;
+    QAction*                        searchOptionCaseSensitive;
+    QAction*                        searchOptionWholeWordsOnly;
+    QAction*                        searchOptionRegEx;
 
     SearchBoxWidget::WidgetTarget   widget_target;
     QTextEdit*                      textEdit;
@@ -306,9 +306,11 @@ void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
     if (d->widget_target == ExternalTarget)
         emit btnClose_clicked();
     else if (d->widget_target == TextEdit) {
-
+        emit btnClose_clicked();
+        hide();
     } else if (d->widget_target == PlainTextEdit) {
-
+        emit btnClose_clicked();
+        hide();
     }
 }
 
