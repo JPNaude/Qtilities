@@ -115,7 +115,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionFilterNodes(0),
     actionFilterItems(0),
     actionFilterCategories(0),
-    actionFilterTypeSeperator(0) { }
+    actionFilterTypeSeperator(0),
+    last_display_flags(ObserverHints::NoDisplayFlagsHint) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -203,6 +204,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionFilterItems;
     QAction* actionFilterCategories;
     QAction* actionFilterTypeSeperator;
+
+    //! This hint keeps track of the previously used activeHints()->displayFlagsHint(). If it changed, the toolbars will be reconstructed in the refreshActionToolBar() function.
+    ObserverHints::DisplayFlags last_display_flags;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -2598,6 +2602,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
     // this happens everytime the user selection changes.
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
+        if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
+            d->last_display_flags = activeHints()->displayFlagsHint();
+        else
+            return;
+
         // First delete all toolbars:
         int toolbar_count = d->action_toolbars.count();
         if (toolbar_count > 0) {
