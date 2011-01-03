@@ -64,7 +64,7 @@ namespace Qtilities {
         NamingPolicySubject filter validates names using a QRegExpValidator constructed as follows:
 
 \code
-const QRegExp default_expression("\\.{1,100}",Qt::CaseInsensitive);
+const QRegExp default_expression("\\.{1,200}",Qt::CaseInsensitive);
 QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
 \endcode
 

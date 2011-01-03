@@ -71,7 +71,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : Ab
     d->uniqueness_policy = NamingPolicyFilter::ProhibitDuplicateNames;
     d->uniqueness_resolution_policy = NamingPolicyFilter::PromptUser;
     d->validity_resolution_policy = NamingPolicyFilter::PromptUser;
-    const QRegExp default_expression(".{1,100}",Qt::CaseInsensitive);
+    const QRegExp default_expression(".{1,255}",Qt::CaseInsensitive);
     QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
     d->validator = default_validator;
     d->name_dialog = new NamingPolicyInputDialog();
