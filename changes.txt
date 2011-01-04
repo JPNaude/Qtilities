@@ -21,7 +21,7 @@ New Features:
         - Contexts
         - Factories
         - Plugins
-- TreeNode got new functions to easily set up a SubjectTypeFilter on itself. This allows observer widgets to use meaningfull text in the name column's header. The AbstractObserverTreeModel now respects this as well, previously only table models did.
+- TreeNode got new functions to easily set up a SubjectTypeFilter on itself. This allows observer widgets to use meaningfull text in the name column's header. The ObserverTreeModel now respects this as well, previously only table models did.
 
 Improvements & Notable Changes:
 - As always, documentation updates:
@@ -59,6 +59,8 @@ Improvements & Notable Changes:
 - Improved XML importing/exporting of observers.
 - ObserverWidget handles ObserverHints::DisplayFlags better. It will not reconstruct toolbars everytime if the activeHints()'s display flags did not change. This could have caused the order of toolbars to change when it shouldn't.
 - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
+- ObserverWidget in table mode now resize all rows to contents every time that new items are added, previously this only happened when the widget's observer context changed.
+- Important: The complete thinking behind the way helper functions were used in observer models were abandoned. Thus, AbstractObserverTableModel is now just ObserverTableModel and AbstractObserverTreeModel is now just ObserverTreeModel. In custom observer models, you should now inherit from either ObserverTableModel or ObserverTreeModel and just call the AbstractItemModel's virtual functions rather than calling the virtual functions which was needed previously.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -68,7 +70,7 @@ At this stage proper documentation is still lacking on a class level for many cl
 
 Bug Fixes:
 - Fixed memory leak in ActivityPolicyFilter destructor.
-- Fixed bug in AbstractObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
+- Fixed bug in ObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
 - Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
@@ -90,10 +92,7 @@ Bug Fixes:
 - Fixed crash in AbstractTreeItem::setName() when it had no parent.
 
 Outstanding roadmap items for this version:
-- Fix observer models' helper function structure, it should just use virtual functions.
-- Property editor must refresh when properties changes...
-- ObserverWidget: allow custom control of column spanning.
-- ObserverWidget: allow easy setting of a different header for the "Items" column in tree view mode.
+- Property editor must refresh when properties changes..
 - Widget logger engines: rich text, and does not save formatting engines.
 - Help stuff is part of docs...
 - Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
@@ -122,6 +121,8 @@ Outstanding roadmap items for this version:
 - AbstractSubjectFilters, do not make all evaluation functions abstract...
 - Getting started article should show more: QtilitiesMainWindow.
 - Must update images in ObjectManagement and MainWindow examples.
+- Regression in observer widget: Toolbars with no items must not be displayed.
+- Make sure all observer models' helper related stuff is removed everywhere (docs etc.).
 
 v0.2
 ====
