@@ -1071,7 +1071,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged(objects);
+            emit layoutChanged(obj);
             setModificationState(true);
         }
 
@@ -1405,7 +1405,7 @@ QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> object
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
-        emit layoutChanged();
+       emit layoutChanged();
         setModificationState(true);
     }
     return success_list;

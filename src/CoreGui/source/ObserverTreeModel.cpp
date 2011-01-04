@@ -97,7 +97,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     rebuildTreeStructure();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
-    connect(d_observer,SIGNAL(layoutChanged(QList<QObject*>)),SLOT(rebuildTreeStructure(QList<QObject*>)));
+    connect(d_observer,SIGNAL(layoutChanged(QObject*)),SLOT(rebuildTreeStructure(QObject*)));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
     // If a selection parent does not exist, we set observer as the selection parent:
@@ -930,7 +930,7 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
          return d->rootItem->columnCount();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QObject*> new_focus) {
+void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QObject* new_focus) {
     // Rebuild the tree structure:
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reset();
@@ -949,10 +949,12 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QObject*>
     emit layoutAboutToBeChanged();
     emit layoutChanged();
 
-    // Now attempt to reselect the previously selected objects:
-    if (new_focus.count() > 0)
-        emit selectObjects(new_focus);
-    else if (d->selected_objects.count() > 0)
+    // Handle item selection after tree has been rebuilt:
+    if (new_focus) {
+        QList<QObject*> objects;
+        objects << new_focus;
+        emit selectObjects(objects);
+    } else if (d->selected_objects.count() > 0)
         emit selectObjects(d->selected_objects);
     else
         emit selectObjects(QList<QObject*>());

@@ -807,7 +807,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 
               \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
               */
-            void layoutChanged(QList<QObject*> added_objects = QList<QObject*>());
+            void layoutChanged(QObject* added_object = 0);
             //! A signal which is emitted when the data in the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the data of the observer or any subjects in the tree underneath the observer changes.
