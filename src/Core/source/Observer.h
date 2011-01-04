@@ -803,9 +803,11 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               - Observer access mode and access mode scope changes. \sa accessMode(), accessModeScope()
               - Non-observer access mode changes. \sa Qtilities::Core::Properties::AccessMode
 
+              \param added_objects When objects are added to the observer the resulting layout change signal will contain a list of objects added.
+
               \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
               */
-            void layoutChanged();
+            void layoutChanged(QList<QObject*> added_objects = QList<QObject*>());
             //! A signal which is emitted when the data in the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the data of the observer or any subjects in the tree underneath the observer changes.

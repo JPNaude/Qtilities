@@ -133,7 +133,7 @@ namespace Qtilities {
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
               */
-            void rebuildTreeStructure();
+            void rebuildTreeStructure(QList<QObject*> new_focus = QList<QObject*>());
 
         public slots:
             //! Function which will calculate the selection parent of a selected object.
@@ -164,8 +164,10 @@ namespace Qtilities {
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);
-            //! This signal should be used to reselect previously selected objects if they are still present in the tree. The signal is emmited when the tree finished to rebuild itself.
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emmited when the tree finished to rebuild itself.
             void selectObjects(QList<QPointer<QObject> > objects) const;
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emmited when the tree finished to rebuild itself.
+            void selectObjects(QList<QObject*> objects) const;
 
         private:
             //! Recursive function used by findObject() to traverse through the trying to find an object.

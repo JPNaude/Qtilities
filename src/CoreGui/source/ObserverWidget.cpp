@@ -488,6 +488,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
                 connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)));
+                connect(d->tree_model,SIGNAL(selectObjects(QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
 
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
@@ -2511,8 +2512,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
-    if (objects.count() == 0)
+    if (objects.count() == 0) {
+        // We expand all:
+        viewExpandAll();
         return;
+    }
 
     if (!d->update_selection_activity)
         return;

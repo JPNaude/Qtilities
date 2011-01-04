@@ -1071,7 +1071,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged();
+            emit layoutChanged(objects);
             setModificationState(true);
         }
 

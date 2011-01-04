@@ -97,7 +97,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     rebuildTreeStructure();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
-    connect(d_observer,SIGNAL(layoutChanged()),SLOT(rebuildTreeStructure()));
+    connect(d_observer,SIGNAL(layoutChanged(QList<QObject*>)),SLOT(rebuildTreeStructure(QList<QObject*>)));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
     // If a selection parent does not exist, we set observer as the selection parent:
@@ -930,7 +930,7 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
          return d->rootItem->columnCount();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
+void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QObject*> new_focus) {
     // Rebuild the tree structure:
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reset();
@@ -950,15 +950,12 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     emit layoutChanged();
 
     // Now attempt to reselect the previously selected objects:
-    if (d->selected_objects.count() > 0)
+    if (new_focus.count() > 0)
+        emit selectObjects(new_focus);
+    else if (d->selected_objects.count() > 0)
         emit selectObjects(d->selected_objects);
-    else {
-        if (d_observer->subjectCount() > 0) {
-            QList<QPointer<QObject> > new_selection;
-            new_selection.append(d_observer->subjectReferences().last());
-            emit selectObjects(new_selection);
-        }
-    }
+    else
+        emit selectObjects(QList<QObject*>());
 
     QApplication::restoreOverrideCursor();
 }
