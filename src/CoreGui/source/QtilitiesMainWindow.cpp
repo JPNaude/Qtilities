@@ -100,20 +100,6 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
     delete d;
 }
 
-void Qtilities::CoreGui::QtilitiesMainWindow::resizeEvent(QResizeEvent* event) {
-    if (d->mode_manager) {
-        if (d->mode_manager->activeModeIFace()) {
-            if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
-                QSize new_size(event->size().width(),event->size().height()-d->mode_manager->modeListWidget()->height());
-                d->mode_manager->activeModeIFace()->resizeModeWidget(new_size);
-            } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
-                QSize new_size(event->size().width()-d->mode_manager->modeListWidget()->width(),event->size().height());
-                d->mode_manager->activeModeIFace()->resizeModeWidget(new_size);
-            }
-        }
-    }
-}
-
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
     QSettings settings;
     settings.beginGroup("GUI");
@@ -183,7 +169,6 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
         d->mode_manager->modeListWidget()->setMinimumSize(d->mode_manager->modeListWidget()->sizeHint());
         d->mode_manager->modeListWidget()->show();
         d->current_widget->show();
-        d->central_widget->resize(width(),height()-d->mode_manager->modeListWidget()->height());
         setCentralWidget(d->central_widget);
         d->central_widget->show();
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
@@ -207,7 +192,6 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
         d->mode_manager->modeListWidget()->setMinimumSize(d->mode_manager->modeListWidget()->sizeHint());
         d->mode_manager->modeListWidget()->show();
         d->current_widget->show();
-        d->central_widget->resize(width()-d->mode_manager->modeListWidget()->width(),height());
         setCentralWidget(d->central_widget);
         d->central_widget->show();
     }

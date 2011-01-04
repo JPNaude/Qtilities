@@ -104,7 +104,6 @@ namespace Qtilities {
 
             QtilitiesMainWindow(ModeLayout modeLayout = ModesNone, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~QtilitiesMainWindow();
-            void resizeEvent(QResizeEvent* event);
 
             // ----------------------------------
             // Functions related to modes

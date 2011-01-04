@@ -63,12 +63,6 @@ namespace Qtilities {
                   This widget must have a proper layout in order to be displayed correctly.
                   */
                 virtual QWidget* modeWidget() = 0;
-                //! This function will be called everytime the QtilitiesMainWindow is resized allowing modes to resize their mode widgets explicitly.
-                /*!
-                  Normally it is not needed to reimplement this function. However in some cases where you are displaying a widget with a fixed sizeHint(), you
-need to resize the widget in the implementation of this function.
-                  */
-                virtual void resizeModeWidget(const QSize& new_size) {}
                 //! This function is called in the initializeDependancies() function, thus all objects implementing interfaces in which a mode might be interested will be present in the global object pool.
                 virtual void initializeMode() = 0;
                 //! An icon for the mode.
