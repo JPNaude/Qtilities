@@ -1617,12 +1617,19 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
     }
 
     // Delete selected objects:
-    for (int i = 0; i < selected_count; i++) {
+    int first_delete_position = -1;
+    for (int i = 0; i < selected_count; i++) {       
         if (d->current_selection.at(i)) {
             // Make sure the selected object is not the top level observer (might happen in a tree view)
             Observer* observer = qobject_cast<Observer*> (d->current_selection.at(0));
-            if (observer != d->top_level_observer)
+            if (observer != d->top_level_observer) {
+                if (i == 0 && selectionParent())
+                    first_delete_position = selectionParent()->subjectReferences().indexOf(d->current_selection.at(i));
+                else if (i == 0 && !selectionParent() && d_observer)
+                    first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
+
                 delete d->current_selection.at(0);
+            }
         }
     }
 
@@ -1635,16 +1642,26 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         // We must check if there is a selection parent, else use d_observer:
         if (d->tree_model->selectionParent()) {
             Observer* selection_parent = d->tree_model->selectionParent();
-            if (selection_parent->subjectCount() > 0)
-                object_list << selection_parent->subjectAt(0);
-            else
-                object_list << selection_parent;
+            if (first_delete_position <= selection_parent->subjectCount() && first_delete_position > 0) {
+                object_list << selection_parent->subjectAt(first_delete_position-1);
+                selectObjects(object_list);
+            } else {
+                if (selection_parent->subjectCount() > 0)
+                    object_list << selection_parent->subjectAt(0);
+                else
+                    object_list << selection_parent;
+            }
             selectObjects(object_list);
+
         } else {
-            if (d_observer->subjectCount() > 0)
-                object_list << d_observer->subjectAt(0);
-            else
-                object_list << d_observer;
+            if (first_delete_position <= d_observer->subjectCount() && first_delete_position > 0) {
+                object_list << d_observer->subjectAt(first_delete_position-1);
+            } else {
+                if (d_observer->subjectCount() > 0)
+                    object_list << d_observer->subjectAt(0);
+                else
+                    object_list << d_observer;
+            }
             selectObjects(object_list);
         }
     }
@@ -2527,6 +2544,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
 
         d->update_selection_activity = true;
+
+        // Update the property browser:
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            refreshPropertyBrowser();
+        #endif
     } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
         d->update_selection_activity = false;
 
@@ -2555,6 +2577,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
 
         d->update_selection_activity = true;
+
+        // Update the property browser:
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            refreshPropertyBrowser();
+        #endif
     }
 }
 

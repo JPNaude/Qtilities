@@ -950,7 +950,16 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     emit layoutChanged();
 
     // Now attempt to reselect the previously selected objects:
-    emit selectObjects(d->selected_objects);
+    if (d->selected_objects.count() > 0)
+        emit selectObjects(d->selected_objects);
+    else {
+        if (d_observer->subjectCount() > 0) {
+            QList<QPointer<QObject> > new_selection;
+            new_selection.append(d_observer->subjectReferences().last());
+            emit selectObjects(new_selection);
+        }
+    }
+
     QApplication::restoreOverrideCursor();
 }
 
