@@ -57,16 +57,20 @@ namespace Qtilities {
           */
         struct ObserverTableModelData;
 
-        //! The ObserverTableModel class provides an ready-to-use model that can be used to show the contents of an Observer in a QTableView.
+        //! The ObserverTableModel class provides an ready-to-use model that can be used to show the contents of an Qtilities::Core::Observer in a QTableView.
         /*!
-          The ObserverTableModel class provides an ready-to-use model that can be used to show and manage the contents of an Observer in a QTableView.
+        The ObserverTableModel class provides an ready-to-use model that can be used to show and manage the contents of an Qtilities::Core::Observer in a QTableView.
 
-          To view the contents of an Observer, use the setObserverContext function. This function will initialize the model and show the names
-          of subjects attached to a specific observer in a QTableView. ObserverTableModel has knowledge of the standard subject filters which
-          are included in the Qtilities library. For more information see setNamingControl() and setActivityControl() in the Observer class documentation.
+        To view the contents of an Observer, use the setObserverContext function. This function will initialize the model and show the names
+        of subjects attached to a specific observer in a QTableView. ObserverTableModel has knowledge of the standard subject filters which
+        are included in the %Qtilities libraries. Thus it will for example automatically show check boxes etc. if the observer context has
+        an Qtilities::Core::ActivityPolicyFilter installed.
 
-          When you develop your own subject filters and want to make information controlled by these filters visible through ObserverTableModel,
-          you would need to subclassing from ObserverTableModel and implement the needed virtual functions.
+        To customize this model you can simply subclass it and reimplement the virtual functions of QAbstractItemModel. This allows you to
+        add columns etc. to your view. The <a class="el" href="namespace_qtilities_1_1_examples_1_1_clipboard.html">Clipboard Example</a> shows how
+        to do this.
+
+        \sa ObserverTreeModel
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTableModel : public QAbstractTableModel, public AbstractObserverItemModel
         {
@@ -79,12 +83,12 @@ namespace Qtilities {
             // --------------------------------
             // QAbstractTableModel Implementation
             // --------------------------------
-            Qt::ItemFlags flags(const QModelIndex &index) const;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-            QVariant data(const QModelIndex &index, int role) const;
-            int rowCount(const QModelIndex &parent = QModelIndex()) const;
-            int columnCount(const QModelIndex &parent = QModelIndex()) const;
-            bool setData(const QModelIndex &index, const QVariant &value, int role);
+            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+            virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+            virtual QVariant data(const QModelIndex &index, int role) const;
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
             // --------------------------------
             // AbstractObserverItemModel Implementation

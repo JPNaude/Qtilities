@@ -59,10 +59,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/NamingPolicyInputDialog.h \
     source/NamingPolicyFilter.h \
     source/AbstractObserverItemModel.h \
-    source/AbstractObserverTableModel.h \
-    source/AbstractObserverTreeModel.h \
-    source/ObserverTableModel.h \
-    source/ObserverTreeModel.h \
     source/ObjectScopeWidget.h \
     source/ObjectHierarchyNavigator.h \
     source/ObserverTreeItem.h \
@@ -104,7 +100,9 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/SideWidgetFileSystem.h \
     source/ModeManager.h \
     source/SideViewerWidgetFactory.h \
-    source/ModeListWidget.h
+    source/ModeListWidget.h \
+    source/ObserverTableModel.h \
+    source/ObserverTreeModel.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -112,10 +110,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/NamingPolicyInputDialog.cpp \
     source/NamingPolicyFilter.cpp \
     source/AbstractObserverItemModel.cpp \
-    source/AbstractObserverTableModel.cpp \
-    source/AbstractObserverTreeModel.cpp \
-    source/ObserverTableModel.cpp \
-    source/ObserverTreeModel.cpp \
     source/ObjectScopeWidget.cpp \
     source/ObjectHierarchyNavigator.cpp \
     source/ObserverTreeItem.cpp \
@@ -150,7 +144,9 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/SideWidgetFileSystem.cpp \
     source/ModeManager.cpp \
     source/SideViewerWidgetFactory.cpp \
-    source/ModeListWidget.cpp
+    source/ModeListWidget.cpp \
+    source/ObserverTableModel.cpp \
+    source/ObserverTreeModel.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \

@@ -116,7 +116,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionFilterItems(0),
     actionFilterCategories(0),
     actionFilterTypeSeperator(0),
-    last_display_flags(ObserverHints::NoDisplayFlagsHint) { }
+    last_display_flags(ObserverHints::NoDisplayFlagsHint),
+    do_column_resizing(true) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -147,9 +148,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     Qtilities::DisplayMode display_mode;
     QPointer<QTableView> table_view;
-    AbstractObserverTableModel* table_model;
+    ObserverTableModel* table_model;
     QPointer<QTreeView> tree_view;
-    AbstractObserverTreeModel* tree_model;
+    ObserverTreeModel* tree_model;
     QSortFilterProxyModel *proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
@@ -207,6 +208,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! This hint keeps track of the previously used activeHints()->displayFlagsHint(). If it changed, the toolbars will be reconstructed in the refreshActionToolBar() function.
     ObserverHints::DisplayFlags last_display_flags;
+
+    //! Stores if automatic column resizing must be done. See enableAutoColumnResizing()
+    bool do_column_resizing;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -365,7 +369,7 @@ int Qtilities::CoreGui::ObserverWidget::topLevelObserverID() {
         return -1;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(AbstractObserverTableModel* table_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel* table_model) {
     if (d->initialized)
         return false;
 
@@ -379,7 +383,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(AbstractObserverTab
     return true;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(AbstractObserverTreeModel* tree_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* tree_model) {
     if (d->initialized)
         return false;
 
@@ -634,7 +638,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
@@ -642,7 +645,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         else {
             if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                 d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
-                //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory),50);
             } else {
                 d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
             }
@@ -652,62 +654,65 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnTypeInfo);
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnAccess);
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
         }
 
         // Resize columns
-        d->table_view->resizeColumnsToContents();
-        QHeaderView* table_header = d->table_view->horizontalHeader();
-        table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        if (d->do_column_resizing) {
+            d->table_view->resizeColumnsToContents();
+            QHeaderView* table_header = d->table_view->horizontalHeader();
+            table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        }
     } else if (d->display_mode == TreeView && d->tree_view && d->tree_model) {
         // Show only the needed columns for the current observer
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         }
 
-        // Set name column width to something biggish for now. Will fix later.
-        // Also fix in subjectCountChanged() slot.
-        d->tree_view->setColumnWidth(0,300);
-
-        //QHeaderView* tree_header = d->tree_view->header();
-        //tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::NameColumn),QHeaderView::Stretch);
+        // Resize columns:
+        if (d->do_column_resizing) {
+            QHeaderView* tree_header = d->tree_view->header();
+            tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        }
     }
 
     d->initialized = true;
@@ -912,6 +917,14 @@ QTreeView* Qtilities::CoreGui::ObserverWidget::treeView() {
         return 0;
 }
 
+void Qtilities::CoreGui::ObserverWidget::enableAutoColumnResizing() {
+    d->do_column_resizing = true;
+}
+
+void Qtilities::CoreGui::ObserverWidget::disableAutoColumnResizing() {
+    d->do_column_resizing = false;
+}
+
 void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     if (!d->initialized)
         return;
@@ -923,6 +936,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     settings.setValue("state", saveState());
     settings.setValue("default_row_heigth", d->default_row_height);
     settings.setValue("confirm_deletes", d->confirm_deletes);
+    settings.setValue("do_column_resizing", d->do_column_resizing);
     if (d->table_view)
         settings.setValue("table_view_show_grid", d->table_view->showGrid());
     settings.endGroup();
@@ -964,6 +978,9 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // Confirm deletes
     d->confirm_deletes = settings.value("confirm_deletes", true).toBool();
+
+    // Automatic column resizing
+    d->do_column_resizing = settings.value("do_column_resizing", true).toBool();
 
     settings.endGroup();
     settings.endGroup();
@@ -1036,6 +1053,8 @@ void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
     if (height == -1)
         height = d->default_row_height;
     if (d->display_mode == TableView && d->table_view && d->table_model) {
+        if (d->do_column_resizing)
+            d->table_view->resizeColumnsToContents();
         for (int i = 0; i < d->table_model->rowCount(); i++) {
             d->table_view->setRowHeight(i,height);
         }

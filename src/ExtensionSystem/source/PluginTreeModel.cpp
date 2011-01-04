@@ -38,7 +38,7 @@
 
 using namespace Qtilities::ExtensionSystem::Interfaces;
 
-Qtilities::ExtensionSystem::PluginTreeModel::PluginTreeModel(QObject* parent) : AbstractObserverTreeModel(parent) {
+Qtilities::ExtensionSystem::PluginTreeModel::PluginTreeModel(QObject* parent) : ObserverTreeModel(parent) {
 
 }
 
@@ -66,7 +66,7 @@ QVariant Qtilities::ExtensionSystem::PluginTreeModel::data(const QModelIndex &in
             }
         }
     } else {
-        return AbstractObserverTreeModel::dataHelper(index,role);
+        return ObserverTreeModel::data(index,role);
     }
 
     return QVariant();
@@ -79,7 +79,7 @@ Qt::ItemFlags Qtilities::ExtensionSystem::PluginTreeModel::flags(const QModelInd
         item_flags |= Qt::ItemIsSelectable;
         return item_flags;
     } else {
-        return AbstractObserverTreeModel::flagsHelper(index);
+        return ObserverTreeModel::flags(index);
     }
 }
 
@@ -87,7 +87,7 @@ QVariant Qtilities::ExtensionSystem::PluginTreeModel::headerData(int section, Qt
     if ((section == columnCount() - 1) && (role == Qt::DisplayRole)) {
         return QString("Version");
     } else {
-        return AbstractObserverTreeModel::headerDataHelper(section,orientation,role);
+        return ObserverTreeModel::headerData(section,orientation,role);
     }
 }
 
@@ -95,14 +95,14 @@ bool Qtilities::ExtensionSystem::PluginTreeModel::setData(const QModelIndex &ind
     if (index.column() == columnCount() - 1) {
         return false;
     } else {
-        return AbstractObserverTreeModel::setDataHelper(index,value,role);
+        return ObserverTreeModel::setData(index,value,role);
     }
 }
 
 int Qtilities::ExtensionSystem::PluginTreeModel::rowCount(const QModelIndex &parent) const {
-    return AbstractObserverTreeModel::rowCountHelper(parent);
+    return ObserverTreeModel::rowCount(parent);
 }
 
 int Qtilities::ExtensionSystem::PluginTreeModel::columnCount(const QModelIndex &parent) const {
-    return AbstractObserverTreeModel::columnCountHelper(parent) + 1;
+    return ObserverTreeModel::columnCount(parent) + 1;
 }

@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     TreeNode* nodeA = rootNode->addNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered,ActivityPolicyFilter::MultipleActivity,ActivityPolicyFilter::ParentFollowActivity);
     TreeNode* nodeB = rootNode->addNode("Node B");
-    nodeB->setCategorizedDisplayEnabled(true);
+    nodeB->enableCategorizedDisplay();
     rootNode->addItem("Child 1");
     rootNode->addItem("Child 2");
     nodeA->addItem("Child 3");

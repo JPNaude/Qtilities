@@ -43,7 +43,7 @@ namespace Qtilities {
     namespace CoreGui {
         /*!
           \class ObserverTreeModelProxyFilter
-          \brief The ObserverTreeModelProxyFilter class is an implementation of a QSortFilterProxyModel which is used for advanced filtering in AbstractObserverTreeModel.
+          \brief The ObserverTreeModelProxyFilter class is an implementation of a QSortFilterProxyModel which is used for advanced filtering in ObserverTreeModel.
           */
         class ObserverTreeModelProxyFilter : public QSortFilterProxyModel
         {

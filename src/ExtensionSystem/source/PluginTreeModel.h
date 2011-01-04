@@ -47,11 +47,11 @@ namespace Qtilities {
 
         /*!
           \class PluginTreeModel
-          \brief The PluginTreeModel class is an extension of AbstractObserverTreeModel used to display plugin information.
+          \brief The PluginTreeModel class is an extension of ObserverTreeModel used to display plugin information.
 
           <i>This class was added in %Qtilities v0.2.</i>
          */
-        class PluginTreeModel : public AbstractObserverTreeModel
+        class PluginTreeModel : public ObserverTreeModel
         {
             Q_OBJECT
 

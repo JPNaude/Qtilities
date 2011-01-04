@@ -33,7 +33,7 @@
 
 #include "ExtendedObserverTableModel.h"
 
-Qtilities::Examples::Clipboard::ExtendedObserverTableModel::ExtendedObserverTableModel(QObject* parent) : AbstractObserverTableModel(parent) {
+Qtilities::Examples::Clipboard::ExtendedObserverTableModel::ExtendedObserverTableModel(QObject* parent) : ObserverTableModel(parent) {
 
 }
 
@@ -41,7 +41,7 @@ QVariant Qtilities::Examples::Clipboard::ExtendedObserverTableModel::data(const 
     if ((index.column() == columnCount() - 1) && (role == Qt::DisplayRole)) {
         return QString("Custom Data");
     } else {
-        return AbstractObserverTableModel::dataHelper(index,role);
+        return ObserverTableModel::data(index,role);
     }
 }
 
@@ -52,7 +52,7 @@ Qt::ItemFlags Qtilities::Examples::Clipboard::ExtendedObserverTableModel::flags(
         item_flags |= Qt::ItemIsSelectable;
         return item_flags;
     } else {
-        return AbstractObserverTableModel::flagsHelper(index);
+        return ObserverTableModel::flags(index);
     }
 }
 
@@ -60,7 +60,7 @@ QVariant Qtilities::Examples::Clipboard::ExtendedObserverTableModel::headerData(
     if ((section == columnCount() - 1) && (role == Qt::DisplayRole)) {
         return QString("Custom Extension Header");
     } else {
-        return AbstractObserverTableModel::headerDataHelper(section,orientation,role);
+        return ObserverTableModel::headerData(section,orientation,role);
     }
 }
 
@@ -68,14 +68,14 @@ bool Qtilities::Examples::Clipboard::ExtendedObserverTableModel::setData(const Q
     if (index.column() == columnCount() - 1) {
         return false;
     } else {
-        return AbstractObserverTableModel::setDataHelper(index,value,role);
+        return ObserverTableModel::setData(index,value,role);
     }
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTableModel::rowCount(const QModelIndex &parent) const {
-    return AbstractObserverTableModel::rowCountHelper(parent);
+    return ObserverTableModel::rowCount(parent);
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTableModel::columnCount(const QModelIndex &parent) const {
-    return AbstractObserverTableModel::columnCountHelper(parent) + 1;
+    return ObserverTableModel::columnCount(parent) + 1;
 }

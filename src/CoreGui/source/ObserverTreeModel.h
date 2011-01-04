@@ -57,13 +57,18 @@ namespace Qtilities {
 
         /*!
         \class ObserverTreeModel
-        \brief The ObserverTreeModel class provides an ready-to-use model that can be used to show the children of an Observer in a QTreeView.
+        \brief The ObserverTreeModel class provides an ready-to-use model that can be used to show the children of an Qtilities::Core::Observer in a QTreeView.
 
-        This model provides helper functions for the abstract virtual functions in QAbstractItemModel. These helper functions
-        will handle all these abstract functions for the columns specified by the observer context's display hints. This approach
-        allows the extension of the default models.
+        To view the contents of an Qtilities::Core::Observer, use the setObserverContext function. This function will initialize the model and show the names
+        of subjects attached to a specific observer in a QTreeView. ObserverTreeModel has knowledge of the standard subject filters which
+        are included in the %Qtilities libraries. Thus it will for example automatically show check boxes etc. if the observer context has
+        an Qtilities::Core::ActivityPolicyFilter installed.
 
-        The Qtilities::CoreGui::ObserverTreeModel class demonstrates how the helper functions can be used.
+        To customize this model you can simply subclass it and reimplement the virtual functions of QAbstractItemModel. This allows you to
+        add columns etc. to your view. The <a class="el" href="namespace_qtilities_1_1_examples_1_1_clipboard.html">Clipboard Example</a> shows how
+        to do this.
+
+        \sa ObserverTableModel
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTreeModel : public QAbstractItemModel, public AbstractObserverItemModel
         {
@@ -76,16 +81,16 @@ namespace Qtilities {
             // --------------------------------
             // QAbstractItemModel Implementation
             // --------------------------------
-            Qt::ItemFlags flags(const QModelIndex &index) const;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const ;
-            QVariant data(const QModelIndex &index, int role) const;
-            int rowCount(const QModelIndex &parent = QModelIndex()) const;
-            int columnCount(const QModelIndex &parent = QModelIndex()) const;
-            bool setData(const QModelIndex &index, const QVariant &value, int role);
-            QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-            QModelIndex parent(const QModelIndex &index) const;
-            bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent);
-            Qt::DropActions supportedDropActions() const;
+            virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+            virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const ;
+            virtual QVariant data(const QModelIndex &index, int role) const;
+            virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+            virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+            virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+            virtual QModelIndex parent(const QModelIndex &index) const;
+            virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent);
+            virtual Qt::DropActions supportedDropActions() const;
 
             // --------------------------------
             // AbstractObserverItemModel Implementation

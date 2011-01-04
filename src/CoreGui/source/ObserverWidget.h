@@ -38,8 +38,8 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "IActionProvider.h"
 #include "ObjectPropertyBrowser.h"
-#include "AbstractObserverTableModel.h"
-#include "AbstractObserverTreeModel.h"
+#include "ObserverTableModel.h"
+#include "ObserverTreeModel.h"
 #include "SearchBoxWidget.h"
 
 #include <Observer.h>
@@ -154,7 +154,7 @@ categorized_widget->show();
 
               \returns True if the model was successfully set.
               */
-            bool setCustomTableModel(AbstractObserverTableModel* table_model);
+            bool setCustomTableModel(ObserverTableModel* table_model);
             //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModel as the model for the tree view.
@@ -164,7 +164,7 @@ categorized_widget->show();
 
               \returns True if the model was successfully set.
               */
-            bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
+            bool setCustomTreeModel(ObserverTreeModel* tree_model);
             //! Sets the display mode of the widget.
             /*!
               \sa displayMode(), toggleDisplayMode()
@@ -223,6 +223,7 @@ categorized_widget->show();
               - The default table view row size (Only in TableView mode). \sa defaultRowHeight()
               - The display mode. \sa DisplayMode
               - If delete operations must be confirmed. \sa confirmDeletes()
+              - If automatic column resizing is enabled. \sa enableAutoColumnResizing()
 
               \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
               for an ObserverWidget, don't read it when the widget is created.
@@ -346,6 +347,19 @@ categorized_widget->show();
               \note This reference is only valid in TreeView mode.
               */
             QTreeView* treeView();
+            //! Enables automatic column resizing in the displayed table or tree view, depending on the displayMode().
+            /*!
+              True by default which will cause the view's columns to be resized to their contents and the name column to be streched. If you
+              would like to do this manually, for example if you want to stretch a custom column, you should disable this.
+
+              \sa disableAutoColumnResizing()
+              */
+            void enableAutoColumnResizing();
+            //! Disables automatic column resizing in the displayed table or tree view, depending on the displayMode().
+            /*!
+              \sa enableAutoColumnResizing()
+              */
+            void disableAutoColumnResizing();
         private slots:
             //! Updates the current selection parent context.
             /*!

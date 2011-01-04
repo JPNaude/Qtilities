@@ -50,7 +50,7 @@ namespace Qtilities {
           \brief The ObserverTreeItem class represents a single observer item in a tree view.
 
           This class should not be confused with TreeItem or TreeFileItem which are actual objects that are used to build tree structures along with TreeNode. The
-          ObserverTreeItem class is used internally by AbstractObserverTreeModel to construct a model used to display an Qtilities::Core::Observer tree structure and
+          ObserverTreeItem class is used internally by ObserverTreeModel to construct a model used to display an Qtilities::Core::Observer tree structure and
           should not be used directly.
           */
         class ObserverTreeItem : public QObject

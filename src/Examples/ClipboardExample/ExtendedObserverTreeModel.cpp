@@ -33,7 +33,7 @@
 
 #include "ExtendedObserverTreeModel.h"
 
-Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::ExtendedObserverTreeModel(QObject* parent) : AbstractObserverTreeModel(parent) {
+Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::ExtendedObserverTreeModel(QObject* parent) : ObserverTreeModel(parent) {
 
 }
 
@@ -41,7 +41,7 @@ QVariant Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::data(const Q
     if ((index.column() == columnCount() - 1) && (role == Qt::DisplayRole)) {
         return QString("Custom Data");
     } else {
-        return AbstractObserverTreeModel::dataHelper(index,role);
+        return ObserverTreeModel::data(index,role);
     }
 }
 
@@ -52,7 +52,7 @@ Qt::ItemFlags Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::flags(c
         item_flags |= Qt::ItemIsSelectable;
         return item_flags;
     } else {
-        return AbstractObserverTreeModel::flagsHelper(index);
+        return ObserverTreeModel::flags(index);
     }
 }
 
@@ -60,7 +60,7 @@ QVariant Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::headerData(i
     if ((section == columnCount() - 1) && (role == Qt::DisplayRole)) {
         return QString("Custom Extension Header");
     } else {
-        return AbstractObserverTreeModel::headerDataHelper(section,orientation,role);
+        return ObserverTreeModel::headerData(section,orientation,role);
     }
 }
 
@@ -68,14 +68,14 @@ bool Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::setData(const QM
     if (index.column() == columnCount() - 1) {
         return false;
     } else {
-        return AbstractObserverTreeModel::setDataHelper(index,value,role);
+        return ObserverTreeModel::setData(index,value,role);
     }
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::rowCount(const QModelIndex &parent) const {
-    return AbstractObserverTreeModel::rowCountHelper(parent);
+    return ObserverTreeModel::rowCount(parent);
 }
 
 int Qtilities::Examples::Clipboard::ExtendedObserverTreeModel::columnCount(const QModelIndex &parent) const {
-    return AbstractObserverTreeModel::columnCountHelper(parent) + 1;
+    return ObserverTreeModel::columnCount(parent) + 1;
 }

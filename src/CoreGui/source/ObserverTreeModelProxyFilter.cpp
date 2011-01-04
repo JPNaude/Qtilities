@@ -32,7 +32,7 @@
 ****************************************************************************/
 
 #include "ObserverTreeModelProxyFilter.h"
-#include "AbstractObserverTreeModel.h"
+#include "ObserverTreeModel.h"
 #include "QtilitiesCoreGuiConstants.h"
 
 #include <Observer.h>
@@ -52,7 +52,7 @@ Qtilities::CoreGui::ObserverTreeModelProxyFilter::~ObserverTreeModelProxyFilter(
 }
 
 bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
-    AbstractObserverTreeModel* tree_model = dynamic_cast<AbstractObserverTreeModel*> (sourceModel());
+    ObserverTreeModel* tree_model = dynamic_cast<ObserverTreeModel*> (sourceModel());
 
     if (tree_model) {
         // Check if it contains the filterRegExp():
