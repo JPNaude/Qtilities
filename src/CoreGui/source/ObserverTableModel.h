@@ -31,34 +31,53 @@
 **
 ****************************************************************************/
 
-#ifndef OBSERVERTABLEMODEL_H
-#define OBSERVERTABLEMODEL_H
+#ifndef ABSTRACTOBSERVERTABLEMODEL_H
+#define ABSTRACTOBSERVERTABLEMODEL_H
 
+#include <QMutex>
 #include <QAbstractTableModel>
 #include <QItemDelegate>
+#include <QStack>
 #include <QItemSelection>
 
-#include "AbstractObserverTableModel.h"
+#include "QtilitiesCoreGui_global.h"
+#include "AbstractObserverItemModel.h"
+
+#include <Observer.h>
+#include <ActivityPolicyFilter.h>
 
 namespace Qtilities {
     namespace CoreGui {
-        //! The ObserverTableModel class class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed.
-        /*!
-          The ObserverTableModel class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed
-          to add additional functionality to your model and to Qtilities::CoreGui::ObserverWidget widgets.
+        using namespace Qtilities::Core;
+        class NamingPolicyFilter;
 
-          This example will add additional columns.
+        /*!
+        \struct ObserverTableModelData
+        \brief Structure used by ObserverTableModel to store private data.
+          */
+        struct ObserverTableModelData;
+
+        //! The ObserverTableModel class provides an ready-to-use model that can be used to show the contents of an Observer in a QTableView.
+        /*!
+          The ObserverTableModel class provides an ready-to-use model that can be used to show and manage the contents of an Observer in a QTableView.
+
+          To view the contents of an Observer, use the setObserverContext function. This function will initialize the model and show the names
+          of subjects attached to a specific observer in a QTableView. ObserverTableModel has knowledge of the standard subject filters which
+          are included in the Qtilities library. For more information see setNamingControl() and setActivityControl() in the Observer class documentation.
+
+          When you develop your own subject filters and want to make information controlled by these filters visible through ObserverTableModel,
+          you would need to subclassing from ObserverTableModel and implement the needed virtual functions.
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTableModel : public AbstractObserverTableModel
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTableModel : public QAbstractTableModel, public AbstractObserverItemModel
         {
             Q_OBJECT
 
         public:
             ObserverTableModel(QObject* parent = 0);
-            ~ObserverTableModel() {}
+            virtual ~ObserverTableModel() {}
 
             // --------------------------------
-            // AbstractObserverTableModel Implementation
+            // QAbstractTableModel Implementation
             // --------------------------------
             Qt::ItemFlags flags(const QModelIndex &index) const;
             QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -66,8 +85,53 @@ namespace Qtilities {
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             int columnCount(const QModelIndex &parent = QModelIndex()) const;
             bool setData(const QModelIndex &index, const QVariant &value, int role);
+
+            // --------------------------------
+            // AbstractObserverItemModel Implementation
+            // --------------------------------
+            virtual bool setObserverContext(Observer* observer);
+            int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
+            int getSubjectID(const QModelIndex &index) const;
+             QObject* getObject(const QModelIndex &index) const;
+
+            // --------------------------------
+            // ObserverTableModel Implementation
+            // --------------------------------
+            //! Function which gives the visible column position. Thus it takes into account if columns are hidden.
+            int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
+            //! Convenience function to get the QModelIndex of an object in the table.
+            /*!
+               \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
+             */
+            QModelIndex getIndex(QObject* obj) const;
+            //! Convenience function to get the QObject at a specific row.
+            /*!
+               \returns The the object at the specified row. If the row is invalid, 0 is returned.
+             */
+            QObject* getObject(int row) const;
+            //! Convenience function to get the subject ID of a QObject at a specific row.
+            /*!
+               \returns The the subject ID of the object at the specified row. If the row is invalid, -1 is returned.
+             */
+            int getSubjectID(int row) const;
+
+        private slots:
+            //! Slot which will emit the correct signals in order for the view using the model to refresh its data.
+            /*!
+              This slot will automatically be connected to the dataChanged() signal on the observer context displayed.
+              It will call the dataChanged() signal for the complete view with the correct parameters.
+              */
+            virtual void handleDataChanged();
+            //! Slot which will emit the correct signals in order for the view using the model to refresh its layout.
+            /*!
+              This slot will automatically be connected to the layoutChanged() signal on the observer context displayed.
+              */
+            virtual void handleLayoutChanged();
+
+        protected:
+            ObserverTableModelData* d;
         };
     }
 }
 
-#endif // OBSERVERTABLEMODEL_H
+#endif // ABSTRACTOBSERVERTABLEMODEL_H

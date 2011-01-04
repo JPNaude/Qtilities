@@ -31,25 +31,41 @@
 **
 ****************************************************************************/
 
-#ifndef OBSERVERTREEMODEL_H
-#define OBSERVERTREEMODEL_H
+#ifndef ABSTRACTOBSERVERTREEMODEL_H
+#define ABSTRACTOBSERVERTREEMODEL_H
 
-#include "AbstractObserverTreeModel.h"
+#include "AbstractObserverItemModel.h"
+#include "QtilitiesCoreGui_global.h"
+#include "ObserverTreeItem.h"
 
+#include <Observer.h>
+
+#include <QMutex>
 #include <QAbstractItemModel>
 #include <QStack>
 #include <QItemSelection>
 
 namespace Qtilities {
     namespace CoreGui {
-        //! The ExtendedObserverTreeModel class class is an example of how Qtilities::CoreGui::ObserverTableModel can be subclassed.
-        /*!
-          The ExtendedObserverTreeModel class is an example of how Qtilities::CoreGui::ObserverTreeModel can be subclassed
-          to add additional functionality to your model and to Qtilities::CoreGui::ObserverWidget widgets.
+        using namespace Qtilities::Core;
 
-          This example will add additional columns.
-        */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTreeModel : public AbstractObserverTreeModel
+        /*!
+        \struct ObserverTreeModelData
+        \brief Structure used by ObserverTreeModel to store private data.
+          */
+        struct ObserverTreeModelData;
+
+        /*!
+        \class ObserverTreeModel
+        \brief The ObserverTreeModel class provides an ready-to-use model that can be used to show the children of an Observer in a QTreeView.
+
+        This model provides helper functions for the abstract virtual functions in QAbstractItemModel. These helper functions
+        will handle all these abstract functions for the columns specified by the observer context's display hints. This approach
+        allows the extension of the default models.
+
+        The Qtilities::CoreGui::ObserverTreeModel class demonstrates how the helper functions can be used.
+          */
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTreeModel : public QAbstractItemModel, public AbstractObserverItemModel
         {
             Q_OBJECT
 
@@ -58,16 +74,113 @@ namespace Qtilities {
             virtual ~ObserverTreeModel() {}
 
             // --------------------------------
-            // ObserverTableModel Implementation
+            // QAbstractItemModel Implementation
             // --------------------------------
             Qt::ItemFlags flags(const QModelIndex &index) const;
-            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+            QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const ;
             QVariant data(const QModelIndex &index, int role) const;
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             int columnCount(const QModelIndex &parent = QModelIndex()) const;
             bool setData(const QModelIndex &index, const QVariant &value, int role);
+            QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+            QModelIndex parent(const QModelIndex &index) const;
+            bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent);
+            Qt::DropActions supportedDropActions() const;
+
+            // --------------------------------
+            // AbstractObserverItemModel Implementation
+            // --------------------------------
+            virtual bool setObserverContext(Observer* observer);
+            int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
+            int getSubjectID(const QModelIndex &index) const;
+            QObject* getObject(const QModelIndex &index) const;
+            void setShowModificationState(bool is_enabled);
+
+            // --------------------------------
+            // ObserverTreeModel Implementation
+            // --------------------------------
+            //! Function which gives the visible column position. Thus it takes into account if columns are hidden.
+            int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
+            //! Returns a QStack with the parent hierarchy (in terms of observer IDs) for the object at the given index.
+            QStack<int> getParentHierarchy(const QModelIndex& index) const;
+            //! Returns the parent observer of the current selection, it only works if a single item is selected, otherwise returns 0.
+            /*!
+              The selection parent is calculated using the calculateSelectionParent() function. This function return
+              the parent identified the last time that function was called.
+              */
+            Observer* selectionParent() const;
+            //! Returns the parent observer of the item at the specified index.
+            /*!
+              \returns The parent observer of the current index, or 0 if the index is invalid.
+              \note For the root item the parent will also be 0.
+              */
+            Observer* parentOfIndex(const QModelIndex& index) const;
+            //! Returns the ObserverTreeItem at a the specified index.
+            /*!
+              \returns The ObserverTreeItem at the current index, or 0 if the index is invalid.
+              */
+            ObserverTreeItem* getItem(const QModelIndex &index) const;
+            //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
+            QModelIndex findObject(QObject* obj) const;
+
+        private slots:
+            //! Function which will rebuild the complete tree structure under the top level observer.
+            /*!
+                This slot will automatically be connected to the layoutChanged() signal on the top level observer.
+              */
+            void rebuildTreeStructure();
+
+        public slots:
+            //! Function which will calculate the selection parent of a selected object.
+            /*!
+              \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.
+              */
+            Observer* calculateSelectionParent(QModelIndexList index_list);
+            //! This slot will clean up the tree and refresh the view when the top level observer is deleted.
+            void handleObserverContextDeleted();
+            //! Handle context data changes where the context is defined by an Observer reference.
+            /*!
+              This function will emit the dataChanged() signal with the indexes of all items underneath this observer.
+              */
+            void handleContextDataChanged(Observer* observer);
+            //! Handle context data changes where the context is defined by a child QModelIndex.
+            /*!
+              This function will emit the dataChanged() signal with the indexes of all items in the same context as the item defined by \p index.
+              */
+            void handleContextDataChanged(const QModelIndex &set_data_index);
+            //! Function to let the model know which objects are currently selected in the view connected to this model.
+            /*!
+              This functionality is used when the layout of the tree changed externally (not in the view) and we
+              need to rebuild the model. We attempt to select the previously selected objects when the tree
+              rebuilding is done.
+              */
+            void setSelectedObjects(QList<QPointer<QObject> > selected_objects);
+
+        signals:
+            //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
+            void selectionParentChanged(Observer* new_observer);
+            //! This signal should be used to reselect previously selected objects if they are still present in the tree. The signal is emmited when the tree finished to rebuild itself.
+            void selectObjects(QList<QPointer<QObject> > objects) const;
+
+        private:
+            //! Recursive function used by findObject() to traverse through the trying to find an object.
+            QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
+            //! Recursive function to get the ObserverTreeItem associacted with an object.
+            ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
+            //! Deletes all tree items, starting with the root item.
+            void deleteRootItem();
+            //! Function called by rebuildTreeStructure during recursive building of the tree.
+            void setupChildData(ObserverTreeItem* item);
+            //! Prints the structure of the tree as trace messages.
+            /*!
+              \sa LOG_TRACE
+              */
+            void printStructure(ObserverTreeItem* item = 0, int level = 0);
+
+        protected:
+            ObserverTreeModelData* d;
         };
     }
 }
 
-#endif // OBSERVERTREEMODEL_H
+#endif // ABSTRACTOBSERVERTREEMODEL_H
