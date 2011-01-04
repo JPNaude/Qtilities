@@ -61,6 +61,8 @@ Improvements & Notable Changes:
 - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
 - ObserverWidget in table mode now resize all rows to contents every time that new items are added, previously this only happened when the widget's observer context changed.
 - Important: The complete thinking behind the way helper functions were used in observer models were abandoned. Thus, AbstractObserverTableModel is now just ObserverTableModel and AbstractObserverTreeModel is now just ObserverTreeModel. In custom observer models, you should now inherit from either ObserverTableModel or ObserverTreeModel and just call the AbstractItemModel's virtual functions rather than calling the virtual functions which was needed previously.
+- ObserverWidgets are smarter when they remove objects. They will now select the item before the item which was deleted.
+- ObserverWidget::selectObjects() now correctly refreshes the property editor if it exists.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
