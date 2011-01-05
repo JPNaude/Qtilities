@@ -265,7 +265,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
                     // Check the modification state of the object if it implements IModificationNotifier:
                     bool is_modified = false;
-                    if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay) {
+                    if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay && role == Qt::DisplayRole) {
                         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
                         if (mod_iface)
                             is_modified = mod_iface->isModified();
@@ -295,11 +295,10 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             QVariant subject_activity = QVariant();
             Observer* local_selection_parent = parentOfIndex(index);
 
-            // Once we have the local parent, we can check if it must display activity and if so, we return
-            // the activity of obj in that context.
-            if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
-                // Now we need to check if the observer has an activity policy filter installed
-                if (local_selection_parent) {
+            if (local_selection_parent) {
+                // Once we have the local parent, we can check if it must display activity and if so, we return
+                // the activity of obj in that context.
+                if (local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
                     ActivityPolicyFilter* activity_filter = 0;
                     for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
                         activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
