@@ -85,6 +85,8 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
+
+    setAttribute(Qt::WA_QuitOnClose,false);
 }
 
 Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {

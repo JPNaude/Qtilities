@@ -64,6 +64,8 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
 
+    setAttribute(Qt::WA_QuitOnClose,false);
+
     // By default the logo is visible:
     setLogoVisible(true);
 }
