@@ -38,7 +38,7 @@
 #include <QFileInfo>
 #include <QFileInfoList>
 
-Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
+bool Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
     bool result = true;
     QDir dir(dirName);
 
