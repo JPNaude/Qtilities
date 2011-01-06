@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "FileUtils.h"
+#include "QtilitiesFileInfo.h"
 
 #include <QDir>
 #include <QFile>
@@ -59,4 +60,22 @@ bool Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
     }
 
     return result;
+}
+
+QString Qtilities::Core::FileUtils::appendToFileName(const QString &fullFileName, const QString& append_string) {
+    QtilitiesFileInfo file_info(fullFileName);
+    QString file_path = file_info.path();
+    QString extension = file_info.completeSuffix();
+    QString name_only = file_info.baseName();
+    QString new_file_name = file_path + "/" + name_only + "_" + append_string + "." + extension;
+    return new_file_name;
+}
+
+QString Qtilities::Core::FileUtils::removeFromFileName(const QString &fullFileName, int len) {
+    QtilitiesFileInfo file_info(fullFileName);
+    QString file_path = file_info.path();
+    QString extension = file_info.completeSuffix();
+    QString name_only = file_info.baseName();
+    QString new_file_name = file_path + "/" + name_only.remove(name_only.length()-len,len) + "." + extension;
+    return new_file_name;
 }

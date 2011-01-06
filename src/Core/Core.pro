@@ -66,7 +66,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/IExportableFormatting.h \
     ../Common/Qtilities.h \
     source/ObserverDotGraph.h \
-    source/FileUtils.h
+    source/FileUtils.h \
+    source/QtilitiesFileInfo.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -85,4 +86,5 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/IFactoryProvider.cpp \
     source/PointerList.cpp \
     source/ObserverDotGraph.cpp \
-    source/FileUtils.cpp
+    source/FileUtils.cpp \
+    source/QtilitiesFileInfo.cpp

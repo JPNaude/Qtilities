@@ -51,6 +51,10 @@ namespace Qtilities {
                \return true on success; false on error.
               */
             static bool removeDir(const QString &dirName);
+            //! Appends a string to the file name part of the file, that is after the file's name and before the extension.
+            static QString appendToFileName(const QString &fullFileName, const QString& append_string);
+            //! Removes the specified number of characters from the end of the file name part of the file, that is after the file's name and before the extension.
+            static QString removeFromFileName(const QString &fullFileName, int len);
         };
     }
 }

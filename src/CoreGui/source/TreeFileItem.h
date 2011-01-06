@@ -38,6 +38,8 @@
 #include "TreeItem.h"
 #include "QtilitiesCoreGuiConstants.h"
 
+#include <QtilitiesFileInfo>
+
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
@@ -48,11 +50,10 @@ namespace Qtilities {
         \brief Structure used by TreeFileItem to store private data.
           */
         struct TreeFileItemData {
-            TreeFileItemData() : file_path(QString()),
-                instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()),
+            TreeFileItemData() : instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()),
                 ignore_events(false) { }
 
-            QString file_path;
+            QtilitiesFileInfo file_info;
             InstanceFactoryInfo instanceFactoryInfo;
             bool ignore_events;
         };
@@ -78,60 +79,61 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
 
         public:
-            TreeFileItem(const QString& file_name = QString(), QObject* parent = 0);
+            TreeFileItem(const QString& file_name = QString(), const QString& relative_to_path = QString(), QObject* parent = 0);
             virtual ~TreeFileItem();
             bool eventFilter(QObject *object, QEvent *event);
 
             //! Sets the file name of this file model.
             /*!
+              Does the same as QFileModel::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
+
               This function will check if there is an OBJECT_NAME property on this object and set it. If it does not exist it will
               just set objectName(). Note that this does not set the names in the INSTANCE_NAMES property if it exists.
 
               \param file_name The new file name.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
               */
-            virtual void setFileName(const QString& file_name, bool broadcast = true);
-            //! Returns the file name of the file represented by this file model.
-            virtual QString fileName() const;
+            virtual void setFile(const QString& file_name, const QString& relative_to_path = QString(), bool broadcast = true);
+
+            //! See QFileModel::isRelative().
+            bool isRelative() const;
+            //! See QFileModel::isAbsolute().
+            bool isAbsolute() const;
+
+            //! See QtilitiesFileInfo::hasRelativeToPath().
+            bool hasRelativeToPath() const;
+            //! See QtilitiesFileInfo::setRelativeToPath().
+            void setRelativeToPath(const QString& path);
+            //! See QtilitiesFileInfo::relativeToPath().
+            QString relativeToPath() const;
+
+            //! See QFileModel::path().
+            virtual QString path() const;
+            //! See QFileModel::path().
+            virtual QString filePath() const;
+            //! See QtilitiesFileInfo::absoluteToRelativePath().
+            virtual QString absoluteToRelativePath() const;
+            //! See QtilitiesFileInfo::absoluteToRelativeFilePath().
+            virtual QString absoluteToRelativeFilePath() const;
+
+            //! See QFileModel::fileName().
+            QString fileName() const;
+            //! See QFileModel::baseName().
+            QString baseName() const;
+            //! See QFileModel::completeBaseName().
+            QString completeBaseName() const;
+            //! See QFileModel::suffix().
+            QString suffix() const;
+            //! See QFileModel::completeSuffix().
+            QString completeSuffix() const;
+
+            //! See QtilitiesFileInfo::actualPath().
+            QString actualPath() const;
+            //! See QtilitiesFileInfo::actualFilePath().
+            QString actualFilePath() const;
+
             //! Returns true if the file exists, false otherwise.
             virtual bool exists() const;
-            //! Returns the file extension of the file represented by this file model.
-            QString fileExtension() const;
-
-            //! Returns the file path of the specified file name.
-            /*!
-              If no path exists, returns an empty string. If the path ends with /. it is removed.
-              */
-            static QString strippedPath(const QString &fullFileName) {
-                QFileInfo file_info(fullFileName);
-                QString path = file_info.path();
-                if (path == "./" || path == ".")
-                    return QString();
-                else if (path.endsWith("/.")) {
-                    path.chop(2);
-                    return path;
-                } else
-                    return path;
-            }
-
-            //! Returns the file name stripped from the file path. Thus, only the file name & the extension.
-            static QString strippedName(const QString &fullFileName) {
-                QString stripped_name = QFileInfo(fullFileName).fileName();
-                if (stripped_name.endsWith("\""))
-                    stripped_name.chop(1);
-
-                return stripped_name;
-            }
-
-            //! Returns the file type stripped from the file path and file name. Thus, only the file extension.
-            static QString strippedFileExtension(const QString &fullFileName) {
-                QFileInfo file_info(fullFileName);
-                QString extension = file_info.fileName().split(".").last();
-                if (extension.endsWith("\""))
-                    extension.chop(1);
-
-                return extension;
-            }
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -149,13 +151,14 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
             virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
             virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         signals:
-            //! Signal which is emitted when the file name of this tree file item changes:
+            //! Signal which is emitted when the file name of this tree file item changes.
+            /*!
+              \param new_file_name Equal to the new filePath().
+              */
             void fileNameChanged(const QString& new_file_name);
 
         protected:
