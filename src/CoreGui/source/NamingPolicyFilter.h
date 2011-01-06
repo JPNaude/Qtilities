@@ -216,7 +216,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
 
             //! Evaluates a name in the observer context in which this subject filter is installed.
-            virtual NamingPolicyFilter::NameValidity evaluateName(QString name) const;
+            virtual NamingPolicyFilter::NameValidity evaluateName(QString name, QObject* validation_object = 0) const;
             //! Gets the object which conflicts with the specified name. If no object conflicts, returns 0.
             QObject* getConflictingObject(QString name) const;
             //! Function to set the validator used to validate names.

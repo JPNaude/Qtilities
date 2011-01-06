@@ -63,6 +63,8 @@ Qtilities::CoreGui::NamingPolicyInputDialog::NamingPolicyInputDialog(QWidget *pa
     ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR_16x16));
     ui->btnGenerateNewName->setIcon(QIcon(ICON_REFRESH_16x16));
     ui->radioAutoRename->setChecked(true);
+
+    setAttribute(Qt::WA_QuitOnClose,false);
 }
 
 Qtilities::CoreGui::NamingPolicyInputDialog::~NamingPolicyInputDialog()

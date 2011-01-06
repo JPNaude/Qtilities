@@ -293,6 +293,14 @@ namespace Qtilities {
         signals:
             void modificationStateChanged(bool is_modified) const;
 
+            //! A signal which is emitted when a project loading/opening process starts.
+            void projectLoadingStarted();
+            //! A signal which is emitted when a project loading/opening process completes.
+            /*!
+              \param success If the project was successfully loaded, success will be true. False otherwise.
+              */
+            void projectLoadingFinished(bool success);
+
         private:
             //! Add a project to the recent project list.
             void addRecentProject(IProject* project);

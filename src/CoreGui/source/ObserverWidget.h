@@ -464,25 +464,25 @@ categorized_widget->show();
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionDetach();
+            virtual void selectionDetach();
             //! Detaches all subjects from the current selection parent.
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionDetachAll();
+            virtual void selectionDetachAll();
             //! Deletes the current selected items.
             /*!
 
               \sa selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
-            void selectionDelete();
+            virtual void selectionDelete();
             //! Deletes all subjects under the current selection parent or in the selected context.
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
-            void selectionDeleteAll();
+            virtual void selectionDeleteAll();
             //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
-            void handle_actionNewItem_triggered();
+            virtual void handle_actionNewItem_triggered();
             //! Refreshes the current item view.
             /*!
               This function will emit the refreshViewsData() signal on the top level observer context.
@@ -492,51 +492,51 @@ categorized_widget->show();
 
               \sa topLevelObserverID(), addActionNewItem_triggered(), refreshActions();
               */
-            void refresh();
+            virtual void refresh();
             //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent.
             /*!
               \sa selectionParent(), selectionPushUpNew()
               */
-            void selectionPushUp();
+            virtual void selectionPushUp();
             //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent in a new ObserverWidget.
             /*!
               \sa selectionParent(), selectionPushUp()
               */
-            void selectionPushUpNew();
+            virtual void selectionPushUpNew();
             //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer.
             /*!
               This function only does something if an observer or an object which contains an observer is selected.
 
               \sa selectionParent(), selectionPushDownNew()
               */
-            void selectionPushDown();
+            virtual void selectionPushDown();
             //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer in a new ObserverWidget.
             /*!
               This function only does something if an observer or an object which contains an observer is selected.
 
               \sa selectionParent(), selectionPushDown()
               */
-            void selectionPushDownNew();
+            virtual void selectionPushDownNew();
             //! Toggles the display mode of the ObserverWidget.
             /*!
               \sa setDisplayMode(), displayMode()
               */
-            void toggleDisplayMode();
+            virtual void toggleDisplayMode();
             //! Function to copy the current selection to the application clipboard.
-            void selectionCopy();
+            virtual void selectionCopy();
             //! Function to cut the current selection to the application clipboard.
-            void selectionCut();
+            virtual void selectionCut();
             //! Function which is connected to the Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action if it exists.
             /*!
               When initializing the %Qtilities clipboard manager the paste action will be created automatically.
               */
-            void handle_actionPaste_triggered();
+            virtual void handle_actionPaste_triggered();
             //! Toggles the visibility of the SearchBoxWidget at the bottom of the ObserverWidget.
             void toggleSearchBox();
             //! Collapse all items in the tree view to a depth of 1 in TreeView mode.
-            void viewCollapseAll();
+            virtual void viewCollapseAll();
             //! Expand all items in the tree view in TreeView mode.
-            void viewExpandAll();
+            virtual void viewExpandAll();
             //! Handles search options changes in the SearchBoxWidget if present.
             void handleSearchOptionsChanged();
             //! Handles search string changes in the SearchBoxWidget if present.

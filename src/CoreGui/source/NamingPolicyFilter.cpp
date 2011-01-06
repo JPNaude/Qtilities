@@ -174,7 +174,8 @@ Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::Nam
     return d->validity_resolution_policy;
 }
 
-Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingPolicyFilter::evaluateName(QString name) const {
+Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingPolicyFilter::evaluateName(QString name, QObject* validation_object) const {
+    Q_UNUSED(validation_object)
     NamingPolicyFilter::NameValidity result = Acceptable;
 
     // Check uniqueness of name
@@ -202,7 +203,7 @@ QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(QString na
 
 Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
     // Check the validity of obj's name:
-    NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName());
+    NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName(),obj);
 
     if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
         if (rejectMsg)
@@ -616,7 +617,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) 
 
 bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject* obj, const char* property_name) {
     QString changed_name = observer->getObserverPropertyValue(obj,property_name).toString();
-    NamingPolicyFilter::NameValidity validity_result = evaluateName(changed_name);
+    NamingPolicyFilter::NameValidity validity_result = evaluateName(changed_name,obj);
     bool return_value;
     if (changed_name.isEmpty())
         return_value = false;
@@ -1095,7 +1096,7 @@ void Qtilities::CoreGui::NamingPolicyDelegate::on_LineEdit_TextChanged(const QSt
             editor->setStyleSheet("color: black");
             editor->setToolTip(tr(""));
 
-            NamingPolicyFilter::NameValidity validity_result = d->naming_filter->evaluateName(text);
+            NamingPolicyFilter::NameValidity validity_result = d->naming_filter->evaluateName(text,d->obj);
             if (validity_result != NamingPolicyFilter::Acceptable) {
                 if (d->naming_filter->getConflictingObject(text) != d->obj) {
                     editor->setStyleSheet("color: red");
