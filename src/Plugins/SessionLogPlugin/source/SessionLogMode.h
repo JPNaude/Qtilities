@@ -77,6 +77,7 @@ namespace Qtilities {
                     QWidget* modeWidget();
                     void initializeMode() {}
                     QIcon modeIcon() const;
+                    bool setModeIcon(QIcon icon);
                     QString modeName() const;
                     QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
 

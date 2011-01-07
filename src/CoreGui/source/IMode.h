@@ -68,8 +68,17 @@ namespace Qtilities {
                 //! An icon for the mode.
                 /*!
                   The expected mode icon size is 48x48.
+
+                  \sa setModeIcon()
                   */
                 virtual QIcon modeIcon() const = 0;
+                //! A function which can be implemented by modes if they allow their icon to be changed. By default this function does nothing and returns false.
+                /*!
+                  The expected mode icon size is 48x48.
+
+                  \sa modeIcon()
+                  */
+                virtual bool setModeIcon(QIcon icon) { return false; }
                 //! The name of the mode which is the text used to represent it.
                 virtual QString modeName() const = 0;
                 //! Returns a context string for the context associated with this mode.

@@ -45,7 +45,8 @@ using namespace QtilitiesCoreGui;
 struct Qtilities::Plugins::SessionLog::SessionLogModeData {
     SessionLogModeData() : session_mode_widget(0) {}
 
-    QMainWindow* session_mode_widget;
+    QMainWindow*    session_mode_widget;
+    QIcon           mode_icon;
 };
 
 Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) : QObject(parent)
@@ -54,6 +55,7 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     setObjectName(tr("Session Log"));
 
     d->session_mode_widget = new QMainWindow();
+    d->mode_icon = QIcon(SESSION_LOG_MODE_ICON_48x48);
 
     QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"),true);
     connect(session_log_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
@@ -80,7 +82,12 @@ QWidget* Qtilities::Plugins::SessionLog::SessionLogMode::modeWidget() {
 }
 
 QIcon Qtilities::Plugins::SessionLog::SessionLogMode::modeIcon() const {
-    return QIcon(SESSION_LOG_MODE_ICON_48x48);
+    return d->mode_icon;
+}
+
+bool Qtilities::Plugins::SessionLog::SessionLogMode::setModeIcon(QIcon icon) {
+    d->mode_icon = icon;
+    return true;
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogMode::modeName() const {
