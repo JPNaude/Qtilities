@@ -185,11 +185,11 @@ namespace Qtilities {
             virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         signals:
-            //! Signal which is emitted when the file name of this tree file item changes.
+            //! Signal which is emitted when the file path of this tree file item changes.
             /*!
-              \param new_file_name Equal to the new filePath().
+              \param new_file_path Equal to the new filePath().
               */
-            void fileNameChanged(const QString& new_file_name);
+            void filePathChanged(const QString& new_file_path);
 
         protected:
             void setFactoryData(InstanceFactoryInfo instanceFactoryInfo);

@@ -156,7 +156,7 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
                     QString display_name = displayName();
                     if (display_name != new_name) {
                         setDisplayName(new_name);
-                        emit fileNameChanged(display_name);
+                        emit filePathChanged(display_name);
                     }
                 }
             }
@@ -205,7 +205,7 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const Q
     }
 
     if (broadcast)
-        emit fileNameChanged(path());
+        emit filePathChanged(path());
 
     if (modified)
         setModificationState(true,IModificationNotifier::NotifyListeners);
