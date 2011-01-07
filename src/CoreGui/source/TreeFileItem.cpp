@@ -294,7 +294,8 @@ QString Qtilities::CoreGui::TreeFileItem::actualFilePath() const {
 }
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
-    return treeFileItemBase->file_info.exists();
+    QFileInfo file_info(treeFileItemBase->file_info.actualFilePath());
+    return file_info.exists();
 }
 
 Qtilities::Core::QtilitiesFileInfo Qtilities::CoreGui::TreeFileItem::fileInfo() {

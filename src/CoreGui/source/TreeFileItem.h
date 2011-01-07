@@ -159,7 +159,7 @@ namespace Qtilities {
             //! See QtilitiesFileInfo::actualFilePath().
             QString actualFilePath() const;
 
-            //! Returns true if the file exists, false otherwise.
+            //! Returns true if the file exists, false otherwise. Note that the file path used to check is actualFilePath().
             virtual bool exists() const;
 
             //! Extended access to file info object.
