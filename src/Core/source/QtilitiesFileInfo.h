@@ -53,9 +53,190 @@ namespace Qtilities {
         QtilitiesFileInfo extends the way that QFileInfo handles relative files so that the path which relative to files are
         relative to can be specified. Normally QFileInfo::makeAbsolute() will make relative to paths relative to the application path. QtilitiesFileInfo
         allows you to specify the relative to path using setRelativeToPath() and provides a relativeToPath() access function. It is also possible
-        to set the relative to path as part of the constructor.
+        to set the relativeToPath() as part of the constructor.
 
-        Another extension is the ability to set the complete base name using setCompleteBaseName() function.
+        The actualPath() and actualFilePath() functions allows you to get the actual path of a file without needing to know if it is
+        relative or not (for relative files, a relativeToPath must be specified to get the actual path).
+
+        Additional extended functions include:
+        - The ability to set the file name part only using setFileName().
+
+        The following example shows how the class works and you will notice that it is very close to QFileInfo, except for the additional
+        functionality:
+
+\code
+QtilitiesFileInfo file_info("c:/relative_to_path/relative_path/file_name.tar.gz");
+qDebug() << "Test 1: c:/relative_to_path/relative_path/file_name.tar.gz";
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();
+
+qDebug() << "\nTest 2: relative_path/file_name.tar.gz";
+file_info.setFile("relative_path/file_name.tar.gz");
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();
+
+qDebug() << "\nTest 3: relative_path/file_name.tar.gz with relative to path: c:/relative_to_path";
+file_info.setFile("relative_path/file_name.tar.gz");
+file_info.setRelativeToPath("c:/relative_to_path");
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();
+
+qDebug() << "\nTest 4: ../relative_path/file_name.tar.gz with relative to path: c:/relative_to_path";
+file_info.setFile("../relative_path/file_name.tar.gz");
+file_info.setRelativeToPath("c:/relative_to_path");
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();;
+
+qDebug() << "\nTest 5: ./relative_path/file_name.tar.gz with relative to path: c:/relative_to_path";
+file_info.setFile("./relative_path/file_name.tar.gz");
+file_info.setRelativeToPath("c:/relative_to_path");
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();
+
+qDebug() << "\nTest 6: .././relative_path/file_name.tar.gz with relative to path: c:/relative_to_path";
+file_info.setFile(".././relative_path/file_name.tar.gz");
+file_info.setRelativeToPath("c:/relative_to_path");
+qDebug() << "isAbsolute: " << file_info.isAbsolute();
+qDebug() << "isRelative: " << file_info.isRelative();
+qDebug() << "path: " << file_info.path();
+qDebug() << "filePath: " << file_info.filePath();
+qDebug() << "absolutePath: " << file_info.absolutePath();
+qDebug() << "canonicalPath: " << file_info.canonicalPath();
+qDebug() << "absoluteToRelativePath: " << file_info.absoluteToRelativePath();
+qDebug() << "baseName: " << file_info.baseName();
+qDebug() << "completeBaseName: " << file_info.completeBaseName();
+qDebug() << "suffix: " << file_info.suffix();
+qDebug() << "completeSuffix: " << file_info.completeSuffix();
+\endcode
+
+        The output of the above example will be the following:
+
+\code
+Test 1: c:/relative_to_path/relative_path/file_name.tar.gz
+isAbsolute:  true
+isRelative:  false
+path:  "c:/relative_to_path/relative_path"
+filePath:  "c:/relative_to_path/relative_path/file_name.tar.gz"
+absolutePath:  "C:/relative_to_path/relative_path"
+canonicalPath:  ""
+absoluteToRelativePath:  ""
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+
+Test 2: relative_path/file_name.tar.gz
+isAbsolute:  false
+isRelative:  true
+path:  "relative_path"
+filePath:  "relative_path/file_name.tar.gz"
+absolutePath:  "D:/projects/Qt/Qtilities/trunk/bin/Examples/ConsoleLogging/relative_path"
+canonicalPath:  ""
+absoluteToRelativePath:  "/relative_path"
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+
+Test 3: relative_path/file_name.tar.gz with relative to path: c:/relative_to_path
+isAbsolute:  false
+isRelative:  true
+path:  "relative_path"
+filePath:  "relative_path/file_name.tar.gz"
+absolutePath:  "D:/projects/Qt/Qtilities/trunk/bin/Examples/ConsoleLogging/relat
+ive_path"
+canonicalPath:  ""
+absoluteToRelativePath:  "c:/relative_to_path/relative_path"
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+
+Test 4: ../relative_path/file_name.tar.gz with relative to path: c:/relative_to_path
+isAbsolute:  false
+isRelative:  true
+path:  "../relative_path"
+filePath:  "../relative_path/file_name.tar.gz"
+absolutePath:  "D:/projects/Qt/Qtilities/trunk/bin/Examples/relative_path"
+canonicalPath:  ""
+absoluteToRelativePath:  "c:/relative_path"
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+
+Test 5: ./relative_path/file_name.tar.gz with relative to path: c:/relative_to_path
+isAbsolute:  false
+isRelative:  true
+path:  "./relative_path"
+filePath:  "./relative_path/file_name.tar.gz"
+absolutePath:  "D:/projects/Qt/Qtilities/trunk/bin/Examples/ConsoleLogging/relat
+ive_path"
+canonicalPath:  ""
+absoluteToRelativePath:  "c:/relative_to_path/relative_path"
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+
+Test 6: .././relative_path/file_name.tar.gz with relative to path: c:/relative_to_path
+isAbsolute:  false
+isRelative:  true
+path:  ".././relative_path"
+filePath:  ".././relative_path/file_name.tar.gz"
+absolutePath:  "D:/projects/Qt/Qtilities/trunk/bin/Examples/relative_path"
+canonicalPath:  ""
+absoluteToRelativePath:  "c:/relative_path"
+baseName:  "file_name"
+completeBaseName:  "file_name.tar"
+suffix:  "gz"
+completeSuffix:  "tar.gz"
+\endcode
 
         <i>This class was added in %Qtilities v0.3.</i>
           */
