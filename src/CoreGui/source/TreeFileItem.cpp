@@ -170,6 +170,8 @@ QString Qtilities::CoreGui::TreeFileItem::displayName() {
         return treeFileItemBase->file_info.fileName();
     } else if (d_path_display == DisplayFilePath) {
         return treeFileItemBase->file_info.filePath();
+    } else if (d_path_display == DisplayActualFilePath) {
+        return treeFileItemBase->file_info.actualFilePath();
     }
 
     return QString("Invalid display name. See Qtilities::CoreGui::TreeFileItem::displayName()");
@@ -293,4 +295,8 @@ QString Qtilities::CoreGui::TreeFileItem::actualFilePath() const {
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
     return treeFileItemBase->file_info.exists();
+}
+
+Qtilities::Core::QtilitiesFileInfo Qtilities::CoreGui::TreeFileItem::fileInfo() {
+    return treeFileItemBase->file_info;
 }

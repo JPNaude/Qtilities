@@ -85,8 +85,9 @@ namespace Qtilities {
               The default is DisplayFileName.
               */
             enum PathDisplay {
-                DisplayFileName,    /*!< Display fileName(). */
-                DisplayFilePath,    /*!< Display filePath(). */
+                DisplayFileName,        /*!< Display fileName(). */
+                DisplayFilePath,        /*!< Display filePath(). */
+                DisplayActualFilePath   /*!< Display actualFilePath(). */
             };
 
             //! Constructs a TreeFileItem object.
@@ -160,6 +161,9 @@ namespace Qtilities {
 
             //! Returns true if the file exists, false otherwise.
             virtual bool exists() const;
+
+            //! Extended access to file info object.
+            QtilitiesFileInfo fileInfo();
 
             // --------------------------------
             // Factory Interface Implemenation
