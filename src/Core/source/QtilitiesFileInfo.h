@@ -285,7 +285,7 @@ completeSuffix:  "tar.gz"
             /*!
               \sa QFileInfofileName()
               */
-            void setFileName(const QString& new_file_name);
+            virtual void setFileName(const QString& new_file_name);
             //! Returns the actual path without you needing to know if the file is relative or absolute.
             /*!
               This function will return the actual path of the file in the following way:
