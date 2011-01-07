@@ -46,9 +46,10 @@ namespace Qtilities {
     }
 }
 
-Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_name, const QString& relative_to_path, QObject* parent) : TreeItemBase(file_name, parent) {
+Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_path, const QString& relative_to_path, PathDisplay path_display, QObject* parent) : TreeItemBase(file_path, parent) {
     treeFileItemBase = new TreeFileItemData;
-    setFile(file_name,relative_to_path);
+    d_path_display = path_display;
+    setFile(file_path,relative_to_path);
     installEventFilter(this);
 }
 
@@ -85,6 +86,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     item_data.appendChild(file_data);
     file_data.setAttribute("Path",path());
     file_data.setAttribute("RelativeToPath",relativeToPath());
+    file_data.setAttribute("PathDisplay",(int) pathDisplay());
 
     return result;
 }
@@ -123,6 +125,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
                         setRelativeToPath(data.attribute("RelativeToPath"));
                         result = IExportable::Complete;
                     }
+                    if (data.hasAttribute("PathDisplay")) {
+                        setPathDisplay((PathDisplay) data.attribute("PathDisplay").toInt());
+                        result = IExportable::Complete;
+                    }
                 }
             }
         }
@@ -147,9 +153,10 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
                 QString property_name = QString(propertyChangeEvent->propertyName().data());
                 if (property_name == QString(OBJECT_NAME)) {
                     QString new_name = Observer::getSharedProperty(this,OBJECT_NAME).value().toString();
-                    if (treeFileItemBase->file_info.fileName() != new_name) {
-                        treeFileItemBase->file_info.setFileName(new_name);
-                        emit fileNameChanged(filePath());
+                    QString display_name = displayName();
+                    if (display_name != new_name) {
+                        setDisplayName(new_name);
+                        emit fileNameChanged(display_name);
                     }
                 }
             }
@@ -158,6 +165,23 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
     return false;
 }
 
+QString Qtilities::CoreGui::TreeFileItem::displayName() {
+    if (d_path_display == DisplayFileName) {
+        return treeFileItemBase->file_info.fileName();
+    } else if (d_path_display == DisplayFilePath) {
+        return treeFileItemBase->file_info.filePath();
+    }
+
+    return QString("Invalid display name. See Qtilities::CoreGui::TreeFileItem::displayName()");
+}
+
+void Qtilities::CoreGui::TreeFileItem::setDisplayName(const QString& new_display_name) {
+    if (d_path_display == DisplayFileName) {
+        setFileName(new_display_name);
+    } else if (d_path_display == DisplayFilePath) {
+        treeFileItemBase->file_info.setFile(new_display_name);
+    }
+}
 
 void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const QString& relative_to_path,  bool broadcast) {
     bool modified = false;
@@ -170,12 +194,12 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const Q
 
     // We need to check if an object name exists
     if (Observer::propertyExists(this,OBJECT_NAME)) {
-        SharedObserverProperty new_subject_name_property(QVariant(treeFileItemBase->file_info.fileName()),OBJECT_NAME);
+        SharedObserverProperty new_subject_name_property(QVariant(displayName()),OBJECT_NAME);
         new_subject_name_property.setIsExportable(false);
 
         Observer::setSharedProperty(this,new_subject_name_property);
     } else {
-        setObjectName(treeFileItemBase->file_info.fileName());
+        setObjectName(displayName());
     }
 
     if (broadcast)
@@ -198,7 +222,14 @@ bool Qtilities::CoreGui::TreeFileItem::hasRelativeToPath() const{
 }
 
 void Qtilities::CoreGui::TreeFileItem::setRelativeToPath(const QString& path) {
+    bool modified = false;
+    if (relativeToPath() != path)
+        modified = true;
+
     treeFileItemBase->file_info.setRelativeToPath(path);
+
+    if (modified)
+        setModificationState(true,IModificationNotifier::NotifyListeners);
 }
 
 QString Qtilities::CoreGui::TreeFileItem::relativeToPath() const {
@@ -223,6 +254,17 @@ QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativeFilePath() const {
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
     return treeFileItemBase->file_info.fileName();
+}
+
+void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& new_file_name) {
+    bool modified = false;
+    if (fileName() != new_file_name)
+        modified = true;
+
+    treeFileItemBase->file_info.setFileName(new_file_name);
+
+    if (modified)
+        setModificationState(true,IModificationNotifier::NotifyListeners);
 }
 
 QString Qtilities::CoreGui::TreeFileItem::baseName() const {
@@ -252,4 +294,3 @@ QString Qtilities::CoreGui::TreeFileItem::actualFilePath() const {
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
     return treeFileItemBase->file_info.exists();
 }
-

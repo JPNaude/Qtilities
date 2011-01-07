@@ -79,21 +79,44 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
 
         public:
-            TreeFileItem(const QString& file_name = QString(), const QString& relative_to_path = QString(), QObject* parent = 0);
+            //! This enumeration provides the possible ways that tree file items can be displayed.
+            /*!
+              The default is DisplayFileName.
+              */
+            enum PathDisplay {
+                DisplayFileName,    /*!< Display fileName(). */
+                DisplayFilePath,    /*!< Display filePath(). */
+            };
+
+            //! Constructs a TreeFileItem object.
+            /*!
+              \param file_path The file path of the file.
+              \param relative_to_path The relative to path for the file. See Qtilities::Core::QtilitiesFileInfo::relativeToPath() for more information.
+              \param path_display The preferred way that this file item must be displayed.
+              \param parent The parent of the item.
+              */
+            TreeFileItem(const QString& file_path = QString(), const QString& relative_to_path = QString(), PathDisplay path_display = DisplayFileName,  QObject* parent = 0);
             virtual ~TreeFileItem();
+            //! Event filter which catches OBJECT_NAME property changes on this object.
             bool eventFilter(QObject *object, QEvent *event);
 
-            //! Sets the file name of this file model.
+            //! Sets the PathDisplay used for this tree file item.
+            inline void setPathDisplay(PathDisplay path_display) { d_path_display = path_display; }
+            //! Gets the PathDisplay used for this tree file item.
+            inline PathDisplay pathDisplay() const { return d_path_display; }
+
+            //! Sets the file path of this tree file item.
             /*!
               Does the same as QFileModel::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
 
               This function will check if there is an OBJECT_NAME property on this object and set it. If it does not exist it will
               just set objectName(). Note that this does not set the names in the INSTANCE_NAMES property if it exists.
 
-              \param file_name The new file name.
+              \param file_path The new file path.
+              \param relative_to_path The relative to path to use.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
               */
-            virtual void setFile(const QString& file_name, const QString& relative_to_path = QString(), bool broadcast = true);
+            virtual void setFile(const QString& file_path, const QString& relative_to_path = QString(), bool broadcast = true);
 
             //! See QFileModel::isRelative().
             bool isRelative() const;
@@ -118,6 +141,8 @@ namespace Qtilities {
 
             //! See QFileModel::fileName().
             QString fileName() const;
+            //! Reimplementation of QtilitiesFileInfo::setFileName() which sets the modification state to true if needed.
+            void setFileName(const QString& new_file_name);
             //! See QFileModel::baseName().
             QString baseName() const;
             //! See QFileModel::completeBaseName().
@@ -164,6 +189,14 @@ namespace Qtilities {
         protected:
             void setFactoryData(InstanceFactoryInfo instanceFactoryInfo);
             TreeFileItemData* treeFileItemBase;
+
+        private:
+            //! Internal function to get the displayed name according to the PathDisplay type.
+            QString displayName();
+            //! Internal function to set the displayed name according to the PathDisplay type.
+            void setDisplayName(const QString& new_display_name);
+
+            PathDisplay d_path_display;
         };
     }
 }
