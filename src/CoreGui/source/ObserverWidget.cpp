@@ -46,6 +46,7 @@
 #include "ObserverTableModelCategoryFilter.h"
 #include "ObserverTreeModelProxyFilter.h"
 #include "ActionProvider.h"
+#include "ObserverTreeItem.h"
 
 #include <ActivityPolicyFilter.h>
 #include <ObserverHints.h>
@@ -191,6 +192,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! The current selection in this widget. Set in the selectedObjects() function.
     QList<QPointer<QObject> > current_selection;
+    //! The current selection in this widget in terms of ObserverTreeItems. Set in the selectedObjects() function.
+    QList<QPointer<ObserverTreeItem> > current_tree_item_selection;
     //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
     //! The default row height used in TableView mode.
@@ -325,8 +328,10 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (!observer)
         return false;
 
-    if (d_observer)
+    if (d_observer) {
         d_observer->disconnect(this);
+        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
+    }
 
     // Connect to the distroyed signal
     connect(observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
@@ -514,7 +519,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setItemDelegate(d->tree_name_column_delegate);
 
             // Setup tree selection:
-            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
+            d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
+            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
             // Setup proxy model
             d->proxy_model = new ObserverTreeModelProxyFilter(this);
@@ -523,7 +529,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->proxy_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->tree_view->setModel(d->proxy_model);
 
-            //d->tree_view->header()->hide();
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
 
@@ -712,7 +717,13 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Resize columns:
         if (d->do_column_resizing) {
             QHeaderView* tree_header = d->tree_view->header();
-            tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+            if (tree_header) {
+                for (int i = 0; i < tree_header->count(); i++) {
+                    if (i != d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName))
+                        tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::ResizeToContents);
+                }
+                tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+            }
         }
     }
 
@@ -815,6 +826,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
 QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
     QList<QObject*> selected_objects;
     QList<QPointer<QObject> > smart_selected_objects;
+    QList<QPointer<ObserverTreeItem> > smart_tree_item_selection;
 
     if (d->display_mode == TableView) {
         if (!d->table_view || !d->table_model)
@@ -824,7 +836,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->table_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->table_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 1) {
-                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));;
+                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));
                     smart_selected_objects << obj;
                     selected_objects << obj;
                 }
@@ -838,8 +850,9 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->tree_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->tree_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 0) {
-                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));;
+                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));
                     smart_selected_objects << obj;
+                    smart_tree_item_selection << d->tree_model->getItem(d->proxy_model->mapToSource(index));
                     selected_objects << obj;
                 }
             }
@@ -847,6 +860,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
         d->tree_model->setSelectedObjects(smart_selected_objects);
     }
     d->current_selection = smart_selected_objects;   
+    d->current_tree_item_selection = smart_tree_item_selection;
     return selected_objects;
 }
 
@@ -1438,6 +1452,21 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     d->actionDeleteAll->setText(tr("Delete All In Current Context"));
                     d->actionDeleteAll->setEnabled(true);
                 }
+
+                // Check if any categories are selected:
+                for (int i = 0; i < d->current_tree_item_selection.count(); i++) {
+                    if (d->current_tree_item_selection.at(i)) {
+                        if (d->current_tree_item_selection.at(i)) {
+                            if (d->current_tree_item_selection.at(i)->itemType() == ObserverTreeItem::CategoryItem) {
+                                d->actionDeleteItem->setEnabled(false);
+                                d->actionRemoveItem->setEnabled(false);
+                                d->actionDeleteAll->setEnabled(false);
+                                d->actionRemoveAll->setEnabled(false);
+                                break;
+                            }
+                        }
+                    }
+                }
             } else {
                 // Disable remove and delete all actions. We need to check if the selection is in the same
                 // context to be able to enable it.
@@ -1597,6 +1626,20 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
     if (selected_count == 0)
         return;
 
+    // Check if any categories were selected:
+    /*if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
+        for (int i = 0; i < d->current_selection.count(); i++) {
+            if (d->current_selection.at(i)) {
+                ObserverTreeItem* tree_item = qobject_cast<ObserverTreeItem*> (d->current_selection.at(i));
+                if (tree_item) {
+                    if (tree_item->itemType() == ObserverTreeItem::CategoryItem) {
+                        return;
+                    }
+                }
+            }
+        }
+    }*/
+
     if (d->confirm_deletes) {
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Confirm Deletion"));
@@ -1630,7 +1673,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
                     first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
 
                 delete d->current_selection.at(0);
-            }
+            } else
+                return;
         }
     }
 
@@ -2483,6 +2527,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
         if (d->table_view)
             d->table_view->setEnabled(false);
     }
+    d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
@@ -2648,14 +2693,31 @@ void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
 #endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
-    // This is very slow way of doing it, must be optimized in the future since
-    // this happens everytime the user selection changes.
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
+        ObserverHints::DisplayFlags last_display_flags = d->last_display_flags;
+        ObserverHints::DisplayFlags active_display_flags = activeHints()->displayFlagsHint();
         if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
             d->last_display_flags = activeHints()->displayFlagsHint();
-        else
+        else {
+            // Here we need to hide all toolbars that does not contain any actions:
+            // Now create all toolbars:
+            for (int i = 0; i < d->action_toolbars.count(); i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+                bool has_visible_action = false;
+                foreach (QAction* action, toolbar->actions()) {
+                    if (action->isVisible()) {
+                        has_visible_action = true;
+                        break;
+                    }
+                }
+                if (!has_visible_action)
+                    toolbar->hide();
+                else
+                    toolbar->show();
+            }
             return;
+        }
 
         // First delete all toolbars:
         int toolbar_count = d->action_toolbars.count();
@@ -2680,8 +2742,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
                 new_toolbar->addActions(action_list);
             }
         }
-    } else
+    } else {
+        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
         deleteActionToolBars();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::deleteActionToolBars() {
