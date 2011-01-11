@@ -760,8 +760,10 @@ void Qtilities::CoreGui::NamingPolicyFilter::setValidator(QValidator* valid_nami
     if (!valid_naming_validator)
         return;
 
-    if (observer->subjectCount() > 0)
-        return;
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
 
     d->validator = valid_naming_validator;
 }

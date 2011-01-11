@@ -75,6 +75,7 @@ Improvements & Notable Changes:
 - AbstractSubjectFilter got two new functions to control if the subject filter's modification state must be monitored by its observer context. ActivityPolicyFilter got new get and set functions to support this. By default all Qtilities subject filters return true. Observers now respect this property and do not monitor the modification state of subject filters returning false. TreeNode::enableActivityControl() now has a parameter to disable modification monitoring.
 - QtilitiesApplication::initialize() important doc update and QtilitiesApplication::aboutQtilities() changed so that it returns the constructed about window.
 - ObserverWidget does not allow selections with categories to be deleted anymore. This cause unpredictable results in previous versions.
+- Fixed crash in NamingPolicyFilter::setValidator() if the filter did not have an observer context.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
