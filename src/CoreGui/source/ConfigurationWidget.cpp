@@ -209,15 +209,19 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
     if (d->apply_all_pages) {
         for (int i = 0; i < d->config_pages.subjectCount(); i++) {
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
-            if (config_page)
+            if (config_page){
                 config_page->configPageApply();
+                appliedPage(config_page);
+            }
         }
     } else {
         if (d->activity_filter->activeSubjects().count() == 1) {
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
             config_page->configPageApply();
+            appliedPage(config_page);
         }
     }
+
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::setApplyAllPages(bool apply_all_pages) {

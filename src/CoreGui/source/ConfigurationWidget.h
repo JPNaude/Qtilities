@@ -90,6 +90,10 @@ namespace Qtilities {
             //! Gets the way the configuration widget handles the \p Apply button.
             bool applyAllPages() const;
 
+       signals:
+            //! Signal emitted whenever a config page is applied.
+            void appliedPage(IConfigPage* conig_page);
+
         public slots:
             //! Handles the close button.
             void on_btnClose_clicked();
@@ -110,6 +114,8 @@ namespace Qtilities {
         private:
             Ui::ConfigurationWidget* ui;
             ConfigurationWidgetData* d;
+
+        signals:
         };
     }
 }
