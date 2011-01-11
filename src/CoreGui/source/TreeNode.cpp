@@ -157,13 +157,15 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActiv
                            ActivityPolicyFilter::ActivityPolicy activity_policy,
                            ActivityPolicyFilter::ParentTrackingPolicy parent_tracking_policy,
                            ActivityPolicyFilter::MinimumActivityPolicy minimum_activity_policy,
-                           ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {
+                           ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy,
+                           bool monitor_modification_state) {
 
     nodeData->activity_policy_filter = new ActivityPolicyFilter();
     nodeData->activity_policy_filter->setMinimumActivityPolicy(minimum_activity_policy);
     nodeData->activity_policy_filter->setNewSubjectActivityPolicy(new_subject_activity_policy);
     nodeData->activity_policy_filter->setActivityPolicy(activity_policy);
     nodeData->activity_policy_filter->setParentTrackingPolicy(parent_tracking_policy);
+    nodeData->activity_policy_filter->setIsModificationStateMonitored(monitor_modification_state);
     if (installSubjectFilter(nodeData->activity_policy_filter)) {
         displayHints()->setActivityControlHint(activity_control);
         displayHints()->setActivityDisplayHint(activity_display);
