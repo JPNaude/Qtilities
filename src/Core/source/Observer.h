@@ -703,7 +703,6 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               */
             bool inheritDisplayHints(ObserverHints display_hints);
 
-
             // --------------------------------
             // Subject category related functions
             // --------------------------------

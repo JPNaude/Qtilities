@@ -772,14 +772,18 @@ bool Qtilities::Core::Observer::isModified() const {
                 return true;
         }
     }
+
     // Check if any subject filters were modified.
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
-        if (mod_iface) {
-            if (mod_iface->isModified())
-                return true;
+        if (observerData->subject_filters.at(i)->isModificationStateMonitored()) {
+            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
+            if (mod_iface) {
+                if (mod_iface->isModified())
+                    return true;
+            }
         }
     }
+
     // Check if the observer hints were modified.
     if (observerData->display_hints) {
         if (observerData->display_hints->isModified())
@@ -2053,9 +2057,11 @@ bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
 
     // Check if the new subject filter implements the IModificationNotifier interface. If so we connect
     // to the modification changed signal:
-    IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (subject_filter);
-    if (mod_iface) {
-        connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+    if (subject_filter->isModificationStateMonitored()) {
+        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (subject_filter);
+        if (mod_iface) {
+            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+        }
     }
 
     // We need to connect to the property related signals on this subject filter:
