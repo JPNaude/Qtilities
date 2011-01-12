@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -51,7 +51,7 @@ struct Qtilities::CoreGui::QtilitiesMainWindowData {
 
     bool                            initialized;
     QWidget*                        current_widget;
-    ModeManager*                     mode_manager;
+    ModeManager*                    mode_manager;
     QWidget*                        central_widget;
     bool                            priority_messages_enabled;
     QWidget                         priority_messages_widget;

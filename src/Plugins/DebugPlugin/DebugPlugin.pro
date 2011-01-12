@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2010, Jaco Naude
+# Copyright (c) 2009-2011, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #

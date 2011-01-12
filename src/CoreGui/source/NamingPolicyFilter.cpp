@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -71,7 +71,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : Ab
     d->uniqueness_policy = NamingPolicyFilter::ProhibitDuplicateNames;
     d->uniqueness_resolution_policy = NamingPolicyFilter::PromptUser;
     d->validity_resolution_policy = NamingPolicyFilter::PromptUser;
-    const QRegExp default_expression(".{1,100}",Qt::CaseInsensitive);
+    const QRegExp default_expression(".{1,255}",Qt::CaseInsensitive);
     QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
     d->validator = default_validator;
     d->name_dialog = new NamingPolicyInputDialog();
@@ -174,7 +174,8 @@ Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::Nam
     return d->validity_resolution_policy;
 }
 
-Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingPolicyFilter::evaluateName(QString name) const {
+Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingPolicyFilter::evaluateName(QString name, QObject* validation_object) const {
+    Q_UNUSED(validation_object)
     NamingPolicyFilter::NameValidity result = Acceptable;
 
     // Check uniqueness of name
@@ -202,7 +203,7 @@ QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(QString na
 
 Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
     // Check the validity of obj's name:
-    NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName());
+    NamingPolicyFilter::NameValidity validity_result = evaluateName(obj->objectName(),obj);
 
     if ((validity_result & Invalid) && d->validity_resolution_policy == Reject) {
         if (rejectMsg)
@@ -616,7 +617,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::setConflictingObject(QObject* obj) 
 
 bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject* obj, const char* property_name) {
     QString changed_name = observer->getObserverPropertyValue(obj,property_name).toString();
-    NamingPolicyFilter::NameValidity validity_result = evaluateName(changed_name);
+    NamingPolicyFilter::NameValidity validity_result = evaluateName(changed_name,obj);
     bool return_value;
     if (changed_name.isEmpty())
         return_value = false;
@@ -759,8 +760,10 @@ void Qtilities::CoreGui::NamingPolicyFilter::setValidator(QValidator* valid_nami
     if (!valid_naming_validator)
         return;
 
-    if (observer->subjectCount() > 0)
-        return;
+    if (observer) {
+        if (observer->subjectCount() > 0)
+            return;
+    }
 
     d->validator = valid_naming_validator;
 }
@@ -1095,7 +1098,7 @@ void Qtilities::CoreGui::NamingPolicyDelegate::on_LineEdit_TextChanged(const QSt
             editor->setStyleSheet("color: black");
             editor->setToolTip(tr(""));
 
-            NamingPolicyFilter::NameValidity validity_result = d->naming_filter->evaluateName(text);
+            NamingPolicyFilter::NameValidity validity_result = d->naming_filter->evaluateName(text,d->obj);
             if (validity_result != NamingPolicyFilter::Acceptable) {
                 if (d->naming_filter->getConflictingObject(text) != d->obj) {
                     editor->setStyleSheet("color: red");

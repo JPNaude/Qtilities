@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -220,6 +220,8 @@ namespace Qtilities {
             bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
             QString filterName() const { return FACTORY_TAG_ACTIVITY_POLICY_FILTER; }
+            void setIsModificationStateMonitored(bool is_monitored);
+            bool isModificationStateMonitored() const;
             void setIsExportable(bool is_exportable);
             bool isExportable() const;
             QStringList monitoredProperties() const;

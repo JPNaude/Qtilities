@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -772,14 +772,18 @@ bool Qtilities::Core::Observer::isModified() const {
                 return true;
         }
     }
+
     // Check if any subject filters were modified.
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
-        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
-        if (mod_iface) {
-            if (mod_iface->isModified())
-                return true;
+        if (observerData->subject_filters.at(i)->isModificationStateMonitored()) {
+            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
+            if (mod_iface) {
+                if (mod_iface->isModified())
+                    return true;
+            }
         }
     }
+
     // Check if the observer hints were modified.
     if (observerData->display_hints) {
         if (observerData->display_hints->isModified())
@@ -1071,7 +1075,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         objects << obj;
         if (!observerData->process_cycle_active) {
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged();
+            emit layoutChanged(obj);
             setModificationState(true);
         }
 
@@ -1405,7 +1409,7 @@ QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> object
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
-        emit layoutChanged();
+       emit layoutChanged();
         setModificationState(true);
     }
     return success_list;
@@ -2053,9 +2057,11 @@ bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subj
 
     // Check if the new subject filter implements the IModificationNotifier interface. If so we connect
     // to the modification changed signal:
-    IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (subject_filter);
-    if (mod_iface) {
-        connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+    if (subject_filter->isModificationStateMonitored()) {
+        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (subject_filter);
+        if (mod_iface) {
+            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+        }
     }
 
     // We need to connect to the property related signals on this subject filter:

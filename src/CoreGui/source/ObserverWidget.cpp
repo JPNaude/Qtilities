@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -46,6 +46,7 @@
 #include "ObserverTableModelCategoryFilter.h"
 #include "ObserverTreeModelProxyFilter.h"
 #include "ActionProvider.h"
+#include "ObserverTreeItem.h"
 
 #include <ActivityPolicyFilter.h>
 #include <ObserverHints.h>
@@ -115,7 +116,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     actionFilterNodes(0),
     actionFilterItems(0),
     actionFilterCategories(0),
-    actionFilterTypeSeperator(0) { }
+    actionFilterTypeSeperator(0),
+    last_display_flags(ObserverHints::NoDisplayFlagsHint),
+    do_column_resizing(true) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -146,9 +149,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     Qtilities::DisplayMode display_mode;
     QPointer<QTableView> table_view;
-    AbstractObserverTableModel* table_model;
+    ObserverTableModel* table_model;
     QPointer<QTreeView> tree_view;
-    AbstractObserverTreeModel* tree_model;
+    ObserverTreeModel* tree_model;
     QSortFilterProxyModel *proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
@@ -189,6 +192,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! The current selection in this widget. Set in the selectedObjects() function.
     QList<QPointer<QObject> > current_selection;
+    //! The current selection in this widget in terms of ObserverTreeItems. Set in the selectedObjects() function.
+    QList<QPointer<ObserverTreeItem> > current_tree_item_selection;
     //! The IActionProvider interface implementation.
     ActionProvider* action_provider;
     //! The default row height used in TableView mode.
@@ -203,6 +208,12 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionFilterItems;
     QAction* actionFilterCategories;
     QAction* actionFilterTypeSeperator;
+
+    //! This hint keeps track of the previously used activeHints()->displayFlagsHint(). If it changed, the toolbars will be reconstructed in the refreshActionToolBar() function.
+    ObserverHints::DisplayFlags last_display_flags;
+
+    //! Stores if automatic column resizing must be done. See enableAutoColumnResizing()
+    bool do_column_resizing;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -317,8 +328,10 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (!observer)
         return false;
 
-    if (d_observer)
+    if (d_observer) {
         d_observer->disconnect(this);
+        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
+    }
 
     // Connect to the distroyed signal
     connect(observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
@@ -361,7 +374,7 @@ int Qtilities::CoreGui::ObserverWidget::topLevelObserverID() {
         return -1;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(AbstractObserverTableModel* table_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel* table_model) {
     if (d->initialized)
         return false;
 
@@ -375,7 +388,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(AbstractObserverTab
     return true;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(AbstractObserverTreeModel* tree_model) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* tree_model) {
     if (d->initialized)
         return false;
 
@@ -480,6 +493,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
                 connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)));
+                connect(d->tree_model,SIGNAL(selectObjects(QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
 
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
@@ -505,7 +519,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setItemDelegate(d->tree_name_column_delegate);
 
             // Setup tree selection:
-            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
+            d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
+            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
             // Setup proxy model
             d->proxy_model = new ObserverTreeModelProxyFilter(this);
@@ -514,7 +529,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->proxy_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->tree_view->setModel(d->proxy_model);
 
-            //d->tree_view->header()->hide();
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
 
@@ -630,7 +644,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID));
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnSubjectID),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
@@ -638,7 +651,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         else {
             if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                 d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
-                //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory),50);
             } else {
                 d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
             }
@@ -648,62 +660,71 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnTypeInfo);
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnAccess);
-            //d->table_view->setColumnWidth(d->table_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
         }
 
         // Resize columns
-        d->table_view->resizeColumnsToContents();
-        QHeaderView* table_header = d->table_view->horizontalHeader();
-        table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        if (d->do_column_resizing) {
+            d->table_view->resizeColumnsToContents();
+            QHeaderView* table_header = d->table_view->horizontalHeader();
+            table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        }
     } else if (d->display_mode == TreeView && d->tree_view && d->tree_model) {
         // Show only the needed columns for the current observer
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
-            d->tree_view->setColumnWidth(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess),50);
+            if (d->do_column_resizing)
+                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         }
 
-        // Set name column width to something biggish for now. Will fix later.
-        // Also fix in subjectCountChanged() slot.
-        d->tree_view->setColumnWidth(0,300);
-
-        //QHeaderView* tree_header = d->tree_view->header();
-        //tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::NameColumn),QHeaderView::Stretch);
+        // Resize columns:
+        if (d->do_column_resizing) {
+            QHeaderView* tree_header = d->tree_view->header();
+            if (tree_header) {
+                for (int i = 0; i < tree_header->count(); i++) {
+                    if (i != d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName))
+                        tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::ResizeToContents);
+                }
+                tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+            }
+        }
     }
 
     d->initialized = true;
@@ -805,6 +826,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
 QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
     QList<QObject*> selected_objects;
     QList<QPointer<QObject> > smart_selected_objects;
+    QList<QPointer<ObserverTreeItem> > smart_tree_item_selection;
 
     if (d->display_mode == TableView) {
         if (!d->table_view || !d->table_model)
@@ -814,7 +836,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->table_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->table_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 1) {
-                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));;
+                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));
                     smart_selected_objects << obj;
                     selected_objects << obj;
                 }
@@ -828,8 +850,9 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->tree_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->tree_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 0) {
-                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));;
+                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));
                     smart_selected_objects << obj;
+                    smart_tree_item_selection << d->tree_model->getItem(d->proxy_model->mapToSource(index));
                     selected_objects << obj;
                 }
             }
@@ -837,6 +860,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
         d->tree_model->setSelectedObjects(smart_selected_objects);
     }
     d->current_selection = smart_selected_objects;   
+    d->current_tree_item_selection = smart_tree_item_selection;
     return selected_objects;
 }
 
@@ -908,6 +932,14 @@ QTreeView* Qtilities::CoreGui::ObserverWidget::treeView() {
         return 0;
 }
 
+void Qtilities::CoreGui::ObserverWidget::enableAutoColumnResizing() {
+    d->do_column_resizing = true;
+}
+
+void Qtilities::CoreGui::ObserverWidget::disableAutoColumnResizing() {
+    d->do_column_resizing = false;
+}
+
 void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     if (!d->initialized)
         return;
@@ -919,6 +951,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     settings.setValue("state", saveState());
     settings.setValue("default_row_heigth", d->default_row_height);
     settings.setValue("confirm_deletes", d->confirm_deletes);
+    settings.setValue("do_column_resizing", d->do_column_resizing);
     if (d->table_view)
         settings.setValue("table_view_show_grid", d->table_view->showGrid());
     settings.endGroup();
@@ -960,6 +993,9 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // Confirm deletes
     d->confirm_deletes = settings.value("confirm_deletes", true).toBool();
+
+    // Automatic column resizing
+    d->do_column_resizing = settings.value("do_column_resizing", true).toBool();
 
     settings.endGroup();
     settings.endGroup();
@@ -1032,6 +1068,8 @@ void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
     if (height == -1)
         height = d->default_row_height;
     if (d->display_mode == TableView && d->table_view && d->table_model) {
+        if (d->do_column_resizing)
+            d->table_view->resizeColumnsToContents();
         for (int i = 0; i < d->table_model->rowCount(); i++) {
             d->table_view->setRowHeight(i,height);
         }
@@ -1414,6 +1452,21 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     d->actionDeleteAll->setText(tr("Delete All In Current Context"));
                     d->actionDeleteAll->setEnabled(true);
                 }
+
+                // Check if any categories are selected:
+                for (int i = 0; i < d->current_tree_item_selection.count(); i++) {
+                    if (d->current_tree_item_selection.at(i)) {
+                        if (d->current_tree_item_selection.at(i)) {
+                            if (d->current_tree_item_selection.at(i)->itemType() == ObserverTreeItem::CategoryItem) {
+                                d->actionDeleteItem->setEnabled(false);
+                                d->actionRemoveItem->setEnabled(false);
+                                d->actionDeleteAll->setEnabled(false);
+                                d->actionRemoveAll->setEnabled(false);
+                                break;
+                            }
+                        }
+                    }
+                }
             } else {
                 // Disable remove and delete all actions. We need to check if the selection is in the same
                 // context to be able to enable it.
@@ -1573,6 +1626,20 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
     if (selected_count == 0)
         return;
 
+    // Check if any categories were selected:
+    /*if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
+        for (int i = 0; i < d->current_selection.count(); i++) {
+            if (d->current_selection.at(i)) {
+                ObserverTreeItem* tree_item = qobject_cast<ObserverTreeItem*> (d->current_selection.at(i));
+                if (tree_item) {
+                    if (tree_item->itemType() == ObserverTreeItem::CategoryItem) {
+                        return;
+                    }
+                }
+            }
+        }
+    }*/
+
     if (d->confirm_deletes) {
         QMessageBox msgBox;
         msgBox.setWindowTitle(tr("Confirm Deletion"));
@@ -1594,12 +1661,20 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
     }
 
     // Delete selected objects:
-    for (int i = 0; i < selected_count; i++) {
+    int first_delete_position = -1;
+    for (int i = 0; i < selected_count; i++) {       
         if (d->current_selection.at(i)) {
             // Make sure the selected object is not the top level observer (might happen in a tree view)
             Observer* observer = qobject_cast<Observer*> (d->current_selection.at(0));
-            if (observer != d->top_level_observer)
+            if (observer != d->top_level_observer) {
+                if (i == 0 && selectionParent())
+                    first_delete_position = selectionParent()->subjectReferences().indexOf(d->current_selection.at(i));
+                else if (i == 0 && !selectionParent() && d_observer)
+                    first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
+
                 delete d->current_selection.at(0);
+            } else
+                return;
         }
     }
 
@@ -1612,16 +1687,26 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         // We must check if there is a selection parent, else use d_observer:
         if (d->tree_model->selectionParent()) {
             Observer* selection_parent = d->tree_model->selectionParent();
-            if (selection_parent->subjectCount() > 0)
-                object_list << selection_parent->subjectAt(0);
-            else
-                object_list << selection_parent;
+            if (first_delete_position <= selection_parent->subjectCount() && first_delete_position > 0) {
+                object_list << selection_parent->subjectAt(first_delete_position-1);
+                selectObjects(object_list);
+            } else {
+                if (selection_parent->subjectCount() > 0)
+                    object_list << selection_parent->subjectAt(0);
+                else
+                    object_list << selection_parent;
+            }
             selectObjects(object_list);
+
         } else {
-            if (d_observer->subjectCount() > 0)
-                object_list << d_observer->subjectAt(0);
-            else
-                object_list << d_observer;
+            if (first_delete_position <= d_observer->subjectCount() && first_delete_position > 0) {
+                object_list << d_observer->subjectAt(first_delete_position-1);
+            } else {
+                if (d_observer->subjectCount() > 0)
+                    object_list << d_observer->subjectAt(0);
+                else
+                    object_list << d_observer;
+            }
             selectObjects(object_list);
         }
     }
@@ -2442,6 +2527,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
         if (d->table_view)
             d->table_view->setEnabled(false);
     }
+    d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
 }
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
@@ -2471,8 +2557,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
-    if (objects.count() == 0)
+    if (objects.count() == 0) {
+        // We expand all:
+        viewExpandAll();
         return;
+    }
 
     if (!d->update_selection_activity)
         return;
@@ -2504,6 +2593,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
 
         d->update_selection_activity = true;
+
+        // Update the property browser:
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            refreshPropertyBrowser();
+        #endif
     } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
         d->update_selection_activity = false;
 
@@ -2532,6 +2626,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
 
         d->update_selection_activity = true;
+
+        // Update the property browser:
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            refreshPropertyBrowser();
+        #endif
     }
 }
 
@@ -2594,10 +2693,32 @@ void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
 #endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
-    // This is very slow way of doing it, must be optimized in the future since
-    // this happens everytime the user selection changes.
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
+        ObserverHints::DisplayFlags last_display_flags = d->last_display_flags;
+        ObserverHints::DisplayFlags active_display_flags = activeHints()->displayFlagsHint();
+        if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
+            d->last_display_flags = activeHints()->displayFlagsHint();
+        else {
+            // Here we need to hide all toolbars that does not contain any actions:
+            // Now create all toolbars:
+            for (int i = 0; i < d->action_toolbars.count(); i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+                bool has_visible_action = false;
+                foreach (QAction* action, toolbar->actions()) {
+                    if (action->isVisible()) {
+                        has_visible_action = true;
+                        break;
+                    }
+                }
+                if (!has_visible_action)
+                    toolbar->hide();
+                else
+                    toolbar->show();
+            }
+            return;
+        }
+
         // First delete all toolbars:
         int toolbar_count = d->action_toolbars.count();
         if (toolbar_count > 0) {
@@ -2621,8 +2742,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
                 new_toolbar->addActions(action_list);
             }
         }
-    } else
+    } else {
+        d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
         deleteActionToolBars();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::deleteActionToolBars() {

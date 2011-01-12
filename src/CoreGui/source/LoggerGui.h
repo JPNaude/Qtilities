@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -45,6 +45,8 @@
 #include <QWidget>
 #include <QDockWidget>
 #include <QPointer>
+#include <QApplication>
+#include <QDesktopWidget>
 
 namespace Qtilities {
     namespace CoreGui {
@@ -91,6 +93,37 @@ namespace Qtilities {
                 new_widget_engine->setActive(is_active);
                 new_widget_engine->setEnabledMessageTypes(message_types);
                 return new_widget_engine->getWidget();
+            }
+
+            //! Creates a temporary logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
+            /*!
+              Temporary log widgets are usefull when you want to given updates to the user during intensive processing. In that case you can
+              create a temp log widget using this function and when you are done with your processing you can simply hide the widget causing it to be deleted.
+
+              The returned widget is essentially the same as the widget created using createLogWidget(), except for the following:
+              - It is active by default.
+              - It has a parameter which you can specify its size explicity, the default is 1000x600
+              - The widget is positioned in the middle of the screen.
+              - The widget has its Qt::WA_QuitOnClose attribute set to false, thus if the temporary widget is still opened when the application is closed it will be destructed and the application will close. Note that this depends on the way widgets are managed in your application, by default the mentioned behavior will happen.
+              - The widget is shown automatically.
+              */
+            static QWidget* createTempLogWidget(const QString& window_title, const QSize& size = QSize(1000,600), Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+                QWidget* new_widget = createLogWidget(window_title,true,message_types);
+                if (new_widget) {
+                    // Resize:
+                    new_widget->resize(size);
+
+                    // Put the widget in the center of the screen:
+                    QRect qrect = QApplication::desktop()->availableGeometry(new_widget);
+                    new_widget->move(qrect.center() - new_widget->rect().center());
+
+                    // Set its Qt::WA_QuitOnClose attribute to false
+                    new_widget->setAttribute(Qt::WA_QuitOnClose,false);
+
+                    // Show by default:
+                    new_widget->show();
+                }
+                return new_widget;
             }
 
             //! Creates a new logger dock widget which logs messages of the specified verbosity. This function is similar to createLogWidget() but it wraps the widget produced by createLogWidget() with a QDockWidget(). The user must manage the widget instance.

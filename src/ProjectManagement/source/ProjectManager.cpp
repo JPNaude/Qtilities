@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -206,6 +206,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         delete d->current_project;
     }
 
+    emit projectLoadingStarted();
     d->current_project = new Project(this);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -214,6 +215,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     if (!d->current_project->loadProject(file_name,false)) {
         delete d->current_project;
         QApplication::restoreOverrideCursor();
+        emit projectLoadingFinished(false);
         return false;
     }
 
@@ -224,6 +226,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     notify_targets |= IModificationNotifier::NotifySubjects;
     setModificationState(false,notify_targets);
     QApplication::restoreOverrideCursor();
+    emit projectLoadingFinished(true);
     return true;
 }
 

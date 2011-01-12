@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -139,6 +139,9 @@ QtilitiesApplication::initialize();
 
             Example scenarios where this might happen is when you are using a different class which inherits QApplication, for
             example the QtSingleApplication solution.
+
+            It is important to note that the initialize() function does not create an QtilitiesApplication instance, thus instance() will return 0.
+            The goal of the function used in this way is to register all needed %Qtilities classes in the %Qtilities factory.
               */
             static void initialize();
             //! Returns a reference to the QtilitiesApplication instance.
@@ -169,8 +172,8 @@ QtilitiesApplication::initialize();
             void settingsUpdateRequest(const QString& request_id);
 
         public slots:
-            //! Displays a Qtilities::CoreGui::AboutWindow with information about the Qtilities libraries.
-            void aboutQtilities();
+            //! Returns a Qtilities::CoreGui::AboutWindow with information about the Qtilities libraries.
+            static QWidget* aboutQtilities(bool show = true);
 
         private:
             Q_DISABLE_COPY(QtilitiesApplication)

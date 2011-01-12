@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2010, Jaco Naude
+# Copyright (c) 2009-2011, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -65,7 +65,9 @@ HEADERS += source/QtilitiesCore_global.h \
     source/QtilitiesCategory.h \
     source/IExportableFormatting.h \
     ../Common/Qtilities.h \
-    source/ObserverDotGraph.h
+    source/ObserverDotGraph.h \
+    source/FileUtils.h \
+    source/QtilitiesFileInfo.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -83,4 +85,6 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCategory.cpp \
     source/IFactoryProvider.cpp \
     source/PointerList.cpp \
-    source/ObserverDotGraph.cpp
+    source/ObserverDotGraph.cpp \
+    source/FileUtils.cpp \
+    source/QtilitiesFileInfo.cpp

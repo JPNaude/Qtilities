@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -44,6 +44,7 @@ using namespace Qtilities::CoreGui::Icons;
 struct Qtilities::CoreGui::SearchBoxWidgetData {
     SearchBoxWidgetData() : textEdit(0),
         plainTextEdit(0) {}
+
     QMenu*                          searchOptionsMenu;
     QAction*                        searchOptionCaseSensitive;
     QAction*                        searchOptionWholeWordsOnly;

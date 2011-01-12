@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -64,7 +64,7 @@ namespace Qtilities {
         NamingPolicySubject filter validates names using a QRegExpValidator constructed as follows:
 
 \code
-const QRegExp default_expression("\\.{1,100}",Qt::CaseInsensitive);
+const QRegExp default_expression("\\.{1,200}",Qt::CaseInsensitive);
 QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
 \endcode
 
@@ -216,7 +216,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
 
             //! Evaluates a name in the observer context in which this subject filter is installed.
-            virtual NamingPolicyFilter::NameValidity evaluateName(QString name) const;
+            virtual NamingPolicyFilter::NameValidity evaluateName(QString name, QObject* validation_object = 0) const;
             //! Gets the object which conflicts with the specified name. If no object conflicts, returns 0.
             QObject* getConflictingObject(QString name) const;
             //! Function to set the validator used to validate names.
@@ -256,15 +256,8 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             bool isValidationCycleActive() const;
             //! Checks if this subject filter is the name manager of the specified object.
             bool isObjectNameManager(QObject* obj) const;
-
-        protected:
-            //! Attempt to assign a new name manager to the object, other than this filter.
-            void assignNewNameManager(QObject* obj);
-            //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the OBJECT_NAME property.
-            bool isObjectNameDirty(QObject* obj) const;
             //! Sets the conflicting object. Only used from NamingPolicyInputDialog.
-            virtual void setConflictingObject(QObject* obj);
-
+            void setConflictingObject(QObject* obj);
             //! Attempt to generate a valid name in the context from the given input_name.
             /*!
               The valid name generation attempts the following in the order shown.
@@ -286,6 +279,13 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               \return A valid QString value. If QString is returned empty the function could not succeed in generating a valid name.
               */
             virtual QString generateValidName(QString input_name = QString(), bool force_change = false);
+
+        protected:
+            //! Attempt to assign a new name manager to the object, other than this filter.
+            void assignNewNameManager(QObject* obj);
+            //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the OBJECT_NAME property.
+            bool isObjectNameDirty(QObject* obj) const;
+
             //! Validates if \p property_name is a valid name for \p obj in this context.
             virtual bool validateNamePropertyChange(QObject* obj, const char* property_name);
 

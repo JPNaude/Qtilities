@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -38,7 +38,6 @@
 
 #include <Logger.h>
 
-#include <QMutex>
 #include <QVariant>
 #include <QCoreApplication>
 #include <QDomElement>
@@ -54,10 +53,12 @@ namespace Qtilities {
 
 struct Qtilities::Core::ActivityPolicyFilterData {
     ActivityPolicyFilterData() : is_modified(false),
-    is_exportable(false) { }
+    is_exportable(false),
+    is_modification_state_monitored(true) { }
 
     bool is_modified;
     bool is_exportable;
+    bool is_modification_state_monitored;
     ActivityPolicyFilter::ActivityPolicy            activity_policy;
     ActivityPolicyFilter::MinimumActivityPolicy     minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy  new_subject_activity_policy;
@@ -525,6 +526,14 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     setModificationState(true);
 }
 
+void Qtilities::Core::ActivityPolicyFilter::setIsModificationStateMonitored(bool is_monitored) {
+    d->is_modification_state_monitored = is_monitored;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::isModificationStateMonitored() const {
+    return d->is_modification_state_monitored;
+}
+
 void Qtilities::Core::ActivityPolicyFilter::setIsExportable(bool is_exportable) {
     d->is_exportable = is_exportable;
 }
@@ -629,6 +638,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     stream << (quint32) d->minimum_activity_policy;
     stream << (quint32) d->new_subject_activity_policy;
     stream << (quint32) d->parent_tracking_policy;
+    stream << (quint32) d->is_modification_state_monitored;
 
     return IExportable::Complete;
 }
@@ -646,6 +656,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     d->new_subject_activity_policy = (NewSubjectActivityPolicy) ui32;
     stream >> ui32;
     d->parent_tracking_policy = (ParentTrackingPolicy) ui32;
+    stream >> ui32;
+    d->is_modification_state_monitored = ui32;
 
     return IExportable::Complete;
 }
@@ -659,6 +671,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     filter_data.setAttribute("MinimumActivityPolicy",minimumActivityPolicyToString(d->minimum_activity_policy));
     filter_data.setAttribute("NewSubjectActivityPolicy",newSubjectActivityPolicyToString(d->new_subject_activity_policy));
     filter_data.setAttribute("ParentTrackingPolicy",parentTrackingPolicyToString(d->parent_tracking_policy));
+    if (!d->is_modification_state_monitored)
+        filter_data.setAttribute("IsModificationStateMonitored","false");
     return IExportable::Complete;
 }
 
@@ -687,6 +701,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
                 d->new_subject_activity_policy = stringToNewSubjectActivityPolicy(child.attribute("NewSubjectActivityPolicy"));
             if (child.hasAttribute("ParentTrackingPolicy"))
                 d->parent_tracking_policy = stringToParentTrackingPolicy(child.attribute("ParentTrackingPolicy"));
+            if (child.hasAttribute("IsModificationStateMonitored")) {
+                if (child.attribute("IsModificationStateMonitored") == "true")
+                    d->is_modification_state_monitored = true;
+                else
+                    d->is_modification_state_monitored = false;
+            }
             result = IExportable::Complete;
             continue;
         }

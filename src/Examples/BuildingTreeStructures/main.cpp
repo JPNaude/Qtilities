@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     // Categorized Tree
     // ------------------------------------
     TreeNode* rootNode = new TreeNode("Root");
-    rootNode->setCategorizedDisplayEnabled(true);
+    rootNode->enableCategorizedDisplay();
     rootNode->addItem("Child 1",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 3");

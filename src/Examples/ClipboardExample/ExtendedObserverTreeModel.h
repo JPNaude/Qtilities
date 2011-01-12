@@ -53,7 +53,7 @@ namespace Qtilities {
 
               This example will add additional columns.
             */
-            class ExtendedObserverTreeModel : public AbstractObserverTreeModel
+            class ExtendedObserverTreeModel : public ObserverTreeModel
             {
                 Q_OBJECT
 

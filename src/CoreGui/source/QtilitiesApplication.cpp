@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -161,7 +161,7 @@ bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent *
     return false;
 }
 
-void Qtilities::CoreGui::QtilitiesApplication::aboutQtilities() {
+QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
     AboutWindow* about_window = new AboutWindow();
     about_window->setWebsite("http://www.qtilities.org");
     about_window->setAttribute(Qt::WA_DeleteOnClose);
@@ -169,6 +169,8 @@ void Qtilities::CoreGui::QtilitiesApplication::aboutQtilities() {
     about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion());
 
     about_window->setWindowTitle(tr("About Qtilities"));
-    about_window->show();
+    if (show)
+        about_window->show();
+    return about_window;
 }
 

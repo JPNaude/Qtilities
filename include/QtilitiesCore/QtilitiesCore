@@ -29,6 +29,8 @@
 #include "QtilitiesCategory.h"
 #include "IExportableFormatting.h"
 #include "ObserverDotGraph.h"
+#include "FileUtils.h"
+#include "QtilitiesFileInfo.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 

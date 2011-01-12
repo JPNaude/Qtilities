@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -38,6 +38,7 @@
 #include "IMode.h"
 #include "ModeManager.h"
 
+#include <QResizeEvent>
 #include <QMainWindow>
 #include <Logger>
 

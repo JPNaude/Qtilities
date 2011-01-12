@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -77,6 +77,7 @@ namespace Qtilities {
                     QWidget* modeWidget();
                     void initializeMode() {}
                     QIcon modeIcon() const;
+                    bool setModeIcon(QIcon icon);
                     QString modeName() const;
                     QString contextString() const { return CONTEXT_SESSION_LOG_MODE; }
 

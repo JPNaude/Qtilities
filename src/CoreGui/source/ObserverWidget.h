@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -38,8 +38,8 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "IActionProvider.h"
 #include "ObjectPropertyBrowser.h"
-#include "AbstractObserverTableModel.h"
-#include "AbstractObserverTreeModel.h"
+#include "ObserverTableModel.h"
+#include "ObserverTreeModel.h"
 #include "SearchBoxWidget.h"
 
 #include <Observer.h>
@@ -154,7 +154,7 @@ categorized_widget->show();
 
               \returns True if the model was successfully set.
               */
-            bool setCustomTableModel(AbstractObserverTableModel* table_model);
+            bool setCustomTableModel(ObserverTableModel* table_model);
             //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModel as the model for the tree view.
@@ -164,7 +164,7 @@ categorized_widget->show();
 
               \returns True if the model was successfully set.
               */
-            bool setCustomTreeModel(AbstractObserverTreeModel* tree_model);
+            bool setCustomTreeModel(ObserverTreeModel* tree_model);
             //! Sets the display mode of the widget.
             /*!
               \sa displayMode(), toggleDisplayMode()
@@ -223,6 +223,7 @@ categorized_widget->show();
               - The default table view row size (Only in TableView mode). \sa defaultRowHeight()
               - The display mode. \sa DisplayMode
               - If delete operations must be confirmed. \sa confirmDeletes()
+              - If automatic column resizing is enabled. \sa enableAutoColumnResizing()
 
               \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
               for an ObserverWidget, don't read it when the widget is created.
@@ -346,6 +347,19 @@ categorized_widget->show();
               \note This reference is only valid in TreeView mode.
               */
             QTreeView* treeView();
+            //! Enables automatic column resizing in the displayed table or tree view, depending on the displayMode().
+            /*!
+              True by default which will cause the view's columns to be resized to their contents and the name column to be streched. If you
+              would like to do this manually, for example if you want to stretch a custom column, you should disable this.
+
+              \sa disableAutoColumnResizing()
+              */
+            void enableAutoColumnResizing();
+            //! Disables automatic column resizing in the displayed table or tree view, depending on the displayMode().
+            /*!
+              \sa enableAutoColumnResizing()
+              */
+            void disableAutoColumnResizing();
         private slots:
             //! Updates the current selection parent context.
             /*!
@@ -450,25 +464,25 @@ categorized_widget->show();
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionDetach();
+            virtual void selectionDetach();
             //! Detaches all subjects from the current selection parent.
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged()
               */
-            void selectionDetachAll();
+            virtual void selectionDetachAll();
             //! Deletes the current selected items.
             /*!
 
               \sa selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
-            void selectionDelete();
+            virtual void selectionDelete();
             //! Deletes all subjects under the current selection parent or in the selected context.
             /*!
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
-            void selectionDeleteAll();
+            virtual void selectionDeleteAll();
             //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
-            void handle_actionNewItem_triggered();
+            virtual void handle_actionNewItem_triggered();
             //! Refreshes the current item view.
             /*!
               This function will emit the refreshViewsData() signal on the top level observer context.
@@ -478,51 +492,51 @@ categorized_widget->show();
 
               \sa topLevelObserverID(), addActionNewItem_triggered(), refreshActions();
               */
-            void refresh();
+            virtual void refresh();
             //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent.
             /*!
               \sa selectionParent(), selectionPushUpNew()
               */
-            void selectionPushUp();
+            virtual void selectionPushUp();
             //! In TableView mode this function can be used to push up to (set the observer context of the widget) to the current selection parent in a new ObserverWidget.
             /*!
               \sa selectionParent(), selectionPushUp()
               */
-            void selectionPushUpNew();
+            virtual void selectionPushUpNew();
             //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer.
             /*!
               This function only does something if an observer or an object which contains an observer is selected.
 
               \sa selectionParent(), selectionPushDownNew()
               */
-            void selectionPushDown();
+            virtual void selectionPushDown();
             //! In TableView mode this function can be used to push down into (set the observer context of the widget) to the current selected observer in a new ObserverWidget.
             /*!
               This function only does something if an observer or an object which contains an observer is selected.
 
               \sa selectionParent(), selectionPushDown()
               */
-            void selectionPushDownNew();
+            virtual void selectionPushDownNew();
             //! Toggles the display mode of the ObserverWidget.
             /*!
               \sa setDisplayMode(), displayMode()
               */
-            void toggleDisplayMode();
+            virtual void toggleDisplayMode();
             //! Function to copy the current selection to the application clipboard.
-            void selectionCopy();
+            virtual void selectionCopy();
             //! Function to cut the current selection to the application clipboard.
-            void selectionCut();
+            virtual void selectionCut();
             //! Function which is connected to the Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action if it exists.
             /*!
               When initializing the %Qtilities clipboard manager the paste action will be created automatically.
               */
-            void handle_actionPaste_triggered();
+            virtual void handle_actionPaste_triggered();
             //! Toggles the visibility of the SearchBoxWidget at the bottom of the ObserverWidget.
             void toggleSearchBox();
             //! Collapse all items in the tree view to a depth of 1 in TreeView mode.
-            void viewCollapseAll();
+            virtual void viewCollapseAll();
             //! Expand all items in the tree view in TreeView mode.
-            void viewExpandAll();
+            virtual void viewExpandAll();
             //! Handles search options changes in the SearchBoxWidget if present.
             void handleSearchOptionsChanged();
             //! Handles search string changes in the SearchBoxWidget if present.

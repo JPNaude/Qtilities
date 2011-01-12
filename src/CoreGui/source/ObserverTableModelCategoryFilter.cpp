@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -32,7 +32,7 @@
 ****************************************************************************/
 
 #include "ObserverTableModelCategoryFilter.h"
-#include "AbstractObserverTableModel.h"
+#include "ObserverTableModel.h"
 #include "QtilitiesCoreGuiConstants.h"
 
 #include <Observer.h>
@@ -52,7 +52,7 @@ Qtilities::CoreGui::ObserverTableModelCategoryFilter::~ObserverTableModelCategor
 }
 
 bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
-    AbstractObserverTableModel* table_model = dynamic_cast<AbstractObserverTableModel*> (sourceModel());
+    ObserverTableModel* table_model = dynamic_cast<ObserverTableModel*> (sourceModel());
 
     if (table_model) {
         QModelIndex name_index = sourceModel()->index(sourceRow, table_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);

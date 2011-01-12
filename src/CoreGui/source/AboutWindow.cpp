@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2011, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -63,6 +63,8 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     // Put the widget in the center of the screen
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
+
+    setAttribute(Qt::WA_QuitOnClose,false);
 
     // By default the logo is visible:
     setLogoVisible(true);
