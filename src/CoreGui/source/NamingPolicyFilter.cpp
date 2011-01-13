@@ -215,7 +215,7 @@ Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::
             if (rejectMsg)
                 *rejectMsg = QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName());
             LOG_INFO(QString(tr("Naming Policy Filter: Subject name \"%1\" is not valid in this context. The validity resolution policy of this filter is set to PromptUser and a silent attachement was requested. Thus the attachment will be rejected.")).arg(obj->objectName()));
-            LOG_ERROR_P(tr("Attachment now allowed since it will result in duplicate entries."));
+            LOG_ERROR_P(tr("Attachment now allowed since empty subject names are not valid in this context."));
             return AbstractSubjectFilter::Rejected;
         } else
             return AbstractSubjectFilter::Conditional;
