@@ -211,7 +211,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
                 d->priority_messages_icon.setPixmap(QIcon(ICON_SUCCESS_12x12).pixmap(12));
             else
                 d->priority_messages_icon.setPixmap(QIcon(ICON_INFO_12x12).pixmap(12));
-            d->priority_messages_icon.setVisible(false);
+            d->priority_messages_icon.setVisible(true);
         }
 
         d->priority_messages_text.setText(message);
