@@ -76,6 +76,11 @@ Improvements & Notable Changes:
 - QtilitiesApplication::initialize() important doc update and QtilitiesApplication::aboutQtilities() changed so that it returns the constructed about window.
 - ObserverWidget does not allow selections with categories to be deleted anymore. This cause unpredictable results in previous versions.
 - Fixed crash in NamingPolicyFilter::setValidator() if the filter did not have an observer context.
+- NamingPolicyFilter: made generateValidName() and setConflictingObject() public.
+- New information icon.
+- QtilitiesMainWindow now uses scaled down icons (12x12) for priority messages which does not cause the status bar to change height anymore.
+- QtilitiesMainWindow now shows a success icon for messages starting with "Successfully" or any translation of it.
+- Changed project management plugin's default shortcuts to use Ctrl rather than Alt.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -105,6 +110,7 @@ Bug Fixes:
 - Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
 - Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
 - Fixed crash in AbstractTreeItem::setName() when it had no parent.
+- Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
 
 Outstanding roadmap items for this version:
 - Property editor must refresh when properties changes..
@@ -138,6 +144,7 @@ Outstanding roadmap items for this version:
 - Must update images in ObjectManagement and MainWindow examples.
 - Regression in observer widget: Toolbars with no items must not be displayed.
 - Make sure all observer models' helper related stuff is removed everywhere (docs etc.).
+- Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
 
 v0.2
 ====
