@@ -89,7 +89,6 @@ Qtilities::Core::Observer::~Observer() {
     startProcessingCycle();
 
     if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
-        //startProcessingCycle();
         observerData->deliver_qtilities_property_changed_events = false;
 
         // When this observer is deleted, we must check the ownership of all its subjects
@@ -336,6 +335,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     LOG_TRACE(tr("Binary import of observer ") + observerName() + tr(" section started."));
+    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
 
     // We define a succesfull operation as an import which is able to import all subjects.
@@ -346,20 +346,23 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR(tr("Observer binary import failed to detect marker located after factory data. Import will fail."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
     // Stream the observerData class, this DOES NOT include the subjects itself, only the subject count.
     // This is neccessary because we want to keep track of the return values for subject IExportable interfaces.
     if (observerData->importBinary(stream,import_list,params) == IExportable::Failed) {
         LOG_ERROR(tr("Observer binary import failed during ObserverData import. Import will fail."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR(tr("Observer binary import failed to detect marker located after ObserverData. Import will fail."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -372,7 +375,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         // Get the factory data of the subject filter:
         InstanceFactoryInfo instanceFactoryInfo;
         if (!instanceFactoryInfo.importBinary(stream)) {
-            endProcessingCycle();
+            if (!has_active_processing_cycle)
+                endProcessingCycle();
             return IExportable::Failed;
         } else {
             AbstractSubjectFilter* new_filter = qobject_cast<AbstractSubjectFilter*> (OBJECT_MANAGER->createInstance(instanceFactoryInfo));
@@ -383,7 +387,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                 installSubjectFilter(new_filter);
             } else {
                 LOG_ERROR(QString(tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue...")).arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name));
-                endProcessingCycle();
+                if (!has_active_processing_cycle)
+                    endProcessingCycle();
                 return IExportable::Failed;
             }
         }
@@ -392,7 +397,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR(tr("Observer binary import failed to detect marker located after subject filters. Import will fail."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -409,7 +415,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
 
         InstanceFactoryInfo instanceFactoryInfo;
         if (!instanceFactoryInfo.importBinary(stream)) {
-            endProcessingCycle();
+            if (!has_active_processing_cycle)
+                endProcessingCycle();
             return IExportable::Failed;
         }
         if (instanceFactoryInfo.isValid()) {
@@ -445,7 +452,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     break;
                 }
             } else {
-                endProcessingCycle();
+                if (!has_active_processing_cycle)
+                    endProcessingCycle();
                 return IExportable::Failed;
             }
         }
@@ -453,17 +461,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_SECTION) {
         LOG_ERROR("Observer binary import failed to detect end marker. Import will fail.");
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
 
     if (success) {
         LOG_DEBUG(tr("Binary import of observer ") + observerName() + tr(" section was successfull."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Complete;
     } else {
         LOG_WARNING(tr("Binary import of observer ") + observerName() + tr(" section failed."));
-        endProcessingCycle();
+        if (!has_active_processing_cycle)
+            endProcessingCycle();
         return IExportable::Failed;
     }
 }
@@ -586,6 +597,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(params)
 
+    bool has_active_processing_cycle = isProcessingCycleActive();
+    startProcessingCycle();
     IExportable::Result result = IExportable::Complete;
 
     // All children underneath the root element gets constructed in here:
@@ -729,6 +742,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                     }                                    
                                 } else {
                                     LOG_WARNING(QString(tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(objectName()));
+                                    if (!has_active_processing_cycle)
+                                        endProcessingCycle();
                                     return IExportable::Failed;
                                 }
                             }
@@ -757,6 +772,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
     }
 
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
+
+    refreshViewsLayout();
     return result;
 }
 
@@ -1115,12 +1134,14 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
 QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QObject*> success_list;
+    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
         if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
             success_list << objects.at(i);
     }
-    endProcessingCycle();
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
         emit layoutChanged();
@@ -1131,12 +1152,14 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> object
 
 QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QObject*> success_list;
+    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
         if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle))
             success_list << mime_data_object->subjectList().at(i);
     }
-    endProcessingCycle();
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectAdded, success_list);
         emit layoutChanged();
@@ -1400,12 +1423,14 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
 
 QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects) {
     QList<QObject*> success_list;
+    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
         if (detachSubject(objects.at(i)))
             success_list << objects.at(i);
     }
-    endProcessingCycle();
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
         emit numberOfSubjectsChanged(SubjectRemoved, success_list);
@@ -1484,6 +1509,7 @@ void Qtilities::Core::Observer::deleteAll() {
     if (total == 0)
         return;
 
+    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
         // Validate operation against access mode if access mode scope is category:
@@ -1493,7 +1519,8 @@ void Qtilities::Core::Observer::deleteAll() {
             delete observerData->subject_list.at(0);
         }
     }
-    endProcessingCycle();
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
     emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
     emit layoutChanged();
     setModificationState(true);
