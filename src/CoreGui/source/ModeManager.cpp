@@ -118,6 +118,9 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
         if (initialize_mode)
             mode->initializeMode();
 
+        // Set the object name of the mode:
+        mode->objectBase()->setObjectName(mode->modeName());
+
         if (!mode->contextString().isEmpty())
             CONTEXT_MANAGER->registerContext(mode->contextString());
 
