@@ -80,9 +80,12 @@ namespace Qtilities {
     History:<br>
     No version defined - %Qtilities v0.1 Beta 1<br>
     1 - %Qtilities v0.1<br>
-    2 - %Qtilities v0.2 onwards<br>
+    2 - %Qtilities v0.2<br>
+    3 - %Qtilities v0.3 onwards<br>
+        - The logger binary export now includes the name of the engine. This fixes the bug where engine specific properties could not be restored properly.
+        - The export now contains the message contexts of each engine.
     */
-    #define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 2
+    #define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 3
 
     //! The %Qtilities XML export format.
     /*!
