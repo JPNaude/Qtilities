@@ -162,7 +162,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
             #if defined(Q_OS_UNIX)
                 // Filter .so.x plugins on linux:
-                if (file_info.completeSuffix().split(".").count() > 1 && file_info.completeSuffix().startsWith(".so"))
+                if (file_info.completeSuffix().split(".").count() > 1 && file_info.completeSuffix().startsWith("so"))
                     continue;
             #endif
 
