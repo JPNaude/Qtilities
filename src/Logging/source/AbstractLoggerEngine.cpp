@@ -62,15 +62,12 @@ void Qtilities::Logging::AbstractLoggerEngine::setActive(bool is_active) {
     if (is_active == abstractLoggerEngineData->is_enabled)
         return;
 
-    /*QList<QVariant> message;
-    if (is_active) {
-        message << QString(tr("Engine is now active."));
-    } else {
-        message << QString(tr("Engine is now inactive."));
-    }
-    QString formatted_message = abstractLoggerEngineData->formatting_engine->formatMessage(Logger::Info,message);
-    logMessage(formatted_message);*/
     abstractLoggerEngineData->is_enabled = is_active;
+}
+
+void Qtilities::Logging::AbstractLoggerEngine::setName(const QString& name) {
+    setObjectName(name);
+    abstractLoggerEngineData->engine_name = name;
 }
 
 void Qtilities::Logging::AbstractLoggerEngine::setEnabledMessageTypes(Logger::MessageTypeFlags message_types) {
@@ -116,8 +113,12 @@ QString Qtilities::Logging::AbstractLoggerEngine::formattingEngineName() {
         return tr("None");
 }
 
-void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine_name, Logger::MessageType message_type, const QList<QVariant>& messages) {
-    if ((engine_name != QString("All")) && (engine_name != objectName()))
+void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine_name, Logger::MessageType message_type, Logger::MessageContextFlags message_context, const QList<QVariant>& messages) {
+    if ((engine_name != QString("All")) && (engine_name != name()))
+        return;
+
+    // Check the message context:
+    if (!(abstractLoggerEngineData->message_contexts & message_context))
         return;
 
     // Check if active

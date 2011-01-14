@@ -192,7 +192,14 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
     if (!msg8.isNull()) message_contents.push_back(msg8);
     if (!msg9.isNull()) message_contents.push_back(msg9);
 
-    emit newMessage(engine_name,message_type,message_contents);
+    // Create the correct message context:
+    MessageContextFlags context = 0;
+    if (engine_name == "All")
+        context |= SystemWideMessages;
+    else
+        context |= EngineSpecificMessages;
+
+    emit newMessage(engine_name,message_type,context,message_contents);
 }
 
 void Qtilities::Logging::Logger::logPriorityMessage(const QString& engine_name, MessageType message_type, const QVariant& message, const QVariant &msg1, const QVariant &msg2, const QVariant &msg3, const QVariant &msg4, const QVariant &msg5, const QVariant &msg6, const QVariant &msg7, const QVariant &msg8 , const QVariant &msg9) {
@@ -220,7 +227,11 @@ void Qtilities::Logging::Logger::logPriorityMessage(const QString& engine_name, 
     if (!msg8.isNull()) message_contents.push_back(msg8);
     if (!msg9.isNull()) message_contents.push_back(msg9);
 
-    emit newMessage(engine_name,message_type,message_contents);
+    // Create the correct message context:
+    MessageContextFlags context = 0;
+    context |= PriorityMessages;
+
+    emit newMessage(engine_name,message_type,context,message_contents);
 
     QString formatted_message;
     if (d->priority_formatting_engine) {
@@ -278,11 +289,23 @@ Qtilities::Logging::AbstractFormattingEngine* Qtilities::Logging::Logger::format
     return d->formatting_engines.at(index);
 }
 
-// Functions related to logger engine factories
-Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newLoggerEngine(const QString& tag, AbstractFormattingEngine* formatting_engine) {
-    // If an invalid tag is specified, an assertion will be triggered from within the factory itself.
+Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newLoggerEngine(QString tag, AbstractFormattingEngine* formatting_engine) {
+    // Check that the name is unique:
+    QString engine_name = tag;
+    int count = 0;
+    engine_name.append(QString("_%1").arg(count));
+    while (attachedLoggerEngineNames().contains(engine_name)) {
+        QString count_string = QString("%1").arg(count);
+        engine_name.chop(count_string.length());
+        ++count;
+        engine_name.append(QString("%1").arg(count));
+    }
+
     AbstractLoggerEngine* new_engine = d->logger_engine_factory.createInstance(tag);
-    new_engine->setObjectName(tag);
+    if (new_engine)
+        new_engine->setName(engine_name);
+    else
+        return false;
 
     // Install a formatting engine for the new logger engine
     if (formatting_engine)
@@ -308,6 +331,15 @@ QString Qtilities::Logging::Logger::defaultFormattingEngine() const {
 }
 
 bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_logger_engine, bool initialize_engine) {
+    if (!new_logger_engine)
+        return false;
+
+    // Check that the name is unique:
+    if (attachedLoggerEngineNames().contains(new_logger_engine->name())) {
+        qDebug() << QObject::tr("Attempting to attach logger engines with duplicate names, this is not allowed. Name: ") << new_logger_engine->name();
+        return false;
+    }
+
     if (initialize_engine) {
         bool init_result = new_logger_engine->initialize();
         if (!init_result) {
@@ -320,7 +352,7 @@ bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_lo
 
     if (new_logger_engine) {
         d->logger_engines << new_logger_engine;
-        connect(this,SIGNAL(newMessage(QString,Logger::MessageType,QList<QVariant>)),new_logger_engine,SLOT(newMessages(QString,Logger::MessageType,QList<QVariant>)));
+        connect(this,SIGNAL(newMessage(QString,Logger::MessageType,Logger::MessageContextFlags,QList<QVariant>)),new_logger_engine,SLOT(newMessages(QString,Logger::MessageType,Logger::MessageContextFlags,QList<QVariant>)));
     }
 
     emit loggerEngineCountChanged(new_logger_engine, EngineAdded);
@@ -393,6 +425,45 @@ QStringList Qtilities::Logging::Logger::allLogLevelStrings() const {
         strings << "Trace";
     #endif
     strings << "All Log Levels";
+    return strings;
+}
+
+QString Qtilities::Logging::Logger::messageContextsToString(Logger::MessageContextFlags message_contexts) const {
+    QString context_string;
+    if (message_contexts & SystemWideMessages)
+        context_string.append("System,");
+    if (message_contexts & PriorityMessages)
+        context_string.append("Priority,");
+    if (message_contexts & EngineSpecificMessages)
+        context_string.append("Engine");
+
+    if (context_string.isEmpty())
+        context_string.append("None");
+
+    if (context_string.endsWith(","))
+        context_string.remove(context_string.length()-1,1);
+
+    return context_string;
+}
+
+Qtilities::Logging::Logger::MessageContextFlags Qtilities::Logging::Logger::stringToMessageContexts(const QString& message_contexts_string) const {
+    MessageContextFlags flags = 0;
+    if (message_contexts_string.contains("System"))
+        flags |= SystemWideMessages;
+    if (message_contexts_string.contains("Priority"))
+        flags |= PriorityMessages;
+    if (message_contexts_string.contains("Engine"))
+        flags |= EngineSpecificMessages;
+
+    return flags;
+}
+
+QStringList Qtilities::Logging::Logger::allMessageContextStrings() const {
+    QStringList strings;
+    strings << "None";
+    strings << "System";
+    strings << "Priority";
+    strings << "Engine";
     return strings;
 }
 
@@ -602,13 +673,19 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 // ------------------------------------
 // Convenience functions provided to create new engines
 // ------------------------------------
-bool Qtilities::Logging::Logger::newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine) {
+Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine) {
     if (file_name.isEmpty())
-        return false;
+        return 0;
+
+    // Check that the name is unique:
+    if (attachedLoggerEngineNames().contains(engine_name)) {
+        qDebug() << QObject::tr("Attempting to attach logger engines with duplicate names, this is not allowed. Name: ") << engine_name;
+        return 0;
+    }
 
     FileLoggerEngine* file_engine;
     AbstractLoggerEngine* new_engine = d->logger_engine_factory.createInstance("File");
-    new_engine->setObjectName(engine_name);
+    new_engine->setName("File: " + engine_name);
 
     file_engine = qobject_cast<FileLoggerEngine*> (new_engine);
     file_engine->setFileName(file_name);
@@ -618,7 +695,7 @@ bool Qtilities::Logging::Logger::newFileEngine(const QString& engine_name, const
         AbstractFormattingEngine* formatting_engine_inst = formattingEngineReference(formatting_engine);
         if (!formatting_engine_inst) {
             delete new_engine;
-            return false;
+            return 0;
         }
         new_engine->installFormattingEngine(formatting_engine_inst);
     } else {
@@ -628,16 +705,16 @@ bool Qtilities::Logging::Logger::newFileEngine(const QString& engine_name, const
         AbstractFormattingEngine* formatting_engine_inst = formattingEngineReferenceFromExtension(extension);
         if (!formatting_engine_inst) {
             delete new_engine;
-            return false;
+            return 0;
         }
         new_engine->installFormattingEngine(formatting_engine_inst);
     }
 
     if (attachLoggerEngine(new_engine, true)) {
-        return true;
+        return new_engine;
     } else {
         delete new_engine;
-        return false;
+        return 0;
     }
 }
 
@@ -659,13 +736,17 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
 
     LOG_DEBUG(tr("Logging configuration export started to ") + file_name);
 
+    QFileInfo fi(file_name);
+    if (!fi.dir().exists())
+        fi.dir().mkpath(fi.path());
+
     // Check if the directory exists:
     QFile file(file_name);
     if (!file.open(QIODevice::ReadWrite)) {
         LOG_DEBUG(tr("Logging configuration export failed to ") + file_name + tr(". The file could not be opened."));
         return false;
     }
-    QDataStream stream(&file);   // we will serialize the data into the file
+    QDataStream stream(&file);
     stream << (quint32) QTILITIES_LOGGER_BINARY_EXPORT_FORMAT;
 
     // Stream exportable engines:
@@ -674,7 +755,7 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
         if (d->logger_engines.at(i)) {
             ILoggerExportable* log_export_iface = qobject_cast<ILoggerExportable*> (d->logger_engines.at(i));
             if (log_export_iface)
-                export_list.append(log_export_iface);
+                export_list << log_export_iface;
         }
     }
 
@@ -685,22 +766,26 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
     bool success = true;
     for (int i = 0; i < export_list.count(); i++) {
         if (success) {
-            LOG_DEBUG(tr("Exporting factory instance: ") + export_list.at(i)->factoryTag());
+            LOG_DEBUG(tr("Exporting logger factory instance: ") + export_list.at(i)->factoryTag());
             stream << export_list.at(i)->factoryTag();
+            stream << export_list.at(i)->instanceName();
             success = export_list.at(i)->exportBinary(stream);
         } else
             break;
     }
+
+    stream << MARKER_LOGGER_CONFIG_TAG;
 
     // Stream activity and formatting engines of all current engines:
     if (success) {
         stream << (quint32) d->logger_engines.count();
         for (int i = 0; i < d->logger_engines.count(); i++) {
             if (d->logger_engines.at(i)) {
-                LOG_DEBUG(tr("Saving properties for engine: ") + d->logger_engines.at(i)->name());
+                LOG_DEBUG(tr("Saving configuration for logger engine: ") + d->logger_engines.at(i)->name());
                 stream << d->logger_engines.at(i)->name();
                 stream << d->logger_engines.at(i)->formattingEngineName();
                 stream << d->logger_engines.at(i)->isActive();
+                stream << (quint32) d->logger_engines.at(i)->messageContexts();
             }
         }
     }
@@ -725,7 +810,7 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     LOG_DEBUG(tr("Logging configuration import started from ") + file_name);
     QFile file(file_name);
     file.open(QIODevice::ReadOnly);
-    QDataStream stream(&file);   // we will serialize the data into the file
+    QDataStream stream(&file);
 
     quint32 ui32;
     stream >> ui32;
@@ -757,19 +842,30 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
 
         QString tag;
         stream >> tag;
-        LOG_DEBUG(tr("Create factory instance: ") + tag);
-        AbstractLoggerEngine* engine = d->logger_engine_factory.createInstance(tag);
+        LOG_DEBUG(tr("Creating logger factory instance with tag: ") + tag);
+        AbstractLoggerEngine* engine = d->logger_engine_factory.createInstance(tag);      
         if (engine) {
+            QString name;
+            stream >> name;
+            engine->setName(name);
             ILoggerExportable* log_export_iface = qobject_cast<ILoggerExportable*> (engine);
             if (log_export_iface) {
                 log_export_iface->importBinary(stream);
                 engine_list.append(engine);
             } else {
+                LOG_WARNING(tr("Logger engine could not be constructed for factory tag: ") + tag);
                 success = false;
             }
         } else {
             success = false;
         }
+    }
+
+    stream >> ui32;
+    if (ui32 != MARKER_LOGGER_CONFIG_TAG) {
+        file.close();
+        LOG_INFO(tr("Logging configuration import failed from ") + file_name + tr(". The file contains invalid data or does not exist."));
+        return false;
     }
 
     // Now attach all created engines to the logger, or delete them if neccesarry:
@@ -797,12 +893,14 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     }
 
     // Restore activity and formatting engines of all logger engines:
+    bool complete = true;
     if (success) {
         stream >> import_count;
         int import_count_int = import_count;
         QString current_name;
         QString current_engine;
         bool is_active;
+        MessageContextFlags message_context_flags;
         for (int i = 0; i < import_count_int; i++) {
             if (!success)
                 break;
@@ -810,13 +908,20 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
             stream >> current_name;
             stream >> current_engine;
             stream >> is_active;
+            quint32 context_int;
+            stream >> context_int;
+            message_context_flags = (MessageContextFlags) context_int;
 
             // Now check if the engine with the name is present, if so we set it's properties:
             AbstractLoggerEngine* engine = loggerEngineReference(current_name);
             if (engine) {
-                LOG_DEBUG(tr("Restoring properties for engine: ") + current_name);
+                LOG_DEBUG(tr("Restoring configuration for logger engine: ") + current_name);
                 engine->installFormattingEngine(formattingEngineReference(current_engine));
                 engine->setActive(is_active);
+                engine->setMessageContexts(message_context_flags);
+            } else {
+                LOG_DEBUG(tr("Found logger engine configuration for an engine which does not exist yet with name: ") + current_name);
+                complete = false;
             }
         }
     }
@@ -825,7 +930,10 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     if (success) {
         file.close();
         setGlobalLogLevel((Logger::MessageType) global_log_level);
-        LOG_INFO(tr("Logging configuration successfully imported from ") + file_name);
+        if (complete)
+            LOG_INFO(tr("Logging configuration successfully (complete) imported from ") + file_name);
+        else
+            LOG_WARNING(tr("Logging configuration successfully (incomplete) imported from ") + file_name);
         return true;
     } else {
         file.close();

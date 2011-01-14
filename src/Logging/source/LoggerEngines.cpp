@@ -59,6 +59,7 @@ Qtilities::Logging::FileLoggerEngine::FileLoggerEngine() : AbstractLoggerEngine(
 {
     file_name = QString();
     abstractLoggerEngineData->formatting_engine = 0;
+    setName(QObject::tr("File Logger Engine"));
 }
 
 Qtilities::Logging::FileLoggerEngine::~FileLoggerEngine()
@@ -107,9 +108,15 @@ void Qtilities::Logging::FileLoggerEngine::finalize() {
             return;
 
         QTextStream out(&file);
-        out << abstractLoggerEngineData->formatting_engine->finalizeString() << "\n";
+        if (abstractLoggerEngineData->formatting_engine)
+            out << abstractLoggerEngineData->formatting_engine->finalizeString();
+        out << "\n";
         file.close();
     }
+}
+
+QString Qtilities::Logging::FileLoggerEngine::description() const {
+    return QObject::tr("Writes log messages to a file.");
 }
 
 QString Qtilities::Logging::FileLoggerEngine::status() const {
@@ -186,7 +193,7 @@ Qtilities::Logging::QtMsgLoggerEngine* Qtilities::Logging::QtMsgLoggerEngine::in
 
 Qtilities::Logging::QtMsgLoggerEngine::QtMsgLoggerEngine() : AbstractLoggerEngine()
 {
-
+    setName(QObject::tr("Qt Message Logger Engine"));
 }
 
 Qtilities::Logging::QtMsgLoggerEngine::~QtMsgLoggerEngine()
@@ -200,6 +207,10 @@ bool Qtilities::Logging::QtMsgLoggerEngine::initialize() {
 
 void Qtilities::Logging::QtMsgLoggerEngine::finalize() {
     abstractLoggerEngineData->is_initialized = false;
+}
+
+QString Qtilities::Logging::QtMsgLoggerEngine::description() const {
+    return QObject::tr("Writes log messages to the Qt message system..");
 }
 
 QString Qtilities::Logging::QtMsgLoggerEngine::status() const {
@@ -240,7 +251,7 @@ Qtilities::Logging::ConsoleLoggerEngine* Qtilities::Logging::ConsoleLoggerEngine
 }
 
 Qtilities::Logging::ConsoleLoggerEngine::ConsoleLoggerEngine() : AbstractLoggerEngine() {
-
+    setName(QObject::tr("Console Logger Engine"));
 }
 
 Qtilities::Logging::ConsoleLoggerEngine::~ConsoleLoggerEngine() {
@@ -254,6 +265,10 @@ bool Qtilities::Logging::ConsoleLoggerEngine::initialize() {
 
 void Qtilities::Logging::ConsoleLoggerEngine::finalize() {
     abstractLoggerEngineData->is_initialized = false;
+}
+
+QString Qtilities::Logging::ConsoleLoggerEngine::description() const {
+    return QObject::tr("Writes log messages to the console.");
 }
 
 QString Qtilities::Logging::ConsoleLoggerEngine::status() const {

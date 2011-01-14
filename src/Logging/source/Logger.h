@@ -51,9 +51,7 @@ namespace Qtilities {
 
         /*!
         \class Logger
-        \brief The Logger class is a singleton which manages logging in Qt application.
-
-        The Logger class provides logging functionality to any Qt application.
+        \brief The Logger class provides logging functionality to any Qt application.
 
         See the \ref page_logging article for more information on how to use the logger.
           */
@@ -84,11 +82,28 @@ namespace Qtilities {
             void clear();        
 
         public:
+            //! The possible message contexts used by the logger.
+            /*!
+              Logger engines will use the AllMessageContexts context by default.
+              */
+            enum MessageContext {
+                NoMessageContext        = 0,    /*!< No messages are accepted. */
+                SystemWideMessages      = 1,    /*!< All system wide messages logged through the normal log marcos, for example LOG_INFO. Thus messages logged to all logger engines. */
+                EngineSpecificMessages  = 2,    /*!< Messages logged to specific engines through the engine specific marcos, for example LOG_INFO_E. */
+                PriorityMessages        = 4,    /*!< Messages logged to as priority messages through the priority marcos, for example LOG_INFO_P. */
+                AllMessageContexts      = SystemWideMessages | EngineSpecificMessages | PriorityMessages /*!< Represents all message contexts. */
+            };
+            Q_DECLARE_FLAGS(MessageContextFlags, MessageContext);
+            Q_FLAGS(MessageContextFlags);
+            Q_ENUMS(MessageContext);
+
             //! Indication used to indicate if an engine was added or removed to/from the logger.
             enum EngineChangeIndication {
                 EngineAdded,        /*!< Engine was added to the logger. */
                 EngineRemoved       /*!< Engine was removed from the logger. */
             };
+            Q_ENUMS(EngineChangeIndication);
+
             //! The possible message types supported by the logger.
             /*!
               \sa setGlobalLogLevel(), globalLogLevel()
@@ -209,6 +224,12 @@ namespace Qtilities {
             Logger::MessageType stringToLogLevel(const QString& log_level_string) const;
             //! Function which returns all available log level strings.
             QStringList allLogLevelStrings() const;
+            //! Function which returns a string associated with set of message contexts.
+            QString messageContextsToString(Logger::MessageContextFlags message_contexts) const;
+            //! Function which returns the message contexts associated with an input string.
+            Logger::MessageContextFlags stringToMessageContexts(const QString& message_contexts_string) const;
+            //! Function which returns all available message contexts in a QStringList.
+            QStringList allMessageContextStrings() const;
 
             // -----------------------------------------
             // Functions related to updating of QSettings
@@ -264,7 +285,7 @@ namespace Qtilities {
             //! Returns a reference to the logger engine at a specific position.
             AbstractLoggerEngine* loggerEngineReferenceAt(int index);
             //! Creates a new logger with the parameters specified.
-            AbstractLoggerEngine* newLoggerEngine(const QString& engine_tag, AbstractFormattingEngine* formatting_engine = 0);
+            AbstractLoggerEngine* newLoggerEngine(QString engine_tag, AbstractFormattingEngine* formatting_engine = 0);
 
             // -----------------------------------------
             // Convenience functions to create engines
@@ -275,9 +296,9 @@ namespace Qtilities {
               \param file_name The name of the file to which logging must be done. If no engine name is provided the function will return false.
               \param formatting_engine The name of the formatting engine which must be used to format messages in the engine. When empty the file extension of file_name is used to determine the formatting engine used for the file by checking the Qtilities::Logging::AbstractFormattingEngine::fileExtension() functions of all the available formatting engines. If the file extension does not match any of the available file extensions, the Qtilities::Logging::FormattingEngine_Default formatting engine is used.
 
-              \return True if new instance was successfully created and initialized. False otherwise.
+              \return The constructed logger engine if successfull, null otherwise.
             */
-            bool newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine = QString());
+            AbstractLoggerEngine* newFileEngine(const QString& engine_name, const QString& file_name, const QString& formatting_engine = QString());
             //! Convenience function to enable a Qt Message engine which pipes messages through to the Qt Debugging System.
             /*!
               Only one qt message engine can be created. This engine can be enabled/disabled using this function.
@@ -300,7 +321,7 @@ namespace Qtilities {
 
         signals:
             //! Signal which is emitted when a new message was logged. The logger connects all logger engines to this signal.
-            void newMessage(const QString& engine_name, Logger::MessageType message_type, const QList<QVariant>& message_contents);
+            void newMessage(const QString& engine_name, Logger::MessageType message_type, Logger::MessageContextFlags message_context, const QList<QVariant>& message_contents);
             //! Signal which is emitted when a new priority message was logged.
             /*!
               \sa logPriorityMessage();
@@ -316,6 +337,7 @@ namespace Qtilities {
 
         void installLoggerMessageHandler(QtMsgType type, const char *msg);
         Q_DECLARE_OPERATORS_FOR_FLAGS(Logger::MessageTypeFlags)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(Logger::MessageContextFlags)
      }
 }
 

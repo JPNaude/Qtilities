@@ -49,10 +49,14 @@ namespace Qtilities {
         This struct is defined in the header because it is use by inherited classes.
           */
         struct AbstractLoggerEngineData {
-            Logger::MessageTypeFlags enabled_message_types;
-            AbstractFormattingEngine* formatting_engine;
-            bool is_enabled;
-            bool is_initialized;
+            AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts) {}
+
+            Logger::MessageTypeFlags        enabled_message_types;
+            AbstractFormattingEngine*       formatting_engine;
+            bool                            is_enabled;
+            bool                            is_initialized;
+            Logger::MessageContextFlags     message_contexts;
+            QString                         engine_name;
         };
 
         /*!
@@ -75,7 +79,10 @@ namespace Qtilities {
             virtual bool initialize() = 0;
             //! Returns true if the engine is initialized.
             bool isInitialized() const;
-            //! Function which received a formatted string which needs to be logged.
+            //! Function which receives a formatted string which needs to be logged.
+            /*!
+              Messages arrives at logger engines through the newMessages() slot which will format the messages and validate if they must be logged. If so, this function will be called with a formatted message. If you wish to handle the message formatting manually, you can reimplement the newMessages() function.
+              */
             virtual void logMessage(const QString& message) = 0;
 
             //! Indicates if the engine is active.
@@ -84,7 +91,9 @@ namespace Qtilities {
             void setActive(bool is_active);
 
             //! Returns the name of the engine.
-            virtual QString name() const = 0;
+            inline QString name() const { return abstractLoggerEngineData->engine_name; }
+            //! Sets the name of the engine.
+            void setName(const QString& name);
             //! Returns a description of the engine.
             virtual QString description() const = 0;
             //! Returns a status message for the engine.
@@ -105,14 +114,20 @@ namespace Qtilities {
             AbstractFormattingEngine* getInstalledFormattingEngine();
             //! Returns the name of the installed formatting engine.
             QString formattingEngineName();
-            //! Indicates if the formatting engine can be changed by the user at runtime.
+
+            //! Indicates if the formatting engine and/or the message contexts can be changed by the user at runtime.
             virtual bool isFormattingEngineConstant() const = 0;
+
+            //! Returns the logging contexts for which this engine accepts messages.
+            inline Logger::MessageContextFlags messageContexts() const { return abstractLoggerEngineData->message_contexts; }
+            //! Sets the logging contexts for which this engine accepts messages.
+            void setMessageContexts(Logger::MessageContextFlags message_contexts) { abstractLoggerEngineData->message_contexts = message_contexts; }
 
         public slots:
             //! Function which is called to finalize the logger engine.
             virtual void finalize() = 0;
             //! Slot which is connected to the newMessage() signal of the Logger class.
-            void newMessages(const QString& engine_name, Logger::MessageType message_type, const QList<QVariant>& messages);
+            virtual void newMessages(const QString& engine_name, Logger::MessageType message_type, Logger::MessageContextFlags message_context, const QList<QVariant>& messages);
 
         protected:
             AbstractLoggerEngineData* abstractLoggerEngineData;
