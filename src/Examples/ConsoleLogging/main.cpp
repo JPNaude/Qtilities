@@ -52,11 +52,11 @@ int main(int argc, char *argv[])
 
     // Create a file engine to verify the results.
     QString xml_example = QCoreApplication::applicationDirPath() + "/XML_Log.xml";
-    Log->newFileEngine("XML File Example",xml_example);
+    AbstractLoggerEngine* xml_file_engine = Log->newFileEngine("XML File Example",xml_example);
     QString plain_example = QCoreApplication::applicationDirPath() + "/Plain_Log.log";
-    Log->newFileEngine("Plain File Example",plain_example);
+    AbstractLoggerEngine* plain_file_engine = Log->newFileEngine("Plain File Example",plain_example);
     QString html_example = QCoreApplication::applicationDirPath() + "/HTML_Log.html";
-    Log->newFileEngine("HTML File Example",html_example);
+    AbstractLoggerEngine* html_file_engine = Log->newFileEngine("HTML File Example",html_example);
 
     // Enable the Qt Message logger engine:
     Log->toggleQtMsgEngine(true);
@@ -104,6 +104,24 @@ int main(int argc, char *argv[])
     qDebug() << "Message from the Qt Message System";
     Log->setIsQtMessageHandler(false);
     qDebug() << "Message from the Qt Message System which will not be catched.";
+
+    // Do some context related logging:
+    if (xml_file_engine && plain_file_engine && html_file_engine) {
+        xml_file_engine->setMessageContexts(Logger::SystemWideMessages);
+        plain_file_engine->setMessageContexts(Logger::EngineSpecificMessages);
+        html_file_engine->setMessageContexts(Logger::PriorityMessages);
+
+        // Now log a system wide message: It will only appear in xml_file_engine.
+        LOG_INFO("System widge message");
+
+        // Now log some engine specific messages. Only the plain_file_engine will get the second message:
+        LOG_INFO_E(xml_file_engine->name(),"Engine specific message to XML.");
+        LOG_INFO_E(plain_file_engine->name(),"Engine specific message to PLAIN.");
+        LOG_INFO_E(html_file_engine->name(),"Engine specific message to HTML.");
+
+        // Now log a priority message: It will only appear in the html_file_engine.
+        LOG_INFO_P("Priority message");
+    }
 
     // Finalize the logger.
     LOG_FINALIZE();
