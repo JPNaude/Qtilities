@@ -77,11 +77,11 @@ namespace Qtilities {
             bool initialize();
             void finalize();
             bool isInitialized() const;
-            QString name() const;
-            QString description() const { return QObject::tr("An engine with a widget frontend used to display messages to the user."); }
+            QString description() const;
             QString status() const;
             bool removable() const { return true; }
-            bool isFormattingEngineConstant() const { return false; }
+            // Logger widgets will always be created after LOG_INITIALIZE(), thus we won't be able to restore their settings.
+            bool isFormattingEngineConstant() const { return true; }
 
             // WidgetLoggerEngine implementation
             QWidget* getWidget();

@@ -179,14 +179,14 @@ namespace Qtilities {
             QString globalMetaType() const;
 
         public slots:
-            void handle_actionNew_triggered();
-            void handle_actionOpen_triggered();
-            bool handle_actionSave_triggered();
-            bool handle_actionSaveAs_triggered();
-            void handle_actionPrint_triggered();
-            void handle_actionPrintPreview_triggered();
-            void handle_actionPrintPdf_triggered();
-            void handle_actionFindItem_triggered();
+            void actionNew();
+            void actionOpen();
+            bool actionSave();
+            bool actionSaveAs();
+            void actionPrint();
+            void actionPrintPreview();
+            void actionPrintPdf();
+            void showSearchBox();
             void printPreview(QPrinter *printer);
             void handleSettingsUpdateRequest(const QString& request_id);
 

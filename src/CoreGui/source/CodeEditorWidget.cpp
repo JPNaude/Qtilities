@@ -102,6 +102,9 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     CodeEditorWidget::ActionFlags action_flags;
     //! The action toolbars list. Contains toolbars created for each category in the action provider.
     QList<QToolBar*> action_toolbars;
+
+    //! The central widget layout.
+    QBoxLayout* central_widget_layout;
 };
 
 Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags, DisplayFlags display_flags, QWidget* parent) :
@@ -126,19 +129,14 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     if (QtilitiesApplication::instance(true))
         connect(QtilitiesApplication::instance(),SIGNAL(settingsUpdateRequest(QString)),SLOT(handleSettingsUpdateRequest(QString)));
 
-    // Construct and show search box widget:
-    handle_actionFindItem_triggered();
-
     // Create new layout:
     if (d->central_widget->layout())
         delete d->central_widget->layout();
 
-    QBoxLayout* layout = new QBoxLayout(QBoxLayout::TopToBottom,d->central_widget);
-    layout->addWidget(d->codeEditor);
-    layout->addWidget(d->searchBoxWidget);
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    d->searchBoxWidget->setVisible(display_flags & SearchBox);
+    d->central_widget_layout = new QBoxLayout(QBoxLayout::TopToBottom,d->central_widget);
+    d->central_widget_layout->addWidget(d->codeEditor);
+    d->central_widget_layout->setMargin(0);
+    d->central_widget_layout->setSpacing(0);
 
     // Assign a default meta type for this widget:
     // We construct each action and then register it
@@ -306,7 +304,7 @@ bool Qtilities::CoreGui::CodeEditorWidget::maybeSave() {
     else
         ret = QMessageBox::warning(this, tr("File Changed"),QString(tr("The modified document is linked to the following file:\n\n%1\n\nDo you want to save your changes?")).arg(d->current_file),QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Save)
-        return handle_actionSave_triggered();
+        return actionSave();
     else if (ret == QMessageBox::Cancel)
         return false;
     return true;
@@ -330,27 +328,27 @@ QString Qtilities::CoreGui::CodeEditorWidget::globalMetaType() const {
     return d->global_meta_type;
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionNew_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::actionNew() {
     if (maybeSave()) {
         d->codeEditor->clear();
     }
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionOpen_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::actionOpen() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File..."),
                                               QString(), tr("All Files (*)"));
     if (!fileName.isEmpty())
         loadFile(fileName);
 }
 
-bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSave_triggered() {
+bool Qtilities::CoreGui::CodeEditorWidget::actionSave() {
     if (!d->current_file.isEmpty())
         return saveFile();
     else
-        return handle_actionSaveAs_triggered();
+        return actionSaveAs();
 }
 
-bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSaveAs_triggered() {
+bool Qtilities::CoreGui::CodeEditorWidget::actionSaveAs() {
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save as..."),
                                               QString(), tr("All Files (*)"));
     if (fileName.isEmpty())
@@ -359,7 +357,7 @@ bool Qtilities::CoreGui::CodeEditorWidget::handle_actionSaveAs_triggered() {
     return saveFile(fileName);
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrint_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::actionPrint() {
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
@@ -373,7 +371,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrint_triggered() {
 #endif
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrintPreview_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::actionPrintPreview() {
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     QPrintPreviewDialog preview(&printer, this);
@@ -391,7 +389,7 @@ void Qtilities::CoreGui::CodeEditorWidget::printPreview(QPrinter *printer)
 #endif
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionPrintPdf_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 #ifndef QT_NO_PRINTER
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"),
                                                     QString(), "*.pdf");
@@ -426,7 +424,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
     }
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
+void Qtilities::CoreGui::CodeEditorWidget::showSearchBox() {
     if (!d->searchBoxWidget) {
         SearchBoxWidget::SearchOptions search_options = 0;
         search_options |= SearchBoxWidget::CaseSensitive;
@@ -438,6 +436,8 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
         d->searchBoxWidget->setWholeWordsOnly(false);
         d->searchBoxWidget->setPlainTextEditor(d->codeEditor);
+        if (d->central_widget_layout)
+            d->central_widget_layout->addWidget(d->searchBoxWidget);
     }
     d->searchBoxWidget->setEditorFocus();
 
@@ -447,9 +447,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handle_actionFindItem_triggered() {
         d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
     }
 
-    if (d->searchBoxWidget->isVisible())
-        d->searchBoxWidget->hide();
-    else
+    if (!d->searchBoxWidget->isVisible())
         d->searchBoxWidget->show();
 }
 
@@ -471,7 +469,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionNew) {
         d->actionNew = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("New"),this);
         d->action_provider->addAction(d->actionNew,QtilitiesCategory(tr("File")));
-        connect(d->actionNew,SIGNAL(triggered()),SLOT(handle_actionNew_triggered()));
+        connect(d->actionNew,SIGNAL(triggered()),SLOT(actionNew()));
         ACTION_MANAGER->registerAction(MENU_FILE_NEW,d->actionNew,context);
     }
     // ---------------------------
@@ -480,7 +478,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionOpenFile) {
         d->actionOpen = new QAction(QIcon(ICON_FILE_OPEN_16x16),tr("Open"),this);
         d->action_provider->addAction(d->actionOpen,QtilitiesCategory(tr("File")));
-        connect(d->actionOpen,SIGNAL(triggered()),SLOT(handle_actionOpen_triggered()));
+        connect(d->actionOpen,SIGNAL(triggered()),SLOT(actionOpen()));
         ACTION_MANAGER->registerAction(MENU_FILE_OPEN,d->actionOpen,context);
     }
     // ---------------------------
@@ -490,7 +488,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
         d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
         d->actionSave->setEnabled(false);
         d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("File")));
-        connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_actionSave_triggered()));
+        connect(d->actionSave,SIGNAL(triggered()),SLOT(actionSave()));
         ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
     }
     // ---------------------------
@@ -499,7 +497,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionSaveFileAs) {
         d->actionSaveAs = new QAction(QIcon(ICON_FILE_SAVEAS_16x16),tr("Save As"),this);
         d->action_provider->addAction(d->actionSaveAs,QtilitiesCategory(tr("File")));
-        connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(handle_actionSaveAs_triggered()));
+        connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(actionSaveAs()));
         ACTION_MANAGER->registerAction(MENU_FILE_SAVE_AS,d->actionSaveAs,context);
     }
     // ---------------------------
@@ -508,7 +506,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionPrint) {
         d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
         d->action_provider->addAction(d->actionPrint,QtilitiesCategory(tr("Print")));
-        connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_actionPrint_triggered()));
+        connect(d->actionPrint,SIGNAL(triggered()),SLOT(actionPrint()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
     }
     // ---------------------------
@@ -517,7 +515,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionPrintPreview) {
         d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
         d->action_provider->addAction(d->actionPrintPreview,QtilitiesCategory(tr("Print")));
-        connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_actionPrintPreview_triggered()));
+        connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(actionPrintPreview()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     }
     // ---------------------------
@@ -526,7 +524,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionPrintPDF) {
         d->actionPrintPdf = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
         d->action_provider->addAction(d->actionPrintPdf,QtilitiesCategory(tr("Print")));
-        connect(d->actionPrintPdf,SIGNAL(triggered()),SLOT(handle_actionPrintPdf_triggered()));
+        connect(d->actionPrintPdf,SIGNAL(triggered()),SLOT(actionPrintPdf()));
         ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPdf,context);
     }
     // ---------------------------
@@ -601,7 +599,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionFind) {
         d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
         d->action_provider->addAction(d->actionFind,QtilitiesCategory(tr("Selection")));
-        connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_actionFindItem_triggered()));
+        connect(d->actionFind,SIGNAL(triggered()),SLOT(showSearchBox()));
         ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     }
 

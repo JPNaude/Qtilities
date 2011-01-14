@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
 
     LOG_INITIALIZE();
     Log->setGlobalLogLevel(Logger::Debug);
-    Log->setIsQtMessageHandler(true);
 
     // Create the menu bar and menus in the menu bar:
     bool existed;

@@ -1,1 +1,279 @@
-/**\page page_logging Logging<table CELLPADDING=0 style="width:100%;  table-layout:fixed;	margin:0px 0px 0px 0px;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;"><tr> <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left"><h1 style="margin:0px; padding:0px">Overview</h1>Logging is an essential part of any application and can make it easier to figure out what is going on during application development and debugging. %Qtilities provides a ready to use, powerful logger which can easily be embedded into any Qt application. Logging is done through short and easy to use macros, or for more advanced logging requirements more sophisticated logging functions are available.Logger engines provide back-ends for the logger and messages are formatted on a per engine basis. New logger engines or formatting engines can easily be created and added to the logger. The logger is able to store its configuration between sessions and a ready to use logging configuration widget is available in GUI applications.The logger is only dependent on QtCore, thus it can be used in console or GUI applications. The %Qtilities CoreGui library provides a widget logger engine which can be used with the logger in GUI applications. This article will show how to use the logger in a Qt application and provide an overview of the available features.Table of contents:- \ref logger_first_steps- \ref logging_in_GUI_apps	- \ref logging_configuration_widget	- \ref logging_plugin	.- \ref advanced_logging  - \ref priority_logging  - \ref engine_specific_logging  .- \ref extending_the_logger</td><td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;"><table style="table-layout:auto;	margin:0px 0px 0px 0px;   width: 100%;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;  background-color: #d1d3d4;"><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">First Steps</h2></td></tr><tr><td>- <a href="page_getting_started.html">Getting Started</a><br>- <a href="page_the_basics.html">The Basics</a><br>- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br></td></tr><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">Overviews</h2></td></tr><tr><td>- <a href="page_action_management.html">Action Management</a><br>- <a href="page_extension_system.html">Extension System</a><br>- <a href="page_factories.html">Factories</a><br>- <a href="page_logging.html">Logging</a><br>- <a href="page_modules_overview.html">Modules</a><br>- <a href="page_object_management.html">Object Management</a><br>- <a href="page_observers.html">Observers</a><br>- <a href="page_observer_widgets.html">Observer Widgets</a><br>- <a href="page_project_management.html">Project Management</a><br>- <a href="page_tree_structures.html">Building Trees</a><br>- <a href="page_widget_set.html">Widget Set</a><br></td></tr></table></td></tr></table>\section logger_first_steps First steps: Setting up the logger and logging example messagesThe Qtilities::Logging::Logger provides macros to initialize it on application startup and to finalize in when the application exists. During initialization the logger will create standard logger engines and formatting engines and restore its settings from the previous session. The finalization does the opposite: it saves the current settings and deletes all the logger engines currently in the application. Basic logging can be done through a set of macros which makes it very easy to log different types of messages. Lets look at a simple console application:\code#include <QtilitiesLogging>using namespace QtilitiesLogging;int main(int argc, char *argv[]){  QtilitiesCoreApplication a(argc, argv);    // We must specify the following if we want the logger to remember its settings:  QtilitiesCoreApplication::setOrganizationName("Jaco Naude");  QtilitiesCoreApplication::setOrganizationDomain("Qtilities");  QtilitiesCoreApplication::setApplicationName("Console Logging Example");  QtilitiesCoreApplication::setApplicationVersion("0.1");    // The action manager needs QtilitiesApplication::mainWindow() for the front-end actions of multi context actions.  // It must be done before we initialize the logger since the initialization might construct widget logger front-ends which will attempt to register actions:  QtilitiesMainWindow* exampleMainWindow = new QtilitiesMainWindow();  QtilitiesApplication::setMainWindow(exampleMainWindow);      // Initialize the logger:  LOG_INITIALIZE();  // We want to capture all messages <= Debug level:  Log->setGlobalLogLevel(Logger::Debug);  // Create a file engine to verify the results.  // The file extensions are used to determine the formatting engine used for each file:  QString xml_example = QtilitiesCoreApplication::applicationDirPath() + "/XML_Log.xml";  Log->newFileEngine("XML File Example",xml_example);  QString plain_example = QtilitiesCoreApplication::applicationDirPath() + "/Plain_Log.log";  Log->newFileEngine("Plain File Example",plain_example);  QString html_example = QtilitiesCoreApplication::applicationDirPath() + "/HTML_Log.html";  Log->newFileEngine("HTML File Example",html_example);  // Enable the Qt Message logger engine:  Log->toggleQtMsgEngine(true);  // Log messages to all engines:  LOG_INFO("Information Message");  LOG_WARNING("Warning Message");  LOG_ERROR("Error Message");  LOG_FATAL("Fatal Message");  LOG_DEBUG("Debug Message");  LOG_TRACE("Trace Message");  // Enable the console logger engine:  Log->toggleConsoleEngine(true);  // Disable the Qt Message logger engine:  Log->toggleQtMsgEngine(false);  // Disable the console logger engine:  Log->toggleConsoleEngine(false);  // Capture messages from the Qt Message System:  Log->setIsQtMessageHandler(true);  qDebug() << "Message from the Qt Message System";  Log->setIsQtMessageHandler(false);  qDebug() << "Message from the Qt Message System which will not be caught.";  // Finalize the logger:  LOG_FINALIZE();  return a.exec();}\endcode\section logging_in_GUI_apps Logging in GUI applicationsThe above example showed basic usage of the logger in a console application, however in many applications the QtGui module is used and an user interface is provided to the user. In such applications it is desirable to have one or more ready to use logging widgets to display log messages to the user.\subsection logging_ready_to_use_widget Ready to use logging widgetsThe %Qtilities CoreGui library provides ready to use logging widgets which can be accessed through the Qtilities::CoreGui::LoggerGui singleton's static methods. For example we can get log dock widgets as follows:\codeQMainWindow* mainWindow = new QMainWindow();// Get a widget that shows all log messages:QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"),true);mainWindow->addDockWidget(Qt::BottomDockWidgetArea,session_log_dock);// Get a widget that shows only warning messages:QDockWidget* warning_dock = LoggerGui::createLogDockWidget(tr("Warnings"),true,Logger::Warning);mainWindow->addDockWidget(Qt::TopDockWidgetArea,warning_dock);\endcodeThe obtained dock widget will look similar to the image shown below:\image html log_dock_widget.jpg "Ready To Use Log Dock Widget"\subsection logging_configuration_widget Logging configuration widgetThe logging configuration widget can also be accessed using the Qtilities::CoreGui::LoggerGui class. For example:\code// Get a reference to the logger configuration widget.// The false parameter indicates that we don't want the Apply button to appear.QWidget* config_widget = LoggerGui::createLoggerConfigWidget(false);config_widget->show();// The returned widget implements the IConfigPage interface, thus we can register it in the global object pool to be displayed in the configuration widget as follows:OBJECT_MANAGER->registerObject(config_widget);\endcodeThe obtained configuration widget will look like the image shown below:\image html logging_configuration_widget.jpg "Logging Configuration Widget"\subsection logging_plugin The example logging pluginIn the \p QtilitiesExamples project there is a session log plugin which can be used in any application which makes use of the %Qtilities extension system. For more information see the \ref plugins_overview section of the \ref page_examples_and_plugins page.\section advanced_logging Advanced logging possibilities\subsection priority_logging Priority Logging The logger provides the ability to log priority messages. A priority message is handled in the same way as a normal message logged with logMessage() except that it also emits the newPriorityMessage() signal. This allows selective messages to be emitted and displayed in a convenient place in an application where all messages should not necessarily be displayed. An example is the case where selective messages should be displayed in a status bar. The Qtilities::CoreGui::QtilitiesMainWindow class provides ready to use support for priority messages.Logging of priority messages is very similar to the macros already shown in this article. Below is an example where we log different types of priority messages.\code// Log different type of priority messages to all engines:LOG_INFO_P("Priority Information Message");LOG_WARNING_P("Priority Warning Message");LOG_ERROR_P("Priority Error Message");LOG_FATAL_P("Priority Fatal Message");LOG_DEBUG_P("Priority Debug Message");LOG_TRACE_P("Priority Trace Message");\endcode\subsection engine_specific_logging Engine Specific Logging The %Qtilities logger allows logging to a specific engine where the name of the engine is used to determine the destination of the log messages. The following lines can be added to the example above as an example where we log specific messages to all three of the engines we created.\code// Log messages to each engine separately:LOG_INFO_E("XML File Example","XML Information Message");LOG_WARNING_E("XML File Example","XML Warning Message");LOG_ERROR_E("XML File Example","XML Error Message");LOG_FATAL_E("XML File Example","XML Fatal Message");LOG_DEBUG_E("XML File Example","XML Debug Message");LOG_TRACE_E("XML File Example","XML Trace Message");LOG_INFO_E("Plain File Example","Plain Information Message");LOG_WARNING_E("Plain File Example","Plain Warning Message");LOG_ERROR_E("Plain File Example","Plain Error Message");LOG_FATAL_E("Plain File Example","Plain Fatal Message");LOG_DEBUG_E("Plain File Example","Plain Debug Message");LOG_TRACE_E("Plain File Example","Plain Trace Message");LOG_INFO_E("HTML File Example","HTML Information Message");LOG_WARNING_E("HTML File Example","HTML Warning Message");LOG_ERROR_E("HTML File Example","HTML Error Message");LOG_FATAL_E("HTML File Example","HTML Fatal Message");LOG_DEBUG_E("HTML File Example","HTML Debug Message");LOG_TRACE_E("HTML File Example","HTML Trace Message");\endcodeFor more advanced logging operations the Qtilities::Logging::Logger::logMessage() function should be used directly. The logger singleton is directly accessible through the Log macro which returns a pointer to the logger. The log message function allows additional parameters to be passed to the logger. See the function documentation for more information.\section extending_the_logger Extending the logger: Create custom logger and formatting enginesThe logger can easily be extended by creating new logger or formatting engines by creating classes which inherits from Qtilities::Logging::AbstractLoggerEngine and Qtilities::Logging::AbstractFormattingEngine respectively. See the class documentation for more information.*/
+/**
+\page page_logging Logging
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+Logging is an essential part of any application and can make it easier to figure out what is going on during application development and debugging. %Qtilities provides a ready to use, powerful logger which can easily be embedded into any Qt application. Logging is done through short and easy to use macros, or for more advanced logging requirements more sophisticated logging functions are available.
+
+Logger engines provide back-ends for the logger and messages are formatted on a per engine basis. New logger engines or formatting engines can easily be created and added to the logger. The logger is able to store its configuration between sessions and a ready to use logging configuration widget is available in GUI applications.
+
+The logger is only dependent on QtCore, thus it can be used in console or GUI applications. The %Qtilities CoreGui library provides a widget logger engine which can be used with the logger in GUI applications. This article will show how to use the logger in a Qt application and provide an overview of the available features.
+
+Table of contents:
+- \ref logger_first_steps
+- \ref logging_in_GUI_apps
+	- \ref logging_configuration_widget
+	- \ref logging_plugin
+	.
+- \ref advanced_logging
+  - \ref priority_logging
+  - \ref engine_specific_logging
+  - \ref engine_message_contexts
+  .
+- \ref extending_the_logger
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section logger_first_steps First steps: Setting up the logger and logging example messages
+
+The Qtilities::Logging::Logger provides macros to initialize it on application startup and to finalize in when the application exists. During initialization the logger will create standard logger engines and formatting engines and restore its settings from the previous session. The finalization does the opposite: it saves the current settings and deletes all the logger engines currently in the application. 
+
+Basic logging can be done through a set of macros which makes it very easy to log different types of messages. Lets look at a simple console application:
+
+\code
+#include <QtilitiesLogging>
+using namespace QtilitiesLogging;
+
+int main(int argc, char *argv[])
+{
+    QtilitiesCoreApplication a(argc, argv);
+
+    // We must specify the following if we want the logger to remember its settings:
+    QtilitiesCoreApplication::setOrganizationName("Jaco Naude");
+    QtilitiesCoreApplication::setOrganizationDomain("Qtilities");
+    QtilitiesCoreApplication::setApplicationName("Console Logging Example");
+    QtilitiesCoreApplication::setApplicationVersion("0.1");
+
+    // The action manager needs QtilitiesApplication::mainWindow() for the front-end actions of multi context actions.
+    // It must be done before we initialize the logger since the initialization might construct widget logger front-ends which will attempt to register actions:
+    QtilitiesMainWindow* exampleMainWindow = new QtilitiesMainWindow();
+    QtilitiesApplication::setMainWindow(exampleMainWindow);
+
+    // Initialize the logger:
+    LOG_INITIALIZE();
+    // We want to capture all messages <= Debug level:
+    Log->setGlobalLogLevel(Logger::Debug);
+
+    // Create a file engine to verify the results.
+    // The file extensions are used to determine the formatting engine used for each file:
+    QString xml_example = QtilitiesCoreApplication::applicationDirPath() + "/XML_Log.xml";
+    Log->newFileEngine("XML File Example",xml_example);
+    QString plain_example = QtilitiesCoreApplication::applicationDirPath() + "/Plain_Log.log";
+    Log->newFileEngine("Plain File Example",plain_example);
+    QString html_example = QtilitiesCoreApplication::applicationDirPath() + "/HTML_Log.html";
+    Log->newFileEngine("HTML File Example",html_example);
+
+    // Enable the Qt Message logger engine:
+    Log->toggleQtMsgEngine(true);
+
+    // Log messages to all engines:
+    LOG_INFO("Information Message");
+    LOG_WARNING("Warning Message");
+    LOG_ERROR("Error Message");
+    LOG_FATAL("Fatal Message");
+    LOG_DEBUG("Debug Message");
+    LOG_TRACE("Trace Message");
+
+    // Enable the console logger engine:
+    Log->toggleConsoleEngine(true);
+    // Disable the Qt Message logger engine:
+    Log->toggleQtMsgEngine(false);
+    // Disable the console logger engine:
+    Log->toggleConsoleEngine(false);
+
+    // Capture messages from the Qt Message System:
+    Log->setIsQtMessageHandler(true);
+    qDebug() << "Message from the Qt Message System";
+    Log->setIsQtMessageHandler(false);
+    qDebug() << "Message from the Qt Message System which will not be caught.";
+
+    // Finalize the logger:
+    LOG_FINALIZE();
+
+    return a.exec();
+}
+\endcode
+
+\section logging_in_GUI_apps Logging in GUI applications
+
+The above example showed basic usage of the logger in a console application, however in many applications the QtGui module is used and an user interface is provided to the user. In such applications it is desirable to have one or more ready to use logging widgets to display log messages to the user.
+
+\subsection logging_ready_to_use_widget Ready to use logging widgets
+
+The %Qtilities CoreGui library provides ready to use logging widgets which can be accessed through the Qtilities::CoreGui::LoggerGui singleton's static methods. For example we can get log dock widgets as follows:
+
+\code
+QMainWindow* mainWindow = new QMainWindow();
+
+// Get a widget that shows all log messages:
+QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"),true);
+mainWindow->addDockWidget(Qt::BottomDockWidgetArea,session_log_dock);
+
+// Get a widget that shows only warning messages:
+QDockWidget* warning_dock = LoggerGui::createLogDockWidget(tr("Warnings"),true,Logger::Warning);
+mainWindow->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
+\endcode
+
+The obtained dock widget will look similar to the image shown below:
+
+\image html log_dock_widget.jpg "Ready To Use Log Dock Widget"
+
+\subsection logging_configuration_widget Logging configuration widget
+
+The logging configuration widget can also be accessed using the Qtilities::CoreGui::LoggerGui class. For example:
+
+\code
+// Get a reference to the logger configuration widget.
+// The false parameter indicates that we don't want the Apply button to appear.
+QWidget* config_widget = LoggerGui::createLoggerConfigWidget(false);
+config_widget->show();
+
+// The returned widget implements the IConfigPage interface, thus we can register it in the global object pool to be displayed in the configuration widget as follows:
+OBJECT_MANAGER->registerObject(config_widget);
+\endcode
+
+The obtained configuration widget will look like the image shown below:
+
+\image html logging_configuration_widget.jpg "Logging Configuration Widget"
+
+\subsection logging_plugin The example logging plugin
+
+In the \p QtilitiesExamples project there is a session log plugin which can be used in any application which makes use of the %Qtilities extension system. For more information see the \ref plugins_overview section of the \ref page_examples_and_plugins page.
+
+\section advanced_logging Advanced logging possibilities
+
+\subsection priority_logging Priority Logging 
+
+The logger provides the ability to log priority messages. A priority message is handled in the same way as a normal message logged with logMessage() except that it also emits the newPriorityMessage() signal. This allows selective messages to be emitted and displayed in a convenient place in an application where all messages should not necessarily be displayed. An example is the case where selective messages should be displayed in a status bar. The Qtilities::CoreGui::QtilitiesMainWindow class provides ready to use support for priority messages.
+
+Logging of priority messages is very similar to the macros already shown in this article. Below is an example where we log different types of priority messages.
+
+\code
+// Log different type of priority messages to all engines:
+LOG_INFO_P("Priority Information Message");
+LOG_WARNING_P("Priority Warning Message");
+LOG_ERROR_P("Priority Error Message");
+LOG_FATAL_P("Priority Fatal Message");
+LOG_DEBUG_P("Priority Debug Message");
+LOG_TRACE_P("Priority Trace Message");
+\endcode
+
+\subsection engine_specific_logging Engine Specific Logging 
+
+The %Qtilities logger allows logging to a specific engine where the name of the engine is used to determine the destination of the log messages. The following lines can be added to the example above as an example where we log specific messages to all three of the engines we created.
+
+\code
+// Log messages to each engine separately:
+LOG_INFO_E("XML File Example","XML Information Message");
+LOG_WARNING_E("XML File Example","XML Warning Message");
+LOG_ERROR_E("XML File Example","XML Error Message");
+LOG_FATAL_E("XML File Example","XML Fatal Message");
+LOG_DEBUG_E("XML File Example","XML Debug Message");
+LOG_TRACE_E("XML File Example","XML Trace Message");
+
+LOG_INFO_E("Plain File Example","Plain Information Message");
+LOG_WARNING_E("Plain File Example","Plain Warning Message");
+LOG_ERROR_E("Plain File Example","Plain Error Message");
+LOG_FATAL_E("Plain File Example","Plain Fatal Message");
+LOG_DEBUG_E("Plain File Example","Plain Debug Message");
+LOG_TRACE_E("Plain File Example","Plain Trace Message");
+
+LOG_INFO_E("HTML File Example","HTML Information Message");
+LOG_WARNING_E("HTML File Example","HTML Warning Message");
+LOG_ERROR_E("HTML File Example","HTML Error Message");
+LOG_FATAL_E("HTML File Example","HTML Fatal Message");
+LOG_DEBUG_E("HTML File Example","HTML Debug Message");
+LOG_TRACE_E("HTML File Example","HTML Trace Message");
+\endcode
+
+For more advanced logging operations the Qtilities::Logging::Logger::logMessage() function should be used directly. The logger singleton is directly accessible through the Log macro which returns a pointer to the logger. The log message function allows additional parameters to be passed to the logger. See the function documentation for more information.
+
+\subsection engine_message_contexts Message Contexts
+
+The logger groups messages using the concept of different message contexts. These contexts are described by the Qtilities::Logging::Logger::MessageContext enumeration. By default all logger engines accept messages from all message context. It is however possible to use specify combinations of message contexts explicitly for each individiual engine. For example:
+
+\code
+// Create three file engines:
+QString xml_example = QCoreApplication::applicationDirPath() + "/XML_Log.xml";
+AbstractLoggerEngine* xml_file_engine = Log->newFileEngine("XML File Example",xml_example);
+QString plain_example = QCoreApplication::applicationDirPath() + "/Plain_Log.log";
+AbstractLoggerEngine* plain_file_engine = Log->newFileEngine("Plain File Example",plain_example);
+QString html_example = QCoreApplication::applicationDirPath() + "/HTML_Log.html";
+AbstractLoggerEngine* html_file_engine = Log->newFileEngine("HTML File Example",html_example);
+
+// Do some context related logging:
+if (xml_file_engine && plain_file_engine && html_file_engine) {
+    xml_file_engine->setMessageContexts(Logger::SystemWideMessages);
+    plain_file_engine->setMessageContexts(Logger::EngineSpecificMessages);
+    html_file_engine->setMessageContexts(Logger::PriorityMessages);
+
+    // Now log a system wide message: It will only appear in xml_file_engine.
+    LOG_INFO("System widge message");
+
+    // Now log some engine specific messages. Only the plain_file_engine will get the second message:
+    LOG_INFO_E(xml_file_engine->name(),"Engine specific message to XML.");
+    LOG_INFO_E(plain_file_engine->name(),"Engine specific message to PLAIN.");
+    LOG_INFO_E(html_file_engine->name(),"Engine specific message to HTML.");
+
+    // Now log a priority message: It will only appear in the html_file_engine.
+    LOG_INFO_P("Priority message");
+}
+\endcode
+
+\section extending_the_logger Extending the logger: Create custom logger and formatting engines
+
+The logger can easily be extended by creating new logger or formatting engines by creating classes which inherits from Qtilities::Logging::AbstractLoggerEngine and Qtilities::Logging::AbstractFormattingEngine respectively. See the class documentation for more information.
+*/

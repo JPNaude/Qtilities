@@ -181,6 +181,9 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             LOG_INFO(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
                             QCoreApplication::processEvents();
 
+                            // Set the object name of the plugin:
+                            pluginIFace->objectBase()->setObjectName(pluginIFace->pluginName());
+
                             // Set the category property of the plugin:
                             ObserverProperty category_property(OBJECT_CATEGORY);
                             category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());

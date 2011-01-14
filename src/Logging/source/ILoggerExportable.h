@@ -63,6 +63,8 @@ namespace Qtilities {
                 virtual bool importBinary(QDataStream& stream) = 0;
                 //! The factory tag of this interface.
                 virtual QString factoryTag() const = 0;
+                //! The instance name of the logger engine implementing this interface.
+                virtual QString instanceName() const = 0;
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(ILoggerExportable::ExportModeFlags)

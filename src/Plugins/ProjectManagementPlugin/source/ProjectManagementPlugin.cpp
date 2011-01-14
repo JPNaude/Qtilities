@@ -100,7 +100,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // New Project
     // ---------------------------
     d->actionProjectNew = new QAction(QIcon(),tr("New Project"),this);
-    d->actionProjectNew->setShortcut(QKeySequence(tr("Alt+N")));
+    d->actionProjectNew->setShortcut(QKeySequence(QKeySequence::New));
     connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
     Command* command = ACTION_MANAGER->registerAction(MENU_PROJECTS_NEW,d->actionProjectNew,context);
     file_menu->addAction(command,MENU_FILE_SETTINGS);
@@ -108,7 +108,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // Open Project
     // ---------------------------
     d->actionProjectOpen = new QAction(QIcon(),tr("Open Project"),this);
-    d->actionProjectOpen->setShortcut(QKeySequence(tr("Alt+O")));
+    d->actionProjectOpen->setShortcut(QKeySequence(QKeySequence::Open));
     connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
     command = ACTION_MANAGER->registerAction(MENU_PROJECTS_OPEN,d->actionProjectOpen,context);
     file_menu->addAction(command,MENU_FILE_SETTINGS);
@@ -117,7 +117,6 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // ---------------------------
     d->actionProjectClose = new QAction(QIcon(),tr("Close Project"),this);
     d->actionProjectClose->setEnabled(false);
-    d->actionProjectClose->setShortcut(QKeySequence(tr("Alt+C")));
     connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
     command = ACTION_MANAGER->registerAction(MENU_PROJECTS_CLOSE,d->actionProjectClose,context);
     file_menu->addAction(command,MENU_FILE_SETTINGS);
@@ -126,7 +125,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // ---------------------------
     d->actionProjectSave = new QAction(QIcon(),tr("Save Project"),this);
     d->actionProjectSave->setEnabled(false);
-    d->actionProjectSave->setShortcut(QKeySequence(tr("Alt+S")));
+    d->actionProjectSave->setShortcut(QKeySequence(QKeySequence::Save));
     connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
     command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE,d->actionProjectSave,context);
     file_menu->addAction(command,MENU_FILE_SETTINGS);
@@ -135,6 +134,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // ---------------------------
     d->actionProjectSaveAs = new QAction(QIcon(),tr("Save Project As"),this);
     d->actionProjectSaveAs->setEnabled(false);
+    d->actionProjectSaveAs->setShortcut(QKeySequence(QKeySequence::SaveAs));
     connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
     command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
     file_menu->addAction(command,MENU_FILE_SETTINGS);

@@ -105,12 +105,22 @@ namespace Qtilities {
             const char * const ICON_TABLE_16x16                   = ":/icons/table_16x16.png";
             //! Refresh icon.
             const char * const ICON_REFRESH_16x16                 = ":/icons/refresh_16x16.png";
+            //! Information icon.
+            const char * const ICON_INFO_16x16                    = ":/icons/info_16x16.png";
             //! Success icon.
             const char * const ICON_SUCCESS_16x16                 = ":/icons/success_16x16.png";
             //! Error icon.
             const char * const ICON_ERROR_16x16                   = ":/icons/error_16x16.png";
-            //! Error icon.
+            //! Warning icon.
             const char * const ICON_WARNING_16x16                 = ":/icons/warning_16x16.png";
+            //! Information icon.
+            const char * const ICON_INFO_12x12                    = ":/icons/info_12x12.png";
+            //! Success icon.
+            const char * const ICON_SUCCESS_12x12                 = ":/icons/success_12x12.png";
+            //! Error icon.
+            const char * const ICON_ERROR_12x12                   = ":/icons/error_12x12.png";
+            //! Warning icon.
+            const char * const ICON_WARNING_12x12                 = ":/icons/warning_12x12.png";
             //! Icon used for observer access column in observer widgets.
             const char * const ICON_ACCESS_16x16                  = ":/icons/access_16x16.png";
             //! Icon used for child count column in observer widgets.

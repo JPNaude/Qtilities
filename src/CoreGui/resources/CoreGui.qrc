@@ -85,5 +85,10 @@
         <file>icons/read_only_16x16.png</file>
         <file>icons/access_16x16.png</file>
         <file>icons/up_16x16.png</file>
+        <file>icons/info_16x16.png</file>
+        <file>icons/success_12x12.png</file>
+        <file>icons/warning_12x12.png</file>
+        <file>icons/error_12x12.png</file>
+        <file>icons/info_12x12.png</file>
     </qresource>
 </RCC>

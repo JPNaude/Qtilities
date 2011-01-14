@@ -176,7 +176,6 @@ void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus() {
     ui->txtSearchString->setFocus();
 }
 
-
 void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {
     d->button_flags = button_flags;
     // Shows buttons according to button flags
@@ -318,9 +317,16 @@ void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
 void Qtilities::CoreGui::SearchBoxWidget::handleFindNext() {
     if (d->widget_target == ExternalTarget)
         emit btnFindNext_clicked();
-    else if (d->widget_target == TextEdit) {
+    else if (d->widget_target == TextEdit && d->textEdit) {
+        QTextDocument::FindFlags find_flags = findFlags();
 
-    } else if (d->widget_target == PlainTextEdit) {
+        if (!d->textEdit->find(currentSearchString(),find_flags)) {
+            QTextCursor cursor = d->textEdit->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            d->textEdit->setTextCursor(cursor);
+            d->textEdit->find(currentSearchString(),find_flags);
+        }
+    } else if (d->widget_target == PlainTextEdit && d->plainTextEdit) {
         QTextDocument::FindFlags find_flags = findFlags();
 
         if (d->plainTextEdit->find(currentSearchString(),find_flags)) {
@@ -337,9 +343,14 @@ void Qtilities::CoreGui::SearchBoxWidget::handleFindNext() {
 void Qtilities::CoreGui::SearchBoxWidget::handleFindPrevious() {
     if (d->widget_target == ExternalTarget)
         emit btnFindPrevious_clicked();
-    else if (d->widget_target == TextEdit) {
-
-    } else if (d->widget_target == PlainTextEdit) {
+    else if (d->widget_target == TextEdit && d->textEdit) {
+        if (!d->textEdit->find(currentSearchString(), findFlags() | QTextDocument::FindBackward)) {
+            QTextCursor cursor = d->textEdit->textCursor();
+            cursor.movePosition(QTextCursor::End);
+            d->textEdit->setTextCursor(cursor);
+            d->textEdit->find(currentSearchString(), findFlags() | QTextDocument::FindBackward);
+        }
+    } else if (d->widget_target == PlainTextEdit && d->plainTextEdit) {
         if (d->plainTextEdit->find(currentSearchString(), findFlags() | QTextDocument::FindBackward))
             d->plainTextEdit->centerCursor();
         else {
@@ -354,9 +365,14 @@ void Qtilities::CoreGui::SearchBoxWidget::handleFindPrevious() {
 void Qtilities::CoreGui::SearchBoxWidget::handleReplaceNext() {
     if (d->widget_target == ExternalTarget)
         emit btnReplaceNext_clicked();
-    else if (d->widget_target == TextEdit) {
-
-    } else if (d->widget_target == PlainTextEdit) {
+    else if (d->widget_target == TextEdit && d->textEdit) {
+        if (!d->textEdit->textCursor().hasSelection())
+            handleFindNext();
+        else {
+            d->textEdit->textCursor().insertText(ui->txtReplaceString->text());
+            handleFindNext();
+        }
+    } else if (d->widget_target == PlainTextEdit && d->plainTextEdit) {
         if (!d->plainTextEdit->textCursor().hasSelection())
             handleFindNext();
         else {
@@ -369,9 +385,14 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplaceNext() {
 void Qtilities::CoreGui::SearchBoxWidget::handleReplacePrevious() {
     if (d->widget_target == ExternalTarget)
         emit btnReplacePrevious_clicked();
-    else if (d->widget_target == TextEdit) {
-
-    } else if (d->widget_target == PlainTextEdit) {
+    else if (d->widget_target == TextEdit && d->textEdit) {
+        if (!d->textEdit->textCursor().hasSelection())
+            handleFindPrevious();
+        else {
+            d->textEdit->textCursor().insertText(ui->txtReplaceString->text());
+            handleFindPrevious();
+        }
+    } else if (d->widget_target == PlainTextEdit && d->plainTextEdit) {
         if (!d->plainTextEdit->textCursor().hasSelection())
             handleFindPrevious();
         else {
@@ -384,9 +405,33 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplacePrevious() {
 void Qtilities::CoreGui::SearchBoxWidget::handleReplaceAll() {
     if (d->widget_target == ExternalTarget)
         emit btnReplaceAll_clicked();
-    else if (d->widget_target == TextEdit) {
+    else if (d->widget_target == TextEdit && d->textEdit) {
+        int count = 0;
 
-    } else if (d->widget_target == PlainTextEdit) {
+        QTextCursor cursor = d->textEdit->textCursor();
+        int position = cursor.position();
+        cursor.setPosition(0);
+        cursor.beginEditBlock();
+
+        d->textEdit->setTextCursor(cursor);
+        d->textEdit->find(currentSearchString(),findFlags());
+        while (d->textEdit->textCursor().hasSelection()) {
+            d->textEdit->textCursor().insertText(ui->txtReplaceString->text());
+            ++count;
+            d->textEdit->find(currentSearchString(),findFlags());
+        }
+
+        cursor.endEditBlock();
+        cursor.setPosition(position);
+        d->textEdit->setTextCursor(cursor);
+
+        if (count == 1)
+            setMessage(QString("<font color='green'>Replaced 1 occurance.</font>"));
+        else if (count > 1)
+            setMessage(QString("<font color='green'>Replaced %1 occurances.</font>").arg(count));
+        else
+            setMessage(QString("<font color='orange'>No occurance of your search string was found.</font>"));
+    } else if (d->widget_target == PlainTextEdit && d->plainTextEdit) {
         int count = 0;
 
         QTextCursor cursor = d->plainTextEdit->textCursor();

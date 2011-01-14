@@ -77,7 +77,8 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     // Create text editor
     d->code_editor_widget = new CodeEditorWidget();
     d->code_editor_widget->codeEditor()->setPlainText("This is an example mode with a code editor, and a set of dynamically loaded widgets in the dock window.");
-    d->code_editor_widget->searchBoxWidget()->setWidgetMode(SearchBoxWidget::SearchOnly);
+    if (d->code_editor_widget->searchBoxWidget())
+        d->code_editor_widget->searchBoxWidget()->setWidgetMode(SearchBoxWidget::SearchOnly);
 
     // Create splitters
     if (ui->splitterParent->layout())

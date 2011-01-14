@@ -70,9 +70,7 @@ namespace Qtilities {
             // --------------------------------
             bool initialize();
             void finalize();
-            bool isInitialized() const;
-            QString name() const { return QObject::tr("File Logger Engine"); }
-            QString description() const { return QObject::tr("Writes log messages to a file."); }
+            QString description() const;
             QString status() const;
             bool removable() const { return true; }
             bool isFormattingEngineConstant() const { return true; }
@@ -84,6 +82,7 @@ namespace Qtilities {
             bool exportBinary(QDataStream& stream) const;
             bool importBinary(QDataStream& stream);
             QString factoryTag() const { return TAG_LOGGER_ENGINE_FILE; }
+            QString instanceName() const { return name(); }
 
             //! Sets the file name to which this engine will write the log output.
             /*!
@@ -126,9 +125,7 @@ namespace Qtilities {
             // AbstractLoggerEngine implementation
             bool initialize();
             void finalize();
-            bool isInitialized() const;
-            QString name() const { return QObject::tr("Qt Message Logger Engine"); }
-            QString description() const { return QObject::tr("Writes log messages to the Qt message system."); }
+            QString description() const;
             QString status() const;
             bool removable() const { return false; }
             bool isFormattingEngineConstant() const { return true; }
@@ -162,9 +159,7 @@ namespace Qtilities {
             // AbstractLoggerEngine implementation
             bool initialize();
             void finalize();
-            bool isInitialized() const;
-            QString name() const { return QObject::tr("Console Logger Engine"); }
-            QString description() const { return QObject::tr("Writes log messages to the console."); }
+            QString description() const;
             QString status() const;
             bool removable() const { return false; }
             bool isFormattingEngineConstant() const { return false; }

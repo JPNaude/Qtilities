@@ -52,6 +52,7 @@ struct Qtilities::CoreGui::WidgetLoggerEngineData {
 Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine() : AbstractLoggerEngine()
 {
     d = new WidgetLoggerEngineData;
+    setName(QObject::tr("Widget Logger Engine"));
 }
 
 Qtilities::CoreGui::WidgetLoggerEngine::~WidgetLoggerEngine()
@@ -83,12 +84,8 @@ void Qtilities::CoreGui::WidgetLoggerEngine::finalize() {
     abstractLoggerEngineData->is_initialized = false;
 }
 
-bool Qtilities::CoreGui::WidgetLoggerEngine::isInitialized() const {
-    return abstractLoggerEngineData->is_initialized;
-}
-
-QString Qtilities::CoreGui::WidgetLoggerEngine::name() const {
-    return QString(tr("Widget Logger Engine: %1")).arg(objectName());
+QString Qtilities::CoreGui::WidgetLoggerEngine::description() const {
+    return QObject::tr("An engine with a widget frontend used to display messages to the user.");
 }
 
 QString Qtilities::CoreGui::WidgetLoggerEngine::status() const {

@@ -323,6 +323,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
         ui->txtLoggerEngineStatus->setPlainText(QString());
         ui->txtLoggerEngineDescription->setPlainText(QString());
         ui->comboBoxLoggerFormattingEngine->setEnabled(false);
+        ui->txtMessageContexts->setEnabled(false);
         ui->btnRemoveLoggerEngine->setEnabled(false);
         return;
     }
@@ -339,6 +340,12 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
         ui->comboBoxLoggerFormattingEngine->setEnabled(false);
     else
         ui->comboBoxLoggerFormattingEngine->setEnabled(true);
+
+    // Message Contexts:
+    QString contexts_string = Log->messageContextsToString(d->active_engine->messageContexts());
+    ui->txtMessageContexts->setText(contexts_string);
+    ui->txtMessageContexts->setToolTip(contexts_string);
+    ui->txtMessageContexts->setEnabled(true);
 
     // Remove Button:
     if (d->active_engine->removable())
