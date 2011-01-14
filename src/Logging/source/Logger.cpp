@@ -505,7 +505,7 @@ void Qtilities::Logging::Logger::enableEngine(const QString& engine_name) {
     if (!engine)
         return;
 
-    engine->setActive(false);
+    engine->setActive(true);
 }
 
 void Qtilities::Logging::Logger::disableEngine(const QString engine_name) {
@@ -514,7 +514,7 @@ void Qtilities::Logging::Logger::disableEngine(const QString engine_name) {
     if (!engine)
         return;
 
-    engine->setActive(true);
+    engine->setActive(false);
 }
 
 QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() const {
