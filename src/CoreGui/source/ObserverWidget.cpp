@@ -2548,18 +2548,34 @@ void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectC
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> > objects) {
-    QList<QObject*> simple_list;
-    for (int i = 0; i < objects.count(); i++) {
-        if (objects.at(i))
-            simple_list << objects.at(i);
+    if (objects.count() == 0) {
+        if (d->table_view) {
+            if (d->table_view->selectionModel())
+                d->table_view->selectionModel()->clear();
+        } else if (d->tree_view) {
+            if (d->tree_view->selectionModel())
+                d->tree_view->selectionModel()->clear();
+        }
+    } else {
+        QList<QObject*> simple_list;
+        for (int i = 0; i < objects.count(); i++) {
+            if (objects.at(i))
+                simple_list << objects.at(i);
+        }
+        selectObjects(simple_list);
     }
-    selectObjects(simple_list);
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
     if (objects.count() == 0) {
-        // We expand all:
-        viewExpandAll();
+        if (d->table_view) {
+            if (d->table_view->selectionModel())
+                d->table_view->selectionModel()->clear();
+        } else if (d->tree_view) {
+            if (d->tree_view->selectionModel())
+                d->tree_view->selectionModel()->clear();
+            viewExpandAll();
+        }
         return;
     }
 

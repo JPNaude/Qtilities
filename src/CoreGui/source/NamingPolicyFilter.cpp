@@ -679,11 +679,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
                 d->name_dialog->setObject(obj);
                 d->name_dialog->setContext(observer->observerID(),observer->observerName());
                 d->name_dialog->initialize(validity_result);
-                    if (d->name_dialog->exec()) {
-                        if (d->name_dialog->selectedResolution() == Reject)
-                            return_value = false;
-                        else
-                            return_value = true;
+                if (d->name_dialog->exec()) {
+                    if (d->name_dialog->selectedResolution() == Reject)
+                        return_value = false;
+                    else
+                        return_value = true;
                 } else
                     return_value = false;
             }

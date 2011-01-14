@@ -369,14 +369,14 @@ categorized_widget->show();
         public slots:
             //! Selects the specified objects in the active item view.
             /*!
-              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored.
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
               */
             void selectObjects(QList<QObject*> objects);
             //! Selects the specified objects in a smart pointer list in the active item view.
             /*!
-              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored.
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
               */
