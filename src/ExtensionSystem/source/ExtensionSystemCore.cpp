@@ -160,6 +160,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             QFileInfo file_info(fileName);
             QString stripped_file_name = file_info.fileName();
 
+            #if defined(Q_OS_UNIX)
+                // Filter .so.x plugins on linux:
+                if (file_info.completeSuffix().split(".").count() > 1 && file_info.completeSuffix().startsWith(".so"))
+                    continue;
+            #endif
+
             bool is_filtered_plugin = false;
             foreach (QString filteredPluginName, d->set_filtered_plugins) {
                 if (stripped_file_name.startsWith(filteredPluginName)) {
