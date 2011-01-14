@@ -98,6 +98,8 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleBtnBrowse() {
 
             if (dir.isRoot())
                 m_ui->btnCdUp->setEnabled(false);
+            else
+                m_ui->btnCdUp->setEnabled(true);
         }
     }
 }
