@@ -57,6 +57,10 @@ int main(int argc, char *argv[])
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
+    AbstractLoggerEngine* engine = Log->newFileEngine("Test File Engine",QApplication::applicationDirPath() + "/test.log");
+    if (engine)
+        engine->setMessageContexts(Logger::SystemWideMessages | Logger::EngineSpecificMessages);
+
     // We show a splash screen in this example:
     QPixmap pixmap(QTILITIES_LOGO_BT_300x300);
     QSplashScreen *splash = new QSplashScreen(pixmap);
