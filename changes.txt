@@ -117,6 +117,7 @@ Bug Fixes:
 - Fixed crash in AbstractTreeItem::setName() when it had no parent.
 - Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
 - Fixed crash in FileLoggerEngine::finalize() if it had no formatting engine.
+- Fixed bug where Logger::enableEngine() and Logger::disableEngine() was switched around, thus they did the opposite of what they had to do.
 
 Outstanding roadmap items for this version:
 - Property editor must refresh when properties changes..
