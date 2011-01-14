@@ -86,6 +86,8 @@ Improvements & Notable Changes:
 - Logger now checks that multiple engines with the same name can't be added.
 - Logger now restores logger engine specific parameters correctly from .logconfig files.
 - WidgetLoggerFrontend::isFormattingEngineConstant() now returns true by default.
+- The extension system now filters all version specific shared object files (for example .so.1) when loading plugins.
+- ObserverWidget::selectObjects() now clears the current selection when getting an empty list.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -95,7 +97,7 @@ At this stage proper documentation is still lacking on a class level for many cl
 
 Bug Fixes:
 - Fixed memory leak in ActivityPolicyFilter destructor.
-- Fixed bug in ObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::usesObserverHints() was false.
+- Fixed bug in ObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::useObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
 - Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
@@ -117,6 +119,7 @@ Bug Fixes:
 - Fixed crash in AbstractTreeItem::setName() when it had no parent.
 - Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
 - Fixed crash in FileLoggerEngine::finalize() if it had no formatting engine.
+- Fixed bug where Logger::enableEngine() and Logger::disableEngine() was switched around, thus they did the opposite of what they had to do.
 
 Outstanding roadmap items for this version:
 - Property editor must refresh when properties changes..
