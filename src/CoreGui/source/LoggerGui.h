@@ -88,11 +88,13 @@ namespace Qtilities {
                     return 0;
                 }
 
-                new_widget_engine->setObjectName(window_title);
-                Log->attachLoggerEngine(new_widget_engine);
-                new_widget_engine->setActive(is_active);
-                new_widget_engine->setEnabledMessageTypes(message_types);
-                return new_widget_engine->getWidget();
+                new_widget_engine->setName("Widget: " + window_title);
+                if (Log->attachLoggerEngine(new_widget_engine)) {
+                    new_widget_engine->setActive(is_active);
+                    new_widget_engine->setEnabledMessageTypes(message_types);
+                    return new_widget_engine->getWidget();
+                } else
+                    return 0;
             }
 
             //! Creates a temporary logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
@@ -130,9 +132,12 @@ namespace Qtilities {
             static QDockWidget* createLogDockWidget(const QString& window_title, bool is_active, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
                 QDockWidget* log_dock_widget = new QDockWidget(window_title);
                 QWidget* log_widget = createLogWidget(window_title,is_active,message_types);
-                log_dock_widget->setWidget(log_widget);
-                QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));
-                return log_dock_widget;
+                if (log_widget) {
+                    log_dock_widget->setWidget(log_widget);
+                    QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));
+                    return log_dock_widget;
+                } else
+                    return 0;
             }
 
             //! Return a settings widget for the logger.
