@@ -89,10 +89,16 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleRootPathChanged(const QStri
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::handleBtnBrowse() {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Path"),m_ui->txtCurrentPath->text(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    if (!dir.isNull()) {
-        m_ui->treeView->setRootIndex(d->model->index(dir));
-        m_ui->txtCurrentPath->setText(dir);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Path"),m_ui->txtCurrentPath->text(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!path.isEmpty()) {
+        QDir dir(path);
+        if (dir.exists()) {
+            m_ui->treeView->setRootIndex(d->model->index(dir.path()));
+            m_ui->txtCurrentPath->setText(dir.path());
+
+            if (dir.isRoot())
+                m_ui->btnCdUp->setEnabled(false);
+        }
     }
 }
 
@@ -117,4 +123,17 @@ void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
 
 QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
     return m_ui->txtCurrentPath->text();
+}
+
+void Qtilities::CoreGui::SideWidgetFileSystem::on_btnCdUp_clicked()
+{
+    QDir dir(m_ui->txtCurrentPath->text());
+    dir.cdUp();
+    if (dir.exists()) {
+        m_ui->treeView->setRootIndex(d->model->index(dir.path()));
+        m_ui->txtCurrentPath->setText(dir.path());
+
+        if (dir.isRoot())
+            m_ui->btnCdUp->setEnabled(false);
+    }
 }

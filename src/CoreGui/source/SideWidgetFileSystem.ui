@@ -36,18 +36,65 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QToolButton" name="btnBrowse">
+   <item row="1" column="0" colspan="3">
+    <widget class="QTreeView" name="treeView"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="btnBrowse">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>20</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Browse for new directory</string>
+     </property>
      <property name="text">
-      <string>...</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/CoreGui.qrc">
+       <normaloff>:/icons/file_open_16x16.png</normaloff>:/icons/file_open_16x16.png</iconset>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QTreeView" name="treeView"/>
+   <item row="0" column="1">
+    <widget class="QPushButton" name="btnCdUp">
+     <property name="maximumSize">
+      <size>
+       <width>20</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Go to parent directory</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/CoreGui.qrc">
+       <normaloff>:/icons/up_16x16.png</normaloff>:/icons/up_16x16.png</iconset>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/CoreGui.qrc"/>
+ </resources>
  <connections/>
 </ui>

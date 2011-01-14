@@ -89,6 +89,8 @@ namespace Qtilities {
             void handleBtnBrowse();
             void handleDoubleClicked(const QModelIndex& index);
 
+            void on_btnCdUp_clicked();
+
         signals:
             void requestEditor(const QString& file_name);
 
