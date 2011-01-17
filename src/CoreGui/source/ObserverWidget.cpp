@@ -2242,7 +2242,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
         search_options |= SearchBoxWidget::CaseSensitive;
         search_options |= SearchBoxWidget::RegEx;
         SearchBoxWidget::ButtonFlags button_flags = 0;
-        button_flags |= SearchBoxWidget::HideButton;
+        button_flags |= SearchBoxWidget::HideButtonDown;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchOnly,button_flags);
         if (ui->widgetSearchBox->layout())
             delete ui->widgetSearchBox->layout();

@@ -193,7 +193,11 @@ void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flag
         ui->btnFindPrevious->hide();
         ui->btnReplacePrevious->hide();
     }
-    if (d->button_flags & HideButton) {
+    if ((d->button_flags & HideButtonDown) || (d->button_flags & HideButtonUp)) {
+        if (d->button_flags & HideButtonDown)
+            ui->btnClose->setArrowType(Qt::DownArrow);
+        else
+            ui->btnClose->setArrowType(Qt::UpArrow);
         ui->btnClose->show();
     } else {
         ui->btnClose->hide();
@@ -289,7 +293,9 @@ QPlainTextEdit* Qtilities::CoreGui::SearchBoxWidget::plainTextEditor() const {
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::handleOptionsChanged() {
-
+    handleFindPrevious();
+    handleFindNext();
+    emit searchOptionsChanged();
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::handleSearchStringChanged(const QString& string) {
@@ -305,10 +311,7 @@ void Qtilities::CoreGui::SearchBoxWidget::handleReplaceStringChanged(const QStri
 void Qtilities::CoreGui::SearchBoxWidget::handleClose() {
     if (d->widget_target == ExternalTarget)
         emit btnClose_clicked();
-    else if (d->widget_target == TextEdit) {
-        emit btnClose_clicked();
-        hide();
-    } else if (d->widget_target == PlainTextEdit) {
+    else if (d->widget_target == TextEdit || d->widget_target == PlainTextEdit) {
         emit btnClose_clicked();
         hide();
     }
