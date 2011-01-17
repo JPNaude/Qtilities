@@ -89,6 +89,7 @@ Improvements & Notable Changes:
 - The extension system now filters all version specific shared object files (for example .so.1) when loading plugins.
 - ObserverWidget::selectObjects() now clears the current selection when getting an empty list.
 - SideWidgetFileSystem has a new button to change to the parent directory and the browse button got an icon.
+- SearchBoxWidget now allows the hide button to either be an Up or a Down arrow.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
