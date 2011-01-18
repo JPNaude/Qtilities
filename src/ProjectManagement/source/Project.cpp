@@ -535,11 +535,11 @@ bool Qtilities::ProjectManagement::Project::isModified() const {
 }
 
 void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
-    if (notification_targets & IModificationNotifier::NotifyListeners) {
-        emit modificationStateChanged(new_state);
-    }
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         for (int i = 0; i < d->project_items.count(); i++)
-            d->project_items.at(i)->setModificationState(new_state,notification_targets);
+            d->project_items.at(i)->setModificationState(new_state,IModificationNotifier::NotifySubjects);
+    }
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
     }
 }

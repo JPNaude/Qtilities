@@ -174,7 +174,7 @@ QString Qtilities::CoreGui::TreeFileItem::displayName() {
         return treeFileItemBase->file_info.actualFilePath();
     }
 
-    return QString("Invalid display name. See Qtilities::CoreGui::TreeFileItem::displayName()");
+    return QString("Invalid display name type. See Qtilities::CoreGui::TreeFileItem::displayName()");
 }
 
 void Qtilities::CoreGui::TreeFileItem::setDisplayName(const QString& new_display_name) {
