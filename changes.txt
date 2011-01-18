@@ -90,6 +90,10 @@ Improvements & Notable Changes:
 - ObserverWidget::selectObjects() now clears the current selection when getting an empty list.
 - SideWidgetFileSystem has a new button to change to the parent directory and the browse button got an icon.
 - SearchBoxWidget now allows the hide button to either be an Up or a Down arrow.
+- Observer: Whenever it is needed to emit the numberOfSubjectChanged() signal, Observer will now first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
+- QtilitiesMainWindow: Handles priority message timeouts better. Previously if multiple priority messages were logged directly after one another the timeout of the first message that was logged would hide & clear the priority message in the statusbar. Now the last message will do this.
+- Observer & Project modification state optimizations. When notifying subjects it no longer let them notify their listeners as well since this results in a huge amount of recursive signals emissions. The order in which subjects and listeners are notified also changed: Subjects are first notified and then listeners, in this way listeners can check the modiciation state and it would return the correct results.
+- Fixed bug where Observer ended a processing cycle before emitting the numberOfSubjectsChanged() signal.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
