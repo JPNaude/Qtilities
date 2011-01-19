@@ -81,44 +81,46 @@ using namespace Qtilities::Core::Properties;
 
 struct Qtilities::CoreGui::ObserverWidgetData {
     ObserverWidgetData() : actionRemoveItem(0),
-    actionRemoveAll(0),
-    actionDeleteItem(0),
-    actionDeleteAll(0),
-    actionNewItem(0),
-    actionRefreshView(0),
-    actionPushUp(0),
-    actionPushUpNew(0),
-    actionPushDown(0),
-    actionPushDownNew(0),
-    actionSwitchView(0),
-    actionExpandAll(0),
-    actionCollapseAll(0),
-    actionFindItem(0),
-    navigation_bar(0),
-    table_view(0),
-    table_model(0),
-    tree_view(0),
-    tree_model(0),
-    proxy_model(0),
-    table_name_column_delegate(0),
-    tree_name_column_delegate(0),
-    activity_filter(0),
-    top_level_observer(0),
-    initialized(false),
-    update_selection_activity(true),
-    hints_selection_parent(0),
-    use_observer_hints(true),
-    update_global_active_objects(false),
-    action_provider(0),
-    default_row_height(17),
-    confirm_deletes(true),
-    searchBoxWidget(0),
-    actionFilterNodes(0),
-    actionFilterItems(0),
-    actionFilterCategories(0),
-    actionFilterTypeSeperator(0),
-    last_display_flags(ObserverHints::NoDisplayFlagsHint),
-    do_column_resizing(true) { }
+        actionRemoveAll(0),
+        actionDeleteItem(0),
+        actionDeleteAll(0),
+        actionNewItem(0),
+        actionRefreshView(0),
+        actionPushUp(0),
+        actionPushUpNew(0),
+        actionPushDown(0),
+        actionPushDownNew(0),
+        actionSwitchView(0),
+        actionExpandAll(0),
+        actionCollapseAll(0),
+        actionFindItem(0),
+        navigation_bar(0),
+        table_view(0),
+        table_model(0),
+        custom_table_proxy_model(0),
+        tree_view(0),
+        tree_model(0),
+        custom_tree_proxy_model(0),
+        proxy_model(0),
+        table_name_column_delegate(0),
+        tree_name_column_delegate(0),
+        activity_filter(0),
+        top_level_observer(0),
+        initialized(false),
+        update_selection_activity(true),
+        hints_selection_parent(0),
+        use_observer_hints(true),
+        update_global_active_objects(false),
+        action_provider(0),
+        default_row_height(17),
+        confirm_deletes(true),
+        searchBoxWidget(0),
+        actionFilterNodes(0),
+        actionFilterItems(0),
+        actionFilterCategories(0),
+        actionFilterTypeSeperator(0),
+        last_display_flags(ObserverHints::NoDisplayFlagsHint),
+        do_column_resizing(true) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -150,9 +152,11 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     Qtilities::DisplayMode display_mode;
     QPointer<QTableView> table_view;
     ObserverTableModel* table_model;
+    QAbstractProxyModel* custom_table_proxy_model;
     QPointer<QTreeView> tree_view;
     ObserverTreeModel* tree_model;
-    QSortFilterProxyModel *proxy_model;
+    QAbstractProxyModel* custom_tree_proxy_model;
+    QAbstractProxyModel *proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
     ActivityPolicyFilter* activity_filter;
@@ -402,6 +406,34 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
     return true;
 }
 
+bool Qtilities::CoreGui::ObserverWidget::setCustomTableProxyModel(QAbstractProxyModel* proxy_model) {
+    if (d->initialized)
+        return false;
+
+    if (d->custom_table_proxy_model)
+        return false;
+
+    if (!proxy_model)
+        return false;
+
+    d->custom_table_proxy_model = proxy_model;
+    return true;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::setCustomTreeProxyModel(QAbstractProxyModel* proxy_model) {
+    if (d->initialized)
+        return false;
+
+    if (d->custom_tree_proxy_model)
+        return false;
+
+    if (!proxy_model)
+        return false;
+
+    d->custom_tree_proxy_model = proxy_model;
+    return true;
+}
+
 void Qtilities::CoreGui::ObserverWidget::setDisplayMode(DisplayMode display_mode) {
     if (d->initialized) {
         if (d->display_mode != display_mode) {
@@ -463,10 +495,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Set the title of this widget
         setWindowTitle(QString("%1").arg(d_observer->objectName()));
 
-        // Delete the proxy model if it exists already.
-        if (d->proxy_model)
-            delete d->proxy_model;
-
         // Check and setup the item display mode
         if (d->display_mode == TreeView) {
             disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
@@ -522,11 +550,18 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
             d->tree_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-            // Setup proxy model
-            d->proxy_model = new ObserverTreeModelProxyFilter(this);
-            d->proxy_model->setDynamicSortFilter(true);
+            // Setup proxy model:
+            if (!d->custom_tree_proxy_model) {
+                if (!d->proxy_model) {
+                    QSortFilterProxyModel* new_model = new ObserverTreeModelProxyFilter(this);
+                    new_model->setDynamicSortFilter(true);
+                    new_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+                    d->proxy_model = new_model;
+                }
+            } else
+                d->proxy_model = d->custom_tree_proxy_model;
+
             d->proxy_model->setSourceModel(d->tree_model);
-            d->proxy_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->tree_view->setModel(d->proxy_model);
 
             if (d->tree_view->selectionModel())
@@ -538,8 +573,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             // Connect to the current parent observer, in the tree view the model will monitor this for you.
             disconnect(d_observer,SIGNAL(destroyed()),this,SLOT(contextDeleted()));
             connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
-            d->proxy_model = new ObserverTableModelCategoryFilter(this);
-            d->proxy_model->setDynamicSortFilter(true);
 
             if (d->tree_view)
                 d->tree_view->hide();
@@ -586,8 +619,17 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_view->verticalHeader()->setVisible(false);
 
             // Setup proxy model
+            if (!d->custom_table_proxy_model) {
+                if (!d->proxy_model) {
+                    QSortFilterProxyModel* new_model = new ObserverTableModelCategoryFilter(this);
+                    new_model->setDynamicSortFilter(true);
+                    new_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
+                    d->proxy_model = new_model;
+                }
+            } else
+                d->proxy_model = d->custom_table_proxy_model;
+
             d->proxy_model->setSourceModel(d->table_model);
-            d->proxy_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
             d->table_view->setModel(d->proxy_model);
 
             if (d->table_view->selectionModel()) {
@@ -2662,7 +2704,11 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
         syntax = QRegExp::PatternSyntax(QRegExp::FixedString);
     Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
     QRegExp regExp(filter_string, caseSensitivity, syntax);
-    d->proxy_model->setFilterRegExp(regExp);
+
+    // Check if the installed proxy model is a QSortFilterProxyModel:
+    QSortFilterProxyModel* model = qobject_cast<QSortFilterProxyModel*> (d->proxy_model);
+    if (model)
+        model->setFilterRegExp(regExp);
 }
 
 void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
