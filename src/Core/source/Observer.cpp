@@ -680,7 +680,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
 
         if (child.tagName() == "Children") {
-            QList<QObject*> active_subjects;
+            QList<QPointer<QObject> > active_subjects;
             QDomNodeList childrenNodes = child.childNodes();
             for(int i = 0; i < childrenNodes.count(); i++)
             {

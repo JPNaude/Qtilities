@@ -814,11 +814,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             }
 
             if (create_default_selection && d->update_selection_activity) {
-                // Create an initial selection.
-                QList<QObject*> initial_selection;
-                if (d_observer->subjectCount() > 0)
-                    initial_selection << d_observer->subjectAt(0);
-                selectObjects(initial_selection);
+                selectObjects(QList<QObject*>());
             }
         }
     }
@@ -1240,6 +1236,8 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->action_provider->disableAllActions();
         deleteActionToolBars();
         return;
+    } else {
+        d->action_provider->enableAllActions();
     }
 
     // Ok, first we set only actions specified by the observer's action hints to be visible
@@ -1302,10 +1300,6 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionFindItem->setVisible(true);
     else
         d->actionFindItem->setVisible(false);
-
-    // Actions which should always be active, independent of the display mode:
-    d->actionSwitchView->setEnabled(true);
-    d->actionFindItem->setEnabled(true);
 
     // Remove & Delete All Actions
     if (d_observer) {
@@ -2170,18 +2164,12 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
-    if (!d->initialized)
-        return;
-
     if (d->tree_view && d->display_mode == TreeView) {
         d->tree_view->expandToDepth(0);
     }
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
-    if (!d->initialized)
-        return;
-
     if (d->tree_view && d->display_mode == TreeView) {
         d->tree_view->expandAll();
     }
@@ -2590,6 +2578,9 @@ void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectC
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> > objects) {
+    if (!d->update_selection_activity)
+        return;
+
     if (objects.count() == 0) {
         if (d->table_view) {
             if (d->table_view->selectionModel())
@@ -2609,6 +2600,9 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) {
+    if (!d->update_selection_activity)
+        return;
+
     if (objects.count() == 0) {
         if (d->table_view) {
             if (d->table_view->selectionModel())
@@ -2620,9 +2614,6 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         }
         return;
     }
-
-    if (!d->update_selection_activity)
-        return;
 
     // Handle for the table view
     if (d->table_view && d->table_model && d->display_mode == TableView && d->proxy_model) {

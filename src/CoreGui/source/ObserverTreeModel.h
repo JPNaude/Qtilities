@@ -133,7 +133,7 @@ namespace Qtilities {
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
               */
-            void rebuildTreeStructure(QObject* new_focus = 0);
+            void rebuildTreeStructure(QObject* new_focus);
 
         public slots:
             //! Function which will calculate the selection parent of a selected object.

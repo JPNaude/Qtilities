@@ -88,7 +88,7 @@ namespace Qtilities {
                     return 0;
                 }
 
-                new_widget_engine->setName("Widget: " + window_title);
+                new_widget_engine->setName(window_title);
                 if (Log->attachLoggerEngine(new_widget_engine)) {
                     new_widget_engine->setActive(is_active);
                     new_widget_engine->setEnabledMessageTypes(message_types);

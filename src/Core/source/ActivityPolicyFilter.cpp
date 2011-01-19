@@ -266,7 +266,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
             return;
         }
 
-        if (!observer->contains(objects.at(i))) {
+        if (!observer->contains(objects.at(i)) && objects.at(i)) {
             LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context.").arg(objects.at(i)->objectName()));
             return;
         }
@@ -290,7 +290,8 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     }
     // Set objects in the list as active
     for (int i = 0; i < objects.count(); i++) {
-        observer->setObserverPropertyValue(objects.at(i),OBJECT_ACTIVITY,QVariant(true));
+        if (objects.at(i))
+            observer->setObserverPropertyValue(objects.at(i),OBJECT_ACTIVITY,QVariant(true));
     }
     filter_mutex.unlock();
 

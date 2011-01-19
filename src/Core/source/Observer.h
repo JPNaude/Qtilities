@@ -753,6 +753,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               \sa propertyChangeFiltered()
               */
             QStringList reservedProperties() const;
+
         signals:
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
             /*!
