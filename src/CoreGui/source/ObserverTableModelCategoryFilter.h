@@ -37,6 +37,7 @@
 #include <QSortFilterProxyModel>
 
 #include "Observer.h"
+#include "QtilitiesCoreGui_global.h"
 
 namespace Qtilities {
     namespace CoreGui {
@@ -44,16 +45,16 @@ namespace Qtilities {
           \class Qtilities::CoreGui::ObserverTableModelCategoryFilter
           \brief The ObserverTableModelCategoryFilter class is an implementation of a QSortFilterProxyModel which filters table items according to category hints presented by an observer.
           */
-        class ObserverTableModelCategoryFilter : public QSortFilterProxyModel
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTableModelCategoryFilter : public QSortFilterProxyModel
         {
             Q_OBJECT
 
         public:
             ObserverTableModelCategoryFilter(QObject* parent = 0);
-            ~ObserverTableModelCategoryFilter();
+            virtual ~ObserverTableModelCategoryFilter();
 
         protected:
-            bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+            virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
         };
     }
 }
