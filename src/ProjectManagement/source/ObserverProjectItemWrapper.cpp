@@ -89,8 +89,10 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::closeProjectItem(
     if (!d->observer)
         return false;
 
+    d->observer->startProcessingCycle();
     d->observer->deleteAll();
     d->observer->setModificationState(true);
+    d->observer->endProcessingCycle();
     return true;
 }
 

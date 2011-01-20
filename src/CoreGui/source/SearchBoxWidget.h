@@ -95,7 +95,7 @@ namespace Qtilities {
             };
             //! An enumeration which is used to indicate the target on which the search and place operations must be performed.
             enum WidgetTarget {
-                ExternalTarget,         /*!< External target. Will emit needed signals for external target to connect to. */
+                ExternalTarget,         /*!< External target. Will emit needed signals for external target to connect to. This is the default. */
                 TextEdit,               /*!< Text edit set using setTextEdit(). */
                 PlainTextEdit           /*!< Plain text edit set using setPlainTextEdit(). */
             };
@@ -104,8 +104,9 @@ namespace Qtilities {
                 NoButtons = 0,          /*!< No buttons will be visible in the widget. */
                 NextButtons = 1,        /*!< The next buttons will be visible in the widget. */
                 PreviousButtons = 2,    /*!< The previous buttons will be visible in the widget. */
-                HideButton = 4,         /*!< The button to hide the search box will be visible in the widget. */
-                AllButtons = NextButtons | PreviousButtons | HideButton
+                HideButtonUp = 4,       /*!< The button to hide the search box will be visible in the widget as a down arrow. */
+                HideButtonDown = 8,     /*!< The button to hide the search box will be visible in the widget as an up arrow. */
+                AllButtons = NextButtons | PreviousButtons | HideButtonDown
             };
             Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag);
             Q_FLAGS(ButtonFlags);

@@ -38,6 +38,7 @@
 
 #include "Observer.h"
 #include "ObserverTreeItem.h"
+#include "QtilitiesCoreGui_global.h"
 
 namespace Qtilities {
     namespace CoreGui {
@@ -45,13 +46,13 @@ namespace Qtilities {
           \class ObserverTreeModelProxyFilter
           \brief The ObserverTreeModelProxyFilter class is an implementation of a QSortFilterProxyModel which is used for advanced filtering in ObserverTreeModel.
           */
-        class ObserverTreeModelProxyFilter : public QSortFilterProxyModel
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObserverTreeModelProxyFilter : public QSortFilterProxyModel
         {
             Q_OBJECT
 
         public:
             ObserverTreeModelProxyFilter(QObject* parent = 0);
-            ~ObserverTreeModelProxyFilter();
+            virtual ~ObserverTreeModelProxyFilter();
 
             //! Sets the tree item types to be filtered in filterAcceptsRow().
             void setRowFilterTypes(ObserverTreeItem::TreeItemTypeFlags type_flags);
@@ -59,7 +60,7 @@ namespace Qtilities {
             ObserverTreeItem::TreeItemTypeFlags rowFilterTypes() const;
 
         protected:
-            bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+            virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
         private:
             ObserverTreeItem::TreeItemTypeFlags row_filter_types;

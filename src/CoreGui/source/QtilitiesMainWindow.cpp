@@ -58,6 +58,7 @@ struct Qtilities::CoreGui::QtilitiesMainWindowData {
     QLabel                          priority_messages_icon;
     QLabel                          priority_messages_text;
     QtilitiesMainWindow::ModeLayout mode_layout;
+    QTimer                          priority_message_timer;
 };
 
 Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayout, QWidget* parent, Qt::WindowFlags flags) :
@@ -93,6 +94,11 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
 
     d->priority_messages_icon.setVisible(false);
     d->priority_messages_text.setVisible(false);
+
+    connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_text, SLOT(clear()));
+    connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_text, SLOT(hide()));
+    connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_icon, SLOT(clear()));
+    connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_icon, SLOT(hide()));
 }
 
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
@@ -215,10 +221,6 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
         }
 
         d->priority_messages_text.setText(message);
-
-        QTimer::singleShot(5000, &d->priority_messages_text, SLOT(clear()));
-        QTimer::singleShot(5000, &d->priority_messages_text, SLOT(hide()));
-        QTimer::singleShot(5000, &d->priority_messages_icon, SLOT(clear()));
-        QTimer::singleShot(5000, &d->priority_messages_icon, SLOT(hide()));
+        d->priority_message_timer.start(5000);
     }
 }

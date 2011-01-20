@@ -753,6 +753,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               \sa propertyChangeFiltered()
               */
             QStringList reservedProperties() const;
+
         signals:
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
             /*!
@@ -789,6 +790,10 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 
               \param change_indication Slots can use this indicator to know what change occured.
               \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted.
+
+              \note When ever it is needed to emit this signal, Observer will first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
+
+              \note When a processing cycle is active on the observer, this signal will always be emitted while the processing cycle is active.
               */
             void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QObject*> objects = QList<QObject*>());
             //! A signal which is emitted when the layout of the observer or the tree underneath it changes.

@@ -430,7 +430,7 @@ void Qtilities::CoreGui::CodeEditorWidget::showSearchBox() {
         search_options |= SearchBoxWidget::CaseSensitive;
         search_options |= SearchBoxWidget::WholeWordsOnly;
         SearchBoxWidget::ButtonFlags button_flags = 0;
-        button_flags |= SearchBoxWidget::HideButton;
+        button_flags |= SearchBoxWidget::HideButtonDown;
         button_flags |= SearchBoxWidget::NextButtons;
         button_flags |= SearchBoxWidget::PreviousButtons;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);

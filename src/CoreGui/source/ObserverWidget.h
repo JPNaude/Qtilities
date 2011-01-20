@@ -53,6 +53,7 @@
 #include <QModelIndexList>
 #include <QTableView>
 #include <QTreeView>
+#include <QAbstractProxyModel>
 
 namespace Ui {
     class ObserverWidget;
@@ -148,7 +149,7 @@ categorized_widget->show();
             //! Function which sets a custom table model to be used in this widget when its in TableView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTableModel as the model for the table view.
-              It is possible to create custom models which allows you to extend the default table model.
+              It is possible to use custom models which allows you to extend the default table model.
 
               \note This function must be called before initializing the widget for the first time.
 
@@ -158,13 +159,33 @@ categorized_widget->show();
             //! Function which sets a custom tree model to be used in this widget when its in TreeView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModel as the model for the tree view.
-              It is possible to create custom models which allows you to extend the default tree model.
+              It is possible to use custom models which allows you to extend the default tree model.
 
               \note This function must be called before initializing the widget for the first time.
 
               \returns True if the model was successfully set.
               */
             bool setCustomTreeModel(ObserverTreeModel* tree_model);
+            //! Function which sets a custom table proxy model to be used in this widget when its in TableView mode.
+            /*!
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTableModelCategoryFilter as the proxy model for the table view.
+              It is possible to use custom proxy models which allows you to extend the default proxy model.
+
+              \note This function must be called before initializing the widget for the first time.
+
+              \returns True if the proxy model was successfully set.
+              */
+            bool setCustomTableProxyModel(QAbstractProxyModel* proxy_model);
+            //! Function which sets a custom tree proxy model to be used in this widget when its in TreeView mode.
+            /*!
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModelProxyFilter as the proxy model for the tree view.
+              It is possible to use custom proxy models which allows you to extend the default proxy model.
+
+              \note This function must be called before initializing the widget for the first time.
+
+              \returns True if the proxy model was successfully set.
+              */
+            bool setCustomTreeProxyModel(QAbstractProxyModel* proxy_model);
             //! Sets the display mode of the widget.
             /*!
               \sa displayMode(), toggleDisplayMode()
@@ -458,6 +479,16 @@ categorized_widget->show();
             // --------------------------------
         public:
             //! Returns the action handler interface for this observer widget.
+            /*!
+              All constructed actions for the current observer context will be available through this function.
+
+              Actions are grouped into the following categories:
+              - Items : Actions related to actions that can be performed on selected items.
+              - View : Actions related to actions that can be performed on the item view (such as switching it etc.)
+              - Hierarchy : Actions related observer tree hierarhcies.
+
+              It is possible to add actions to these categories.
+              */
             IActionProvider* actionProvider();
         public slots:
             //! Detaches the current selected objects in the item view from the current selection parent.

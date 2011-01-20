@@ -680,7 +680,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
 
         if (child.tagName() == "Children") {
-            QList<QObject*> active_subjects;
+            QList<QPointer<QObject> > active_subjects;
             QDomNodeList childrenNodes = child.childNodes();
             for(int i = 0; i < childrenNodes.count(); i++)
             {
@@ -820,28 +820,28 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
     }
 
     observerData->is_modified = new_state;
-    if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
-        emit modificationStateChanged(new_state);
-    }
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         // First notify all objects in this context.
         for (int i = 0; i < observerData->subject_list.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,notification_targets);
+                mod_iface->setModificationState(new_state,IModificationNotifier::NotifySubjects);
             }
         }
         // Also notify all subject filters.
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,notification_targets);
+                mod_iface->setModificationState(new_state,IModificationNotifier::NotifySubjects);
             }
         }
         // Also notify observer hints.
         if (observerData->display_hints) {
-            observerData->display_hints->setModificationState(new_state,notification_targets);
+            observerData->display_hints->setModificationState(new_state,IModificationNotifier::NotifySubjects);
         }
+    }
+    if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
+        emit modificationStateChanged(new_state);
     }
 }
 
@@ -1093,9 +1093,9 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         QList<QObject*> objects;
         objects << obj;
         if (!observerData->process_cycle_active) {
+            setModificationState(true);
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
             emit layoutChanged(obj);
-            setModificationState(true);
         }
 
         #ifndef QT_NO_DEBUG
@@ -1116,9 +1116,9 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         QList<QObject*> objects;
         objects << obj;
         if (!observerData->process_cycle_active) {
+            setModificationState(true);
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
             emit layoutChanged();
-            setModificationState(true);
         }
 
         LOG_TRACE(QString("Object \"%1\" is now visible in the global object pool.").arg(obj->objectName()));
@@ -1140,13 +1140,20 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(QList<QObject*> object
         if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
             success_list << objects.at(i);
     }
+    if (success_list.count() > 0) {
+        if (has_active_processing_cycle) {
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        } else {
+            endProcessingCycle();
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        }
+    }
     if (!has_active_processing_cycle)
         endProcessingCycle();
-    if (success_list.count() > 0) {
-        emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit layoutChanged();
-        setModificationState(true);
-    }
     return success_list;
 }
 
@@ -1158,13 +1165,20 @@ QList<QObject*> Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime
         if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle))
             success_list << mime_data_object->subjectList().at(i);
     }
+    if (success_list.count() > 0) {
+        if (has_active_processing_cycle) {
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        } else {
+            endProcessingCycle();
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        }
+    }
     if (!has_active_processing_cycle)
         endProcessingCycle();
-    if (success_list.count() > 0) {
-        emit numberOfSubjectsChanged(SubjectAdded, success_list);
-        emit layoutChanged();
-        setModificationState(true);
-    }
     return success_list;
 }
 
@@ -1329,9 +1343,9 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     if (!observerData->process_cycle_active) {
         QList<QObject*> objects;
         objects << obj;
+        setModificationState(true);
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
         emit layoutChanged();
-        setModificationState(true);
     }
 }
 
@@ -1412,9 +1426,9 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     if (!observerData->process_cycle_active) {
         QList<QObject*> objects;
         objects << obj;
+        setModificationState(true);
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
         emit layoutChanged();
-        setModificationState(true);
     }
 
     observerData->filter_subject_events_enabled = true;
@@ -1429,14 +1443,24 @@ QList<QObject*> Qtilities::Core::Observer::detachSubjects(QList<QObject*> object
         if (detachSubject(objects.at(i)))
             success_list << objects.at(i);
     }
-    if (!has_active_processing_cycle)
-        endProcessingCycle();
+
     // Broadcast if neccesarry
     if (success_list.count() > 0) {
-        emit numberOfSubjectsChanged(SubjectRemoved, success_list);
-       emit layoutChanged();
-        setModificationState(true);
+        if (has_active_processing_cycle) {
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        } else {
+            endProcessingCycle();
+            setModificationState(true);
+            emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+            emit layoutChanged();
+        }
     }
+
+    if (!has_active_processing_cycle)
+        endProcessingCycle();
+
     return success_list;
 }
 
@@ -1519,11 +1543,17 @@ void Qtilities::Core::Observer::deleteAll() {
             delete observerData->subject_list.at(0);
         }
     }
-    if (!has_active_processing_cycle)
+
+    if (has_active_processing_cycle) {
+        setModificationState(true);
+        emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+        emit layoutChanged();
+    } else {
         endProcessingCycle();
-    emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
-    emit layoutChanged();
-    setModificationState(true);
+        setModificationState(true);
+        emit numberOfSubjectsChanged(SubjectRemoved, QList<QObject*>());
+        emit layoutChanged();
+    }
 }
 
 QVariant Qtilities::Core::Observer::getObserverPropertyValue(const QObject* obj, const char* property_name) const {
