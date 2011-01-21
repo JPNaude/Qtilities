@@ -34,17 +34,17 @@
 #include "DebugWidget.h"
 #include "ui_DebugWidget.h"
 
-#include <Conan.h>
+//#include <Conan.h>
 
 #include <QtilitiesExtensionSystem>
 using namespace QtilitiesExtensionSystem;
 
 struct Qtilities::Plugins::Debug::DebugWidgetData {
-    DebugWidgetData() : objectPoolWidget(0),
-                        conanWidget(0) {}
+    DebugWidgetData() : objectPoolWidget(0)/*,
+                        conanWidget(0)*/ {}
 
     ObserverWidget* objectPoolWidget;
-    ConanWidget*    conanWidget;
+    //ConanWidget*    conanWidget;
 };
 
 Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
@@ -79,12 +79,12 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
         delete ui->widgetObjectPoolHolder->layout();
 
     // Conan Widget:
-    d->conanWidget = new ConanWidget();
+    //d->conanWidget = new ConanWidget();
 
     // Splitter:
     QSplitter* splitter = new QSplitter(Qt::Vertical);
     splitter->addWidget(d->objectPoolWidget);
-    splitter->addWidget(d->conanWidget);
+    //splitter->addWidget(d->conanWidget);
 
     // Layout:
     QVBoxLayout* layout = new QVBoxLayout(ui->widgetObjectPoolHolder);
@@ -96,7 +96,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     d->objectPoolWidget->show();
     d->objectPoolWidget->toggleSearchBox();
     connect(d->objectPoolWidget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
-    d->conanWidget->show();
+    //d->conanWidget->show();
 
     // Factories:
     connect(ui->btnRefreshFactories,SIGNAL(clicked()),SLOT(handle_factoryListRefresh()));
@@ -160,7 +160,7 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListRefresh() {
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolDoubleClick(QObject *object) {
-    d->conanWidget->AddRootObject(object);
+    //d->conanWidget->AddRootObject(object);
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_pluginInfoRefresh() {
