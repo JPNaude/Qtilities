@@ -16,6 +16,7 @@
 Table of contents:
 - \ref tree_building_classes
 - \ref lets_build_some_trees
+  - \ref tree_basic_trees
   - \ref tree_categorized_leafs
   - \ref tree_uncategorized_leafs
   - \ref tree_xml
@@ -99,11 +100,48 @@ It is easy extend the set of tree items by creating objects which inherit from Q
 
 \section lets_build_some_trees Lets build some trees
 
-Trees are constructed on the principle that the  Qtilities::CoreGui::TreeNode class can contain child items (leaf nodes) or other tree nodes. This allows us to build any tree structure that we want and in this section we will discuss and show how to build trees with different requirements.
+Trees are constructed on the principle that the Qtilities::CoreGui::TreeNode class can contain child items (leaf nodes) or other tree nodes. This allows us to build any tree structure that we want and in this section we will discuss and show how to build trees with different requirements.
+
+\subsection tree_basic_trees Tree with categorized leafs
+
+Lets look at a very simple tree with a depth of 2 which looks like the one shown below.
+
+\image html observer_dot_graph_example_tree_dot.jpg "Basic Tree Of Depth 2"
+
+To build this tree using %Qtilities is done like this:
+\code
+// Create tree structure:
+TreeNode* node = new TreeNode("Root Node");
+node->addItem("Item 1");
+node->addItem("Item 2");
+node->addItem("Item 3");
+\endcode
+
+We can increase the depth to 3 and also introduce an advanced concept of %Qtilities trees where any item in the tree can have multiple parents. The "Shared Item" in the tree below has both "Node A" and "Node B" as its parents.
+
+\image html observer_dot_graph_example_complex_tree_dot.jpg "Tree With Shared Item Of Depth 3"
+
+To build this tree using %Qtilities is done like this:
+\code
+// Create tree structure:
+TreeNode* node = new TreeNode("Root Node");
+TreeNode* nodeA = node->addNode("Node A");
+TreeNode* nodeB = node->addNode("Node B");
+nodeA->addItem("Item 1");
+nodeA->addItem("Item 2");
+TreeItem* sharedItem = nodeA->addItem("Shared Item");
+nodeB->attachSubject(sharedItem);
+nodeB->addItem("Item 3");
+nodeB->addItem("Item 4");
+\endcode
+
+As you can see, building trees with Qtilities is easy. It is important to understand we are using two basic classes, Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem here. However it is possible to build trees with your own items where tree nodes are based on Qtilities::Core::Observer and your leaf items can be any QObject based class. The \ref tree_specialized_nodes section of this page introduces more advanced concepts but for now we will focus on building trees on a higher level and displaying them.
+
+For the curious reader, the tree diagrams shown above was created using Qtilities::Core::ObserverDotGraph.
 
 \subsection tree_categorized_leafs Tree with categorized leafs
 
-An important feature of a tree node is that is can group child items into categories where a category icon will automatically be assigned to category nodes. This functionality is controlled by the Qtilities::CoreGui::TreeNode::setCategorizedDisplayEnabled() function. The first tree is a simple tree which uses this feature to group items into different categories. The advantage of the categorized approach is that it is very simple to use and we can easily construct very deep trees since we don't have to construct the category nodes manually. The disadvantage is that we don't have access to the category nodes, thus we cannot control their formatting or define the context used for items inside the category (activity or naming control for example).
+An important feature of a tree node is that is can group child items into categories where a category icon will automatically be assigned to category nodes. This functionality is controlled by the Qtilities::CoreGui::TreeNode::enableCategorizedDisplay() function. The first tree is a simple tree which uses this feature to group items into different categories. The advantage of the categorized approach is that it is very simple to use and we can easily construct very deep trees since we don't have to construct the category nodes manually. The disadvantage is that we don't have access to the category nodes, thus we cannot control their formatting or define the context used for items inside the category (activity or naming control for example).
 
 \image html tree_docs_categorized_tree.jpg "Tree With Categorized Leaf Nodes"
 
