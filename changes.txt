@@ -154,6 +154,9 @@ Outstanding roadmap items for this version:
 - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
 - Main Window Example xml projects does not work.
 - Extension System must match regular expressions, not start of file names for filtered plugins.
+- Update docs to use own HUE color.
+- Add tree depth function to TreeNode.
+- In tree structure page, first image uses FileTreeItem, instead of TreeFileItem.
 
 v0.2
 ====
