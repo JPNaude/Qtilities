@@ -249,6 +249,7 @@ tree_widget->show();
               \param activity_policy The ActivityPolicyFilter::ActivityPolicy hint to use in this tree node.
               \param minimum_activity_policy The ActivityPolicyFilter::MinimumActivityPolicy hint to use in this tree node.
               \param new_subject_activity_policy The ActivityPolicyFilter::NewSubjectActivityPolicy hint to use in this tree node.
+              \param monitor_modification_state When true the modification state of the activity filter will be monitored by the node. Thus if the active subjects changes the TreeNode will indicate that it changed.
               \returns The activity policy filter used in this node. If the filter could not be constructed, null is returned.
               */
             ActivityPolicyFilter* enableActivityControl(ObserverHints::ActivityDisplay activity_display,

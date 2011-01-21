@@ -2991,7 +2991,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                         } else if (dropEvent->proposedAction() == Qt::CopyAction) {
                             dropEvent->accept();
                             // Attempt to copy the dragged objects:
-                            QList<QObject*> dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                            QList<QPointer<QObject> > dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
                             if (dropped_list.count() != observer_mime_data->subjectList().count()) {
                                 LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
                             } else {

@@ -67,6 +67,9 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivat
     QObject* contextManagerQ = qobject_cast<QObject*> (d_contextManager);
     d_contextManagerIFace = qobject_cast<IContextManager*> (contextManagerQ);
     QObject::connect(d_objectManager,SIGNAL(newObjectAdded(QObject*)),d_contextManager,SLOT(addContexts(QObject*)));
+
+    // Register QList<QPointer<QObject> > in Meta Object System.
+    qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 }
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPrivate() {

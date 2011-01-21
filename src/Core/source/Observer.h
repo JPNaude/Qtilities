@@ -264,9 +264,9 @@ namespace Qtilities {
         public:
             //! Function to refresh the layout views showing this observer.
             /*!
-              This function will emit the layoutChanged() signal.
+              This function will emit the layoutChanged() signal with the new_selection parameter.
               */
-            void refreshViewsLayout();
+            void refreshViewsLayout(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
             //! Function to refresh the data views showing this observer.
             /*!
               This function will emit the dataChanged(this) signal.
@@ -330,11 +330,11 @@ namespace Qtilities {
               \param objects A list of objects which must be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
-              \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
+              \returns A list of objects that was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            virtual QList<QObject*> attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
+            virtual QList<QPointer<QObject> > attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
             //! Will attempt to attach the specified objects in a ObserverMimeData object.
             /*!
               This function will call startProcessingCycle() when it starts and endProcessingCycle() when it is done.
@@ -346,7 +346,7 @@ namespace Qtilities {
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
               */
-            virtual QList<QObject*> attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
+            virtual QList<QPointer<QObject> > attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership = Observer::ManualOwnership, QString* rejectMsg = 0, bool import_cycle = false);
             //! A function which checks if the new object can be attached to the observer. This function also validates the attachment operation inside all installed subject filters. Note that this function does not attach it.
             /*!
               \param obj The object to test attachment of.
@@ -377,7 +377,7 @@ namespace Qtilities {
               \param objects A list of objects which must be detached.
               \returns A list of objects which was successfully detached.
               */
-            virtual QList<QObject*> detachSubjects(QList<QObject*> objects);
+            virtual QList<QPointer<QObject> > detachSubjects(QList<QObject*> objects);
             //! Function to detach all currently observed subjects.
             virtual void detachAll();
             //! Function to delete all currenlty observed subjects.
@@ -789,13 +789,13 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               in the complete tree under the observer, see layoutChanged().
 
               \param change_indication Slots can use this indicator to know what change occured.
-              \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted.
+              \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted and the observer picked it up and removed them.
 
               \note When ever it is needed to emit this signal, Observer will first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
 
               \note When a processing cycle is active on the observer, this signal will always be emitted while the processing cycle is active.
               */
-            void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QObject*> objects = QList<QObject*>());
+            void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QPointer<QObject> > objects = QList<QPointer<QObject> >());
             //! A signal which is emitted when the layout of the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the layout of an observer or the tree underneath it changes.
@@ -807,11 +807,11 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               - Observer access mode and access mode scope changes. \sa accessMode(), accessModeScope()
               - Non-observer access mode changes. \sa Qtilities::Core::Properties::AccessMode
 
-              \param added_objects When objects are added to the observer the resulting layout change signal will contain a list of objects added.
+              \param new_selection The new desired selection in any views that are refreshed due to the layout changed.
 
               \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
               */
-            void layoutChanged(QObject* added_object = 0);
+            void layoutChanged(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
             //! A signal which is emitted when the data in the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the data of the observer or any subjects in the tree underneath the observer changes.
