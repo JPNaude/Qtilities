@@ -96,6 +96,8 @@ Improvements & Notable Changes:
 - Fixed bug where Observer ended a processing cycle before emitting the numberOfSubjectsChanged() signal.
 - ObserverWidget got new setCustomTableProxyModel() and setCustomTreeProxyModel() functions allowing custom proxy models to be used.
 - ObserverTreeModelProxyFilter and ObserverTableModelCategoryFilter can now be subclassed.
+- Fixed bug in observer widget where it disabled all actions in its action provider when the current context was deleted, and then never enabled all of them again. This for example caused the refreshView action to become disabled sometimes.
+- Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your views.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -128,6 +130,9 @@ Bug Fixes:
 - Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
 - Fixed crash in FileLoggerEngine::finalize() if it had no formatting engine.
 - Fixed bug where Logger::enableEngine() and Logger::disableEngine() was switched around, thus they did the opposite of what they had to do.
+- Fixed possible crash in ActivityPolicyFilter::setActiveSubjects() when called with null objects.
+- Fixed bug in Observer::importXML() where it could have passed invalid active subjects to activity policy filters if installed.
+- Fixed bugs in Observer::attachSubjects() and Observer::detachSubjects() where the Observer::numberOfSubjectsChanged() signal was emitted incorrectly.
 
 Outstanding roadmap items for this version:
 - Property editor must refresh when properties changes..
@@ -148,6 +153,7 @@ Outstanding roadmap items for this version:
 - Must update images in ObjectManagement and MainWindow examples.
 - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
 - Main Window Example xml projects does not work.
+- Extension System must match regular expressions, not start of file names for filtered plugins.
 
 v0.2
 ====
