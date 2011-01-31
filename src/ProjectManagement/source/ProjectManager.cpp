@@ -52,7 +52,6 @@ using namespace Qtilities::ProjectManagement::Constants;
 struct Qtilities::ProjectManagement::ProjectManagerData  {
     ProjectManagerData() : current_project(0),
     recent_projects_size(5),
-    config_widget(0),
     project_file_version(0),
     is_initialized(false),
     verbose_logging(false),
