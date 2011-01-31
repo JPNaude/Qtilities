@@ -98,6 +98,7 @@ Improvements & Notable Changes:
 - ObserverTreeModelProxyFilter and ObserverTableModelCategoryFilter can now be subclassed.
 - Fixed bug in observer widget where it disabled all actions in its action provider when the current context was deleted, and then never enabled all of them again. This for example caused the refreshView action to become disabled sometimes.
 - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your views.
+- Subject filters: Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -107,6 +108,7 @@ At this stage proper documentation is still lacking on a class level for many cl
 
 Bug Fixes:
 - Fixed memory leak in ActivityPolicyFilter destructor.
+- Fixed memory leak in CommandEditor.
 - Fixed bug in ObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::useObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
@@ -148,7 +150,6 @@ Outstanding roadmap items for this version:
 - Observers: Check I think the type of pointer used for ObserverData is wrong.
 - Conan integration?
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
-- AbstractSubjectFilters, do not make all evaluation functions abstract...
 - Getting started article should show more: QtilitiesMainWindow.
 - Must update images in ObjectManagement and MainWindow examples.
 - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
