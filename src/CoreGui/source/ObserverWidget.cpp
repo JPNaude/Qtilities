@@ -516,7 +516,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setDropIndicatorShown(true);
                 d->tree_view->setDragEnabled(true);
                 if (!d->tree_model)
-                    d->tree_model = new ObserverTreeModel();
+                    d->tree_model = new ObserverTreeModel(d->tree_view);
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
@@ -586,7 +586,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setDragEnabled(true);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
                 if (!d->table_model)
-                    d->table_model = new ObserverTableModel();
+                    d->table_model = new ObserverTableModel(d->table_view);
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
 
