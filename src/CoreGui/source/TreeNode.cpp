@@ -48,9 +48,9 @@ namespace Qtilities {
 struct Qtilities::CoreGui::TreeNodeData {
     TreeNodeData() { }
 
-    QPointer<NamingPolicyFilter> naming_policy_filter;
-    QPointer<ActivityPolicyFilter> activity_policy_filter;
-    QPointer<SubjectTypeFilter> subject_type_filter;
+    QPointer<NamingPolicyFilter>    naming_policy_filter;
+    QPointer<ActivityPolicyFilter>  activity_policy_filter;
+    QPointer<SubjectTypeFilter>     subject_type_filter;
 };
 
 Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
