@@ -64,7 +64,7 @@ struct Qtilities::ProjectManagement::ProjectManagerData  {
     QMap<QString, QVariant>         recent_project_names;
     QStringList                     recent_project_stack;
     int                             recent_projects_size;
-    ProjectManagementConfig*        config_widget;
+    QPointer<ProjectManagementConfig> config_widget;
     bool                            open_last_project;
     bool                            auto_create_new_project;
     bool                            use_custom_projects_path;
@@ -104,6 +104,8 @@ Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : 
 
 Qtilities::ProjectManagement::ProjectManager::~ProjectManager()
 {
+    if (d->config_widget)
+        delete d->config_widget;
     delete d;
 }
 
