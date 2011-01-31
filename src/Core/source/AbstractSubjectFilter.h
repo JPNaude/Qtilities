@@ -88,22 +88,33 @@ namespace Qtilities {
             //! Set if this subject filter's modification state is monitored by its observer context.
             /*!
                 \note Make sure to set this before you attach the subject filter to your observer context in order for it to work properly.
+                \note By default the base class does nothing when this function is called.
               */
             virtual void setIsModificationStateMonitored(bool is_monitored) {
                 Q_UNUSED(is_monitored)
             }
             //! Get if this subject filter's modification state is monitored by its observer context.
             /*!
-              True by default.
+                \return True by default.
               */
-            virtual bool isModificationStateMonitored() const { return true; }
+            virtual bool isModificationStateMonitored() const {
+                return true;
+            }
             //! Set if this subject filter must be exported.
-            virtual void setIsExportable(bool is_exportable) = 0;
+            /*!
+                \note By default the base class does nothing when this function is called.
+              */
+            virtual void setIsExportable(bool is_exportable) {
+                Q_UNUSED(is_exportable)
+            }
+
             //! Indicates if this subject filter must be exported.
             /*!
-                All subject filters which forms part of %Qtilities return false by default.
+                \returns False by default.
               */
-            virtual bool isExportable() const = 0;
+            virtual bool isExportable() const {
+                return false;
+            }
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
             /*!
