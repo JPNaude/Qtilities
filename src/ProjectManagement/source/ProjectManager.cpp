@@ -455,30 +455,40 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
     LOG_INFO(tr("Qtilities Project Management Framework, initialization started..."));
     readSettings();
 
+    bool success = true;
+
     // Settings was already read in the constructor.
     if (d->open_last_project) {
         QString last_project;
         if (d->recent_project_names.count() > 0)
             last_project = d->recent_project_stack.front();
         if (!last_project.isEmpty()) {
+            QApplication::processEvents();
             LOG_INFO(tr("Loading project from last session from path: ") + last_project);
             if (!openProject(last_project)) {
                 // We create a empty project when the last project was not valid and auto create project is set.
                 if (newProject())
                     LOG_INFO(tr("Successfully created new project in place of failed project."));
-                else
+                else {
                     LOG_ERROR(tr("Failed to create a new project in place of failed project."));
+                    success = false;
+                }
             }
         } else if (d->auto_create_new_project) {
             if (newProject())
                 LOG_INFO(tr("Successfully created new project on application startup."));
-            else
+            else {
                 LOG_ERROR(tr("Failed to create a new project on startup."));
+                success = false;
+            }
         }
     }
 
     d->is_initialized = true;
-    LOG_INFO(tr("Qtilities Project Management Framework, initialization finished successfully..."));
+    if (success)
+        LOG_INFO(tr("Qtilities Project Management Framework, initialization finished successfully..."));
+    else
+        LOG_WARNING(tr("Qtilities Project Management Framework, initialization finished with some errors..."));
 }
 
 void Qtilities::ProjectManagement::ProjectManager::finalize() {
