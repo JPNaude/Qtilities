@@ -62,7 +62,7 @@ namespace Qtilities {
 
         public:
             SubjectFilterTemplate(QObject* parent = 0);
-            ~SubjectFilterTemplate() {}
+            ~SubjectFilterTemplate();
             QString filterName() { return tr("Subject Filter Template"); }
 
             // --------------------------------
