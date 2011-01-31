@@ -98,7 +98,6 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->is_exportable = other.isExportable();
-    d->is_modified = other.isModified();
     d->modification_state_display = other.modificationStateDisplayHint();
 
     if (observerContext())
@@ -120,7 +119,6 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->is_exportable = other.isExportable();
-    d->is_modified = other.isModified();
     d->modification_state_display = other.modificationStateDisplayHint();
 
     if (observerContext())
