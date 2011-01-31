@@ -44,8 +44,7 @@ struct Qtilities::Core::ObserverRelationalTableData {
     visitor_id_count(0),
     exportable_subjects_only(false) {}
     ~ObserverRelationalTableData() {
-        int entry_count = entries.count();
-        for (int i = 0; i < entry_count; i++)
+        for (int i = 0; i < entries.count(); i++)
             delete entries.values().at(i);
     }
 
