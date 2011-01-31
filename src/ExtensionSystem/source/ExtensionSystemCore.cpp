@@ -53,7 +53,6 @@ using namespace Qtilities::ExtensionSystem::Interfaces;
 struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
     ExtensionSystemCoreData() : plugins("Plugins"),
     plugin_activity_filter(0),
-    extension_system_config_widget(0),
     treeModel(0),
     is_initialized(false) { }
 
@@ -61,7 +60,7 @@ struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
     ActivityPolicyFilter*   plugin_activity_filter;
     QDir                    pluginsDir;
     QStringList             customPluginPaths;
-    ExtensionSystemConfig*  extension_system_config_widget;
+    QPointer<ExtensionSystemConfig> extension_system_config_widget;
     PluginTreeModel*        treeModel;
 
     QString                 active_configuration_file;
@@ -122,6 +121,8 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
 
 Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 {
+    if (d->extension_system_config_widget)
+        delete d->extension_system_config_widget;
     delete d;
 }
 
