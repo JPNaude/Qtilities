@@ -55,18 +55,18 @@ namespace Qtilities {
             AbstractObserverItemModelData() { }
 
             //! Used to store default observer hints to be used with this widget.
-            QPointer<ObserverHints> hints_default;
+            QPointer<ObserverHints>         hints_default;
             //! Used to store observer hints for the root observer (top level observer)
-            QPointer<ObserverHints> hints_top_level_observer;
+            QPointer<ObserverHints>         hints_top_level_observer;
             //! Used to store observer hints for the current selection parent observer.
-            QPointer<ObserverHints> hints_selection_parent;
+            QPointer<ObserverHints>         hints_selection_parent;
             //! Indicates if the default observer hints, or the current selection parent observer hints are used.
-            bool use_observer_hints;
+            bool                            use_observer_hints;
 
             //! The activity policy filter of the current observer context, if present.
-            QPointer<ActivityPolicyFilter>   activity_filter;
+            QPointer<ActivityPolicyFilter>  activity_filter;
             //! The naming policy filter of the current observer context, if present.
-            QPointer<NamingPolicyFilter>     naming_filter;
+            QPointer<NamingPolicyFilter>    naming_filter;
         };
 
         /*!
