@@ -99,6 +99,7 @@ Improvements & Notable Changes:
 - Fixed bug in observer widget where it disabled all actions in its action provider when the current context was deleted, and then never enabled all of them again. This for example caused the refreshView action to become disabled sometimes.
 - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your views.
 - Subject filters: Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
+- Removed Qtilities::Plugin::Help namespace from documentation. This plugin is not part of Qtilities yet.
 
 Documented Classes:
 At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
@@ -107,8 +108,14 @@ At this stage proper documentation is still lacking on a class level for many cl
 - Qtilities::Core::RelationalTableEntry
 
 Bug Fixes:
-- Fixed memory leak in ActivityPolicyFilter destructor.
-- Fixed memory leak in CommandEditor.
+- Double checked all classes for memory leaks:
+    - Fixed memory leak in ActivityPolicyFilter destructor.
+    - Fixed memory leak in CommandEditor.
+    - Fixed memory leak in ObserverRelationalTable destructor.
+    - Fixed memory leak in SubjectFilterTemplate.
+    - Fixed memory leak in ActionContainer destructor.
+    - Fixed memory leak in CodeEditorWidget's destructor.
+    - Fixed memory leaks in ObserverWidget.
 - Fixed bug in ObserverTreeModel where the local selection parent's display hints was used even if AbstractObserverItemModel::useObserverHints() was false.
 - Fixed example in "The Basics" documentation page.
 - Fixed bug where AbstractTreeItem::setCategory() would not have changed the items modification state correctly.
@@ -137,27 +144,27 @@ Bug Fixes:
 - Fixed bugs in Observer::attachSubjects() and Observer::detachSubjects() where the Observer::numberOfSubjectsChanged() signal was emitted incorrectly.
 
 Outstanding roadmap items for this version:
-- Property editor must refresh when properties changes..
-- Help stuff is part of docs...
+- Property editor must refresh when properties changes.
+- Test Observer copy constructor.
 - Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
 - Command editor widget, remove dependency on property browser lib.
-- Action manager should act as a pointer list when commands are deleted. Thus they should be removed.
+- Action manager:
+    - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
+    - Action manager should act as a pointer list when commands are deleted. Thus they should be removed.
 - Linux problems:
     - Sort out Linux dll versioning
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
 - ObserverDotGraph finish & blog post
 - Unit testing + some tests off course
-- Observers: Check I think the type of pointer used for ObserverData is wrong.
 - Conan integration?
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Getting started article should show more: QtilitiesMainWindow.
 - Must update images in ObjectManagement and MainWindow examples.
-- Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
 - Main Window Example xml projects does not work.
 - Extension System must match regular expressions, not start of file names for filtered plugins.
-- Update docs to use own HUE color.
 - Add tree depth function to TreeNode.
 - In tree structure page, first image uses FileTreeItem, instead of TreeFileItem.
+- Use seperate release and debug folders.
 
 v0.2
 ====
