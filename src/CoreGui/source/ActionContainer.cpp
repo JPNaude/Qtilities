@@ -49,12 +49,13 @@ struct Qtilities::CoreGui::MenuContainerData {
 Qtilities::CoreGui::MenuContainer::MenuContainer(const QString& name, QObject* parent) : ActionContainer(name, parent)
 {
     d = new MenuContainerData;
-    d->this_menu = new QMenu(container_name,this);
+    d->this_menu = new QMenu(container_name);
 
     setEmptyPolicy(ActionContainer::Disable);
 }
 
 Qtilities::CoreGui::MenuContainer::~MenuContainer() {
+    delete d->this_menu;
     delete d;
 }
 
