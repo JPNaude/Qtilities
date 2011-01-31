@@ -102,7 +102,7 @@ It is easy extend the set of tree items by creating objects which inherit from Q
 
 Trees are constructed on the principle that the Qtilities::CoreGui::TreeNode class can contain child items (leaf nodes) or other tree nodes. This allows us to build any tree structure that we want and in this section we will discuss and show how to build trees with different requirements.
 
-\subsection tree_basic_trees Tree with categorized leafs
+\subsection tree_basic_trees Basic trees
 
 Lets look at a very simple tree with a depth of 2 which looks like the one shown below.
 
@@ -135,9 +135,9 @@ nodeB->addItem("Item 3");
 nodeB->addItem("Item 4");
 \endcode
 
-As you can see, building trees with Qtilities is easy. It is important to understand we are using two basic classes, Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem here. However it is possible to build trees with your own items where tree nodes are based on Qtilities::Core::Observer and your leaf items can be any QObject based class. The \ref tree_specialized_nodes section of this page introduces more advanced concepts but for now we will focus on building trees on a higher level and displaying them.
+As you can see, building trees with %Qtilities is easy. It is important to understand we are using two basic classes, Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem here. However it is possible to build trees with your own items where tree nodes are based on Qtilities::Core::Observer and your leaf items can be any QObject based class. The \ref tree_specialized_nodes section of this page introduces more advanced concepts but for now we will focus on building trees on a higher level and displaying them.
 
-For the curious reader, the tree diagrams shown above was created using Qtilities::Core::ObserverDotGraph.
+For the curious reader, the tree diagrams shown above were created using Qtilities::Core::ObserverDotGraph.
 
 \subsection tree_categorized_leafs Tree with categorized leafs
 
