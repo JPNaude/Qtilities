@@ -72,7 +72,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     d = new CommandEditorData;
 
     // Create Model & View
-    d->model = new CommandTableModel(0);
+    d->model = new CommandTableModel(this);
     if (d->model) {
         // Create the proxy model
         d->proxy_model = new QSortFilterProxyModel(this);
