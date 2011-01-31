@@ -48,7 +48,11 @@ struct Qtilities::Core::SubjectFilterTemplateData {
 };
 
 Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) : AbstractSubjectFilter(parent) {
-	d = new SubjectFilterTemplateData;
+    d = new SubjectFilterTemplateData;
+}
+
+Qtilities::Core::SubjectFilterTemplate::~SubjectFilterTemplate() {
+    delete d;
 }
 
 Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectFilterTemplate::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
