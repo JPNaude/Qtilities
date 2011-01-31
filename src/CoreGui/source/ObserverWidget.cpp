@@ -389,6 +389,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel*
         return false;
 
     d->table_model = table_model;
+    d->table_model->setParent(this);
     return true;
 }
 
@@ -403,6 +404,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
         return false;
 
     d->tree_model = tree_model;
+    d->tree_model->setParent(this);
     return true;
 }
 
@@ -417,6 +419,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableProxyModel(QAbstractProxy
         return false;
 
     d->custom_table_proxy_model = proxy_model;
+    d->custom_table_proxy_model->setParent(this);
     return true;
 }
 
@@ -431,6 +434,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeProxyModel(QAbstractProxyM
         return false;
 
     d->custom_tree_proxy_model = proxy_model;
+    d->custom_tree_proxy_model->setParent(this);
     return true;
 }
 
