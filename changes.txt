@@ -79,7 +79,7 @@ Qtilities v0.3 Implemented Changes
     Improvements and Notable Changes:
     - Observers
         - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your views.
-        - Observer's layoutChanged() signal got a new parameter which will contain references of added objects if addition of objects triggered the signal.
+        - Observer's layoutChanged() signal got a new parameter which will contain references of added objects if addition of objects triggered the signal, or if a paramater was passed through the refreshViewsLayout() signal.
         - OBSERVER_UNCATEGORIZED_CATEGORY is now removed. Thus you can add categorized and uncategorized subjects to the same observer.
         - Observer::setDisplayHints() is now obsolete. It is replaced by Observer::inheritDisplayHints().
         - New ObserverHints::ModificationStateDisplayHint hint which allows the modification state of items to be displayed in observer widgets. This hint is now part of binary and XML tree exports.
