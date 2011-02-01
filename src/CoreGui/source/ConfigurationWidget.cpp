@@ -174,11 +174,9 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     // Set up the table or tree view:
     if (d->config_pages_widget.tableView() && d->display_mode == TableView) {
         d->config_pages_widget.tableView()->horizontalHeader()->hide();
-        d->config_pages_widget.tableView()->setStyleSheet(stylesheet);
         d->config_pages_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
     } else if (d->config_pages_widget.treeView() && d->display_mode == TreeView) {
         d->config_pages_widget.treeView()->setRootIsDecorated(false);
-        d->config_pages_widget.treeView()->setStyleSheet(stylesheet);
         d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
     }
 

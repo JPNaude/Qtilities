@@ -160,12 +160,8 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const;
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
-            AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const;
-            bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
             QString filterName() const { return FACTORY_TAG_NAMING_POLICY_FILTER; }
-            void setIsExportable(bool is_exportable);
-            bool isExportable() const;
             QStringList monitoredProperties() const;
             QStringList reservedProperties() const;
         protected:
@@ -298,11 +294,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
           */
         struct NamingPolicyFilterData {
             NamingPolicyFilterData() : is_modified(false),
-            is_exportable(false),
             conflicting_object(0) { }
 
             bool is_modified;
-            bool is_exportable;
             QValidator* validator;
             QPointer<NamingPolicyInputDialog> name_dialog;
 

@@ -52,13 +52,9 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::ActivityPolicyFilterData {
-    ActivityPolicyFilterData() : is_modified(false),
-    is_exportable(false),
-    is_modification_state_monitored(true) { }
+    ActivityPolicyFilterData() : is_modified(false) { }
 
     bool is_modified;
-    bool is_exportable;
-    bool is_modification_state_monitored;
     ActivityPolicyFilter::ActivityPolicy            activity_policy;
     ActivityPolicyFilter::MinimumActivityPolicy     minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy  new_subject_activity_policy;
@@ -345,14 +341,6 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj) {
     setActiveSubjects(objects);
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
-    Q_UNUSED(obj)
-    Q_UNUSED(rejectMsg)
-    Q_UNUSED(silent)
-
-    return AbstractSubjectFilter::Allowed;
-}
-
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     Q_UNUSED(obj)
     Q_UNUSED(import_cycle)
@@ -472,21 +460,6 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
     }
 }
 
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::ActivityPolicyFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
-    Q_UNUSED(obj)
-    Q_UNUSED(rejectMsg)
-
-    return AbstractSubjectFilter::Allowed;
-}
-
-bool Qtilities::Core::ActivityPolicyFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
-    Q_UNUSED(obj)
-    Q_UNUSED(subject_deleted)
-    Q_UNUSED(rejectMsg)
-
-    return true;
-}
-
 void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(observer != 0);
@@ -527,30 +500,10 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     setModificationState(true);
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setIsModificationStateMonitored(bool is_monitored) {
-    d->is_modification_state_monitored = is_monitored;
-}
-
-bool Qtilities::Core::ActivityPolicyFilter::isModificationStateMonitored() const {
-    return d->is_modification_state_monitored;
-}
-
-void Qtilities::Core::ActivityPolicyFilter::setIsExportable(bool is_exportable) {
-    d->is_exportable = is_exportable;
-}
-
-bool Qtilities::Core::ActivityPolicyFilter::isExportable() const {
-    return d->is_exportable;
-}
-
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
     reserved_properties << QString(OBJECT_ACTIVITY);
     return reserved_properties;
-}
-
-QStringList Qtilities::Core::ActivityPolicyFilter::reservedProperties() const {
-    return QStringList();
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
@@ -639,7 +592,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     stream << (quint32) d->minimum_activity_policy;
     stream << (quint32) d->new_subject_activity_policy;
     stream << (quint32) d->parent_tracking_policy;
-    stream << (quint32) d->is_modification_state_monitored;
+    stream << (quint32) filter_is_modification_state_monitored;
 
     return IExportable::Complete;
 }
@@ -658,7 +611,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     stream >> ui32;
     d->parent_tracking_policy = (ParentTrackingPolicy) ui32;
     stream >> ui32;
-    d->is_modification_state_monitored = ui32;
+    filter_is_modification_state_monitored = ui32;
 
     return IExportable::Complete;
 }
@@ -672,7 +625,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     filter_data.setAttribute("MinimumActivityPolicy",minimumActivityPolicyToString(d->minimum_activity_policy));
     filter_data.setAttribute("NewSubjectActivityPolicy",newSubjectActivityPolicyToString(d->new_subject_activity_policy));
     filter_data.setAttribute("ParentTrackingPolicy",parentTrackingPolicyToString(d->parent_tracking_policy));
-    if (!d->is_modification_state_monitored)
+    if (!filter_is_modification_state_monitored)
         filter_data.setAttribute("IsModificationStateMonitored","false");
     return IExportable::Complete;
 }
@@ -704,9 +657,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
                 d->parent_tracking_policy = stringToParentTrackingPolicy(child.attribute("ParentTrackingPolicy"));
             if (child.hasAttribute("IsModificationStateMonitored")) {
                 if (child.attribute("IsModificationStateMonitored") == "true")
-                    d->is_modification_state_monitored = true;
+                    filter_is_modification_state_monitored = true;
                 else
-                    d->is_modification_state_monitored = false;
+                    filter_is_modification_state_monitored = false;
             }
             result = IExportable::Complete;
             continue;

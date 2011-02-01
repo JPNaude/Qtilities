@@ -359,32 +359,9 @@ void Qtilities::CoreGui::NamingPolicyFilter::finalizeAttachment(QObject* obj, bo
     }
 }
 
-Qtilities::CoreGui::AbstractSubjectFilter::EvaluationResult Qtilities::CoreGui::NamingPolicyFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
-    Q_UNUSED(obj)
-    Q_UNUSED(rejectMsg)
-
-    return AbstractSubjectFilter::Allowed;
-}
-
-bool Qtilities::CoreGui::NamingPolicyFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
-    Q_UNUSED(obj);
-    Q_UNUSED(subject_deleted);
-    Q_UNUSED(rejectMsg)
-
-    return true;
-}
-
 void Qtilities::CoreGui::NamingPolicyFilter::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
     if (detachment_successful && !subject_deleted)
         assignNewNameManager(obj);
-}
-
-void Qtilities::CoreGui::NamingPolicyFilter::setIsExportable(bool is_exportable) {
-    d->is_exportable = is_exportable;
-}
-
-bool Qtilities::CoreGui::NamingPolicyFilter::isExportable() const {
-    return d->is_exportable;
 }
 
 QStringList Qtilities::CoreGui::NamingPolicyFilter::monitoredProperties() const {

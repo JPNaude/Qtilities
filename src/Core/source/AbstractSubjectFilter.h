@@ -70,7 +70,11 @@ namespace Qtilities {
             friend class Observer;
 
         public:
-            AbstractSubjectFilter(QObject* parent = 0) : QObject(parent) { observer = 0; }
+            AbstractSubjectFilter(QObject* parent = 0) : QObject(parent) {
+                observer = 0;
+                filter_is_exportable = false;
+                filter_is_modification_state_monitored = true;
+            }
             virtual ~AbstractSubjectFilter() {}
 
             //! Enumeration which defines the possible results of subject filter evaluation operations.
@@ -91,21 +95,21 @@ namespace Qtilities {
                 \note By default the base class does nothing when this function is called.
               */
             virtual void setIsModificationStateMonitored(bool is_monitored) {
-                Q_UNUSED(is_monitored)
+                filter_is_modification_state_monitored = is_monitored;
             }
             //! Get if this subject filter's modification state is monitored by its observer context.
             /*!
                 \return True by default.
               */
             virtual bool isModificationStateMonitored() const {
-                return true;
+                return filter_is_modification_state_monitored;
             }
             //! Set if this subject filter must be exported.
             /*!
                 \note By default the base class does nothing when this function is called.
               */
             virtual void setIsExportable(bool is_exportable) {
-                Q_UNUSED(is_exportable)
+                filter_is_exportable = is_exportable;
             }
 
             //! Indicates if this subject filter must be exported.
@@ -113,7 +117,7 @@ namespace Qtilities {
                 \returns False by default.
               */
             virtual bool isExportable() const {
-                return false;
+                return filter_is_exportable;
             }
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
@@ -305,8 +309,10 @@ namespace Qtilities {
             void propertyChangeFiltered(const char* property_name, QList<QObject*> objects = QList<QObject*>());
 
         protected:
-            QMutex              filter_mutex;
             Observer*           observer;
+            QMutex              filter_mutex;
+            bool                filter_is_exportable;
+            bool                filter_is_modification_state_monitored;
         };
     }
 }
