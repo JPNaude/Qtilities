@@ -224,8 +224,11 @@ Qtilities v0.3 Implemented Changes
         - New application state tab that gives runtime information about Application modes, Contexts, Factories, Plugins etc.
     - Changed project management plugin's default shortcuts to use the standard ones defined in QKeySequence.
 
-v0.2
-====
+
+
+================================
+Qtilities v0.2
+================================
 - Big updates to the following documentation pages:
   - Logging
   - Extension System
