@@ -181,7 +181,7 @@ completeSuffix:  "tar.gz"
               */
             QtilitiesFileInfo(const QString& file = QString(), const QString& relative_to_path = QString());
             QtilitiesFileInfo(const QtilitiesFileInfo& ref);
-            //virtual ~QtilitiesFileInfo();
+            virtual ~QtilitiesFileInfo();
 
             //! Indicates if a relative to path has been set.
             /*!

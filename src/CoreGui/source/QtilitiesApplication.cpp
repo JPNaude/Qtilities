@@ -70,6 +70,9 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         FactoryItemID tree_file_item_tag(FACTORY_TAG_TREE_FILE_ITEM,QtilitiesCategory(tr("Tree Building Blocks")));
         QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&TreeFileItem::factory,tree_file_item_tag);
 
+        // Register QList<QPointer<QObject> > in Meta Object System.
+        qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
+
         QCoreApplication::instance()->installEventFilter(this);
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
@@ -129,6 +132,9 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     // Register the tree file item in the object manager:
     FactoryItemID tree_file_item_tag(FACTORY_TAG_TREE_FILE_ITEM,QtilitiesCategory(tr("Tree Building Blocks")));
     QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&TreeFileItem::factory,tree_file_item_tag);
+
+    // Register QList<QPointer<QObject> > in Meta Object System.
+    qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {

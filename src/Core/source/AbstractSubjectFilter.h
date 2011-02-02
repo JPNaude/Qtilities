@@ -70,12 +70,16 @@ namespace Qtilities {
             friend class Observer;
 
         public:
-            AbstractSubjectFilter(QObject* parent = 0) : QObject(parent) { observer = 0; }
+            AbstractSubjectFilter(QObject* parent = 0) : QObject(parent) {
+                observer = 0;
+                filter_is_exportable = false;
+                filter_is_modification_state_monitored = true;
+            }
             virtual ~AbstractSubjectFilter() {}
 
             //! Enumeration which defines the possible results of subject filter evaluation operations.
             /*!
-              \sa evaluateAttachment(), evaluateDetachment()
+                \sa evaluateAttachment(), evaluateDetachment()
               */
             enum EvaluationResult {
                 Allowed,        /*!< Successful validation. */
@@ -87,103 +91,186 @@ namespace Qtilities {
             virtual QString filterName() const = 0;
             //! Set if this subject filter's modification state is monitored by its observer context.
             /*!
-              \note Make sure to set this before you attach the subject filter to your observer context in order for it to work properly.
+                \note Make sure to set this before you attach the subject filter to your observer context in order for it to work properly.
+                \note By default the base class does nothing when this function is called.
               */
-            virtual void setIsModificationStateMonitored(bool is_monitored) {}
+            virtual void setIsModificationStateMonitored(bool is_monitored) {
+                filter_is_modification_state_monitored = is_monitored;
+            }
             //! Get if this subject filter's modification state is monitored by its observer context.
             /*!
-              True by default.
+                \return True by default.
               */
-            virtual bool isModificationStateMonitored() const { return true; }
+            virtual bool isModificationStateMonitored() const {
+                return filter_is_modification_state_monitored;
+            }
             //! Set if this subject filter must be exported.
-            virtual void setIsExportable(bool is_exportable) = 0;
+            /*!
+                \note By default the base class does nothing when this function is called.
+              */
+            virtual void setIsExportable(bool is_exportable) {
+                filter_is_exportable = is_exportable;
+            }
+
             //! Indicates if this subject filter must be exported.
             /*!
-              All subject filters which forms part of %Qtilities return false by default.
+                \returns False by default.
               */
-            virtual bool isExportable() const = 0;
+            virtual bool isExportable() const {
+                return filter_is_exportable;
+            }
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
             /*!
-              \param obj The object to be evaluated
-              \param rejectMsg Provides a reject message when the function failed.
-              \param silent When true, the attachment must be done in a silent way. That is, it should not show any dialogs. This is usefull when objects must be attached to observers without calling exec() on a dialog (such as the user input dialog for NamingPolicyFilters) which can lead to crashes when for example attaching objects inside an event filter. For more information on this topic see <a href="http://labs.qt.nokia.com/2010/02/23/unpredictable-exec/">Unpredictable exec()</a>.
+                \param obj The object to be evaluated
+                \param rejectMsg Provides a reject message when the evaluation failed.
+                \param silent When true, the attachment must be done in a silent way. That is, it should not show any dialogs. This is usefull when objects must be attached to observers without calling exec() on a dialog (such as the user input dialog for NamingPolicyFilters) which can lead to crashes when for example attaching objects inside an event filter. For more information on this topic see <a href="http://labs.qt.nokia.com/2010/02/23/unpredictable-exec/">Unpredictable exec()</a>.
+                \returns AbstractSubjectFilter::EvaluationResult indicating the result of the evaluation.
+
+                \note By default AbstractSubjectFilter::Allowed is reruend by the base class.
               */
-            virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const = 0;
+            virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const {
+                Q_UNUSED(obj)
+                Q_UNUSED(rejectMsg)
+                Q_UNUSED(silent)
+                return AbstractSubjectFilter::Allowed;
+            }
+                ;
             //! Initialize the attachment of a new subject to the filter's observer context.
             /*!
-              \note The object is not yet attached to the observer context when this function is called.
+                \note The object is not yet attached to the observer context when this function is called.
 
-              \param obj The object to be added.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
-              \return Return true if the attachment is allowed, false otherwise.
+                \param obj The object to be added.
+                \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+                \return Return true if the attachment is allowed, false otherwise.
+                \returns True if the attachment was succesfully initialized, false otherwise.
+
+                \note By default true is reruend by the base class.
               */
-            virtual bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false) = 0;
+            virtual bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false) {
+                Q_UNUSED(obj)
+                Q_UNUSED(rejectMsg)
+                Q_UNUSED(import_cycle)
+                return true;
+            }
+
             //! Finalize the attachment of a the subject to the filter's observer context.
             /*!
-              \note When \p attachment_successful is true, the object will already be attached to the observer context.
+                \note When \p attachment_successful is true, the object will already be attached to the observer context.
 
-              \param obj The object to be added.
-              \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
-              \param attachment_successful True if the attachment was successful, false otherwise.
+                \param obj The object to be added.
+                \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
+                \param attachment_successful True if the attachment was successful, false otherwise.
+
+                \note By default does nothing in the base class.
               */
-            virtual void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false) = 0;
+            virtual void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false) {
+                Q_UNUSED(obj)
+                Q_UNUSED(attachment_successful)
+                Q_UNUSED(import_cycle)
+            }
+
             //! Evaluates the detachment of a subject from the filter's observer context. Use this function to check how an detachment will be handled.
-            virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const = 0;
+            /*!
+                \param obj The object to be evaluated
+                \param rejectMsg Provides a reject message when the evaluation failed.
+                \returns AbstractSubjectFilter::EvaluationResult indicating the result of the evaluation.
+
+                \note By default AbstractSubjectFilter::Allowed is reruend by the base class.
+              */
+            virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const {
+                Q_UNUSED(obj)
+                Q_UNUSED(rejectMsg)
+                return AbstractSubjectFilter::Allowed;
+            }
+
             //! Initialize the detachment of a subject from the filter's observer context.
             /*!
-              \return Return true if the detachment is allowed, false otherwise.
-              \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
+                \param obj The object to be detached.
+                \param rejectMsg A reject message when the initialization fails.
+                \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
+                \returns True if the detachment is allowed, false otherwise.
+
+                \note By default true is reruend by the base class.
               */
-            virtual bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false) = 0;
+            virtual bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false) {
+                Q_UNUSED(obj)
+                Q_UNUSED(rejectMsg)
+                Q_UNUSED(subject_deleted)
+                return true;
+            }
+
             //! Finalize the detachment of a subject from the filter's observer context.
             /*!
-              \param attachment_successful True if the detachment was successfull, false otherwise.
-              \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
+                \param obj The object to be detached.
+                \param detachment_successful True if the detachment was successfull, false otherwise.
+                \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
+
+                \note By default does nothing in the base class.
               */
-            virtual void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false) = 0;
+            virtual void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false) {
+                Q_UNUSED(obj)
+                Q_UNUSED(detachment_successful)
+                Q_UNUSED(subject_deleted)
+            }
+
         protected:
             //! Function which should react to QDynamicPropertyChangeEvents on properties which are reserved by the subject filter.
             /*!
-              As soon as a subject is attached to an observer the observer installs a event filter on the subject which monitors dynamic property changes.
-              When a dynamic property change event is received, the observer will route the event to the appropriate subject filter and call this function
-              on the subject filter. Thus, this function will only be called when the property_name is a reserved property of the subject filter.
+                As soon as a subject is attached to an observer the observer installs a event filter on the subject which monitors dynamic property changes.
+                When a dynamic property change event is received, the observer will route the event to the appropriate subject filter and call this function
+                on the subject filter. Thus, this function will only be called when the property_name is a reserved property of the subject filter.
 
-              \param obj The object on which the property change took place.
-              \param property_name The property name which changed.
-              \param propertyChangeEvent The QDynamicPropertyChangeEvent which triggered the event.
+                \param obj The object on which the property change took place.
+                \param property_name The property name which changed.
+                \param propertyChangeEvent The QDynamicPropertyChangeEvent which triggered the event.
 
-              \return Return true if the event should be filtered (thus, the event will not be allowed to finish and the property will not change), false otherwise when
-              the change event should be allowed (thus, the event will not be filtered and the property will change if not filtered by any other subject filters).
+                \return Return true if the event should be filtered (thus, the event will not be allowed to finish and the property will not change), false otherwise when
+                the change event should be allowed (thus, the event will not be filtered and the property will change if not filtered by any other subject filters).
 
-              \sa monitoredProperties()
+                \note By default false is returned by the base class.
+
+                \sa monitoredProperties()
               */
-            virtual bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) = 0;
+            virtual bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
+                Q_UNUSED(obj)
+                Q_UNUSED(property_name)
+                Q_UNUSED(propertyChangeEvent)
+                return false;
+            }
 
         public:
             //! This function returns a QStringList with the names of all the properties which are monitored by this subject filter.
             /*!
-              Monitored properties are all properties that you use on your subject filter that does not appear in the
-              reservedProperties() list. All of these properties will be monitored by the observer context in which
-              the subject filter is installed. The property change events will be delivered to handleMonitoredPropertyChange().
+                Monitored properties are all properties that you use on your subject filter that does not appear in the
+                reservedProperties() list. All of these properties will be monitored by the observer context in which
+                the subject filter is installed. The property change events will be delivered to handleMonitoredPropertyChange().
 
-              When property changes are valid, the monitoredPropertyChanged() signal is emitted as soon as the property
-              change is completed.
+                When property changes are valid, the monitoredPropertyChanged() signal is emitted as soon as the property
+                change is completed.
 
-              \sa handleMonitoredPropertyChange(), monitoredPropertyChanged()
+                \note By default an empty QStringList() is returned by the base class.
+
+                \sa handleMonitoredPropertyChange(), monitoredPropertyChanged()
               */
-            virtual QStringList monitoredProperties() const = 0;
+            virtual QStringList monitoredProperties() const {
+                return QStringList();
+            }
             //! This function returns a QStringList with the names of all the reserved properties of this subject filter.
             /*!
-              Reserved properties are internal properties that cannot be changed. The observer will filter any attempted changes to
-              these properties. To check if a property is reserved, see the \p Permisson attribute in the property documentation.
-              All %Qtilities properties are defined in the Qtilities::Core::Properties namespace.
+                Reserved properties are internal properties that cannot be changed. The observer will filter any attempted changes to
+                these properties. To check if a property is reserved, see the \p Permisson attribute in the property documentation.
+                All %Qtilities properties are defined in the Qtilities::Core::Properties namespace.
+
+                \note By default an empty QStringList() is returned by the base class.
               */
-            virtual QStringList reservedProperties() const = 0;
+            virtual QStringList reservedProperties() const {
+                return QStringList();
+            }
 
             //! Set the observer context for the subject filter. A subject filter is not usable when an observer context to operate in has not been set.
             /*!
-              \note The observer context of a subject filter can only be set once. Thus, you cannot use a subject filter more than once. Once you uninstalled it from an observer, you must delete it.
+                \note The observer context of a subject filter can only be set once. Thus, you cannot use a subject filter more than once. Once you uninstalled it from an observer, you must delete it.
               */
             virtual bool setObserverContext(Observer* observer_context) {
                 if (!observer_context)
@@ -199,31 +286,33 @@ namespace Qtilities {
         signals:
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
             /*!
-              The observer context in which the subject filter is installed will listen to this signal and emit
-              the Qtilities::Core::Observer::monitoredPropertyChanged() signal whenever this signal is emitted.
+                The observer context in which the subject filter is installed will listen to this signal and emit
+                the Qtilities::Core::Observer::monitoredPropertyChanged() signal whenever this signal is emitted.
 
-              \param property_name The name of the property which changed.
-              \param objects The objects on which the property changed.
+                \param property_name The name of the property which changed.
+                \param objects The objects on which the property changed.
 
-              \sa monitoredProperties(), handleMonitoredPropertyChange()
+                \sa monitoredProperties(), handleMonitoredPropertyChange()
               */
             void monitoredPropertyChanged(const char* property_name, QList<QObject*> objects = QList<QObject*>());
             //! A signal which is emitted as soon as an property change event is filtered.
             /*!
-              This signal can be emitted in two scenarios:
-              - When an attempt is made to modify a reserved property it will always be emitted on the observer level.
-              - When a monitored property change is not allowed. An example of this is when a name change is rejected.
+                This signal can be emitted in two scenarios:
+                - When an attempt is made to modify a reserved property it will always be emitted on the observer level.
+                - When a monitored property change is not allowed. An example of this is when a name change is rejected.
 
-              \param property_name The name of the property on which the change was filtered.
-              \param objects The objects on which the property was attempted.
+                \param property_name The name of the property on which the change was filtered.
+                \param objects The objects on which the property was attempted.
 
-              \sa reservedProperties(), monitoredProperties()
+                \sa reservedProperties(), monitoredProperties()
               */
             void propertyChangeFiltered(const char* property_name, QList<QObject*> objects = QList<QObject*>());
 
         protected:
-            QMutex              filter_mutex;
             Observer*           observer;
+            QMutex              filter_mutex;
+            bool                filter_is_exportable;
+            bool                filter_is_modification_state_monitored;
         };
     }
 }

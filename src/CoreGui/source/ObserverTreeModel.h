@@ -128,12 +128,12 @@ namespace Qtilities {
             //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
             QModelIndex findObject(QObject* obj) const;
 
-        private slots:
+        public slots:
             //! Function which will rebuild the complete tree structure under the top level observer.
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
               */
-            void rebuildTreeStructure(QObject* new_focus);
+            void rebuildTreeStructure(QList<QPointer<QObject> > = QList<QPointer<QObject> >());
 
         public slots:
             //! Function which will calculate the selection parent of a selected object.

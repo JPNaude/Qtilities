@@ -51,11 +51,9 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::SubjectTypeFilterData {
-    SubjectTypeFilterData() : inversed_filtering(false),
-    is_exportable(false) {}
+    SubjectTypeFilterData() : inversed_filtering(false) {}
 
     bool inversed_filtering;
-    bool is_exportable;
     QList<SubjectTypeInfo> known_subject_types;
     QString known_objects_group_name;
 };
@@ -63,14 +61,6 @@ struct Qtilities::Core::SubjectTypeFilterData {
 Qtilities::Core::SubjectTypeFilter::SubjectTypeFilter(const QString& known_objects_group_name, QObject* parent) : AbstractSubjectFilter(parent) {
     d = new SubjectTypeFilterData;
     d->known_objects_group_name = known_objects_group_name;
-}
-
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
-    Q_UNUSED(obj)
-    Q_UNUSED(rejectMsg)
-    Q_UNUSED(silent)
-
-    return AbstractSubjectFilter::Allowed;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
@@ -122,49 +112,6 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     }
 
     return is_known_type;
-}
-
-void Qtilities::Core::SubjectTypeFilter::finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle) {
-    Q_UNUSED(obj)
-    Q_UNUSED(attachment_successful)
-    Q_UNUSED(import_cycle)
-}
-
-Qtilities::Core::AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateDetachment(QObject* obj, QString* rejectMsg) const {
-    Q_UNUSED(obj)
-    Q_UNUSED(rejectMsg)
-
-    return AbstractSubjectFilter::Allowed;
-}
-
-bool Qtilities::Core::SubjectTypeFilter::initializeDetachment(QObject* obj, QString* rejectMsg, bool subject_deleted) {
-    Q_UNUSED(obj)
-    Q_UNUSED(subject_deleted)
-    Q_UNUSED(rejectMsg)
-
-    return true;
-}
-
-void Qtilities::Core::SubjectTypeFilter::finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted) {
-    Q_UNUSED(obj)
-    Q_UNUSED(detachment_successful)
-    Q_UNUSED(subject_deleted)
-}
-
-void Qtilities::Core::SubjectTypeFilter::setIsExportable(bool is_exportable) {
-    d->is_exportable = is_exportable;
-}
-
-bool Qtilities::Core::SubjectTypeFilter::isExportable() const {
-    return d->is_exportable;
-}
-
-QStringList Qtilities::Core::SubjectTypeFilter::monitoredProperties() const {
-    return QStringList();
-}
-
-QStringList Qtilities::Core::SubjectTypeFilter::reservedProperties() const {
-    return QStringList();
 }
 
 bool Qtilities::Core::SubjectTypeFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {

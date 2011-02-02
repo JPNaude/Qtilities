@@ -64,6 +64,10 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     syntax_highlighter(0),
     searchBoxWidget(0),
     action_provider(0) {}
+    ~CodeEditorWidgetData() {
+        if (syntax_highlighter)
+            delete syntax_highlighter;
+    }
     
     QAction* actionNew;
     QAction* actionOpen;

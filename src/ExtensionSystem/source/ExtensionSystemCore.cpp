@@ -53,27 +53,26 @@ using namespace Qtilities::ExtensionSystem::Interfaces;
 struct Qtilities::ExtensionSystem::ExtensionSystemCoreData {
     ExtensionSystemCoreData() : plugins("Plugins"),
     plugin_activity_filter(0),
-    extension_system_config_widget(0),
     treeModel(0),
     is_initialized(false) { }
 
-    TreeNode plugins;
-    ActivityPolicyFilter* plugin_activity_filter;
-    QDir pluginsDir;
-    QStringList customPluginPaths;
-    ExtensionSystemConfig* extension_system_config_widget;
-    PluginTreeModel* treeModel;
+    TreeNode                plugins;
+    ActivityPolicyFilter*   plugin_activity_filter;
+    QDir                    pluginsDir;
+    QStringList             customPluginPaths;
+    QPointer<ExtensionSystemConfig> extension_system_config_widget;
+    PluginTreeModel*        treeModel;
 
-    QString             active_configuration_file;
-    QStringList         set_inactive_plugins;
-    QStringList         set_filtered_plugins;
+    QString                 active_configuration_file;
+    QStringList             set_inactive_plugins;
+    QStringList             set_filtered_plugins;
 
-    QStringList         current_active_plugins;
-    QStringList         current_inactive_plugins;
-    QStringList         current_filtered_plugins;
-    QStringList         core_plugins;
+    QStringList             current_active_plugins;
+    QStringList             current_inactive_plugins;
+    QStringList             current_filtered_plugins;
+    QStringList             core_plugins;
 
-    bool                is_initialized;
+    bool                    is_initialized;
 };
 
 Qtilities::ExtensionSystem::ExtensionSystemCore* Qtilities::ExtensionSystem::ExtensionSystemCore::m_Instance = 0;
@@ -122,6 +121,8 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
 
 Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 {
+    if (d->extension_system_config_widget)
+        delete d->extension_system_config_widget;
     delete d;
 }
 

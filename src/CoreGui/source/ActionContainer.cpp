@@ -55,6 +55,7 @@ Qtilities::CoreGui::MenuContainer::MenuContainer(const QString& name, QObject* p
 }
 
 Qtilities::CoreGui::MenuContainer::~MenuContainer() {
+    delete d->this_menu;
     delete d;
 }
 

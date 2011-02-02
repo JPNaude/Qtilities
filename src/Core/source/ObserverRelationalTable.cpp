@@ -43,6 +43,10 @@ struct Qtilities::Core::ObserverRelationalTableData {
     ObserverRelationalTableData() : observer(0),
     visitor_id_count(0),
     exportable_subjects_only(false) {}
+    ~ObserverRelationalTableData() {
+        for (int i = 0; i < entries.count(); i++)
+            delete entries.values().at(i);
+    }
 
     Observer*                           observer;
     QMap<int, RelationalTableEntry*>    entries;

@@ -59,7 +59,7 @@ struct Qtilities::Core::ObjectManagerData {
     id(1)  { }
 
     QMap<int,QPointer<Observer> >               observer_map;
-    QMap<QString, IFactoryProvider*>                    factory_map;
+    QMap<QString, IFactoryProvider*>            factory_map;
     QMap<QString, QList<QPointer<QObject> > >   meta_type_map;
     Observer                                    object_pool;
     int                                         id;

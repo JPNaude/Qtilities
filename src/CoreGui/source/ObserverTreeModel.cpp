@@ -97,7 +97,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     rebuildTreeStructure();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
-    connect(d_observer,SIGNAL(layoutChanged(QObject*)),SLOT(rebuildTreeStructure(QObject*)));
+    connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(rebuildTreeStructure(QList<QPointer<QObject> >)));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
     // If a selection parent does not exist, we set observer as the selection parent:
@@ -777,7 +777,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                     // Attempt to copy the dragged objects:
                     // Either do all or nothing:
                     if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),0,true) != Observer::Rejected) {
-                        QList<QObject*> dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                        QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
                         if (dropped_list.count() != observer_mime_data->subjectList().count()) {
                             LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
                         } else {
@@ -929,7 +929,7 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
          return d->rootItem->columnCount();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QObject* new_focus) {
+void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<QObject> > new_selection) {
     // Rebuild the tree structure:
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reset();
@@ -949,14 +949,12 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QObject* new_fo
     emit layoutChanged();
 
     // Handle item selection after tree has been rebuilt:
-    if (new_focus) {
-        QList<QObject*> objects;
-        objects << new_focus;
-        emit selectObjects(objects);
+    if (new_selection.count() > 0) {
+        emit selectObjects(new_selection);
     } else if (d->selected_objects.count() > 0)
         emit selectObjects(d->selected_objects);
     else
-        emit selectObjects(QList<QObject*>());
+        emit selectObjects(QList<QPointer<QObject> >());
 
     QApplication::restoreOverrideCursor();
 }

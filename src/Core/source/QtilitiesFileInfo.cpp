@@ -52,9 +52,9 @@ Qtilities::Core::QtilitiesFileInfo::QtilitiesFileInfo(const QtilitiesFileInfo& r
     d->relative_to_path = ref.relativeToPath();
 }
 
-//Qtilities::Core::QtilitiesFileInfo::~QtilitiesFileInfo() {
-//    delete d;
-//}
+Qtilities::Core::QtilitiesFileInfo::~QtilitiesFileInfo() {
+    delete d;
+}
 
 bool Qtilities::Core::QtilitiesFileInfo::hasRelativeToPath() const {
     return !d->relative_to_path.isEmpty();

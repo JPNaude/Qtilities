@@ -389,6 +389,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel*
         return false;
 
     d->table_model = table_model;
+    d->table_model->setParent(this);
     return true;
 }
 
@@ -403,6 +404,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
         return false;
 
     d->tree_model = tree_model;
+    d->tree_model->setParent(this);
     return true;
 }
 
@@ -417,6 +419,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableProxyModel(QAbstractProxy
         return false;
 
     d->custom_table_proxy_model = proxy_model;
+    d->custom_table_proxy_model->setParent(this);
     return true;
 }
 
@@ -431,6 +434,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeProxyModel(QAbstractProxyM
         return false;
 
     d->custom_tree_proxy_model = proxy_model;
+    d->custom_tree_proxy_model->setParent(this);
     return true;
 }
 
@@ -516,7 +520,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setDropIndicatorShown(true);
                 d->tree_view->setDragEnabled(true);
                 if (!d->tree_model)
-                    d->tree_model = new ObserverTreeModel();
+                    d->tree_model = new ObserverTreeModel(d->tree_view);
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
@@ -586,7 +590,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setDragEnabled(true);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
                 if (!d->table_model)
-                    d->table_model = new ObserverTableModel();
+                    d->table_model = new ObserverTableModel(d->table_view);
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
 
@@ -2991,7 +2995,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                         } else if (dropEvent->proposedAction() == Qt::CopyAction) {
                             dropEvent->accept();
                             // Attempt to copy the dragged objects:
-                            QList<QObject*> dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                            QList<QPointer<QObject> > dropped_list = d_observer->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
                             if (dropped_list.count() != observer_mime_data->subjectList().count()) {
                                 LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
                             } else {

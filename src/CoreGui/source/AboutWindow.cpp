@@ -46,7 +46,6 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(QString(tr("About %1")).arg(QApplication::applicationName()));
 
-
     // Set labels
     if (QApplication::applicationVersion().isEmpty())
         ui->labelApplicationVersion->setVisible(false);

@@ -170,17 +170,15 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     d->config_pages_widget.toggleSearchBox();
     if (d->config_pages_widget.searchBoxWidget())
         d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+
+    // Set up the table or tree view:
     if (d->config_pages_widget.tableView() && d->display_mode == TableView) {
         d->config_pages_widget.tableView()->horizontalHeader()->hide();
+        d->config_pages_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
     } else if (d->config_pages_widget.treeView() && d->display_mode == TreeView) {
         d->config_pages_widget.treeView()->setRootIsDecorated(false);
-    }
-
-    // Sort pages alphabetically:
-    if (d->display_mode == Qtilities::TableView && d->config_pages_widget.tableView())
-        d->config_pages_widget.tableView()->sortByColumn(1,Qt::AscendingOrder);
-    else if (d->display_mode == Qtilities::TreeView && d->config_pages_widget.treeView())
         d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
+    }
 
     d->initialized = true;
 }

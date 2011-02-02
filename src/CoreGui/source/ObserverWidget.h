@@ -153,6 +153,8 @@ categorized_widget->show();
 
               \note This function must be called before initializing the widget for the first time.
 
+              The observer widget will manage the lifetime of the custom model.
+
               \returns True if the model was successfully set.
               */
             bool setCustomTableModel(ObserverTableModel* table_model);
@@ -160,6 +162,8 @@ categorized_widget->show();
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModel as the model for the tree view.
               It is possible to use custom models which allows you to extend the default tree model.
+
+              The observer widget will manage the lifetime of the custom model.
 
               \note This function must be called before initializing the widget for the first time.
 
@@ -171,6 +175,8 @@ categorized_widget->show();
               By default the observer widget uses the Qtilities::CoreGui::ObserverTableModelCategoryFilter as the proxy model for the table view.
               It is possible to use custom proxy models which allows you to extend the default proxy model.
 
+              The observer widget will manage the lifetime of the custom model.
+
               \note This function must be called before initializing the widget for the first time.
 
               \returns True if the proxy model was successfully set.
@@ -180,6 +186,8 @@ categorized_widget->show();
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModelProxyFilter as the proxy model for the tree view.
               It is possible to use custom proxy models which allows you to extend the default proxy model.
+
+              The observer widget will manage the lifetime of the custom model.
 
               \note This function must be called before initializing the widget for the first time.
 

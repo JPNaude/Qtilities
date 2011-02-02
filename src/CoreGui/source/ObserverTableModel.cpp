@@ -67,7 +67,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     if (!AbstractObserverItemModel::setObserverContext(observer))
         return false;
 
-    connect(d_observer,SIGNAL(layoutChanged()),SLOT(handleLayoutChanged()));
+    connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
     reset();
