@@ -69,7 +69,8 @@ bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &argum
     OBJECT_MANAGER->registerObject(d->debug_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
 
     // Register the context of the debug mode:
-    CONTEXT_MANAGER->registerContext(d->debug_mode->contextString());
+    // For now uncomment, the debug mode does not have a context at this stage.
+    // CONTEXT_MANAGER->registerContext(d->debug_mode->contextString());
 
     return true;
 }
@@ -118,7 +119,7 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2010, Jaco Naude");
+    return QString(tr("Copyright") + " 2010-2011, Jaco Naude");
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {

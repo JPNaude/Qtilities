@@ -36,15 +36,21 @@
 
 #include <QMainWindow>
 #include <IMode>
+#include <Logger>
 
 namespace Ui {
     class DebugWidget;
 }
 
 namespace Qtilities {
+    namespace CoreGui {
+        class Command;
+    }
     namespace Plugins {
         namespace Debug {
+            using namespace Qtilities::CoreGui;
             using namespace Qtilities::CoreGui::Interfaces;
+            using namespace Qtilities::Logging;
             /*!
               \struct DebugWidgetData
               \brief The DebugWidgetData struct stores private data used by the DebugWidget class.
@@ -77,6 +83,7 @@ namespace Qtilities {
                 void initializeMode() {}
                 QIcon modeIcon() const;
                 QString modeName() const;
+                void aboutToBeActivated();
 
                 //! Finalize the mode, will be called in initializeDependencies().
                 void finalizeMode();
@@ -84,19 +91,51 @@ namespace Qtilities {
             public slots:
                 //! Handles selection changes in the factory list widget.
                 void handle_factoryListSelectionChanged(const QString& factory_name);
-                //! Handles the factory refresh button.
-                void handle_factoryListRefresh();
                 //! Global object pool double click.
                 void handle_objectPoolDoubleClick(QObject *object);
-                //! Handles the plugin info refresh button.
-                void handle_pluginInfoRefresh();
-                //! Handles the mode info refresh button.
-                void handle_modeInfoRefresh();
 
             protected:
                 void changeEvent(QEvent *e);
 
+            private slots:
+                void on_btnRefreshViews_clicked();
+                void on_btnExplorePluginConfigSetPath_clicked();
+                bool on_btnSavePluginConfigSet_clicked();
+                bool on_btnSaveNewPluginConfigSet_clicked();
+                void on_btnEditPluginConfigSet_clicked();
+                void on_btnRemoveActivePlugin_clicked();
+                void on_btnAddActivePlugin_clicked();
+                void on_btnRemoveInactivePlugin_clicked();
+                void on_btnAddInactivePlugin_clicked();
+                void on_btnRemoveFilterExpression_clicked();
+                void on_btnAddFilterExpression_clicked();
+                void handleListMessage(Logger::MessageType type, const QString& msg);
+                void on_btnOpenPluginConfigSet_clicked();
+                void on_btnContextSetActive_clicked();
+                void on_btnContextsClear_clicked();
+                void on_btnContextsBroadcast_clicked();
+                //! Refreshes the command info table with information about the given command.
+                void refreshCommandInformation(Command* command);
+                void handle_objectPoolSelectionChanged(QList<QObject*> objects);
+
+                void on_btnExplorePluginCurrentConfigSetPath_clicked();
+
+                void on_btnEditPluginCurrentConfigSet_clicked();
+
             private:
+                //! Refreshes the mode information.
+                void refreshModes();
+                //! Refreshes the contexts information.
+                void refreshContexts();
+                //! Refreshes the current plugin state of the application.
+                void refreshCurrentPluginState();
+                //! Refreshes the current plugin set of the application.
+                void refreshCurrentPluginSet();
+                //! Refreshes the edited plugin state of the application.
+                void refreshEditedPluginState();
+                //! Refreshes the application's factory information.
+                void refreshFactories();
+
                 Ui::DebugWidget *ui;
                 DebugWidgetData* d;
             };

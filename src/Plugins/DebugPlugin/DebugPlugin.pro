@@ -37,10 +37,12 @@ UI_DIR          = $$QTILITIES_TEMP/DebugPlugin
 HEADERS += source/DebugPlugin.h \
            source/DebugPlugin_global.h \
            source/DebugPluginConstants.h \
-           source/DebugWidget.h
+           source/DebugWidget.h \
+           source/DropableListWidget.h
 
 SOURCES += source/DebugPlugin.cpp \
-           source/DebugWidget.cpp
+           source/DebugWidget.cpp \
+           source/DropableListWidget.cpp
 
 RESOURCES += \
     resources/DebugPlugin.qrc
