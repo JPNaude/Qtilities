@@ -24,13 +24,23 @@ QTILITIES_FILE_VER      = -0.3
 
 #****************************************************************************
 # Build Options:
-#****************************************************************************
-# Builds Qtilities without the ObjectPropertyBrowser class, thus you
-# don't need the Qt Property Browser Solution.
-DEFINES += QTILITIES_NO_PROPERTY_BROWSER
-# Enables verbose action management messages.
-# DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-
+#   *************************************************************************
+#   Dependencies:
+#   *************************************************************************
+#   Builds Qtilities without the ObjectPropertyBrowser class, thus you
+#   don't need the Qt Property Browser Solution.
+    DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+#   Builds Qtilities without Conan library integrated into the debug plugin.
+#   Note that this integration was only tested in Qt 4.7 on WindowsXP 32bit.
+#   See https://sourceforge.net/projects/conanforqt/ for more information.
+    DEFINES += QTILITIES_NO_CONAN
+#
+#   *************************************************************************
+#   General:
+#   *************************************************************************
+#   Enables verbose action management messages.
+#   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
+#
 #****************************************************************************
 # Include paths
 #****************************************************************************
