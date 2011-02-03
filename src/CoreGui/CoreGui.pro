@@ -28,18 +28,18 @@ UI_DIR = $$QTILITIES_TEMP/CoreGui
 !contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
     LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
-    PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser
+    PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
     DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
     INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
     CONFIG(debug, debug|release) {
         win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
         unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-head
+            -lQtSolutions_PropertyBrowser-2.5d
     }
     else {
         win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
         unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-head
+            -lQtSolutions_PropertyBrowser-2.5
     }
 
     HEADERS += source/ObjectPropertyBrowser.h

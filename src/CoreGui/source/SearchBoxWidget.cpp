@@ -81,16 +81,20 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
 
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu(tr("Search Options"));
+    d->searchOptionsMenu->setObjectName(objectName());
     ui->btnSearchOptions->setIcon(QIcon(ICON_SEARCH_OPTIONS_22x22));
     ui->btnSearchOptions->setIconSize(QSize(16,16));
     d->searchOptionCaseSensitive = new QAction(tr("Case Sensitive"),0);
     d->searchOptionCaseSensitive->setCheckable(true);
+    d->searchOptionCaseSensitive->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionCaseSensitive);
     connect(d->searchOptionCaseSensitive,SIGNAL(triggered()),SLOT(handleOptionsChanged()));
     d->searchOptionWholeWordsOnly = new QAction(tr("Whole Words Only"),0);
+    d->searchOptionWholeWordsOnly->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionWholeWordsOnly);
     d->searchOptionWholeWordsOnly->setCheckable(true);
     d->searchOptionRegEx = new QAction(tr("Regular Expression"),0);
+    d->searchOptionRegEx->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionRegEx);
     d->searchOptionRegEx->setCheckable(true);
     ui->btnSearchOptions->setPopupMode(QToolButton::InstantPopup);

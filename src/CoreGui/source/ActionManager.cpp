@@ -159,6 +159,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 
         MultiContextAction* multi = qobject_cast<MultiContextAction*> (command);
         if (multi) {           
+            multi->setObjectName(id);
             multi->addAction(action,context);
 
             // Set the action's object name equal to the id:
@@ -208,7 +209,9 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     else
         frontend_action = new QAction(user_text,0);
 
+    frontend_action->setObjectName(id);
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
+
     if (!QtilitiesApplication::mainWindow()) {
         // Show a message box since action manager will always be used in QtGui application.
         if (!showed_warning) {
@@ -223,6 +226,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
 
     MultiContextAction* new_action = new MultiContextAction(frontend_action);
     if (new_action) {
+        new_action->setObjectName(id);
         new_action->setDefaultText(id);
         if (!context.isEmpty()) {
             // We create a holder backend action, this action will be internal and the user should user the Command->action() call to use the command.

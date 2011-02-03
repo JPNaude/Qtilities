@@ -438,6 +438,7 @@ void Qtilities::CoreGui::CodeEditorWidget::showSearchBox() {
         button_flags |= SearchBoxWidget::NextButtons;
         button_flags |= SearchBoxWidget::PreviousButtons;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
+        d->searchBoxWidget->setObjectName("Search Box: Code Editor (" + objectName() + ")");
         d->searchBoxWidget->setWholeWordsOnly(false);
         d->searchBoxWidget->setPlainTextEditor(d->codeEditor);
         if (d->central_widget_layout)

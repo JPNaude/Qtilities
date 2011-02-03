@@ -88,7 +88,6 @@ Qtilities::CoreGui::ObjectScopeWidget::ObjectScopeWidget(QWidget *parent) :
     connect(m_ui->observerTable,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(handle_currentItemChanged(QTableWidgetItem *)));
 
     d = new ObjectScopeWidgetData;
-    d->obj = 0;
 
     setAttribute(Qt::WA_DeleteOnClose, true);
     Qt::WindowFlags window_flags = windowFlags();
@@ -120,6 +119,9 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
         return;
     }
 
+    if (d->obj)
+        d->obj->disconnect(this);
+
     d->obj = obj;
     d->obj->installEventFilter(this);
 
@@ -131,7 +133,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
     for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
         Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
         if (observer) {
-            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()));
+            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()),Qt::UniqueConnection);
         }
     }
 
@@ -145,6 +147,9 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QPointer<QObject> obj) {
         return;
     }
 
+    if (d->obj)
+        d->obj->disconnect(this);
+
     d->obj = obj;
     d->obj->installEventFilter(this);
 
@@ -156,7 +161,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QPointer<QObject> obj) {
     for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
         Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
         if (observer) {
-            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()));
+            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()),Qt::UniqueConnection);
         }
     }
 

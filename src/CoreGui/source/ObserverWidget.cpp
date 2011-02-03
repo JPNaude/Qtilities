@@ -2278,6 +2278,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
         SearchBoxWidget::ButtonFlags button_flags = 0;
         button_flags |= SearchBoxWidget::HideButtonDown;
         d->searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchOnly,button_flags);
+        d->searchBoxWidget->setObjectName("Search Box: Observer Widget (" + objectName() + ")");
         if (ui->widgetSearchBox->layout())
             delete ui->widgetSearchBox->layout();
 

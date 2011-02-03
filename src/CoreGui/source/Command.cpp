@@ -150,13 +150,19 @@ void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<in
             // Check if there is already an action for this context
             if (d->id_action_map.keys().contains(context_ids.at(i))) {
                 if (d->id_action_map[context_ids.at(i)] != 0) {
-                    LOG_WARNING(tr("Attempting to register an action for a multi context action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
+                    LOG_WARNING(tr("Attempting to register a backend action for a multi context action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
                     return;
                 } else {
                     d->id_action_map[context_ids.at(i)] = action;
                 }
             } else {
                 d->id_action_map[context_ids.at(i)] = action;
+            }
+            if (action->objectName().isEmpty()) {
+                if (action->text().isEmpty())
+                    action->setObjectName(objectName());
+                else
+                    action->setObjectName(action->text());
             }
         }
     }
@@ -183,6 +189,8 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
     for (int i = 0; i < d->active_contexts.size(); ++i) {
         if (QAction *a = d->id_action_map.value(d->active_contexts.at(i), 0)) {
             d->active_backend_action = a;
+            setObjectName(a->text());
+            d->active_backend_action->setObjectName(a->text());
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
             LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", MultiContextAction shortcut: " + d->frontend_action->shortcut().toString());

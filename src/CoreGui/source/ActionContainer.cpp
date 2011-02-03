@@ -50,6 +50,8 @@ Qtilities::CoreGui::MenuContainer::MenuContainer(const QString& name, QObject* p
 {
     d = new MenuContainerData;
     d->this_menu = new QMenu(container_name);
+    setObjectName(name);
+    d->this_menu->setObjectName(name);
 
     setEmptyPolicy(ActionContainer::Disable);
 }
@@ -118,6 +120,8 @@ void Qtilities::CoreGui::MenuContainer::addMenu(ActionContainer *menu, const QSt
             sub_menu_ptr = qobject_cast<MenuContainer*> (menu);
             d->sub_menus.push_front(sub_menu_ptr);
             menu->setParent(this);
+            if (menu->menu())
+                menu->setObjectName(menu->menu()->title());
             return;
         }
     }
