@@ -229,7 +229,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
             QAction* holder_backend_action = new QAction(frontend_action->text(),0);
             new_action->addAction(holder_backend_action,context);
         }
-        new_action->setCurrentContext(CONTEXT_MANAGER->currentContexts());
+        new_action->setCurrentContext(CONTEXT_MANAGER->activeContexts());
         d->id_command_map[id] = new_action;
 
         new_action->setKeySequence(key_sequence);
@@ -263,7 +263,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
     ShortcutCommand* new_shortcut = new ShortcutCommand(user_text,shortcut,contexts,QtilitiesApplication::mainWindow());
     if (new_shortcut) {
         new_shortcut->setDefaultText(id);
-        new_shortcut->setCurrentContext(CONTEXT_MANAGER->currentContexts());
+        new_shortcut->setCurrentContext(CONTEXT_MANAGER->activeContexts());
         d->id_command_map[id] = new_shortcut;
 
         new_shortcut->setKeySequence(shortcut->key());

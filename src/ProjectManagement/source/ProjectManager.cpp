@@ -463,8 +463,8 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
         if (d->recent_project_names.count() > 0)
             last_project = d->recent_project_stack.front();
         if (!last_project.isEmpty()) {
+            LOG_INFO_P(tr("Loading project from last session from path: ") + last_project);
             QApplication::processEvents();
-            LOG_INFO(tr("Loading project from last session from path: ") + last_project);
             if (!openProject(last_project)) {
                 // We create a empty project when the last project was not valid and auto create project is set.
                 if (newProject())

@@ -168,8 +168,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             #endif
 
             bool is_filtered_plugin = false;
-            foreach (QString filteredPluginName, d->set_filtered_plugins) {
-                if (stripped_file_name.startsWith(filteredPluginName)) {
+            foreach (QString expression, d->set_filtered_plugins) {
+                QRegExp rx(expression);
+                rx.setPatternSyntax(QRegExp::Wildcard);
+                if (rx.exactMatch(stripped_file_name)) {
                     is_filtered_plugin = true;
                     break;
                 }
@@ -357,6 +359,15 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     return d->extension_system_config_widget;
 }
 
+Qtilities::ExtensionSystem::Interfaces::IPlugin* Qtilities::ExtensionSystem::ExtensionSystemCore::findPlugin(const QString& plugin_name) const {
+    QObject* obj = d->plugins.subjectReference(plugin_name);
+    if (obj) {
+        IPlugin* plugin = qobject_cast<IPlugin*> (obj);
+        return plugin;
+    } else
+        return 0;
+}
+
 void Qtilities::ExtensionSystem::ExtensionSystemCore::addPluginPath(const QString& path) {
     if (d->customPluginPaths.contains(path))
         return;
@@ -394,7 +405,76 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::corePlugins() const
     return d->core_plugins;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QString file_name) {
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::inactivePluginsCurrentSet() const {
+    return d->set_inactive_plugins;
+}
+
+QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::filteredPluginsCurrentSet() const {
+    return d->set_filtered_plugins;
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins) const {
+    if (file_name.isEmpty())
+        file_name = d->active_configuration_file;
+
+    QFile file(file_name);
+    if(!file.open(QFile::WriteOnly))
+        return false;
+
+    // Determine which set of plugins must be used:
+    QStringList final_inactive;
+    if (inactive_plugins) {
+        final_inactive = *inactive_plugins;
+    } else {
+        final_inactive = d->set_filtered_plugins;
+    }
+    QStringList final_filtered;
+    if (filtered_plugins) {
+        final_filtered = *filtered_plugins;
+    } else {
+        final_filtered = d->set_filtered_plugins;
+    }
+
+    // Create the QDomDocument:
+    QDomDocument doc("QtilitiesPluginConfiguration");
+    QDomElement root = doc.createElement("QtilitiesPluginConfiguration");
+    root.setAttribute("DocumentVersion",QTILITIES_PLUGIN_CONFIG_FORMAT);
+    doc.appendChild(root);
+
+    // Do XML of inactive and filter lists:
+    // Inactive Plugins:
+    QDomElement inactive_node = doc.createElement("InactivePlugins");
+    root.appendChild(inactive_node);
+    foreach (QString name, final_inactive) {
+        QDomElement inactive_item = doc.createElement("PluginName");
+        inactive_item.setAttribute("Value",name);
+        inactive_node.appendChild(inactive_item);
+    }
+
+    // Filtered Plugins:
+    QDomElement filtered_node = doc.createElement("FilteredPlugins");
+    root.appendChild(filtered_node);
+    foreach (QString name, final_filtered) {
+        QDomElement filtered_item = doc.createElement("Expression");
+        filtered_item.setAttribute("Value",regExpToXml(name));
+        filtered_node.appendChild(filtered_item);
+    }
+
+    // Put the complete doc in a string and save it to the file:
+    // Still write it even if it fails so that we can check the output file for debugging purposes.
+    QString docStr = doc.toString(2);
+    file.write(docStr.toAscii());
+    file.close();
+
+    return true;
+}
+
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins) {
+    if (d->is_initialized && (!inactive_plugins || !filtered_plugins)) {
+        LOG_DEBUG("Failed to load plugin configuration from file: " + file_name + ". The extension system is already initialized. ");
+        return false;
+    }
+
     if (file_name.isEmpty())
         file_name = d->active_configuration_file;
 
@@ -435,8 +515,14 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
         return false;
     }
 
-    d->set_inactive_plugins.clear();
-    d->set_filtered_plugins.clear();
+    if (!inactive_plugins)
+        d->set_inactive_plugins.clear();
+    else
+        inactive_plugins->clear();
+    if (!filtered_plugins)
+        d->set_filtered_plugins.clear();
+    else
+        filtered_plugins->clear();
 
     // Now check out all the children below the root node:
     QDomNodeList childNodes = root.childNodes();
@@ -458,10 +544,14 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
 
                 if (inactiveItem.hasAttribute("Value")) {
                     QString plugin_name = inactiveItem.attribute("Value");
-                    if (!d->core_plugins.contains(plugin_name))
-                        d->set_inactive_plugins << plugin_name;
-                    else
-                        LOG_ERROR(QString(tr("%1 is a core plugin. The plugin configuration attempted to set it as an inactive plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                    if (!inactive_plugins) {
+                        if (!d->core_plugins.contains(plugin_name)) {
+                            d->set_inactive_plugins << plugin_name;
+                        } else
+                            LOG_ERROR(QString(tr("ExtensionSystemCore::loadPluginConfiguration(): %1 is a core plugin. The plugin configuration attempted to set it as an inactive plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                    } else {
+                        inactive_plugins->append(plugin_name);
+                    }
                 }
             }
         }
@@ -477,74 +567,49 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
 
                 if (filteredItem.hasAttribute("Value")) {
                     QString plugin_name = filteredItem.attribute("Value");
-                    if (!d->core_plugins.contains(plugin_name))
-                        d->set_filtered_plugins << plugin_name;
-                    else
-                        LOG_ERROR(QString(tr("%1 is a core plugin. The plugin configuration attempted to set it as a filtered plugin. This is not allowed for core plugins.")).arg(plugin_name));
+                    if (!filtered_plugins) {
+                        d->set_filtered_plugins << xmlToRegExp(plugin_name);
+                    } else {
+                        filtered_plugins->append(plugin_name);
+                    }
+
                 }
             }
         }
     }
 
-    d->set_inactive_plugins.removeDuplicates();
-    d->set_filtered_plugins.removeDuplicates();
+    if (!inactive_plugins)
+        d->set_inactive_plugins.removeDuplicates();
+    else
+        inactive_plugins->removeDuplicates();
+    if (!filtered_plugins)
+        d->set_filtered_plugins.removeDuplicates();
+    else
+        filtered_plugins->removeDuplicates();
 
-    LOG_INFO(tr("Successfully loaded plugin configuration from file: ") + file_name);
-    LOG_DEBUG("Inactive Plugins: " + d->set_inactive_plugins.join(","));
-    LOG_DEBUG("Filtered Plugins: " + d->set_filtered_plugins.join(","));
+    if (!d->is_initialized) {
+        LOG_INFO(tr("Successfully loaded plugin configuration from file: ") + file_name);
+        LOG_DEBUG("Inactive Plugins: " + d->set_inactive_plugins.join(","));
+        LOG_DEBUG("Filtered Plugins: " + d->set_filtered_plugins.join(","));
+        LOG_DEBUG("Core Plugins: " + d->core_plugins.join(","));
+    }
 
     d->active_configuration_file = file_name;
     return true;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name) const {
-    if (file_name.isEmpty())
-        file_name = d->active_configuration_file;
-
-    QFile file(file_name);
-    if(!file.open(QFile::WriteOnly))
-        return false;
-
-    // Create the QDomDocument:
-    QDomDocument doc("QtilitiesPluginConfiguration");
-    QDomElement root = doc.createElement("QtilitiesPluginConfiguration");
-    root.setAttribute("DocumentVersion",QTILITIES_PLUGIN_CONFIG_FORMAT);
-    doc.appendChild(root);
-
-    // Do XML of inactive and filter lists:
-    // Inactive Plugins:
-    QDomElement inactive_node = doc.createElement("InactivePlugins");
-    root.appendChild(inactive_node);
-    foreach (QString name, d->set_inactive_plugins) {
-        QDomElement inactive_item = doc.createElement("PluginName");
-        inactive_item.setAttribute("Value",name);
-        inactive_node.appendChild(inactive_item);
-    }
-
-    // Filtered Plugins:
-    QDomElement filtered_node = doc.createElement("FilteredPlugins");
-    root.appendChild(filtered_node);
-    foreach (QString name, d->set_filtered_plugins) {
-        QDomElement filtered_item = doc.createElement("FileNameStart");
-        filtered_item.setAttribute("Value",name);
-        filtered_node.appendChild(filtered_item);
-    }
-
-    // Put the complete doc in a string and save it to the file:
-    // Still write it even if it fails so that we can check the output file for debugging purposes.
-    QString docStr = doc.toString(2);
-    file.write(docStr.toAscii());
-    file.close();
-
-    return true;
-}
-
 void Qtilities::ExtensionSystem::ExtensionSystemCore::setInactivePlugins(QStringList inactive_plugins) {
+    if (d->is_initialized)
+        return;
+
     d->set_inactive_plugins = inactive_plugins;
     d->set_inactive_plugins.removeDuplicates();
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::setFilteredPlugins(QStringList filtered_plugins) {
+    if (d->is_initialized)
+        return;
+
     d->set_filtered_plugins = filtered_plugins;
     d->set_filtered_plugins.removeDuplicates();
 }
@@ -555,18 +620,18 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins(QStringList
 
         // Make sure no core plugins are found in the inactive or filter plugin lists:
         foreach (QString core_plugin, d->core_plugins) {
-            if (d->set_inactive_plugins.contains(core_plugin))
+            if (d->set_inactive_plugins.contains(core_plugin)) {
                 d->set_inactive_plugins.removeOne(core_plugin);
+                LOG_DEBUG("ExtensionSystemCore::setCorePlugins() removed plugin " + core_plugin + " from the list of inactive plugins.");
+            }
         }
-
-        // TODO - finish...
     }
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationChange(QList<QObject*> active_plugins, QList<QObject*> inactive_plugins) {
     Q_UNUSED(active_plugins)
+    QStringList new_inactive_plugins;
 
-    d->set_inactive_plugins.clear();
     for (int i = 0; i < inactive_plugins.count(); i++) {
          IPlugin* iface = qobject_cast<IPlugin*> (inactive_plugins.at(i));
          if (iface) {
@@ -581,15 +646,15 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
                 Observer::setObserverProperty(iface->objectBase(),category_property);
                 d->plugins.refreshViewsData();
              } else
-                d->set_inactive_plugins << iface->pluginName();
+                new_inactive_plugins << iface->pluginName();
          }
     }
 
     // If the inactive plugins are different from the current plugins:
-    if (d->current_inactive_plugins != d->set_inactive_plugins) {
+    if (new_inactive_plugins != d->set_inactive_plugins) {
         // Now write the settings to the default configuration file, unless a config file was loaded, in that
         // case ask the user if they want to save it.
-        if (savePluginConfiguration()) {
+        if (savePluginConfiguration(d->active_configuration_file,&new_inactive_plugins,&d->set_filtered_plugins)) {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
                 d->extension_system_config_widget->setStatusMessage("Restart Required");
@@ -631,4 +696,14 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::isPluginActivityControlEna
         return true;
     else
         return false;
+}
+
+QString Qtilities::ExtensionSystem::ExtensionSystemCore::regExpToXml(QString pattern) const {
+    pattern.replace(">","&gt;");
+    return pattern;
+}
+
+QString Qtilities::ExtensionSystem::ExtensionSystemCore::xmlToRegExp(QString xml) const {
+    xml.replace("&gt;",">");
+    return xml;
 }

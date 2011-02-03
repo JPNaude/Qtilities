@@ -109,6 +109,20 @@ namespace Qtilities {
                   If you want to use your own mode ID you must reimplement modeID() and return your mode there, or set it using this function.
                   */
                 inline void setModeID(int mode_id) { d_mode_id = mode_id; }
+                //! This function is called when the mode is about to be activated. That is, when the user clicks on the mode and it is going to become the active mode.
+                /*!
+                  By default this function does nothing. Modes that require this functionality must reimplement this virtual function.
+
+                  \sa justActivated()
+                  */
+                virtual void aboutToBeActivated() {}
+                //! This function is called after a mode was activated. That is, when the user clicked on the mode and it became the active mode.
+                /*!
+                  By default this function does nothing. Modes that require this functionality must reimplement this virtual function.
+
+                  \sa aboutToBeActivated()
+                  */
+                virtual void justActivated() {}
 
             private:
                 int d_mode_id;

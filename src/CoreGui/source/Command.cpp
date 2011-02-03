@@ -97,6 +97,7 @@ struct Qtilities::CoreGui::MultiContextActionData {
     bool is_active;
     QList<int> active_contexts;
     QPointer<QAction> active_backend_action;
+    //! Hash with context IDs and their corresponding backend_action:
     QHash<int, QPointer<QAction> > id_action_map;
 };
 
@@ -303,19 +304,26 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
             d->frontend_action->setToolTip(d->original_tooltip);
     } else {
         if (d->active_backend_action)
-            d->frontend_action->setToolTip(d->active_backend_action->toolTip() + " " + new_key_tooltip);
+            d->frontend_action->setToolTip(d->active_backend_action->toolTip().trimmed() + " " + new_key_tooltip);
         else
-            d->frontend_action->setToolTip(d->original_tooltip + " " + new_key_tooltip);
+            d->frontend_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
 
         // Add the new tooltip to all the backend actions' tooltips:
         for (int i = 0; i < d->id_action_map.count(); i++) {
             backend_action = d->id_action_map.values().at(i);
             if (backend_action)
-                backend_action->setToolTip(backend_action->toolTip() + " " + new_key_tooltip);
+                backend_action->setToolTip(backend_action->toolTip().trimmed() + " " + new_key_tooltip);
         }
     }
 }
 
+QHash<int, QPointer<QAction> > Qtilities::CoreGui::MultiContextAction::contextIDActionMap() const {
+    return d->id_action_map;
+}
+
+QPointer<QAction> Qtilities::CoreGui::MultiContextAction::activeBackendAction() const {
+    return d->active_backend_action;
+}
 
 // --------------------------------
 // ShortcutCommand Implemenation
@@ -337,7 +345,6 @@ Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, Q
     d->user_text = user_text;
     d->shortcut = shortcut;
     d->active_contexts = active_contexts;
-
     d->shortcut->setEnabled(false);
 }
 
@@ -377,10 +384,13 @@ bool Qtilities::CoreGui::ShortcutCommand::setCurrentContext(QList<int> context_i
         }
     }
 
-    if (must_become_active)
+    if (must_become_active) {
         d->shortcut->setEnabled(true);
-    else
+        d->is_active = true;
+    } else {
         d->shortcut->setEnabled(false);
+        d->is_active = false;
+    }
 
     return true;
 }
@@ -388,5 +398,9 @@ bool Qtilities::CoreGui::ShortcutCommand::setCurrentContext(QList<int> context_i
 void Qtilities::CoreGui::ShortcutCommand::handleKeySequenceChange(const QKeySequence& old_key) {
     Q_UNUSED(old_key)
     d->shortcut->setKey(keySequence());
+}
+
+QList<int> Qtilities::CoreGui::ShortcutCommand::activeContexts() const {
+    return d->active_contexts;
 }
 

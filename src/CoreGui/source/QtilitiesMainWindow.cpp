@@ -204,6 +204,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {
+    QApplication::processEvents();
     if (d->priority_messages_enabled) {
         d->priority_messages_text.setVisible(true);
         if (message_type == Logger::Warning) {
@@ -223,4 +224,5 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
         d->priority_messages_text.setText(message);
         d->priority_message_timer.start(5000);
     }
+    QApplication::processEvents();
 }

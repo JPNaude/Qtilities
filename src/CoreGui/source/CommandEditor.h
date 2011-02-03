@@ -47,6 +47,7 @@ namespace Ui {
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
+        class Command;
 
         /*!
         \struct CommandEditorData
@@ -63,7 +64,7 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
 
         public:
-            CommandEditor(QWidget *parent = 0);
+            CommandEditor(bool debug_mode = false, QWidget *parent = 0);
             ~CommandEditor();
 
             // --------------------------------
@@ -92,6 +93,9 @@ namespace Qtilities {
             void on_btnImport_clicked();
             void handleSearchStringChanged(const QString& text);
             void resizeCommandTableRows();
+
+        signals:
+            void selectedCommandChanged(Command* command);
 
         private:
             Ui::CommandEditor *ui;

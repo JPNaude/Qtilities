@@ -121,7 +121,7 @@ QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginDescription() co
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2010, Jaco Naude");
+    return QString(tr("Copyright") + " 2010-2011, Jaco Naude");
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense() const {

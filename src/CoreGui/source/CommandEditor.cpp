@@ -60,7 +60,7 @@ struct Qtilities::CoreGui::CommandEditorData {
     QSortFilterProxyModel* proxy_model;
 };
 
-Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
+Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandEditor)
 {
@@ -85,6 +85,9 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
         ui->commandTable->horizontalHeader()->setStretchLastSection(true);
         ui->commandTable->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->commandTable->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+        ui->commandTable->resizeColumnsToContents();
+        QHeaderView* table_header = ui->commandTable->horizontalHeader();
+        table_header->setResizeMode(1,QHeaderView::Stretch);
     }
 
     // Create Property Browser
@@ -113,6 +116,12 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     // Select first item
     connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
     ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
+
+    if (debug_mode) {
+        ui->groupCurrentConfiguration->setVisible(false);
+        ui->widgetSearchBox->setVisible(false);
+        ui->widgetPropertyEditor->setVisible(false);
+    }
 }
 
 Qtilities::CoreGui::CommandEditor::~CommandEditor()
@@ -170,6 +179,8 @@ void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelInde
             if (original_index.isValid())
                 d->property_browser->setObject(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
             #endif
+
+            emit selectedCommandChanged(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
         }
     }
 }

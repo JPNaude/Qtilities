@@ -61,8 +61,7 @@ namespace Qtilities {
           Observer classes use the dynamic property features of QObject classes extensively to manage objects in different contexts.
           This namespace contains a set of properties which are defined and used internally in %Qtilities.
 
-          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers
-          article.
+          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers article. Note that all properties used by %Qtilities starts with "%Qtilities", for example \p Qtilities.Core.ObserverSubjectIDs.
 
           Among property specific details, the following is defined for each property:
           - Permission: Indicates the permission on the property. When \p Reserved the property cannot be changed
