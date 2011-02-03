@@ -48,6 +48,7 @@ struct Qtilities::CoreGui::ModeManagerData {
         active_mode(-1),
         mode_id_counter(1000) {}
 
+    // All int values in here reffers to the modeID()s of the modes.
     ModeListWidget*         mode_list_widget;
     int                     active_mode;
     QMap<int, IMode*>       id_iface_map;
@@ -448,9 +449,11 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
         return;
 
     if (d->id_iface_map.keys().contains(item->type())) {
+        d->id_iface_map[item->type()]->aboutToBeActivated();
         if (!d->id_iface_map[item->type()]->contextString().isEmpty())
             CONTEXT_MANAGER->setNewContext(d->id_iface_map[item->type()]->contextString());
         emit changeCentralWidget(d->id_iface_map[item->type()]->modeWidget());
+        d->id_iface_map[item->type()]->justActivated();
     }
 
     d->active_mode = item->type();
