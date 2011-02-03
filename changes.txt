@@ -12,7 +12,7 @@ In no particular order:
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties changes.
-- Test Observer copy constructor.
+- Fix and test Observer copy constructor using unit test.
 - Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
 - Command editor widget, remove dependency on property browser lib.
 - Action manager:
@@ -35,6 +35,11 @@ Things outstanding for v0.3 release:
     - Conan Integration
     - Add debugging Qtilities applications page to docs.
 - Define something like qti_ for classes which must be internal, thus not documented.
+- Find a way to check if subject lives in different thread in Observer. Current implementation does not seem to work, or does it?
+- Add notes on threading to Observer: Subject's threads as well as thread safety.
+- Add tree and subject function descriptions to Observer docs. And add some actual docs to Observer.
+- Do some checking for double connections using Conan.
+- Observer tree widgets does not expand at startup.
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -203,6 +208,7 @@ Qtilities v0.3 Implemented Changes
     - Fixed inconsistancy in number of spaces added to command tooltips with shortcuts.
     - Fixed bug where some needed functions were private on ObjectScopeWidget. They are now public.
     - Fixed possible crash in CommandEditor.
+    - Fixed bug in ObjectScopeWidget where it created duplicate connections on the monitored object.
 
     ============================
     QtilitiesExtensionSystem:
