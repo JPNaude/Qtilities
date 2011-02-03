@@ -6,6 +6,7 @@ In no particular order:
 - ObserverSceneGraph.
 - Task management classes.
 - Unit tests on all applicable classes.
+- Port some scientific classes (Matrices, Models etc.) to a new Qtilities lib.
 
 ================================
 Things outstanding for v0.3 release:
