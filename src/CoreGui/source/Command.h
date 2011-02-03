@@ -38,6 +38,7 @@
 #include <QKeySequence>
 #include <QShortcut>
 #include <QAction>
+#include <QPointer>
 
 #include "QtilitiesCoreGui_global.h"
 
@@ -155,6 +156,10 @@ namespace Qtilities {
             bool isActive();
             //! Let this action know what contexts are currently active.
             bool setCurrentContext(QList<int> context_ids);
+            //! Provides a list of all the backend actions for this MultiContextAction.
+            QHash<int, QPointer<QAction> > contextIDActionMap() const;
+            //! Provides the active backend action
+            QPointer<QAction> activeBackendAction() const;
 
         private slots:
             void updateFrontendAction();
@@ -172,8 +177,6 @@ namespace Qtilities {
         /*!
         \class ShortcutCommand
         \brief A class which represents a shortcut which is enabled depending on the active context(s).
-
-
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ShortcutCommand : public Command
         {
@@ -195,6 +198,8 @@ namespace Qtilities {
             bool isActive();
             //! Let this shortcut command know what contexts are currently active.
             bool setCurrentContext(QList<int> context_ids);
+            //! Returns a list of active contexts for this shortcut.
+            QList<int> activeContexts() const;
 
         private:
             ShortcutCommandData* d;
