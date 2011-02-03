@@ -163,35 +163,34 @@ namespace Qtilities {
             bool eventFilter(QObject *object, QEvent *event);
             //! This function toggles event filtering on objects.
             /*!
-              It is recommended to always keep event filtering enabled. However in some cases, like
-              object reconstruction in ObjectManager::constructRelationships() it is neccesarry to
-              manually edit read only properties (like ownership etc.).
-
-              In these cases filtering is disabled temporarily. Note that disabling also disables event
-              filtering in all subject filters.
+              It is recommended to always keep event filtering enabled. However in some cases, like object reconstruction in ObjectManager::constructRelationships() it is neccesarry to manually edit read only properties (like ownership etc.). Another example is when you want to attach objects in threads other than the observer's thread to it. In such cases you can disable subject event filtering on objects attached to your subjects.
 
               \param toggle True is event filtering is enabled, thus property changes are monitored by the observer. False otherwise.
 
-              \note Event filtering is enabled by default.
+              \note Event filtering is enabled by default. It is also important to know that events won't be monitored on subjects which were attached while subject event filtering is disabled, even if you turn on subject event filtering again at a later stage. Therefore it is best to call this function only once, before attaching any objects to your observer.
+
+              \sa subjectEventFilteringEnabled(), qtilitiesPropertyChangeEventsEnabled()
               */
             void toggleSubjectEventFiltering(bool toggle);
             //! Indicates if subject event filtering is enabled.
+            /*!
+              \sa toggleSubjectEventFiltering(), qtilitiesPropertyChangeEventsEnabled()
+              */
             bool subjectEventFilteringEnabled() const;
             //! This function enables/disables delivery of QtilitiesPropertyChangeEvents on objects when property changes occurs.
             /*!
               \param toggle When true, change events are delivered. When false they are not delivered.
 
-              See monitoredPropertyChanged() for more details on when property change events can be used. If your implementation
-              does not use property change events, you should disabled the events to optimize performance.
+              See monitoredPropertyChanged() for more details on when property change events can be used. If your implementation does not use property change events, you should disabled the events to optimize performance.
 
               \note These events are disabled by default.
 
-              \sa qtilitiesPropertyChangeEventsEnabled()
+              \sa qtilitiesPropertyChangeEventsEnabled(), toggleSubjectEventFiltering()
               */
             void toggleQtilitiesPropertyChangeEvents(bool toggle);
             //! Indicates if QtilitiesPropertyChangeEvents are enabled.
             /*!
-              \sa toggleQtilitiesPropertyChangeEvents()
+              \sa toggleQtilitiesPropertyChangeEvents(), subjectEventFilteringEnabled()
               */
             bool qtilitiesPropertyChangeEventsEnabled() const;
 
@@ -315,10 +314,16 @@ namespace Qtilities {
             // --------------------------------
             //! Will attempt to attach the specified object to the observer. The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the object to be attached.
             /*!
+              When successfull \p obj will be part of this observer context until it is detached again or deleted.
+
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns True is succesfull, false otherwise.
+
+              \note When subjectEventFilteringEnabled() is true, the observer will be installed as an event filter on \p obj. If you do not want this to happen you can turn it off using toggleSubjectEventFiltering(). See the toggleSubjectEventFiltering() function docmentation for more information on this.
+
+              \note When obj lives in a different thread than this observer an attempt won't be made to install this observer as an event filter.
 
               \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
               */

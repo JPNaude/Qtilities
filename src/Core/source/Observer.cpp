@@ -119,25 +119,25 @@ Qtilities::Core::Observer::~Observer() {
                 // Subjects with SpecificObserverOwnership must be deleted as soon as this observer is deleted if this observer is their parent.
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) is owned by this observer, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                if (!i.hasNext()) {
-                   delete obj;
+                   obj->deleteLater();
                    break;
                } else {
-                   delete obj;
+                   obj->deleteLater();
                }
             } else if ((subject_ownership_variant.toInt() == ObserverScopeOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
-                    delete obj;
+                    obj->deleteLater();
                     break;
                 } else
-                    delete obj;
+                    obj->deleteLater();
            } else if ((subject_ownership_variant.toInt() == OwnedBySubjectOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with OwnedBySubjectOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
-                    delete obj;
+                    obj->deleteLater();
                     break;
                 } else
-                    delete obj;
+                    obj->deleteLater();
             }
         }
     }
@@ -1372,6 +1372,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     if (canDetach(obj) == Rejected)
         return false;
 
+    bool currrent_filter_subject_events_enabled = observerData->filter_subject_events_enabled;
     observerData->filter_subject_events_enabled = false;
 
     // Pass object through all installed subject filters
@@ -1394,6 +1395,9 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         }
     }
 
+    // Keeps track if the object went out of scope:
+    bool lost_scope = false;
+
     if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
         #ifndef QT_NO_DEBUG
             QString debug_name = obj->objectName();
@@ -1401,20 +1405,20 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
 
         // Check the ownership property of this object
         QVariant ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
-        if (ownership_variant.isValid() && (ownership_variant.toInt() == ObserverScopeOwnership)) {
+        if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == ObserverScopeOwnership)) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
-                delete obj;
-                obj = 0;
+                obj->deleteLater();
+                lost_scope = true;
             } else {
                 removeObserverProperties(obj);
                 observerData->subject_list.removeOne(obj);
             }
-        } else if (ownership_variant.isValid() && (ownership_variant.toInt() == SpecificObserverOwnership)) {
+        } else if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == SpecificObserverOwnership)) {
             QVariant observer_parent = getObserverPropertyValue(obj,OBSERVER_PARENT);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
-                delete obj;
-                obj = 0;
+                obj->deleteLater();
+                lost_scope = true;
             } else {
                 removeObserverProperties(obj);
                 observerData->subject_list.removeOne(obj);
@@ -1436,13 +1440,14 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     // Broadcast if neccesarry
     if (!observerData->process_cycle_active) {
         QList<QPointer<QObject> > objects;
-        objects << obj;
+        if (!lost_scope)
+            objects << obj;
         setModificationState(true);
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
         emit layoutChanged(QList<QPointer<QObject> >());
     }
 
-    observerData->filter_subject_events_enabled = true;
+    observerData->filter_subject_events_enabled = currrent_filter_subject_events_enabled;
     return true;
 }
 
@@ -1639,6 +1644,8 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
             return;
     #endif
 
+    bool currrent_filter_subject_events_enabled = observerData->filter_subject_events_enabled;
+    bool currrent_deliver_qtilities_property_changed_events = observerData->deliver_qtilities_property_changed_events;
     observerData->filter_subject_events_enabled = false;
     observerData->deliver_qtilities_property_changed_events = false;
 
@@ -1668,8 +1675,8 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
         }
     }
 
-    observerData->filter_subject_events_enabled = true;
-    observerData->deliver_qtilities_property_changed_events = true;
+    observerData->filter_subject_events_enabled = currrent_filter_subject_events_enabled;
+    observerData->deliver_qtilities_property_changed_events = currrent_deliver_qtilities_property_changed_events;
 }
 
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) {
