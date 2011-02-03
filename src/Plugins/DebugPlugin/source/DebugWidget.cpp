@@ -297,6 +297,7 @@ bool Qtilities::Plugins::Debug::DebugWidget::on_btnSaveNewPluginConfigSet_clicke
         QStringList filter_list = d->filtered_plugins_model.stringList();
         return EXTENSION_SYSTEM->savePluginConfiguration(fileName,&inactive_list,&filter_list);
         ui->txtPluginsEditSet->setText(fileName);
+        return true;
     } else
         return false;
 }
