@@ -66,9 +66,12 @@ Qtilities::Core::ContextManager::ContextManager(QObject* parent) : IContextManag
 
 int Qtilities::Core::ContextManager::registerContext(const QString& context) {
     int id = contextID(context);
+    if (id == -1)
+        return -1;
+
     if (!d->contexts.contains(id)) {
         d->contexts.push_front(id);
-        LOG_DEBUG("Context Manager: Registering new context: " + context);
+        LOG_DEBUG("Context Manager: Registering new context: " + context + " with ID " + QString::number(id));
         return id;
     } else
         return id;
@@ -81,6 +84,7 @@ QList<int> Qtilities::Core::ContextManager::allContexts() const {
 QStringList Qtilities::Core::ContextManager::contextNames() const {
     return d->string_id_map.keys();
 }
+
 QStringList Qtilities::Core::ContextManager::activeContextNames() const {
     QStringList active_names;
     for (int i = 0; i < d->active_contexts.count(); i++) {
@@ -108,8 +112,8 @@ bool Qtilities::Core::ContextManager::hasContext(const QString& context_string) 
 void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
     if (d->active_contexts.contains(context) && !notify) {
         LOG_TRACE("Context already active, the following contexts are currently active:");
-        for (int i = 0; i < currentContexts().size(); i++) {
-            QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(currentContexts().at(i)).arg(contextName(currentContexts().at(i)));
+        for (int i = 0; i < activeContexts().size(); i++) {
+            QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
             LOG_TRACE(debug_string);
         }
         return;
@@ -127,8 +131,8 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
     if (d->contexts.contains(context)) {
         d->active_contexts.append(context);
         LOG_TRACE("Context set to new, the following contexts are currently active:");
-        for (int i = 0; i < currentContexts().size(); i++) {
-            QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(currentContexts().at(i)).arg(contextName(currentContexts().at(i)));
+        for (int i = 0; i < activeContexts().size(); i++) {
+            QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
             LOG_TRACE(debug_string);
         }
     } else
@@ -136,7 +140,7 @@ void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
 
     if (notify) {
         emit finishedSetNewContext(context);
-        emit contextChanged(currentContexts());
+        emit contextChanged(activeContexts());
     }
 }
 
@@ -144,8 +148,8 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
     if (d->contexts.contains(context)) {
         if (d->active_contexts.contains(context)) {
             LOG_TRACE("Context already active, the following contexts are currently active:");
-            for (int i = 0; i < currentContexts().size(); i++) {
-                QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(currentContexts().at(i)).arg(contextName(currentContexts().at(i)));
+            for (int i = 0; i < activeContexts().size(); i++) {
+                QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
                 LOG_TRACE(debug_string);
             }
             return;
@@ -156,10 +160,10 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
         d->active_contexts.append(context);
 
         if (notify)
-            emit contextChanged(currentContexts());
+            emit contextChanged(activeContexts());
         qDebug() << "Context appended, the following contexts are currently active:";
-        for (int i = 0; i < currentContexts().size(); i++) {
-            QString debug_string = QString("%1 - ID: %2, Name: %3").arg(i).arg(currentContexts().at(i)).arg(contextName(currentContexts().at(i)));
+        for (int i = 0; i < activeContexts().size(); i++) {
+            QString debug_string = QString("%1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
             qDebug() << debug_string;
         }
 
@@ -180,14 +184,14 @@ void Qtilities::Core::ContextManager::removeContext(int context, bool notify) {
             emit aboutToRemoveContext(context);
             d->active_contexts.removeAt(i);
             LOG_TRACE("Context removed, the following contexts are currently active:");
-            for (int i = 0; i < currentContexts().size(); i++) {
-                QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(currentContexts().at(i)).arg(contextName(currentContexts().at(i)));
+            for (int i = 0; i < activeContexts().size(); i++) {
+                QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
                 LOG_TRACE(debug_string);
             }
 
             if (notify) {
                 emit finishedRemoveContext(context);
-                emit contextChanged(currentContexts());
+                emit contextChanged(activeContexts());
             }
         }
     }
@@ -208,7 +212,7 @@ void Qtilities::Core::ContextManager::removeContext(const QString& context_strin
     removeContext(contextID(context_string),notify);
 }
 
-QList<int> Qtilities::Core::ContextManager::currentContexts() const {
+QList<int> Qtilities::Core::ContextManager::activeContexts() const {
     return d->active_contexts;
 }
 
@@ -229,8 +233,9 @@ int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
 
 QString Qtilities::Core::ContextManager::contextString(int context_id) const {
     for (int i = 0; i < d->string_id_map.count(); i++) {
-        if (d->string_id_map.values().at(i) == context_id)
+        if (d->string_id_map.values().at(i) == context_id) {
             return d->string_id_map.keys().at(i);
+        }
     }
 
     return QString();
@@ -255,5 +260,5 @@ QString Qtilities::Core::ContextManager::contextName(int id) const {
 }
 
 void Qtilities::Core::ContextManager::broadcastState() {
-    emit contextChanged(currentContexts());
+    emit contextChanged(activeContexts());
 }

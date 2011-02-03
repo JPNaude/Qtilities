@@ -76,7 +76,7 @@ namespace Qtilities {
             bool hasContext(QList<int> contexts) const;
             bool hasContext(int context) const;
             bool hasContext(const QString& context_string) const;
-            QList<int> currentContexts() const;
+            QList<int> activeContexts() const;
             int contextID(const QString& context_string);
             QString contextString(int context_id) const;
 
@@ -84,7 +84,7 @@ namespace Qtilities {
             void setNewContext(int context_id, bool notify = true);
             void appendContext(int context_id, bool notify = true);
             void removeContext(int context_id, bool notify = true);
-            void setNewContext(const QString &context_string, bool notify = true);
+            void setNewContext(const QString& context_string, bool notify = true);
             void appendContext(const QString& context_string, bool notify = true);
             void removeContext(const QString& context_string, bool notify = true);
             void broadcastState();           
