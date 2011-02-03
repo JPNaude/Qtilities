@@ -14,7 +14,7 @@
 # Project paths
 # Note: Don't use folders with spaces.
 #****************************************************************************
-QTILITIES_BASE          = d:/projects/Qt/Qtilities/trunk
+QTILITIES_BASE          = d:/work/Software/Qt/Qtilities/trunk
 QTILITIES_SOURCE        = $$QTILITIES_BASE/src
 QTILITIES_INCLUDE       = $$QTILITIES_BASE/include
 QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
@@ -27,7 +27,7 @@ QTILITIES_FILE_VER      = -0.3
 #****************************************************************************
 # Builds Qtilities without the ObjectPropertyBrowser class, thus you
 # don't need the Qt Property Browser Solution.
-# DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+DEFINES += QTILITIES_NO_PROPERTY_BROWSER
 # Enables verbose action management messages.
 # DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
 
