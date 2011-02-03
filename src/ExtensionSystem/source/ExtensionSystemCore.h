@@ -78,12 +78,11 @@ namespace Qtilities {
 
             //! Initializes the plugin manager by loading all found plugins.
             /*!
-              Will load all plugins in the specified plugin paths. Once an IPlugin interface is discovered, initialize() will be
-              called on it. When all the plugins in the system are loaded, the initializeDependancies() funciton will be called on each plugin.
+              Will load all plugins in the specified plugin paths. Once an IPlugin interface is discovered, initialize() will be called on it. When all the plugins in the system are loaded, the initializeDependancies() funciton will be called on each plugin.
 
-              When enablePluginActivityControl() is true, the initialize() function will attempt to load the default plugin configuration set
-              in the file specified by activePluginConfigurationFile(). If you want to load a file other than the default configuration file
-              you can set it using setActivePluginConfigurationFile() before calling initialize().
+              When enablePluginActivityControl() is true, the initialize() function will attempt to load the default plugin configuration set in the file specified by activePluginConfigurationFile(). If you want to load a file other than the default configuration file you can set it using setActivePluginConfigurationFile() before calling initialize().
+
+              It is important to note that the IPlugin implementations loaded through initialize() should live in the same thread as the extension system core instance. Thus you should not move your plugin to a different thread during its lifetime.
 
               \sa pluginPaths()
               */
