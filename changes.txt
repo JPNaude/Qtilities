@@ -54,6 +54,7 @@ Qtilities v0.3 Implemented Changes
     - Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
     - Ubuntu: Fixed icon display & resource loading problems.
     - Added this changes.txt file.
+    - Added needed Q_UNUSED on unused variables throughout the libraries.
 
     ============================
     QtilitiesLogging:
@@ -89,7 +90,8 @@ Qtilities v0.3 Implemented Changes
         - New ObserverHints::ModificationStateDisplayHint hint which allows the modification state of items to be displayed in observer widgets. This hint is now part of binary and XML tree exports.
         - Improved XML importing/exporting of observers.
         - Observer & Project modification state optimizations. When notifying subjects it no longer let them notify their listeners as well since this results in a huge amount of recursive signals emissions. The order in which subjects and listeners are notified also changed: Subjects are first notified and then listeners, in this way listeners can check the modiciation state and it would return the correct results.
-        - Observer: Whenever it is needed to emit the numberOfSubjectChanged() signal, Observer will now first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
+        - Whenever it is needed to emit the numberOfSubjectChanged() signal, Observer will now first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
+        - Previously observer deleted objects directly when needed in its constructor as well as when an object was detached and went out of scope. This was changed to call deleteLater() on those objects, making it safer for objects living in other threads.
     - Subject Filters
         - Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
         - ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
@@ -122,6 +124,7 @@ Qtilities v0.3 Implemented Changes
     - Fixed bug in Observer::importXML() where it could have passed invalid active subjects to activity policy filters if installed.
     - Fixed bugs in Observer::attachSubjects() and Observer::detachSubjects() where the Observer::numberOfSubjectsChanged() signal was emitted incorrectly.
     - Fixed bug in Context Manager where it would have registered invalid contexts in some cases.
+    - Fixed bugs related to event filtering and property change event delivery in Observer.
 
     ============================
     QtilitiesCoreGui:
@@ -199,6 +202,7 @@ Qtilities v0.3 Implemented Changes
     - Fixed bug in CodeEditorWidgetConfig constructor where window flags was not passed to base QWidget class correctly.
     - Fixed inconsistancy in number of spaces added to command tooltips with shortcuts.
     - Fixed bug where some needed functions were private on ObjectScopeWidget. They are now public.
+    - Fixed possible crash in CommandEditor.
 
     ============================
     QtilitiesExtensionSystem:
@@ -213,6 +217,8 @@ Qtilities v0.3 Implemented Changes
         - See the updated Extension System Overview documentation for more information.
     - The extension system now filters all version specific shared object files (for example .so.1) when loading plugins.
     - The extension system got a new findPlugin() method which can be used to find a plugin interface using its IPlugin::pluginName().
+    - Removed event filter from the observer managing plugins. This allows plugins to be moved to threads other than the main thread.
+    - Added documentation related to the extension system and threading to the ExtensionSystemCore::initialize() function documentation.
 
     Bug Fixes:
     - Fixed memory leak in ExtensionSystemCore.
