@@ -73,22 +73,20 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *paren
 
     // Create Model & View
     d->model = new CommandTableModel(this);
-    if (d->model) {
-        // Create the proxy model
-        d->proxy_model = new QSortFilterProxyModel(this);
-        d->proxy_model->setDynamicSortFilter(true);
-        d->proxy_model->setSourceModel(d->model);
-        d->proxy_model->setFilterKeyColumn(0);
-        ui->commandTable->setModel(d->proxy_model);
-        ui->commandTable->resizeRowsToContents();
-        ui->commandTable->resizeColumnsToContents();
-        ui->commandTable->horizontalHeader()->setStretchLastSection(true);
-        ui->commandTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-        ui->commandTable->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-        ui->commandTable->resizeColumnsToContents();
-        QHeaderView* table_header = ui->commandTable->horizontalHeader();
-        table_header->setResizeMode(1,QHeaderView::Stretch);
-    }
+    // Create the proxy model
+    d->proxy_model = new QSortFilterProxyModel(this);
+    d->proxy_model->setDynamicSortFilter(true);
+    d->proxy_model->setSourceModel(d->model);
+    d->proxy_model->setFilterKeyColumn(0);
+    ui->commandTable->setModel(d->proxy_model);
+    ui->commandTable->resizeRowsToContents();
+    ui->commandTable->resizeColumnsToContents();
+    ui->commandTable->horizontalHeader()->setStretchLastSection(true);
+    ui->commandTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->commandTable->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    ui->commandTable->resizeColumnsToContents();
+    QHeaderView* table_header = ui->commandTable->horizontalHeader();
+    table_header->setResizeMode(1,QHeaderView::Stretch);
 
     // Create Property Browser
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
@@ -115,7 +113,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *paren
 
     // Select first item
     connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
-    ui->commandTable->setCurrentIndex(d->model->index(0,0));
+    ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
 
     if (debug_mode) {
         ui->groupCurrentConfiguration->setVisible(false);
@@ -175,12 +173,16 @@ void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelInde
     if (d->proxy_model) {
         if (current.row() >= 0 && current.row() < ACTION_MANAGER->commandMap().count()) {
             QModelIndex original_index = d->proxy_model->mapToSource(current);
+            Command* command = 0;
             #ifndef QTILITIES_NO_PROPERTY_BROWSER
-            if (original_index.isValid())
-                d->property_browser->setObject(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
+            if (original_index.isValid() && (original_index.row() < ACTION_MANAGER->commandMap().count())) {
+                command = ACTION_MANAGER->commandMap().values().at(original_index.row());
+                d->property_browser->setObject(command);
+            }
             #endif
 
-            emit selectedCommandChanged(ACTION_MANAGER->commandMap().values().at(d->proxy_model->mapToSource(current).row()));
+            if (command)
+                emit selectedCommandChanged(command);
         }
     }
 }
