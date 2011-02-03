@@ -191,7 +191,7 @@ QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginDe
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2010, Jaco Naude");
+    return QString(tr("Copyright") + " 2010-2011, Jaco Naude");
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginLicense() const  {
@@ -272,14 +272,14 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
         if (main_window && project) {
             // Name was never appended before.
             if (d->appended_project_name.isEmpty()) {
-                QString new_title = main_window->windowTitle();
+                QString new_title = main_window->windowTitle().trimmed();
                 new_title.append(QString(" - %1").arg(project->projectName()));
                 main_window->setWindowTitle(new_title);
                 d->appended_project_name = project->projectName();
             } else {
                 if (d->appended_project_name != project->projectName()) {
                     // The name of a previous project was appended.
-                    QString new_title = main_window->windowTitle();
+                    QString new_title = main_window->windowTitle().trimmed();
                     new_title.chop(d->appended_project_name.length() + 3);
                     new_title.append(QString(" - %1").arg(project->projectName()));
                     main_window->setWindowTitle(new_title);
