@@ -303,11 +303,11 @@ In advanced applications it is often desirable to specify a set of plugins which
 
 \subsection plugin_different_types Plugin Classification
 
-The extension system allow management of different configuration sets which groups plugins int the following groups:
+The extension system allow management of different configuration sets which groups plugins into the following groups:
 - <b>Active Plugins:</b> Plugins which are loaded and initialized.
 - <b>Inactive Plugins:</b> Plugins which are loaded but not initialized. This is needed in order for the plugin to still be shown in the plugin details widget and to allow user control over creation of configuration sets.
 - <b>Filtered Plugins:</b> Plugins which are filtered/skipped, thus not loaded or initialized. This is usefull in scenarios where the same application is deployed to different places and only specific plugins should be exposed to users when they create plugin configuration sets.
-- <b>Core Plugins:</b> These plugins forms the core of an application. Thus they must always be treated as active plugins (thus loaded and initialized).
+- <b>Core Plugins:</b> These plugins form the core of an application. Thus they must always be treated as active plugins (thus loaded and initialized).
 
 A configuration set gives the names of the plugins which falls into the inactive and filtered plugin groups. When a plugin is found during the Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() function call, the plugin is checked agains the information provided by the configuration set and handled accordingly. When a plugin is found which is not categorized in the configuration set, it automatically falls under the Active Plugins category. In the same way, if a plugin occurs under more than one category in the configuration set, it automatically falls under the Active Plugins set.
 
@@ -326,7 +326,7 @@ Creating configuration sets is easy and flexible. The important thing to remembe
         <PluginName Value="Session Log Plugin"/>
     </InactivePlugins>
     <FilteredPlugins>
-        <FileNameStart Value="ProjectManagement"/>
+        <Expression Value="ProjectManagement"/>
     </FilteredPlugins>
 </QtilitiesPluginConfiguration>
 \endcode
