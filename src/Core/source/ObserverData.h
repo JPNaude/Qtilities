@@ -65,11 +65,13 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData, public IExportable
         {
         public:
-            ObserverData() : subject_limit(-1), subject_id_counter(0),
+            ObserverData(const QString& observer_name) : subject_limit(-1), subject_id_counter(0),
             filter_subject_events_enabled(false), deliver_qtilities_property_changed_events(false),
             access_mode(0), display_hints(0),
             factory_data(InstanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_OBSERVER,QString())),
-            process_cycle_active(false), is_modified(false) {}
+            process_cycle_active(false), is_modified(false) {
+                subject_list.setObjectName(observer_name);
+            }
 
             ObserverData(const ObserverData &other) : QSharedData(other), subject_list(other.subject_list) ,
             subject_filters(other.subject_filters), subject_limit(other.subject_limit), subject_id_counter(0),

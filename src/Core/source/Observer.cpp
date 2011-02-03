@@ -63,7 +63,7 @@ namespace Qtilities {
 
 Qtilities::Core::Observer::Observer(const QString& observer_name, const QString& observer_description, QObject* parent) : QObject(parent) {
     // Initialize observer data
-    observerData = new ObserverData();
+    observerData = new ObserverData(observer_name);
     setObjectName(observer_name);
     observerData->observer_description = observer_description;
     observerData->access_mode_scope = GlobalScope;
@@ -2202,6 +2202,7 @@ bool Qtilities::Core::Observer::inheritDisplayHints(ObserverHints display_hints)
 Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
     if (!observerData->display_hints) {
         observerData->display_hints = new ObserverHints(this);
+        observerData->display_hints->setObjectName(objectName());
 
         // We need to connect to the modification related signals to this observer:
         connect(observerData->display_hints,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
