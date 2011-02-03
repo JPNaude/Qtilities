@@ -112,7 +112,7 @@ namespace Qtilities {
             void constructActions();
             void refreshActions();
 
-        private slots:
+        public slots:
             //! Sets the object for which the scope must be shown.
             /*!
               \param obj The object which must be used.
