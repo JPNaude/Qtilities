@@ -38,17 +38,25 @@
 #include <QPointer>
 #include <QAction>
 
-//#include <Conan.h>
+#ifndef QTILITIES_NO_CONAN
+#include <Conan.h>
+#endif
 
 #include <QtilitiesExtensionSystem>
 using namespace QtilitiesExtensionSystem;
 
 struct Qtilities::Plugins::Debug::DebugWidgetData {
-    DebugWidgetData() : objectPoolWidget(0),plugin_edit_set_loaded(false),command_editor(true)/*,
-                        conanWidget(0)*/ {}
+    DebugWidgetData() : objectPoolWidget(0),
+        plugin_edit_set_loaded(false),
+        command_editor(true),
+        object_analysis_widget(0),
+        command_analysis_widget(0) {}
 
     ObserverWidget*     objectPoolWidget;
-    //ConanWidget*    conanWidget;
+    QPointer<QObject>   current_object;
+    QStringListModel    inheritanceModel;
+
+    QPointer<Command>   current_command;
     bool                plugin_edit_set_loaded;
     QStringListModel    active_plugins_model;
     QStringListModel    inactive_plugins_model;
@@ -58,7 +66,12 @@ struct Qtilities::Plugins::Debug::DebugWidgetData {
     DropableListWidget* filtered_plugins_view;
     QTimer              plugin_msg_timer;
     CommandEditor       command_editor;
+
     ObjectScopeWidget   object_scope_widget;
+    #ifndef QTILITIES_NO_CONAN
+    ConanWidget*        object_analysis_widget;
+    ConanWidget*        command_analysis_widget;
+    #endif
 };
 
 Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
@@ -82,7 +95,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoMessage, SLOT(clear()));
     connect(&d->command_editor,SIGNAL(selectedCommandChanged(Command*)),SLOT(refreshCommandInformation(Command*)));
 
-    setObjectName("Qtilities Debug Mode");
+    setObjectName(tr("Qtilities Debug Mode"));
 
     // Version:
     ui->labelVersion->setText(QtilitiesApplication::qtilitiesVersion());
@@ -109,23 +122,32 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
     QVBoxLayout* object_pool_layout = new QVBoxLayout(ui->widgetObjectPoolHolder);
     object_pool_layout->setMargin(0);
-
-    QSplitter* splitter = new QSplitter(Qt::Horizontal);
-    object_pool_layout->addWidget(splitter);
-
+    object_pool_layout->addWidget(d->objectPoolWidget);
     d->objectPoolWidget->initialize();
     d->objectPoolWidget->show();
     d->objectPoolWidget->toggleSearchBox();
     connect(d->objectPoolWidget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
     connect(d->objectPoolWidget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
 
-    // Conan Widget:
-    //d->conanWidget = new ConanWidget();
-    //d->conanWidget->show();
+    // Conan Widgets:
+    #ifndef QTILITIES_NO_CONAN
+        ui->btnAnalyzeCurrentObject->setEnabled(true);
+        ui->btnAboutConan->setEnabled(true);
+    #else
+        ui->btnAnalyzeCurrentObject->setEnabled(false);
+        ui->btnAboutConan->setEnabled(false);
+    #endif
 
-    // Splitter
-    splitter->addWidget(d->objectPoolWidget);
-    splitter->addWidget(&d->object_scope_widget);
+    // Object Scope:
+    if (ui->widgetObjectScopeHolder->layout())
+        delete ui->widgetObjectPoolHolder->layout();
+
+    QVBoxLayout* object_scope_layout = new QVBoxLayout(ui->widgetObjectScopeHolder);
+    object_scope_layout->setMargin(0);
+    object_scope_layout->addWidget(&d->object_scope_widget);
+
+    // Inheritance List:
+    ui->objectInheritanceList->setModel(&d->inheritanceModel);
 
     // Factories:
     connect(ui->listFactories,SIGNAL(currentTextChanged(QString)),SLOT(handle_factoryListSelectionChanged(QString)));
@@ -178,6 +200,11 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
 {
+    if (d->object_analysis_widget)
+        delete d->object_analysis_widget;
+    if (d->command_analysis_widget)
+        delete d->command_analysis_widget;
+    delete d;
     delete ui;
 }
 
@@ -214,12 +241,26 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListSelectionChanged(
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolDoubleClick(QObject *object) {
-    //d->conanWidget->AddRootObject(object);
+
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolSelectionChanged(QList<QObject*> objects) {
     if (objects.count() == 1) {
-        d->object_scope_widget.setObject(objects.front());
+        QObject* obj = objects.front();
+        if (!obj)
+            return;
+
+        d->current_object = obj;
+        d->object_scope_widget.setObject(obj);
+
+        // Inheritance Data:
+        QStringList inheritance_list;
+        const QMetaObject* metaObject = obj->metaObject();
+        while (metaObject) {
+            inheritance_list.append(metaObject->className());
+            metaObject = metaObject->superClass();
+        }
+        d->inheritanceModel.setStringList(inheritance_list);
     }
 }
 
@@ -571,6 +612,8 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
         return;
     }
 
+    d->current_command = command;
+
     // Check what type of command it is:
     MultiContextAction* multi_action = qobject_cast<MultiContextAction*> (command);
     if (multi_action) {
@@ -581,8 +624,8 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
         // ===============================
         ui->tableSelectedActionOverview->clear();
         QStringList context_headers;
-        ui->tableSelectedActionOverview->setColumnCount(8);
-        context_headers << "Backend Action Text" << "Parent" << "Is Active" << "Target Contexts" << "Shortcut" << "Default Shortcut" << "Icon" << "Tooltip";
+        ui->tableSelectedActionOverview->setColumnCount(10);
+        context_headers << "Backend Action Text" << "Backend Action Address" << "Parent" << "Parent Address" << "Is Active" << "Target Contexts" << "Shortcut" << "Default Shortcut" << "Icon" << "Tooltip";
         ui->tableSelectedActionOverview->setHorizontalHeaderLabels(context_headers);
         ui->tableSelectedActionOverview->setSortingEnabled(false);
 
@@ -590,39 +633,49 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
         ui->tableSelectedActionOverview->setRowCount(id_action_map.count());
         for (int i = 0; i < id_action_map.count(); i++) {
             int current_id = id_action_map.keys().at(i);
-            QPointer<QAction> current_action = id_action_map[id_action_map.keys().at(i)];
-            if (!current_action)
+            QPointer<QAction> current_command = id_action_map[id_action_map.keys().at(i)];
+            if (!current_command)
                 continue;
             // Backend Action Name:
-            QTableWidgetItem *newItem = new QTableWidgetItem(current_action->text());
+            QTableWidgetItem *newItem = new QTableWidgetItem(current_command->text());
             ui->tableSelectedActionOverview->setItem(i, 0, newItem);
+            // Backend Action Address:
+            QAction* tmp_action = current_command;
+            newItem = new QTableWidgetItem(QString("0x%1").arg((int) tmp_action,8,16,QChar('0')));
+            ui->tableSelectedActionOverview->setItem(i, 1, newItem);
             // Parent Name:
             QString parent_name = "No Parent";
-            if (current_action->parent())
-                parent_name = current_action->parent()->objectName();
+            if (current_command->parent())
+                parent_name = current_command->parent()->objectName();
             newItem = new QTableWidgetItem(parent_name);
-            ui->tableSelectedActionOverview->setItem(i, 1, newItem);
+            ui->tableSelectedActionOverview->setItem(i, 2, newItem);
+            // Parent Address:
+            QString parent_address = "No Parent";
+            if (current_command->parent())
+                parent_address = (QString("0x%1").arg((int) current_command->parent(),8,16,QChar('0')));
+            newItem = new QTableWidgetItem(parent_address);
+            ui->tableSelectedActionOverview->setItem(i, 3, newItem);
             // Is Active:
             QString is_active_text = "No";
-            if (current_action == multi_action->activeBackendAction())
+            if (current_command == multi_action->activeBackendAction())
                 is_active_text = "Yes";
             newItem = new QTableWidgetItem(is_active_text);
-            ui->tableSelectedActionOverview->setItem(i, 2, newItem);
+            ui->tableSelectedActionOverview->setItem(i, 4, newItem);
             // Target Context:
             newItem = new QTableWidgetItem(QString::number(current_id));
-            ui->tableSelectedActionOverview->setItem(i, 3, newItem);
+            ui->tableSelectedActionOverview->setItem(i, 5, newItem);
             // Shortcut:
-            newItem = new QTableWidgetItem(current_action->shortcut().toString());
-            ui->tableSelectedActionOverview->setItem(i, 4, newItem);
+            newItem = new QTableWidgetItem(current_command->shortcut().toString());
+            ui->tableSelectedActionOverview->setItem(i, 6, newItem);
             // Default Shortcut:
             newItem = new QTableWidgetItem(command->defaultKeySequence().toString());
-            ui->tableSelectedActionOverview->setItem(i, 5, newItem);
-            // Icon:
-            newItem = new QTableWidgetItem(current_action->icon(),"");
-            ui->tableSelectedActionOverview->setItem(i, 6, newItem);
-            // Tooltip:
-            newItem = new QTableWidgetItem(current_action->toolTip());
             ui->tableSelectedActionOverview->setItem(i, 7, newItem);
+            // Icon:
+            newItem = new QTableWidgetItem(current_command->icon(),"");
+            ui->tableSelectedActionOverview->setItem(i, 8, newItem);
+            // Tooltip:
+            newItem = new QTableWidgetItem(current_command->toolTip());
+            ui->tableSelectedActionOverview->setItem(i, 9, newItem);
             ui->tableSelectedActionOverview->setRowHeight(i,17);
         }
     }
@@ -754,4 +807,40 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshFactories() {
     ui->listFactories->addItems(OBJECT_MANAGER->allFactoryNames());
     if (ui->listFactories->count() > 0)
         ui->listFactories->setCurrentRow(0);
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked()
+{
+    if (d->current_object) {
+        if (!d->object_analysis_widget) {
+            d->object_analysis_widget = new ConanWidget();
+            //d->object_analysis_widget->setAttribute(Qt::WA_DeleteOnClose,true);
+            d->object_analysis_widget->setAttribute(Qt::WA_QuitOnClose,false);
+        }
+
+        d->object_analysis_widget->AddRootObject(d->current_object);
+        d->object_analysis_widget->show();
+    }
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
+{
+    if (!d->object_analysis_widget)
+        d->object_analysis_widget = new ConanWidget;
+
+    //d->object_analysis_widget->SlotAbout();
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
+{
+    if (d->current_command) {
+        if (!d->command_analysis_widget) {
+            d->command_analysis_widget = new ConanWidget;
+            //d->command_analysis_widget->setAttribute(Qt::WA_DeleteOnClose,true);
+            d->command_analysis_widget->setAttribute(Qt::WA_QuitOnClose,false);
+        }
+
+        d->command_analysis_widget->AddRootObject(d->current_command);
+        d->command_analysis_widget->show();
+    }
 }

@@ -122,6 +122,12 @@ namespace Qtilities {
 
                 void on_btnEditPluginCurrentConfigSet_clicked();
 
+                void on_btnAnalyzeCurrentObject_clicked();
+
+                void on_btnAboutConan_clicked();
+
+                void on_btnAnalyzeAction_clicked();
+
             private:
                 //! Refreshes the mode information.
                 void refreshModes();

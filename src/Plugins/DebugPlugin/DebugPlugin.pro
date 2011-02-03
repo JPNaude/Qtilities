@@ -20,8 +20,25 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin
-#LIBS += D:/Projects/Qt/Testing/Canon/Conan-build-desktop/lib/libConand0.a
-#INCLUDEPATH += D:/Projects/Qt/Testing/Canon/conan_v0.9.8/include
+
+# --------------------------
+# Conan Stuff
+# Integrates the Conan Library into the debug widget:
+# https://sourceforge.net/projects/conanforqt/
+# --------------------------
+!contains(DEFINES, QTILITIES_NO_CONAN) {
+    CONAN_BASE = $$QTILITIES_DEPENDENCIES/conan
+    INCLUDEPATH += $$CONAN_BASE/include
+
+    CONFIG(debug, debug|release) {
+        win32:LIBS += $$CONAN_BASE/lib/libConand1.a
+        unix::LIBS += -L$$CONAN_BASE/lib -lConand1
+    }
+    else {
+        win32:LIBS += $$CONAN_BASE/lib/libConan1.a
+        unix::LIBS += -L$$CONAN_BASE/lib -lConan1
+    }
+}
 
 # ------------------------------
 # Temp Output Paths
