@@ -115,7 +115,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *paren
 
     // Select first item
     connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
-    ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
+    ui->commandTable->setCurrentIndex(d->model->index(0,0));
 
     if (debug_mode) {
         ui->groupCurrentConfiguration->setVisible(false);

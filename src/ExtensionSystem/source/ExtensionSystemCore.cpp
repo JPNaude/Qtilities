@@ -109,6 +109,7 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     d->plugins.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
     d->plugins.endProcessingCycle();
+    d->plugins.toggleSubjectEventFiltering(false);
 
     // Make sure App_Path/plugins always exists:
     QDir pluginsDir = QDir(QCoreApplication::applicationDirPath() + "/plugins");

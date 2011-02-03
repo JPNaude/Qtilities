@@ -78,7 +78,7 @@ namespace Qtilities {
 
                   \sa modeIcon()
                   */
-                virtual bool setModeIcon(QIcon icon) { return false; }
+                virtual bool setModeIcon(QIcon icon) { Q_UNUSED(icon) return false; }
                 //! The name of the mode which is the text used to represent it.
                 virtual QString modeName() const = 0;
                 //! Returns a context string for the context associated with this mode.

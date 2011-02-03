@@ -192,11 +192,13 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> obje
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects, bool monitor_changes) {
+    Q_UNUSED(monitor_changes)
     if (objects.count() == 1)
         setObject(objects.front());
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QPointer<QObject> > objects, bool monitor_changes) {
+    Q_UNUSED(monitor_changes)
     if (objects.count() == 1)
         setObject(objects.front());
 }

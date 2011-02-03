@@ -209,14 +209,14 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
             if (config_page){
                 config_page->configPageApply();
-                appliedPage(config_page);
+                emit appliedPage(config_page);
             }
         }
     } else {
         if (d->activity_filter->activeSubjects().count() == 1) {
             IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
             config_page->configPageApply();
-            appliedPage(config_page);
+            emit appliedPage(config_page);
         }
     }
 

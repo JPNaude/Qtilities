@@ -424,6 +424,7 @@ QWidget* Qtilities::CoreGui::ActionManager::commandEditor() {
 }
 
 void Qtilities::CoreGui::ActionManager::handleCommandDeleted(QObject* obj) {
+    Q_UNUSED(obj)
     // We need to remove obj for our lists:
 
 }

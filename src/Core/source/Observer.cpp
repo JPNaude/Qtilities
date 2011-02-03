@@ -76,13 +76,20 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
         observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
     else
         observerData->observer_id = 0;
-
-    // To catch name changes.
-    installEventFilter(this);
 }
 
-Qtilities::Core::Observer::Observer(const Observer &other) : QObject(), observerData(other.observerData) {
+Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.parent()) {
+    // Initialize observer data
+    observerData = new ObserverData(*other.observerData.data());
+    setObjectName(other.objectName());
+
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
+
+    // Register this observer with the observer manager
+    if (other.objectName() != QString(GLOBAL_OBJECT_POOL))
+        observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
+    else
+        observerData->observer_id = 0;
 }
 
 Qtilities::Core::Observer::~Observer() {
@@ -1063,7 +1070,8 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
         // Install the observer as an eventFilter on the subject.
         // We do this last, otherwise all dynamic property changes will go through this event filter.
-        obj->installEventFilter(this);
+        if (obj->thread() == thread() && observerData->filter_subject_events_enabled)
+            obj->installEventFilter(this);
 
         // Check if this is an observer:
         bool has_mod_iface = false;
@@ -1112,7 +1120,8 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
         // Install the observer as an eventFilter on the subject.
         // We do this last, otherwise all dynamic property changes will go through this event filter.
-        obj->installEventFilter(this);
+        if (obj->thread() == thread() && observerData->filter_subject_events_enabled)
+            obj->installEventFilter(this);
 
         // Emit neccesarry signals
         QList<QPointer<QObject> > objects;
@@ -1850,6 +1859,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 }
 
 int Qtilities::Core::Observer::treeCount(const Observer* observer) const {
+    Q_UNUSED(observer)
     return treeChildren().count();
 }
 
