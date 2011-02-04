@@ -48,15 +48,14 @@ using namespace QtilitiesExtensionSystem;
 struct Qtilities::Plugins::Debug::DebugWidgetData {
     DebugWidgetData() : objectPoolWidget(0),
         plugin_edit_set_loaded(false),
-        command_editor(true),
         object_analysis_widget(0),
         command_analysis_widget(0) {}
 
     ObserverWidget*     objectPoolWidget;
     QPointer<QObject>   current_object;
     QStringListModel    inheritanceModel;
+    ObjectScopeWidget   object_scope_widget;
 
-    QPointer<Command>   current_command;
     bool                plugin_edit_set_loaded;
     QStringListModel    active_plugins_model;
     QStringListModel    inactive_plugins_model;
@@ -65,9 +64,13 @@ struct Qtilities::Plugins::Debug::DebugWidgetData {
     DropableListWidget* inactive_plugins_view;
     DropableListWidget* filtered_plugins_view;
     QTimer              plugin_msg_timer;
-    CommandEditor       command_editor;
 
-    ObjectScopeWidget   object_scope_widget;
+    QMainWindow         contexts_main_window;
+    QDockWidget         contexts_dock_window;
+
+    CommandEditor       command_editor;
+    QPointer<Command>   current_command;
+
     #ifndef QTILITIES_NO_CONAN
     ConanWidget*        object_analysis_widget;
     ConanWidget*        command_analysis_widget;
@@ -158,7 +161,19 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     ui->tableModes->setAlternatingRowColors(true);
     ui->tableModes->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    // Action Management
+    // Contexts:
+    if (ui->widgetContextsHolder->layout())
+        delete ui->widgetContextsHolder->layout();
+
+    QVBoxLayout* contexts_layout = new QVBoxLayout(ui->widgetContextsHolder);
+    contexts_layout->setMargin(0);
+    contexts_layout->addWidget(&d->contexts_main_window);
+
+    d->contexts_dock_window.setWindowTitle("Context Management");
+    d->contexts_dock_window.setWidget(ui->widgetContextsContents);
+    d->contexts_main_window.addDockWidget(Qt::TopDockWidgetArea,&d->contexts_dock_window);
+
+    // Action Management:
     if (ui->commandEditorHolder->layout())
         delete ui->commandEditorHolder->layout();
     QHBoxLayout* command_editor_layout = new QHBoxLayout(ui->commandEditorHolder);

@@ -340,115 +340,121 @@ p, li { white-space: pre-wrap; }
            <attribute name="label">
             <string>Contexts</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_13">
-            <property name="horizontalSpacing">
-             <number>0</number>
-            </property>
+           <layout class="QGridLayout" name="gridLayout_29">
             <property name="margin">
              <number>3</number>
             </property>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>This page provides an overview of the context manager's current state:</string>
-              </property>
-             </widget>
+            <item row="0" column="0">
+             <widget class="QWidget" name="widgetContextsHolder" native="true"/>
             </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="Line" name="line_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QGroupBox" name="groupBox_5">
-              <property name="title">
-               <string>All Registered Contexts:</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_12">
-               <item row="0" column="0" colspan="2">
-                <widget class="QTableWidget" name="tableContextsAll">
-                 <column>
-                  <property name="text">
-                   <string>Context ID</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>Context Name</string>
-                  </property>
-                 </column>
+            <item row="1" column="0">
+             <widget class="QWidget" name="widgetContextsContents" native="true">
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>This page provides an overview of the context manager's current state:</string>
+                 </property>
                 </widget>
                </item>
-               <item row="1" column="0">
-                <spacer name="horizontalSpacer_8">
+               <item row="1" column="0" colspan="2">
+                <widget class="Line" name="line_6">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>261</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="btnContextSetActive">
-                 <property name="text">
-                  <string>Set Selected Active</string>
-                 </property>
                 </widget>
                </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QGroupBox" name="groupBox_6">
-              <property name="title">
-               <string>Active Contexts:</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_11">
-               <item row="0" column="0" colspan="3">
-                <widget class="QTableWidget" name="tableContextsActive">
-                 <column>
-                  <property name="text">
-                   <string>Context ID</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>Context Name</string>
-                  </property>
-                 </column>
+               <item row="2" column="0">
+                <widget class="QGroupBox" name="groupBox_5">
+                 <property name="title">
+                  <string>All Registered Contexts:</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_12">
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QTableWidget" name="tableContextsAll">
+                    <column>
+                     <property name="text">
+                      <string>Context ID</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Context Name</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>261</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QPushButton" name="btnContextSetActive">
+                    <property name="text">
+                     <string>Set Selected Active</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
-               <item row="1" column="0">
-                <spacer name="horizontalSpacer_7">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+               <item row="2" column="1">
+                <widget class="QGroupBox" name="groupBox_6">
+                 <property name="title">
+                  <string>Active Contexts:</string>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>195</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="btnContextsClear">
-                 <property name="text">
-                  <string>Clear</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QPushButton" name="btnContextsBroadcast">
-                 <property name="text">
-                  <string>Broadcast State</string>
-                 </property>
+                 <layout class="QGridLayout" name="gridLayout_11">
+                  <item row="0" column="0" colspan="3">
+                   <widget class="QTableWidget" name="tableContextsActive">
+                    <column>
+                     <property name="text">
+                      <string>Context ID</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Context Name</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_7">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>195</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QPushButton" name="btnContextsClear">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QPushButton" name="btnContextsBroadcast">
+                    <property name="text">
+                     <string>Broadcast State</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
@@ -461,8 +467,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>635</height>
+             <width>350</width>
+             <height>174</height>
             </rect>
            </property>
            <attribute name="label">
@@ -550,8 +556,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>635</height>
+             <width>142</width>
+             <height>293</height>
             </rect>
            </property>
            <attribute name="label">
@@ -609,8 +615,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>689</height>
+             <width>442</width>
+             <height>298</height>
             </rect>
            </property>
            <attribute name="label">
