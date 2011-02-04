@@ -67,6 +67,9 @@ namespace Qtilities {
             CommandEditor(bool debug_mode = false, QWidget *parent = 0);
             ~CommandEditor();
 
+            //! Provides access to the currently selected command.
+            Command* selectedCommand() const;
+
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------

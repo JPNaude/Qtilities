@@ -52,12 +52,13 @@ struct Qtilities::CoreGui::CommandEditorData {
     CommandEditorData() : model(0),
     proxy_model(0)  { }
 
-    CommandTableModel* model;
-    QTableView* table_view;
+    CommandTableModel*          model;
+    QTableView*                 table_view;
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    ObjectPropertyBrowser* property_browser;
+    ObjectPropertyBrowser*      property_browser;
     #endif
-    QSortFilterProxyModel* proxy_model;
+    QSortFilterProxyModel*      proxy_model;
+    QPointer<Command>           selected_command;
 };
 
 Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *parent) :
@@ -85,6 +86,8 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *paren
     ui->commandTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->commandTable->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     ui->commandTable->resizeColumnsToContents();
+    ui->commandTable->setShowGrid(false);
+    ui->commandTable->setAlternatingRowColors(true);
     QHeaderView* table_header = ui->commandTable->horizontalHeader();
     table_header->setResizeMode(1,QHeaderView::Stretch);
 
@@ -126,6 +129,10 @@ Qtilities::CoreGui::CommandEditor::~CommandEditor()
 {
     delete ui;
     delete d;
+}
+
+Qtilities::CoreGui::Command* Qtilities::CoreGui::CommandEditor::selectedCommand() const {
+    return d->selected_command;
 }
 
 void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
@@ -181,8 +188,10 @@ void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelInde
             }
             #endif
 
-            if (command)
+            if (command) {
+                d->selected_command = command;
                 emit selectedCommandChanged(command);
+            }
         }
     }
 }
