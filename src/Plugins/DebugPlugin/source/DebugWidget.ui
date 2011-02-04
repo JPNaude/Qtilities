@@ -189,30 +189,19 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QGroupBox" name="groupBox_21">
               <property name="title">
-               <string>Signals and Slots Analysis</string>
+               <string>Signal and Slot Analysis</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_29">
-               <item row="0" column="0" colspan="3">
+              <layout class="QGridLayout" name="gridLayout_25">
+               <item row="0" column="0" colspan="4">
                 <widget class="QLabel" name="label_5">
                  <property name="text">
-                  <string>Signal and slots analysis is done using the Conan library.</string>
+                  <string>Signal and slot analysis is done using the Conan library.</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                  <property name="wordWrap">
                   <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="btnAboutConan">
-                 <property name="text">
-                  <string>More Information</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="2">
-                <widget class="QPushButton" name="btnAnalyzeCurrentObject">
-                 <property name="text">
-                  <string>Analyze Selected Object</string>
                  </property>
                 </widget>
                </item>
@@ -223,7 +212,34 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>594</width>
+                   <width>69</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="btnAnalyzeCurrentObject">
+                 <property name="text">
+                  <string>Analyze Selected Object</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="btnAboutConan">
+                 <property name="text">
+                  <string>About Conan</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <spacer name="horizontalSpacer_10">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>69</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -262,12 +278,12 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QGridLayout" name="gridLayout_5">
             <property name="margin">
-             <number>0</number>
+             <number>3</number>
             </property>
             <item row="0" column="0" colspan="2">
              <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>This page provides an overview of all the modes registered in the object manager.</string>
+               <string>This page provides an overview of all the modes registered in your application.</string>
               </property>
               <property name="wordWrap">
                <bool>true</bool>
@@ -317,8 +333,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>346</width>
-             <height>152</height>
+             <width>1013</width>
+             <height>635</height>
             </rect>
            </property>
            <attribute name="label">
@@ -329,7 +345,7 @@ p, li { white-space: pre-wrap; }
              <number>0</number>
             </property>
             <property name="margin">
-             <number>0</number>
+             <number>3</number>
             </property>
             <item row="0" column="0" colspan="2">
              <widget class="QLabel" name="label_6">
@@ -445,8 +461,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>344</width>
-             <height>168</height>
+             <width>1013</width>
+             <height>635</height>
             </rect>
            </property>
            <attribute name="label">
@@ -454,7 +470,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QGridLayout" name="gridLayout_14">
             <property name="margin">
-             <number>0</number>
+             <number>3</number>
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_7">
@@ -534,8 +550,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>136</width>
-             <height>287</height>
+             <width>1013</width>
+             <height>635</height>
             </rect>
            </property>
            <attribute name="label">
@@ -543,7 +559,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QGridLayout" name="gridLayout">
             <property name="margin">
-             <number>0</number>
+             <number>3</number>
             </property>
             <item row="0" column="0" colspan="2">
              <widget class="QLabel" name="label_4">

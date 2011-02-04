@@ -133,9 +133,11 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     #ifndef QTILITIES_NO_CONAN
         ui->btnAnalyzeCurrentObject->setEnabled(true);
         ui->btnAboutConan->setEnabled(true);
+        ui->btnAnalyzeAction->setEnabled(true);
     #else
         ui->btnAnalyzeCurrentObject->setEnabled(false);
         ui->btnAboutConan->setEnabled(false);
+        ui->btnAnalyzeAction->setEnabled(false);
     #endif
 
     // Object Scope:
@@ -200,10 +202,12 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
 {
+    #ifndef QTILITIES_NO_CONAN
     if (d->object_analysis_widget)
         delete d->object_analysis_widget;
     if (d->command_analysis_widget)
         delete d->command_analysis_widget;
+    #endif
     delete d;
     delete ui;
 }
@@ -297,7 +301,10 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnRefreshViews_clicked() {
     // ===============================
     // Action Management:
     // ===============================
-    refreshCommandInformation(0);
+    if (d->current_command)
+        refreshCommandInformation(d->current_command);
+    else
+        refreshCommandInformation(d->command_editor.selectedCommand());
 
     // ===============================
     // Refresh Factories:
@@ -495,12 +502,18 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnContextSetActive_clicked()
         CONTEXT_MANAGER->appendContext(selected_items.at(i)->text());
     }
     refreshContexts();
+    if (d->current_command) {
+        refreshCommandInformation(d->current_command);
+    }
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextsClear_clicked()
 {
     CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::CONTEXT_STANDARD);
     refreshContexts();
+    if (d->current_command) {
+        refreshCommandInformation(d->current_command);
+    }
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextsBroadcast_clicked()
@@ -595,6 +608,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
     ui->tableContextsAll->setAlternatingRowColors(true);
     ui->tableContextsAll->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableContextsAll->setSortingEnabled(true);
+    ui->tableContextsAll->sortItems(1);
     ui->tableContextsActive->horizontalHeader()->setStretchLastSection(true);
     ui->tableContextsActive->sortByColumn(0,Qt::AscendingOrder);
     ui->tableContextsActive->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -602,6 +616,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
     ui->tableContextsActive->setAlternatingRowColors(true);
     ui->tableContextsActive->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableContextsActive->setSortingEnabled(true);
+    ui->tableContextsActive->sortItems(1);
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* command) {
@@ -811,6 +826,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshFactories() {
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked()
 {
+    #ifndef QTILITIES_NO_CONAN
     if (d->current_object) {
         if (!d->object_analysis_widget) {
             d->object_analysis_widget = new ConanWidget();
@@ -821,18 +837,22 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked(
         d->object_analysis_widget->AddRootObject(d->current_object);
         d->object_analysis_widget->show();
     }
+    #endif
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
 {
+    #ifndef QTILITIES_NO_CONAN
     if (!d->object_analysis_widget)
         d->object_analysis_widget = new ConanWidget;
 
     //d->object_analysis_widget->SlotAbout();
+    #endif
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
 {
+    #ifndef QTILITIES_NO_CONAN
     if (d->current_command) {
         if (!d->command_analysis_widget) {
             d->command_analysis_widget = new ConanWidget;
@@ -843,4 +863,5 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
         d->command_analysis_widget->AddRootObject(d->current_command);
         d->command_analysis_widget->show();
     }
+    #endif
 }
