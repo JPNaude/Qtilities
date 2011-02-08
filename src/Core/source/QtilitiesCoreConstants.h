@@ -63,7 +63,7 @@ namespace Qtilities {
 
           For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers article. Note that all properties used by %Qtilities starts with "%Qtilities", for example \p Qtilities.Core.ObserverSubjectIDs.
 
-          Among property specific details, the following is defined for each property:
+          The following is defined for each property:
           - Permission: Indicates the permission on the property. When \p Reserved the property cannot be changed
           by the developer and when an attempt is made to change the property it will be filtered by the observer managing
           the object on which the property exist. Observers emits the Qtilities::Core::Observer::propertyChangeFiltered() signal
