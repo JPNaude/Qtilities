@@ -8,6 +8,7 @@
 #include "IProject.h"
 #include "IProjectItem.h"
 #include "ObserverProjectItemWrapper.h"
+#include "CodeEditorProjectItemWrapper.h"
 #include "Project.h"
 #include "ProjectManagement_global.h"
 #include "ProjectManagementConstants.h"
