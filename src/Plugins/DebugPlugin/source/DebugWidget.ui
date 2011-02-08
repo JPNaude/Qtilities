@@ -163,6 +163,68 @@ p, li { white-space: pre-wrap; }
              <number>0</number>
             </property>
             <item>
+             <widget class="QGroupBox" name="groupBoxPropertyBrowser">
+              <property name="title">
+               <string>Object Properties</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_30">
+               <item row="1" column="0">
+                <widget class="QTabWidget" name="tabWidget">
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="tabObjectProperties">
+                  <attribute name="title">
+                   <string>Fixed Properties</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_31">
+                   <item row="0" column="0">
+                    <widget class="QWidget" name="objectPropertyBrowserHolder" native="true"/>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tabDynamicObjectProperties">
+                  <attribute name="title">
+                   <string>Dynamic Properties</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_32">
+                   <item row="0" column="0">
+                    <widget class="QWidget" name="objectDynamicPropertyBrowserHolder" native="true"/>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="chkRefreshProperties">
+                 <property name="text">
+                  <string>Refresh properties when selected object changes.</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxInheritanceList">
+              <property name="title">
+               <string>Inheritance</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_28">
+               <item row="0" column="0">
+                <widget class="QListView" name="objectInheritanceList">
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QGroupBox" name="groupBox_9">
               <property name="title">
                <string>Scope Overview</string>
@@ -170,18 +232,6 @@ p, li { white-space: pre-wrap; }
               <layout class="QGridLayout" name="gridLayout_26">
                <item row="0" column="0">
                 <widget class="QWidget" name="widgetObjectScopeHolder" native="true"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_20">
-              <property name="title">
-               <string>Inheritance</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_28">
-               <item row="0" column="0">
-                <widget class="QListView" name="objectInheritanceList"/>
                </item>
               </layout>
              </widget>
@@ -269,8 +319,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>635</height>
+             <width>68</width>
+             <height>317</height>
             </rect>
            </property>
            <attribute name="label">
@@ -333,8 +383,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>635</height>
+             <width>568</width>
+             <height>192</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1157,5 +1207,38 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>chkRefreshProperties</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>objectPropertyBrowserHolder</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>694</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>713</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chkRefreshProperties</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>objectDynamicPropertyBrowserHolder</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>777</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>703</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

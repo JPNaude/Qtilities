@@ -117,15 +117,10 @@ namespace Qtilities {
                 //! Refreshes the command info table with information about the given command.
                 void refreshCommandInformation(Command* command);
                 void handle_objectPoolSelectionChanged(QList<QObject*> objects);
-
                 void on_btnExplorePluginCurrentConfigSetPath_clicked();
-
                 void on_btnEditPluginCurrentConfigSet_clicked();
-
                 void on_btnAnalyzeCurrentObject_clicked();
-
                 void on_btnAboutConan_clicked();
-
                 void on_btnAnalyzeAction_clicked();
 
             private:

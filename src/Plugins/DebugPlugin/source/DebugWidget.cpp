@@ -46,14 +46,12 @@
 using namespace QtilitiesExtensionSystem;
 
 struct Qtilities::Plugins::Debug::DebugWidgetData {
-    DebugWidgetData() : objectPoolWidget(0),
+    DebugWidgetData() : object_pool_widget(0),
         plugin_edit_set_loaded(false),
-        object_analysis_widget(0),
-        command_analysis_widget(0) {}
+        command_editor(true) {}
 
-    ObserverWidget*     objectPoolWidget;
+    ObserverWidget*     object_pool_widget;
     QPointer<QObject>   current_object;
-    QStringListModel    inheritanceModel;
     ObjectScopeWidget   object_scope_widget;
 
     bool                plugin_edit_set_loaded;
@@ -72,8 +70,15 @@ struct Qtilities::Plugins::Debug::DebugWidgetData {
     QPointer<Command>   current_command;
 
     #ifndef QTILITIES_NO_CONAN
-    ConanWidget*        object_analysis_widget;
-    ConanWidget*        command_analysis_widget;
+    QPointer<ConanWidget>   object_analysis_widget;
+    QPointer<ConanWidget>   command_analysis_widget;
+    #endif
+
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    QPointer<ObjectPropertyBrowser>         object_property_browser;
+    QPointer<ObjectDynamicPropertyBrowser>  object_dynamic_property_browser;
+    #else
+    QStringListModel    inheritanceModel;
     #endif
 };
 
@@ -104,33 +109,36 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     ui->labelVersion->setText(QtilitiesApplication::qtilitiesVersion());
 
     // Global Object Pool:
-    d->objectPoolWidget = new ObserverWidget(Qtilities::TreeView);
-    d->objectPoolWidget->setObserverContext(OBJECT_MANAGER->objectPool());
+    d->object_pool_widget = new ObserverWidget(Qtilities::TreeView);
+    d->object_pool_widget->setObserverContext(OBJECT_MANAGER->objectPool());
     OBJECT_MANAGER->objectPool()->endProcessingCycle();
-    OBJECT_MANAGER->objectPool()->useDisplayHints();
-    OBJECT_MANAGER->objectPool()->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    ObserverHints::ActionHints action_hints = 0;
-    action_hints |= ObserverHints::ActionFindItem;
-    OBJECT_MANAGER->objectPool()->displayHints()->setActionHints(action_hints);
-    ObserverHints::DisplayFlags display_flags = 0;
-    display_flags |= ObserverHints::ActionToolBar;
-    display_flags |= ObserverHints::ItemView;
-    OBJECT_MANAGER->objectPool()->displayHints()->setDisplayFlagsHint(display_flags);
-    OBJECT_MANAGER->objectPool()->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
-    OBJECT_MANAGER->objectPool()->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    OBJECT_MANAGER->objectPool()->refreshViewsLayout();
 
     if (ui->widgetObjectPoolHolder->layout())
         delete ui->widgetObjectPoolHolder->layout();
 
     QVBoxLayout* object_pool_layout = new QVBoxLayout(ui->widgetObjectPoolHolder);
     object_pool_layout->setMargin(0);
-    object_pool_layout->addWidget(d->objectPoolWidget);
-    d->objectPoolWidget->initialize();
-    d->objectPoolWidget->show();
-    d->objectPoolWidget->toggleSearchBox();
-    connect(d->objectPoolWidget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
-    connect(d->objectPoolWidget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
+    object_pool_layout->addWidget(d->object_pool_widget);
+    d->object_pool_widget->toggleUseObserverHints(false);
+
+    ObserverHints* new_hints = new ObserverHints;
+    ObserverHints::ActionHints action_hints = 0;
+    action_hints |= ObserverHints::ActionFindItem;
+    action_hints |= ObserverHints::ActionRefreshView;
+    new_hints->setActionHints(action_hints);
+    ObserverHints::DisplayFlags display_flags = 0;
+    display_flags |= ObserverHints::ActionToolBar;
+    display_flags |= ObserverHints::ItemView;
+    new_hints->setDisplayFlagsHint(display_flags);
+    new_hints->setItemViewColumnHint(ObserverHints::ColumnAllHints);
+    new_hints->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    d->object_pool_widget->copyCustomHints(new_hints);
+
+    d->object_pool_widget->initialize();
+    d->object_pool_widget->show();
+    d->object_pool_widget->toggleSearchBox();
+    connect(d->object_pool_widget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
+    connect(d->object_pool_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
 
     // Conan Widgets:
     #ifndef QTILITIES_NO_CONAN
@@ -143,16 +151,45 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
         ui->btnAnalyzeAction->setEnabled(false);
     #endif
 
+    // Object Property Browser:
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        // Object Property Browser:
+        d->object_property_browser = new ObjectPropertyBrowser;
+
+        if (ui->objectPropertyBrowserHolder->layout())
+            delete ui->objectPropertyBrowserHolder->layout();
+
+        QVBoxLayout* property_browser_layout = new QVBoxLayout(ui->objectPropertyBrowserHolder);
+        property_browser_layout->setMargin(0);
+        property_browser_layout->addWidget(d->object_property_browser);
+
+        // Object Dynamic Property Browser:
+        d->object_dynamic_property_browser = new ObjectDynamicPropertyBrowser;
+
+        if (ui->objectDynamicPropertyBrowserHolder->layout())
+            delete ui->objectDynamicPropertyBrowserHolder->layout();
+
+        QVBoxLayout* dynamic_property_browser_layout = new QVBoxLayout(ui->objectDynamicPropertyBrowserHolder);
+        dynamic_property_browser_layout->setMargin(0);
+        dynamic_property_browser_layout->addWidget(d->object_dynamic_property_browser);
+        ui->chkRefreshProperties->setChecked(false);
+        ui->groupBoxInheritanceList->setVisible(false);
+        ui->groupBoxPropertyBrowser->setVisible(true);
+    #else
+        // Inheritance List:
+        ui->objectInheritanceList->setModel(&d->inheritanceModel);
+        ui->groupBoxPropertyBrowser->setVisible(false);
+        ui->groupBoxInheritanceList->setVisible(true);
+    #endif
+
     // Object Scope:
     if (ui->widgetObjectScopeHolder->layout())
         delete ui->widgetObjectPoolHolder->layout();
 
     QVBoxLayout* object_scope_layout = new QVBoxLayout(ui->widgetObjectScopeHolder);
     object_scope_layout->setMargin(0);
+    d->object_scope_widget.setNameVisible(false);
     object_scope_layout->addWidget(&d->object_scope_widget);
-
-    // Inheritance List:
-    ui->objectInheritanceList->setModel(&d->inheritanceModel);
 
     // Factories:
     connect(ui->listFactories,SIGNAL(currentTextChanged(QString)),SLOT(handle_factoryListSelectionChanged(QString)));
@@ -244,13 +281,13 @@ void Qtilities::Plugins::Debug::DebugWidget::aboutToBeActivated() {
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::finalizeMode() {
-    if (d->objectPoolWidget->treeView())
-        d->objectPoolWidget->treeView()->expandAll();
+    if (d->object_pool_widget->treeView())
+        d->object_pool_widget->treeView()->expandAll();
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
     if (OBJECT_MANAGER->objectPool()->subjectCount() > 0) {
         QList<QObject*> object_list;
         object_list << OBJECT_MANAGER->objectPool()->subjectAt(0);
-        d->objectPoolWidget->selectObjects(object_list);
+        d->object_pool_widget->selectObjects(object_list);
     }
 }
 
@@ -272,6 +309,12 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolSelectionChanged(Q
         d->current_object = obj;
         d->object_scope_widget.setObject(obj);
 
+        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        if (ui->chkRefreshProperties->isChecked()) {
+            d->object_property_browser->setObject(obj);
+            d->object_dynamic_property_browser->setObject(obj);
+        }
+        #else
         // Inheritance Data:
         QStringList inheritance_list;
         const QMetaObject* metaObject = obj->metaObject();
@@ -280,6 +323,7 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolSelectionChanged(Q
             metaObject = metaObject->superClass();
         }
         d->inheritanceModel.setStringList(inheritance_list);
+        #endif
     }
 }
 
@@ -327,8 +371,8 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnRefreshViews_clicked() {
     refreshFactories();
 
     // Refresh Global Object Pool:
-    d->objectPoolWidget->refresh();
-    d->objectPoolWidget->viewExpandAll();
+    d->object_pool_widget->refresh();
+    d->object_pool_widget->viewExpandAll();
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnExplorePluginConfigSetPath_clicked()
@@ -582,7 +626,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
     ui->tableContextsAll->clear();
     ui->tableContextsActive->clear();
     QStringList context_headers;
-    context_headers << "Context ID" << "Context Name";
+    context_headers << "Context ID" << "Context Name" << "Help ID";
     ui->tableContextsAll->setHorizontalHeaderLabels(context_headers);
     ui->tableContextsAll->setSortingEnabled(false);
     ui->tableContextsActive->setHorizontalHeaderLabels(context_headers);
@@ -591,6 +635,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
     // First do all contexts:
     QList<int> all_contexts = CONTEXT_MANAGER->allContexts();
     ui->tableContextsAll->setRowCount(all_contexts.count());
+    ui->tableContextsAll->setColumnCount(3);
     for (int i = 0; i < all_contexts.count(); i++) {
         int current_id = all_contexts.at(i);
         // Context ID:
@@ -599,12 +644,16 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
         // Context Name:
         newItem = new QTableWidgetItem(CONTEXT_MANAGER->contextString(current_id));
         ui->tableContextsAll->setItem(i, 1, newItem);
+        // Context Help ID:
+        newItem = new QTableWidgetItem(CONTEXT_MANAGER->contextHelpID(current_id));
+        ui->tableContextsAll->setItem(i, 2, newItem);
         ui->tableContextsAll->setRowHeight(i,17);
     }
 
     // Next do active contexts:
     QList<int> active_contexts = CONTEXT_MANAGER->activeContexts();
     ui->tableContextsActive->setRowCount(active_contexts.count());
+    ui->tableContextsActive->setColumnCount(3);
     for (int i = 0; i < active_contexts.count(); i++) {
         int current_id = active_contexts.at(i);
         // Context ID:
@@ -613,6 +662,9 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
         // Context Name:
         newItem = new QTableWidgetItem(CONTEXT_MANAGER->contextString(current_id));
         ui->tableContextsActive->setItem(i, 1, newItem);
+        // Context Help ID:
+        newItem = new QTableWidgetItem(CONTEXT_MANAGER->contextHelpID(current_id));
+        ui->tableContextsAll->setItem(i, 2, newItem);
         ui->tableContextsActive->setRowHeight(i,17);
     }
 
