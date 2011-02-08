@@ -53,14 +53,10 @@ using namespace Qtilities::Core;
 
 struct Qtilities::CoreGui::ClipboardManagerData {
     ClipboardManagerData() : initialized(false),
-    actionCopy(0),
-    actionCut(0),
     actionPaste(0),
     clipboard(0) {}
 
     bool initialized;
-    QAction* actionCopy;
-    QAction* actionCut;
     QAction* actionPaste;
     QClipboard* clipboard;
     IClipboard::ClipboardOrigin current_origin;
@@ -105,26 +101,12 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
     context << CONTEXT_MANAGER->contextID(CONTEXT_STANDARD);
 
     // ---------------------------
-    // Copy
-    // ---------------------------
-    d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
-    d->actionCopy->setShortcut(QKeySequence(QKeySequence::Copy));
-    d->actionCopy->setEnabled(false);
-    Command* command = ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
-    // ---------------------------
-    // Cut
-    // ---------------------------
-    d->actionCut = new QAction(QIcon(ICON_EDIT_CUT_16x16),tr("Cut"),this);
-    d->actionCut->setShortcut(QKeySequence(QKeySequence::Cut));
-    d->actionCut->setEnabled(false);
-    command = ACTION_MANAGER->registerAction(MENU_EDIT_CUT,d->actionCut,context);
-    // ---------------------------
     // Paste
     // ---------------------------
     d->actionPaste = new QAction(QIcon(ICON_EDIT_PASTE_16x16),tr("Paste"),this);
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
-    command = ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
+    ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
 
     d->initialized = true;
 }
