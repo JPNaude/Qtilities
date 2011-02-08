@@ -146,7 +146,6 @@ int main(int argc, char *argv[])
     //mode_order.removeAt(0);
     //exampleMainWindow.modeManager()->setDisabledModes(mode_order);
     //exampleMainWindow.modeManager()->setActiveMode("Object Management");
-    PROJECT_MANAGER->refreshPartList();
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));

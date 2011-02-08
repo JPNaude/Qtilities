@@ -5,6 +5,7 @@
 #
 # ***************************************************************************
 QTILITIES += extension_system
+QTILITIES += project_management
 include(../../Qtilities.pri)
 
 QT       += core

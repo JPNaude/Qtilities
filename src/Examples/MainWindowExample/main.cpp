@@ -35,10 +35,12 @@
 #include <QtGui>
 
 #include <QtilitiesExtensionSystem>
+#include <QtilitiesProjectManagement>
 
 #include "ExampleMode.h"
 
 using namespace QtilitiesExtensionSystem;
+using namespace QtilitiesProjectManagement;
 using namespace Qtilities::Examples::MainWindow;
 
 int main(int argc, char *argv[])
@@ -49,17 +51,17 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Main Window Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
 
-    // Create a QtilitiesMainWindow to show our different modes.
+    // Create a QtilitiesMainWindow to show our different modes:
     QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
+
+    // Create the configuration widget:
+    ConfigurationWidget config_widget;
+    QtilitiesApplication::setConfigWidget(&config_widget);
 
     // Initialize the logger.
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
-
-    AbstractLoggerEngine* engine = Log->newFileEngine("Test File Engine",QApplication::applicationDirPath() + "/test.log");
-    if (engine)
-        engine->setMessageContexts(Logger::SystemWideMessages | Logger::EngineSpecificMessages);
 
     // We show a splash screen in this example:
     QPixmap pixmap(QTILITIES_LOGO_BT_300x300);
@@ -68,6 +70,9 @@ int main(int argc, char *argv[])
     splash->show();
     QObject::connect(EXTENSION_SYSTEM,SIGNAL(newProgressMessage(QString)),splash,SLOT(showMessage(QString)));
     a.processEvents();
+
+    // Initialize the clipboard manager:
+    CLIPBOARD_MANAGER->initialize();
 
     // Create menu related things.
     bool existed;
@@ -90,8 +95,6 @@ int main(int argc, char *argv[])
     // File Menu
     std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
-    // Create the configuration widget here and then connect it to the above command
-    ConfigurationWidget config_widget;
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
     file_menu->addSeperator();
@@ -124,6 +127,15 @@ int main(int argc, char *argv[])
     command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
     edit_menu->addAction(command);
 
+    // Add the code editor config widget:
+    CodeEditorWidgetConfig code_editor_config;
+    OBJECT_MANAGER->registerObject(&code_editor_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+
+    // Create the Example before plugin loading since it registers a project items:
+    ExampleMode* example_mode = new ExampleMode;
+
+    PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);
+
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     EXTENSION_SYSTEM->enablePluginActivityControl();
@@ -135,7 +147,6 @@ int main(int argc, char *argv[])
     // Create the example file system side widget and add it to the global object pool
     QList<int> modes;
     modes << MODE_EXAMPLE_ID;
-    ExampleMode* example_mode = new ExampleMode();
     SideViewerWidgetFactory* file_system_side_widget_helper = new SideViewerWidgetFactory(&SideWidgetFileSystem::factory,"File System",modes,modes);
     OBJECT_MANAGER->registerObject(file_system_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
@@ -177,8 +188,14 @@ int main(int argc, char *argv[])
     exampleMainWindow.show();
     splash->close();
 
+    // Initialize the project manager:
+    PROJECT_MANAGER_INITIALIZE();
+
     int result = a.exec();
     exampleMainWindow.writeSettings();
+
+    // Finalize the project manager:
+    PROJECT_MANAGER_FINALIZE();
 
     // Save the current keyboard mapping for the next session.
     if (ACTION_MANAGER->exportShortcutMapping(shortcut_mapping_file))

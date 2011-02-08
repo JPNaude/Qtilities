@@ -34,10 +34,10 @@
 #include "ExampleMode.h"
 #include "ui_ExampleMode.h"
 
-#include <QtilitiesCoreGui>
+#include <QtilitiesProjectManagement>
 #include <QtGui>
 
-using namespace QtilitiesCoreGui;
+using namespace QtilitiesProjectManagement;
 
 struct Qtilities::Examples::MainWindow::ExampleModeData {
     ExampleModeData() : initialized(false),
@@ -45,14 +45,16 @@ struct Qtilities::Examples::MainWindow::ExampleModeData {
     side_viewer_widget(0),
     main_splitter(0),
     actionShowDock(0),
-    code_editor_widget(0) {}
+    code_editor_widget(0),
+    project_item(0) {}
 
-    bool initialized;
-    QDockWidget* side_viewer_dock;
-    DynamicSideWidgetViewer* side_viewer_widget;
-    QSplitter* main_splitter;
-    QAction* actionShowDock;
-    CodeEditorWidget* code_editor_widget;
+    bool                            initialized;
+    QDockWidget*                    side_viewer_dock;
+    DynamicSideWidgetViewer*        side_viewer_widget;
+    QSplitter*                      main_splitter;
+    QAction*                        actionShowDock;
+    CodeEditorWidget*               code_editor_widget;
+    CodeEditorProjectItemWrapper*   project_item;
 };
 
 Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
@@ -62,7 +64,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     ui->setupUi(this);
     d = new ExampleModeData;
 
-    // Create and dock the dynamic side widget viewer
+    // Create and dock the dynamic side widget viewer:
     d->side_viewer_dock = new QDockWidget(tr("Dynamic Widgets"));
     d->side_viewer_widget = new DynamicSideWidgetViewer(MODE_EXAMPLE_ID);
     connect(d->side_viewer_widget,SIGNAL(toggleVisibility(bool)),SLOT(toggleDock(bool)));
@@ -74,24 +76,29 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     addDockWidget(Qt::RightDockWidgetArea,d->side_viewer_dock);
     d->side_viewer_dock->installEventFilter(this);
 
-    // Create text editor
+    // Create text editor:
     d->code_editor_widget = new CodeEditorWidget();
     d->code_editor_widget->codeEditor()->setPlainText("This is an example mode with a code editor, and a set of dynamically loaded widgets in the dock window.");
     if (d->code_editor_widget->searchBoxWidget())
         d->code_editor_widget->searchBoxWidget()->setWidgetMode(SearchBoxWidget::SearchOnly);
 
-    // Create splitters
+    // Create project item:
+    d->project_item = new CodeEditorProjectItemWrapper(d->code_editor_widget,this);
+    // Add project item to global object pool:
+    OBJECT_MANAGER->registerObject(d->project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
+
+    // Create splitters:
     if (ui->splitterParent->layout())
         delete ui->splitterParent->layout();
 
-    // Create new layout with new widget
+    // Create new layout with new widget:
     d->main_splitter = new QSplitter(Qt::Horizontal);
     QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,ui->splitterParent);
     layout->addWidget(d->code_editor_widget);
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    // Actions
+    // Actions:
     d->actionShowDock = new QAction(QIcon(),"Example Dynamic Dock Widget",this);
     d->actionShowDock->setCheckable(true);
     d->actionShowDock->setChecked(true);

@@ -78,8 +78,7 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     // ---------------------------
     // Factory and Project Item Stuff
     // ---------------------------
-    d->project_item = new ObserverProjectItemWrapper(this);
-    d->project_item->setObserverContext(d->top_level_node);
+    d->project_item = new ObserverProjectItemWrapper(d->top_level_node,this);
     OBJECT_MANAGER->registerObject(d->project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
 
     QList<int> context;
@@ -197,6 +196,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                             observer->attachSubject(new_item, Observer::ObserverScopeOwnership);
                         else if (item == tr("Owned By Subject Ownership"))
                             observer->attachSubject(new_item, Observer::OwnedBySubjectOwnership);
+                        OBJECT_MANAGER->registerObject(new_item,QtilitiesCategory("Example Objects"));
                     }
                 }
             } else if (new_item_selection == "QWidget")  {
@@ -211,6 +211,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     new_subject->setObjectName(subject_name);
                     new_subject->setAttribute(Qt::WA_DeleteOnClose, true);
                     observer->attachSubject(new_subject, Observer::SpecificObserverOwnership);
+                    OBJECT_MANAGER->registerObject(new_subject,QtilitiesCategory("Example Objects"));
                     new_subject->show();
                 }
             } else if (new_item_selection == "New Node")  {
@@ -219,6 +220,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     TreeNode* new_node = new TreeNode(subject_name);
                     // Finaly attach the new observer
                     observer->attachSubject(new_node, Observer::ObserverScopeOwnership);
+                    OBJECT_MANAGER->registerObject(new_node,QtilitiesCategory("Example Objects"));
                     new_node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
                     new_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
                     new_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
@@ -247,6 +249,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeA, Observer::ObserverScopeOwnership);
+    OBJECT_MANAGER->registerObject(nodeA,QtilitiesCategory("Example Objects"));
 
     // Create a second node:
     TreeNode* nodeB = new TreeNode("Node B");
@@ -262,6 +265,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeB, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeB, Observer::ObserverScopeOwnership);
+    OBJECT_MANAGER->registerObject(nodeB,QtilitiesCategory("Example Objects"));
 
     // Create a node with some QWidgets:
     TreeNode* nodeC = new TreeNode("Node C");
@@ -286,6 +290,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeC, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeC, Observer::ObserverScopeOwnership);
+    OBJECT_MANAGER->registerObject(nodeC,QtilitiesCategory("Example Objects"));
 
     d->top_level_node->refreshViewsLayout();
 }
