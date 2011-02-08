@@ -61,7 +61,7 @@ struct Qtilities::CoreGui::CommandEditorData {
     QPointer<Command>           selected_command;
 };
 
-Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *parent) :
+Qtilities::CoreGui::CommandEditor::CommandEditor(bool command_table_only, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandEditor)
 {
@@ -116,9 +116,10 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool debug_mode, QWidget *paren
 
     // Select first item
     connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
-    ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
+    if (ACTION_MANAGER->commandMap().count() > 0)
+        ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
 
-    if (debug_mode) {
+    if (command_table_only) {
         ui->groupCurrentConfiguration->setVisible(false);
         ui->widgetSearchBox->setVisible(false);
         ui->widgetPropertyEditor->setVisible(false);
