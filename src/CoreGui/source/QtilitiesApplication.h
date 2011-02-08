@@ -160,10 +160,10 @@ QtilitiesApplication::initialize();
 
             //! Create a new settings update request.
             /*!
-            This function allows settings update requests to be sent anywhere in an application. This
-            allows objects which depend on the settings to update themselves when the settings change.
+                This function allows settings update requests to be sent anywhere in an application. This
+                allows objects which depend on the settings to update themselves when the settings change.
 
-              This function will emit settingsUpdateRequest() with the given \p request_id.
+                This function will emit settingsUpdateRequest() with the given \p request_id.
               */
             static inline void newSettingsUpdateRequest(const QString& request_id) { emit m_Instance->settingsUpdateRequest(request_id); }
 
