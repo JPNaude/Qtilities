@@ -49,6 +49,7 @@ struct Qtilities::Core::ContextManagerData {
 
     int id_counter;
     QMap<QString, int> string_id_map;
+    QMap<QString, QString> string_help_id_map;
 
     QList<int> active_contexts;
     QList<int> contexts;
@@ -64,14 +65,15 @@ Qtilities::Core::ContextManager::ContextManager(QObject* parent) : IContextManag
     setNewContext(CONTEXT_STANDARD);
 }
 
-int Qtilities::Core::ContextManager::registerContext(const QString& context) {
+int Qtilities::Core::ContextManager::registerContext(const QString& context, const QString& context_help_id) {
     int id = contextID(context);
     if (id == -1)
         return -1;
 
     if (!d->contexts.contains(id)) {
         d->contexts.push_front(id);
-        LOG_DEBUG("Context Manager: Registering new context: " + context + " with ID " + QString::number(id));
+        d->string_help_id_map[context] = context_help_id;
+        LOG_DEBUG("Context Manager: Registering new context: " + context + " with ID " + QString::number(id) + " and Help ID: " + context_help_id);
         return id;
     } else
         return id;
@@ -217,10 +219,8 @@ QList<int> Qtilities::Core::ContextManager::activeContexts() const {
 }
 
 int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
-    if (context_string.isEmpty()) {
-        LOG_ERROR(tr("Registering contexts without a descriptive name is not allowed. Context will not be registered."));
+    if (context_string.isEmpty())
         return -1;
-    }
 
     if (d->string_id_map.keys().contains(context_string))
         return d->string_id_map.value(context_string);
@@ -241,10 +241,28 @@ QString Qtilities::Core::ContextManager::contextString(int context_id) const {
     return QString();
 }
 
+QString Qtilities::Core::ContextManager::contextHelpID(int context_id) const {
+    QString context_string = contextString(context_id);
+    return contextHelpID(context_string);
+}
+
+QString Qtilities::Core::ContextManager::contextHelpID(const QString& context_string) const {
+    if (context_string.isEmpty())
+        return QString();
+
+    for (int i = 0; i < d->string_help_id_map.count(); i++) {
+        if (d->string_help_id_map.keys().at(i) == context_string) {
+            return d->string_help_id_map.values().at(i);
+        }
+    }
+
+    return QString();
+}
+
 void Qtilities::Core::ContextManager::addContexts(QObject* obj) {
     IContext* new_context = qobject_cast<IContext*> (obj);
     if (new_context) {
-        registerContext(new_context->contextString());
+        registerContext(new_context->contextString(),new_context->contextHelpId());
     }
 }
 

@@ -64,7 +64,7 @@ namespace Qtilities {
 
                     \returns The unique ID assigned by the context manager for the new context. If the context already existed its existing ID is returned.
                     */
-                virtual int registerContext(const QString& context) = 0;
+                virtual int registerContext(const QString& context, const QString& context_help_id = QString()) = 0;
                 //! Returns a list of all the contexts currently registered.
                 virtual QList<int> allContexts() const = 0;
                 //! Returns the names of all registered contexts.
@@ -95,12 +95,20 @@ namespace Qtilities {
                 virtual int contextID(const QString& context_string) = 0;
                 //! Returns the string which was used to register a context id. If the context id does not exist, QString() is returned.
                 virtual QString contextString(int context_id) const = 0;
+                //! Returns the context help id for a given context id. QString() is returned if no help id was registered for the given context id.
+                virtual QString contextHelpID(int context_id) const = 0;
+                //! Returns the context help id for a given context string. QString() is returned if no help id was registered for the given context string.
+                virtual QString contextHelpID(const QString& context_string) const = 0;
 
             public slots:
                 //! Slot which will emit the current state of the context manager. Use this if you updated your contexts using notify = false.
                 virtual void broadcastState() = 0;
+                //! Inspects \p obj and if it implements Qtilities::Core::Interfaces::IContext, the context will be registered.
+                virtual void addContexts(QObject* obj) = 0;
 
             signals:
+                //! Notification that the context changes.
+                void contextChanged(QList<int> new_contexts);
                 //! Signal which is emitted when the setNewContext is about to set the new context.
                 void aboutToSetNewContext(int context_id);
                 //! Signal which is emitted when the setNewContext finished to set the new context.

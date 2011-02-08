@@ -35,6 +35,7 @@
 #define ICONTEXT_H
 
 #include "QtilitiesCore_global.h"
+#include "IObjectBase.h"
 
 #include <QObject>
 #include <QString>
@@ -46,7 +47,7 @@ namespace Qtilities {
             \class IContext
             \brief Objects implementing this interface will have a context associated with them.
               */
-            class QTILIITES_CORE_SHARED_EXPORT IContext {
+            class QTILIITES_CORE_SHARED_EXPORT IContext  : virtual public IObjectBase {
             public:
                 IContext() {}
                 virtual ~IContext() {}

@@ -69,7 +69,7 @@ namespace Qtilities {
             // --------------------------------
             // IContextManager Implemenation
             // --------------------------------
-            int registerContext(const QString& context);
+            int registerContext(const QString& context, const QString& context_help_id = QString());
             QList<int> allContexts() const;
             QStringList contextNames() const;
             QStringList activeContextNames() const;
@@ -79,6 +79,8 @@ namespace Qtilities {
             QList<int> activeContexts() const;
             int contextID(const QString& context_string);
             QString contextString(int context_id) const;
+            QString contextHelpID(int context_id) const;
+            QString contextHelpID(const QString& context_string) const;
 
         public slots:
             void setNewContext(int context_id, bool notify = true);
@@ -88,12 +90,6 @@ namespace Qtilities {
             void appendContext(const QString& context_string, bool notify = true);
             void removeContext(const QString& context_string, bool notify = true);
             void broadcastState();           
-
-        signals:
-            //! Notification that the context changes.
-            void contextChanged(QList<int> new_contexts);
-
-        public slots:
             void addContexts(QObject* obj);
 
         private:
@@ -102,7 +98,5 @@ namespace Qtilities {
         };
     }
 }
-
-
 
 #endif // CONTEXTMANAGER_H
