@@ -95,21 +95,20 @@ Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> config_pages) {
-    if (d->initialized)
-        return;
-
-    // Add an activity policy filter to the config pages observer:
-    d->activity_filter = new ActivityPolicyFilter();
-    d->activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
-    d->activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::ProhibitNoneActive);
-    d->activity_filter->setNewSubjectActivityPolicy(ActivityPolicyFilter::SetNewInactive);
-    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handleActiveItemChanges(QList<QObject*>)));
-    d->config_pages.installSubjectFilter(d->activity_filter);
-    d->config_pages.useDisplayHints();
-    d->config_pages.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
-    d->config_pages.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
-    d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+    if (!d->initialized) {
+        // Add an activity policy filter to the config pages observer:
+        d->activity_filter = new ActivityPolicyFilter();
+        d->activity_filter->setActivityPolicy(ActivityPolicyFilter::UniqueActivity);
+        d->activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::ProhibitNoneActive);
+        d->activity_filter->setNewSubjectActivityPolicy(ActivityPolicyFilter::SetNewInactive);
+        connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handleActiveItemChanges(QList<QObject*>)));
+        d->config_pages.installSubjectFilter(d->activity_filter);
+        d->config_pages.useDisplayHints();
+        d->config_pages.displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
+        d->config_pages.displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplay);
+        d->config_pages.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+        d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+    }
 
     // Figure out what the maximum sizes are in all pages.
     int max_width = -1;
@@ -120,6 +119,14 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         IConfigPage* config_page = config_pages.at(i);
         if (config_page) {
             if (config_page->configPageWidget()) {
+                if (d->config_pages.contains(config_pages.at(i)->objectBase())) {
+                    if (config_page->configPageWidget()->size().width() > max_width)
+                        max_width = config_page->configPageWidget()->sizeHint().width();
+                    if (config_page->configPageWidget()->size().height() > max_height)
+                        max_height = config_page->configPageWidget()->sizeHint().height();
+                    continue;
+                }
+
                 // Set the object name to the page title:
                 config_page->objectBase()->setObjectName(config_page->configPageTitle());
 
@@ -141,12 +148,12 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                     Observer::setSharedProperty(config_page->objectBase(),icon_property);
                 }
 
-                d->config_pages.attachSubject(config_page->objectBase());
-
-                if (config_page->configPageWidget()->size().width() > max_width)
-                    max_width = config_page->configPageWidget()->sizeHint().width();
-                if (config_page->configPageWidget()->size().height() > max_height)
-                    max_height = config_page->configPageWidget()->sizeHint().height();
+                if (d->config_pages.attachSubject(config_page->objectBase())) {
+                    if (config_page->configPageWidget()->size().width() > max_width)
+                        max_width = config_page->configPageWidget()->sizeHint().width();
+                    if (config_page->configPageWidget()->size().height() > max_height)
+                        max_height = config_page->configPageWidget()->sizeHint().height();
+                }
             } else {
                 LOG_DEBUG("Found configuration page without a valid configuration widget. This page will not be shown.");
             }
@@ -163,13 +170,16 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     resize(new_width,new_heigth);
 
     // Set up the observer widget:
-    d->config_pages_widget.setDisplayMode(d->display_mode);
-    d->config_pages_widget.setObserverContext(&d->config_pages);
-    d->config_pages_widget.initialize();
+    if (!d->initialized) {
+        d->config_pages_widget.setDisplayMode(d->display_mode);
+        d->config_pages_widget.setObserverContext(&d->config_pages);
+        d->config_pages_widget.initialize();
+        d->config_pages_widget.toggleSearchBox();
+        if (d->config_pages_widget.searchBoxWidget())
+            d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+    }
+
     d->config_pages_widget.resizeTableViewRows(22);
-    d->config_pages_widget.toggleSearchBox();
-    if (d->config_pages_widget.searchBoxWidget())
-        d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
 
     // Set up the table or tree view:
     if (d->config_pages_widget.tableView() && d->display_mode == TableView) {
@@ -219,7 +229,6 @@ void Qtilities::CoreGui::ConfigurationWidget::on_btnApply_clicked() {
             emit appliedPage(config_page);
         }
     }
-
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::setApplyAllPages(bool apply_all_pages) {
@@ -228,6 +237,30 @@ void Qtilities::CoreGui::ConfigurationWidget::setApplyAllPages(bool apply_all_pa
 
 bool Qtilities::CoreGui::ConfigurationWidget::applyAllPages() const {
     return d->apply_all_pages;
+}
+
+bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) const {
+    for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+        if (config_page){
+            if (config_page->configPageTitle() == page_name)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& page_name) const {
+    for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+        IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
+        if (config_page){
+            if (config_page->configPageTitle() == page_name)
+                return config_page;
+        }
+    }
+
+    return 0;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObject*> active_pages) {

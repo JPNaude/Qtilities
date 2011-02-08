@@ -72,10 +72,11 @@ namespace Qtilities {
             ConfigurationWidget(DisplayMode display_mode = TableView, QWidget *parent = 0);
             ~ConfigurationWidget();
 
-            //! Initializes the config widget.
+            //! Initializes the config widget with the given set of config pages.
             void initialize(QList<IConfigPage*> config_pages);
             //! Initializes the widget with a list of QObjects. All objects in the list which implements the IConfigPage interface will be added.
             /*!
+              You can initialize the ConfigurationWidget multiple times and when called more than once it will just rescan the global object pool
               \note If the list is empty, the function will search the global object pool and automatically add all found config pages. A debug message with information about the found pages will be created.
               */
             void initialize(QList<QObject*> config_pages = QList<QObject*>());
@@ -89,6 +90,10 @@ namespace Qtilities {
             void setApplyAllPages(bool apply_all_pages);
             //! Gets the way the configuration widget handles the \p Apply button.
             bool applyAllPages() const;
+            //! Checks if a configuration page with the given name exists.
+            bool hasPage(const QString& page_name) const;
+            //! Checks if a configuration page with the given name exists and if so returns a pointer to the interface.
+            IConfigPage* getPage(const QString& page_name) const;
 
        signals:
             //! Signal emitted whenever a config page is applied.
