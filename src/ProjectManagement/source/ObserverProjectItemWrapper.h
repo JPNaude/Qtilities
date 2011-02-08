@@ -40,11 +40,11 @@
 #include <QObject>
 
 #include <Observer>
-using namespace Qtilities::Core;
 
 namespace Qtilities {
     namespace ProjectManagement {
         using namespace Qtilities::ProjectManagement::Interfaces;
+        using namespace Qtilities::Core;
 
         /*!
           \struct ObserverProjectItemWrapperData
@@ -54,7 +54,7 @@ namespace Qtilities {
 
         /*!
         \class ObserverProjectItemWrapper
-        \brief This class wraps an observer context as a project item.
+        \brief This class wraps Qtilities::Core::Observer as a project item.
           */
         class PROJECT_MANAGEMENT_SHARED_EXPORT ObserverProjectItemWrapper : public QObject, public IProjectItem
         {
@@ -62,9 +62,9 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::ProjectManagement::Interfaces::IProjectItem)
 
         public:
-            explicit ObserverProjectItemWrapper(QObject *parent = 0);
+            explicit ObserverProjectItemWrapper(Observer* observer = 0, QObject *parent = 0);
 
-            //! Sets the observer context for this project item
+            //! Sets the observer context for this project item.
             void setObserverContext(Observer* observer);
 
             // --------------------------------------------

@@ -41,9 +41,11 @@ HEADERS += source/ProjectManagement_global.h \
     source/IProjectItem.h \
     source/Project.h \
     source/ProjectManagementConfig.h \
-    source/ObserverProjectItemWrapper.h
+    source/ObserverProjectItemWrapper.h \
+    source/CodeEditorProjectItemWrapper.h
 SOURCES += source/ProjectManager.cpp \
     source/Project.cpp \
     source/ProjectManagementConfig.cpp \
-    source/ObserverProjectItemWrapper.cpp
+    source/ObserverProjectItemWrapper.cpp \
+    source/CodeEditorProjectItemWrapper.cpp
 FORMS += source/ProjectManagementConfig.ui

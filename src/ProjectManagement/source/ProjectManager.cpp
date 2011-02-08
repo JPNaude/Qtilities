@@ -199,7 +199,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     // If the project is already open tell the user, don't open it again.
     if (d->current_project) {
         if (d->current_project->projectFile() == file_name) {
-            LOG_INFO(QString(tr("The project you are trying to open is already open.")));
+            LOG_INFO_P(QString(tr("The project you are trying to open is already open.")));
             return false;
         }
         if (!closeProject())

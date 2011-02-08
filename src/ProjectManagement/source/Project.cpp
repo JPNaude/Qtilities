@@ -125,7 +125,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFile current_file(d->project_file);
             if (current_file.exists())  {
                 if (!current_file.remove()) {
-                    LOG_INFO(tr("Failed to replace the current project file at path: ") + d->project_file);
+                    LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
                     QApplication::restoreOverrideCursor();
                     return false;
                 }
@@ -197,7 +197,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFile current_file(d->project_file);
             if (current_file.exists())  {
                 if (!current_file.remove()) {
-                    LOG_INFO(tr("Failed to replace the current project file at path: ") + d->project_file);
+                    LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
                     QApplication::restoreOverrideCursor();
                     return false;
                 }
@@ -233,7 +233,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     LOG_DEBUG(tr("Starting to load project from file: ") + file_name);
     QFile file(file_name);
     if (!file.exists()) {
-        LOG_ERROR(QString(tr("Project file does not exist. Project will not be loaded.")));
+        LOG_ERROR_P(QString(tr("Project file does not exist. Project will not be loaded.")));
         return false;
     }
     d->project_file = file_name;

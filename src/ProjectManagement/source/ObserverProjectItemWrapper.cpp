@@ -34,11 +34,10 @@
 #include "ObserverProjectItemWrapper.h"
 #include "ProjectManager.h"
 
-#include <IExportable.h>
-#include <ObserverRelationalTable.h>
-#include <QtilitiesCoreApplication.h>
-#include <Logger.h>
-#include <IFactoryProvider.h>
+#include <IExportable>
+#include <QtilitiesCoreApplication>
+#include <Logger>
+#include <IFactoryProvider>
 
 #include <QApplication>
 #include <QDomNodeList>
@@ -52,10 +51,12 @@ struct Qtilities::ProjectManagement::ObserverProjectItemWrapperData {
 using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
 
-Qtilities::ProjectManagement::ObserverProjectItemWrapper::ObserverProjectItemWrapper(QObject *parent) :
+Qtilities::ProjectManagement::ObserverProjectItemWrapper::ObserverProjectItemWrapper(Observer* observer, QObject *parent) :
     QObject(parent)
 {
     d = new ObserverProjectItemWrapperData;
+    if (observer)
+        setObserverContext(observer);
 }
 
 void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setObserverContext(Observer* observer) {
@@ -115,11 +116,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(import_list)
+    Q_UNUSED(params)
 
     return OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+    Q_UNUSED(params)
+
     if (d->observer) {
         // Add a new node for this observer. We don't want it to add its factory data
         // to the ProjectItem node.
@@ -131,6 +135,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+    Q_UNUSED(params)
+
     if (d->observer) {
         QDomNodeList childNodes = object_node->childNodes();
         for(int i = 0; i < childNodes.count(); i++)

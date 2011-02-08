@@ -105,6 +105,8 @@ namespace Qtilities {
               This functionality is usefull if you want to force the users of your application to use
               a specific format.
 
+              \note Make sure to call this function before creating your ProjectManagementConfig page. If you are using the %Qtilities Project Management plugin, make sure you call this function before loading your plugins.
+
               \sa allowedProjectTypes()
               */
             void setAllowedProjectTypes(IExportable::ExportModeFlags project_types);
