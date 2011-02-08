@@ -124,7 +124,7 @@
       <item>
        <widget class="QToolButton" name="btnClose">
         <property name="toolTip">
-         <string>Close</string>
+         <string>Hide</string>
         </property>
         <property name="text">
          <string>...</string>
