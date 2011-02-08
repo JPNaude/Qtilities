@@ -207,7 +207,7 @@ categorized_widget->show();
         public slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
-            void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> obj);
+            void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QPointer<QObject> > obj);
             //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
             void resetProxyModel();
         signals:
@@ -223,20 +223,38 @@ categorized_widget->show();
             QString contextHelpId() const { return QString(); }
 
             // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
             // Functions Related To Display Hints
             // --------------------------------
             //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
             /*!
               \note When using category filtering the hints to do that must be set on the observer context
               on which category filtering must be enabled. For more information see Qtilities::Core::ObserverHints::setDisplayedCategories()
+
+              \sa activeHints
               */
             void toggleUseObserverHints(bool toggle);
-            //! This function will provide the hints which should be used by this widget at any time.
+            //! Indicates if this widget uses its own custom hints of that of the active observer.
+            bool usesObserverHints() const;
+            //! This function allows you to copy the custom hints used by this ObserverWidget from a different ObserverHints instance.
             /*!
+              \note These hints are only used when usesObserverHints() is false.
+
+              \return True if successfull, false otherwise.
+
               \sa toggleUseObserverHints()
               */
+            bool copyCustomHints(ObserverHints* custom_hints);
+            //! This function will provide the hints which should be used by this widget at any time.
+            /*!
+              \sa toggleUseObserverHints(), copyCustomHints()
+              */
             ObserverHints* activeHints() const;
-            ObserverHints* activeHints();
 
             // --------------------------------
             // Settings, Global Meta Type and Action Provider Functions

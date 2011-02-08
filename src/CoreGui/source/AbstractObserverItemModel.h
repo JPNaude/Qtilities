@@ -111,20 +111,26 @@ namespace Qtilities {
              will call inheritObserverHints() with the base observer when toggle is false.  When true inheritObserverHints()
              will be called with \p observer as the parameter.
              */
-            void toggleUsesObserverHints(bool toggle, Observer* observer = 0);
+            void toggleUseObserverHints(bool toggle, Observer* observer = 0);
             //! Function to indicate if observer hints are used in this model. If not, the default hints in the model base class is used.
             bool usesObserverHints() const;
             //! Get hints from the specified observer and use it as the current selection parent's hints.
             /*!
               \returns True when hints was inherited successfully, false otherwise.
               */
-            bool inheritObserverHints(const Observer* observer);
+            bool copyObserverHints(const Observer* observer);
+            //! This function allows you to copy the custom hints used by this model from a different ObserverHints instance.
+            /*!
+              \note These hints are only used when usesObserverHints() is false.
+
+              \sa toggleUseObserverHints()
+              */
+            bool copyCustomHints(ObserverHints* observer);
             //! This function will provide the hints which should be used by this model at any time.
             /*!
               \sa toggleUseObserverHints()
               */
             ObserverHints* activeHints() const;
-            ObserverHints* activeHints();
 
             //! Implement the virtual function to get references to known filters.
             virtual bool setObserverContext(Observer* observer);

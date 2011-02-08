@@ -36,12 +36,13 @@
 #include "ActivityPolicyFilter.h"
 #include "QtilitiesCoreGuiConstants.h"
 
-#include <SubjectTypeFilter.h>
-#include <QtilitiesCoreConstants.h>
-#include <Observer.h>
-#include <QtilitiesCategory.h>
+#include <SubjectTypeFilter>
+#include <QtilitiesCoreConstants>
+#include <Observer>
+#include <QtilitiesCategory>
 
 #include <QIcon>
+#include <QMessageBox>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
@@ -63,6 +64,19 @@ Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(QObject* parent) : QA
 bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observer) {
     if (d_observer)
         d_observer->disconnect(this);
+
+    if (!observer)
+        return false;
+
+    // We cannot view the global object pool as a table because it is not part of the OBSERVER_SUBJECT_IDS property.
+    // Therefore we tell this to the user.
+    if (observer->objectName() == QString(GLOBAL_OBJECT_POOL)) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Qtilities ObserverTableModel Error");
+        msgBox.setText("It is not possible to view the Global Object Pool using ObserverTableModel. Use ObserverTreeModel instead.");
+        msgBox.exec();
+        return false;
+    }
 
     if (!AbstractObserverItemModel::setObserverContext(observer))
         return false;
@@ -302,6 +316,9 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     } else if (index.column() == columnPosition(ColumnChildCount)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            if (!obj)
+                return QVariant();
+
             Observer* observer = qobject_cast<Observer*> (obj);
             if (observer) {
                 return observer->treeCount();
@@ -327,6 +344,9 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     } else if (index.column() == columnPosition(ColumnTypeInfo)) {
         if (role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            if (!obj)
+                return QVariant();
+
             if (obj->metaObject()) {
                 return QString(QLatin1String(obj->metaObject()->className())).split("::").last();
             }
@@ -338,6 +358,9 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     } else if (index.column() == columnPosition(ColumnAccess)) {
         if (role == Qt::DecorationRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
+            if (!obj)
+                return QVariant();
+
             Observer* observer = qobject_cast<Observer*> (obj);
             if (!observer) {
                 // Handle the case where the child is the parent of an observer

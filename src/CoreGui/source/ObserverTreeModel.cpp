@@ -298,12 +298,24 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             if (local_selection_parent) {
                 // Once we have the local parent, we can check if it must display activity and if so, we return
                 // the activity of obj in that context.
-                if (local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
-                    ActivityPolicyFilter* activity_filter = 0;
-                    for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
-                        activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
-                        if (activity_filter) {
-                            subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+
+                // We need to check a few things things:
+                // 1. Do we use the observer hints?
+                // 2. If not, does the selection have hints?
+                ObserverHints* hints_to_use_for_selection = 0;
+                if (model->use_observer_hints && local_selection_parent->displayHints())
+                    hints_to_use_for_selection = local_selection_parent->displayHints();
+                else if (!model->use_observer_hints)
+                    hints_to_use_for_selection = activeHints();
+
+                if (hints_to_use_for_selection) {
+                    if (hints_to_use_for_selection->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
+                        ActivityPolicyFilter* activity_filter = 0;
+                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                            activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
+                            if (activity_filter) {
+                                subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                            }
                         }
                     }
                 }
@@ -640,33 +652,56 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              item_flags &= ~Qt::ItemIsDropEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeItem) {
              // For items we need to check the drag drop hint of the parent of the index:
-             Observer* local_selection_parent = parentOfIndex(index);
+             Observer* local_selection_parent = parentOfIndex(index);           
              if (local_selection_parent) {
-                 if (local_selection_parent->displayHints()) {
+                 // We need to check a few things things:
+                 // 1. Do we the observer hints?
+                 // 2. If not, does the observer have hints?
+                 ObserverHints* hints_to_use = 0;
+                 if (!model->use_observer_hints)
+                     hints_to_use = activeHints();
+                 else {
+                     if (local_selection_parent->displayHints())
+                        hints_to_use = local_selection_parent->displayHints();
+                 }
+
+                 if (hints_to_use) {
                      // Check if drags are allowed:
-                     if (local_selection_parent->displayHints()->dragDropHint() & ObserverHints::AllowDrags)
+                     if (hints_to_use->dragDropHint() & ObserverHints::AllowDrags)
                          item_flags |= Qt::ItemIsDragEnabled;
                      else
                          item_flags &= ~Qt::ItemIsDragEnabled;
+
                  } else {
                      item_flags &= ~Qt::ItemIsDragEnabled;
                  }
              } else {
                  item_flags &= ~Qt::ItemIsDragEnabled;
              }
-            item_flags &= ~Qt::ItemIsDropEnabled;
+             item_flags &= ~Qt::ItemIsDropEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeNode) {
              // Check if the node (observer) accepts drops or allows drags:
              Observer* obs = qobject_cast<Observer*> (item->getObject());
              if (obs) {
-                 if (obs->displayHints()) {
+                 // We need to check a few things things:
+                 // 1. Do we the observer hints?
+                 // 2. If not, does the observer have hints?
+                 ObserverHints* hints_to_use = 0;
+                 if (!model->use_observer_hints)
+                     hints_to_use = activeHints();
+                 else {
+                     if (obs->displayHints())
+                        hints_to_use = obs->displayHints();
+                 }
+
+                 if (hints_to_use) {
                      // Check if drags are allowed:
-                     if (obs->displayHints()->dragDropHint() & ObserverHints::AllowDrags)
+                     if (hints_to_use->dragDropHint() & ObserverHints::AllowDrags)
                          item_flags |= Qt::ItemIsDragEnabled;
                      else
                          item_flags &= ~Qt::ItemIsDragEnabled;
                      // Check if drops are accepted:
-                     if (obs->displayHints()->dragDropHint() & ObserverHints::AcceptDrops)
+                     if (hints_to_use->dragDropHint() & ObserverHints::AcceptDrops)
                          item_flags |= Qt::ItemIsDropEnabled;
                      else
                          item_flags &= ~Qt::ItemIsDropEnabled;
@@ -966,7 +1001,7 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
 
         // Get the hints from the observer:
         if (d->selection_parent) {
-            inheritObserverHints(d->selection_parent);
+            copyObserverHints(d->selection_parent);
         }
 
         emit selectionParentChanged(d->selection_parent);
@@ -1037,120 +1072,134 @@ void Qtilities::CoreGui::ObserverTreeModel::setupChildData(ObserverTreeItem* ite
         // If this observer is locked we don't show its children:
         if (observer->accessMode() != Observer::LockedAccess) {
             // Check the HierarchicalDisplay hint of the observer:
-            if (observer->displayHints()) {
-                if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
-                    // Create items for each category:
-                    foreach (QtilitiesCategory category, observer->subjectCategories()) {
-                        // Check the category against the displayed category list:
-                        bool valid_category = true;
-                        if (observer->displayHints()->categoryFilterEnabled()) {
-                            if (observer->displayHints()->hasInversedCategoryDisplay()) {
-                                if (!observer->displayHints()->displayedCategories().contains(category))
+            // Remember this isan recursive function, we can't use activeHints() directly since thats linked to the selection parent.
+            bool use_categorized;
+            ObserverHints* hints_to_use = 0;
+            if (model->use_observer_hints) {
+                if (observer->displayHints()) {
+                    use_categorized = (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy);
+                    hints_to_use = observer->displayHints();
+                } else
+                    use_categorized = false;
+            } else {
+                use_categorized = (activeHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy);
+                hints_to_use = activeHints();
+            }
+
+            if (use_categorized) {
+                // Create items for each category:
+                foreach (QtilitiesCategory category, observer->subjectCategories()) {
+                    // Check the category against the displayed category list:
+                    bool valid_category = true;
+                    if (hints_to_use) {
+                        if (hints_to_use->categoryFilterEnabled()) {
+                            if (hints_to_use->hasInversedCategoryDisplay()) {
+                                if (!hints_to_use->displayedCategories().contains(category))
                                     valid_category = true;
                                 else
                                     valid_category = false;
                             } else {
-                                if (observer->displayHints()->displayedCategories().contains(category))
+                                if (hints_to_use->displayedCategories().contains(category))
                                     valid_category = true;
                                 else
                                     valid_category = false;
                             }
                         }
+                    }
 
-                        // Only add valid categories:
-                        if (valid_category) {
-                            // Ok here we need to create items for each category level and add the items underneath it.
-                            int level_counter = 0;
-                            QList<ObserverTreeItem*> tree_item_list;
-                            while (level_counter < category.categoryDepth()) {
-                                QStringList category_levels = category.toStringList(level_counter+1);
+                    // Only add valid categories:
+                    if (valid_category) {
+                        // Ok here we need to create items for each category level and add the items underneath it.
+                        int level_counter = 0;
+                        QList<ObserverTreeItem*> tree_item_list;
+                        while (level_counter < category.categoryDepth()) {
+                            QStringList category_levels = category.toStringList(level_counter+1);
 
-                                // Get the correct parent:
-                                ObserverTreeItem* correct_parent;
-                                if (tree_item_list.count() == 0)
-                                    correct_parent = item;
-                                else
-                                    correct_parent = tree_item_list.last();
+                            // Get the correct parent:
+                            ObserverTreeItem* correct_parent;
+                            if (tree_item_list.count() == 0)
+                                correct_parent = item;
+                            else
+                                correct_parent = tree_item_list.last();
 
-                                // Check if the parent item already has a category for this level:
-                                ObserverTreeItem* existing_item = correct_parent->childWithName(category_levels.last());
-                                if (!existing_item) {
-                                    // Create a category for the first level and add all items under this category to the tree:
-                                    QVector<QVariant> category_columns;
-                                    category_columns << category_levels.last();
-                                    QObject* category_item = new QObject();
-                                    // Give the category a folder icon:
-                                    SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ROLE_DECORATION);
-                                    observer->setSharedProperty(category_item,icon_property);
-                                    // Check the access mode of this category and add it to the category object:
-                                    QtilitiesCategory shortened_category(category_levels);
-                                    Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
-                                    if (category_access_mode != Observer::InvalidAccess) {
-                                        SharedObserverProperty access_mode_property((int) observer->accessMode(shortened_category),OBJECT_ACCESS_MODE);
-                                        observer->setSharedProperty(category_item,access_mode_property);
-                                    }
-                                    category_item->setObjectName(category_levels.last());
-
-                                    // Create new item:
-                                    new_item = new ObserverTreeItem(category_item,correct_parent,category_columns,ObserverTreeItem::CategoryItem);
-                                    new_item->setContainedObserver(observer);
-                                    new_item->setCategory(category_levels);
-
-                                    // Append new item to correct parent item:
-                                    if (tree_item_list.count() == 0)
-                                        item->appendChild(new_item);
-                                    else
-                                        tree_item_list.last()->appendChild(new_item);
-                                    tree_item_list.push_back(new_item);
-
-                                    // If this item has locked access, we don't dig into any items underneath it:
-                                    if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
-                                        setupChildData(new_item);
-                                    } else {
-                                        break;
-                                    }
-                                } else {
-                                    tree_item_list.push_back(existing_item);
+                            // Check if the parent item already has a category for this level:
+                            ObserverTreeItem* existing_item = correct_parent->childWithName(category_levels.last());
+                            if (!existing_item) {
+                                // Create a category for the first level and add all items under this category to the tree:
+                                QVector<QVariant> category_columns;
+                                category_columns << category_levels.last();
+                                QObject* category_item = new QObject();
+                                // Give the category a folder icon:
+                                SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ROLE_DECORATION);
+                                observer->setSharedProperty(category_item,icon_property);
+                                // Check the access mode of this category and add it to the category object:
+                                QtilitiesCategory shortened_category(category_levels);
+                                Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
+                                if (category_access_mode != Observer::InvalidAccess) {
+                                    SharedObserverProperty access_mode_property((int) observer->accessMode(shortened_category),OBJECT_ACCESS_MODE);
+                                    observer->setSharedProperty(category_item,access_mode_property);
                                 }
+                                category_item->setObjectName(category_levels.last());
 
-                                // Increment the level counter:
-                                ++level_counter;
+                                // Create new item:
+                                new_item = new ObserverTreeItem(category_item,correct_parent,category_columns,ObserverTreeItem::CategoryItem);
+                                new_item->setContainedObserver(observer);
+                                new_item->setCategory(category_levels);
+
+                                // Append new item to correct parent item:
+                                if (tree_item_list.count() == 0)
+                                    item->appendChild(new_item);
+                                else
+                                    tree_item_list.last()->appendChild(new_item);
+                                tree_item_list.push_back(new_item);
+
+                                // If this item has locked access, we don't dig into any items underneath it:
+                                if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
+                                    setupChildData(new_item);
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                tree_item_list.push_back(existing_item);
                             }
-                        }
-                    }
 
-                    // Here we need to add all items which do not belong to a specific category:
-                    // Get the list of uncategorized items from the observer
-                    QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
-                    QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
-                    for (int i = 0; i < uncat_list.count(); i++) {
-                        Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
-                        QVector<QVariant> column_data;
-                        column_data << QVariant(uncat_names.at(i));
-                        if (obs) {
-                            new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
-                            item->appendChild(new_item);
-                            // If this item has locked access, we don't dig into any items underneath it:
-                            if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
-                                setupChildData(new_item);
-                        } else {
-                            new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
-                            item->appendChild(new_item);
+                            // Increment the level counter:
+                            ++level_counter;
                         }
                     }
-                } else {
-                    for (int i = 0; i < observer->subjectCount(); i++) {
-                        // Storing all information in the data vector here can improve performance:
-                        Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
-                        QVector<QVariant> column_data;
-                        column_data << QVariant(observer->subjectNames().at(i));
-                        if (obs)
-                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
-                        else
-                            new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
+                }
+
+                // Here we need to add all items which do not belong to a specific category:
+                // Get the list of uncategorized items from the observer
+                QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
+                QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
+                for (int i = 0; i < uncat_list.count(); i++) {
+                    Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
+                    QVector<QVariant> column_data;
+                    column_data << QVariant(uncat_names.at(i));
+                    if (obs) {
+                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
                         item->appendChild(new_item);
-                        setupChildData(new_item);
+                        // If this item has locked access, we don't dig into any items underneath it:
+                        if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
+                            setupChildData(new_item);
+                    } else {
+                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
+                        item->appendChild(new_item);
                     }
+                }
+            } else {
+                for (int i = 0; i < observer->subjectCount(); i++) {
+                    // Storing all information in the data vector here can improve performance:
+                    Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
+                    QVector<QVariant> column_data;
+                    column_data << QVariant(observer->subjectNames().at(i));
+                    if (obs)
+                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
+                    else
+                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
+                    item->appendChild(new_item);
+                    setupChildData(new_item);
                 }
             }
         }

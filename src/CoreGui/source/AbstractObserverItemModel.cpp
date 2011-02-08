@@ -44,46 +44,50 @@ Qtilities::CoreGui::AbstractObserverItemModel::AbstractObserverItemModel() {
 
 Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
     delete model->hints_default;
+    if (model->hints_selection_parent)
+        delete model->hints_selection_parent;
     delete model;
 }
 
-void Qtilities::CoreGui::AbstractObserverItemModel::toggleUsesObserverHints(bool toggle, Observer* observer) {
+void Qtilities::CoreGui::AbstractObserverItemModel::toggleUseObserverHints(bool toggle, Observer* observer) {
     if (toggle == model->use_observer_hints)
         return;
 
     model->use_observer_hints = toggle;
     if (toggle)
-        inheritObserverHints(observer);
+        copyObserverHints(observer);
     else
-        inheritObserverHints(d_observer);
+        copyObserverHints(d_observer);
 }
 
 bool Qtilities::CoreGui::AbstractObserverItemModel::usesObserverHints() const {
     return model->use_observer_hints;
 }
 
-bool Qtilities::CoreGui::AbstractObserverItemModel::inheritObserverHints(const Observer* observer) {
-    if (!observer) {
-        if (model->hints_selection_parent) {
-            delete model->hints_selection_parent;
-            model->hints_selection_parent = 0;
-        }
+bool Qtilities::CoreGui::AbstractObserverItemModel::copyObserverHints(const Observer* observer) {
+    if (!observer)
         return false;
-    }
+
+    if (!observer->displayHints())
+        return false;
+
+    if (!model->hints_selection_parent)
+        model->hints_selection_parent = new ObserverHints;
 
     // Ok now we use the hints from this observer
-    model->hints_selection_parent = observer->displayHints();
+    *model->hints_selection_parent = observer->displayHints();
+    return true;
+}
+
+bool Qtilities::CoreGui::AbstractObserverItemModel::copyCustomHints(ObserverHints* custom_hints) {
+    if (!custom_hints)
+        return false;
+
+    *model->hints_default = *custom_hints;
     return true;
 }
 
 Qtilities::Core::ObserverHints* Qtilities::CoreGui::AbstractObserverItemModel::activeHints() const {
-    if (model->use_observer_hints && model->hints_selection_parent)
-        return model->hints_selection_parent;
-    else
-        return model->hints_default;
-}
-
-Qtilities::Core::ObserverHints* Qtilities::CoreGui::AbstractObserverItemModel::activeHints() {
     if (model->use_observer_hints && model->hints_selection_parent)
         return model->hints_selection_parent;
     else

@@ -318,13 +318,6 @@ Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints(
         return d->hints_default;
 }
 
-Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints() {
-    if (d->use_observer_hints && d->hints_selection_parent)
-        return d->hints_selection_parent;
-    else
-        return d->hints_default;
-}
-
 bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) {
     if (d_observer == observer)
         return false;
@@ -519,8 +512,11 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setAutoExpandDelay(500);
                 d->tree_view->setDropIndicatorShown(true);
                 d->tree_view->setDragEnabled(true);
-                if (!d->tree_model)
+                if (!d->tree_model) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
+                    d->tree_model->toggleUseObserverHints(d->use_observer_hints);
+                    d->tree_model->copyCustomHints(d->hints_default);
+                }
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
                 connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
@@ -589,8 +585,11 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setAcceptDrops(true);
                 d->table_view->setDragEnabled(true);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
-                if (!d->table_model)
+                if (!d->table_model) {
                     d->table_model = new ObserverTableModel(d->table_view);
+                    d->table_model->toggleUseObserverHints(d->use_observer_hints);
+                    d->table_model->copyCustomHints(d->hints_default);
+                }
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
 
@@ -784,9 +783,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
     // Handle initial selections:
     if (d->use_observer_hints) {
-        // Check if this observer provides hints for this model
-        d->hints_selection_parent = d_observer->displayHints();
-
         // Check if the observer does not specify flags, if so we use the defaults
         if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
             activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
@@ -855,14 +851,40 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
     for (int i = 0; i < d->navigation_stack.count(); i++) {
         Observer* stack_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.at(i));
         if (stack_observer)
-            connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QObject*>)),
-                    SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QObject*>)));
+            connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),
+                    SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
     }
 
 }
 
 void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
     d->use_observer_hints = toggle;
+    // Important: We need to change the models of this observer widget as well:
+    if (d->tree_model)
+        d->tree_model->toggleUseObserverHints(toggle);
+    if (d->table_model)
+        d->table_model->toggleUseObserverHints(toggle);
+}
+
+bool Qtilities::CoreGui::ObserverWidget::usesObserverHints() const {
+    return d->use_observer_hints;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::copyCustomHints(ObserverHints* custom_hints) {
+    if (!custom_hints)
+        return false;
+
+    if (!d->hints_default)
+        return false;
+
+    *d->hints_default = *custom_hints;
+    // Important: We need to change the models of this observer widget as well:
+    if (d->tree_model)
+        d->tree_model->copyCustomHints(custom_hints);
+    if (d->table_model)
+        d->table_model->copyCustomHints(custom_hints);
+
+    return true;
 }
 
 QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
@@ -1468,23 +1490,39 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     }
                 }
 
-                // Delete and Remove All depends on the selection context if it is an observer:
+                // Delete All and Remove All depends on the selection context if it is an observer:
                 if (selected) {
-                    if (selected->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
-                        if (selected->subjectCount() > 0) {
-                            d->actionRemoveAll->setText(tr("Detach All Under Selection"));
-                            d->actionRemoveAll->setEnabled(true);
-                            d->actionDeleteAll->setText(tr("Delete All Under Selection"));
-                            d->actionDeleteAll->setEnabled(true);
-                        } else {
-                            d->actionRemoveAll->setEnabled(false);
-                            d->actionDeleteAll->setEnabled(false);
-                        }
-                    } else if (selected->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
+                    // We need to check a few things things:
+                    // 1. Do we use the observer hints?
+                    // 2. If not, does the selection have hints?
+                    ObserverHints* hints_to_use_for_selection = 0;
+                    if (d->use_observer_hints && selected->displayHints())
+                        hints_to_use_for_selection = selected->displayHints();
+                    else if (!d->use_observer_hints)
+                        hints_to_use_for_selection = activeHints();
+
+                    if (!hints_to_use_for_selection) {
                         d->actionRemoveAll->setText(tr("Detach All In Current Context"));
                         d->actionRemoveAll->setEnabled(true);
                         d->actionDeleteAll->setText(tr("Delete All In Current Context"));
                         d->actionDeleteAll->setEnabled(true);
+                    } else {
+                        if (hints_to_use_for_selection->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
+                            if (selected->subjectCount() > 0) {
+                                d->actionRemoveAll->setText(tr("Detach All Under Selection"));
+                                d->actionRemoveAll->setEnabled(true);
+                                d->actionDeleteAll->setText(tr("Delete All Under Selection"));
+                                d->actionDeleteAll->setEnabled(true);
+                            } else {
+                                d->actionRemoveAll->setEnabled(false);
+                                d->actionDeleteAll->setEnabled(false);
+                            }
+                        } else if (hints_to_use_for_selection->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
+                            d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                            d->actionRemoveAll->setEnabled(true);
+                            d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                            d->actionDeleteAll->setEnabled(true);
+                        }
                     }
                 } else {
                     d->actionRemoveAll->setText(tr("Detach All In Current Context"));
@@ -2013,7 +2051,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
 
         // Set up widget to use new observer
         d->navigation_stack.push(d_observer->observerID());
-        connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QObject*>)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QObject*>)));
+        connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QObject*>)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
         setObserverContext(observer);
         initialize();
     } /*else if (d->display_mode == TreeView) {
@@ -2145,9 +2183,18 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
             bool pop_back = true;
             Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
             if (obs) {
-                if (obs->displayHints()) {
+                // We need to check a few things things:
+                // 1. Do we use the observer hints?
+                // 2. If not, does the selection have hints?
+                ObserverHints* hints_to_use_for_selection = 0;
+                if (d->use_observer_hints && obs->displayHints())
+                    hints_to_use_for_selection = obs->displayHints();
+                else if (!d->use_observer_hints)
+                    hints_to_use_for_selection = activeHints();
+
+                if (hints_to_use_for_selection) {
                     // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
-                    if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
+                    if (hints_to_use_for_selection->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
                         setObserverContext(obs);
                         pop_back = false;
                     }
@@ -2565,7 +2612,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
     d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
 }
 
-void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QObject*> objects) {
+void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication,QList<QPointer<QObject> > objects) {
     if (indication == Observer::SubjectRemoved) {
         for (int i = 0; i < objects.count(); i++) {
             Observer* observer = qobject_cast<Observer*> (objects.at(i));
