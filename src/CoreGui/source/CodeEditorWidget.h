@@ -40,7 +40,8 @@
 #include "SearchBoxWidget.h"
 #include "IActionProvider.h"
 
-#include <IContext.h>
+#include <IContext>
+#include <IModificationNotifier>
 
 #include <QWidget>
 #include <QPointer>
@@ -78,16 +79,12 @@ namespace Qtilities {
         The fileName() function returns the name of this file if it was set.
 
         \note This class is still under development and is not yet ready for production usage.
-
-        \todo
-        - Highlight word very very slow.
-        - Better way to handle actions. Make like observer widget.
-        - Search & Replace functionality lacking.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditorWidget : public QMainWindow, public IContext
+        class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditorWidget : public QMainWindow, public IContext, public IModificationNotifier
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
             // --------------------------------
@@ -151,9 +148,24 @@ namespace Qtilities {
             QString contextHelpId() const { return QString(); }
 
             // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
+
+        public:
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
             // Actions & Related Functionality
             // --------------------------------
-        public:
             //! Returns the action handler interface for this code editor widget.
             IActionProvider* actionProvider();
             //! Sets the global meta type used for this widget.
@@ -186,6 +198,7 @@ namespace Qtilities {
             void actionPrint();
             void actionPrintPreview();
             void actionPrintPdf();
+            void showEditorSettings();
             void showSearchBox();
             void printPreview(QPrinter *printer);
             void handleSettingsUpdateRequest(const QString& request_id);

@@ -38,6 +38,7 @@
 #include "ActionProvider.h"
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
+#include "ConfigurationWidget.h"
 
 #include <QFileInfo>
 #include <QtGui>
@@ -47,23 +48,24 @@ using namespace Qtilities::CoreGui::Actions;
 
 struct Qtilities::CoreGui::CodeEditorWidgetData {
     CodeEditorWidgetData() : actionNew(0),
-    actionOpen(0),
-    actionSave(0),
-    actionSaveAs(0),
-    actionPrint(0),
-    actionPrintPreview(0),
-    actionPrintPdf(0),
-    actionUndo(0),
-    actionRedo(0),
-    actionCut(0),
-    actionCopy(0),
-    actionClear(0),
-    actionSelectAll(0),
-    actionFind(0),
-    codeEditor(0),
-    syntax_highlighter(0),
-    searchBoxWidget(0),
-    action_provider(0) {}
+        actionOpen(0),
+        actionSave(0),
+        actionSaveAs(0),
+        actionPrint(0),
+        actionPrintPreview(0),
+        actionPrintPdf(0),
+        actionUndo(0),
+        actionRedo(0),
+        actionCut(0),
+        actionCopy(0),
+        actionClear(0),
+        actionSelectAll(0),
+        actionFind(0),
+        actionSettings(0),
+        codeEditor(0),
+        syntax_highlighter(0),
+        searchBoxWidget(0),
+        action_provider(0) {}
     ~CodeEditorWidgetData() {
         if (syntax_highlighter)
             delete syntax_highlighter;
@@ -83,6 +85,7 @@ struct Qtilities::CoreGui::CodeEditorWidgetData {
     QAction* actionClear;
     QAction* actionSelectAll;
     QAction* actionFind;
+    QAction* actionSettings;
 
     //! The file name linked to the contents of the code editor. \sa loadFile()
     QString current_file;
@@ -127,6 +130,7 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     d->codeEditor = new CodeEditor();
     d->codeEditor->installEventFilter(this);
     d->codeEditor->viewport()->installEventFilter(this);
+    connect(d->codeEditor,SIGNAL(modificationChanged(bool)),SLOT(setModificationState(bool)));
 
     // Read the settings for this editor:
     handleSettingsUpdateRequest(d->global_meta_type);
@@ -235,6 +239,23 @@ bool Qtilities::CoreGui::CodeEditorWidget::eventFilter(QObject *object, QEvent *
         }
     }
     return false;
+}
+
+bool Qtilities::CoreGui::CodeEditorWidget::isModified() const {
+    if (d->codeEditor)
+        return d->codeEditor->document()->isModified();
+    else
+        return false;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (!d->codeEditor)
+        return;
+
+    if (notification_targets & IModificationNotifier::NotifyListeners)
+        emit modificationStateChanged(new_state);
+    if (notification_targets & IModificationNotifier::NotifySubjects)
+        d->codeEditor->document()->setModified(new_state);
 }
 
 Qtilities::CoreGui::CodeEditor* Qtilities::CoreGui::CodeEditorWidget::codeEditor() {
@@ -395,8 +416,7 @@ void Qtilities::CoreGui::CodeEditorWidget::printPreview(QPrinter *printer)
 
 void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 #ifndef QT_NO_PRINTER
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"),
-                                                    QString(), "*.pdf");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
     if (!fileName.isEmpty()) {
         if (QFileInfo(fileName).suffix().isEmpty())
             fileName.append(".pdf");
@@ -409,7 +429,7 @@ void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QString& request_id) {
-    if (request_id == d->global_meta_type) {
+    if (request_id == d->global_meta_type || request_id == "AllCodeEditors") {
         // Read the text editor settings from QSettings
         QSettings settings;
         settings.beginGroup("GUI");
@@ -607,6 +627,24 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
         connect(d->actionFind,SIGNAL(triggered()),SLOT(showSearchBox()));
         ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
     }
+    // ---------------------------
+    // Code Editor Settings
+    // ---------------------------
+    // We create the settings action only if there is a config page registered in QtilitiesApplication and
+    // it has the Code Editor page as well.
+    if (QtilitiesApplication::configWidget()) {
+        ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
+        if (config_widget) {
+            // First call initialize on the config_widget to make sure it has all the pages available in the global object pool:
+            config_widget->initialize();
+            if (config_widget->hasPage(tr("Code Editors"))) {
+                d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Editor Settings"),this);
+                d->action_provider->addAction(d->actionSettings,QtilitiesCategory(tr("Editor Settings")));
+                ACTION_MANAGER->registerAction(MENU_FILE_SETTINGS,d->actionSettings,context);
+                connect(d->actionSettings,SIGNAL(triggered()),SLOT(showEditorSettings()));
+            }
+        }
+    }
 
     connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCut, SLOT(setEnabled(bool)));
     connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCopy, SLOT(setEnabled(bool)));
@@ -621,3 +659,10 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {
     d->actionRedo->setEnabled(d->codeEditor->document()->isRedoAvailable());
 }
 
+void Qtilities::CoreGui::CodeEditorWidget::showEditorSettings() {
+    ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
+    if (config_widget) {
+        config_widget->setActivePage(tr("Code Editors"));
+        config_widget->show();
+    }
+}

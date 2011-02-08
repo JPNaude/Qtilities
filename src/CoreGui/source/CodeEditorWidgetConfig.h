@@ -54,6 +54,9 @@ namespace Qtilities {
             QWidget* configPageWidget();
             QtilitiesCategory configPageCategory() const;
             QString configPageTitle() const;
+            /*!
+              This function calls QtilitiesApplication::newSettingsUpdateRequest("AllCodeEditors") which will refresh all code editors.
+              */
             void configPageApply();
             bool supportsApply() const { return true; }
 

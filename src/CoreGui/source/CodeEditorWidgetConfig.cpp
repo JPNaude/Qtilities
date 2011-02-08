@@ -33,7 +33,7 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* pare
     ui(new Ui::CodeEditorWidgetConfig)
 {
     ui->setupUi(this);
-    setObjectName("Text Editor Config Page");
+    setObjectName("Text Editors Config Page");
 
     // Populate font sizes combo box
     QFontDatabase db;
@@ -65,7 +65,7 @@ QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {
 }
 
 QString Qtilities::CoreGui::CodeEditorWidgetConfig::configPageTitle() const {
-    return tr("Code Editor");
+    return tr("Code Editors");
 }
 
 QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory() const {
@@ -85,5 +85,5 @@ void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
     settings.endGroup();
 
     // Emit the settings update request signal
-    // QtilitiesApplication::newSettingsUpdateRequest(CONTEXT_CODE_EDITOR_WIDGET);
+    QtilitiesApplication::newSettingsUpdateRequest("AllCodeEditors");
 }
