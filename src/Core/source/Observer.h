@@ -410,23 +410,12 @@ namespace Qtilities {
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
             bool setObserverPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
+
+            // --------------------------------
+            // Static functions
+            // --------------------------------
             //! Convenience function which will get the specified ObserverProperty of the specified object.
-            static ObserverProperty getObserverProperty(const QObject* obj, const char* property_name) {
-                #ifndef QT_NO_DEBUG
-                    Q_ASSERT(obj != 0);
-                #endif
-                #ifdef QT_NO_DEBUG
-                    if (!obj)
-                        return ObserverProperty();
-                #endif
-
-                QVariant prop = obj->property(property_name);
-                if (prop.isValid() && prop.canConvert<ObserverProperty>())
-                    return prop.value<ObserverProperty>();
-                else
-                    return ObserverProperty();
-                            }
-
+            static ObserverProperty getObserverProperty(const QObject* obj, const char* property_name);
             //! Convenience function which will set the specified ObserverProperty on the specified object.
             /*!
               Caution should be taken when using this function because you can easily overwrite property values for other
@@ -449,107 +438,22 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 }
 \endcode
               */
-            static bool setObserverProperty(QObject* obj, ObserverProperty observer_property) {
-                if (!observer_property.isValid() || !obj) {
-                    Q_ASSERT(observer_property.isValid());
-                    return false;
-                }
-
-                QVariant property = qVariantFromValue(observer_property);
-                obj->setProperty(observer_property.propertyName(),property);
-                return true;
-            }
-
+            static bool setObserverProperty(QObject* obj, ObserverProperty observer_property);
             //! Convenience function which will get the specified SharedObserverProperty of the specified object.
-            static SharedObserverProperty getSharedProperty(const QObject* obj, const char* property_name) {
-                #ifndef QT_NO_DEBUG
-                    Q_ASSERT(obj != 0);
-                #endif
-                #ifdef QT_NO_DEBUG
-                    if (!obj)
-                        return SharedObserverProperty();
-                #endif
-
-                QVariant prop = obj->property(property_name);
-                if (prop.isValid() && prop.canConvert<SharedObserverProperty>())
-                    return prop.value<SharedObserverProperty>();
-                else
-                    return SharedObserverProperty();
-            }
-
+            static SharedObserverProperty getSharedProperty(const QObject* obj, const char* property_name);
             //! Convenience function which will set the specified SharedObserverProperty on the specified object.
-            static bool setSharedProperty(QObject* obj, SharedObserverProperty shared_property) {
-                if (!shared_property.isValid() || !obj) {
-                    Q_ASSERT(shared_property.isValid());
-                    return false;
-                }
-
-                QVariant property = qVariantFromValue(shared_property);
-                obj->setProperty(shared_property.propertyName(),property);
-                return true;
-            }
-
+            static bool setSharedProperty(QObject* obj, SharedObserverProperty shared_property);
             //! Convenience function to get the number of observers observing the specified object. Thus the number of parents of this object.
-            static int parentCount(const QObject* obj) {
-                if (!obj)
-                    return -1;
-
-                ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
-                if (prop.isValid()) {
-                    return prop.observerMap().count();
-                }
-
-                return 0;
-            }
-
+            static int parentCount(const QObject* obj);
             //! Convenience function to get the a list of parent observers for this object.
-            static QList<Observer*> parentReferences(const QObject* obj) {
-                QList<Observer*> parents;
-                if (!obj)
-                    return parents;
-
-                ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
-                if (prop.isValid()) {
-                    for (int i = 0; i < prop.observerMap().count(); i++) {
-                        Observer* obs = OBJECT_MANAGER->observerReference(prop.observerMap().keys().at(i));
-                        if (obs)
-                            parents << obs;
-                    }
-                }
-
-                return parents;
-            }
-
+            static QList<Observer*> parentReferences(const QObject* obj);
             //! Convenience function to check if a property exists on a object.
-            static bool propertyExists(const QObject* obj, const char* property_name) {
-                if (!obj)
-                    return false;
-
-                QVariant prop = obj->property(property_name);
-                return prop.isValid();
-            }        
-
+            static bool propertyExists(const QObject* obj, const char* property_name);
             //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
               */
-            static bool isSupportedType(const QString& meta_type, Observer* observer) {
-                if (!observer)
-                    return false;
-
-                // Check if this observer has a subject type filter installed
-                for (int i = 0; i < observer->subjectFilters().count(); i++) {
-                    SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
-                    if (subject_type_filter) {
-                        if (subject_type_filter->isKnownType(meta_type)) {
-                            return true;
-                        }
-                        break;
-                    }
-                }
-
-                return false;
-            }
+            static bool isSupportedType(const QString& meta_type, Observer* observer);
 
         private:
             //! This function will remove this observer from all the properties which it might have added to an obj.
@@ -695,9 +599,9 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               \sa displayHints(), setDisplayHints()
               */
             ObserverHints* useDisplayHints();
-            //! Function to let this observer inherit a set of display hints.
+            //! Function to let this observer copy a set of display hints.
             /*!
-              This function allows you to share hints between a set of
+              This function allows you to copy the hints used by this Observer from a different ObserverHints instance.
 
               \note If you call this function on the observer which does not have any displayHints() yet (thus useDisplayHints()
               have not been called yet) this function will call useDisplayHints() before inheriting the hints.
@@ -706,7 +610,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
 
               \sa useDisplayHints(), displayHints()
               */
-            bool inheritDisplayHints(ObserverHints display_hints);
+            bool copyHints(ObserverHints* display_hints);
 
             // --------------------------------
             // Subject category related functions

@@ -2183,20 +2183,15 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::displayHints() const 
     return observerData->display_hints;
 }
 
-bool Qtilities::Core::Observer::inheritDisplayHints(ObserverHints display_hints) {
-    Q_UNUSED(display_hints)
-
-    /*if (observerData->subject_list.count() > 0 || !display_hints)
+bool Qtilities::Core::Observer::copyHints(ObserverHints* display_hints) {
+    if (!display_hints)
         return false;
 
-    if (observerData->display_hints) {
-        observerData->display_hints->disconnect(this);
-        delete observerData->display_hints;
-        observerData->display_hints = 0;
-    }
+    if (!observerData->display_hints)
+        useDisplayHints();
 
-    observerData->display_hints = display_hints;*/
-    return false;
+    *observerData->display_hints = *display_hints;
+    return true;
 }
 
 Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
@@ -2382,4 +2377,118 @@ Qtilities::Core::Observer::AccessModeScope Qtilities::Core::Observer::stringToAc
 
     Q_ASSERT(0);
     return GlobalScope;
+}
+
+// ---------------------------------------
+// Static Functions
+// ---------------------------------------
+Qtilities::Core::ObserverProperty Qtilities::Core::Observer::getObserverProperty(const QObject* obj, const char* property_name) {
+    #ifndef QT_NO_DEBUG
+        Q_ASSERT(obj != 0);
+    #endif
+    #ifdef QT_NO_DEBUG
+        if (!obj)
+            return ObserverProperty();
+    #endif
+
+    QVariant prop = obj->property(property_name);
+    if (prop.isValid() && prop.canConvert<ObserverProperty>())
+        return prop.value<ObserverProperty>();
+    else
+        return ObserverProperty();
+}
+
+bool Qtilities::Core::Observer::setObserverProperty(QObject* obj, ObserverProperty observer_property) {
+    if (!observer_property.isValid() || !obj) {
+        Q_ASSERT(observer_property.isValid());
+        return false;
+    }
+
+    QVariant property = qVariantFromValue(observer_property);
+    obj->setProperty(observer_property.propertyName(),property);
+    return true;
+}
+
+Qtilities::Core::SharedObserverProperty Qtilities::Core::Observer::getSharedProperty(const QObject* obj, const char* property_name) {
+    #ifndef QT_NO_DEBUG
+        if (!obj)
+            return SharedObserverProperty();
+        Q_ASSERT(obj != 0);
+    #endif
+    #ifdef QT_NO_DEBUG
+        if (!obj)
+            return SharedObserverProperty();
+    #endif
+
+    QVariant prop = obj->property(property_name);
+    if (prop.isValid() && prop.canConvert<SharedObserverProperty>())
+        return prop.value<SharedObserverProperty>();
+    else
+        return SharedObserverProperty();
+}
+
+bool Qtilities::Core::Observer::setSharedProperty(QObject* obj, SharedObserverProperty shared_property) {
+    if (!shared_property.isValid() || !obj) {
+        Q_ASSERT(shared_property.isValid());
+        return false;
+    }
+
+    QVariant property = qVariantFromValue(shared_property);
+    obj->setProperty(shared_property.propertyName(),property);
+    return true;
+}
+
+int Qtilities::Core::Observer::parentCount(const QObject* obj) {
+    if (!obj)
+        return -1;
+
+    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
+    if (prop.isValid()) {
+        return prop.observerMap().count();
+    }
+
+    return 0;
+}
+
+QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::parentReferences(const QObject* obj) {
+    QList<Observer*> parents;
+    if (!obj)
+        return parents;
+
+    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
+    if (prop.isValid()) {
+        for (int i = 0; i < prop.observerMap().count(); i++) {
+            Observer* obs = OBJECT_MANAGER->observerReference(prop.observerMap().keys().at(i));
+            if (obs)
+                parents << obs;
+        }
+    }
+
+    return parents;
+}
+
+bool Qtilities::Core::Observer::propertyExists(const QObject* obj, const char* property_name) {
+    if (!obj)
+        return false;
+
+    QVariant prop = obj->property(property_name);
+    return prop.isValid();
+}
+
+bool Qtilities::Core::Observer::isSupportedType(const QString& meta_type, Observer* observer) {
+    if (!observer)
+        return false;
+
+    // Check if this observer has a subject type filter installed
+    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+        SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
+        if (subject_type_filter) {
+            if (subject_type_filter->isKnownType(meta_type)) {
+                return true;
+            }
+            break;
+        }
+    }
+
+    return false;
 }
