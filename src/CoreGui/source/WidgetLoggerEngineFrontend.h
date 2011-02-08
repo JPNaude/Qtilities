@@ -72,6 +72,12 @@ namespace Qtilities {
             QString contextString() const { return globalMetaType(); }
             QString contextHelpId() const { return QString(); }
 
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
             //! Sets the global meta type used for this widget.
             /*!
               \returns True if the meta_type string was valid. The validity check is done by checking if that a context with the same name does not yet exist in the context manager.

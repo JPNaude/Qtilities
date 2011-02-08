@@ -126,7 +126,7 @@ QString Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
 }
 
 QtilitiesCategory Qtilities::CoreGui::LoggerConfigWidget::configPageCategory() const {
-    return QtilitiesCategory("General");
+    return QtilitiesCategory(tr("General"));
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {
