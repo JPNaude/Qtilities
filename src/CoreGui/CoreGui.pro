@@ -102,7 +102,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/SideViewerWidgetFactory.h \
     source/ModeListWidget.h \
     source/ObserverTableModel.h \
-    source/ObserverTreeModel.h
+    source/ObserverTreeModel.h \
+    source/ObjectDynamicPropertyBrowser.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -146,7 +147,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/SideViewerWidgetFactory.cpp \
     source/ModeListWidget.cpp \
     source/ObserverTableModel.cpp \
-    source/ObserverTreeModel.cpp
+    source/ObserverTreeModel.cpp \
+    source/ObjectDynamicPropertyBrowser.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \

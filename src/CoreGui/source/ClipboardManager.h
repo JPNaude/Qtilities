@@ -44,10 +44,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \class ClipboardManagerData
-          \brief The ClipboardManagerData class stores data used by the ClipboardManager class.
+          \class ClipboardManagerPrivateData
+          \brief The ClipboardManagerPrivateData class stores data used by the ClipboardManager class.
          */
-        class ClipboardManagerData;
+        class ClipboardManagerPrivateData;
 
         /*!
           \class ClipboardManager
@@ -81,7 +81,7 @@ namespace Qtilities {
             void handleClipboardChanged();
 
         private:
-            ClipboardManagerData* d;
+            ClipboardManagerPrivateData* d;
         };
     }
 }

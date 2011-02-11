@@ -43,26 +43,26 @@
 
 using namespace Qtilities::CoreGui::Interfaces;
 
-struct Qtilities::CoreGui::ConfigurationWidgetData {
-    ConfigurationWidgetData() : config_pages("Application Settings","Manages IConfigPages in an application"),
+struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
+    ConfigurationWidgetPrivateData() : config_pages(QObject::tr("Application Settings")),
     activity_filter(0),
     active_widget(0),
     apply_all_pages(true) {}
 
     //! Observer widget which is used to display the categories of the config pages.
-    ObserverWidget config_pages_widget;
+    ObserverWidget          config_pages_widget;
     //! The configuration pages observer.
-    Observer config_pages;
+    Observer                config_pages;
     //! Indicates if the page have been initialized.
-    bool initialized;
+    bool                    initialized;
     //! The activity policy filter for the pages observer.
-    ActivityPolicyFilter* activity_filter;
+    ActivityPolicyFilter*   activity_filter;
     //! Keeps track of the active widget.
-    QPointer<QWidget> active_widget;
+    QPointer<QWidget>       active_widget;
     //! The display mode of this widget.
-    Qtilities::DisplayMode display_mode;
+    Qtilities::DisplayMode  display_mode;
     //! The apply all pages setting for this widget.
-    bool apply_all_pages;
+    bool                    apply_all_pages;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :
@@ -70,7 +70,7 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     ui(new Ui::ConfigurationWidget)
 {
     ui->setupUi(this);
-    d = new ConfigurationWidgetData;
+    d = new ConfigurationWidgetPrivateData;
     d->initialized = false;
     d->display_mode = display_mode;
 
@@ -91,6 +91,8 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
 
 Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
     delete ui;
+    if (d->activity_filter)
+        d->activity_filter->disconnect(this);
     delete d;
 }
 
@@ -132,19 +134,19 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 // Add the category as a property on the object:
                 if (!config_page->configPageCategory().isEmpty()) {
-                    if (Observer::propertyExists(config_page->objectBase(),OBJECT_CATEGORY)) {
-                        ObserverProperty category_property = Observer::getObserverProperty(config_page->objectBase(),OBJECT_CATEGORY);
-                        category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
-                        Observer::setObserverProperty(config_page->objectBase(),category_property);
+                    if (Observer::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
+                        ObserverProperty category_property = Observer::getObserverProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
+                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
+                            Observer::setObserverProperty(config_page->objectBase(),category_property);
                     } else {
-                        ObserverProperty category_property(OBJECT_CATEGORY);
-                        category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID());
-                        Observer::setObserverProperty(config_page->objectBase(),category_property);
+                        ObserverProperty category_property(qti_prop_CATEGORY_MAP);
+                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()));
+                            Observer::setObserverProperty(config_page->objectBase(),category_property);
                     }
                 }
                 // Add the icon as a property on the object:
                 if (!config_page->configPageIcon().isNull()) {
-                    SharedObserverProperty icon_property(config_page->configPageIcon(),OBJECT_ROLE_DECORATION);
+                    SharedObserverProperty icon_property(config_page->configPageIcon(),qti_prop_DECORATION);
                     Observer::setSharedProperty(config_page->objectBase(),icon_property);
                 }
 

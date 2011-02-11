@@ -61,7 +61,7 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
 }
 
 QIcon Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageIcon() const {
-    return QIcon(ICON_CONFIG_PLUGINS_48x48);
+    return QIcon(qti_icon_CONFIG_PLUGINS_48x48);
 }
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageWidget() {

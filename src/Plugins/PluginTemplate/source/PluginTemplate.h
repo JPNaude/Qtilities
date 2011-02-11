@@ -47,10 +47,10 @@ namespace Qtilities {
             using namespace Qtilities::Core;
 
             /*!
-              \struct PluginTemplateData
-              \brief The PluginTemplateData struct stores private data used by the PluginTemplate class.
+              \struct PluginTemplatePrivateData
+              \brief The PluginTemplatePrivateData struct stores private data used by the PluginTemplate class.
              */
-            struct PluginTemplateData;
+            struct PluginTemplatePrivateData;
 
             /*!
               \class PluginTemplate
@@ -93,7 +93,7 @@ namespace Qtilities {
                 QString pluginLicense() const;
 
             private:
-                PluginTemplateData* d;
+                PluginTemplatePrivateData* d;
             };
         }
     }

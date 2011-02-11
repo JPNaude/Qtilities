@@ -50,12 +50,12 @@ using namespace Qtilities::Core;
 namespace Qtilities {
     namespace CoreGui {
         /*!
-          \struct Qtilities::CoreGui::ObjectPropertyBrowserData
-          \brief The ObjectPropertyBrowserData class contains private data which is used by an ObjectPropertyBrowser widget.
+          \struct Qtilities::CoreGui::ObjectPropertyBrowserPrivateData
+          \brief The ObjectPropertyBrowserPrivateData class contains private data which is used by an ObjectPropertyBrowser widget.
 
           \sa Qtilities::CoreGui::ObjectPropertyBrowser
           */
-        struct ObjectPropertyBrowserData;
+        struct ObjectPropertyBrowserPrivateData;
 
         /*!
           \class Qtilities::CoreGui::ObjectPropertyBrowser
@@ -172,7 +172,7 @@ namespace Qtilities {
             bool isSubValue(int value, int subValue) const;
             bool isPowerOf2(int value) const;
 
-            ObjectPropertyBrowserData* d;
+            ObjectPropertyBrowserPrivateData* d;
 
         };
     }

@@ -44,8 +44,8 @@
 
 using namespace Qtilities::Core::Constants;
 
-struct Qtilities::Core::ContextManagerData {
-    ContextManagerData() : id_counter(-1) { }
+struct Qtilities::Core::ContextManagerPrivateData {
+    ContextManagerPrivateData() : id_counter(-1) { }
 
     int id_counter;
     QMap<QString, int> string_id_map;
@@ -57,12 +57,12 @@ struct Qtilities::Core::ContextManagerData {
 
 Qtilities::Core::ContextManager::ContextManager(QObject* parent) : IContextManager(parent)
 {
-    d = new ContextManagerData;
+    d = new ContextManagerPrivateData;
     setObjectName("Context Manager");
 
     // Add the standard context
-    d->contexts.push_front(contextID(CONTEXT_STANDARD));
-    setNewContext(CONTEXT_STANDARD);
+    d->contexts.push_front(contextID(qti_def_CONTEXT_STANDARD));
+    setNewContext(qti_def_CONTEXT_STANDARD);
 }
 
 int Qtilities::Core::ContextManager::registerContext(const QString& context, const QString& context_help_id) {

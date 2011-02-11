@@ -79,12 +79,12 @@ namespace Qtilities {
                 WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine();
 
                 // Install a formatting engine for the new logger engine
-                AbstractFormattingEngine* formatting_engine = Log->formattingEngineReference(FORMATTING_ENGINE_DEFAULT);
+                AbstractFormattingEngine* formatting_engine = Log->formattingEngineReference(qti_def_FORMATTING_ENGINE_DEFAULT);
                 if (formatting_engine) {
                     new_widget_engine->installFormattingEngine(formatting_engine);
                 } else {
                     delete new_widget_engine;
-                    LOG_ERROR(QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1")).arg(FORMATTING_ENGINE_RICH_TEXT));
+                    LOG_ERROR(QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1")).arg(qti_def_FORMATTING_ENGINE_RICH_TEXT));
                     return 0;
                 }
 

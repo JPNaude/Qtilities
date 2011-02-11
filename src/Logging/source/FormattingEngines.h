@@ -68,7 +68,7 @@ namespace Qtilities {
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString("log"); }
-            QString name() const { return FORMATTING_ENGINE_DEFAULT; }
+            QString name() const { return qti_def_FORMATTING_ENGINE_DEFAULT; }
             QString endOfLineChar() const { return QString("\n"); }
         };
 
@@ -95,7 +95,7 @@ namespace Qtilities {
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString(); }
-            QString name() const { return FORMATTING_ENGINE_RICH_TEXT; }
+            QString name() const { return qti_def_FORMATTING_ENGINE_RICH_TEXT; }
             QString endOfLineChar() const { return QString("<br>"); }
         };
 
@@ -121,7 +121,7 @@ namespace Qtilities {
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString("xml"); }
-            QString name() const { return FORMATTING_ENGINE_XML; }
+            QString name() const { return qti_def_FORMATTING_ENGINE_XML; }
             QString endOfLineChar() const { return QString("\n"); }
         };
 
@@ -147,7 +147,7 @@ namespace Qtilities {
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString("html"); }
-            QString name() const { return FORMATTING_ENGINE_HTML; }
+            QString name() const { return qti_def_FORMATTING_ENGINE_HTML; }
             QString endOfLineChar() const { return QString("<br>"); }
         };
 
@@ -176,7 +176,7 @@ namespace Qtilities {
             QString finalizeString() const;
             QString formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const;
             QString fileExtension() const { return QString(); }
-            QString name() const { return FORMATTING_ENGINE_QT_MSG; }
+            QString name() const { return qti_def_FORMATTING_ENGINE_QT_MSG; }
             QString endOfLineChar() const { return QString("\n"); }
         };
     }

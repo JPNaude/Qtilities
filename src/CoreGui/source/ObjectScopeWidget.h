@@ -37,8 +37,8 @@
 #include "QtilitiesCoreGui_global.h"
 #include "IActionProvider.h"
 
-#include <ObserverProperty.h>
-#include <Observer.h>
+#include <Observer>
+#include <IContext>
 
 #include <QWidget>
 #include <QObject>
@@ -53,13 +53,14 @@ namespace Ui {
 namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
+        using namespace Qtilities::Core::Interfaces;
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-        \struct ObjectScopeWidgetData
-        \brief The ObjectScopeWidgetData stores data used by the ObjectScopeWidget class.
+        \struct ObjectScopeWidgetPrivateData
+        \brief The ObjectScopeWidgetPrivateData stores data used by the ObjectScopeWidget class.
           */
-        struct ObjectScopeWidgetData;
+        struct ObjectScopeWidgetPrivateData;
 
         /*!
         \class ObjectScopeWidget
@@ -81,10 +82,11 @@ namespace Qtilities {
         \todo
         - Does not catch detachment if last scoped observer is detached under manual ownership.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectScopeWidget : public QWidget {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectScopeWidget : public QWidget, public IContext {
             Q_OBJECT
             Q_DISABLE_COPY(ObjectScopeWidget)
             Q_ENUMS(ColumnIDs)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
         public:
             explicit ObjectScopeWidget(QWidget *parent = 0);
@@ -106,6 +108,18 @@ namespace Qtilities {
             // Factory Interface Implemenation
             // --------------------------------
             static FactoryItem<QWidget, ObjectScopeWidget> factory;
+
+            // --------------------------------
+            // IContext Implementation
+            // --------------------------------
+            QString contextString() const;
+            QString contextHelpId() const;
+
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
         protected:
             virtual void changeEvent(QEvent *e);
@@ -145,13 +159,8 @@ namespace Qtilities {
             void handle_currentItemChanged(QTableWidgetItem * current);
 
         private:
-            static QPointer<ObjectScopeWidget> currentWidget;
-            static QPointer<ObjectScopeWidget> actionContainerWidget;
-
-            ObserverProperty getObserverProperty(const char* property_name) const;
-            SharedObserverProperty getSharedProperty(const char* property_name) const;
-            Ui::ObjectScopeWidget *m_ui;
-            ObjectScopeWidgetData* d;
+            Ui::ObjectScopeWidget *ui;
+            ObjectScopeWidgetPrivateData* d;
         };
     }
 }

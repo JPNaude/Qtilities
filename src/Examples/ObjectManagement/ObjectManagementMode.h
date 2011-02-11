@@ -74,10 +74,10 @@ namespace Qtilities {
             using namespace Qtilities::CoreGui::Interfaces;
 
             /*!
-              \struct ObjectManagementModeData
-              \brief The ObjectManagementModeData struct stores private data used by the ObjectManagementMode class.
+              \struct ObjectManagementModePrivateData
+              \brief The ObjectManagementModePrivateData struct stores private data used by the ObjectManagementMode class.
              */
-            struct ObjectManagementModeData;
+            struct ObjectManagementModePrivateData;
 
             /*!
             \class ObjectManagementMode
@@ -108,7 +108,7 @@ namespace Qtilities {
                     QString contextString() const { return CONTEXT_OBJECT_MANAGEMENT_MODE; }
 
                 private:
-                    ObjectManagementModeData* d;
+                    ObjectManagementModePrivateData* d;
             };
         }
     }

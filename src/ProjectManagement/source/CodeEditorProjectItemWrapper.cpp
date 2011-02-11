@@ -46,8 +46,8 @@
 using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::CoreGui;
 
-struct Qtilities::ProjectManagement::CodeEditorProjectItemWrapperData {
-    CodeEditorProjectItemWrapperData() : code_editor(0) {}
+struct Qtilities::ProjectManagement::CodeEditorProjectItemWrapperPrivateData {
+    CodeEditorProjectItemWrapperPrivateData() : code_editor(0) {}
 
     QPointer<CodeEditorWidget> code_editor;
 };
@@ -55,7 +55,7 @@ struct Qtilities::ProjectManagement::CodeEditorProjectItemWrapperData {
 Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::CodeEditorProjectItemWrapper(CodeEditorWidget* code_editor, QObject *parent) :
     QObject(parent)
 {
-    d = new CodeEditorProjectItemWrapperData;
+    d = new CodeEditorProjectItemWrapperPrivateData;
     if (code_editor)
         setCodeEditor(code_editor);
 }

@@ -583,7 +583,7 @@ categorized_widget->show();
             virtual void selectionCopy();
             //! Function to cut the current selection to the application clipboard.
             virtual void selectionCut();
-            //! Function which is connected to the Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action if it exists.
+            //! Function which is connected to the Qtilities::CoreGui::Actions::qti_action_EDIT_PASTE action if it exists.
             /*!
               When initializing the %Qtilities clipboard manager the paste action will be created automatically.
               */

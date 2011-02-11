@@ -42,8 +42,8 @@
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
-struct Qtilities::CoreGui::QtilitiesMainWindowData {
-    QtilitiesMainWindowData() : initialized(false),
+struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
+    QtilitiesMainWindowPrivateData() : initialized(false),
     current_widget(0),
     mode_manager(0),
     central_widget(0),
@@ -65,7 +65,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
         QMainWindow(parent, flags), ui(new Ui::QtilitiesMainWindow)
 {
     ui->setupUi(this);
-    d = new QtilitiesMainWindowData;
+    d = new QtilitiesMainWindowPrivateData;
     d->mode_layout = modeLayout;
 
     if (modeLayout != ModesNone) {
@@ -208,16 +208,16 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
     if (d->priority_messages_enabled) {
         d->priority_messages_text.setVisible(true);
         if (message_type == Logger::Warning) {
-            d->priority_messages_icon.setPixmap(QIcon(ICON_WARNING_12x12).pixmap(12));
+            d->priority_messages_icon.setPixmap(QIcon(qti_icon_WARNING_12x12).pixmap(12));
             d->priority_messages_icon.setVisible(true);
         } else if (message_type == Logger::Error || message_type == Logger::Fatal) {
-            d->priority_messages_icon.setPixmap(QIcon(ICON_ERROR_12x12).pixmap(12));
+            d->priority_messages_icon.setPixmap(QIcon(qti_icon_ERROR_12x12).pixmap(12));
             d->priority_messages_icon.setVisible(true);
         } else {
             if (message.startsWith(tr("Successfully")))
-                d->priority_messages_icon.setPixmap(QIcon(ICON_SUCCESS_12x12).pixmap(12));
+                d->priority_messages_icon.setPixmap(QIcon(qti_icon_SUCCESS_12x12).pixmap(12));
             else
-                d->priority_messages_icon.setPixmap(QIcon(ICON_INFO_12x12).pixmap(12));
+                d->priority_messages_icon.setPixmap(QIcon(qti_icon_INFO_12x12).pixmap(12));
             d->priority_messages_icon.setVisible(true);
         }
 

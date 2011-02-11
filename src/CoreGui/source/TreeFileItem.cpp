@@ -47,7 +47,7 @@ namespace Qtilities {
 }
 
 Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_path, const QString& relative_to_path, PathDisplay path_display, QObject* parent) : TreeItemBase(file_path, parent) {
-    treeFileItemBase = new TreeFileItemData;
+    treeFileItemBase = new TreeFileItemPrivateData;
     d_path_display = path_display;
     setFile(file_path,relative_to_path);
     installEventFilter(this);
@@ -151,8 +151,8 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
             QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
             if (propertyChangeEvent) {
                 QString property_name = QString(propertyChangeEvent->propertyName().data());
-                if (property_name == QString(OBJECT_NAME)) {
-                    QString new_name = Observer::getSharedProperty(this,OBJECT_NAME).value().toString();
+                if (property_name == QString(qti_prop_NAME)) {
+                    QString new_name = Observer::getSharedProperty(this,qti_prop_NAME).value().toString();
                     QString display_name = displayName();
                     if (display_name != new_name) {
                         setDisplayName(new_name);
@@ -195,10 +195,8 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const Q
         treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
 
     // We need to check if an object name exists
-    if (Observer::propertyExists(this,OBJECT_NAME)) {
-        SharedObserverProperty new_subject_name_property(QVariant(displayName()),OBJECT_NAME);
-        new_subject_name_property.setIsExportable(false);
-
+    if (Observer::propertyExists(this,qti_prop_NAME)) {
+        SharedObserverProperty new_subject_name_property(QVariant(displayName()),qti_prop_NAME);
         Observer::setSharedProperty(this,new_subject_name_property);
     } else {
         setObjectName(displayName());

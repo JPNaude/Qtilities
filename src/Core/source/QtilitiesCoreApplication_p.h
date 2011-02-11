@@ -60,6 +60,10 @@ namespace Qtilities {
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
               */
             QString qtilitiesVersion() const;
+            //! Gets the session path used in your application.
+            QString applicationSessionPath() const;
+            //! Sets the session path to be used in your application.
+            void setApplicationSessionPath(const QString& path);
 
         private:
             QtilitiesCoreApplicationPrivate();
@@ -69,6 +73,7 @@ namespace Qtilities {
             IObjectManager*     d_objectManagerIFace;
             ContextManager*     d_contextManager;
             IContextManager*    d_contextManagerIFace;
+            QString             d_application_session_path;
         };
     }
 }

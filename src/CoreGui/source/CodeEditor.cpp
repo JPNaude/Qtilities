@@ -36,8 +36,8 @@
 #include <QSyntaxHighlighter>
 #include <QPainter>
 
-struct Qtilities::CoreGui::CodeEditorData {
-    CodeEditorData() : lineNumberArea(0),
+struct Qtilities::CoreGui::CodeEditorPrivateData {
+    CodeEditorPrivateData() : lineNumberArea(0),
     syntaxHighlighter(0) {}
 
     QWidget *lineNumberArea;
@@ -53,10 +53,10 @@ struct Qtilities::CoreGui::CodeEditorData {
 
 Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent) {
 
-    d = new CodeEditorData;
+    d = new CodeEditorPrivateData;
 
     // Setup the line number drawing
-    d->lineNumberArea = new LineNumberArea(this);
+    d->lineNumberArea = new qti_private_LineNumberArea(this);
 
     connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
     connect(this, SIGNAL(updateRequest(const QRect &, int)), this, SLOT(updateLineNumberArea(const QRect &, int)));

@@ -32,14 +32,19 @@
 ****************************************************************************/
 
 #include "ObserverProperty.h"
+#include "QtilitiesCoreConstants.h"
 
 #include <Logger.h>
+
+using namespace Qtilities::Core::Properties;
 
 quint32 MARKER_OBSERVER_PROPERTY = 0xBABEFACE;
 
 bool Qtilities::Core::ObserverProperty::exportObserverPropertyBinary(QDataStream& stream) const {
     stream << MARKER_OBSERVER_PROPERTY;
     stream << name;
+    stream << is_reserved;
+    stream << supports_change_notifications;
     stream << observerMap();
     stream << MARKER_OBSERVER_PROPERTY;
     return true;
@@ -55,9 +60,9 @@ bool Qtilities::Core::ObserverProperty::importObserverPropertyBinary(QDataStream
     char* name_tmp;
     stream >> name_tmp;
     name = name_tmp;
-    #ifndef QT_NO_DEBUG
-        LOG_TRACE("Streaming observer property: " + QString(name));      
-    #endif
+    stream >> is_reserved;
+    stream >> supports_change_notifications;
+    LOG_TRACE("Streaming observer property: " + QString(name));
     stream >> observer_map;
     last_change_context = -1;
     is_exportable = true;
@@ -69,9 +74,127 @@ bool Qtilities::Core::ObserverProperty::importObserverPropertyBinary(QDataStream
     return true;
 }
 
+bool Qtilities::Core::ObserverProperty::propertyIsExportable(const char* property_name) {
+    if (!qstrcmp(property_name,qti_prop_ALIAS_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_ACCESS_MODE))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_ACTIVITY_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_CATEGORY_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_LIMITED_EXPORTS))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME_MANAGER_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OWNERSHIP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_LIMIT))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_PARENT_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
+        return true;
+
+    return true;
+}
+
+bool Qtilities::Core::ObserverProperty::propertyIsReserved(const char* property_name) {
+    if (!qstrcmp(property_name,qti_prop_ALIAS_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_ACCESS_MODE))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_ACTIVITY_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_CATEGORY_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_LIMITED_EXPORTS))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_NAME))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME_MANAGER_ID))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_OWNERSHIP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_LIMIT))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_PARENT_ID))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
+        return true;
+
+    return false;
+}
+
+bool Qtilities::Core::ObserverProperty::propertyIsRemovable(const char* property_name) {
+    if (!qstrcmp(property_name,qti_prop_ALIAS_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_ACCESS_MODE))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_ACTIVITY_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_CATEGORY_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_LIMITED_EXPORTS))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME_MANAGER_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OWNERSHIP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_LIMIT))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_PARENT_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
+        return false;
+
+    return true;
+}
+
+bool Qtilities::Core::ObserverProperty::propertySupportsChangeNotifications(const char* property_name) {
+    if (!qstrcmp(property_name,qti_prop_ALIAS_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_ACCESS_MODE))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_ACTIVITY_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_CATEGORY_MAP))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_LIMITED_EXPORTS))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_NAME))
+        return true;
+    if (!qstrcmp(property_name,qti_prop_NAME_MANAGER_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OWNERSHIP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_LIMIT))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_PARENT_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_OBSERVER_MAP))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
+        return false;
+
+    return true;
+}
+
 bool Qtilities::Core::SharedObserverProperty::exportSharedPropertyBinary(QDataStream& stream) const {
     stream << MARKER_OBSERVER_PROPERTY;
     stream << name;
+    stream << is_reserved;
+    stream << supports_change_notifications;
     stream << observerMap();
     stream << property_value;
     #ifndef QT_NO_DEBUG
@@ -94,9 +217,9 @@ bool Qtilities::Core::SharedObserverProperty::importSharedPropertyBinary(QDataSt
     char* name_tmp;
     stream >> name_tmp;
     name = name_tmp;
-    #ifndef QT_NO_DEBUG
-        LOG_TRACE("Streaming shared property: " + QString(name));
-    #endif
+    LOG_TRACE("Streaming shared property: " + QString(name));
+    stream >> is_reserved;
+    stream >> supports_change_notifications;
     stream >> observer_map;
     stream >> property_value;
     #ifndef QT_NO_DEBUG
@@ -114,4 +237,3 @@ bool Qtilities::Core::SharedObserverProperty::importSharedPropertyBinary(QDataSt
     }
     return true;
 }
-

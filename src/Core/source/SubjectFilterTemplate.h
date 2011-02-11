@@ -40,10 +40,10 @@
 namespace Qtilities {
     namespace Core {
         /*!
-          \struct SubjectFilterTemplateData
-          \brief The SubjectFilterTemplateData class stores private data used by the SubjectFilterTemplate class.
+          \struct SubjectFilterTemplatePrivateData
+          \brief The SubjectFilterTemplatePrivateData class stores private data used by the SubjectFilterTemplate class.
          */
-        struct SubjectFilterTemplateData;	
+        struct SubjectFilterTemplatePrivateData;
 	
         /*!
         \class SubjectFilterTemplate
@@ -104,7 +104,7 @@ namespace Qtilities {
             IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         private:
-            SubjectFilterTemplateData* d;
+            SubjectFilterTemplatePrivateData* d;
         };
     }
 }

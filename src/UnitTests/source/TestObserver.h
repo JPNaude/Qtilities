@@ -51,7 +51,7 @@ namespace Qtilities {
             void testRecursiveAttachment();
             //! Tests recursive attachment where the tree was constructed using the containment approach.
             void testRecursiveAttachmentContained();
-            //! Tests attachment where the subject has the OBSERVER_LIMIT property set.
+            //! Tests attachment where the subject has the qti_prop_OBSERVER_LIMIT property set.
             void testAttachWithObserverLimit();
             //! Tests the subject limit functionality Observer.
             void testSubjectLimit();

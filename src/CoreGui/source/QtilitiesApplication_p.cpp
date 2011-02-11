@@ -36,6 +36,8 @@
 #include "ObjectManager.h"
 #include "ContextManager.h"
 
+#include <LoggingConstants>
+
 #include <QObject>
 
 using namespace Qtilities::Core;

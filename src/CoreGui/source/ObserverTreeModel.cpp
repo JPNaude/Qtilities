@@ -292,6 +292,9 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // In here we need to manually get the top level of each index since the active context is
             // not representitive of all indexes we get in here:
             QObject* obj = getObject(index);
+            if (!obj)
+                return QVariant();
+
             QVariant subject_activity = QVariant();
             Observer* local_selection_parent = parentOfIndex(index);
 
@@ -314,7 +317,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                         for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
                             activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
                             if (activity_filter) {
-                                subject_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                                subject_activity = local_selection_parent->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                             }
                         }
                     }
@@ -336,7 +339,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_DECORATION);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_DECORATION);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -352,7 +355,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_WHATS_THIS);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -368,7 +371,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_SIZE_HINT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -384,7 +387,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_STATUSTIP);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_STATUSTIP);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -400,7 +403,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FONT);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_FONT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -416,7 +419,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -432,7 +435,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_BACKGROUND);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_BACKGROUND);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -448,7 +451,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,OBJECT_ROLE_FOREGROUND);
+                SharedObserverProperty icon_property = Observer::getSharedProperty(obj,qti_prop_FOREGROUND);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -462,9 +465,12 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             if (!item)
                 return QVariant();
             QObject* obj = item->getObject();
-            SharedObserverProperty tooltip = Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP);
-            if (tooltip.isValid()) {
-                return tooltip.value();
+
+            if (obj) {
+                SharedObserverProperty tooltip = Observer::getSharedProperty(obj,qti_prop_TOOLTIP);
+                if (tooltip.isValid()) {
+                    return tooltip.value();
+                }
             }
         }
     // ------------------------------------
@@ -480,10 +486,12 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 QObject* obj = getItem(index)->getObject();
                 // Handle the case where the child is the parent of an observer
                 int count = 0;
-                foreach (QObject* child, obj->children()) {
-                    Observer* child_observer = qobject_cast<Observer*> (child);
-                    if (child_observer)
-                        count += child_observer->treeCount();
+                if (obj){
+                    foreach (QObject* child, obj->children()) {
+                        Observer* child_observer = qobject_cast<Observer*> (child);
+                        if (child_observer)
+                            count += child_observer->treeCount();
+                    }
                 }
 
                 if (count == 0) {
@@ -536,15 +544,17 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     if (obs) {
                         if (obs->accessModeScope() == Observer::CategorizedScope) {
                             if (obs->accessMode(item->category()) == Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_16x16);
+                                return QIcon(qti_icon_READ_ONLY_16x16);
                             else if (obs->accessMode(item->category()) == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_16x16);
+                                return QIcon(qti_icon_LOCKED_16x16);
                             else
                                 return QVariant();
                         }
                     }
                 } else {
                     QObject* obj = getObject(index);
+                    if (!obj)
+                        return QVariant();
                     Observer* observer = qobject_cast<Observer*> (obj);
                     if (!observer) {
                         // Handle the case where the child is the parent of an observer
@@ -560,24 +570,24 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                             if (observer->accessMode() == Observer::FullAccess)
                                 return QVariant();
                             if (observer->accessMode() == Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_16x16);
+                                return QIcon(qti_icon_READ_ONLY_16x16);
                             if (observer->accessMode() == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_16x16);
+                                return QIcon(qti_icon_LOCKED_16x16);
                         } else {
-                            // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
-                            QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
+                            // Inspect the object to see if it has the qti_prop_ACCESS_MODE observer property.
+                            QVariant mode = d_observer->getObserverPropertyValue(obj,qti_prop_ACCESS_MODE);
                             if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                                return QIcon(ICON_READ_ONLY_16x16);
+                                return QIcon(qti_icon_READ_ONLY_16x16);
                             if (mode.toInt() == Observer::LockedAccess)
-                                return QIcon(ICON_LOCKED_16x16);
+                                return QIcon(qti_icon_LOCKED_16x16);
                         }
                     } else {
-                        // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
-                        QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
+                        // Inspect the object to see if it has the qti_prop_ACCESS_MODE observer property.
+                        QVariant mode = d_observer->getObserverPropertyValue(obj,qti_prop_ACCESS_MODE);
                         if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                            return QIcon(ICON_READ_ONLY_16x16);
+                            return QIcon(qti_icon_READ_ONLY_16x16);
                         if (mode.toInt() == Observer::LockedAccess)
-                            return QIcon(ICON_LOCKED_16x16);
+                            return QIcon(qti_icon_LOCKED_16x16);
                     }
                 }
             }
@@ -656,7 +666,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              if (local_selection_parent) {
                  // We need to check a few things things:
                  // 1. Do we the observer hints?
-                 // 2. If not, does the observer have hints?
+                 // 2. If so, does the observer have hints?
                  ObserverHints* hints_to_use = 0;
                  if (!model->use_observer_hints)
                      hints_to_use = activeHints();
@@ -685,7 +695,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              if (obs) {
                  // We need to check a few things things:
                  // 1. Do we the observer hints?
-                 // 2. If not, does the observer have hints?
+                 // 2. If so, does the observer have hints?
                  ObserverHints* hints_to_use = 0;
                  if (!model->use_observer_hints)
                      hints_to_use = activeHints();
@@ -727,15 +737,15 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orie
         else
             return d->type_grouping_name;
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_CHILD_COUNT_22x22);
+        return QIcon(qti_icon_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Child Count");
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_TYPE_INFO_22x22);
+        return QIcon(qti_icon_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Type");
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_ACCESS_16x16);
+        return QIcon(qti_icon_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Access");
     }
@@ -893,15 +903,15 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
             if (!local_selection_parent)
                 return false;
 
-            // Check if the object has an OBJECT_NAME property, if not we set the name using setObjectName()
+            // Check if the object has an qti_prop_NAME property, if not we set the name using setObjectName()
             if (obj) {
-                if (local_selection_parent->getSharedProperty(obj, OBJECT_NAME).isValid()) {
+                if (local_selection_parent->getSharedProperty(obj, qti_prop_NAME).isValid()) {
                     // Now check if this observer uses an instance name
-                    ObserverProperty instance_names = Observer::getObserverProperty(obj,INSTANCE_NAMES);
+                    ObserverProperty instance_names = Observer::getObserverProperty(obj,qti_prop_ALIAS_MAP);
                     if (instance_names.isValid() && instance_names.hasContext(local_selection_parent->observerID()))
-                        local_selection_parent->setObserverPropertyValue(obj,INSTANCE_NAMES,value);
+                        local_selection_parent->setObserverPropertyValue(obj,qti_prop_ALIAS_MAP,value);
                     else
-                        local_selection_parent->setObserverPropertyValue(obj,OBJECT_NAME,value);
+                        local_selection_parent->setObserverPropertyValue(obj,qti_prop_NAME,value);
                 } else {
                     obj->setObjectName(value.toString());
                 }
@@ -924,12 +934,12 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                             activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
                             if (activity_filter) {
                                 // The value comming in here is always Qt::Checked.
-                                // We get the current check state from the OBJECT_ACTIVITY property and change that.
-                                QVariant current_activity = local_selection_parent->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                                // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that.
+                                QVariant current_activity = local_selection_parent->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                                 if (current_activity.toBool()) {
-                                    local_selection_parent->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
+                                    local_selection_parent->setObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
                                 } else {
-                                    local_selection_parent->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+                                    local_selection_parent->setObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                                 }
 
                                 handleContextDataChanged(local_selection_parent);
@@ -1014,7 +1024,7 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
 int Qtilities::CoreGui::ObserverTreeModel::getSubjectID(const QModelIndex &index) const {
     QObject* obj = getItem(index)->getObject();
     if (d_observer)
-        return d_observer->getObserverPropertyValue(obj,OBSERVER_SUBJECT_IDS).toInt();
+        return d_observer->getObserverPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
     else
         return -1;
 }
@@ -1130,13 +1140,13 @@ void Qtilities::CoreGui::ObserverTreeModel::setupChildData(ObserverTreeItem* ite
                                 category_columns << category_levels.last();
                                 QObject* category_item = new QObject();
                                 // Give the category a folder icon:
-                                SharedObserverProperty icon_property(QIcon(ICON_FOLDER_16X16),OBJECT_ROLE_DECORATION);
+                                SharedObserverProperty icon_property(QIcon(qti_icon_FOLDER_16X16),qti_prop_DECORATION);
                                 observer->setSharedProperty(category_item,icon_property);
                                 // Check the access mode of this category and add it to the category object:
                                 QtilitiesCategory shortened_category(category_levels);
                                 Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
                                 if (category_access_mode != Observer::InvalidAccess) {
-                                    SharedObserverProperty access_mode_property((int) observer->accessMode(shortened_category),OBJECT_ACCESS_MODE);
+                                    SharedObserverProperty access_mode_property((int) observer->accessMode(shortened_category),qti_prop_ACCESS_MODE);
                                     observer->setSharedProperty(category_item,access_mode_property);
                                 }
                                 category_item->setObjectName(category_levels.last());

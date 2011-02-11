@@ -37,3 +37,6 @@ OTHER_FILES += ../doc/sources/The_Basics.html
 OTHER_FILES += ../doc/sources/Tree_Structures.html
 OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../changes.txt
+OTHER_FILES += ../doc/doxyfile_packages.txt
+OTHER_FILES += ../doc/doxyfile_website.txt
+

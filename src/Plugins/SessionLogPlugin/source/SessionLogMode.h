@@ -47,10 +47,10 @@ namespace Qtilities {
     namespace Plugins {
         namespace SessionLog {
             /*!
-              \struct SessionLogModeData
-              \brief The SessionLogModeData struct stores private data used by the SessionLogMode class.
+              \struct SessionLogModePrivateData
+              \brief The SessionLogModePrivateData struct stores private data used by the SessionLogMode class.
              */
-            struct SessionLogModeData;
+            struct SessionLogModePrivateData;
 
             /*!
             \class SessionLogMode
@@ -85,7 +85,7 @@ namespace Qtilities {
                     void handle_dockVisibilityChanged(bool visible);
 
                 private:
-                    SessionLogModeData* d;
+                    SessionLogModePrivateData* d;
             };
         }
     }

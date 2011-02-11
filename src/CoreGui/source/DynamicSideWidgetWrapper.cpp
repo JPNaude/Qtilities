@@ -44,8 +44,8 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
-struct Qtilities::CoreGui::DynamicSideWidgetWrapperData {
-    DynamicSideWidgetWrapperData() : widgetCombo(0),
+struct Qtilities::CoreGui::DynamicSideWidgetWrapperPrivateData {
+    DynamicSideWidgetWrapperPrivateData() : widgetCombo(0),
     close_action(0),
     new_action(0),
     current_widget(0),
@@ -66,15 +66,15 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     ui(new Ui::DynamicSideWidgetWrapper)
 {
     ui->setupUi(this);
-    d = new DynamicSideWidgetWrapperData;
+    d = new DynamicSideWidgetWrapperPrivateData;
     d->text_iface_map = text_iface_map;
     d->is_exclusive = is_exclusive;
 
     // Close side viewer widget action
-    d->new_action = ui->toolBar->addAction(QIcon(ICON_VIEW_NEW_16x16),tr("New"));
+    d->new_action = ui->toolBar->addAction(QIcon(qti_icon_VIEW_NEW_16x16),tr("New"));
     connect(d->new_action,SIGNAL(triggered()),SIGNAL(newSideWidgetRequest()));
     refreshNewWidgetAction();
-    d->close_action = ui->toolBar->addAction(QIcon(ICON_VIEW_REMOVE_16x16),tr("Close"));
+    d->close_action = ui->toolBar->addAction(QIcon(qti_icon_VIEW_REMOVE_16x16),tr("Close"));
     connect(d->close_action,SIGNAL(triggered()),SLOT(handleActionClose_triggered()));
 
     // Create the combo box

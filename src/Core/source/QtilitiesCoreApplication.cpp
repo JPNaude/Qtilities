@@ -97,3 +97,11 @@ bool Qtilities::Core::QtilitiesCoreApplication::hasInstance(const char *function
         qWarning("QtilitiesCoreApplication::%s: Please instantiate the QtilitiesCoreApplication object before attempting to use it.", function);
     return instance_exists;
 }
+
+QString Qtilities::Core::QtilitiesCoreApplication::applicationSessionPath() {
+    return QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath();
+}
+
+void Qtilities::Core::QtilitiesCoreApplication::setApplicationSessionPath(const QString& path) {
+     QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(path);
+}

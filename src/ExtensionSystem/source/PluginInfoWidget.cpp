@@ -72,13 +72,13 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
             ui->listCompatabilityVersions->addItem(tr("This plugin does not depend on the application it is used in."));
 
         if (plugin->pluginState() == IPlugin::Functional)
-            ui->lblStateImage->setPixmap(QIcon(ICON_SUCCESS_16x16).pixmap(16));
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
         else if (plugin->pluginState() == IPlugin::CompatibilityError)
-            ui->lblStateImage->setPixmap(QIcon(ICON_WARNING_16x16).pixmap(16));
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16));
         else if (plugin->pluginState() == IPlugin::InitializationError)
-            ui->lblStateImage->setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
         else if (plugin->pluginState() == IPlugin::DependancyError)
-            ui->lblStateImage->setPixmap(QIcon(ICON_ERROR_16x16).pixmap(16));
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
     }
 
     connect(ui->btnClose,SIGNAL(clicked()),SLOT(close()));

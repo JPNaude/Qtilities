@@ -33,15 +33,15 @@
 
 #include "ActionProvider.h"
 
-struct Qtilities::CoreGui::ActionProviderData {
-    ActionProviderData() {}
+struct Qtilities::CoreGui::ActionProviderPrivateData {
+    ActionProviderPrivateData() {}
 
     QMap<QAction *, QtilitiesCategory>        actions;
     QMap<QActionGroup *, QtilitiesCategory>   action_groups;
 };
 
 Qtilities::CoreGui::ActionProvider::ActionProvider(QObject* parent) : QObject(parent) {
-    d = new ActionProviderData;
+    d = new ActionProviderPrivateData;
 }
 
 Qtilities::CoreGui::ActionProvider::~ActionProvider() {

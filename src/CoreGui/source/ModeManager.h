@@ -51,10 +51,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \struct ModeManagerData
-          \brief The ModeManagerData class stores private data used by the ModeManager class.
+          \struct ModeManagerPrivateData
+          \brief The ModeManagerPrivateData class stores private data used by the ModeManager class.
          */
-        struct ModeManagerData;
+        struct ModeManagerPrivateData;
 
         /*!
         \class ModeManager
@@ -314,7 +314,7 @@ modeListWidget()->setStyleSheet(stylesheet);
             //! Converts a list of mode interfaces to a list of corresponding mode interfaces.
             QList<IMode*> modeIDsToIFaces(QList<int> mode_ids) const;
 
-            ModeManagerData* d;
+            ModeManagerPrivateData* d;
         };
     }
 }

@@ -49,10 +49,10 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-        \struct SideWidgetFileSystemData
+        \struct SideWidgetFileSystemPrivateData
         \brief Structure used by the SideWidgetFileSystem class to store private data.
           */
-        struct SideWidgetFileSystemData;
+        struct SideWidgetFileSystemPrivateData;
 
         /*!
         \class SideWidgetFileSystem
@@ -96,7 +96,7 @@ namespace Qtilities {
 
         protected:
             Ui::SideWidgetFileSystem *m_ui;
-            SideWidgetFileSystemData* d;
+            SideWidgetFileSystemPrivateData* d;
         };
     }
 }

@@ -37,8 +37,8 @@
 
 #include <QPointer>
 
-struct Qtilities::CoreGui::SideViewerWidgetFactoryData {
-    SideViewerWidgetFactoryData() {}
+struct Qtilities::CoreGui::SideViewerWidgetFactoryPrivateData {
+    SideViewerWidgetFactoryPrivateData() {}
 
     QList<int> modes;
     QList<int> startup_modes;
@@ -49,7 +49,7 @@ struct Qtilities::CoreGui::SideViewerWidgetFactoryData {
 };
 
 Qtilities::CoreGui::SideViewerWidgetFactory::SideViewerWidgetFactory(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive) : QObject(0) {
-    d = new SideViewerWidgetFactoryData;
+    d = new SideViewerWidgetFactoryPrivateData;
 
     FactoryItemID factory_data("Produce Me");
     d->factory.registerFactoryInterface(interface,factory_data);

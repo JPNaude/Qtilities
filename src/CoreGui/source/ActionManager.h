@@ -47,10 +47,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-        \struct ActionManagerData
+        \struct ActionManagerPrivateData
         \brief A structure storing private data in action managers.
           */
-        struct ActionManagerData;
+        struct ActionManagerPrivateData;
 
         /*!
         \class ActionManager
@@ -88,7 +88,7 @@ namespace Qtilities {
             void handleCommandDeleted(QObject* obj);
 
         private:
-            ActionManagerData* d;
+            ActionManagerPrivateData* d;
             static bool showed_warning;
         };
     }

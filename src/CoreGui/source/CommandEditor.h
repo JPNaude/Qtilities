@@ -50,10 +50,10 @@ namespace Qtilities {
         class Command;
 
         /*!
-        \struct CommandEditorData
+        \struct CommandEditorPrivateData
         \brief A structure storing private data in the CommandEditor class
           */
-        struct CommandEditorData;
+        struct CommandEditorPrivateData;
 
         /*!
         \class CommandEditor
@@ -102,7 +102,7 @@ namespace Qtilities {
 
         private:
             Ui::CommandEditor *ui;
-            CommandEditorData* d;
+            CommandEditorPrivateData* d;
         };
     }
 }

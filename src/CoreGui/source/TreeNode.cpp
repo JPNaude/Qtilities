@@ -45,8 +45,8 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::TreeNodeData {
-    TreeNodeData() { }
+struct Qtilities::CoreGui::TreeNodePrivateData {
+    TreeNodePrivateData() { }
 
     QPointer<NamingPolicyFilter>    naming_policy_filter;
     QPointer<ActivityPolicyFilter>  activity_policy_filter;
@@ -54,11 +54,11 @@ struct Qtilities::CoreGui::TreeNodeData {
 };
 
 Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
-    nodeData = new TreeNodeData;
+    nodeData = new TreeNodePrivateData;
     setObjectName(name);
 
     // Set the factory data in the observer base class:
-    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_NODE,objectName());
+    InstanceFactoryInfo instanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_TREE_NODE,objectName());
     setFactoryData(instanceFactoryInfo);
 
     // Tree nodes always use display hints:
@@ -322,7 +322,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     // Create the QDomDocument:
     QDomDocument doc("QtilitiesTreeDoc");
     QDomElement root = doc.createElement("QtilitiesTree");
-    root.setAttribute("DocumentVersion",QTILITIES_XML_EXPORT_FORMAT);
+    root.setAttribute("DocumentVersion",qti_def_FORMAT_TREES_XML);
     doc.appendChild(root);
 
     // Do XML export in observer base class:
@@ -375,10 +375,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     // Check the document version:
     if (root.hasAttribute("DocumentVersion")) {
         QString document_version = root.attribute("DocumentVersion");
-        if (document_version.toInt() > QTILITIES_XML_EXPORT_FORMAT) {
+        if (document_version.toInt() > qti_def_FORMAT_TREES_XML) {
             if (errorMsg)
-                *errorMsg = QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_XML_EXPORT_FORMAT);
-            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_XML_EXPORT_FORMAT));
+                *errorMsg = QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML);
+            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML));
             QApplication::restoreOverrideCursor();
             return IExportable::Failed;
         }

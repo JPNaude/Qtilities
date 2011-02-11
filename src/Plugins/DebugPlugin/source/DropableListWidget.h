@@ -44,15 +44,15 @@ namespace Qtilities {
             using namespace Qtilities::Logging;
 
             /*!
-              \class DropableListWidget
+              \class qti_private_DropableListWidget
               \brief Subclasses QListView with dropEvent reimplemented for plugin configuration set creation in the %Qtilities debug widget.
              */
-            class DropableListWidget : public QListView
+            class qti_private_DropableListWidget : public QListView
             {
                 Q_OBJECT
 
             public:
-                explicit DropableListWidget(const QString& plugin_list_type, QWidget *parent = 0);
+                explicit qti_private_DropableListWidget(const QString& plugin_list_type, QWidget *parent = 0);
                 void mousePressEvent(QMouseEvent *event);
                 void mouseMoveEvent(QMouseEvent *event);
                 void dragEnterEvent(QDragEnterEvent *event);

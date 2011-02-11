@@ -48,12 +48,12 @@ namespace Ui {
 namespace Qtilities {
     namespace CoreGui {
         /*!
-          \struct SearchBoxWidgetData
-          \brief The SearchBoxWidgetData class contains private data which is used by a SearchBoxWidget widget.
+          \struct SearchBoxWidgetPrivateData
+          \brief The SearchBoxWidgetPrivateData class contains private data which is used by a SearchBoxWidget widget.
 
           \sa Qtilities::CoreGui::SearchBoxWidget
           */
-        class SearchBoxWidgetData;
+        class SearchBoxWidgetPrivateData;
 
         /*!
           \class Qtilities::CoreGui::SearchBoxWidget
@@ -231,7 +231,7 @@ namespace Qtilities {
 
         private:
             Ui::SearchBoxWidget* ui;
-            SearchBoxWidgetData* d;
+            SearchBoxWidgetPrivateData* d;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(SearchBoxWidget::ButtonFlags)

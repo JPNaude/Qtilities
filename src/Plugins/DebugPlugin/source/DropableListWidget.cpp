@@ -40,7 +40,7 @@
 
 using namespace QtilitiesExtensionSystem;
 
-Qtilities::Plugins::Debug::DropableListWidget::DropableListWidget(const QString& plugin_list_type, QWidget *parent) : QListView(parent) {
+Qtilities::Plugins::Debug::qti_private_DropableListWidget::qti_private_DropableListWidget(const QString& plugin_list_type, QWidget *parent) : QListView(parent) {
     setAcceptDrops(true);
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::InternalMove);
@@ -48,7 +48,7 @@ Qtilities::Plugins::Debug::DropableListWidget::DropableListWidget(const QString&
     d_plugin_list_type = plugin_list_type;
 }
 
-void Qtilities::Plugins::Debug::DropableListWidget::mousePressEvent(QMouseEvent *event)
+void Qtilities::Plugins::Debug::qti_private_DropableListWidget::mousePressEvent(QMouseEvent *event)
  {
      if (event->button() == Qt::LeftButton)
          dragStartPosition = event->pos();
@@ -56,7 +56,7 @@ void Qtilities::Plugins::Debug::DropableListWidget::mousePressEvent(QMouseEvent 
      QListView::mousePressEvent(event);
  }
 
-void Qtilities::Plugins::Debug::DropableListWidget::mouseMoveEvent(QMouseEvent *event)
+void Qtilities::Plugins::Debug::qti_private_DropableListWidget::mouseMoveEvent(QMouseEvent *event)
  {
     if (d_plugin_list_type != "Filtered") {
         if (!(event->buttons() & Qt::LeftButton))
@@ -77,13 +77,13 @@ void Qtilities::Plugins::Debug::DropableListWidget::mouseMoveEvent(QMouseEvent *
     }
  }
 
-void Qtilities::Plugins::Debug::DropableListWidget::dragEnterEvent(QDragEnterEvent *event)
+void Qtilities::Plugins::Debug::qti_private_DropableListWidget::dragEnterEvent(QDragEnterEvent *event)
  {
     if (event->mimeData()->hasFormat("text/plain"))
         event->acceptProposedAction();
  }
 
-void Qtilities::Plugins::Debug::DropableListWidget::dropEvent(QDropEvent *event) {
+void Qtilities::Plugins::Debug::qti_private_DropableListWidget::dropEvent(QDropEvent *event) {
     if (event) {
         const QMimeData* mime_data = event->mimeData();
         QStringListModel* string_list_model = qobject_cast<QStringListModel*> (model());

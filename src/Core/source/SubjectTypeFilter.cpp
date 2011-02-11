@@ -50,8 +50,8 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::Core::SubjectTypeFilterData {
-    SubjectTypeFilterData() : inversed_filtering(false) {}
+struct Qtilities::Core::SubjectTypeFilterPrivateData {
+    SubjectTypeFilterPrivateData() : inversed_filtering(false) {}
 
     bool inversed_filtering;
     QList<SubjectTypeInfo> known_subject_types;
@@ -59,7 +59,7 @@ struct Qtilities::Core::SubjectTypeFilterData {
 };
 
 Qtilities::Core::SubjectTypeFilter::SubjectTypeFilter(const QString& known_objects_group_name, QObject* parent) : AbstractSubjectFilter(parent) {
-    d = new SubjectTypeFilterData;
+    d = new SubjectTypeFilterPrivateData;
     d->known_objects_group_name = known_objects_group_name;
 }
 
@@ -166,7 +166,7 @@ bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
 }
 
 Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectTypeFilter::instanceFactoryInfo() const {
-    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_SUBJECT_TYPE_FILTER,FACTORY_TAG_SUBJECT_TYPE_FILTER);
+    InstanceFactoryInfo instanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER,qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER);
     return instanceFactoryInfo;
 }
 

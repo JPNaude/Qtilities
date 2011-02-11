@@ -42,8 +42,8 @@
 #include <QApplication>
 #include <QDomNodeList>
 
-struct Qtilities::ProjectManagement::ObserverProjectItemWrapperData {
-    ObserverProjectItemWrapperData() : observer(0) {}
+struct Qtilities::ProjectManagement::ObserverProjectItemWrapperPrivateData {
+    ObserverProjectItemWrapperPrivateData() : observer(0) {}
 
     QPointer<Observer> observer;
 };
@@ -54,7 +54,7 @@ using namespace Qtilities::Core;
 Qtilities::ProjectManagement::ObserverProjectItemWrapper::ObserverProjectItemWrapper(Observer* observer, QObject *parent) :
     QObject(parent)
 {
-    d = new ObserverProjectItemWrapperData;
+    d = new ObserverProjectItemWrapperPrivateData;
     if (observer)
         setObserverContext(observer);
 }

@@ -60,8 +60,8 @@ Qtilities::CoreGui::NamingPolicyInputDialog::NamingPolicyInputDialog(QWidget *pa
     connect(ui->radioReject,SIGNAL(clicked()),SLOT(updateStatusMessage()));
 
     // Init icons on buttons
-    ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR_16x16));
-    ui->btnGenerateNewName->setIcon(QIcon(ICON_REFRESH_16x16));
+    ui->btnDifferentNameValidityIndicator->setIcon(QIcon(qti_icon_ERROR_16x16));
+    ui->btnGenerateNewName->setIcon(QIcon(qti_icon_REFRESH_16x16));
     ui->radioAutoRename->setChecked(true);
 
     setAttribute(Qt::WA_QuitOnClose,false);
@@ -76,7 +76,7 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setContext(int context_id, con
     observer_context = context;
     observer_id = context_id;
     if (window_icon.isNull()) {
-        this->setWindowIcon(QIcon(ICON_MANAGER_16x16));
+        this->setWindowIcon(QIcon(qti_icon_MANAGER_16x16));
     } else {
         this->setWindowIcon(window_icon);
     }
@@ -210,9 +210,9 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::handleDifferentNameChange(QStr
 
     // Update different name icon
     if (validity_result == NamingPolicyFilter::Acceptable)
-        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_SUCCESS_16x16));
+        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(qti_icon_SUCCESS_16x16));
     else
-        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(ICON_ERROR_16x16));
+        ui->btnDifferentNameValidityIndicator->setIcon(QIcon(qti_icon_ERROR_16x16));
 
     // Update problem description
     if ((validity_result & NamingPolicyFilter::Duplicate) && (validity_result & NamingPolicyFilter::Invalid)) {
@@ -249,22 +249,22 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setName(const QString& new_nam
 
     // Check if we must use the instance name or the object name.
     if (subject_filter->isObjectNameManager(object)) {
-        // We use the OBJECT_NAME property:
+        // We use the qti_prop_NAME property:
         QVariant object_name_prop;
-        object_name_prop = object->property(OBJECT_NAME);
+        object_name_prop = object->property(qti_prop_NAME);
         if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
-            SharedObserverProperty name_property(QVariant(new_name),OBJECT_NAME);
+            SharedObserverProperty name_property(QVariant(new_name),qti_prop_NAME);
             QVariant property = qVariantFromValue(name_property);
-            object->setProperty(OBJECT_NAME,QVariant(property));
+            object->setProperty(qti_prop_NAME,QVariant(property));
         }
     } else {
-        // We use the INSTANCE_NAMES property:
+        // We use the qti_prop_ALIAS_MAP property:
         QVariant instance_names_prop;
-        instance_names_prop = object->property(INSTANCE_NAMES);
+        instance_names_prop = object->property(qti_prop_ALIAS_MAP);
         if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>()) {
             ObserverProperty new_instance_name = instance_names_prop.value<ObserverProperty>();
             new_instance_name.setValue(QVariant(new_name),observer_id);
-            object->setProperty(INSTANCE_NAMES,qVariantFromValue(new_instance_name));
+            object->setProperty(qti_prop_ALIAS_MAP,qVariantFromValue(new_instance_name));
         }
 
     }
@@ -275,15 +275,15 @@ QString Qtilities::CoreGui::NamingPolicyInputDialog::getName() {
         return QString();
 
     if (subject_filter->isObjectNameManager(object)) {
-        // We use the OBJECT_NAME property:
+        // We use the qti_prop_NAME property:
         QVariant object_name_prop;
-        object_name_prop = object->property(OBJECT_NAME);
+        object_name_prop = object->property(qti_prop_NAME);
         if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>())
                 return (object_name_prop.value<SharedObserverProperty>()).value().toString();
     } else {
-        // We use the INSTANCE_NAMES property:
+        // We use the qti_prop_ALIAS_MAP property:
         QVariant instance_names_prop;
-        instance_names_prop = object->property(INSTANCE_NAMES);
+        instance_names_prop = object->property(qti_prop_ALIAS_MAP);
         if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>())
             return (instance_names_prop.value<ObserverProperty>()).value(observer_id).toString();
 

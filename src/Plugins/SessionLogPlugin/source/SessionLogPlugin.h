@@ -47,10 +47,10 @@ namespace Qtilities {
             using namespace Qtilities::Core;
 
             /*!
-              \struct SessionLogPluginData
-              \brief The SessionLogPluginData struct stores private data used by the SessionLogPlugin class.
+              \struct SessionLogPluginPrivateData
+              \brief The SessionLogPluginPrivateData struct stores private data used by the SessionLogPlugin class.
              */
-            struct SessionLogPluginData;
+            struct SessionLogPluginPrivateData;
 
             /*!
               \class SessionLogPlugin
@@ -89,7 +89,7 @@ namespace Qtilities {
                 QString pluginLicense() const;
 
             private:
-                SessionLogPluginData* d;
+                SessionLogPluginPrivateData* d;
             };
         }
     }

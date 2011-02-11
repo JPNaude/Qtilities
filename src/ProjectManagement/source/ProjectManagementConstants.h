@@ -41,9 +41,9 @@ namespace Qtilities {
         namespace Constants {
             // File Extensions
             //! The file extension used for binary project files.
-            const char * const FILE_EXT_BINARY_PROJECT  = ".prj";
+            const char * const qti_def_SUFFIX_PROJECT_BINARY  = ".prj";
             //! The file extension used for xml project files. By default xml and formatted in the %Qtilities Tree Format.
-            const char * const FILE_EXT_XML_PROJECT     = ".xml";
+            const char * const qti_def_SUFFIX_PROJECT_XML     = ".xml";
         }
     }
 }

@@ -47,25 +47,25 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
         /*!
-        \class ObjectInfoTreeWidgetData
-        \brief The ObjectInfoTreeWidgetData stores private data used by the ObjectInfoTreeWidget class.
+        \class qti_private_ObjectInfoTreeWidgetPrivateData
+        \brief The qti_private_ObjectInfoTreeWidgetPrivateData stores private data used by the qti_private_ObjectInfoTreeWidget class.
           */
-        class ObjectInfoTreeWidgetData;
+        class qti_private_ObjectInfoTreeWidgetPrivateData;
 
         /*!
-        \class ObjectInfoTreeWidget
-        \brief The ObjectInfoTreeWidget class provides a widget which shows meta info about the objects inside the widget (properties, events, signals etc.).
+        \class qti_private_ObjectInfoTreeWidget
+        \brief The qti_private_ObjectInfoTreeWidget class provides a widget which shows meta info about the objects inside the widget (properties, events, signals etc.).
 
         \todo
         - setHierarchyDepth() does nothing yet.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectInfoTreeWidget : public QTreeWidget {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT qti_private_ObjectInfoTreeWidget : public QTreeWidget {
             Q_OBJECT
             Q_ENUMS(MetaCategory)
 
         public:
-            ObjectInfoTreeWidget(QWidget *parent = 0);
-            virtual ~ObjectInfoTreeWidget();
+            qti_private_ObjectInfoTreeWidget(QWidget *parent = 0);
+            virtual ~qti_private_ObjectInfoTreeWidget();
 
             enum MetaCategory { Event, Property, Method, Dependancy, Source };
 
@@ -88,16 +88,16 @@ namespace Qtilities {
         signals:
             //! Emits a signal with an object reference and tree widget item. This signal is emitted when the tree is build. Thus you can add additional categories to a tree widget item based on the object reference.
             void populateTreeItem(QObject* obj, QTreeWidgetItem* item);
-            //! Emits a signal which notifies classes which inherit from ObjectInfoTreeWidget of data pasted in this widget.
+            //! Emits a signal which notifies classes which inherit from qti_private_ObjectInfoTreeWidget of data pasted in this widget.
             void pasteActionOccured(const ObserverMimeData* paste_mime_data);
 
         private:
             void populateItem(QTreeWidgetItem* item, QObject* obj);
 
-            static QPointer<ObjectInfoTreeWidget> currentWidget;
-            static QPointer<ObjectInfoTreeWidget> actionContainerWidget;
+            static QPointer<qti_private_ObjectInfoTreeWidget> currentWidget;
+            static QPointer<qti_private_ObjectInfoTreeWidget> actionContainerWidget;
 
-            ObjectInfoTreeWidgetData* d;
+            qti_private_ObjectInfoTreeWidgetPrivateData* d;
         };
     }
 }

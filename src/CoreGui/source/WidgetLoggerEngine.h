@@ -57,10 +57,11 @@ namespace Qtilities {
         // Widget Logger Engine
         // ------------------------------------
         /*!
-        \struct WidgetLoggerEngineData
+        \struct WidgetLoggerEnginePrivateData
         \brief A struct used by the WidgetLoggerEngine class to store data.
           */
-        struct WidgetLoggerEngineData;
+        struct WidgetLoggerEnginePrivateData;
+
         /*!
         \class WidgetLoggerEngine
         \brief A logger engine which shows logged messages in a widget with a QTextEdit widget.
@@ -93,7 +94,7 @@ namespace Qtilities {
             void logMessage(const QString& message);
 
         private:
-            WidgetLoggerEngineData* d;
+            WidgetLoggerEnginePrivateData* d;
         };
     }
 }

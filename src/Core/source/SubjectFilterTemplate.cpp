@@ -41,14 +41,14 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::Core::SubjectFilterTemplateData {
-    SubjectFilterTemplateData() : is_exportable(true) {}
+struct Qtilities::Core::SubjectFilterTemplatePrivateData {
+    SubjectFilterTemplatePrivateData() : is_exportable(true) {}
 
     bool is_exportable;
 };
 
 Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) : AbstractSubjectFilter(parent) {
-    d = new SubjectFilterTemplateData;
+    d = new SubjectFilterTemplatePrivateData;
 }
 
 Qtilities::Core::SubjectFilterTemplate::~SubjectFilterTemplate() {
@@ -140,7 +140,7 @@ bool Qtilities::Core::SubjectFilterTemplate::handleMonitoredPropertyChange(QObje
 }
 
 Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectFilterTemplate::instanceFactoryInfo() const {
-    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
+    InstanceFactoryInfo instanceFactoryInfo(qti_def_FACTORY_QTILITIES,"Subject Filter Template","Subject Filter Template");
     return instanceFactoryInfo;
 }
 

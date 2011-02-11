@@ -45,10 +45,10 @@
 namespace Qtilities {
     namespace CoreGui {
         /*!
-        \struct CommandData
+        \struct CommandPrivateData
         \brief A structure storing private data in the Command class.
           */
-        struct CommandData {
+        struct CommandPrivateData {
             QKeySequence default_key_sequence;
             QKeySequence current_key_sequence;
             QString default_text;
@@ -113,14 +113,14 @@ namespace Qtilities {
             void keySequenceChanged();
 
         protected:
-            CommandData* c;
+            CommandPrivateData* c;
         };
 		
         /*!
-        \struct MultiContextActionData
+        \struct MultiContextActionPrivateData
         \brief A structure storing private data in the MultiContextAction class.
           */
-        struct MultiContextActionData;
+        struct MultiContextActionPrivateData;
 
         /*!
         \class MultiContextAction
@@ -165,14 +165,14 @@ namespace Qtilities {
             void updateFrontendAction();
 
         private:
-            MultiContextActionData* d;
+            MultiContextActionPrivateData* d;
         };
 
         /*!
-        \struct ShortcutCommandData
+        \struct ShortcutCommandPrivateData
         \brief A structure storing private data in the ShortcutCommand class.
           */
-        struct ShortcutCommandData;
+        struct ShortcutCommandPrivateData;
 
         /*!
         \class ShortcutCommand
@@ -202,7 +202,7 @@ namespace Qtilities {
             QList<int> activeContexts() const;
 
         private:
-            ShortcutCommandData* d;
+            ShortcutCommandPrivateData* d;
         };
     }
 }

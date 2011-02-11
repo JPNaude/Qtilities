@@ -92,10 +92,10 @@ namespace Qtilities {
         };
 
         /*!
-        \struct MenuContainerData
+        \struct MenuContainerPrivateData
         \brief A structure storing private data in menu containers.
           */
-        struct MenuContainerData;
+        struct MenuContainerPrivateData;
 
         /*!
         \class MenuContainer
@@ -122,14 +122,14 @@ namespace Qtilities {
             void evaluateMenuActions();
 
         private:
-            MenuContainerData* d;
+            MenuContainerPrivateData* d;
         };
 
         /*!
-        \struct MenuBarContainerData
+        \struct MenuBarContainerPrivateData
         \brief A structure storing private data in menubar containers.
           */
-        struct MenuBarContainerData;
+        struct MenuBarContainerPrivateData;
 
         /*!
         \class MenuBarContainer
@@ -153,7 +153,7 @@ namespace Qtilities {
             void addMenu(ActionContainer *menu, const QString &before = QString());
 
         private:
-            MenuBarContainerData* d;
+            MenuBarContainerPrivateData* d;
         };
     }
 }

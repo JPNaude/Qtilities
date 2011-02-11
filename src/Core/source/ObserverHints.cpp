@@ -35,8 +35,8 @@
 
 #include <QDomElement>
 
-struct Qtilities::Core::ObserverHintsData {
-    ObserverHintsData() : observer_selection_context(ObserverHints::SelectionUseParentContext),
+struct Qtilities::Core::ObserverHintsPrivateData {
+    ObserverHintsPrivateData() : observer_selection_context(ObserverHints::SelectionUseParentContext),
         naming_control(ObserverHints::NoNamingControlHint),
         activity_display(ObserverHints::NoActivityDisplayHint),
         activity_control(ObserverHints::NoActivityControlHint),
@@ -71,7 +71,7 @@ struct Qtilities::Core::ObserverHintsData {
 };
 
 Qtilities::Core::ObserverHints::ObserverHints(QObject* parent) : QObject(parent), ObserverAwareBase() {
-    d = new ObserverHintsData;
+    d = new ObserverHintsPrivateData;
 
     Observer* obs = qobject_cast<Observer*> (parent);
     if (obs)
@@ -83,7 +83,7 @@ Qtilities::Core::ObserverHints::~ObserverHints() {
 }
 
 Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObject(other.parent()), ObserverAwareBase() {
-    d = new ObserverHintsData;
+    d = new ObserverHintsPrivateData;
     d->observer_selection_context = other.observerSelectionContextHint();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();

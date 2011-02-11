@@ -44,13 +44,13 @@
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
 
-struct Qtilities::Plugins::Template::PluginTemplateData {
-    PluginTemplateData() {}
+struct Qtilities::Plugins::Template::PluginTemplatePrivateData {
+    PluginTemplatePrivateData() {}
 };
 
 Qtilities::Plugins::Template::PluginTemplate::PluginTemplate(QObject* parent) : QObject(parent)
 {
-    d = new PluginTemplateData;
+    d = new PluginTemplatePrivateData;
     setObjectName(pluginName());
 }
 
@@ -85,7 +85,7 @@ QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory()
 }
 
 double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
-    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
+    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {

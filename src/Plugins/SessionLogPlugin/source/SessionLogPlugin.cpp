@@ -46,13 +46,13 @@
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
 
-struct Qtilities::Plugins::SessionLog::SessionLogPluginData {
-    SessionLogPluginData() {}
+struct Qtilities::Plugins::SessionLog::SessionLogPluginPrivateData {
+    SessionLogPluginPrivateData() {}
 };
 
 Qtilities::Plugins::SessionLog::SessionLogPlugin::SessionLogPlugin(QObject* parent) : QObject(parent)
 {
-    d = new SessionLogPluginData;
+    d = new SessionLogPluginPrivateData;
     setObjectName(pluginName());
 }
 
@@ -97,7 +97,7 @@ QtilitiesCategory Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCatego
 }
 
 double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
+    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() const {

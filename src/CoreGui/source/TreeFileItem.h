@@ -46,11 +46,11 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Constants;
 
         /*!
-        \struct TreeFileItemData
+        \struct TreeFileItemPrivateData
         \brief Structure used by TreeFileItem to store private data.
           */
-        struct TreeFileItemData {
-            TreeFileItemData() : instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_FILE_ITEM,QString()),
+        struct TreeFileItemPrivateData {
+            TreeFileItemPrivateData() : instanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_TREE_FILE_ITEM,QString()),
                 ignore_events(false) { }
 
             QtilitiesFileInfo file_info;
@@ -99,7 +99,7 @@ namespace Qtilities {
               */
             TreeFileItem(const QString& file_path = QString(), const QString& relative_to_path = QString(), PathDisplay path_display = DisplayFileName,  QObject* parent = 0);
             virtual ~TreeFileItem();
-            //! Event filter which catches OBJECT_NAME property changes on this object.
+            //! Event filter which catches qti_prop_NAME property changes on this object.
             bool eventFilter(QObject *object, QEvent *event);
 
             //! Sets the PathDisplay used for this tree file item.
@@ -111,8 +111,8 @@ namespace Qtilities {
             /*!
               Does the same as QFileModel::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
 
-              This function will check if there is an OBJECT_NAME property on this object and set it. If it does not exist it will
-              just set objectName(). Note that this does not set the names in the INSTANCE_NAMES property if it exists.
+              This function will check if there is an qti_prop_NAME property on this object and set it. If it does not exist it will
+              just set objectName(). Note that this does not set the names in the qti_prop_ALIAS_MAP property if it exists.
 
               \param file_path The new file path.
               \param relative_to_path The relative to path to use.
@@ -193,7 +193,7 @@ namespace Qtilities {
 
         protected:
             void setFactoryData(InstanceFactoryInfo instanceFactoryInfo);
-            TreeFileItemData* treeFileItemBase;
+            TreeFileItemPrivateData* treeFileItemBase;
 
         private:
             //! Internal function to get the displayed name according to the PathDisplay type.

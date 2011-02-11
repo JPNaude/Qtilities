@@ -35,14 +35,14 @@
 #include "ObserverRelationalTable.h"
 #include "Observer.h"
 
-struct Qtilities::Core::ObserverDotGraphData {
-    ObserverDotGraphData() : observer(0) {}
+struct Qtilities::Core::ObserverDotGraphPrivateData {
+    ObserverDotGraphPrivateData() : observer(0) {}
 
     Observer* observer;
 };
 
 Qtilities::Core::ObserverDotGraph::ObserverDotGraph(Observer* observer) : QObject(observer) {
-    d = new ObserverDotGraphData;
+    d = new ObserverDotGraphPrivateData;
     d->observer = observer;
 }
 
@@ -64,7 +64,7 @@ Qtilities::Core::Observer* Qtilities::Core::ObserverDotGraph::observerContext() 
 }
 
 Qtilities::Core::ObserverDotGraph::ObserverDotGraph(const ObserverDotGraph& other) : QObject(other.parent()) {
-    d = new ObserverDotGraphData;
+    d = new ObserverDotGraphPrivateData;
     d->observer = other.observerContext();
 }
 

@@ -36,7 +36,7 @@
 #ifndef ObjectDynamicPropertyBrowser_H
 #define ObjectDynamicPropertyBrowser_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QMainWindow>
 
 #include "QtilitiesCoreGui_global.h"
 #include <Factory>
@@ -50,25 +50,24 @@ using namespace Qtilities::Core;
 namespace Qtilities {
     namespace CoreGui {
         /*!
-          \struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserData
-          \brief The ObjectDynamicPropertyBrowserData class contains private data which is used by an ObjectDynamicPropertyBrowser widget.
+          \struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData
+          \brief The ObjectDynamicPropertyBrowserPrivateData class contains private data which is used by an ObjectDynamicPropertyBrowser widget.
 
           \sa Qtilities::CoreGui::ObjectDynamicPropertyBrowser
           */
-        struct ObjectDynamicPropertyBrowserData;
+        struct ObjectDynamicPropertyBrowserPrivateData;
+        struct qti_private_ObserverPropertyData;
 
         /*!
           \class Qtilities::CoreGui::ObjectDynamicPropertyBrowser
           \brief The ObjectDynamicPropertyBrowser class provides an interface to the Qt Property Editor solution.
 
           To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function.
-          It is possible to filter the inherited classes which are shown by the property browser by calling the setFilterList() function. The current filter
-          can be obtained using the filterList() function and it can be cleared using the clearFilter() function. It is also possible to create an inversed filter
-          using the setFilterListInversed() function. This is usefull when you want to display all inherited classes expect the ones in the filter list.
-
           The properties can be displayed in different ways, defined by the BrowserType enumeration.
+
+          <i>This class was added in %Qtilities v0.3.</i>
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectDynamicPropertyBrowser : public QWidget
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectDynamicPropertyBrowser : public QMainWindow
         {
             Q_OBJECT
             Q_ENUMS(BrowserType)
@@ -92,6 +91,7 @@ namespace Qtilities {
 
             ObjectDynamicPropertyBrowser(BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~ObjectDynamicPropertyBrowser();
+            bool eventFilter(QObject *object, QEvent *event);
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -100,23 +100,6 @@ namespace Qtilities {
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;
-
-            //! Sets up a filter list. Classes specified in the filter list will not be editable. The internal data structures will be updated automatically to exclude the previously filtered classes.
-            /*!
-              \note For optimal performance, set your filter list before calling the setObject() function.
-              */
-            void setFilterList(QStringList filter_list, bool inversed_list = false);
-            //! Gets the current filter list.
-            QStringList filterList() const;
-            //! Clears the current filter list. The internal data structures will be updated automatically to include the previously filtered classes.
-            void clearFilter();
-            //! Sets the filter list to inverse mode, thus you can filter all classes except a specific set.
-            void setFilterListInversed(bool toggle);
-            //! Gets the filter list inverse setting. True if the inverse is enabled, false otherwise.
-            bool filterListInversed();
-
-            //! Toggle if read only properties should be disabled in the property editor. If not they will be editable, but changes won't be written back to the object.
-            void toggleReadOnlyPropertiesDisabled(bool toggle);
 
             QSize sizeHint() const;
 
@@ -160,13 +143,14 @@ namespace Qtilities {
         private slots:
             void handle_property_changed(QtProperty *, const QVariant &);
             void handleObjectDeleted();
+            void handleAddProperty();
+            void handleRemoveProperty();
 
         private:
-            //! Inspect the meta object of a class to see which properties must be added, then add these properties.
-            void inspectClass(const QMetaObject *metaObject);
-            void refreshClass(const QMetaObject *metaObject, bool recursive);
+            //! Inspect the dynamic properties of an object and add these properties to the property browser.
+            void inspectObject(const QObject* obj);
 
-            ObjectDynamicPropertyBrowserData* d;
+            ObjectDynamicPropertyBrowserPrivateData* d;
 
         };
     }

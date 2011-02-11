@@ -51,10 +51,10 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
 
         /*!
-        \struct ProjectManagerData
+        \struct ProjectManagerPrivateData
         \brief The struct used to store private data in the ProjectManager class.
           */
-        struct ProjectManagerData;
+        struct ProjectManagerPrivateData;
 
         /*!
         \class ProjectManager
@@ -92,8 +92,8 @@ namespace Qtilities {
               that the user see.
 
               The file naming conventions used by default are defined by the following constants.
-              - Binary: FILE_EXT_BINARY_PROJECT
-              - XML:    FILE_EXT_XML_PROJECT
+              - Binary: qti_def_SUFFIX_PROJECT_BINARY
+              - XML:    qti_def_SUFFIX_PROJECT_XML
 
               By default all available project types are allowed.
 
@@ -309,7 +309,7 @@ namespace Qtilities {
 
             ProjectManager(QObject* parent = 0);
             static ProjectManager* m_Instance;
-            ProjectManagerData* d;
+            ProjectManagerPrivateData* d;
         };
     }
 }

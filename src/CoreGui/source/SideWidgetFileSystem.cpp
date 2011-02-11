@@ -46,8 +46,8 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::SideWidgetFileSystemData {
-    SideWidgetFileSystemData(): model(0) {}
+struct Qtilities::CoreGui::SideWidgetFileSystemPrivateData {
+    SideWidgetFileSystemPrivateData(): model(0) {}
 
     QFileSystemModel *model;
 };
@@ -57,7 +57,7 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
     m_ui(new Ui::SideWidgetFileSystem)
 {
     m_ui->setupUi(this);
-    d = new SideWidgetFileSystemData;
+    d = new SideWidgetFileSystemPrivateData;
 
     d->model = new QFileSystemModel;
 

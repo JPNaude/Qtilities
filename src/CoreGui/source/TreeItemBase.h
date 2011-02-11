@@ -45,10 +45,10 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-        \struct TreeItemBaseData
+        \struct TreeItemBasePrivateData
         \brief Structure used by TreeItemBase to store private data.
           */
-        struct TreeItemBaseData;
+        struct TreeItemBasePrivateData;
 
         /*!
           \class TreeItemBase
@@ -61,13 +61,6 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
-            Q_PROPERTY(QFont Font READ getFont WRITE setFont)
-            Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
-            Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
-            Q_PROPERTY(QSize Size READ getSizeHint WRITE setSizeHint)
-            Q_PROPERTY(QString StatusTip READ getStatusTip WRITE setStatusTip)
-            Q_PROPERTY(QString ToolTip READ getToolTip WRITE setToolTip)
-            Q_PROPERTY(QString WhatsThis READ getWhatsThis WRITE setWhatsThis)
 
         public:
             //! Constructs the base of a tree item.
@@ -99,7 +92,7 @@ namespace Qtilities {
             void modificationStateChanged(bool is_modified) const;
 
         protected:
-            TreeItemBaseData* itemBaseData;
+            TreeItemBasePrivateData* itemBaseData;
         };
     }
 }

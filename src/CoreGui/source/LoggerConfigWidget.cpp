@@ -52,8 +52,8 @@ using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
-struct Qtilities::CoreGui::LoggerConfigWidgetData {
-    LoggerConfigWidgetData() : active_engine(0) {}
+struct Qtilities::CoreGui::LoggerConfigWidgetPrivateData {
+    LoggerConfigWidgetPrivateData() : active_engine(0) {}
 
     LoggerEnginesTableModel logger_engine_model;
     AbstractLoggerEngine* active_engine;
@@ -67,7 +67,7 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     ui->btnApply->setVisible(applyButtonVisisble);
     setObjectName(tr("Logger Config Widget"));
 
-    d = new LoggerConfigWidgetData;
+    d = new LoggerConfigWidgetPrivateData;
     connect(ui->tableViewLoggerEngines,SIGNAL(clicked(QModelIndex)),SLOT(handle_LoggerEngineTableClicked(QModelIndex)));
     connect(ui->btnAddLoggerEngine,SIGNAL(clicked(bool)),SLOT(handle_NewLoggerEngineRequest()));
     connect(ui->btnRemoveLoggerEngine,SIGNAL(clicked(bool)),SLOT(handle_RemoveLoggerEngineRequest()));
@@ -114,7 +114,7 @@ Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
 }
 
 QIcon Qtilities::CoreGui::LoggerConfigWidget::configPageIcon() const {
-    return QIcon(ICON_CONFIG_LOGGING_48x48);
+    return QIcon(qti_icon_CONFIG_LOGGING_48x48);
 }
 
 QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
@@ -251,7 +251,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_ComboBoxGlobalLogLevelCurren
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnSaveConfigClicked() {
-    QString filter = tr("Log Configurations (*") + FILE_EXT_LOGGER_CONFIG + ")";
+    QString filter = tr("Log Configurations (*") + qti_def_SUFFIX_LOGGER_CONFIG + ")";
     QString session_log_path = QApplication::applicationDirPath();
     QString output_file = QFileDialog::getSaveFileName(0, tr("Save log configuration to:"), session_log_path, filter);
     if (output_file.isEmpty())
@@ -262,7 +262,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnSaveConfigClicked() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnLoadConfigClicked() {
-    QString filter = tr("Log Configurations (*") + FILE_EXT_LOGGER_CONFIG + ")";
+    QString filter = tr("Log Configurations (*") + qti_def_SUFFIX_LOGGER_CONFIG + ")";
     QString session_log_path = QApplication::applicationDirPath();
     QString input_file = QFileDialog::getOpenFileName(0, tr("Select log configuration to load:"), session_log_path, filter);
     if (input_file.isEmpty())

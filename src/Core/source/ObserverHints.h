@@ -42,10 +42,10 @@
 namespace Qtilities {
     namespace Core {
         /*!
-        \struct ObserverHintsData
+        \struct ObserverHintsPrivateData
         \brief Structure used by ObserverHints to store private data.
           */
-        struct ObserverHintsData;
+        struct ObserverHintsPrivateData;
 
         /*!
           \class ObserverHints
@@ -448,7 +448,7 @@ is_exportable(true)
             void modificationStateChanged(bool is_modified) const;
 
         private:
-            ObserverHintsData* d;
+            ObserverHintsPrivateData* d;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ItemViewColumnFlags)

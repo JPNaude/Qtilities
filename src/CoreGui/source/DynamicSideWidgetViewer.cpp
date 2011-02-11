@@ -41,8 +41,8 @@
 #include <QSplitter>
 #include <QLabel>
 
-struct Qtilities::CoreGui::DynamicSideWidgetViewerData {
-    DynamicSideWidgetViewerData() : splitter(0),
+struct Qtilities::CoreGui::DynamicSideWidgetViewerPrivateData {
+    DynamicSideWidgetViewerPrivateData() : splitter(0),
     is_exclusive(false) {}
 
     QSplitter* splitter;
@@ -57,7 +57,7 @@ Qtilities::CoreGui::DynamicSideWidgetViewer::DynamicSideWidgetViewer(int mode_de
     ui(new Ui::DynamicSideWidgetViewer)
 {
     ui->setupUi(this);
-    d = new DynamicSideWidgetViewerData;
+    d = new DynamicSideWidgetViewerPrivateData;
     setObjectName("Dynamic Side Viewer Widget");
 
     if (layout())

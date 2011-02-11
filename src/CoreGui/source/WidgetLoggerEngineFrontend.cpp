@@ -61,8 +61,8 @@ using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Constants;
 
-struct Qtilities::CoreGui::WidgetLoggerEngineFrontendData {
-    WidgetLoggerEngineFrontendData() : searchBoxWidget(0),
+struct Qtilities::CoreGui::WidgetLoggerEngineFrontendPrivateData {
+    WidgetLoggerEngineFrontendPrivateData() : searchBoxWidget(0),
     txtLog(0),
     actionCopy(0),
     actionSelectAll(0),
@@ -99,7 +99,7 @@ struct Qtilities::CoreGui::WidgetLoggerEngineFrontendData {
 
 Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidget *parent) : QMainWindow(parent)
 {
-    d = new WidgetLoggerEngineFrontendData;
+    d = new WidgetLoggerEngineFrontendPrivateData;
     d->action_provider = new ActionProvider(this);
 
     // Setup search box widget:
@@ -325,61 +325,61 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     // ---------------------------
     // Save
     // ---------------------------
-    d->actionSave = new QAction(QIcon(ICON_FILE_SAVE_16x16),tr("Save"),this);
+    d->actionSave = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),tr("Save"),this);
     d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("Log")));
     connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_Save()));
-    ACTION_MANAGER->registerAction(MENU_FILE_SAVE,d->actionSave,context);
+    ACTION_MANAGER->registerAction(qti_action_FILE_SAVE,d->actionSave,context);
     // ---------------------------
     // Copy
     // ---------------------------
-    d->actionCopy = new QAction(QIcon(ICON_EDIT_COPY_16x16),tr("Copy"),this);
+    d->actionCopy = new QAction(QIcon(qti_icon_EDIT_COPY_16x16),tr("Copy"),this);
     d->action_provider->addAction(d->actionCopy,QtilitiesCategory(tr("Log")));
     connect(d->actionCopy,SIGNAL(triggered()),SLOT(handle_Copy()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_COPY,d->actionCopy,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_COPY,d->actionCopy,context);
     // ---------------------------
     // Select All
     // ---------------------------
-    d->actionSelectAll = new QAction(QIcon(ICON_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
+    d->actionSelectAll = new QAction(QIcon(qti_icon_EDIT_SELECT_ALL_16x16),tr("Select All"),this);
     d->actionSelectAll->setEnabled(true);
     d->action_provider->addAction(d->actionSelectAll,QtilitiesCategory(tr("Log")));
     connect(d->actionSelectAll,SIGNAL(triggered()),SLOT(handle_SelectAll()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_SELECT_ALL,d->actionSelectAll,context);
     // ---------------------------
     // Clear
     // ---------------------------
-    d->actionClear = new QAction(QIcon(ICON_EDIT_CLEAR_16x16),tr("Clear"),this);
+    d->actionClear = new QAction(QIcon(qti_icon_EDIT_CLEAR_16x16),tr("Clear"),this);
     d->action_provider->addAction(d->actionClear,QtilitiesCategory(tr("Log")));
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_CLEAR,d->actionClear,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_CLEAR,d->actionClear,context);
     // ---------------------------
     // Find
     // ---------------------------
-    d->actionFind = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
+    d->actionFind = new QAction(QIcon(qti_icon_FIND_16x16),tr("Find"),this);
     //d->actionFind->setShortcut(QKeySequence(QKeySequence::Find));
     d->action_provider->addAction(d->actionFind,QtilitiesCategory(tr("Log")));
     connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_SearchShortcut()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFind,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFind,context);
     // ---------------------------
     // Print
     // ---------------------------
-    d->actionPrint = new QAction(QIcon(ICON_PRINT_16x16),tr("Print"),this);
+    d->actionPrint = new QAction(QIcon(qti_icon_PRINT_16x16),tr("Print"),this);
     d->action_provider->addAction(d->actionPrint,QtilitiesCategory(tr("Print")));
     connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT,d->actionPrint,context);
+    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT,d->actionPrint,context);
     // ---------------------------
     // Print PDF
     // ---------------------------
-    d->actionPrintPDF = new QAction(QIcon(ICON_PRINT_PDF_16x16),tr("Print PDF"),this);
+    d->actionPrintPDF = new QAction(QIcon(qti_icon_PRINT_PDF_16x16),tr("Print PDF"),this);
     d->action_provider->addAction(d->actionPrintPDF,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPDF,SIGNAL(triggered()),SLOT(handle_PrintPDF()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PDF,d->actionPrintPDF,context);
+    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PDF,d->actionPrintPDF,context);
     // ---------------------------
     // Print Preview
     // ---------------------------
-    d->actionPrintPreview = new QAction(QIcon(ICON_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
+    d->actionPrintPreview = new QAction(QIcon(qti_icon_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
     d->action_provider->addAction(d->actionPrintPreview,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_PrintPreview()));
-    ACTION_MANAGER->registerAction(MENU_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
     // ---------------------------
     // Logger Settings
     // ---------------------------
@@ -389,9 +389,9 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
         ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
         if (config_widget) {
             if (config_widget->hasPage(tr("Logging"))) {
-                d->actionSettings = new QAction(QIcon(ICON_PROPERTY_16x16),tr("Logging Settings"),this);
+                d->actionSettings = new QAction(QIcon(qti_icon_PROPERTY_16x16),tr("Logging Settings"),this);
                 d->action_provider->addAction(d->actionSettings,QtilitiesCategory(tr("Log")));
-                ACTION_MANAGER->registerAction(MENU_FILE_SETTINGS,d->actionSettings,context);
+                ACTION_MANAGER->registerAction(qti_action_FILE_SETTINGS,d->actionSettings,context);
                 connect(d->actionSettings,SIGNAL(triggered()),SLOT(handle_Settings()));
             }
         }

@@ -138,7 +138,7 @@ to a XML QDomElement node. This is made possible by the implementation of Qtilit
 \section qtilities_category_usage_scenario Usage Scenario
 
 Lets look at one example usage of QtilitiesCategory: The Observer class supports the grouping of objects into categories
-by inspecting objects attached to it for the OBJECT_CATEGORY property. We can add an object in a specific category to
+by inspecting objects attached to it for the qti_prop_CATEGORY_MAP property. We can add an object in a specific category to
 an Observer context in a couple of ways:
 \code
 // Using Observer directly:
@@ -147,7 +147,7 @@ observer->useDisplayHints();
 observer->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedDisplay);
 QObject* object = new QObject();
 object->setObjectName("Categorized Item");
-ObserverProperty category_property(OBJECT_CATEGORY);
+ObserverProperty category_property(qti_prop_CATEGORY_MAP);
 category_property.setValue(qVariantFromValue(QtilitiesCategory("Item Category")),observer->observerID());
 Observer::setObserverProperty(object,category_property);
 observer->attachSubject(object);

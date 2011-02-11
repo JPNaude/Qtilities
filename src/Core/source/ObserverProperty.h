@@ -38,6 +38,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QMetaType>
+
 #include "QtilitiesCore_global.h"
 
 namespace Qtilities {
@@ -68,7 +69,10 @@ See the \ref observer_properties section of the \ref page_observers article for 
             ObserverProperty(const char* property_name = "")  {
                 name = property_name;
                 last_change_context = -1;
-                is_exportable = true;
+                is_exportable = ObserverProperty::propertyIsExportable(property_name);
+                is_reserved = ObserverProperty::propertyIsReserved(property_name);
+                supports_change_notifications = ObserverProperty::propertySupportsChangeNotifications(property_name);
+                is_removable = ObserverProperty::propertyIsRemovable(property_name);
             }
             ObserverProperty(QDataStream &ds) {
                 importObserverPropertyBinary(ds);
@@ -78,6 +82,9 @@ See the \ref observer_properties section of the \ref page_observers article for 
                 name = observer_property.propertyName();
                 last_change_context = observer_property.lastChangedContext();
                 is_exportable = observer_property.isExportable();
+                is_reserved = observer_property.isReserved();
+                is_removable = observer_property.isRemovable();
+                supports_change_notifications = observer_property.supportsChangeNotifications();
             }
             virtual ~ObserverProperty() {}
 
@@ -87,13 +94,10 @@ See the \ref observer_properties section of the \ref page_observers article for 
             bool importObserverPropertyBinary(QDataStream& stream);
             //! Get the name of this property.
             inline const char* propertyName() const { return name; }
-
             //! Function to check if an observer property is valid.
             inline bool isValid() { return (name != QString()); }
-
             //! Returns the observer_map of this observer.
             inline QMap<int,QVariant> observerMap() const { return observer_map; }
-
             //! Returns the value of the property.
             /*!
               \param observer_context Indicates the observer context for which the property value is required. If the property is
@@ -102,7 +106,6 @@ See the \ref observer_properties section of the \ref page_observers article for 
             virtual QVariant value(int observer_context = -1) const {
                 return (observer_map.value(observer_context));
             }
-
             //! Sets the value of the property.
             /*!
               Sets the value for a specific observer context. If the observer context does not exist, it is created with the
@@ -110,51 +113,95 @@ See the \ref observer_properties section of the \ref page_observers article for 
               \param new_value The new QVariant value which must be assigned to the property.
               \param observer_context Indicates the observer context for which the property value needs to be set.
               */
-            virtual void setValue(QVariant new_value, int observer_context) {
+            virtual bool setValue(QVariant new_value, int observer_context) {
                 if (observer_context == -1)
-                    return;
+                    return false;
                 if (!new_value.isValid())
-                    return;
+                    return false;
                 observer_map[observer_context] = new_value;
                 last_change_context = observer_context;
+                return true;
             }
 
             //! Returns the context in which the last change took place.
             int lastChangedContext() const {
                 return last_change_context;
             }
-
             //! Checks if this property is defined within the context of the specified observer.
             bool hasContext(int observer_context) const {
                 return observer_map.contains(observer_context);
             }
-
             //! Removes an observer context from the property.
             void removeContext(int observer_context) {
                 observer_map.remove(observer_context);
             }
-
             //! Adds an observer context from the property.
             void addContext(QVariant new_value, int observer_context) {
                 if (!observer_map.keys().contains(observer_context))
                     observer_map[observer_context] = new_value;
             }
+            //! Indicates if the property is reserved.
+            /*!
+              Reserved properties are is managed by %Qtilities and must be be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
 
-            //! Set if this property must be exportable. That is, when a binary export is performed on an object with this property set, it will be exported with the object and restored when the object is imported again. Default is true.
+              For non-Qtilities properties this is false by default.
+              */
+            bool isReserved() const {
+                return is_reserved;
+            }
+            //! Makes the property reserved. Properties can only be made reserved once, after that they always stay reserved.
+            void makeReserved() {
+                is_reserved = true;
+            }
+            //! Indicates if the property is removable.
+            /*!
+              Removable properties can be removed by developers. Properties that are not removable cannot be removed.
+
+              For non-Qtilities properties this is true by default.
+              */
+            bool isRemovable() const {
+                return is_removable;
+            }
+            //! Makes the property reserved. Properties can only be made reserved once, after that they always stay reserved.
+            void makeNotRemovable() {
+                is_removable = false;
+            }
+            //! Set if this property must be exportable. That is, when a binary export is performed on an object with this property set, it will be exported with the object and restored when the object is imported again.
             void setIsExportable(bool new_is_exportable) {
                 is_exportable = new_is_exportable;
             }
-
-            //! Returns true if this property is exportable. That is, when a binary export is performed on an object with this property set, it will be exported with the object and restored when the object is imported again. Default is true.
+            //! Returns true if this property is exportable. That is, when a binary export is performed on an object with this property set, it will be exported with the object and restored when the object is imported again.
+            /*!
+              For non-Qtilities properties this is true by default.
+              */
             bool isExportable() const {
                 return is_exportable;
             }
+            //! Indicates if this property supports change notifications.
+            /*!
+              For non-Qtilities properties this is true by default.
+              */
+            bool supportsChangeNotifications() const {
+                return supports_change_notifications;
+            }
+
+            //! Function to check if any %Qtilities property is exportable.
+            static bool propertyIsExportable(const char* property_name);
+            //! Function to check if any %Qtilities property is reserved.
+            static bool propertyIsReserved(const char* property_name);
+            //! Function to check if any %Qtilities property is removable.
+            static bool propertyIsRemovable(const char* property_name);
+            //! Function to check if any %Qtilities property supports change notifications.
+            static bool propertySupportsChangeNotifications(const char* property_name);
 
         protected:
             const char*             name;
             QMap<int,QVariant>      observer_map;
             int                     last_change_context;
             bool                    is_exportable;
+            bool                    is_reserved;
+            bool                    is_removable;
+            bool                    supports_change_notifications;
         };
 
         /*!
@@ -183,7 +230,7 @@ See the \ref observer_properties section of the \ref page_observers article for 
                 name = shared_property.propertyName();
                 last_change_context = -1;
                 property_value = shared_property.value();
-                is_exportable = shared_property.isExportable();
+                supports_change_notifications = shared_property.supportsChangeNotifications();
             }
             ~SharedObserverProperty() {}
 
@@ -191,7 +238,6 @@ See the \ref observer_properties section of the \ref page_observers article for 
             bool exportSharedPropertyBinary(QDataStream& stream) const;
             //! Imports the shared observer properties from a QDataStream.
             bool importSharedPropertyBinary(QDataStream& stream);
-
             //! Returns the value of the property.
             /*!
               \param observer_context Ignored since this is a shared property.
@@ -206,13 +252,31 @@ See the \ref observer_properties section of the \ref page_observers article for 
               \param new_value The new QVariant value which must be assigned to the property.
               \param observer_context Ignored since this is a shared property.
               */
-            void setValue(QVariant new_value, int observer_context = -1) {
+            bool setValue(QVariant new_value, int observer_context = -1) {
                 Q_UNUSED(observer_context)
 
                 if (!new_value.isValid())
-                    return;
+                    return false;
 
                 property_value = new_value;
+                return true;
+            }
+
+            //! Function to check if any %Qtilities property is exportable.
+            static bool propertyIsExportable(const char* property_name) {
+                return ObserverProperty::propertyIsExportable(property_name);
+            }
+            //! Function to check if any %Qtilities property is reserved.
+            static bool propertyIsReserved(const char* property_name) {
+                return ObserverProperty::propertyIsReserved(property_name);
+            }
+            //! Function to check if any %Qtilities property is removable.
+            static bool propertyIsRemovable(const char* property_name) {
+                return ObserverProperty::propertyIsRemovable(property_name);
+            }
+            //! Function to check if any %Qtilities property supports change notifications.
+            static bool propertySupportsChangeNotifications(const char* property_name) {
+                return ObserverProperty::propertySupportsChangeNotifications(property_name);
             }
 
         private:

@@ -38,8 +38,8 @@
 // MenuContainer Implemenation
 // --------------------------------
 
-struct Qtilities::CoreGui::MenuContainerData {
-    MenuContainerData() : this_menu(0) { }
+struct Qtilities::CoreGui::MenuContainerPrivateData {
+    MenuContainerPrivateData() : this_menu(0) { }
 
    QMenu* this_menu;
    QList<QPointer<MenuContainer> > sub_menus;
@@ -48,7 +48,7 @@ struct Qtilities::CoreGui::MenuContainerData {
 
 Qtilities::CoreGui::MenuContainer::MenuContainer(const QString& name, QObject* parent) : ActionContainer(name, parent)
 {
-    d = new MenuContainerData;
+    d = new MenuContainerPrivateData;
     d->this_menu = new QMenu(container_name);
     setObjectName(name);
     d->this_menu->setObjectName(name);
@@ -162,8 +162,8 @@ void Qtilities::CoreGui::MenuContainer::evaluateMenuActions() {
 // --------------------------------
 // MenuBarContainer Implemenation
 // --------------------------------
-struct Qtilities::CoreGui::MenuBarContainerData {
-   MenuBarContainerData() : this_menu_bar(0) { }
+struct Qtilities::CoreGui::MenuBarContainerPrivateData {
+   MenuBarContainerPrivateData() : this_menu_bar(0) { }
 
    QMenuBar* this_menu_bar;
    QList<QPointer<ActionContainer> > menus;
@@ -171,7 +171,7 @@ struct Qtilities::CoreGui::MenuBarContainerData {
 
 Qtilities::CoreGui::MenuBarContainer::MenuBarContainer(QObject* parent) : ActionContainer(QString(), parent)
 {
-    d = new MenuBarContainerData;
+    d = new MenuBarContainerPrivateData;
     d->this_menu_bar = new QMenuBar(0);
 
     setEmptyPolicy(ActionContainer::None);

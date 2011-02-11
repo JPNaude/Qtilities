@@ -52,10 +52,10 @@ namespace Qtilities {
             using namespace Qtilities::CoreGui::Interfaces;
             using namespace Qtilities::Logging;
             /*!
-              \struct DebugWidgetData
-              \brief The DebugWidgetData struct stores private data used by the DebugWidget class.
+              \struct DebugWidgetPrivateData
+              \brief The DebugWidgetPrivateData struct stores private data used by the DebugWidget class.
              */
-            struct DebugWidgetData;
+            struct DebugWidgetPrivateData;
 
             /*!
               \class DebugWidget
@@ -123,6 +123,8 @@ namespace Qtilities {
                 void on_btnAboutConan_clicked();
                 void on_btnAnalyzeAction_clicked();
 
+                void on_chkRefreshProperties_toggled(bool checked);
+
             private:
                 //! Refreshes the mode information.
                 void refreshModes();
@@ -138,7 +140,7 @@ namespace Qtilities {
                 void refreshFactories();
 
                 Ui::DebugWidget *ui;
-                DebugWidgetData* d;
+                DebugWidgetPrivateData* d;
             };
 
         }

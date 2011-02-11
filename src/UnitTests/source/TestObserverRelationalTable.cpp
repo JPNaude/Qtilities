@@ -51,21 +51,21 @@ void Qtilities::UnitTests::TestObserverRelationalTable::testVisitorIDs() {
 
     // The VISITOR_ID property should not exist on any objects:
     foreach (QObject* obj, children)
-        QVERIFY(Observer::propertyExists(obj,OBSERVER_VISITOR_ID) == false);
+        QVERIFY(Observer::propertyExists(obj,qti_prop_VISITOR_ID) == false);
 
     // Construct relational table:
     ObserverRelationalTable* table = new ObserverRelationalTable(rootNode);
 
     // Now check that all children got the VISITOR_ID property:
     foreach (QObject* obj, children)
-        QVERIFY(Observer::propertyExists(obj,OBSERVER_VISITOR_ID) == true);
+        QVERIFY(Observer::propertyExists(obj,qti_prop_VISITOR_ID) == true);
 
     // Now delete the table:
     delete table;
 
     // Now check that the VISITOR_ID property was removed from all objects:
     foreach (QObject* obj, children)
-        QVERIFY(Observer::propertyExists(obj,OBSERVER_VISITOR_ID) == false);
+        QVERIFY(Observer::propertyExists(obj,qti_prop_VISITOR_ID) == false);
 }
 
 void Qtilities::UnitTests::TestObserverRelationalTable::testCompare() {

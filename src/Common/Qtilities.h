@@ -36,15 +36,15 @@
 
 namespace Qtilities {
     //! The %Qtilities major version number.
-    #define QTILITIES_VERSION_MAJOR 0
+    #define qti_def_VERSION_MAJOR 0
     //! The %Qtilities minor version number.
-    #define QTILITIES_VERSION_MINOR 3
+    #define qti_def_VERSION_MINOR 3
     //! The %Qtilities revision version number.
-    #define QTILITIES_VERSION_REVISION 0
+    #define qti_def_VERSION_REVISION 0
     //! The %Qtilities beta number.
-    #define QTILITIES_VERSION_BETA 0
+    #define qti_def_VERSION_BETA 0
     //! The %Qtilities alpha number.
-    #define QTILITIES_VERSION_ALPHA 0
+    #define qti_def_VERSION_ALPHA 0
 
     //! The %Qtilities binary export formats version
     /*!
@@ -62,8 +62,12 @@ namespace Qtilities {
     3 - %Qtilities v0.3 onwards<br>
         - ActivityPolicyFilter::parentTrackingPolicy() now part of activity filter exports.
         - ObserverHints::modificationStateDisplayHint() now part of observer hints exports.
+        - ObserverProperty::isReserved() is now part of Observer properties.
+        - ObserverProperty::supportsChangeNotifications() is now part of Observer properties.
+        - AbstractSubjectFilter::isModificationStateMonitored() is part of all %Qtilities subject filters.
+        - All %Qtilities properties's names changed.
     */
-    #define QTILITIES_BINARY_EXPORT_FORMAT 3
+    #define qti_def_FORMAT_TREES_BINARY 3
 
     //! The shortcut export format version.
     /*!
@@ -71,7 +75,7 @@ namespace Qtilities {
     No version defined - %Qtilities v0.1 Beta 1<br>
     1 - %Qtililties v0.1 onwards
     */
-    #define QTILITIES_SHORTCUT_EXPORT_FORMAT 1
+    #define qti_def_FORMAT_CONFIG_SHORTCUTS 1
 
     //! The %Qtilities logger's binary export format.
     /*!
@@ -85,7 +89,7 @@ namespace Qtilities {
         - The logger binary export now includes the name of the engine. This fixes the bug where engine specific properties could not be restored properly.
         - The export now contains the message contexts of each engine.
     */
-    #define QTILITIES_LOGGER_BINARY_EXPORT_FORMAT 3
+    #define qti_def_FORMAT_CONFIG_LOGGER 3
 
     //! The %Qtilities XML export format.
     /*!
@@ -95,7 +99,7 @@ namespace Qtilities {
     XML exporting was introduced in %Qtilities v0.2<br>
     1 - %Qtililties v0.2 onwards<br>
     */
-    #define QTILITIES_XML_EXPORT_FORMAT 1
+    #define qti_def_FORMAT_TREES_XML 1
 
     //! The %Qtilities Extension System plugin configuration export format.
     /*!
@@ -105,7 +109,7 @@ namespace Qtilities {
     Plugin configuration sets exporting was introduced in %Qtilities v0.3<br>
     1 - %Qtililties v0.3 onwards<br>
     */
-    #define QTILITIES_PLUGIN_CONFIG_FORMAT 1
+    #define qti_def_FORMAT_CONFIG_PLUGINS 1
 }
 
 #endif // QTILITIES_H

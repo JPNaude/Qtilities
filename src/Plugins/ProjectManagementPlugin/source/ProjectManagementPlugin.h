@@ -49,10 +49,10 @@ namespace Qtilities {
             using namespace Qtilities::Core;
 
             /*!
-              \struct ProjectManagementPluginData
-              \brief The ProjectManagementPluginData struct stores private data used by the ProjectManagementPlugin class.
+              \struct ProjectManagementPluginPrivateData
+              \brief The ProjectManagementPluginPrivateData struct stores private data used by the ProjectManagementPlugin class.
              */
-            struct ProjectManagementPluginData;
+            struct ProjectManagementPluginPrivateData;
 
             /*!
               \class ProjectManagementPlugin
@@ -99,7 +99,7 @@ namespace Qtilities {
                 void handle_projectStateChanged();
 
             private:
-                ProjectManagementPluginData* d;
+                ProjectManagementPluginPrivateData* d;
             };
         }
     }

@@ -53,10 +53,10 @@ namespace Qtilities {
         using namespace Qtilities::Logging;
 
         /*!
-        \struct QtilitiesMainWindowData
+        \struct QtilitiesMainWindowPrivateData
         \brief A structure storing private data in the QtilitiesMainWindow class.
           */
-        struct QtilitiesMainWindowData;
+        struct QtilitiesMainWindowPrivateData;
 
         /*!
         \class QtilitiesMainWindow
@@ -136,7 +136,7 @@ namespace Qtilities {
 
         private:
             Ui::QtilitiesMainWindow *ui;
-            QtilitiesMainWindowData* d;
+            QtilitiesMainWindowPrivateData* d;
         };
     }
 }

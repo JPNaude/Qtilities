@@ -35,6 +35,7 @@
 #include "ObjectManager.h"
 #include "ContextManager.h"
 
+#include <LoggingConstants>
 #include <Qtilities.h>
 
 #include <QObject>
@@ -70,6 +71,8 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivat
 
     // Register QList<QPointer<QObject> > in Meta Object System.
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
+
+    d_application_session_path = QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
 }
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPrivate() {
@@ -86,11 +89,20 @@ Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreAppl
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersion() const {
     QString version_string;
-    if (QTILITIES_VERSION_BETA != 0)
-        version_string = QString(QObject::tr("%1.%2.%3 Beta %4")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION).arg(QTILITIES_VERSION_BETA);
-    else if (QTILITIES_VERSION_ALPHA != 0)
-        version_string = QString(QObject::tr("%1.%2.%3 Alpha %4")).arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION).arg(QTILITIES_VERSION_ALPHA);
+    if (qti_def_VERSION_BETA != 0)
+        version_string = QString(QObject::tr("%1.%2.%3 Beta %4")).arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION).arg(qti_def_VERSION_BETA);
+    else if (qti_def_VERSION_ALPHA != 0)
+        version_string = QString(QObject::tr("%1.%2.%3 Alpha %4")).arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION).arg(qti_def_VERSION_ALPHA);
     else
-        version_string = QString("%1.%2.%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION);
+        version_string = QString("%1.%2.%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION);
     return version_string;
 }
+
+QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath() const {
+    return d_application_session_path;
+}
+
+void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationSessionPath(const QString& path) {
+    d_application_session_path = path;
+}
+

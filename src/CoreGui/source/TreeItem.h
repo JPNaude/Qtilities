@@ -45,10 +45,10 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-        \struct TreeItemData
+        \struct TreeItemPrivateData
         \brief Structure used by TreeItem to store private data.
           */
-        struct TreeItemData;
+        struct TreeItemPrivateData;
 
         /*!
           \class TreeItem
@@ -67,6 +67,7 @@ namespace Qtilities {
             Q_PROPERTY(QString StatusTip READ getStatusTip WRITE setStatusTip)
             Q_PROPERTY(QString ToolTip READ getToolTip WRITE setToolTip)
             Q_PROPERTY(QString WhatsThis READ getWhatsThis WRITE setWhatsThis)
+            Q_PROPERTY(QString Category READ getCategoryString WRITE setCategoryString)
 
         public:
             TreeItem(const QString& name = QString(), QObject* parent = 0);
@@ -94,7 +95,7 @@ namespace Qtilities {
             Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         protected:
-            TreeItemData* d;
+            TreeItemPrivateData* d;
         };
     }
 }

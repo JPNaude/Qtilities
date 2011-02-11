@@ -43,10 +43,10 @@ namespace Qtilities {
         class Observer;
 
         /*!
-        \struct ObserverDotGraphData
+        \struct ObserverDotGraphPrivateData
         \brief Structure used by ObserverDotGraph to store private data.
           */
-        struct ObserverDotGraphData;
+        struct ObserverDotGraphPrivateData;
 
         /*!
           \class ObserverDotGraph
@@ -159,6 +159,7 @@ digraph "Root Node" {
         not add them to the script if they are not specified. The only aspect of the graph that is set explicitly is
         the type of graph: undirected or directed.
 
+        <i>This class was added in %Qtilities v0.3.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT ObserverDotGraph : public QObject
         {
@@ -211,7 +212,7 @@ digraph "Root Node" {
 
 
         private:
-            ObserverDotGraphData* d;
+            ObserverDotGraphPrivateData* d;
         };
 
     }

@@ -68,7 +68,7 @@ namespace Qtilities {
             ObserverData(const QString& observer_name) : subject_limit(-1), subject_id_counter(0),
             filter_subject_events_enabled(false), deliver_qtilities_property_changed_events(false),
             access_mode(0), display_hints(0),
-            factory_data(InstanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_OBSERVER,QString())),
+            factory_data(InstanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_OBSERVER,QString())),
             process_cycle_active(false), is_modified(false) {
                 subject_list.setObjectName(observer_name);
             }

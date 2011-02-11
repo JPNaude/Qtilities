@@ -46,7 +46,7 @@ using namespace Qtilities::CoreGui::Constants;
 // --------------------------------
 Qtilities::CoreGui::Command::Command(QObject* parent) : QObject(parent)
 {
-    c = new CommandData;
+    c = new CommandPrivateData;
 }
 
 Qtilities::CoreGui::Command::~Command() {
@@ -86,8 +86,8 @@ QString Qtilities::CoreGui::Command::defaultText() const {
 // --------------------------------
 // MultiContextAction Implemenation
 // --------------------------------
-struct Qtilities::CoreGui::MultiContextActionData {
-    MultiContextActionData() : frontend_action(0),
+struct Qtilities::CoreGui::MultiContextActionPrivateData {
+    MultiContextActionPrivateData() : frontend_action(0),
     initialized(false),
     is_active(false) { }
 
@@ -102,7 +102,7 @@ struct Qtilities::CoreGui::MultiContextActionData {
 };
 
 Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, QObject* parent) : Command(parent) {
-    d = new MultiContextActionData;
+    d = new MultiContextActionPrivateData;
 
     d->frontend_action = user_visible_action;
     if (d->frontend_action) {
@@ -336,8 +336,8 @@ QPointer<QAction> Qtilities::CoreGui::MultiContextAction::activeBackendAction() 
 // --------------------------------
 // ShortcutCommand Implemenation
 // --------------------------------
-struct Qtilities::CoreGui::ShortcutCommandData {
-    ShortcutCommandData() : initialized(false),
+struct Qtilities::CoreGui::ShortcutCommandPrivateData {
+    ShortcutCommandPrivateData() : initialized(false),
     is_active(false) { }
 
     QShortcut*      shortcut;
@@ -348,7 +348,7 @@ struct Qtilities::CoreGui::ShortcutCommandData {
 };
 
 Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, QObject* parent) : Command(parent) {
-    d = new ShortcutCommandData;
+    d = new ShortcutCommandPrivateData;
 
     d->user_text = user_text;
     d->shortcut = shortcut;

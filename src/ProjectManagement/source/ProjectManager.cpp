@@ -49,8 +49,8 @@
 using namespace QtilitiesCore;
 using namespace Qtilities::ProjectManagement::Constants;
 
-struct Qtilities::ProjectManagement::ProjectManagerData  {
-    ProjectManagerData() : current_project(0),
+struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
+    ProjectManagerPrivateData() : current_project(0),
     recent_projects_size(5),
     project_file_version(0),
     is_initialized(false),
@@ -97,7 +97,7 @@ Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::Proj
 
 Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : QObject(parent)
 {    
-    d = new ProjectManagerData;
+    d = new ProjectManagerPrivateData;
     readSettings();
 }
 
@@ -135,25 +135,25 @@ void Qtilities::ProjectManagement::ProjectManager::setDefaultProjectType(IExport
 QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter() const {
     QStringList filter_list;
     if (d->project_types & IExportable::Binary)
-        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(FILE_EXT_BINARY_PROJECT));
+        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(qti_def_SUFFIX_PROJECT_BINARY));
     if (d->project_types & IExportable::XML)
-        filter_list.append(QString(tr("XML Project File (*%1)")).arg(FILE_EXT_XML_PROJECT));
+        filter_list.append(QString(tr("XML Project File (*%1)")).arg(qti_def_SUFFIX_PROJECT_XML));
 
     return filter_list.join(";;");
 }
 
 QString Qtilities::ProjectManagement::ProjectManager::projectTypeFileExtension(IExportable::ExportMode project_type) const {
     if (project_type & IExportable::Binary)
-        return QString(FILE_EXT_BINARY_PROJECT);
+        return QString(qti_def_SUFFIX_PROJECT_BINARY);
     if (project_type & IExportable::XML)
-        return QString(FILE_EXT_XML_PROJECT);
+        return QString(qti_def_SUFFIX_PROJECT_XML);
 
     Q_ASSERT(0);
     return QString();
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QString& file_name) const {
-    if (file_name.endsWith(QString(FILE_EXT_BINARY_PROJECT)) || file_name.endsWith(QString(FILE_EXT_XML_PROJECT)))
+    if (file_name.endsWith(QString(qti_def_SUFFIX_PROJECT_BINARY)) || file_name.endsWith(QString(qti_def_SUFFIX_PROJECT_XML)))
         return true;
     else
         return false;

@@ -57,7 +57,7 @@ void Qtilities::UnitTests::TestObserver::testRecursiveAttachmentContained() {
 
 void Qtilities::UnitTests::TestObserver::testAttachWithObserverLimit() {
     QObject* obj = new QObject();
-    SharedObserverProperty observer_limit_property(QVariant(1),OBSERVER_LIMIT);
+    SharedObserverProperty observer_limit_property(QVariant(1),qti_prop_OBSERVER_LIMIT);
     Observer::setSharedProperty(obj, observer_limit_property);
 
     Observer observer1;

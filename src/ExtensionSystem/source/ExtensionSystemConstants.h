@@ -37,7 +37,12 @@
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the ExtensionSystem Module.
     namespace ExtensionSystem {
-
+        //! Namespace containing constants used inside the ExtensionSystem Module.
+        namespace Constants {
+            // File Extensions
+            //! The file extension used for plugin configuration set files.
+            const char * const qti_def_SUFFIX_PLUGIN_CONFIG = ".pconfig";
+        }
     }
 }
 

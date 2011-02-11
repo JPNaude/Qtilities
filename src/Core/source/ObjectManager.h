@@ -75,10 +75,10 @@ namespace Qtilities {
         };
 
         /*!
-          \class ObjectManagerData
-          \brief The ObjectManagerData class stores data used by the ObjectManager class.
+          \class ObjectManagerPrivateData
+          \brief The ObjectManagerPrivateData class stores data used by the ObjectManager class.
          */
-        class ObjectManagerData;
+        class ObjectManagerPrivateData;
 
         /*!
           \class ObjectManager
@@ -134,7 +134,7 @@ namespace Qtilities {
             //! Function which returns all the observers in a QList<QObject*> input list.
             QList<Observer*> observerList(QList<QPointer<QObject> >& object_list) const;
 
-            ObjectManagerData* d;
+            ObjectManagerPrivateData* d;
         };
     }
 }

@@ -68,9 +68,9 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     if (!observer)
         return false;
 
-    // We cannot view the global object pool as a table because it is not part of the OBSERVER_SUBJECT_IDS property.
+    // We cannot view the global object pool as a table because it is not part of the qti_prop_OBSERVER_MAP property.
     // Therefore we tell this to the user.
-    if (observer->objectName() == QString(GLOBAL_OBJECT_POOL)) {
+    if (observer->objectName() == QString(qti_def_GLOBAL_OBJECT_POOL)) {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Qtilities ObserverTableModel Error");
         msgBox.setText("It is not possible to view the Global Object Pool using ObserverTableModel. Use ObserverTreeModel instead.");
@@ -215,7 +215,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
             if (model->activity_filter) {
                 if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay || activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
-                    QVariant subject_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                    QVariant subject_activity = d_observer->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP);
 
                     Q_ASSERT(subject_activity.isValid());
                     return subject_activity.toBool();
@@ -226,7 +226,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::DecorationRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_DECORATION);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_DECORATION);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -235,7 +235,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::ForegroundRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_FOREGROUND);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_FOREGROUND);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -244,7 +244,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::BackgroundRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_BACKGROUND);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_BACKGROUND);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -253,7 +253,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::TextAlignmentRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -262,7 +262,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::FontRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_FONT);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_FONT);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -271,7 +271,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::SizeHintRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_SIZE_HINT);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -280,7 +280,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::WhatsThisRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS);
+            SharedObserverProperty icon_property = d_observer->getSharedProperty(obj,qti_prop_WHATS_THIS);
             if (icon_property.isValid()) {
                 return icon_property.value();
             }
@@ -289,7 +289,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::ToolTipRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedObserverProperty tooltip = d_observer->getSharedProperty(obj,OBJECT_ROLE_TOOLTIP);
+            SharedObserverProperty tooltip = d_observer->getSharedProperty(obj,qti_prop_TOOLTIP);
             if (tooltip.isValid()) {
                 return tooltip.value();
             }
@@ -299,9 +299,9 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     // ------------------------------------
     } else if (index.column() == columnPosition(ColumnCategory)) {
         if (role == Qt::DisplayRole) {
-            // Get the OBJECT_CATEGORY property.
+            // Get the qti_prop_CATEGORY_MAP property.
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            QVariant category_variant = d_observer->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            QVariant category_variant = d_observer->getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
             if (category_variant.isValid()) {
                 QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
                 if (!category.isEmpty()) {
@@ -375,14 +375,14 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                 if (observer->accessMode() == Observer::FullAccess)
                     return QVariant();
                 if (observer->accessMode() == Observer::ReadOnlyAccess)
-                    return QIcon(ICON_READ_ONLY_16x16);
+                    return QIcon(qti_icon_READ_ONLY_16x16);
                 if (observer->accessMode() == Observer::LockedAccess)
-                    return QIcon(ICON_LOCKED_16x16);
+                    return QIcon(qti_icon_LOCKED_16x16);
             } else {
-                // Inspect the object to see if it has the OBJECT_ACCESS_MODE observer property.
-                QVariant mode = d_observer->getObserverPropertyValue(obj,OBJECT_ACCESS_MODE);
+                // Inspect the object to see if it has the qti_prop_ACCESS_MODE observer property.
+                QVariant mode = d_observer->getObserverPropertyValue(obj,qti_prop_ACCESS_MODE);
                 if (mode.toInt() == (int) Observer::ReadOnlyAccess)
-                    return QIcon(ICON_READ_ONLY_16x16);
+                    return QIcon(qti_icon_READ_ONLY_16x16);
             }
         }
     }
@@ -427,15 +427,15 @@ QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Ori
     } else if ((section == columnPosition(ColumnCategory)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Category");
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_CHILD_COUNT_22x22);
+        return QIcon(qti_icon_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Child Count");
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_TYPE_INFO_22x22);
+        return QIcon(qti_icon_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Type");
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
-        return QIcon(ICON_ACCESS_16x16);
+        return QIcon(qti_icon_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Access");
     }
@@ -450,14 +450,14 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
     } else if (index.column() == columnPosition(ColumnName)) {
         if (role == Qt::EditRole || role == Qt::DisplayRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            // Check if the object has an OBJECT_NAME property, if not we set the name using setObjectName()
-            if (d_observer->getSharedProperty(obj, OBJECT_NAME).isValid()) {
+            // Check if the object has an qti_prop_NAME property, if not we set the name using setObjectName()
+            if (d_observer->getSharedProperty(obj, qti_prop_NAME).isValid()) {
                 // Now check if this observer uses an instance name
-                ObserverProperty instance_names = d_observer->getObserverProperty(obj,INSTANCE_NAMES);
+                ObserverProperty instance_names = d_observer->getObserverProperty(obj,qti_prop_ALIAS_MAP);
                 if (instance_names.isValid() && instance_names.hasContext(d_observer->observerID()))
-                    d_observer->setObserverPropertyValue(obj,INSTANCE_NAMES,value);
+                    d_observer->setObserverPropertyValue(obj,qti_prop_ALIAS_MAP,value);
                 else
-                    d_observer->setObserverPropertyValue(obj,OBJECT_NAME,value);
+                    d_observer->setObserverPropertyValue(obj,qti_prop_NAME,value);
             } else {
                 obj->setObjectName(value.toString());
             }
@@ -467,12 +467,12 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
                 //if (activeHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay && activeHints()->activityControlHint() == ObserverHints::CheckboxTriggered) {
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
                     // The value coming in here is always Qt::Checked
-                    // We get the current check state from the OBJECT_ACTIVITY property and change that:
-                    QVariant current_activity = d_observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY);
+                    // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that:
+                    QVariant current_activity = d_observer->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                     if (current_activity.toBool()) {
-                        d_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(false));
+                        d_observer->setObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
                     } else {
-                        d_observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY,QVariant(true));
+                        d_observer->setObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                     }
                     return true;
                 //}
@@ -557,7 +557,7 @@ QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj) const
 
     // Get the subject id of the obj
     int id = -1;
-    ObserverProperty subject_id_property = d_observer->getObserverProperty(obj,OBSERVER_SUBJECT_IDS);
+    ObserverProperty subject_id_property = d_observer->getObserverProperty(obj,qti_prop_OBSERVER_MAP);
     if (subject_id_property.isValid()) {
         id = subject_id_property.value(d_observer->observerID()).toInt();
     }

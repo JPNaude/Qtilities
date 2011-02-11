@@ -45,8 +45,8 @@
 #include <QtilitiesExtensionSystem>
 using namespace QtilitiesExtensionSystem;
 
-struct Qtilities::Plugins::Debug::DebugWidgetData {
-    DebugWidgetData() : object_pool_widget(0),
+struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
+    DebugWidgetPrivateData() : object_pool_widget(0),
         plugin_edit_set_loaded(false),
         command_editor(true) {}
 
@@ -58,9 +58,9 @@ struct Qtilities::Plugins::Debug::DebugWidgetData {
     QStringListModel    active_plugins_model;
     QStringListModel    inactive_plugins_model;
     QStringListModel    filtered_plugins_model;
-    DropableListWidget* active_plugins_view;
-    DropableListWidget* inactive_plugins_view;
-    DropableListWidget* filtered_plugins_view;
+    qti_private_DropableListWidget* active_plugins_view;
+    qti_private_DropableListWidget* inactive_plugins_view;
+    qti_private_DropableListWidget* filtered_plugins_view;
     QTimer              plugin_msg_timer;
 
     QMainWindow         contexts_main_window;
@@ -87,18 +87,18 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     ui(new Ui::DebugWidget)
 {
     ui->setupUi(this);
-    ui->btnRefreshViews->setIcon(QIcon(ICON_REFRESH_16x16));
+    ui->btnRefreshViews->setIcon(QIcon(qti_icon_REFRESH_16x16));
     ui->btnRefreshViews->setText(tr("Refresh Views"));
-    ui->btnRemoveFilterExpression->setIcon(QIcon(ICON_REMOVE_ONE_16x16));
-    ui->btnAddFilterExpression->setIcon(QIcon(ICON_NEW_16x16));
-    ui->btnAddActivePlugin->setIcon(QIcon(ICON_NEW_16x16));
-    ui->btnRemoveActivePlugin->setIcon(QIcon(ICON_REMOVE_ONE_16x16));
-    ui->btnAddInactivePlugin->setIcon(QIcon(ICON_NEW_16x16));
-    ui->btnRemoveInactivePlugin->setIcon(QIcon(ICON_REMOVE_ONE_16x16));
+    ui->btnRemoveFilterExpression->setIcon(QIcon(qti_icon_REMOVE_ONE_16x16));
+    ui->btnAddFilterExpression->setIcon(QIcon(qti_icon_NEW_16x16));
+    ui->btnAddActivePlugin->setIcon(QIcon(qti_icon_NEW_16x16));
+    ui->btnRemoveActivePlugin->setIcon(QIcon(qti_icon_REMOVE_ONE_16x16));
+    ui->btnAddInactivePlugin->setIcon(QIcon(qti_icon_NEW_16x16));
+    ui->btnRemoveInactivePlugin->setIcon(QIcon(qti_icon_REMOVE_ONE_16x16));
     ui->lblPluginInfoIcon->setText("");
     ui->lblPluginInfoMessage->setText("");
 
-    d = new DebugWidgetData;
+    d = new DebugWidgetPrivateData;
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoIcon, SLOT(hide()));
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoMessage, SLOT(clear()));
     connect(&d->command_editor,SIGNAL(selectedCommandChanged(Command*)),SLOT(refreshCommandInformation(Command*)));
@@ -222,7 +222,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     // Plugins:
     if (ui->listPluginsFilteredHolder->layout())
         delete ui->listPluginsFilteredHolder->layout();
-    d->filtered_plugins_view = new DropableListWidget("Filtered");
+    d->filtered_plugins_view = new qti_private_DropableListWidget("Filtered");
     connect(d->filtered_plugins_view,SIGNAL(newMessage(Logger::MessageType,QString)),SLOT(handleListMessage(Logger::MessageType,QString)));
     QHBoxLayout* filtered_plugins_layout = new QHBoxLayout(ui->listPluginsFilteredHolder);
     filtered_plugins_layout->addWidget(d->filtered_plugins_view);
@@ -230,7 +230,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
     if (ui->listPluginsInactiveHolder->layout())
         delete ui->listPluginsInactiveHolder->layout();
-    d->inactive_plugins_view = new DropableListWidget("Inactive");
+    d->inactive_plugins_view = new qti_private_DropableListWidget("Inactive");
     connect(d->inactive_plugins_view,SIGNAL(newMessage(Logger::MessageType,QString)),SLOT(handleListMessage(Logger::MessageType,QString)));
     QHBoxLayout* inactive_plugins_layout = new QHBoxLayout(ui->listPluginsInactiveHolder);
     inactive_plugins_layout->addWidget(d->inactive_plugins_view);
@@ -238,7 +238,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
     if (ui->listPluginsActiveHolder->layout())
         delete ui->listPluginsActiveHolder->layout();
-    d->active_plugins_view = new DropableListWidget("Active");
+    d->active_plugins_view = new qti_private_DropableListWidget("Active");
     connect(d->active_plugins_view,SIGNAL(newMessage(Logger::MessageType,QString)),SLOT(handleListMessage(Logger::MessageType,QString)));
     QHBoxLayout* active_plugins_layout = new QHBoxLayout(ui->listPluginsActiveHolder);
     active_plugins_layout->addWidget(d->active_plugins_view);
@@ -297,7 +297,7 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_factoryListSelectionChanged(
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolDoubleClick(QObject *object) {
-
+    Q_UNUSED(object)
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolSelectionChanged(QList<QObject*> objects) {
@@ -398,7 +398,7 @@ bool Qtilities::Plugins::Debug::DebugWidget::on_btnSavePluginConfigSet_clicked()
 
 bool Qtilities::Plugins::Debug::DebugWidget::on_btnSaveNewPluginConfigSet_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QApplication::applicationDirPath() + "/plugins",tr("Plugin Configurations (*.pconfig)"));
+    QString fileName = QFileDialog::getSaveFileName(0, tr("Save Plugin Configuration"),QString("%1%2").arg(QtilitiesApplication::applicationSessionPath()),QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
     if (!fileName.isEmpty()) {
         QStringList inactive_list = d->inactive_plugins_model.stringList();
         QStringList filter_list = d->filtered_plugins_model.stringList();
@@ -459,7 +459,7 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnOpenPluginConfigSet_clicked()
         QFileInfo fi(ui->txtPluginsActiveSet->text());
         open_path = fi.path();
     }
-    QString fileName = QFileDialog::getOpenFileName(0, tr("Open Plugin Configuration"),open_path,tr("Plugin Configurations (*.pconfig)"));
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Open Plugin Configuration"),open_path,QString(tr("Plugin Configurations (*%1)")).arg(qti_def_SUFFIX_PLUGIN_CONFIG));
     if (!fileName.isEmpty()) {
         QStringList inactive_list;
         QStringList filter_list;
@@ -534,18 +534,18 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAddFilterExpression_clicked()
 
 void Qtilities::Plugins::Debug::DebugWidget::handleListMessage(Logger::MessageType type, const QString& msg) {
     if (type == Logger::Warning) {
-        ui->lblPluginInfoIcon->setPixmap(QIcon(ICON_WARNING_16x16).pixmap(12));
+        ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(12));
         ui->lblPluginInfoIcon->setVisible(true);
         ui->lblPluginInfoMessage->setText(QString("<font color='red'>%1</font>").arg(msg));
     } else if (type == Logger::Error || type == Logger::Fatal) {
-        ui->lblPluginInfoIcon->setPixmap(QIcon(ICON_ERROR_16x16).pixmap(12));
+        ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(12));
         ui->lblPluginInfoIcon->setVisible(true);
         ui->lblPluginInfoMessage->setText(QString("<font color='red'>%1</font>").arg(msg));
     } else {
         if (msg.startsWith(tr("Successfully")))
-            ui->lblPluginInfoIcon->setPixmap(QIcon(ICON_SUCCESS_16x16).pixmap(12));
+            ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(12));
         else
-            ui->lblPluginInfoIcon->setPixmap(QIcon(ICON_INFO_16x16).pixmap(12));
+            ui->lblPluginInfoIcon->setPixmap(QIcon(qti_icon_INFO_16x16).pixmap(12));
         ui->lblPluginInfoIcon->setVisible(true);
         ui->lblPluginInfoMessage->setText(msg);
     }
@@ -556,7 +556,7 @@ void Qtilities::Plugins::Debug::DebugWidget::handleListMessage(Logger::MessageTy
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextSetActive_clicked()
 {
     QList<QTableWidgetItem*> selected_items = ui->tableContextsAll->selectedItems();
-    CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::CONTEXT_STANDARD);
+    CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD);
     for (int i = 0; i < selected_items.count(); i++) {
         CONTEXT_MANAGER->appendContext(selected_items.at(i)->text());
     }
@@ -568,7 +568,7 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnContextSetActive_clicked()
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextsClear_clicked()
 {
-    CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::CONTEXT_STANDARD);
+    CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD);
     refreshContexts();
     if (d->current_command) {
         refreshCommandInformation(d->current_command);
@@ -590,27 +590,29 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshModes() {
 
     QtilitiesMainWindow* mainWindow = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
     if (mainWindow) {
-        ui->tableModes->setRowCount(mainWindow->modeManager()->modes().count());
-        for (int i = 0; i < mainWindow->modeManager()->modes().count(); i++) {
-            IMode* mode = mainWindow->modeManager()->modes().at(i);
+        if (mainWindow->modeManager()) {
+            ui->tableModes->setRowCount(mainWindow->modeManager()->modes().count());
+            for (int i = 0; i < mainWindow->modeManager()->modes().count(); i++) {
+                IMode* mode = mainWindow->modeManager()->modes().at(i);
 
-            // Mode Name
-            QTableWidgetItem *newItem = new QTableWidgetItem(mode->modeName());
-            ui->tableModes->setItem(i, 0, newItem);
-            // Mode ID
-            newItem = new QTableWidgetItem(QString::number(mode->modeID()));
-            ui->tableModes->setItem(i, 1, newItem);
-            // Mode Shortcut
-            newItem = new QTableWidgetItem(mainWindow->modeManager()->modeShortcut(mode->modeID()));
-            ui->tableModes->setItem(i, 2, newItem);
-            // Mode Context String
-            newItem = new QTableWidgetItem(mode->contextString());
-            ui->tableModes->setItem(i, 3, newItem);
-            // Mode Help ID
-            newItem = new QTableWidgetItem(mode->contextHelpId());
-            ui->tableModes->setItem(i, 4, newItem);
+                // Mode Name
+                QTableWidgetItem *newItem = new QTableWidgetItem(mode->modeName());
+                ui->tableModes->setItem(i, 0, newItem);
+                // Mode ID
+                newItem = new QTableWidgetItem(QString::number(mode->modeID()));
+                ui->tableModes->setItem(i, 1, newItem);
+                // Mode Shortcut
+                newItem = new QTableWidgetItem(mainWindow->modeManager()->modeShortcut(mode->modeID()));
+                ui->tableModes->setItem(i, 2, newItem);
+                // Mode Context String
+                newItem = new QTableWidgetItem(mode->contextString());
+                ui->tableModes->setItem(i, 3, newItem);
+                // Mode Help ID
+                newItem = new QTableWidgetItem(mode->contextHelpId());
+                ui->tableModes->setItem(i, 4, newItem);
 
-            ui->tableModes->setRowHeight(i,17);
+                ui->tableModes->setRowHeight(i,17);
+            }
         }
     }
 
@@ -929,6 +931,16 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
 
         d->command_analysis_widget->AddRootObject(d->current_command);
         d->command_analysis_widget->show();
+    }
+    #endif
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_chkRefreshProperties_toggled(bool checked)
+{
+    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    if (ui->chkRefreshProperties->isChecked()) {
+        d->object_property_browser->setObject(d->current_object);
+        d->object_dynamic_property_browser->setObject(d->current_object);
     }
     #endif
 }

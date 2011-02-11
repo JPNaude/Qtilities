@@ -41,8 +41,8 @@
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
-struct Qtilities::CoreGui::SearchBoxWidgetData {
-    SearchBoxWidgetData() : textEdit(0),
+struct Qtilities::CoreGui::SearchBoxWidgetPrivateData {
+    SearchBoxWidgetPrivateData() : textEdit(0),
         plainTextEdit(0) {}
 
     QMenu*                          searchOptionsMenu;
@@ -64,7 +64,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     ui(new Ui::SearchBoxWidget)
 {
     ui->setupUi(this);
-    d = new SearchBoxWidgetData;
+    d = new SearchBoxWidgetPrivateData;
     d->widget_target = SearchBoxWidget::ExternalTarget;
 
     setWindowTitle(tr("Search Box Widget"));
@@ -82,7 +82,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     // Construct the search options pop-up menu
     d->searchOptionsMenu = new QMenu(tr("Search Options"));
     d->searchOptionsMenu->setObjectName(objectName());
-    ui->btnSearchOptions->setIcon(QIcon(ICON_SEARCH_OPTIONS_22x22));
+    ui->btnSearchOptions->setIcon(QIcon(qti_icon_SEARCH_OPTIONS_22x22));
     ui->btnSearchOptions->setIconSize(QSize(16,16));
     d->searchOptionCaseSensitive = new QAction(tr("Case Sensitive"),0);
     d->searchOptionCaseSensitive->setCheckable(true);

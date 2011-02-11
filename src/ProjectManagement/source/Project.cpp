@@ -45,8 +45,8 @@
 
 using namespace Qtilities::ProjectManagement::Constants;
 
-struct Qtilities::ProjectManagement::ProjectData {
-    ProjectData(): project_file(QString()),
+struct Qtilities::ProjectManagement::ProjectPrivateData {
+    ProjectPrivateData(): project_file(QString()),
     project_name(QString(QObject::tr("New Project"))) {}
 
     QList<IProjectItem*>    project_items;
@@ -55,7 +55,7 @@ struct Qtilities::ProjectManagement::ProjectData {
 };
 
 Qtilities::ProjectManagement::Project::Project(QObject* parent) : QObject(parent), IProject() {
-    d = new ProjectData;
+    d = new ProjectPrivateData;
     setObjectName("Project");
 }
 
@@ -79,7 +79,7 @@ quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name) {
     LOG_DEBUG(tr("Starting to save current project to file: ") + file_name);
 
-    if (file_name.endsWith(FILE_EXT_XML_PROJECT)) {
+    if (file_name.endsWith(qti_def_SUFFIX_PROJECT_XML)) {
         QTemporaryFile file;
         file.open();
 
@@ -88,7 +88,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         // Create the QDomDocument:
         QDomDocument doc("QtilitiesXMLProject");
         QDomElement root = doc.createElement("QtilitiesXMLProject");
-        root.setAttribute("DocumentVersion",QTILITIES_XML_EXPORT_FORMAT);
+        root.setAttribute("DocumentVersion",qti_def_FORMAT_TREES_XML);
         root.setAttribute("ApplicationName",QApplication::applicationName());
         root.setAttribute("ApplicationVersion",QApplication::applicationVersion());
         doc.appendChild(root);
@@ -150,14 +150,14 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         QApplication::restoreOverrideCursor();
         return true;
-    } else if (file_name.endsWith(FILE_EXT_BINARY_PROJECT)) {
+    } else if (file_name.endsWith(qti_def_SUFFIX_PROJECT_BINARY)) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         QTemporaryFile file;
         file.open();
         QDataStream stream(&file);   // we will serialize the data into the file
         stream.setVersion(QDataStream::Qt_4_6);
-        stream << (quint32) QTILITIES_BINARY_EXPORT_FORMAT;
+        stream << (quint32) qti_def_FORMAT_TREES_BINARY;
         stream << PROJECT_MANAGER->projectFileVersion();
         stream << MARKER_PROJECT_SECTION;
         stream << d->project_name;
@@ -240,7 +240,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     d->project_name = QFileInfo(file_name).fileName();
     file.open(QIODevice::ReadOnly);
 
-    if (file_name.endsWith(FILE_EXT_XML_PROJECT)) {
+    if (file_name.endsWith(qti_def_SUFFIX_PROJECT_XML)) {
         // Load the file into doc:
         QDomDocument doc("QtilitiesXMLProject");
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -262,8 +262,8 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         // Check the document version:
         if (root.hasAttribute("DocumentVersion")) {
             QString document_version = root.attribute("DocumentVersion");
-            if (document_version.toInt() > QTILITIES_XML_EXPORT_FORMAT) {
-                LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(QTILITIES_XML_EXPORT_FORMAT));
+            if (document_version.toInt() > qti_def_FORMAT_TREES_XML) {
+                LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML));
                 QApplication::restoreOverrideCursor();
                 return IExportable::Failed;
             }
@@ -358,15 +358,15 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         QApplication::restoreOverrideCursor();
 
         return true;
-    } else if (file_name.endsWith(FILE_EXT_BINARY_PROJECT)) {
+    } else if (file_name.endsWith(qti_def_SUFFIX_PROJECT_BINARY)) {
         QDataStream stream(&file);
         stream.setVersion(QDataStream::Qt_4_6);
 
         quint32 marker;
         stream >> marker;
         LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
-        if (marker != (quint32) QTILITIES_BINARY_EXPORT_FORMAT) {
-            LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(QTILITIES_BINARY_EXPORT_FORMAT));
+        if (marker != (quint32) qti_def_FORMAT_TREES_BINARY) {
+            LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(qti_def_FORMAT_TREES_BINARY));
             file.close();
             return false;
         }

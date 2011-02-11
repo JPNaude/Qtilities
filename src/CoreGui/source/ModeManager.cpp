@@ -43,8 +43,8 @@
 using namespace QtilitiesCore;
 using namespace Qtilities::CoreGui::Interfaces;
 
-struct Qtilities::CoreGui::ModeManagerData {
-    ModeManagerData() : mode_list_widget(0),
+struct Qtilities::CoreGui::ModeManagerPrivateData {
+    ModeManagerPrivateData() : mode_list_widget(0),
         active_mode(-1),
         mode_id_counter(1000) {}
 
@@ -63,7 +63,7 @@ struct Qtilities::CoreGui::ModeManagerData {
 Qtilities::CoreGui::ModeManager::ModeManager(Qt::Orientation orientation, QObject *parent) :
     QObject(parent)
 {
-    d = new ModeManagerData;
+    d = new ModeManagerPrivateData;
     d->orientation = orientation;
 
     // Setup the mode list widget in the way we need it:
@@ -297,7 +297,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
 
             // Set the mode icon as the object decoration for mode:
             if (mode->objectBase()) {
-                SharedObserverProperty icon_property(mode->modeIcon(),OBJECT_ROLE_DECORATION);
+                SharedObserverProperty icon_property(mode->modeIcon(),qti_prop_DECORATION);
                 Observer::setSharedProperty(mode->objectBase(),icon_property);
             }
             added_ids << id;
@@ -329,7 +329,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
 
                 // Set the mode icon as the object decoration for mode:
                 if (mode->objectBase()) {
-                    SharedObserverProperty icon_property(mode->modeIcon(),OBJECT_ROLE_DECORATION);
+                    SharedObserverProperty icon_property(mode->modeIcon(),qti_prop_DECORATION);
                     Observer::setSharedProperty(mode->objectBase(),icon_property);
                 }
 

@@ -61,16 +61,13 @@ namespace Qtilities {
     }
 }
 
-QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::currentWidget;
-QPointer<Qtilities::CoreGui::ObjectScopeWidget> Qtilities::CoreGui::ObjectScopeWidget::actionContainerWidget;
-
-struct Qtilities::CoreGui::ObjectScopeWidgetData {
-    ObjectScopeWidgetData() : actionAddContext(0),
-    actionDetachToSelection(0),
-    actionDuplicateInScope(0),
-    actionRemoveContext(0),
-    obj(0),
-    action_provider(0) {}
+struct Qtilities::CoreGui::ObjectScopeWidgetPrivateData {
+    ObjectScopeWidgetPrivateData() : actionAddContext(0),
+        actionDetachToSelection(0),
+        actionDuplicateInScope(0),
+        actionRemoveContext(0),
+        obj(0),
+        action_provider(0) {}
 
     QAction* actionAddContext;
     QAction* actionDetachToSelection;
@@ -78,32 +75,46 @@ struct Qtilities::CoreGui::ObjectScopeWidgetData {
     QAction* actionRemoveContext;
     QPointer<QObject> obj;
     ActionProvider* action_provider;
+    //! The global meta type string used for this widget.
+    QString global_meta_type;
+
 };
 
 Qtilities::CoreGui::ObjectScopeWidget::ObjectScopeWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui::ObjectScopeWidget)
+    ui(new Ui::ObjectScopeWidget)
 {
-    m_ui->setupUi(this);
-    connect(m_ui->observerTable,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(handle_currentItemChanged(QTableWidgetItem *)));
+    ui->setupUi(this);
+    connect(ui->observerTable,SIGNAL(itemClicked(QTableWidgetItem*)),SLOT(handle_currentItemChanged(QTableWidgetItem *)));
 
-    d = new ObjectScopeWidgetData;
+    d = new ObjectScopeWidgetPrivateData;
 
-    setAttribute(Qt::WA_DeleteOnClose, true);
-    Qt::WindowFlags window_flags = windowFlags();
-    window_flags |= Qt::Tool;
-    setWindowFlags(window_flags);
-    setWindowIcon(QIcon(ICON_MANAGER_16x16));
-    m_ui->observerTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-    m_ui->observerTable->setSortingEnabled(true);
-    m_ui->observerTable->setToolTip(tr("A list of contexts to which the selected object is attached."));
+    ui->observerTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    ui->observerTable->setSortingEnabled(true);
+    ui->observerTable->setToolTip(tr("A list of contexts to which the selected object is attached."));
+
+    // Assign a default meta type for this widget:
+    // We construct each action and then register it
+    QString context_string = "ObjectScopeWidget";
+    int count = 0;
+    context_string.append(QString("%1").arg(count));
+    while (CONTEXT_MANAGER->hasContext(context_string)) {
+        QString count_string = QString("%1").arg(count);
+        context_string.chop(count_string.length());
+        ++count;
+        context_string.append(QString("%1").arg(count));
+    }
+    CONTEXT_MANAGER->registerContext(context_string);
+    d->global_meta_type = context_string;
+    setObjectName(context_string);
+
+    // Create actions only after global meta type was set.
     constructActions();
-    currentWidget = this;
 }
 
 Qtilities::CoreGui::ObjectScopeWidget::~ObjectScopeWidget()
 {
-    delete m_ui;
+    delete ui;
     delete d;
 }
 
@@ -129,7 +140,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
 
     // For this widget we are interested in dynamic observer property changes in ALL the observers
     // which are observing this object
-    ObserverProperty observer_map_prop = getObserverProperty(OBSERVER_SUBJECT_IDS);
+    ObserverProperty observer_map_prop = Observer::getObserverProperty(d->obj,qti_prop_OBSERVER_MAP);
     for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
         Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
         if (observer) {
@@ -142,31 +153,8 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::setObject(QPointer<QObject> obj) {
-    if (!obj) {
-        handleObjectDestroyed();
-        return;
-    }
-
-    if (d->obj)
-        d->obj->disconnect(this);
-
-    d->obj = obj;
-    d->obj->installEventFilter(this);
-
-    connect(d->obj,SIGNAL(destroyed(QObject*)),SLOT(handleObjectDestroyed()));
-
-    // For this widget we are interested in dynamic observer property changes in ALL the observers
-    // which are observing this object
-    ObserverProperty observer_map_prop = getObserverProperty(OBSERVER_SUBJECT_IDS);
-    for (int i = 0; i < observer_map_prop.observerMap().count(); i++) {
-        Observer* observer = OBJECT_MANAGER->observerReference(observer_map_prop.observerMap().keys().at(i));
-        if (observer) {
-            connect(observer,SIGNAL(destroyed()),SLOT(updateContents()),Qt::UniqueConnection);
-        }
-    }
-
-    updateContents();
-    refreshActions();
+    QObject* object = obj;
+    setObject(object);
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::setObject(QList<QObject*> objects) {
@@ -180,10 +168,10 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QList<QPointer<QObject> > 
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handleObjectDestroyed() {
-    m_ui->observerTable->clearContents();
-    m_ui->txtName->setText(tr("No Scope Information."));
-    m_ui->txtObserverLimit->setText(tr("No Scope Information"));
-    m_ui->txtOwnership->setText(tr("No Scope Information"));
+    ui->observerTable->clearContents();
+    ui->txtName->setText(tr("No Scope Information."));
+    ui->txtObserverLimit->setText(tr("No Scope Information"));
+    ui->txtOwnership->setText(tr("No Scope Information"));
     if (d->obj)  {
         d->obj->disconnect(this);
         d->obj->removeEventFilter(this);
@@ -194,7 +182,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handleObjectDestroyed() {
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::setNameVisible(bool visible) {
-    m_ui->widgetName->setVisible(visible);
+    ui->widgetName->setVisible(visible);
 }
 
 bool Qtilities::CoreGui::ObjectScopeWidget::eventFilter(QObject *object, QEvent *event) {
@@ -203,17 +191,23 @@ bool Qtilities::CoreGui::ObjectScopeWidget::eventFilter(QObject *object, QEvent 
         if (qtilities_event) {
             updateContents();
         }
-    } else if (object == m_ui->observerTable && event->type() == QEvent::FocusIn) {
-        currentWidget = this;
+    } else if (object == ui->observerTable && event->type() == QEvent::FocusIn) {
+        refreshActions();
+        CONTEXT_MANAGER->setNewContext(contextString(),true);
     }
     return false;
 }
 
 Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::ObjectScopeWidget::actionProvider() {
-    if (!actionContainerWidget)
-        return 0;
+    return d->action_provider;
+}
 
-    return actionContainerWidget->d->action_provider;
+QString Qtilities::CoreGui::ObjectScopeWidget::contextString() const {
+    return d->global_meta_type;
+}
+
+QString Qtilities::CoreGui::ObjectScopeWidget::contextHelpId() const {
+    return QString();
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
@@ -223,41 +217,41 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
     int observer_count = -1;
     int observer_limit = -2;
     int ownership = -1;
-    m_ui->txtName->setText(d->obj->objectName());
+    ui->txtName->setText(d->obj->objectName());
 
     // Observer Count
-    ObserverProperty observer_map_prop = getObserverProperty(OBSERVER_SUBJECT_IDS);
+    ObserverProperty observer_map_prop = Observer::getObserverProperty(d->obj,qti_prop_OBSERVER_MAP);
     if (observer_map_prop.isValid())
         observer_count = observer_map_prop.observerMap().count();
 
     // Observer Limit
-    SharedObserverProperty shared_property = getSharedProperty(OBSERVER_LIMIT);
+    SharedObserverProperty shared_property = Observer::getSharedProperty(d->obj,qti_prop_OBSERVER_LIMIT);
     if (shared_property.isValid())
         observer_limit = shared_property.value().toInt();
 
     if (observer_limit == -1)
-        m_ui->txtObserverLimit->setText(tr("Unlimited"));
+        ui->txtObserverLimit->setText(tr("Unlimited"));
     else if (observer_limit == -2)
-        m_ui->txtObserverLimit->setText(tr("Unlimited"));
+        ui->txtObserverLimit->setText(tr("Unlimited"));
     else
-        m_ui->txtObserverLimit->setText(QString("%1").arg(observer_limit));
+        ui->txtObserverLimit->setText(QString("%1").arg(observer_limit));
 
     // Ownership
-    shared_property = getSharedProperty(OBJECT_OWNERSHIP);
+    shared_property = Observer::getSharedProperty(d->obj,qti_prop_OWNERSHIP);
     if (shared_property.isValid())
         ownership = shared_property.value().toInt();
 
     if (ownership == -1)
-        m_ui->txtOwnership->setText(tr("Manual Ownership"));
+        ui->txtOwnership->setText(tr("Manual Ownership"));
     else if (ownership == Observer::ManualOwnership)
-        m_ui->txtOwnership->setText(tr("Manual Ownership"));
+        ui->txtOwnership->setText(tr("Manual Ownership"));
     else if (ownership == Observer::SpecificObserverOwnership)
-        m_ui->txtOwnership->setText(tr("Specific Observer Ownership"));
+        ui->txtOwnership->setText(tr("Specific Observer Ownership"));
     else if (ownership == Observer::ObserverScopeOwnership)
-        m_ui->txtOwnership->setText(tr("Observer Scope Ownership"));
+        ui->txtOwnership->setText(tr("Observer Scope Ownership"));
 
-    m_ui->observerTable->clearContents();
-    m_ui->observerTable->setRowCount(observer_count);
+    ui->observerTable->clearContents();
+    ui->observerTable->setRowCount(observer_count);
     QString tooltip_string;
     bool has_instance_names = false;
 
@@ -268,14 +262,14 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
 
         // Observer Name
         QTableWidgetItem *nameItem = new QTableWidgetItem(observer->observerName(), id);
-        m_ui->observerTable->setItem(i, 0, nameItem);
+        ui->observerTable->setItem(i, 0, nameItem);
         if (ownership == Observer::SpecificObserverOwnership) {
-            QVariant observer_parent = observer->getObserverPropertyValue(d->obj,OBSERVER_PARENT);
+            QVariant observer_parent = observer->getObserverPropertyValue(d->obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == id)) {
                 QTableWidgetItem *ownerItem = new QTableWidgetItem("", id);
-                ownerItem->setIcon(QIcon(ICON_SUCCESS_16x16));
+                ownerItem->setIcon(QIcon(qti_icon_SUCCESS_16x16));
                 ownerItem->setToolTip(tr("This context owns the selected object (Manages its lifetime)."));
-                m_ui->observerTable->setItem(i, OwnerColumn, ownerItem);
+                ui->observerTable->setItem(i, OwnerColumn, ownerItem);
             }
         }
         tooltip_string.append(QString(tr("<b>Context Name</b>: %1")).arg(observer->observerName()));
@@ -284,7 +278,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         // Context ID
         tooltip_string.append(QString(tr("<br><b>Context ID</b>: %1")).arg(observer->observerID()));
         // Context Category
-        ObserverProperty category_prop = getObserverProperty(OBJECT_CATEGORY);
+        ObserverProperty category_prop = Observer::getObserverProperty(d->obj,qti_prop_CATEGORY_MAP);
         QString category_string;
         if (category_prop.isValid()) {
             if (category_prop.observerMap().keys().contains(observer->observerID()))
@@ -299,28 +293,28 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         // Attributes
         tooltip_string.append(tr("<br><br><b>Attributes: </b> "));
         // Attribute: Activity
-        QVariant activity = observer->getObserverPropertyValue(d->obj,OBJECT_ACTIVITY);
+        QVariant activity = observer->getObserverPropertyValue(d->obj,qti_prop_ACTIVITY_MAP);
         if (activity.isValid() && activity.toBool())
             tooltip_string.append(tr("Active, "));
 
         // Attribute: Object Name Controller
-        QVariant name_manager_id = observer->getObserverPropertyValue(d->obj,OBJECT_NAME_MANAGER_ID);
+        QVariant name_manager_id = observer->getObserverPropertyValue(d->obj,qti_prop_NAME_MANAGER_ID);
         if (name_manager_id.isValid() && (name_manager_id.toInt() == observer->observerID()))
             tooltip_string.append(tr("Manages Name, "));
 
         // Attribute: Uses Instance Name
-        ObserverProperty instance_names = observer->getObserverProperty(d->obj,INSTANCE_NAMES);
+        ObserverProperty instance_names = observer->getObserverProperty(d->obj,qti_prop_ALIAS_MAP);
         if (instance_names.isValid() && instance_names.hasContext(observer->observerID())) {
             tooltip_string.append(QString(tr("Uses Instance Name (\"%1\"), ").arg(instance_names.value(observer->observerID()).toString())));
             has_instance_names = true;
             QTableWidgetItem *aliasItem = new QTableWidgetItem("", id);
-            aliasItem->setIcon(QIcon(ICON_SUCCESS_16x16));
+            aliasItem->setIcon(QIcon(qti_icon_SUCCESS_16x16));
             aliasItem->setToolTip(tr("This context uses an instance name (alias) for the selected object."));
-            m_ui->observerTable->setItem(i, UsesInstanceNameColumn, aliasItem);
+            ui->observerTable->setItem(i, UsesInstanceNameColumn, aliasItem);
         }
 
         // Attribute: Ownership
-        int parent_id = this->getSharedProperty(OBSERVER_PARENT).value().toInt();
+        int parent_id = Observer::getSharedProperty(d->obj,qti_prop_PARENT_ID).value().toInt();
         if (parent_id == observer->observerID())
             tooltip_string.append(tr("Owner"));
 
@@ -337,205 +331,161 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         tooltip_string.clear();   
     }
 
-    m_ui->observerTable->resizeRowsToContents();
-    m_ui->observerTable->setColumnCount(OwnerColumn+1);
-    m_ui->observerTable->showColumn(NameColumn);
-    m_ui->observerTable->showColumn(UsesInstanceNameColumn);
-    m_ui->observerTable->setColumnWidth(UsesInstanceNameColumn,40);
-    m_ui->observerTable->showColumn(OwnerColumn);
-    m_ui->observerTable->setColumnWidth(OwnerColumn,40);
+    ui->observerTable->resizeRowsToContents();
+    ui->observerTable->setColumnCount(OwnerColumn+1);
+    ui->observerTable->showColumn(NameColumn);
+    ui->observerTable->showColumn(UsesInstanceNameColumn);
+    ui->observerTable->setColumnWidth(UsesInstanceNameColumn,40);
+    ui->observerTable->showColumn(OwnerColumn);
+    ui->observerTable->setColumnWidth(OwnerColumn,40);
     QStringList headers;
     headers << tr("Context List") << tr("Alias") << tr("Owner");
-    m_ui->observerTable->setHorizontalHeaderLabels(headers);
+    ui->observerTable->setHorizontalHeaderLabels(headers);
     if (ownership == Observer::SpecificObserverOwnership && has_instance_names) {
-        m_ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
-        //m_ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
+        ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        //ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
     } else if (ownership == Observer::SpecificObserverOwnership && !has_instance_names) {
-        m_ui->observerTable->hideColumn(UsesInstanceNameColumn);
-        m_ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
-        //m_ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
+        ui->observerTable->hideColumn(UsesInstanceNameColumn);
+        ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        //ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
     } else if (ownership != Observer::SpecificObserverOwnership && has_instance_names) {
-        m_ui->observerTable->hideColumn(OwnerColumn);
-        m_ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
-        //m_ui->observerTable->horizontalHeader()->setResizeMode(UsesInstanceNameColumn,QHeaderView::Stretch);
+        ui->observerTable->hideColumn(OwnerColumn);
+        ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        //ui->observerTable->horizontalHeader()->setResizeMode(UsesInstanceNameColumn,QHeaderView::Stretch);
     } else {
-        m_ui->observerTable->hideColumn(UsesInstanceNameColumn);
-        m_ui->observerTable->hideColumn(OwnerColumn);
-        //m_ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::Stretch);
+        ui->observerTable->hideColumn(UsesInstanceNameColumn);
+        ui->observerTable->hideColumn(OwnerColumn);
+        //ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::Stretch);
     }
 }
 
-Qtilities::CoreGui::ObserverProperty Qtilities::CoreGui::ObjectScopeWidget::getObserverProperty(const char* property_name) const {
-    if (!d->obj)
-        return ObserverProperty();
-
-    QVariant prop;
-    prop = d->obj->property(property_name);
-
-    if (prop.isValid() && prop.canConvert<ObserverProperty>()) {
-        // This is a normal observer property (not shared)
-        return prop.value<ObserverProperty>();
-    } else if (!prop.isValid()) {
-        return ObserverProperty();
-    } else {
-        return ObserverProperty();
-    }
-}
-
-Qtilities::CoreGui::SharedObserverProperty Qtilities::CoreGui::ObjectScopeWidget::getSharedProperty(const char* property_name) const {
-    if (!d->obj)
-        return SharedObserverProperty();
-
-    QVariant prop;
-    prop = d->obj->property(property_name);
-
-    if (prop.isValid() && prop.canConvert<SharedObserverProperty>()) {
-        // This is a normal observer property (not shared)
-        return prop.value<SharedObserverProperty>();
-    } else if (!prop.isValid()) {
-        return SharedObserverProperty();
-    } else {
-        return SharedObserverProperty();
-    }
-}
 
 void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
-    if (actionContainerWidget)
+    if (d->action_provider)
         return;
-    actionContainerWidget = this;
+
     d->action_provider = new ActionProvider(this);
+
+    int context_id = CONTEXT_MANAGER->registerContext(d->global_meta_type);
+    QList<int> context;
+    context.push_front(context_id);
 
     // ---------------------------
     // Add Context
     // ---------------------------
-    d->actionAddContext = new QAction(QIcon(ICON_NEW_16x16),"Add",this);
+    d->actionAddContext = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
     //d->action_provider->addAction(d->actionAddContext);
     d->actionAddContext->setEnabled(false);
     connect(d->actionAddContext,SIGNAL(triggered()),SLOT(handle_actionAddContext_triggered()));
-    ACTION_MANAGER->registerAction(SELECTION_SCOPE_ADD,d->actionAddContext);
+    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_ADD,d->actionAddContext,context);
     // ---------------------------
     // Remove Context
     // ---------------------------
-    d->actionRemoveContext = new QAction(QIcon(ICON_REMOVE_ONE_16x16),"Remove Selected",this);
+    d->actionRemoveContext = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected",this);
     d->action_provider->addAction(d->actionRemoveContext);
     d->actionRemoveContext->setEnabled(false);
     connect(d->actionRemoveContext,SIGNAL(triggered()),SLOT(handle_actionRemoveContext_triggered()));
-    ACTION_MANAGER->registerAction(SELECTION_SCOPE_REMOVE_SELECTED,d->actionRemoveContext);
+    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_SELECTED,d->actionRemoveContext,context);
     // ---------------------------
     // Detach In Selected Context (Creates copy in selected context which is detached from the rest of the contexts)
     // ---------------------------
-    d->actionDetachToSelection = new QAction(QIcon(ICON_REMOVE_ALL_16x16),"Romove Others",this);
+    d->actionDetachToSelection = new QAction(QIcon(qti_icon_REMOVE_ALL_16x16),"Romove Others",this);
     d->action_provider->addAction(d->actionDetachToSelection);
     d->actionDetachToSelection->setEnabled(false);
     connect(d->actionDetachToSelection,SIGNAL(triggered()),SLOT(handle_actionDetachToSelection_triggered()));
-    ACTION_MANAGER->registerAction(SELECTION_SCOPE_REMOVE_OTHERS,d->actionDetachToSelection);
+    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_OTHERS,d->actionDetachToSelection,context);
     // ---------------------------
     // Duplicate In Selected Context
     // ---------------------------
-    d->actionDuplicateInScope = new QAction(QIcon(ICON_SPLIT_16x16),"Duplicate",this);
+    d->actionDuplicateInScope = new QAction(QIcon(qti_icon_SPLIT_16x16),"Duplicate",this);
     //d->action_provider->addAction(d->actionDuplicateInScope);
     d->actionDuplicateInScope->setEnabled(false);
     connect(d->actionDuplicateInScope,SIGNAL(triggered()),SLOT(handle_actionDuplicateInScope_triggered()));
-    ACTION_MANAGER->registerAction(SELECTION_SCOPE_DUPLICATE,d->actionDuplicateInScope);
+    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_DUPLICATE,d->actionDuplicateInScope,context);
 
-    //m_ui->observerTable->addAction(d->actionAddContext);
+    //ui->observerTable->addAction(d->actionAddContext);
     QAction* sep1 = new QAction(0);
     sep1->setSeparator(true);
-    m_ui->observerTable->addAction(sep1);
-    m_ui->observerTable->addAction(d->actionRemoveContext);
-    m_ui->observerTable->addAction(d->actionDetachToSelection);
+    ui->observerTable->addAction(sep1);
+    ui->observerTable->addAction(d->actionRemoveContext);
+    ui->observerTable->addAction(d->actionDetachToSelection);
     QAction* sep2 = new QAction(0);
     sep2->setSeparator(true);
-    m_ui->observerTable->addAction(sep2);
-    //m_ui->observerTable->addAction(d->actionDuplicateInScope);
-    m_ui->observerTable->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->observerTable->addAction(sep2);
+    //ui->observerTable->addAction(d->actionDuplicateInScope);
+    ui->observerTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
-    if (!actionContainerWidget)
-        constructActions();
-
-    if (!currentWidget)
-        return;
-
-    if (m_ui->observerTable->selectedItems().count() > 0) {
-        int id = currentWidget->m_ui->observerTable->currentItem()->type();
+    if (ui->observerTable->selectedItems().count() > 0) {
+        int id = ui->observerTable->currentItem()->type();
         Observer* observer = OBJECT_MANAGER->observerReference(id);
         if (observer) {
             if (observer->displayHints()) {
-                if (m_ui->observerTable->rowCount() > 1)
-                    actionContainerWidget->d->actionDetachToSelection->setEnabled(true);
+                if (ui->observerTable->rowCount() > 1)
+                    d->actionDetachToSelection->setEnabled(true);
                 else
-                    actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
+                    d->actionDetachToSelection->setEnabled(false);
 
                 if (observer->displayHints()->actionHints() & ObserverHints::ActionScopeDuplicate)
-                    actionContainerWidget->d->actionDuplicateInScope->setEnabled(true);
+                    d->actionDuplicateInScope->setEnabled(true);
                 else
-                    actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
+                    d->actionDuplicateInScope->setEnabled(false);
 
                 if (observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem)
-                    actionContainerWidget->d->actionRemoveContext->setEnabled(true);
+                    d->actionRemoveContext->setEnabled(true);
                 else
-                    actionContainerWidget->d->actionRemoveContext->setEnabled(false);
+                    d->actionRemoveContext->setEnabled(false);
             }
         } else {
-            actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
-            actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
-            actionContainerWidget->d->actionRemoveContext->setEnabled(false);
+            d->actionDetachToSelection->setEnabled(false);
+            d->actionDuplicateInScope->setEnabled(false);
+            d->actionRemoveContext->setEnabled(false);
         }
     } else {
-        actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
-        actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
-        actionContainerWidget->d->actionRemoveContext->setEnabled(false);
+        d->actionDetachToSelection->setEnabled(false);
+        d->actionDuplicateInScope->setEnabled(false);
+        d->actionRemoveContext->setEnabled(false);
     }
 
     // Check if the observer limit is reached, if so disable the add context action.
     if (d->obj) {
         QVariant prop;
-        prop = d->obj->property(OBSERVER_LIMIT);
+        prop = d->obj->property(qti_prop_OBSERVER_LIMIT);
 
         if (prop.isValid() && prop.canConvert<SharedObserverProperty>()) {
             // This is a shared property
             int limit = (prop.value<SharedObserverProperty>()).value().toInt();
-            if (m_ui->observerTable->rowCount() >= limit) {
-                actionContainerWidget->d->actionAddContext->setEnabled(false);
+            if (ui->observerTable->rowCount() >= limit) {
+                d->actionAddContext->setEnabled(false);
                 return;
             }
         }
 
-        actionContainerWidget->d->actionAddContext->setEnabled(true);
+        d->actionAddContext->setEnabled(true);
     } else {
-        actionContainerWidget->d->actionDetachToSelection->setEnabled(false);
-        actionContainerWidget->d->actionDuplicateInScope->setEnabled(false);
-        actionContainerWidget->d->actionRemoveContext->setEnabled(false);
-        actionContainerWidget->d->actionAddContext->setEnabled(false);
+        d->actionDetachToSelection->setEnabled(false);
+        d->actionDuplicateInScope->setEnabled(false);
+        d->actionRemoveContext->setEnabled(false);
+        d->actionAddContext->setEnabled(false);
     }
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDuplicateInScope_triggered() {
-    if (!currentWidget)
-        return;
-
     QMessageBox msgBox;
     msgBox.setText(tr("This feature is not currenlty implemented and will become available in a future release."));
     msgBox.exec();
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionAddContext_triggered() {
-    if (!currentWidget)
-        return;
-
     QMessageBox msgBox;
     msgBox.setText(tr("This feature is not currenlty implemented and will become available in a future release."));
     msgBox.exec();
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionRemoveContext_triggered() {
-    if (!currentWidget)
-        return;
-
     // Get the current selected observer
-    int id = currentWidget->m_ui->observerTable->currentItem()->type();
+    int id = ui->observerTable->currentItem()->type();
     Observer* observer = OBJECT_MANAGER->observerReference(id);
     if (!observer)
         return;
@@ -553,15 +503,12 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionRemoveContext_triggered
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_triggered() {
-    if (!currentWidget)
-        return;
-
     // Get the ids of all unselected items
     QList<int> other_ids;
-    int selected_id = currentWidget->m_ui->observerTable->currentItem()->type();
-    for (int i = 0; i < m_ui->observerTable->rowCount(); i++) {
-        if (selected_id != m_ui->observerTable->item(i,0)->type())
-            other_ids << m_ui->observerTable->item(i,0)->type();
+    int selected_id = ui->observerTable->currentItem()->type();
+    for (int i = 0; i < ui->observerTable->rowCount(); i++) {
+        if (selected_id != ui->observerTable->item(i,0)->type())
+            other_ids << ui->observerTable->item(i,0)->type();
     }
 
     QStringList unsupported_items;
@@ -618,7 +565,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::changeEvent(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
+        ui->retranslateUi(this);
         break;
     default:
         break;

@@ -47,10 +47,10 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-          \struct ObserverProjectItemWrapperData
-          \brief The ObserverProjectItemWrapperData struct stores private data used by the ObserverProjectItemWrapper class.
+          \struct ObserverProjectItemWrapperPrivateData
+          \brief The ObserverProjectItemWrapperPrivateData struct stores private data used by the ObserverProjectItemWrapper class.
          */
-        struct ObserverProjectItemWrapperData;
+        struct ObserverProjectItemWrapperPrivateData;
 
         /*!
         \class ObserverProjectItemWrapper
@@ -103,7 +103,7 @@ namespace Qtilities {
             const QObject* objectBase() const { return this; }
 
         private:
-            ObserverProjectItemWrapperData* d;
+            ObserverProjectItemWrapperPrivateData* d;
         };
     }
 }

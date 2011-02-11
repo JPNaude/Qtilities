@@ -425,14 +425,14 @@ namespace Qtilities {
 \code
 QtilitiesCategory category("Test Category");
 // Check if the property exists:
-if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
+if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
     // If it does we MUST append the value for our context:
-    ObserverProperty category_property = Observer::getObserverProperty(iface->objectBase(),OBJECT_CATEGORY);
+    ObserverProperty category_property = Observer::getObserverProperty(iface->objectBase(),qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(category),observerID());
     Observer::setObserverProperty(iface->objectBase(),category_property);
 } else {
     // If not we create a new property with the value for our context:
-    ObserverProperty category_property(OBJECT_CATEGORY);
+    ObserverProperty category_property(qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(category),observerID());
     Observer::setObserverProperty(iface->objectBase(),category_property);
 }
@@ -622,7 +622,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
               If the category does not exist, Observer::InvalidAccess is returned.
               */
             AccessMode categoryAccessMode(const QtilitiesCategory& category) const;
-            //! Returns a QStringList with all the categories found in the OBJECT_CATEGORY properties of all attached subjects.
+            //! Returns a QStringList with all the categories found in the qti_prop_CATEGORY_MAP properties of all attached subjects.
             /*!
               This function does not take the category filtering options of the observer into account, for that functionality see displayedCategories()
               on the observer hints for this observer provided by hints(). Category filtering is only related to the displaying of the observer.
@@ -630,7 +630,7 @@ if (Observer::propertyExists(iface->objectBase(),OBJECT_CATEGORY)) {
             QList<QtilitiesCategory> subjectCategories() const;
             //! Returns a list with the names of all the current observed subjects which belongs to a specific category.
             QStringList subjectNamesByCategory(const QtilitiesCategory& category) const;
-            //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an OBJECT_CATEGORY shared observer property.
+            //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an qti_prop_CATEGORY_MAP shared observer property.
             QList<QObject*> subjectReferencesByCategory(const QtilitiesCategory& category) const;
 
             // --------------------------------

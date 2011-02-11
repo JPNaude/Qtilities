@@ -41,21 +41,21 @@ namespace Qtilities {
         //! Namespace containing constants used inside the Logging Module.
         namespace Constants {
             // Default Formatting Engines
-            const char * const FORMATTING_ENGINE_DEFAULT    = "Default";
-            const char * const FORMATTING_ENGINE_RICH_TEXT  = "Rich Text";
-            const char * const FORMATTING_ENGINE_XML        = "XML Format";
-            const char * const FORMATTING_ENGINE_HTML       = "HTML Format";
-            const char * const FORMATTING_ENGINE_QT_MSG     = "Qt Messaging System Format";
+            const char * const qti_def_FORMATTING_ENGINE_DEFAULT    = "Default";
+            const char * const qti_def_FORMATTING_ENGINE_RICH_TEXT  = "Rich Text";
+            const char * const qti_def_FORMATTING_ENGINE_XML        = "XML Format";
+            const char * const qti_def_FORMATTING_ENGINE_HTML       = "HTML Format";
+            const char * const qti_def_FORMATTING_ENGINE_QT_MSG     = "Qt Messaging System Format";
 
             // Default Factory Tags
-            const char * const TAG_LOGGER_ENGINE_FILE       = "File";
+            const char * const qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE = "qti.def.FactoryTag.File";
 
             // File Extensions
-            const char * const FILE_EXT_LOGGER_CONFIG       = ".logconfig";
+            const char * const qti_def_SUFFIX_LOGGER_CONFIG         = ".logconfig";
 
             // Default file paths (all subdirectories of the executable file)
-            const char * const PATH_LOG_SESSION             = "/session";
-            const char * const PATH_LOG_LAST_CONFIG         = "/session/last_log_config.logconfig";
+            const char * const qti_def_PATH_SESSION            = "/session";
+            const char * const qti_def_PATH_LOGCONFIG_FILE          = "last_log_config.logconfig";
         }
     }
 }

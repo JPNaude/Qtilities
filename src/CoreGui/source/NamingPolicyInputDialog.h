@@ -98,13 +98,13 @@ namespace Qtilities {
             //! Function which sets the name of the object set using setObject().
             /*!
               This function checks if the subject filter is the name manager of the object, in that case
-              it sets OBJECT_NAME. If not, it sets INSTANCE_NAMES with the subject filter's observer context ID.
+              it sets qti_prop_NAME. If not, it sets qti_prop_ALIAS_MAP with the subject filter's observer context ID.
               */
             void setName(const QString& new_name);
             //! Function which gets the name of the object set using setObject().
             /*!
               This function checks if the subject filter is the name manager of the object, in that case
-              it uses OBJECT_NAME. If not, it uses INSTANCE_NAMES with the subject filter's observer context ID.
+              it uses qti_prop_NAME. If not, it uses qti_prop_ALIAS_MAP with the subject filter's observer context ID.
               */
             QString getName();
 

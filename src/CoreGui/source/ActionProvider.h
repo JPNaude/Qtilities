@@ -45,10 +45,10 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
         /*!
-        \class ActionProviderData
-        \brief The ActionProviderData struct stores private data used by the ActionProvider class.
+        \class ActionProviderPrivateData
+        \brief The ActionProviderPrivateData struct stores private data used by the ActionProvider class.
           */
-        class ActionProviderData;
+        class ActionProviderPrivateData;
 
         /*!
         \class ActionProvider
@@ -81,7 +81,7 @@ namespace Qtilities {
             QAction* findActionByObjectName(const QString& object_name);
 
         private:
-            ActionProviderData* d;
+            ActionProviderPrivateData* d;
         };
     }
 }

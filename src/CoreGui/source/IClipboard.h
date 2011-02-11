@@ -50,8 +50,8 @@ namespace Qtilities {
 \brief Interface used to communicate with the clipboard manager.
 
 The goal of the clipboard manager is to register backends (associated with the standard context) for the
-Qtilities::CoreGui::Actions::MENU_EDIT_COPY, Qtilities::CoreGui::Actions::MENU_EDIT_CUT and
-Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action placeholders if they exists. This allows control
+Qtilities::CoreGui::Actions::qti_action_EDIT_COPY, Qtilities::CoreGui::Actions::qti_action_EDIT_CUT and
+Qtilities::CoreGui::Actions::qti_action_EDIT_PASTE action placeholders if they exists. This allows control
 over disabling and enabling these three actions in %Qtilities applications. For example, the paste action
 should only be enabled if something exists in the the clipboard. Also, when you perform a paste operation,
 the paste action must become disabled again. The clipboard manager provides this functionality.
@@ -62,20 +62,20 @@ function and then initialize the clipboard as shown below:
 \code
 // Create the menu bar and menus in the menu bar:
 bool existed;
-ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
-ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
+ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
+ActionContainer* edit_menu = ACTION_MANAGER->createMenu(qti_action_EDIT,existed);
 menu_bar->addMenu(edit_menu);
 
 // Get the standard context:
 QList<int> std_context;
-std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
 // Register action placeholders for the copy, cut and paste actions:
-Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
 edit_menu->addAction(command);
-command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
 edit_menu->addAction(command);
-command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
 edit_menu->addAction(command);
 
 // We want to use paste operations in this application, thus initialize the clipboard.

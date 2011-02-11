@@ -74,7 +74,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         It is important to note that the UniquenessPolicy and the subject's filter's validator can only be set while no subjects are attached within the subject filter's observer context.
 
         Once the NamingPolicyFilter is set up the way you need it, it will add a single shared property (see SharedObserverProperty) to subjects attached to it's observer context.
-        The name of this property is defined in code using the Qtilities::Core::Properties::OBJECT_NAME constant.
+        The name of this property is defined in code using the Qtilities::Core::Properties::qti_prop_NAME constant.
 
         This dynamic property will be sync'ed with objectName() at all times. Since there is no way to know when setObjectName() is called on a QObject, a dynamic property
         needed to be added to manage the subject's name. Whenever you update this shared property it will be evaluated by the subject filter which will make
@@ -161,7 +161,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
-            QString filterName() const { return FACTORY_TAG_NAMING_POLICY_FILTER; }
+            QString filterName() const { return qti_def_FACTORY_TAG_NAMING_FILTER; }
             QStringList monitoredProperties() const;
             QStringList reservedProperties() const;
         protected:
@@ -279,7 +279,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         protected:
             //! Attempt to assign a new name manager to the object, other than this filter.
             void assignNewNameManager(QObject* obj);
-            //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the OBJECT_NAME property.
+            //! Check if the property actually changed during monitoredPropertyChanged() function call, thus check objectName() against the qti_prop_NAME property.
             bool isObjectNameDirty(QObject* obj) const;
 
             //! Validates if \p property_name is a valid name for \p obj in this context.

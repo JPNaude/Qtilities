@@ -45,10 +45,10 @@ namespace Qtilities {
         using namespace Qtilities::Core::Constants;
 
         /*!
-        \struct ActivityPolicyFilterData
+        \struct ActivityPolicyFilterPrivateData
         \brief A structure storing private data in the ActivityPolicyFilter class.
           */
-        struct ActivityPolicyFilterData;
+        struct ActivityPolicyFilterPrivateData;
 
         /*!
             \class Qtilities::Core::ActivityPolicyFilter
@@ -216,7 +216,7 @@ namespace Qtilities {
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
-            QString filterName() const { return FACTORY_TAG_ACTIVITY_POLICY_FILTER; }
+            QString filterName() const { return qti_def_FACTORY_TAG_ACTIVITY_FILTER; }
             QStringList monitoredProperties() const;
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
@@ -260,7 +260,7 @@ namespace Qtilities {
             void activeSubjectsChanged(QList<QObject*> active_objects, QList<QObject*> inactive_objects);
 
         private:
-            ActivityPolicyFilterData* d;
+            ActivityPolicyFilterPrivateData* d;
         };
     }
 }

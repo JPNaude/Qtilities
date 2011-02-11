@@ -52,11 +52,11 @@ namespace Qtilities {
             //! Namespace containing constants defined in the ProjectManagement plugin.
             namespace Constants {
                 // Actions & Action Containers
-                const char * const MENU_PROJECTS_NEW        = "Projects.New";
-                const char * const MENU_PROJECTS_OPEN       = "Projects.Open";
-                const char * const MENU_PROJECTS_CLOSE      = "Projects.Close";
-                const char * const MENU_PROJECTS_SAVE       = "Projects.Save";
-                const char * const MENU_PROJECTS_SAVE_AS    = "Projects.SaveAs";
+                const char * const qti_action_PROJECTS_NEW        = "Projects.New";
+                const char * const qti_action_PROJECTS_OPEN       = "Projects.Open";
+                const char * const qti_action_PROJECTS_CLOSE      = "Projects.Close";
+                const char * const qti_action_PROJECTS_SAVE       = "Projects.Save";
+                const char * const qti_action_PROJECTS_SAVE_AS    = "Projects.SaveAs";
             }
         }
     }

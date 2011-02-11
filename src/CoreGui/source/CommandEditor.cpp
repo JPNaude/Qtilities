@@ -48,8 +48,8 @@
 
 using namespace Qtilities::CoreGui::Icons;
 
-struct Qtilities::CoreGui::CommandEditorData {
-    CommandEditorData() : model(0),
+struct Qtilities::CoreGui::CommandEditorPrivateData {
+    CommandEditorPrivateData() : model(0),
     proxy_model(0)  { }
 
     CommandTableModel*          model;
@@ -66,11 +66,11 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool command_table_only, QWidge
     ui(new Ui::CommandEditor)
 {
     ui->setupUi(this);
-    ui->lblSearchIcon->setPixmap(QPixmap(ICON_FIND_16x16));
+    ui->lblSearchIcon->setPixmap(QPixmap(qti_icon_FIND_16x16));
     connect(ui->txtSearchString,SIGNAL(textChanged(const QString&)),SLOT(handleSearchStringChanged(const QString&)));
     connect(ui->commandTable->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
 
-    d = new CommandEditorData;
+    d = new CommandEditorPrivateData;
 
     // Create Model & View
     d->model = new CommandTableModel(this);
@@ -116,8 +116,8 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(bool command_table_only, QWidge
 
     // Select first item
     connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
-    if (ACTION_MANAGER->commandMap().count() > 0)
-        ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
+    //if (ACTION_MANAGER->commandMap().count() > 0)
+    //    ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
 
     if (command_table_only) {
         ui->groupCurrentConfiguration->setVisible(false);
@@ -144,7 +144,7 @@ void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
-    return QIcon(ICON_CONFIG_SHORTCUTS_48x48);
+    return QIcon(qti_icon_CONFIG_SHORTCUTS_48x48);
 }
 
 QWidget* Qtilities::CoreGui::CommandEditor::configPageWidget() {

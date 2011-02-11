@@ -319,8 +319,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>68</width>
-             <height>317</height>
+             <width>1013</width>
+             <height>635</height>
             </rect>
            </property>
            <attribute name="label">
@@ -665,8 +665,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>298</height>
+             <width>1013</width>
+             <height>689</height>
             </rect>
            </property>
            <attribute name="label">
@@ -792,7 +792,7 @@ p, li { white-space: pre-wrap; }
                <item row="0" column="2">
                 <widget class="QToolButton" name="btnEditPluginCurrentConfigSet">
                  <property name="text">
-                  <string>Edit .pconfig File</string>
+                  <string>Edit Config File</string>
                  </property>
                  <property name="toolButtonStyle">
                   <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -873,8 +873,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>249</height>
+             <width>1013</width>
+             <height>689</height>
             </rect>
            </property>
            <attribute name="label">
@@ -957,7 +957,7 @@ p, li { white-space: pre-wrap; }
                <item row="1" column="4">
                 <widget class="QToolButton" name="btnEditPluginConfigSet">
                  <property name="text">
-                  <string>Edit .pconfig File</string>
+                  <string>Edit Config File</string>
                  </property>
                  <property name="toolButtonStyle">
                   <enum>Qt::ToolButtonTextBesideIcon</enum>

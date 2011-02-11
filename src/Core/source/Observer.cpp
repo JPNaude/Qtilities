@@ -72,7 +72,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 
     // Register this observer with the observer manager
-    if (observer_name != QString(GLOBAL_OBJECT_POOL))
+    if (observer_name != QString(qti_def_GLOBAL_OBJECT_POOL))
         observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
     else
         observerData->observer_id = 0;
@@ -86,7 +86,7 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.paren
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 
     // Register this observer with the observer manager
-    if (other.objectName() != QString(GLOBAL_OBJECT_POOL))
+    if (other.objectName() != QString(qti_def_GLOBAL_OBJECT_POOL))
         observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
     else
         observerData->observer_id = 0;
@@ -95,7 +95,7 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.paren
 Qtilities::Core::Observer::~Observer() {
     startProcessingCycle();
 
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         observerData->deliver_qtilities_property_changed_events = false;
 
         // When this observer is deleted, we must check the ownership of all its subjects
@@ -113,8 +113,8 @@ Qtilities::Core::Observer::~Observer() {
             if (obs)
                 obs->startProcessingCycle();
 
-            subject_ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
-            parent_observer_variant = getObserverPropertyValue(obj,OBSERVER_PARENT);
+            subject_ownership_variant = getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
+            parent_observer_variant = getObserverPropertyValue(obj,qti_prop_PARENT_ID);
             if ((subject_ownership_variant.toInt() == SpecificObserverOwnership) && (observerData->observer_id == parent_observer_variant.toInt())) {
                 // Subjects with SpecificObserverOwnership must be deleted as soon as this observer is deleted if this observer is their parent.
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) is owned by this observer, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
@@ -138,6 +138,8 @@ Qtilities::Core::Observer::~Observer() {
                     break;
                 } else
                     obj->deleteLater();
+            } else {
+                detachSubject(obj);
             }
         }
     }
@@ -150,7 +152,7 @@ Qtilities::Core::Observer::~Observer() {
         observerData->subject_filters.pop_front();
     }
 
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         LOG_TRACE("Removing any trace of this observer from remaining children.");
         int count = subjectCount();
         for (int i = 0; i < count; i++) {
@@ -166,18 +168,18 @@ Qtilities::Core::Observer::~Observer() {
 
 QStringList Qtilities::Core::Observer::monitoredProperties() const {
     QStringList properties;
-    properties.append(QString(OBJECT_CATEGORY));
-    properties.append(QString(OBJECT_ACCESS_MODE));
+    properties.append(QString(qti_prop_CATEGORY_MAP));
+    properties.append(QString(qti_prop_ACCESS_MODE));
     // Role properties are also monitored. We will notify views to refresh when they change.
-    properties.append(QString(OBJECT_ROLE_TOOLTIP));
-    properties.append(QString(OBJECT_ROLE_DECORATION));
-    properties.append(QString(OBJECT_ROLE_FOREGROUND));
-    properties.append(QString(OBJECT_ROLE_BACKGROUND));
-    properties.append(QString(OBJECT_ROLE_TEXT_ALIGNMENT));
-    properties.append(QString(OBJECT_ROLE_FONT));
-    properties.append(QString(OBJECT_ROLE_SIZE_HINT));
-    properties.append(QString(OBJECT_ROLE_STATUSTIP));
-    properties.append(QString(OBJECT_ROLE_WHATS_THIS));
+    properties.append(QString(qti_prop_TOOLTIP));
+    properties.append(QString(qti_prop_DECORATION));
+    properties.append(QString(qti_prop_FOREGROUND));
+    properties.append(QString(qti_prop_BACKGROUND));
+    properties.append(QString(qti_prop_TEXT_ALIGNMENT));
+    properties.append(QString(qti_prop_FONT));
+    properties.append(QString(qti_prop_SIZE_HINT));
+    properties.append(QString(qti_prop_STATUSTIP));
+    properties.append(QString(qti_prop_WHATS_THIS));
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         properties << observerData->subject_filters.at(i)->monitoredProperties();
@@ -187,7 +189,7 @@ QStringList Qtilities::Core::Observer::monitoredProperties() const {
 
 QStringList Qtilities::Core::Observer::reservedProperties() const {
     QStringList properties;
-    properties << QString(OBSERVER_SUBJECT_IDS) << QString(OBJECT_OWNERSHIP) << QString(OBSERVER_PARENT) << QString(OBSERVER_VISITOR_ID) << QString(OBJECT_LIMITED_EXPORTS);
+    properties << QString(qti_prop_OBSERVER_MAP) << QString(qti_prop_OWNERSHIP) << QString(qti_prop_PARENT_ID) << QString(qti_prop_VISITOR_ID) << QString(qti_prop_LIMITED_EXPORTS);
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         properties << observerData->subject_filters.at(i)->reservedProperties();
@@ -286,10 +288,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
             if (iface->supportedFormats() & IExportable::Binary) {
                 // Handle limited export object, thus they should only be exported once.
                 bool ok = false;
-                int export_count = getObserverPropertyValue(obj,OBJECT_LIMITED_EXPORTS).toInt(&ok);
+                int export_count = getObserverPropertyValue(obj,qti_prop_LIMITED_EXPORTS).toInt(&ok);
                 if (export_count == 0) {
                     if (ok)
-                        setObserverPropertyValue(obj,OBJECT_LIMITED_EXPORTS,export_count+1);
+                        setObserverPropertyValue(obj,qti_prop_LIMITED_EXPORTS,export_count+1);
 
                     exportable_list << iface;
                     ++iface_count;
@@ -558,8 +560,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                 subject_children.appendChild(subject_item);
                 // We also append the following information:
                 // 1. Category:
-                if (Observer::propertyExists(export_iface->objectBase(),OBJECT_CATEGORY)) {
-                    QVariant category_variant = getObserverPropertyValue(export_iface->objectBase(),OBJECT_CATEGORY);
+                if (Observer::propertyExists(export_iface->objectBase(),qti_prop_CATEGORY_MAP)) {
+                    QVariant category_variant = getObserverPropertyValue(export_iface->objectBase(),qti_prop_CATEGORY_MAP);
                     if (category_variant.isValid()) {
                         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
                         if (!category.toString().isEmpty())
@@ -567,8 +569,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                     }
                 }
                 // 2. Is Active:
-                if (Observer::propertyExists(export_iface->objectBase(),OBJECT_ACTIVITY)) {
-                    bool activity = getObserverPropertyValue(export_iface->objectBase(),OBJECT_ACTIVITY).toBool();
+                if (Observer::propertyExists(export_iface->objectBase(),qti_prop_ACTIVITY_MAP)) {
+                    bool activity = getObserverPropertyValue(export_iface->objectBase(),qti_prop_ACTIVITY_MAP).toBool();
                     if (activity)
                         subject_item.setAttribute("Activity","Active");
                     else
@@ -728,11 +730,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                         continue;
                                     }
 
-                                    // We just created this object, it will not have a category property yet so no need to check if it has:
+                                    // We just created this object, it will not have a category property yet so no need to check if it needs one:
                                      if (childrenChild.hasAttribute("Category")) {
                                          QString category_string = childrenChild.attribute("Category");
                                          QtilitiesCategory category(category_string,"::");
-                                         ObserverProperty category_property(OBJECT_CATEGORY);
+                                         ObserverProperty category_property(qti_prop_CATEGORY_MAP);
                                          category_property.setValue(qVariantFromValue(category),observerID());
                                          Observer::setObserverProperty(iface->objectBase(),category_property);
                                      }
@@ -921,18 +923,17 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     }
 
     // Details of the global object pool observer is not added to any objects.
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Now, add observer details to needed properties
-        // Add observer details to property: OBSERVER_SUBJECT_IDS
-        ObserverProperty subject_id_property = getObserverProperty(obj,OBSERVER_SUBJECT_IDS);
+        // Add observer details to property: qti_prop_OBSERVER_MAP
+        ObserverProperty subject_id_property = getObserverProperty(obj,qti_prop_OBSERVER_MAP);
         if (subject_id_property.isValid()) {
             // Thus, the property already exists
             subject_id_property.addContext(QVariant(observerData->subject_id_counter),observerData->observer_id);
             setObserverProperty(obj,subject_id_property);
         } else {
             // We need to create the property and add it to the object
-            ObserverProperty new_subject_id_property(OBSERVER_SUBJECT_IDS);
-            new_subject_id_property.setIsExportable(false);
+            ObserverProperty new_subject_id_property(qti_prop_OBSERVER_MAP);
             new_subject_id_property.addContext(QVariant(observerData->subject_id_counter),observerData->observer_id);
             setObserverProperty(obj,new_subject_id_property);
         }
@@ -947,19 +948,19 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         #endif
         // Check if the object is already managed, and if so with what ownership flag it was attached to those observers.
         if (parentCount(obj) > 1) {
-            QVariant current_ownership = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
+            QVariant current_ownership = getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
             if (current_ownership.toInt() != OwnedBySubjectOwnership) {
                 if (object_ownership == ObserverScopeOwnership) {
                     // Update the ownership to ObserverScopeOwnership
-                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
-                    setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(-1));
+                    setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setObserverPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Observer Scope Ownership";
                     #endif
                 } else if (object_ownership == SpecificObserverOwnership) {
                     // Update the ownership to SpecificObserverOwnership
-                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(SpecificObserverOwnership));
-                    setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(observerID()));
+                    setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
+                    setObserverPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Specific Observer Ownership";
                     #endif
@@ -993,17 +994,17 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                     } else {
                         // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                         if (!obj->parent()) {
-                            setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                            setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                             #endif
                         } else {
-                            setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ManualOwnership));
+                            setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                             #endif
                         }
-                        setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(-1));
+                        setObserverPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
                     }
                 } else if (object_ownership == OwnedBySubjectOwnership) {
                     connect(obj,SIGNAL(destroyed()),SLOT(deleteLater()));
@@ -1022,11 +1023,9 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                 #endif
             }
         } else {
-            SharedObserverProperty ownership_property(QVariant(object_ownership),OBJECT_OWNERSHIP);
-            ownership_property.setIsExportable(false);
+            SharedObserverProperty ownership_property(QVariant(object_ownership),qti_prop_OWNERSHIP);
             setSharedProperty(obj,ownership_property);
-            SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
-            observer_parent_property.setIsExportable(false);
+            SharedObserverProperty observer_parent_property(QVariant(-1),qti_prop_PARENT_ID);
             setSharedProperty(obj,observer_parent_property);
             if (object_ownership == ManualOwnership) {
                 // We don't care about this object's lifetime, its up to the user to manage the lifetime of this object.
@@ -1036,20 +1035,20 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             } else if (object_ownership == AutoOwnership) {
                 // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                 if (!obj->parent()) {
-                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                     #endif
                 } else {
-                    setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(ManualOwnership));
+                    setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                     #endif
                 }
             } else if (object_ownership == SpecificObserverOwnership) {
                 // This observer must be its parent.
-                setObserverPropertyValue(obj,OBJECT_OWNERSHIP,QVariant(SpecificObserverOwnership));
-                setObserverPropertyValue(obj,OBSERVER_PARENT,QVariant(observerID()));
+                setObserverPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
+                setObserverPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Specific Observer Ownership";
                 #endif
@@ -1129,7 +1128,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         if (!observerData->process_cycle_active) {
             setModificationState(true);
             emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged(QList<QPointer<QObject> >());
+            emit layoutChanged(objects);
         }
 
         LOG_TRACE(QString("Object \"%1\" is now visible in the global object pool.").arg(obj->objectName()));
@@ -1200,7 +1199,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         return Observer::Rejected;
     }
 
-    QVariant category_variant = getObserverPropertyValue(obj,OBJECT_CATEGORY);
+    QVariant category_variant = getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
     QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
     if (isConst(category)) {
         QString reject_string = QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName());
@@ -1232,10 +1231,10 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     }
 
 
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is already monitored by this observer, if so abort.
         // This will ensure that no subject filters need to check for this, thus subject filters can assume that new attachments are actually new.
-        ObserverProperty observer_list = getObserverProperty(obj,OBSERVER_SUBJECT_IDS);
+        ObserverProperty observer_list = getObserverProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list.isValid()) {
             if (observer_list.hasContext(observerData->observer_id)) {
                 QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName());
@@ -1251,7 +1250,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         int observer_limit;
         int observer_count = parentCount(obj);
 
-        QVariant observer_limit_variant = getObserverPropertyValue(obj,OBSERVER_LIMIT);
+        QVariant observer_limit_variant = getObserverPropertyValue(obj,qti_prop_OBSERVER_LIMIT);
         if (observer_limit_variant.isValid()) {
             observer_limit = observer_limit_variant.toInt(&has_limit);
         }
@@ -1398,13 +1397,13 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     // Keeps track if the object went out of scope:
     bool lost_scope = false;
 
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         #ifndef QT_NO_DEBUG
             QString debug_name = obj->objectName();
         #endif
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
+        QVariant ownership_variant = getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
         if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == ObserverScopeOwnership)) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
@@ -1415,7 +1414,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
                 observerData->subject_list.removeOne(obj);
             }
         } else if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == SpecificObserverOwnership)) {
-            QVariant observer_parent = getObserverPropertyValue(obj,OBSERVER_PARENT);
+            QVariant observer_parent = getObserverPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
                 obj->deleteLater();
                 lost_scope = true;
@@ -1434,8 +1433,10 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     }
 
     // Disconnect all signals in this object:
-    if (obj)
+    if (obj) {
         obj->disconnect(this);
+        obj->removeEventFilter(this);
+    }
 
     // Broadcast if neccesarry
     if (!observerData->process_cycle_active) {
@@ -1481,9 +1482,9 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
 }
 
 Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach(QObject* obj) const {
-    if (objectName() != QString(GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is observed by this observer. If its not observed by this observer, we can't detach it.
-        ObserverProperty observer_list_variant = getObserverProperty(obj,OBSERVER_SUBJECT_IDS);
+        ObserverProperty observer_list_variant = getObserverProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list_variant.isValid()) {
             if (!observer_list_variant.hasContext(observerData->observer_id)) {
                 LOG_DEBUG(QString("Observer (%1): Object (%2) detachment is not allowed, object is not observed by this observer.").arg(observerData->observer_id).arg(obj->objectName()));
@@ -1495,7 +1496,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Validate operation against access mode
-        QVariant category_variant = getObserverPropertyValue(obj,OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (isConst(category)) {
             LOG_DEBUG(QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName()));
@@ -1503,12 +1504,12 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
+        QVariant ownership_variant = getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
         if (ownership_variant.isValid() && (ownership_variant.toInt() == ObserverScopeOwnership)) {
             if (parentCount(obj) == 1)
                 return Observer::LastScopedObserver;
         } else if (ownership_variant.isValid() && (ownership_variant.toInt() == SpecificObserverOwnership)) {
-            QVariant observer_parent = getObserverPropertyValue(obj,OBSERVER_PARENT);
+            QVariant observer_parent = getObserverPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
                 return Observer::IsParentObserver;
             }
@@ -1553,7 +1554,7 @@ void Qtilities::Core::Observer::deleteAll() {
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
         // Validate operation against access mode if access mode scope is category:
-        QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
             delete observerData->subject_list.at(0);
@@ -1670,7 +1671,7 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
     // If the count is zero after removing the contexts, remove all properties
     if (parentCount(obj) == 0) {
         foreach (QString property_name, added_properties) {
-            if (property_name != QString(OBJECT_NAME))
+            if (property_name != QString(qti_prop_NAME))
                 obj->setProperty(property_name.toStdString().data(),QVariant());
         }
     }
@@ -1681,7 +1682,7 @@ void Qtilities::Core::Observer::removeObserverProperties(QObject* obj) {
 
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) {
     // Get all the parents of observer
-    ObserverProperty observer_map_prop = getObserverProperty(observer, OBSERVER_SUBJECT_IDS);
+    ObserverProperty observer_map_prop = getObserverProperty(observer, qti_prop_OBSERVER_MAP);
     int observer_count;
     bool is_parent = false;
 
@@ -1700,7 +1701,7 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     } else {
         // Check above all contained observer parents:
         if (observer->parent()) {
-            ObserverProperty parent_observer_map_prop = getObserverProperty(observer->parent(), OBSERVER_SUBJECT_IDS);
+            ObserverProperty parent_observer_map_prop = getObserverProperty(observer->parent(), qti_prop_OBSERVER_MAP);
             int observer_count;
             if (parent_observer_map_prop.isValid())
                 observer_count = parent_observer_map_prop.observerMap().count();
@@ -1841,7 +1842,7 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
         // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
-        QVariant instance_name = getObserverPropertyValue(obj,INSTANCE_NAMES);
+        QVariant instance_name = getObserverPropertyValue(obj,qti_prop_ALIAS_MAP);
         if (instance_name.isValid())
             return instance_name.toString();
         else
@@ -1857,7 +1858,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
-        QVariant current_ownership = getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
+        QVariant current_ownership = getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
         Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
         return ownership;
     }
@@ -1924,7 +1925,7 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
             // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
+            QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
             if (instance_name.isValid())
                 subject_names << instance_name.toString();
             else
@@ -1938,13 +1939,13 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
     QStringList subject_names;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Handles cases where category is valid, thus it contains levels.
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
+                QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
@@ -1955,7 +1956,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
             // Thus subjects without a category specified for them.
             if (!category.isValid()) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),INSTANCE_NAMES);
+                QVariant instance_name = getObserverPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
@@ -1969,7 +1970,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
 
 bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
@@ -2002,7 +2003,7 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
     QList<QtilitiesCategory> subject_categories;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {    
-        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
@@ -2026,7 +2027,7 @@ QObject* Qtilities::Core::Observer::subjectAt(int i) const {
 
 int Qtilities::Core::Observer::subjectID(int i) const {
     if (i < subjectCount()) {
-        QVariant prop = getObserverPropertyValue(observerData->subject_list.at(i),OBSERVER_SUBJECT_IDS);
+        QVariant prop = getObserverPropertyValue(observerData->subject_list.at(i),qti_prop_OBSERVER_MAP);
         return prop.toInt();
     } else
         return -1;
@@ -2046,11 +2047,11 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& ifac
 }
 
 QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const QtilitiesCategory& category) const {
-    // Get all subjects which has the OBJECT_CATEGORY property set to category.
+    // Get all subjects which has the qti_prop_CATEGORY_MAP property set to category.
     QList<QObject*> list;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getObserverPropertyValue(subjectAt(i),OBJECT_CATEGORY);
+        QVariant category_variant = getObserverPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category)
@@ -2077,7 +2078,7 @@ QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
 QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QObject* obj = observerData->subject_list.at(i);
-        QVariant prop = getObserverPropertyValue(obj,OBSERVER_SUBJECT_IDS);
+        QVariant prop = getObserverPropertyValue(obj,qti_prop_OBSERVER_MAP);
         if (!prop.isValid()) {
             LOG_TRACE(QString("Observer (%1): Looking for subject ID (%2) failed, property 'Subject ID' contains invalid variant for this context.").arg(objectName()).arg(ID));
             return 0;
@@ -2091,7 +2092,7 @@ QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
 QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QObject* obj = observerData->subject_list.at(i);
-        QVariant prop = getObserverPropertyValue(obj,OBJECT_NAME);
+        QVariant prop = getObserverPropertyValue(obj,qti_prop_NAME);
         if (!prop.isValid()) {
             if (observerData->subject_list.at(i)->objectName() == subject_name)
                 return observerData->subject_list.at(i);
@@ -2247,6 +2248,9 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                 }
             }
 
+            // Check if internal properties added by the Observer is being changed:
+            // Todo - Check if this is done in above mutex check?
+
             // If the event should not be filtered, we need to post a user event on the object which will indicate
             // that the property change was valid and succesfull.
             // Note that subject filters must do the following themselves. Although this makes implementation
@@ -2273,17 +2277,17 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                 emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
 
                 // 3. For specific role properties, we need to notify views that the data changed:
-                if ((!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_DECORATION)) ||
-                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_FOREGROUND)) ||
-                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_BACKGROUND)) ||
-                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_TEXT_ALIGNMENT)) ||
-                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_FONT)) ||
-                    (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_ROLE_SIZE_HINT))) {
+                if ((!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_DECORATION)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_FOREGROUND)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_BACKGROUND)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_TEXT_ALIGNMENT)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_FONT)) ||
+                    (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_SIZE_HINT))) {
                     refreshViewsData();
                 }
 
                 // 4. For specific role properties, we need to notify views that layout changed:
-                if (!qstrcmp(propertyChangeEvent->propertyName().data(),OBJECT_CATEGORY)) {
+                if (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_CATEGORY_MAP)) {
                     refreshViewsLayout();
                 }
             }
@@ -2405,8 +2409,7 @@ bool Qtilities::Core::Observer::setObserverProperty(QObject* obj, ObserverProper
     }
 
     QVariant property = qVariantFromValue(observer_property);
-    obj->setProperty(observer_property.propertyName(),property);
-    return true;
+    return !obj->setProperty(observer_property.propertyName(),property);
 }
 
 Qtilities::Core::SharedObserverProperty Qtilities::Core::Observer::getSharedProperty(const QObject* obj, const char* property_name) {
@@ -2434,15 +2437,14 @@ bool Qtilities::Core::Observer::setSharedProperty(QObject* obj, SharedObserverPr
     }
 
     QVariant property = qVariantFromValue(shared_property);
-    obj->setProperty(shared_property.propertyName(),property);
-    return true;
+    return !obj->setProperty(shared_property.propertyName(),property);
 }
 
 int Qtilities::Core::Observer::parentCount(const QObject* obj) {
     if (!obj)
         return -1;
 
-    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
+    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
     if (prop.isValid()) {
         return prop.observerMap().count();
     }
@@ -2455,7 +2457,7 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::parentReferences(co
     if (!obj)
         return parents;
 
-    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS);
+    ObserverProperty prop = getObserverProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
     if (prop.isValid()) {
         for (int i = 0; i < prop.observerMap().count(); i++) {
             Observer* obs = OBJECT_MANAGER->observerReference(prop.observerMap().keys().at(i));

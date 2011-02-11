@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+#include <LoggingConstants>
 
 #include <QtilitiesCoreApplication>
 
@@ -166,6 +167,17 @@ QtilitiesApplication::initialize();
                 This function will emit settingsUpdateRequest() with the given \p request_id.
               */
             static inline void newSettingsUpdateRequest(const QString& request_id) { emit m_Instance->settingsUpdateRequest(request_id); }
+
+            //! Returns a session path for your application where you can store session related information (for example shortcut configurations etc.)
+            /*!
+              By default this is QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION.
+
+              \sa setApplicationSessionPath()
+              */
+            static QString applicationSessionPath();
+
+            //! Sets the session path to be used in your application:
+            static void setApplicationSessionPath(const QString& path);
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.

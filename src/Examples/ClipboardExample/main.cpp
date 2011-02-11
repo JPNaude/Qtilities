@@ -61,26 +61,26 @@ int main(int argc, char *argv[])
 
     // Create the menu bar and menus in the menu bar:
     bool existed;
-    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
-    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
+    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
+    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(qti_action_EDIT,existed);
     menu_bar->addMenu(edit_menu);
 
     // Get the standard context:
     QList<int> std_context;
-    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
     // Create the configuration widget here and then connect it to the settings action
-    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
 
     QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     // Register action placeholders for the copy, cut and paste actions:
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
     edit_menu->addAction(command);
 
     // Important: The Log widget must be created before the above action place holders were added since it registers some actions
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     // Create the objects
     QObject* object1 = new QObject();
     object1->setObjectName("Object 1");
-    ObserverProperty category_property1(OBJECT_CATEGORY);
+    ObserverProperty category_property1(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category1;
     multi_category1 << "Category 1";
     category_property1.setValue(qVariantFromValue(multi_category1),observerC->observerID());
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
     QObject* object2 = new QObject();
     object2->setObjectName("Object 2");
-    ObserverProperty category_property2(OBJECT_CATEGORY);
+    ObserverProperty category_property2(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category2;
     multi_category2 << "Category 1";
     category_property2.setValue(qVariantFromValue(multi_category2),observerC->observerID());
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 
     QObject* object3 = new QObject();
     object3->setObjectName("Object 3");
-    ObserverProperty category_property3(OBJECT_CATEGORY);
+    ObserverProperty category_property3(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category3;
     multi_category3 << "Category 1" << "Sub Category 3";
     category_property3.setValue(qVariantFromValue(multi_category3),observerC->observerID());
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 
     QObject* object4 = new QObject();
     object4->setObjectName("Object 4");
-    ObserverProperty category_property4(OBJECT_CATEGORY);
+    ObserverProperty category_property4(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category4;
     multi_category4 << "Category 1" << "Sub Category 2";
     category_property4.setValue(qVariantFromValue(multi_category4),observerC->observerID());
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 
     QObject* object5 = new QObject();
     object5->setObjectName("Object 5");
-    ObserverProperty category_property5(OBJECT_CATEGORY);
+    ObserverProperty category_property5(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category5;
     multi_category5 << "Category 1";
     category_property5.setValue(qVariantFromValue(multi_category5),observerC->observerID());
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 
     QObject* object6 = new QObject();
     object6->setObjectName("Object 6");
-    ObserverProperty category_property6(OBJECT_CATEGORY);
+    ObserverProperty category_property6(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category6;
     multi_category6 << "Category 1" << "Sub Category 1";
     category_property6.setValue(qVariantFromValue(multi_category6),observerC->observerID());
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 
     QObject* object7 = new QObject();
     object7->setObjectName("Object 7");
-    ObserverProperty category_property7(OBJECT_CATEGORY);
+    ObserverProperty category_property7(qti_prop_CATEGORY_MAP);
     category_property7.setValue(qVariantFromValue(QtilitiesCategory("Category 2")),observerC->observerID());
     Observer::setObserverProperty(object7,category_property7);
 
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
     #endif
 
     // Load the previous session's keyboard mapping file.
-    QString shortcut_mapping_file = QString("%1/session/%2").arg(QApplication::applicationDirPath()).arg(FILE_SHORTCUT_MAPPING);
+    QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
     if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else

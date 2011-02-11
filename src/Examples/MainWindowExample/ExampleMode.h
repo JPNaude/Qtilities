@@ -73,10 +73,10 @@ namespace Qtilities {
             const char * const CONTEXT_EXAMPLE_MODE   = "Context.ObjectManagementMode";
 
             /*!
-              \struct ExampleModeData
-              \brief The ExampleModeData class stores private data used by the ExampleMode class.
+              \struct ExampleModePrivateData
+              \brief The ExampleModePrivateData class stores private data used by the ExampleMode class.
              */
-            struct ExampleModeData;
+            struct ExampleModePrivateData;
 
             /*!
             \class ExampleMode
@@ -119,7 +119,7 @@ namespace Qtilities {
 
             private:
                 Ui::ExampleMode *ui;
-                ExampleModeData* d;
+                ExampleModePrivateData* d;
             };
         }
     }

@@ -82,24 +82,24 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     OBJECT_MANAGER->registerObject(d->project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
 
     QList<int> context;
-    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
     // ---------------------------
     // Add Example Objects
     // ---------------------------
-    ActionContainer* file_menu = ACTION_MANAGER->menu(MENU_FILE);
+    ActionContainer* file_menu = ACTION_MANAGER->menu(qti_action_FILE);
     Q_ASSERT(file_menu);
 
     d->actionAddExampleObjects = new QAction("Add Example Objects To Selection",this);
     connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
     Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
-    file_menu->addAction(command,MENU_FILE_EXIT);
+    file_menu->addAction(command,qti_action_FILE_EXIT);
 
     d->dot_file_action = new QAction("Create Dot Graph",this);
     connect(d->dot_file_action,SIGNAL(triggered()),SLOT(createDotFile()));
     command = ACTION_MANAGER->registerAction("Example.CreateDotFile",d->dot_file_action,context);
-    file_menu->addAction(command,MENU_FILE_EXIT);
-    file_menu->addSeperator(MENU_FILE_EXIT);
+    file_menu->addAction(command,qti_action_FILE_EXIT);
+    file_menu->addSeperator(qti_action_FILE_EXIT);
 
     // ---------------------------
     // Initialize widget control toolbar and actions
@@ -175,8 +175,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                             subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
-                            ObserverProperty object_category(OBJECT_CATEGORY);
-                            object_category.setIsExportable(true);
+                            ObserverProperty object_category(qti_prop_CATEGORY_MAP);
                             object_category.setValue(QVariant(subject_category),observer->observerID());
                             QVariant object_category_variant = qVariantFromValue(object_category);
                             new_item->setProperty(object_category.propertyName(),object_category_variant);
@@ -236,13 +235,15 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     if (d->observer_widget->selectedObjects().count() == 1)
         selected_observer = qobject_cast<Observer*> (d->observer_widget->selectedObjects().front());
 
-    // Create an node:
+    // Create a categorized node:
     TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
     nodeA->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
     nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeA->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     nodeA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    nodeA->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     for (int i = 0; i < 5; i++)
         nodeA->addItem(QString("Item %1").arg(i));
     if (!selected_observer)

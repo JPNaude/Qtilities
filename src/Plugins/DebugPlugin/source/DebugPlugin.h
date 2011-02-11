@@ -47,10 +47,10 @@ namespace Qtilities {
             using namespace Qtilities::Core;
 
             /*!
-              \struct DebugPluginData
-              \brief The DebugPluginData struct stores private data used by the DebugPlugin class.
+              \struct DebugPluginPrivateData
+              \brief The DebugPluginPrivateData struct stores private data used by the DebugPlugin class.
              */
-            struct DebugPluginData;
+            struct DebugPluginPrivateData;
 
             /*!
               \class DebugPlugin
@@ -89,7 +89,7 @@ namespace Qtilities {
                 QString pluginLicense() const;
 
             private:
-                DebugPluginData* d;
+                DebugPluginPrivateData* d;
             };
         }
     }

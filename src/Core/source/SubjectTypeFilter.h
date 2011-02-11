@@ -44,10 +44,10 @@ namespace Qtilities {
         using namespace Qtilities::Core::Constants;
 
         /*!
-          \struct SubjectTypeFilterData
-          \brief The SubjectTypeFilterData class stores private data used by the SubjectTypeFilter class.
+          \struct SubjectTypeFilterPrivateData
+          \brief The SubjectTypeFilterPrivateData class stores private data used by the SubjectTypeFilter class.
          */
-        struct SubjectTypeFilterData;
+        struct SubjectTypeFilterPrivateData;
 	
         /*!
         \class SubjectTypeFilter
@@ -83,7 +83,7 @@ namespace Qtilities {
             // AbstractSubjectFilter Implemenation
             // --------------------------------
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
-            QString filterName() const { return FACTORY_TAG_SUBJECT_TYPE_FILTER; }
+            QString filterName() const { return qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER; }
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
@@ -121,7 +121,7 @@ namespace Qtilities {
             bool inverseFilteringEnabled() const;
 
         private:
-            SubjectTypeFilterData* d;
+            SubjectTypeFilterPrivateData* d;
         };
     }
 }

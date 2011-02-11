@@ -51,8 +51,8 @@ using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core;
 
-struct Qtilities::CoreGui::ClipboardManagerData {
-    ClipboardManagerData() : initialized(false),
+struct Qtilities::CoreGui::ClipboardManagerPrivateData {
+    ClipboardManagerPrivateData() : initialized(false),
     actionPaste(0),
     clipboard(0) {}
 
@@ -65,7 +65,7 @@ struct Qtilities::CoreGui::ClipboardManagerData {
 
 Qtilities::CoreGui::ClipboardManager::ClipboardManager(QObject* parent) : IClipboard(parent)
 {
-    d = new ClipboardManagerData;
+    d = new ClipboardManagerPrivateData;
     d->current_origin = IClipboard::Unspecified;
 
     // Connect to the application clipboard
@@ -75,7 +75,7 @@ Qtilities::CoreGui::ClipboardManager::ClipboardManager(QObject* parent) : IClipb
     setObjectName("Clipboard Manager");
 
     // Give the manager an icon
-    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ROLE_DECORATION);
+    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(qti_icon_MANAGER_16x16))),qti_prop_DECORATION);
     shared_icon_property.setIsExportable(false);
     Observer::setSharedProperty(this,shared_icon_property);
 }
@@ -98,15 +98,15 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
         return;
 
     QList<int> context;
-    context << CONTEXT_MANAGER->contextID(CONTEXT_STANDARD);
+    context << CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD);
 
     // ---------------------------
     // Paste
     // ---------------------------
-    d->actionPaste = new QAction(QIcon(ICON_EDIT_PASTE_16x16),tr("Paste"),this);
+    d->actionPaste = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),tr("Paste"),this);
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
-    ACTION_MANAGER->registerAction(MENU_EDIT_PASTE,d->actionPaste,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_PASTE,d->actionPaste,context);
 
     d->initialized = true;
 }

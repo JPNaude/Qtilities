@@ -45,14 +45,14 @@
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
 
-struct Qtilities::Plugins::Debug::DebugPluginData {
-    DebugPluginData() : debug_mode(0) {}
+struct Qtilities::Plugins::Debug::DebugPluginPrivateData {
+    DebugPluginPrivateData() : debug_mode(0) {}
 
     DebugWidget* debug_mode;
 };
 
 Qtilities::Plugins::Debug::DebugPlugin::DebugPlugin(QObject* parent) : QObject(parent) {
-    d = new DebugPluginData;
+    d = new DebugPluginPrivateData;
     setObjectName(pluginName());
 }
 
@@ -95,7 +95,7 @@ QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const
 }
 
 double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
+    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() const {

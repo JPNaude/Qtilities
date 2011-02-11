@@ -37,15 +37,15 @@
 #include <Logger.h>
 #include <QLabel>
 
-struct Qtilities::Examples::ObjectManagement::ObjectManagementModeData {
-    ObjectManagementModeData() : widget(0) {}
+struct Qtilities::Examples::ObjectManagement::ObjectManagementModePrivateData {
+    ObjectManagementModePrivateData() : widget(0) {}
 
     QPointer<ObjectManagementModeWidget> widget;
 };
 
 Qtilities::Examples::ObjectManagement::ObjectManagementMode::ObjectManagementMode(QObject* parent) : QObject(parent)
 {
-    d = new ObjectManagementModeData;
+    d = new ObjectManagementModePrivateData;
     setObjectName(tr("Object Management Mode"));
 }
 

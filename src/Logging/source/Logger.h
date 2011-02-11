@@ -41,13 +41,14 @@
 
 namespace Qtilities {
     namespace Logging {
-        /*!
-        \struct LoggerData
-        \brief The logger class uses this struct to store its private data.
-          */
-        struct LoggerData;
         class AbstractFormattingEngine;
         class AbstractLoggerEngine;
+
+        /*!
+        \struct LoggerPrivateData
+        \brief The logger class uses this struct to store its private data.
+          */
+        struct LoggerPrivateData;
 
         /*!
         \class Logger
@@ -332,7 +333,7 @@ namespace Qtilities {
 
         private:
             static Logger* m_Instance;
-            LoggerData* d;
+            LoggerPrivateData* d;
         };
 
         void installLoggerMessageHandler(QtMsgType type, const char *msg);

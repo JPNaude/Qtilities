@@ -48,10 +48,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \struct SideViewerWidgetFactoryData
-          \brief The SideViewerWidgetFactoryData class stores private data used by the SideViewerWidgetFactory class.
+          \struct SideViewerWidgetFactoryPrivateData
+          \brief The SideViewerWidgetFactoryPrivateData class stores private data used by the SideViewerWidgetFactory class.
          */
-        struct SideViewerWidgetFactoryData;
+        struct SideViewerWidgetFactoryPrivateData;
 
         /*!
         \class SideViewerWidgetFactory
@@ -92,7 +92,7 @@ namespace Qtilities {
             void newWidgetCreated(QWidget* widget);
 
         private:
-            SideViewerWidgetFactoryData* d;
+            SideViewerWidgetFactoryPrivateData* d;
         };
     }
 }

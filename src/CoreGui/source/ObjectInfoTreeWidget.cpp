@@ -53,17 +53,17 @@ using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
 
-QPointer<Qtilities::CoreGui::ObjectInfoTreeWidget> Qtilities::CoreGui::ObjectInfoTreeWidget::currentWidget;
-QPointer<Qtilities::CoreGui::ObjectInfoTreeWidget> Qtilities::CoreGui::ObjectInfoTreeWidget::actionContainerWidget;
+QPointer<Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget> Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::currentWidget;
+QPointer<Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget> Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::actionContainerWidget;
 
-struct Qtilities::CoreGui::ObjectInfoTreeWidgetData {
-    ObjectInfoTreeWidgetData() : paste_enabled(false) {}
+struct Qtilities::CoreGui::qti_private_ObjectInfoTreeWidgetPrivateData {
+    qti_private_ObjectInfoTreeWidgetPrivateData() : paste_enabled(false) {}
 
     bool paste_enabled;
 };
 
-Qtilities::CoreGui::ObjectInfoTreeWidget::ObjectInfoTreeWidget(QWidget *parent) : QTreeWidget(parent) {
-    d = new ObjectInfoTreeWidgetData;
+Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::qti_private_ObjectInfoTreeWidget(QWidget *parent) : QTreeWidget(parent) {
+    d = new qti_private_ObjectInfoTreeWidgetPrivateData;
 
     setColumnCount(1);
     setSortingEnabled(true);
@@ -71,18 +71,18 @@ Qtilities::CoreGui::ObjectInfoTreeWidget::ObjectInfoTreeWidget(QWidget *parent) 
     currentWidget = 0;
 }
 
-Qtilities::CoreGui::ObjectInfoTreeWidget::~ObjectInfoTreeWidget() {
+Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::~qti_private_ObjectInfoTreeWidget() {
     delete d;
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::mousePressEvent(QMouseEvent* event) {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::mousePressEvent(QMouseEvent* event) {
     if (!event)
         return;
 
     if (event->type() == QEvent::MouseButtonPress) {
         if (currentWidget != this) {
             // Disconnect the paste action from the previous observer.
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+            Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
             if (command->action())
                 command->action()->disconnect(currentWidget);
 
@@ -96,11 +96,11 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::mousePressEvent(QMouseEvent* even
     QTreeWidget::mousePressEvent(event);
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObject>, QString> object_map) {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObject>, QString> object_map) {
    clear();
 
     // Build up a tree using the object map
-    // Check all the categories by looking at the OBJECT_CATEGORY observer property on the objects.
+    // Check all the categories by looking at the qti_prop_CATEGORY_MAP observer property on the objects.
     // Objects without a category property will not be shown
     QList<QTreeWidgetItem *> items;
     for (int i = 0; i < object_map.count(); i++) {
@@ -109,7 +109,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
 
         QTreeWidgetItem* item = 0;
         QString category_string = tr("More...");
-        QVariant prop = object_map.keys().at(i)->property(OBJECT_CATEGORY);
+        QVariant prop = object_map.keys().at(i)->property(qti_prop_CATEGORY_MAP);
         if (prop.isValid() && prop.canConvert<SharedObserverProperty>()) {
             SharedObserverProperty observer_property =  prop.value<SharedObserverProperty>();
             if (observer_property.isValid()) {
@@ -124,7 +124,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
         }
         if (!item) {
             item = new QTreeWidgetItem((QTreeWidget*)0, QStringList(category_string));
-            item->setData(0,Qt::DecorationRole,QIcon(QString(ICON_FOLDER_16X16)));
+            item->setData(0,Qt::DecorationRole,QIcon(QString(qti_icon_FOLDER_16X16)));
             items.append(item);
         }
 
@@ -138,7 +138,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
         populateItem(child,object_map.keys().at(i));
 
         // Check if it has the OBJECT_ICON shared property set.
-        prop = object_map.keys().at(i)->property(OBJECT_ROLE_DECORATION);
+        prop = object_map.keys().at(i)->property(qti_prop_DECORATION);
         if (prop.isValid() && prop.canConvert<SharedObserverProperty>())
             child->setIcon(0,(prop.value<SharedObserverProperty>().value().value<QIcon>()));
 
@@ -154,22 +154,22 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::setObjectMap(QMap<QPointer<QObjec
     sortItems(0,Qt::AscendingOrder);
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::setHierarchyDepth(int depth) {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setHierarchyDepth(int depth) {
     Q_UNUSED(depth)
 
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::setPasteEnabled(bool enable_paste) {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setPasteEnabled(bool enable_paste) {
     d->paste_enabled = enable_paste;
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::constructActions() {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::constructActions() {
     if (actionContainerWidget)
         return;
     actionContainerWidget = this;
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::refreshActions() {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::refreshActions() {
     if (!actionContainerWidget)
         constructActions();
 
@@ -177,7 +177,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::refreshActions() {
         return;
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::handle_actionPaste_triggered() {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::handle_actionPaste_triggered() {
     if (!currentWidget)
         return;
 
@@ -208,7 +208,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::handle_actionPaste_triggered() {
     }
 }
 
-void Qtilities::CoreGui::ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* item, QObject* obj) {
+void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* item, QObject* obj) {
     // Add the following categories:
     // 1. Methods (Signals and Slots)
     // 2. Properties
@@ -217,10 +217,10 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* ite
     if (item) {
         // Methods:
         QTreeWidgetItem* methods = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Methods")));
-        methods->setIcon(0, QIcon(ICON_METHOD_16x16));
+        methods->setIcon(0, QIcon(qti_icon_METHOD_16x16));
         item->addChild(methods);
         QTreeWidgetItem* events = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Events")));
-        events->setIcon(0, QIcon(ICON_EVENT_16x16));
+        events->setIcon(0, QIcon(qti_icon_EVENT_16x16));
         item->addChild(events);
         const QMetaObject* mo = obj->metaObject();
         for(int j=QObject::staticMetaObject.methodCount(); j<mo->methodCount(); j++)
@@ -251,7 +251,7 @@ void Qtilities::CoreGui::ObjectInfoTreeWidget::populateItem(QTreeWidgetItem* ite
 
         // Properties:
         QTreeWidgetItem* properties = new QTreeWidgetItem((QTreeWidget*)0, QStringList(tr("Properties")));
-        properties->setIcon(0, QIcon(ICON_PROPERTY_16x16));
+        properties->setIcon(0, QIcon(qti_icon_PROPERTY_16x16));
         item->addChild(properties);
         for(int j=QObject::staticMetaObject.propertyCount(); j<mo->propertyCount(); j++)
         {

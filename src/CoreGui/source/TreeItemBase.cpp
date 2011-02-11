@@ -33,14 +33,14 @@
 
 #include "TreeItemBase.h"
 
-struct Qtilities::CoreGui::TreeItemBaseData {
-    TreeItemBaseData() : is_modified(false) { }
+struct Qtilities::CoreGui::TreeItemBasePrivateData {
+    TreeItemBasePrivateData() : is_modified(false) { }
 
     bool is_modified;
 };
 
 Qtilities::CoreGui::TreeItemBase::TreeItemBase(const QString& name, QObject* parent) : QObject(parent), AbstractTreeItem() {
-    itemBaseData = new TreeItemBaseData;
+    itemBaseData = new TreeItemBasePrivateData;
     setObjectName(name);
 }
 

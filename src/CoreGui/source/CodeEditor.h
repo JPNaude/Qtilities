@@ -47,16 +47,14 @@ namespace Qtilities {
         class LineNumberArea;
 
         /*!
-        \struct CodeEditorData
+        \struct CodeEditorPrivateData
         \brief A structure storing private data in the CodeEditor class.
           */
-        struct CodeEditorData;
+        struct CodeEditorPrivateData;
 
         /*!
         \class CodeEditor
-        \brief A code editor.
-
-        \note This class is still under development and is not yet ready for production usage.
+        \brief A simple code editor embedded in the CodeEditorWidget class.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditor : public QPlainTextEdit
         {
@@ -87,18 +85,18 @@ namespace Qtilities {
             void resizeEvent(QResizeEvent *e);
 
         private:
-            CodeEditorData* d;
+            CodeEditorPrivateData* d;
         };
 
 
         /*!
-        \class LineNumberArea
+        \class qti_private_LineNumberArea
         \brief A class which draws line numbers on the CodeEditor widget.
           */
-        class LineNumberArea : public QWidget
+        class qti_private_LineNumberArea : public QWidget
         {
         public:
-            LineNumberArea(CodeEditor *editor) : QWidget(editor) {
+            qti_private_LineNumberArea(CodeEditor *editor) : QWidget(editor) {
                 textEditor = editor;
             }
             QSize sizeHint() const {

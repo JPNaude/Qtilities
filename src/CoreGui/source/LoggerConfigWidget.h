@@ -54,10 +54,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \struct LoggerConfigWidgetData
-          \brief The LoggerConfigWidgetData struct stores private data in LoggerConfigWidget.
+          \struct LoggerConfigWidgetPrivateData
+          \brief The LoggerConfigWidgetPrivateData struct stores private data in LoggerConfigWidget.
           */
-        struct LoggerConfigWidgetData;
+        struct LoggerConfigWidgetPrivateData;
 
         /*!
           \class LoggerConfigWidget
@@ -117,7 +117,7 @@ namespace Qtilities {
             void readSettings();
 
             Ui::LoggerConfigWidget *ui;
-            LoggerConfigWidgetData* d;
+            LoggerConfigWidgetPrivateData* d;
 
             static LoggerConfigWidget* config_widget;
         };

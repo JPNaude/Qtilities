@@ -23,20 +23,22 @@
 #include "ObjectDynamicPropertyBrowser.h"
 
 #ifndef QTILITIES_NO_PROPERTY_BROWSER
-#include <QtilitiesCoreConstants>
-#include <IModificationNotifier>
+#include <QtilitiesCoreGui>
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QScrollArea>
+#include <QtGui/QAction>
+#include <QtGui/QToolBar>
+
 #include <qtvariantproperty.h>
 #include <qtgroupboxpropertybrowser.h>
 #include <qttreepropertybrowser.h>
 #include <qtpropertybrowser.h>
 #include <qtbuttonpropertybrowser.h>
 
-using namespace Qtilities::Core::Properties;
+using namespace QtilitiesCoreGui;
 
 namespace Qtilities {
     namespace CoreGui {
@@ -44,26 +46,49 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserData {
-    QList<QtProperty *>                     top_level_properties;
+struct Qtilities::CoreGui::qti_private_ObserverPropertyData {
+    qti_private_ObserverPropertyData() {}
+    qti_private_ObserverPropertyData(const qti_private_ObserverPropertyData& other) {
+        type = other.type;
+        name = other.name;
+        observer_id = other.observer_id;
+    }
+
+    enum SubPropertyType {
+        Mixed,
+        Shared
+    };
+
+    //! The type of this sub property.
+    SubPropertyType             type;
+    //! The name of the property on the active object.
+    const char*                 name;
+    //! The observer ID for which the value changed in the case of ObserverProperty properties.
+    int                         observer_id;
+};
+
+struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
+    QList<QtProperty*>                      top_level_properties;
+    QMap<QtProperty*, qti_private_ObserverPropertyData> observer_properties;
 
     QtAbstractPropertyBrowser*              property_browser;
     QtVariantPropertyManager*               property_manager;
-    QtVariantPropertyManager*               property_read_only_manager;
+    QtVariantPropertyManager*               property_manager_read_only;
 
     QPointer<QObject>                       obj;
-    QStringList                             filter_list;
-    bool                                    read_only_properties_disabled;
-    bool                                    filter_list_inversed;
+
+    bool                                    ignore_property_changes;
+
+    QToolBar*                               toolbar;
+    QAction*                                actionAddProperty;
+    QAction*                                actionRemoveProperty;
 };
 
-Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, QWidget *parent) : QWidget(parent)
+Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, QWidget *parent) : QMainWindow(parent)
 {
-    d = new ObjectDynamicPropertyBrowserData;
+    d = new ObjectDynamicPropertyBrowserPrivateData;
+    d->ignore_property_changes = false;
     d->obj = 0;
-    d->filter_list_inversed = false;
-    d->read_only_properties_disabled = true;
-
     if (browser_type == TreeBrowser) {
         QtTreePropertyBrowser* property_browser = new QtTreePropertyBrowser(this);
         property_browser->setRootIsDecorated(false);
@@ -76,18 +101,27 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
         d->property_browser = property_browser;
     }
 
-    d->property_browser->layout()->setMargin(0);;
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setMargin(0);
-    layout->addWidget(d->property_browser);
+    d->property_browser->layout()->setMargin(0);
+    setCentralWidget(d->property_browser);
 
-    d->property_read_only_manager = new QtVariantPropertyManager(this);
+    // Create property manager for editable:
     d->property_manager = new QtVariantPropertyManager(this);
     QtVariantEditorFactory *factory = new QtVariantEditorFactory(this);
     d->property_browser->setFactoryForManager(d->property_manager, factory);
-
     connect(d->property_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
                 this, SLOT(handle_property_changed(QtProperty *, const QVariant &)));
+
+    // Create property manager for read only properties. It does not get a factory.
+    d->property_manager_read_only = new QtVariantPropertyManager(this);
+
+    // Set up the toolbar:
+    d->toolbar = addToolBar("Dynamic Property Actions");
+    d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),"Add Property",this);
+    connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
+    d->toolbar->addAction(d->actionAddProperty);
+    d->actionRemoveProperty = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected Property",this);
+    connect(d->actionRemoveProperty,SIGNAL(triggered()),SLOT(handleRemoveProperty()));
+    d->toolbar->addAction(d->actionRemoveProperty);
 }
 
 Qtilities::CoreGui::ObjectDynamicPropertyBrowser::~ObjectDynamicPropertyBrowser() {
@@ -106,17 +140,40 @@ QSize Qtilities::CoreGui::ObjectDynamicPropertyBrowser::sizeHint() const {
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh(bool has_changes) {
     if (d->obj && has_changes) {
-        if (d->obj) {
-            QListIterator<QtProperty *> it(d->top_level_properties);
-            while (it.hasNext()) {
-                d->property_browser->removeProperty(it.next());
-            }
-            d->top_level_properties.clear();
-            d->obj->disconnect(this);
-        }
-
-        inspectClass(d->obj->metaObject());
+        d->ignore_property_changes = true;
+        inspectObject(d->obj);
+        d->ignore_property_changes = false;
     }
+}
+
+bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::eventFilter(QObject *object, QEvent *event) {
+    if (object == d->obj) {
+        if (event->type() == QEvent::DynamicPropertyChange) {
+            QDynamicPropertyChangeEvent* property_change_event = static_cast<QDynamicPropertyChangeEvent*> (event);
+            if (property_change_event) {
+                QString property_name = QString(property_change_event->propertyName());
+                if (property_name.startsWith("qti."))
+                    return false;
+
+                //qDebug() << "Dynamic change event update: " << property_change_event->propertyName();
+                d->ignore_property_changes = true;
+                inspectObject(d->obj);
+                d->ignore_property_changes = false;
+            }
+        } else if (event->type() == QEvent::User) {
+            // In order for this to work, the observer that manages the events on the object
+            // must have qtilities property change events enabled.
+            QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
+            if (qtilities_event) {
+                //qDebug() << "Qtilities property change event: " << qtilities_event->propertyName();
+                d->ignore_property_changes = true;
+                inspectObject(d->obj);
+                d->ignore_property_changes = false;
+            }
+        }
+    }
+
+    return false;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
@@ -124,142 +181,81 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
         return;
 
     if (d->obj) {
-        QListIterator<QtProperty *> it(d->top_level_properties);
-        while (it.hasNext()) {
-            d->property_browser->removeProperty(it.next());
-        }
-        d->top_level_properties.clear();
         d->obj->disconnect(this);
+        d->obj->removeEventFilter(this);
     }
 
     d->obj = object;
 
     if (monitor_changes) {
+        // Connect to the IModificationNotifier interface if it exists:
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+
+        // Install an event filter on the object.
+        // This will catch property change events as well.
+        d->obj->installEventFilter(this);
     }
 
     if (!d->obj)
         return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
-    inspectClass(d->obj->metaObject());
+    d->ignore_property_changes = true;
+    inspectObject(d->obj);
+    d->ignore_property_changes = false;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QPointer<QObject> object, bool monitor_changes) {
-    if (d->obj == object)
-        return;
-
-    if (d->obj) {
-        QListIterator<QtProperty *> it(d->top_level_properties);
-        while (it.hasNext()) {
-            d->property_browser->removeProperty(it.next());
-        }
-        d->top_level_properties.clear();
-        d->obj->disconnect(this);
-    }
-
-    d->obj = object;
-
-    if (monitor_changes) {
-        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
-        if (mod_iface)
-            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }
-
-    if (!d->obj)
-        return;
-
-    connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
-    inspectClass(d->obj->metaObject());
+    QObject* obj = object;
+    setObject(obj,monitor_changes);
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QList<QObject*> objects, bool monitor_changes) {
-    Q_UNUSED(monitor_changes)
     if (objects.count() == 1)
-        setObject(objects.front());
+        setObject(objects.front(),monitor_changes);
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QList<QPointer<QObject> > objects, bool monitor_changes) {
-    Q_UNUSED(monitor_changes)
-    if (objects.count() == 1)
-        setObject(objects.front());
+    if (objects.count() == 1) {
+        QObject* obj = objects.front();
+        setObject(obj,monitor_changes);
+    }
 }
 
 QObject* Qtilities::CoreGui::ObjectDynamicPropertyBrowser::object() const {
     return d->obj;
 }
 
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setFilterList(QStringList filter_list, bool inversed_list) {
-    d->filter_list = filter_list;
-    d->filter_list_inversed = inversed_list;
-
-    /*d->map_class_property.clear();
-    QListIterator<QtProperty *> it(d->top_level_properties);
-    while (it.hasNext()) {
-        d->property_browser->removeProperty(it.next());
-    }
-    d->top_level_properties.clear();
-
-    if (d->obj)
-        inspectClass(d->obj->metaObject());
-        */
-}
-
-QStringList Qtilities::CoreGui::ObjectDynamicPropertyBrowser::filterList() const {
-    return d->filter_list;
-}
-
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::clearFilter() {
-    d->filter_list_inversed = false;
-    d->filter_list.clear();
-
-    // Update
-    /*d->map_class_property.clear();
-    QListIterator<QtProperty *> it(d->top_level_properties);
-    while (it.hasNext()) {
-        d->property_browser->removeProperty(it.next());
-    }
-    d->top_level_properties.clear();
-
-    if (d->obj)
-        inspectClass(d->obj->metaObject());
-        */
-}
-
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setFilterListInversed(bool toggle) {
-    bool update = false;
-    if (d->filter_list_inversed != toggle)
-        update = true;
-
-    d->filter_list_inversed = toggle;
-
-    if (update) {
-        /*d->map_class_property.clear();
-        QListIterator<QtProperty *> it(d->top_level_properties);
-        while (it.hasNext()) {
-            d->property_browser->removeProperty(it.next());
-        }
-        d->top_level_properties.clear();
-
-        if (d->obj)
-            inspectClass(d->obj->metaObject());*/
-    }
-}
-
-bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::filterListInversed() {
-    return d->filter_list_inversed;
-}
-
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::toggleReadOnlyPropertiesDisabled(bool toggle) {
-    d->read_only_properties_disabled = toggle;
-}
-
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(QtProperty * property, const QVariant & value) {
+    if (d->ignore_property_changes)
+        return;
+
     if (!d->obj)
         return;
 
+    QByteArray ba = property->propertyName().toAscii();
+    const char* property_name = ba.data();
+
+    if (d->observer_properties.contains(property)) {
+        // This is an observer property:
+        qti_private_ObserverPropertyData prop_data = d->observer_properties[property];
+        if (prop_data.type == qti_private_ObserverPropertyData::Shared) {
+            SharedObserverProperty shared_property(value,property_name);
+            Observer::setSharedProperty(d->obj,shared_property);
+        } else if (prop_data.type == qti_private_ObserverPropertyData::Mixed) {
+            ObserverProperty observer_property = Observer::getObserverProperty(d->obj,prop_data.name);
+            observer_property.setValue(value,prop_data.observer_id);
+            Observer::setObserverProperty(d->obj,observer_property);
+        }
+    } else {
+        // Check if this is a normal property on the object:
+        if (d->top_level_properties.contains(property))
+            d->obj->setProperty(property_name,value);
+    }
+
+    refresh();
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleObjectDeleted() {
@@ -271,46 +267,231 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleObjectDeleted() {
     d->top_level_properties.clear();
 }
 
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectClass(const QMetaObject *metaObject) {
-    if (!metaObject)
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObject* obj) {
+    if (!obj)
         return;
 
-    inspectClass(metaObject->superClass());
-
-    QString className = QLatin1String(metaObject->className());
-
-    // Check className against the filter list
-    if (!d->filter_list_inversed) {
-        if (d->filter_list.contains(className.split("::").last()))
-            return;
-    } else {
-        if (!d->filter_list.contains(className.split("::").last()))
-            return;
+    QListIterator<QtProperty *> it(d->top_level_properties);
+    while (it.hasNext()) {
+        d->property_browser->removeProperty(it.next());
     }
+    d->top_level_properties.clear();
 
-    // Handle QObject in a special way.
-    /*if (className == "QObject") {
-        // If d->obj has a name manager, we don't allow the user to change the object name by not showing QObject's properties
-        QVariant name_manager = d->obj->property(OBJECT_NAME_MANAGER_ID);
-        if (name_manager.isValid()) {
-            // Remove QObject from d->map_class_property
-            d->map_class_property.remove(metaObject);
-            return;
+    for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
+        QString property_name = QString(obj->dynamicPropertyNames().at(i).data());
+        QVariant property_variant = obj->property(obj->dynamicPropertyNames().at(i));
+        QVariant property_value = property_variant;
+
+        bool is_enabled = true;
+        QtProperty *dynamic_property = 0;
+        // If it is ObserverProperty or SharedObserverProperty then we need to handle it:
+        if (property_variant.isValid() && property_variant.canConvert<SharedObserverProperty>()) {
+            SharedObserverProperty shared_property = (property_variant.value<SharedObserverProperty>());
+            if (shared_property.isReserved())
+                is_enabled = false;
+            property_value = shared_property.value();
+
+            // We handle some specific Qtilities properties in a special way:
+            if (!strcmp(obj->dynamicPropertyNames().at(i).data(),qti_prop_PARENT_ID) ||
+                !strcmp(obj->dynamicPropertyNames().at(i).data(),qti_prop_NAME_MANAGER_ID)) {
+                    int observer_id = property_value.toInt();
+                    if (observer_id == -1) {
+                        property_value = QLatin1String("None");
+                    } else {
+                        Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
+                        if (obs)
+                            property_value = obs->observerName();
+                        else
+                            property_value = QLatin1String("Unregistered Observer");
+                    }
+            }
+
+            // Now add the property:
+            if (d->property_manager->isPropertyTypeSupported(property_value.type())) {
+                if (is_enabled)
+                    dynamic_property = d->property_manager->addProperty(property_value.type(), property_name);
+                else
+                    dynamic_property = d->property_manager_read_only->addProperty(property_value.type(), property_name);
+                if (dynamic_property) {
+                    d->property_manager->setValue(dynamic_property,property_value);
+                    d->top_level_properties.append(dynamic_property);
+                    d->property_browser->addProperty(dynamic_property);
+                    qti_private_ObserverPropertyData prop_data;
+                    prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                    prop_data.type = qti_private_ObserverPropertyData::Shared;
+                    d->observer_properties[dynamic_property] = prop_data;
+                }
+            } else {
+                dynamic_property = d->property_manager_read_only->addProperty(QVariant::String, property_name);
+                d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
+                dynamic_property->setEnabled(false);
+                d->top_level_properties.append(dynamic_property);
+                d->property_browser->addProperty(dynamic_property);
+            }
+        } else if (property_variant.isValid() && property_variant.canConvert<ObserverProperty>()) {
+            ObserverProperty observer_property = (property_variant.value<ObserverProperty>());
+            if (observer_property.isReserved())
+                is_enabled = false;
+
+            // Now make a group property with the values for all the different contexts under it:
+            dynamic_property = d->property_manager->addProperty(QtVariantPropertyManager::groupTypeId(), property_name);
+            if (dynamic_property) {
+                QMap<int,QVariant> observer_map = observer_property.observerMap();
+                for (int s = 0; s < observer_map.count(); s++) {
+                    QVariant sub_property_value = observer_map.values().at(s);
+                    Observer* obs = OBJECT_MANAGER->observerReference(observer_map.keys().at(s));
+                    QString context_name = QString::number(observer_map.keys().at(s));
+                    if (obs)
+                        context_name = obs->observerName() + " (" + QString::number(obs->observerID()) + ")";
+
+                    QtProperty* sub_property = 0;
+                    if (!d->property_manager->isPropertyTypeSupported(sub_property_value.type())) {
+                        sub_property = d->property_manager_read_only->addProperty(QVariant::String, context_name);
+                        d->property_manager_read_only->setValue(sub_property,QLatin1String("< Unknown Type >"));
+                        sub_property->setEnabled(false);
+                    } else {
+                        if (is_enabled)
+                            sub_property = d->property_manager->addProperty(sub_property_value.type(), context_name);
+                        else
+                            sub_property = d->property_manager_read_only->addProperty(sub_property_value.type(), context_name);
+
+                        if (sub_property) {
+                            d->property_manager->setValue(sub_property,sub_property_value);
+                        }
+                    }
+
+                    if (sub_property) {
+                        dynamic_property->addSubProperty(sub_property);
+                        qti_private_ObserverPropertyData prop_data;
+                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.type = qti_private_ObserverPropertyData::Mixed;
+                        prop_data.observer_id = observer_map.keys().at(s);
+                        d->observer_properties[sub_property] = prop_data;
+                    }
+                }
+
+                d->top_level_properties.append(dynamic_property);
+                d->property_browser->addProperty(dynamic_property);
+            }
+        } else {
+            // Now add the property:
+            if (d->property_manager->isPropertyTypeSupported(property_value.type())) {
+                if (is_enabled)
+                    dynamic_property = d->property_manager->addProperty(property_value.type(), property_name);
+                else
+                    dynamic_property = d->property_manager_read_only->addProperty(property_value.type(), property_name);
+                if (dynamic_property) {
+                    d->property_manager->setValue(dynamic_property,property_value);
+                    d->top_level_properties.append(dynamic_property);
+                    d->property_browser->addProperty(dynamic_property);
+                }
+            } else {
+                dynamic_property = d->property_manager_read_only->addProperty(QVariant::String, property_name);
+                d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
+                dynamic_property->setEnabled(false);
+                d->top_level_properties.append(dynamic_property);
+                d->property_browser->addProperty(dynamic_property);
+            }
         }
-    }*/
-
-
-
-    //d->top_level_properties.append(single_property);
-    //d->property_browser->addProperty(single_property);
+    }
 }
 
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refreshClass(const QMetaObject *metaObject, bool recursive) {
-    if (!metaObject)
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
+    if (!d->obj)
         return;
 
-    if (recursive)
-        refreshClass(metaObject->superClass(), recursive);
+    QVariant::Type selected_type;
+    bool ok;
+    QString property_name = QInputDialog::getText(this, tr("Name your property"),tr("Property name:"), QLineEdit::Normal,"New Property", &ok);
+    if (!ok && property_name.isEmpty())
+        return;
+
+    QStringList type_names;
+    type_names << QVariant::typeToName(QVariant::Bool);
+    type_names << QVariant::typeToName(QVariant::Brush);
+    type_names << QVariant::typeToName(QVariant::Color);
+    type_names << QVariant::typeToName(QVariant::Date);
+    type_names << QVariant::typeToName(QVariant::Font);
+    type_names << QVariant::typeToName(QVariant::Point);
+    type_names << QVariant::typeToName(QVariant::Size);
+    type_names << QVariant::typeToName(QVariant::String);
+    type_names << QVariant::typeToName(QVariant::UInt);
+
+    QInputDialog dialog;
+    dialog.setComboBoxItems(type_names);
+    dialog.setComboBoxEditable(false);
+    dialog.setWindowTitle("Choose a property type");
+    dialog.setLabelText("Available property types:");
+    dialog.setOption(QInputDialog::UseListViewForComboBoxItems,true);
+    if (dialog.exec()) {
+        QString item = dialog.textValue().trimmed();
+        QByteArray type_name_ba = item.toAscii();
+        const char* type_name = type_name_ba.data();
+        QByteArray property_name_ba = property_name.toAscii();
+        const char* char_property_name = property_name_ba.data();
+        selected_type = QVariant::nameToType(type_name);
+        if (!d->obj->setProperty(char_property_name,QVariant(selected_type)))
+            refresh();
+        else {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Dynamic Property Browser");
+            msgBox.setText("Failed to add property to object in QObject::setProperty().");
+            msgBox.exec();
+        }
+    }
+}
+
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
+    if (!d->obj)
+        return;
+
+    // Get the selected property:
+    QtProperty* property = d->property_browser->currentItem()->property();
+
+    if (!property)
+        return;
+
+    QByteArray ba = property->propertyName().toAscii();
+    const char* property_name = ba.data();
+
+    if (d->observer_properties.contains(property)) {
+        // This is an observer property:
+        qti_private_ObserverPropertyData prop_data = d->observer_properties[property];
+        if (prop_data.type == qti_private_ObserverPropertyData::Shared) {
+            SharedObserverProperty shared_property = Observer::getSharedProperty(d->obj,prop_data.name);
+            if (shared_property.isReserved()) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Dynamic Property Browser");
+                msgBox.setText("The selected property is reserved and cannot be deleted.");
+                msgBox.exec();
+            } else if (!shared_property.isRemovable()) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Dynamic Property Browser");
+                msgBox.setText("The selected property is not removable and cannot be deleted.");
+                msgBox.exec();
+            } else {
+                d->obj->setProperty(prop_data.name,QVariant());
+            }
+        } else if (prop_data.type == qti_private_ObserverPropertyData::Mixed) {
+            ObserverProperty observer_property = Observer::getObserverProperty(d->obj,prop_data.name);
+            if (observer_property.isReserved()) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Dynamic Property Browser");
+                msgBox.setText("The selected property is reserved and cannot be deleted.");
+                msgBox.exec();
+            } else if (!observer_property.isRemovable()) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Dynamic Property Browser");
+                msgBox.setText("The selected property is not removable and cannot be deleted.");
+                msgBox.exec();
+            } else {
+                d->obj->setProperty(prop_data.name,QVariant());
+            }
+        }
+    } else {
+        // This is a normal property on the object:
+        d->obj->setProperty(property_name,QVariant());
+    }
 }
 
 #endif

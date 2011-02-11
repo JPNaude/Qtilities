@@ -39,8 +39,8 @@
 
 using namespace QtilitiesProjectManagement;
 
-struct Qtilities::Examples::MainWindow::ExampleModeData {
-    ExampleModeData() : initialized(false),
+struct Qtilities::Examples::MainWindow::ExampleModePrivateData {
+    ExampleModePrivateData() : initialized(false),
     side_viewer_dock(0),
     side_viewer_widget(0),
     main_splitter(0),
@@ -62,7 +62,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     ui(new Ui::ExampleMode)
 {
     ui->setupUi(this);
-    d = new ExampleModeData;
+    d = new ExampleModePrivateData;
 
     // Create and dock the dynamic side widget viewer:
     d->side_viewer_dock = new QDockWidget(tr("Dynamic Widgets"));
@@ -106,10 +106,10 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     connect(d->actionShowDock,SIGNAL(triggered(bool)),SLOT(toggleDock(bool)));
 
     QList<int> context;
-    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerAction("ExampleMode.DynamicDockWidget",d->actionShowDock,context);
     bool existed;
-    ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
+    ActionContainer* view_menu = ACTION_MANAGER->createMenu(qti_action_VIEW,existed);
     view_menu->addAction(command);
 }
 
@@ -168,7 +168,7 @@ void Qtilities::Examples::MainWindow::ExampleMode::initializeMode() {
 }
 
 QIcon Qtilities::Examples::MainWindow::ExampleMode::modeIcon() const {
-    return QIcon(ICON_QTILITIES_SYMBOL_64x64);
+    return QIcon(qti_icon_QTILITIES_SYMBOL_64x64);
 }
 
 QString Qtilities::Examples::MainWindow::ExampleMode::modeName() const {

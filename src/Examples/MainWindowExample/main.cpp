@@ -76,12 +76,12 @@ int main(int argc, char *argv[])
 
     // Create menu related things.
     bool existed;
-    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
+    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
     exampleMainWindow.setMenuBar(menu_bar->menuBar());
-    ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
-    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
-    ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
-    ActionContainer* about_menu = ACTION_MANAGER->createMenu(MENU_ABOUT,existed);
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
+    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(qti_action_EDIT,existed);
+    ActionContainer* view_menu = ACTION_MANAGER->createMenu(qti_action_VIEW,existed);
+    ActionContainer* about_menu = ACTION_MANAGER->createMenu(qti_action_ABOUT,existed);
     menu_bar->addMenu(file_menu);
     menu_bar->addMenu(edit_menu);
     menu_bar->addMenu(view_menu);
@@ -89,42 +89,42 @@ int main(int argc, char *argv[])
 
     // Get the standard context.
     QList<int> std_context;
-    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
     // Register action place holders for this application. This allows control of your menu structure.
     // File Menu
-    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
-    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
     file_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);
     // About Menu
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
     about_menu->addAction(command);
 
     // Edit Menu
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
-    edit_menu->addAction(command);
-    edit_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
-    edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
-    edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CLEAR,QObject::tr("Clear"));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
+    edit_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CLEAR,QObject::tr("Clear"));
+    edit_menu->addAction(command);
+    edit_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
     edit_menu->addAction(command);
 
     // Add the code editor config widget:
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
     LOG_INFO(QString("%1 side viewer widget(s) found in set of loaded plugins.").arg(registered_side_widgets.count()));
 
     // Load the previous session's keyboard mapping file.
-    QString shortcut_mapping_file = QString("%1/session/%2").arg(QApplication::applicationDirPath()).arg(FILE_SHORTCUT_MAPPING);
+    QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
     if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else

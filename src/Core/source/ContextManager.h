@@ -47,16 +47,16 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
 
         /*!
-        \struct ContextManagerData
+        \struct ContextManagerPrivateData
         \brief A structure storing private data in the ContextManager class.
           */
-        struct ContextManagerData;
+        struct ContextManagerPrivateData;
 
         /*!
         \class ContextManager
         \brief A class which represents a context manager.
 
-        The context manager automatically registers the standard application context, CONTEXT_STANDARD.
+        The context manager automatically registers the standard application context, qti_def_CONTEXT_STANDARD.
           */
         class QTILIITES_CORE_SHARED_EXPORT ContextManager : public IContextManager
         {
@@ -94,7 +94,7 @@ namespace Qtilities {
 
         private:
             QString contextName(int id) const;
-            ContextManagerData* d;
+            ContextManagerPrivateData* d;
         };
     }
 }

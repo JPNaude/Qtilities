@@ -51,8 +51,8 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::Core::ActivityPolicyFilterData {
-    ActivityPolicyFilterData() : is_modified(false) { }
+struct Qtilities::Core::ActivityPolicyFilterPrivateData {
+    ActivityPolicyFilterPrivateData() : is_modified(false) { }
 
     bool is_modified;
     ActivityPolicyFilter::ActivityPolicy            activity_policy;
@@ -62,7 +62,7 @@ struct Qtilities::Core::ActivityPolicyFilterData {
 };
 
 Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
-    d = new ActivityPolicyFilterData;
+    d = new ActivityPolicyFilterPrivateData;
     d->activity_policy = ActivityPolicyFilter::MultipleActivity;
     d->minimum_activity_policy = ActivityPolicyFilter::AllowNoneActive;
     d->new_subject_activity_policy = ActivityPolicyFilter::SetNewInactive;
@@ -209,7 +209,7 @@ int Qtilities::Core::ActivityPolicyFilter::numActiveSubjects() const {
     int count = 0;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY).toBool();
+        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (is_active)
             ++count;
     }
@@ -220,7 +220,7 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::activeSubjects() const {
     QList<QObject*> list;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY).toBool();
+        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (is_active)
             list.push_back(observer->subjectAt(i));
     }
@@ -231,7 +231,7 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
     QList<QObject*> list;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY).toBool();
+        is_active = observer->getObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (!is_active)
             list.push_back(observer->subjectAt(i));
     }
@@ -282,12 +282,12 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     filter_mutex.tryLock();
     // Set all objects as inactive
     for (int i = 0; i < observer->subjectCount(); i++) {
-        observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY,QVariant(false));
+        observer->setObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
     }
     // Set objects in the list as active
     for (int i = 0; i < objects.count(); i++) {
         if (objects.at(i))
-            observer->setObserverPropertyValue(objects.at(i),OBJECT_ACTIVITY,QVariant(true));
+            observer->setObserverPropertyValue(objects.at(i),qti_prop_ACTIVITY_MAP,QVariant(true));
     }
     filter_mutex.unlock();
 
@@ -296,17 +296,17 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     if (observer->qtilitiesPropertyChangeEventsEnabled()) {
         for (int i = 0; i < observer->subjectCount(); i++) {
             if (observer->subjectAt(i)->thread() == thread()) {
-                QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+                QByteArray property_name_byte_array = QByteArray(qti_prop_ACTIVITY_MAP);
                 QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
                 QCoreApplication::postEvent(observer->subjectAt(i),user_event);
                 #ifndef QT_NO_DEBUG
                     // Get activity of object for debugging purposes
-                    QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY);
+                    QVariant activity = observer->getObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP);
                     if (activity.isValid()) {
                         if (activity.toBool())
-                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(qti_prop_ACTIVITY_MAP).arg(observer->subjectAt(i)->objectName()));
                         else
-                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(observer->subjectAt(i)->objectName()));
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(qti_prop_ACTIVITY_MAP).arg(observer->subjectAt(i)->objectName()));
                     }
                 #endif
             }
@@ -316,7 +316,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     // 2. Emit the monitoredPropertyChanged() signal:
     QList<QObject*> changed_objects;
     changed_objects << observer->subjectReferences();
-    emit monitoredPropertyChanged(OBJECT_ACTIVITY,changed_objects);
+    emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
 
     // 3. Emit the activeSubjectsChanged() signal:
     emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
@@ -401,7 +401,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
                 if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
                     for (int i = 0; i < observer->subjectCount(); i++) {
                         if (observer->subjectAt(i) != obj)
-                            observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY,QVariant(false));
+                            observer->setObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
                     }
                 }
                 new_activity = true;
@@ -410,14 +410,14 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             }
         }
 
-        ObserverProperty subject_activity_property = observer->getObserverProperty(obj,OBJECT_ACTIVITY);
+        ObserverProperty subject_activity_property = observer->getObserverProperty(obj,qti_prop_ACTIVITY_MAP);
         if (subject_activity_property.isValid()) {
             // Thus, the property already exists
             subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
             observer->setObserverProperty(obj,subject_activity_property);
         } else {
             // We need to create the property and add it to the object
-            ObserverProperty new_subject_activity_property(OBJECT_ACTIVITY);
+            ObserverProperty new_subject_activity_property(qti_prop_ACTIVITY_MAP);
             new_subject_activity_property.setIsExportable(true);
             new_subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
             observer->setObserverProperty(obj,new_subject_activity_property);
@@ -428,14 +428,14 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             // 1. If enabled, post the QtilitiesPropertyChangeEvent:
             if (obj->thread() == thread()) {
                 if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-                    QByteArray property_name_byte_array = QByteArray(OBJECT_ACTIVITY);
+                    QByteArray property_name_byte_array = QByteArray(qti_prop_ACTIVITY_MAP);
                     QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
                     QCoreApplication::postEvent(obj,user_event);
                     #ifndef QT_NO_DEBUG
                         if (new_activity)
-                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(qti_prop_ACTIVITY_MAP).arg(obj->objectName()));
                         else
-                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(OBJECT_ACTIVITY).arg(obj->objectName()));
+                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity false").arg(qti_prop_ACTIVITY_MAP).arg(obj->objectName()));
                     #endif
                 }
             }
@@ -445,7 +445,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             QList<QObject*> changed_objects;
             changed_objects << observer->subjectReferences();
             changed_objects.push_back(obj);
-            emit monitoredPropertyChanged(OBJECT_ACTIVITY,changed_objects);
+            emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
 
             // 3. Emit the activeSubjectsChanged() signal:
             emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
@@ -480,15 +480,15 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     if (observer->subjectCount() >= 1) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
-            bool is_active = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
+            bool is_active = observer->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
             if (is_active && (numActiveSubjects() == 0)) {
                 // We need to set a different subject to be active.
                 // Important bug fixed: In the case where a naming policy filter overwrites a conflicting
                 // object during attachment, we might get here before the activity on the new object
-                // which is replacing the conflicting object has been set. In that case, there is no OBJECT_ACTIVITY
+                // which is replacing the conflicting object has been set. In that case, there is no qti_prop_ACTIVITY_MAP
                 // property yet. Thus check it first:
-                if (Observer::propertyExists(observer->subjectAt(0),OBJECT_ACTIVITY))
-                    observer->setObserverPropertyValue(observer->subjectAt(0),OBJECT_ACTIVITY, QVariant(true));
+                if (Observer::propertyExists(observer->subjectAt(0),qti_prop_ACTIVITY_MAP))
+                    observer->setObserverPropertyValue(observer->subjectAt(0),qti_prop_ACTIVITY_MAP, QVariant(true));
             }
         }
 
@@ -502,7 +502,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
     QStringList reserved_properties;
-    reserved_properties << QString(OBJECT_ACTIVITY);
+    reserved_properties << QString(qti_prop_ACTIVITY_MAP);
     return reserved_properties;
 }
 
@@ -513,20 +513,20 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
         return true;
 
     bool single_object_change_only = true;
-    bool new_activity = observer->getObserverPropertyValue(obj,OBJECT_ACTIVITY).toBool();
+    bool new_activity = observer->getObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
     if (new_activity) {
         if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
             single_object_change_only = false;
             for (int i = 0; i < observer->subjectCount(); i++) {
                 if (observer->subjectAt(i) != obj) {
-                    observer->setObserverPropertyValue(observer->subjectAt(i),OBJECT_ACTIVITY, QVariant(false));
+                    observer->setObserverPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP, QVariant(false));
                 }
             }
         }
     } else {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive && (numActiveSubjects() == 0)) {
             // In this case, we allow the change to go through but we change the value here.
-            observer->setObserverPropertyValue(obj,OBJECT_ACTIVITY, QVariant(true));
+            observer->setObserverPropertyValue(obj,qti_prop_ACTIVITY_MAP, QVariant(true));
         }
     }
 
@@ -571,7 +571,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
 }
 
 Qtilities::Core::InstanceFactoryInfo Qtilities::Core::ActivityPolicyFilter::instanceFactoryInfo() const {
-    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_ACTIVITY_POLICY_FILTER,FACTORY_TAG_ACTIVITY_POLICY_FILTER);
+    InstanceFactoryInfo instanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_ACTIVITY_FILTER,qti_def_FACTORY_TAG_ACTIVITY_FILTER);
     return instanceFactoryInfo;
 }
 
@@ -673,11 +673,11 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
     if (object == observer && event->type() == QEvent::User) {
         QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
         if (qtilities_event) {
-            if (!qstrcmp(qtilities_event->propertyName().data(),OBJECT_ACTIVITY)) {
+            if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_ACTIVITY_MAP)) {
                 // Now we need to check the following:
                 // 1. observer can only have one parent.
                 if (Observer::parentCount(observer) == 1) {
-                    ObserverProperty observer_property = Observer::getObserverProperty(observer,OBJECT_ACTIVITY);
+                    ObserverProperty observer_property = Observer::getObserverProperty(observer,qti_prop_ACTIVITY_MAP);
                     if (observer_property.isValid()) {
                         if (observer_property.observerMap().count() > 0) {
                             bool activity = observer_property.observerMap().values().at(0).toBool();

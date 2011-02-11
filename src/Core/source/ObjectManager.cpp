@@ -54,8 +54,8 @@ using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core::Interfaces;
 
-struct Qtilities::Core::ObjectManagerData {
-    ObjectManagerData() : object_pool(GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
+struct Qtilities::Core::ObjectManagerPrivateData {
+    ObjectManagerPrivateData() : object_pool(qti_def_GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
     id(1)  { }
 
     QMap<int,QPointer<Observer> >               observer_map;
@@ -68,17 +68,17 @@ struct Qtilities::Core::ObjectManagerData {
 
 Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(parent)
 {
-    d = new ObjectManagerData;
+    d = new ObjectManagerPrivateData;
     d->object_pool.startProcessingCycle();
     setObjectName("Object Manager");
 
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
-    FactoryItemID activity_policy_filter(FACTORY_TAG_ACTIVITY_POLICY_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryItemID activity_policy_filter(qti_def_FACTORY_TAG_ACTIVITY_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&ActivityPolicyFilter::factory,activity_policy_filter);
-    FactoryItemID subject_type_filter(FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
+    FactoryItemID subject_type_filter(qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER,QtilitiesCategory("Subject Filters"));
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
-    FactoryItemID observer(FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
+    FactoryItemID observer(qti_def_FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
     d->qtilities_factory.registerFactoryInterface(&Observer::factory,observer);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
@@ -107,19 +107,19 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
 
 QStringList Qtilities::Core::ObjectManager::providedFactories() const {
     QStringList tags;
-    tags << FACTORY_QTILITIES;
+    tags << qti_def_FACTORY_QTILITIES;
     return tags;
 }
 
 QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name) const {
-    if (factory_name == QString(FACTORY_QTILITIES))
+    if (factory_name == QString(qti_def_FACTORY_QTILITIES))
         return d->qtilities_factory.tags();
     else
         return QStringList();
 }
 
 QObject* Qtilities::Core::ObjectManager::createInstance(const InstanceFactoryInfo& ifactory_data) {
-    if (ifactory_data.d_factory_tag == QString(FACTORY_QTILITIES)) {
+    if (ifactory_data.d_factory_tag == QString(qti_def_FACTORY_QTILITIES)) {
         QObject* obj = d->qtilities_factory.createInstance(ifactory_data.d_instance_tag);
         if (obj) {
             return obj;
@@ -169,9 +169,9 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
                 none_failed = false;
                 break;
             } else if (result == Observer::LastScopedObserver) {
-                destination_observer->setObserverPropertyValue(objects.at(i),OBJECT_OWNERSHIP,QVariant(Observer::ManualOwnership));
+                destination_observer->setObserverPropertyValue(objects.at(i),qti_prop_OWNERSHIP,QVariant(Observer::ManualOwnership));
                 if (!source_observer->detachSubject(objects.at(i))) {
-                    destination_observer->setObserverPropertyValue(objects.at(i),OBJECT_OWNERSHIP,QVariant(Observer::ObserverScopeOwnership));
+                    destination_observer->setObserverPropertyValue(objects.at(i),qti_prop_OWNERSHIP,QVariant(Observer::ObserverScopeOwnership));
                     none_failed = false;
                     break;
                 } else {
@@ -202,12 +202,12 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > obje
 
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCategory category) {
     if (category.isValid()) {
-        if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
-            ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+        if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+            ObserverProperty category_property = Observer::getObserverProperty(obj,qti_prop_CATEGORY_MAP);
             category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
             Observer::setObserverProperty(obj,category_property);
         } else {
-            ObserverProperty category_property(OBJECT_CATEGORY);
+            ObserverProperty category_property(qti_prop_CATEGORY_MAP);
             category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
             Observer::setObserverProperty(obj,category_property);
         }
@@ -346,7 +346,7 @@ bool Qtilities::Core::ObjectManager::exportObjectProperties(QObject* obj, QDataS
             SharedObserverProperty tmp_prop  = shared_property_list.at(p);
             tmp_prop.exportSharedPropertyBinary(stream);
             QString s1 = tmp_prop.propertyName();
-            QString s2 = OBSERVER_VISITOR_ID;
+            QString s2 = qti_prop_VISITOR_ID;
             if (s1 == s2)
                 found_visitor_id = true;
         }
@@ -397,7 +397,7 @@ bool Qtilities::Core::ObjectManager::importObjectProperties(QObject* new_instanc
             QVariant property = qVariantFromValue(shared_property);
             new_instance->setProperty(shared_property.propertyName(),property);
             QString s1 = shared_property.propertyName();
-            QString s2 = OBSERVER_VISITOR_ID;
+            QString s2 = qti_prop_VISITOR_ID;
             if (s1 == s2)
                 found_visitor_id = true;
         } else {
@@ -551,8 +551,8 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
     //    While going through the list we fill in the sessionID fields of each entry in the relational table.
     //    The sessionID is used again in step 3.
     // 2. Once the parents are sorted out, we need to sort out the object ownership.
-    //    This is done by simply setting the OBSERVER_OBJECT_OWNERSHIP property on the object.
-    //    If the ownership is SpecificObserverOwnership, we need to set the OBSERVER_PARENT property
+    //    This is done by simply setting the OBSERVER_qti_prop_OWNERSHIP property on the object.
+    //    If the ownership is SpecificObserverOwnership, we need to set the qti_prop_PARENT_ID property
     //    as well.
     // 3. Correct the names of each object in all the contexts to which it is attached.
     bool success = true;
@@ -595,19 +595,15 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
         // Now set the ownership property on the object:
         LOG_TRACE("> Restoring correct ownership for object.");
         if ((Observer::ObjectOwnership) entry->d_ownership == Observer::ManualOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::ManualOwnership),OBJECT_OWNERSHIP);
-            ownership_property.setIsExportable(false);
+            SharedObserverProperty ownership_property(QVariant(Observer::ManualOwnership),qti_prop_OWNERSHIP);
             Observer::setSharedProperty(objects.at(i),ownership_property);
-            SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
-            observer_parent_property.setIsExportable(false);
+            SharedObserverProperty observer_parent_property(QVariant(-1),qti_prop_PARENT_ID);
             Observer::setSharedProperty(objects.at(i),observer_parent_property);
             LOG_TRACE(">> Restored object ownership is ManualOwnership.");
         } else if ((Observer::ObjectOwnership) entry->d_ownership == Observer::ObserverScopeOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::ObserverScopeOwnership),OBJECT_OWNERSHIP);
-            ownership_property.setIsExportable(false);
+            SharedObserverProperty ownership_property(QVariant(Observer::ObserverScopeOwnership),qti_prop_OWNERSHIP);
             Observer::setSharedProperty(objects.at(i),ownership_property);
-            SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
-            observer_parent_property.setIsExportable(false);
+            SharedObserverProperty observer_parent_property(QVariant(-1),qti_prop_PARENT_ID);
             Observer::setSharedProperty(objects.at(i),observer_parent_property);
             LOG_TRACE(">> Restored object ownership is ObserverScopeOwnership.");
         } else if ((Observer::ObjectOwnership) entry->d_ownership == Observer::SpecificObserverOwnership) {
@@ -615,11 +611,9 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
             RelationalTableEntry* parent_entry = table.entryWithVisitorID(entry->d_parentVisitorID);
             if (parent_entry) {
                 int session_id = parent_entry->d_sessionID;
-                SharedObserverProperty ownership_property(QVariant(Observer::SpecificObserverOwnership),OBJECT_OWNERSHIP);
-                ownership_property.setIsExportable(false);
+                SharedObserverProperty ownership_property(QVariant(Observer::SpecificObserverOwnership),qti_prop_OWNERSHIP);
                 Observer::setSharedProperty(objects.at(i),ownership_property);
-                SharedObserverProperty observer_parent_property(QVariant(session_id),OBSERVER_PARENT);
-                observer_parent_property.setIsExportable(false);
+                SharedObserverProperty observer_parent_property(QVariant(session_id),qti_prop_PARENT_ID);
                 Observer::setSharedProperty(objects.at(i),observer_parent_property);
                 LOG_TRACE(">> Restored object ownership is SpecificObserverOwnership. Owner context ID: " + QString("%1").arg(session_id));
             } else {
@@ -632,11 +626,9 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
                 }
             }
         } else if ((Observer::ObjectOwnership) entry->d_ownership == Observer::OwnedBySubjectOwnership) {
-            SharedObserverProperty ownership_property(QVariant(Observer::OwnedBySubjectOwnership),OBJECT_OWNERSHIP);
-            ownership_property.setIsExportable(false);
+            SharedObserverProperty ownership_property(QVariant(Observer::OwnedBySubjectOwnership),qti_prop_OWNERSHIP);
             Observer::setSharedProperty(objects.at(i),ownership_property);
-            SharedObserverProperty observer_parent_property(QVariant(-1),OBSERVER_PARENT);
-            observer_parent_property.setIsExportable(false);
+            SharedObserverProperty observer_parent_property(QVariant(-1),qti_prop_PARENT_ID);
             Observer::setSharedProperty(objects.at(i),observer_parent_property);
             LOG_TRACE(">> Restored object ownership is OwnedBySubjectOwnership");
         } else {
@@ -646,34 +638,33 @@ bool Qtilities::Core::ObjectManager::constructRelationships(QList<QPointer<QObje
 
         LOG_TRACE("> Restoring instance names across contexts.");
         // Instance names should be correct after the observer IDs have been corrected.
-        // Here we just need to correct the OBJECT_NAME_MANAGER_ID property and sync the object name with the OBJECT_NAME property.
-        // 1. Correct OBJECT_NAME_MANAGER_ID:
-        SharedObserverProperty object_name_manager_id = Observer::getSharedProperty(objects.at(i),OBJECT_NAME_MANAGER_ID);
+        // Here we just need to correct the qti_prop_NAME_MANAGER_ID property and sync the object name with the qti_prop_NAME property.
+        // 1. Correct qti_prop_NAME_MANAGER_ID:
+        SharedObserverProperty object_name_manager_id = Observer::getSharedProperty(objects.at(i),qti_prop_NAME_MANAGER_ID);
         if (object_name_manager_id.isValid()) {
             int prev_session_id = object_name_manager_id.value().toInt();
             RelationalTableEntry* entry = table.entryWithPreviousSessionID(prev_session_id);
             if (entry) {
                 // The previous name manager was part of this export:
                 int current_session_id = entry->d_sessionID;
-                SharedObserverProperty new_name_manager_id(current_session_id,OBJECT_NAME_MANAGER_ID);
-                new_name_manager_id.setIsExportable(true);
+                SharedObserverProperty new_name_manager_id(current_session_id,qti_prop_NAME_MANAGER_ID);
                 Observer::setSharedProperty(objects.at(i),new_name_manager_id);
-                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID:  Restored name manager successfuly.");
+                LOG_TRACE(">> qti_prop_NAME_MANAGER_ID:  Restored name manager successfuly.");
             } else {
                 // The previous name manager was not part of this export:
                 // Assign a new name manager.
-                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID: Name manager was not part of this export. Assigning a new name manager.");
+                LOG_TRACE(">> qti_prop_NAME_MANAGER_ID: Name manager was not part of this export. Assigning a new name manager.");
                 // Still todo.
             }
 
-            // 2. Sync OBJECT_NAME:
-            SharedObserverProperty object_name = Observer::getSharedProperty(objects.at(i),OBJECT_NAME);
+            // 2. Sync qti_prop_NAME:
+            SharedObserverProperty object_name = Observer::getSharedProperty(objects.at(i),qti_prop_NAME);
             if (object_name.isValid()) {
                 objects.at(i)->setObjectName(object_name.value().toString());
-                LOG_TRACE(">> OBJECT_NAME_MANAGER_ID : Sync'ed object name with OBJECT_NAME property.");
+                LOG_TRACE(">> qti_prop_NAME_MANAGER_ID : Sync'ed object name with qti_prop_NAME property.");
             }
         } else {
-            LOG_TRACE("> OBJECT_NAME_MANAGER_ID : Property not found, nothing to restore.");
+            LOG_TRACE("> qti_prop_NAME_MANAGER_ID : Property not found, nothing to restore.");
         }
     }
 

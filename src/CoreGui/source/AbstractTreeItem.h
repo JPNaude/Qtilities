@@ -52,11 +52,11 @@ namespace Qtilities {
         class TreeNode;
 
         /*!
-        \struct AbstractTreeItemData
+        \struct AbstractTreeItemPrivateData
         \brief Structure used by AbstractTreeItem to store private data.
           */
-        struct AbstractTreeItemData {
-            AbstractTreeItemData() {}
+        struct AbstractTreeItemPrivateData {
+            AbstractTreeItemPrivateData() {}
         };
 
         /*!
@@ -240,7 +240,7 @@ namespace Qtilities {
             QColor getBackgroundColor() const;
 
         protected:
-            AbstractTreeItemData* baseItemData;
+            AbstractTreeItemPrivateData* baseItemData;
         };
     }
 }

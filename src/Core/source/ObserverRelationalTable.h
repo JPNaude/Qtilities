@@ -153,10 +153,10 @@ namespace Qtilities {
         };
 
         /*!
-        \struct ObserverRelationalTableData
-        \brief The ObserverRelationalTableData stores private data used by the ObserverRelationalTable class.
+        \struct ObserverRelationalTablePrivateData
+        \brief The ObserverRelationalTablePrivateData stores private data used by the ObserverRelationalTable class.
           */
-        struct ObserverRelationalTableData;
+        struct ObserverRelationalTablePrivateData;
 
         /*!
           \class ObserverRelationalTable
@@ -196,7 +196,7 @@ ObserverRelationalTable table(rootNode);
             contains information about the parents and children of the entry among other information.
 
             All entries in the table has an unique visitor ID which is assigned to each object in the tree by adding the
-            Qtilities::Core::Properties::OBSERVER_VISITOR_ID shared property (Qtilities::Core::SharedObserverProperty) on each item. This unique ID is the most
+            Qtilities::Core::Properties::qti_prop_VISITOR_ID shared property (Qtilities::Core::SharedObserverProperty) on each item. This unique ID is the most
             important field in each entry since the parents and children of the entry are defined using their respective visitor IDs. As soon as the
             ObserverRelationalTable is deleted the visitor ID properties on all object will be removed. Thus it is very important not to create multiple
             ObserverRelationalTable objects on the same observer at the same time. The class provides functions such as entryWithVisitorID() etc. to
@@ -313,7 +313,7 @@ for (int i = 0; i < table.count(); i++) {
                 if (!obj)
                     return -1;
 
-                QVariant prop_variant = obj->property(OBSERVER_VISITOR_ID);
+                QVariant prop_variant = obj->property(qti_prop_VISITOR_ID);
                 if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
                     SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
                     if (prop.isValid()) {
@@ -325,8 +325,8 @@ for (int i = 0; i < table.count(); i++) {
 
             //! Function to remove all visitorID properties in the specified hierarchy.
             static void removeRelationalProperties(Observer* observer) {
-                observer->setProperty(OBSERVER_VISITOR_ID,QVariant());
-                observer->setProperty(OBJECT_LIMITED_EXPORTS,QVariant());
+                observer->setProperty(qti_prop_VISITOR_ID,QVariant());
+                observer->setProperty(qti_prop_LIMITED_EXPORTS,QVariant());
 
                 for (int i = 0; i < observer->subjectCount(); i++) {
                     QObject* obj = observer->subjectAt(i);
@@ -359,8 +359,8 @@ for (int i = 0; i < table.count(); i++) {
                     } else if (!is_iface && has_child_observer) {
                         removeRelationalProperties(obs);
                     } else if ((is_iface && !is_observer) || (!is_iface)) {
-                        obj->setProperty(OBSERVER_VISITOR_ID,QVariant());
-                        obj->setProperty(OBJECT_LIMITED_EXPORTS,QVariant());
+                        obj->setProperty(qti_prop_VISITOR_ID,QVariant());
+                        obj->setProperty(qti_prop_LIMITED_EXPORTS,QVariant());
                     }
                 }
             }
@@ -379,7 +379,7 @@ for (int i = 0; i < table.count(); i++) {
             //! Gets the specific parent of an object. Returns -1 if no specific parent exists.
             int getSpecificParent(QObject* obj) const;
 
-            ObserverRelationalTableData* d;
+            ObserverRelationalTablePrivateData* d;
         };
     }
 }

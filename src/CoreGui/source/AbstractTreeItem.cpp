@@ -39,7 +39,7 @@
 using namespace Qtilities::Core;
 
 Qtilities::CoreGui::AbstractTreeItem::AbstractTreeItem() {
-    baseItemData = new AbstractTreeItemData;
+    baseItemData = new AbstractTreeItemPrivateData;
 
 }
 
@@ -64,19 +64,19 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
         return;
 
     // First check if this item has a name manager, if not we just need to set the object name:
-    // If it has a name manager, it will have the OBJECT_NAME property.
-    QVariant name_property = parent->getObserverPropertyValue(objectBase(),OBJECT_NAME);
+    // If it has a name manager, it will have the qti_prop_NAME property.
+    QVariant name_property = parent->getObserverPropertyValue(objectBase(),qti_prop_NAME);
     if (!name_property.isValid()) {
         // Just set the object name, we also let views know that the data in the parent context needs to be updated:
         objectBase()->setObjectName(new_name);
         if (parent)
             parent->refreshViewsData();
     } else {
-        // If there is an OBJECT_NAME property we need to check if parent is the name manager or not.
+        // If there is an qti_prop_NAME property we need to check if parent is the name manager or not.
         // Three things can happen in here:
         // 1. Parent is the name manager
         // 2. Parent uses an instance name
-        // 3. Parent does not have a naming policy filter, in that case we need to set OBJECT_NAME and the name manager
+        // 3. Parent does not have a naming policy filter, in that case we need to set qti_prop_NAME and the name manager
         //    will take care of the rest.
 
         // Get the naming policy filter:
@@ -88,35 +88,35 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
         if (filter) {
             if (filter->isObjectNameManager(objectBase())) {
                 // Case 1:
-                // We use the OBJECT_NAME property:
+                // We use the qti_prop_NAME property:
                 QVariant object_name_prop;
-                object_name_prop = objectBase()->property(OBJECT_NAME);
+                object_name_prop = objectBase()->property(qti_prop_NAME);
                 if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
-                    SharedObserverProperty name_property(QVariant(new_name),OBJECT_NAME);
+                    SharedObserverProperty name_property(QVariant(new_name),qti_prop_NAME);
                     QVariant property = qVariantFromValue(name_property);
-                    objectBase()->setProperty(OBJECT_NAME,QVariant(property));
+                    objectBase()->setProperty(qti_prop_NAME,QVariant(property));
                 }
             } else {
-                // We use the INSTANCE_NAMES property:
+                // We use the qti_prop_ALIAS_MAP property:
                 // Case 2:
                 QVariant instance_names_prop;
-                instance_names_prop = objectBase()->property(INSTANCE_NAMES);
+                instance_names_prop = objectBase()->property(qti_prop_ALIAS_MAP);
                 if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>()) {
                     ObserverProperty new_instance_name = instance_names_prop.value<ObserverProperty>();
                     new_instance_name.setValue(QVariant(new_name),parent->observerID());
-                    objectBase()->setProperty(INSTANCE_NAMES,qVariantFromValue(new_instance_name));
+                    objectBase()->setProperty(qti_prop_ALIAS_MAP,qVariantFromValue(new_instance_name));
                 }
             }
 
         } else {
             // Case 3:
-            // We use the OBJECT_NAME property:
+            // We use the qti_prop_NAME property:
             QVariant object_name_prop;
-            object_name_prop = objectBase()->property(OBJECT_NAME);
+            object_name_prop = objectBase()->property(qti_prop_NAME);
             if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
-                SharedObserverProperty name_property(QVariant(new_name),OBJECT_NAME);
+                SharedObserverProperty name_property(QVariant(new_name),qti_prop_NAME);
                 QVariant property = qVariantFromValue(name_property);
-                objectBase()->setProperty(OBJECT_NAME,QVariant(property));
+                objectBase()->setProperty(qti_prop_NAME,QVariant(property));
             }
         }
     }
@@ -276,7 +276,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
             LOG_ERROR(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
             return false;
         } else {
-            ObserverProperty prop = Observer::getObserverProperty(objectBase(),OBSERVER_SUBJECT_IDS);
+            ObserverProperty prop = Observer::getObserverProperty(objectBase(),qti_prop_OBSERVER_MAP);
             if (prop.isValid()) {
                 int id = prop.observerMap().keys().at(0);
                 QObject* obj = objectBase();
@@ -284,7 +284,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                 if (obj && obs) {
                     // Check if the category changed, if not we don't set it again.
                     // Setting it again will trigger a view refresh which should be avoided if possible.
-                    QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+                    QVariant category_variant = obs->getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
                     if (category_variant.isValid()) {
                         QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                         if (old_category == category)
@@ -292,12 +292,12 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                     }
 
                     // Ok it changed, thus set it again:
-                    if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
-                        ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+                    if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+                        ObserverProperty category_property = Observer::getObserverProperty(obj,qti_prop_CATEGORY_MAP);
                         category_property.setValue(qVariantFromValue(category),id);
                         Observer::setObserverProperty(obj,category_property);
                     } else {
-                        ObserverProperty category_property(OBJECT_CATEGORY);
+                        ObserverProperty category_property(qti_prop_CATEGORY_MAP);
                         category_property.setValue(qVariantFromValue(category),id);
                         Observer::setObserverProperty(obj,category_property);
                     }
@@ -311,7 +311,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
         if (obj && obs) {
             // Check if the category changed, if not we don't set it again.
             // Setting it again will trigger a view refresh which should be avoided if possible.
-            QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            QVariant category_variant = obs->getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
             if (category_variant.isValid()) {
                 QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                 if (old_category == category)
@@ -319,12 +319,12 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
             }
 
             // Ok it changed, thus set it again:
-            if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
-                ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+            if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+                ObserverProperty category_property = Observer::getObserverProperty(obj,qti_prop_CATEGORY_MAP);
                 category_property.setValue(qVariantFromValue(category),observer_id);
                 Observer::setObserverProperty(obj,category_property);
             } else {
-                ObserverProperty category_property(OBJECT_CATEGORY);
+                ObserverProperty category_property(qti_prop_CATEGORY_MAP);
                 category_property.setValue(qVariantFromValue(category),observer_id);
                 Observer::setObserverProperty(obj,category_property);
             }
@@ -343,12 +343,12 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
             Q_ASSERT(Observer::parentCount(objectBase()) != 1);
             LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
         } else {
-            ObserverProperty prop = Observer::getObserverProperty(objectBase(),OBSERVER_SUBJECT_IDS);
+            ObserverProperty prop = Observer::getObserverProperty(objectBase(),qti_prop_OBSERVER_MAP);
             if (prop.isValid()) {
                 int id = prop.observerMap().keys().at(0);
                 Observer* obs = OBJECT_MANAGER->observerReference(id);
                 if (obs) {
-                    QVariant category_variant = obs->getObserverPropertyValue(objectBase(),OBJECT_CATEGORY);
+                    QVariant category_variant = obs->getObserverPropertyValue(objectBase(),qti_prop_CATEGORY_MAP);
                     if (category_variant.isValid()) {
                         return category_variant.value<QtilitiesCategory>();
                     }
@@ -359,7 +359,7 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
         const QObject* obj = objectBase();
         Observer* obs = OBJECT_MANAGER->observerReference(observer_id);
         if (obj && obs) {
-            QVariant category_variant = obs->getObserverPropertyValue(obj,OBJECT_CATEGORY);
+            QVariant category_variant = obs->getObserverPropertyValue(obj,qti_prop_CATEGORY_MAP);
             if (category_variant.isValid()) {
                 return category_variant.value<QtilitiesCategory>();
             }
@@ -370,14 +370,13 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasCategory() const {
-    return Observer::propertyExists(objectBase(),OBJECT_CATEGORY);
+    return Observer::propertyExists(objectBase(),qti_prop_CATEGORY_MAP);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setToolTip(const QString& tooltip) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(tooltip,OBJECT_ROLE_TOOLTIP);
-        property.setIsExportable(true);
+        SharedObserverProperty property(tooltip,qti_prop_TOOLTIP);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -385,20 +384,19 @@ void Qtilities::CoreGui::AbstractTreeItem::setToolTip(const QString& tooltip) {
 QString Qtilities::CoreGui::AbstractTreeItem::getToolTip() const {
     const QObject* obj = objectBase();
     if (obj)
-        return Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP).value().toString();
+        return Observer::getSharedProperty(obj,qti_prop_TOOLTIP).value().toString();
 
     return QString();
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasToolTip() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_TOOLTIP);
+    return Observer::propertyExists(objectBase(),qti_prop_TOOLTIP);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setIcon(const QIcon& icon) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(icon,OBJECT_ROLE_DECORATION);
-        property.setIsExportable(true);
+        SharedObserverProperty property(icon,qti_prop_DECORATION);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -406,7 +404,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setIcon(const QIcon& icon) {
 QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() const {
     const QObject* obj = objectBase();
     if (obj) {
-        QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_TOOLTIP).value();
+        QVariant variant = Observer::getSharedProperty(obj,qti_prop_TOOLTIP).value();
         return variant.value<QIcon>();
     }
 
@@ -414,14 +412,13 @@ QIcon Qtilities::CoreGui::AbstractTreeItem::getIcon() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasIcon() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_TOOLTIP);
+    return Observer::propertyExists(objectBase(),qti_prop_TOOLTIP);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setWhatsThis(const QString& whats_this) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(whats_this,OBJECT_ROLE_WHATS_THIS);
-        property.setIsExportable(true);
+        SharedObserverProperty property(whats_this,qti_prop_WHATS_THIS);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -429,20 +426,19 @@ void Qtilities::CoreGui::AbstractTreeItem::setWhatsThis(const QString& whats_thi
 QString Qtilities::CoreGui::AbstractTreeItem::getWhatsThis() const {
     const QObject* obj = objectBase();
     if (obj)
-        return Observer::getSharedProperty(obj,OBJECT_ROLE_WHATS_THIS).value().toString();
+        return Observer::getSharedProperty(obj,qti_prop_WHATS_THIS).value().toString();
 
     return QString();
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasWhatsThis() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_WHATS_THIS);
+    return Observer::propertyExists(objectBase(),qti_prop_WHATS_THIS);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setStatusTip(const QString& status_tip) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(status_tip,OBJECT_ROLE_STATUSTIP);
-        property.setIsExportable(true);
+        SharedObserverProperty property(status_tip,qti_prop_STATUSTIP);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -450,20 +446,19 @@ void Qtilities::CoreGui::AbstractTreeItem::setStatusTip(const QString& status_ti
 QString Qtilities::CoreGui::AbstractTreeItem::getStatusTip() const {
     const QObject* obj = objectBase();
     if (obj)
-        return Observer::getSharedProperty(obj,OBJECT_ROLE_STATUSTIP).value().toString();
+        return Observer::getSharedProperty(obj,qti_prop_STATUSTIP).value().toString();
 
     return QString();
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasStatusTip() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_STATUSTIP);
+    return Observer::propertyExists(objectBase(),qti_prop_STATUSTIP);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setSizeHint(const QSize& size) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(size,OBJECT_ROLE_SIZE_HINT);
-        property.setIsExportable(true);
+        SharedObserverProperty property(size,qti_prop_SIZE_HINT);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -471,20 +466,19 @@ void Qtilities::CoreGui::AbstractTreeItem::setSizeHint(const QSize& size) {
 QSize Qtilities::CoreGui::AbstractTreeItem::getSizeHint() const {
     const QObject* obj = objectBase();
     if (obj)
-        return Observer::getSharedProperty(obj,OBJECT_ROLE_SIZE_HINT).value().toSize();
+        return Observer::getSharedProperty(obj,qti_prop_SIZE_HINT).value().toSize();
 
     return QSize();
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasSizeHint() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_SIZE_HINT);
+    return Observer::propertyExists(objectBase(),qti_prop_SIZE_HINT);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setFont(const QFont& font) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(font,OBJECT_ROLE_FONT);
-        property.setIsExportable(true);
+        SharedObserverProperty property(font,qti_prop_FONT);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -492,7 +486,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setFont(const QFont& font) {
 QFont Qtilities::CoreGui::AbstractTreeItem::getFont() const {
     const QObject* obj = objectBase();
     if (obj) {
-        QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_FONT).value();
+        QVariant variant = Observer::getSharedProperty(obj,qti_prop_FONT).value();
         return variant.value<QFont>();
     }
 
@@ -500,14 +494,13 @@ QFont Qtilities::CoreGui::AbstractTreeItem::getFont() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasFont() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_FONT);
+    return Observer::propertyExists(objectBase(),qti_prop_FONT);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setAlignment(const Qt::AlignmentFlag& alignment) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property((int) alignment,OBJECT_ROLE_TEXT_ALIGNMENT);
-        property.setIsExportable(true);
+        SharedObserverProperty property((int) alignment,qti_prop_TEXT_ALIGNMENT);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -515,7 +508,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setAlignment(const Qt::AlignmentFlag&
 Qt::AlignmentFlag Qtilities::CoreGui::AbstractTreeItem::getAlignment() const {
     const QObject* obj = objectBase();
     if (obj) {
-        QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_TEXT_ALIGNMENT).value();
+        QVariant variant = Observer::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT).value();
         return (Qt::AlignmentFlag) variant.toInt();
     }
 
@@ -523,14 +516,13 @@ Qt::AlignmentFlag Qtilities::CoreGui::AbstractTreeItem::getAlignment() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasAlignment() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_TEXT_ALIGNMENT);
+    return Observer::propertyExists(objectBase(),qti_prop_TEXT_ALIGNMENT);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setForegroundRole(const QBrush& foreground_role) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(foreground_role,OBJECT_ROLE_FOREGROUND);
-        property.setIsExportable(true);
+        SharedObserverProperty property(foreground_role,qti_prop_FOREGROUND);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -538,7 +530,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setForegroundRole(const QBrush& foreg
 QBrush Qtilities::CoreGui::AbstractTreeItem::getForegroundRole() const {
     const QObject* obj = objectBase();
     if (obj) {
-        QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_FOREGROUND).value();
+        QVariant variant = Observer::getSharedProperty(obj,qti_prop_FOREGROUND).value();
         return variant.value<QBrush>();
     }
 
@@ -546,7 +538,7 @@ QBrush Qtilities::CoreGui::AbstractTreeItem::getForegroundRole() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasForegroundRole() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_FOREGROUND);
+    return Observer::propertyExists(objectBase(),qti_prop_FOREGROUND);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setForegroundColor(const QColor& color) {
@@ -569,8 +561,7 @@ QColor Qtilities::CoreGui::AbstractTreeItem::getForegroundColor() const {
 void Qtilities::CoreGui::AbstractTreeItem::setBackgroundRole(const QBrush& background_role) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedObserverProperty property(background_role,OBJECT_ROLE_BACKGROUND);
-        property.setIsExportable(true);
+        SharedObserverProperty property(background_role,qti_prop_BACKGROUND);
         Observer::setSharedProperty(obj,property);
     }
 }
@@ -578,7 +569,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setBackgroundRole(const QBrush& backg
 QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() const {
     const QObject* obj = objectBase();
     if (obj) {
-        QVariant variant = Observer::getSharedProperty(obj,OBJECT_ROLE_BACKGROUND).value();
+        QVariant variant = Observer::getSharedProperty(obj,qti_prop_BACKGROUND).value();
         return variant.value<QBrush>();
     }
 
@@ -586,7 +577,7 @@ QBrush Qtilities::CoreGui::AbstractTreeItem::getBackgroundRole() const {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::hasBackgroundRole() const {
-    return Observer::propertyExists(objectBase(),OBJECT_ROLE_BACKGROUND);
+    return Observer::propertyExists(objectBase(),qti_prop_BACKGROUND);
 }
 
 void Qtilities::CoreGui::AbstractTreeItem::setBackgroundColor(const QColor& color) {

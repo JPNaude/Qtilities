@@ -44,7 +44,7 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::ObjectPropertyBrowserData {
+struct Qtilities::CoreGui::ObjectPropertyBrowserPrivateData {
     QMap<const QMetaObject *, QtProperty *> map_class_property;
     QMap<QtProperty *, const QMetaObject *> map_property_class;
     QMap<QtProperty *, int>                 map_property_index;
@@ -54,17 +54,20 @@ struct Qtilities::CoreGui::ObjectPropertyBrowserData {
 
     QtAbstractPropertyBrowser*              property_browser;
     QtVariantPropertyManager*               property_manager;
-    QtVariantPropertyManager*               property_read_only_manager;
+    QtVariantPropertyManager*               property_manager_read_only;
 
     QPointer<QObject>                       obj;
     QStringList                             filter_list;
     bool                                    read_only_properties_disabled;
     bool                                    filter_list_inversed;
+
+    bool                                    ignore_property_changes;
 };
 
 Qtilities::CoreGui::ObjectPropertyBrowser::ObjectPropertyBrowser(BrowserType browser_type, QWidget *parent) : QWidget(parent)
 {
-    d = new ObjectPropertyBrowserData;
+    d = new ObjectPropertyBrowserPrivateData;
+    d->ignore_property_changes = false;
     d->obj = 0;
     d->filter_list_inversed = false;
     d->read_only_properties_disabled = true;
@@ -86,7 +89,7 @@ Qtilities::CoreGui::ObjectPropertyBrowser::ObjectPropertyBrowser(BrowserType bro
     layout->setMargin(0);
     layout->addWidget(d->property_browser);
 
-    d->property_read_only_manager = new QtVariantPropertyManager(this);
+    d->property_manager_read_only = new QtVariantPropertyManager(this);
     d->property_manager = new QtVariantPropertyManager(this);
     QtVariantEditorFactory *factory = new QtVariantEditorFactory(this);
     d->property_browser->setFactoryForManager(d->property_manager, factory);
@@ -120,7 +123,9 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::refresh(bool has_changes) {
             d->obj->disconnect(this);
         }
 
+        d->ignore_property_changes = true;
         inspectClass(d->obj->metaObject());
+        d->ignore_property_changes = false;
     }
 }
 
@@ -149,47 +154,26 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
         return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
+    d->ignore_property_changes = true;
     inspectClass(d->obj->metaObject());
+    d->ignore_property_changes = false;
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QPointer<QObject> object, bool monitor_changes) {
-    if (d->obj == object)
-        return;
-
-    if (d->obj) {
-        QListIterator<QtProperty *> it(d->top_level_properties);
-        while (it.hasNext()) {
-            d->property_browser->removeProperty(it.next());
-        }
-        d->top_level_properties.clear();
-        d->obj->disconnect(this);
-    }
-
-    d->obj = object;
-
-    if (monitor_changes) {
-        IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
-        if (mod_iface)
-            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
-    }
-
-    if (!d->obj)
-        return;
-
-    connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
-    inspectClass(d->obj->metaObject());
+    QObject* obj = object;
+    setObject(obj,monitor_changes);
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QObject*> objects, bool monitor_changes) {
-    Q_UNUSED(monitor_changes)
     if (objects.count() == 1)
-        setObject(objects.front());
+        setObject(objects.front(),monitor_changes);
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QList<QPointer<QObject> > objects, bool monitor_changes) {
-    Q_UNUSED(monitor_changes)
-    if (objects.count() == 1)
-        setObject(objects.front());
+    if (objects.count() == 1) {
+        QObject* obj = objects.front();
+        setObject(obj,monitor_changes);
+    }
 }
 
 QObject* Qtilities::CoreGui::ObjectPropertyBrowser::object() const {
@@ -260,6 +244,9 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::toggleReadOnlyPropertiesDisabled
 }
 
 void Qtilities::CoreGui::ObjectPropertyBrowser::handle_property_changed(QtProperty * property, const QVariant & value) {
+    if (d->ignore_property_changes)
+        return;
+
     if (!d->obj)
         return;
 
@@ -311,7 +298,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
     // Handle QObject in a special way.
     if (className == "QObject") {
         // If d->obj has a name manager, we don't allow the user to change the object name by not showing QObject's properties
-        QVariant name_manager = d->obj->property(OBJECT_NAME_MANAGER_ID);
+        QVariant name_manager = d->obj->property(qti_prop_NAME_MANAGER_ID);
         if (name_manager.isValid()) {
             // Remove QObject from d->map_class_property
             d->map_class_property.remove(metaObject);
@@ -334,7 +321,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
             int type = metaProperty.userType();
             QtVariantProperty *subProperty = 0;
             if (!metaProperty.isReadable()) {
-                subProperty = d->property_read_only_manager->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
+                subProperty = d->property_manager_read_only->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
                 subProperty->setValue(QLatin1String("< Non Readable >"));
             } else if (metaProperty.isEnumType()) {
                 if (metaProperty.isFlagType()) {
@@ -370,9 +357,9 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
                     subProperty->setEnabled(false);
             } else if (d->property_manager->isPropertyTypeSupported(type)) {
                 if (!metaProperty.isWritable())
-                    subProperty = d->property_read_only_manager->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Writable)"));
+                    subProperty = d->property_manager_read_only->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Writable)"));
                 if (!metaProperty.isDesignable())
-                    subProperty = d->property_read_only_manager->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Designable)"));
+                    subProperty = d->property_manager_read_only->addProperty(type, QLatin1String(metaProperty.name()) + QLatin1String(" (Non Designable)"));
                 else {
                     subProperty = d->property_manager->addProperty(type, QLatin1String(metaProperty.name()));
                     if (!metaProperty.isWritable() && d->read_only_properties_disabled)
@@ -380,7 +367,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
                 }
                 subProperty->setValue(metaProperty.read(d->obj));
             } else {
-                subProperty = d->property_read_only_manager->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
+                subProperty = d->property_manager_read_only->addProperty(QVariant::String, QLatin1String(metaProperty.name()));
                 subProperty->setValue(QLatin1String("< Unknown Type >"));
                 subProperty->setEnabled(false);
             }

@@ -49,12 +49,12 @@ namespace Qtilities {
     }
 }
 
-struct Qtilities::CoreGui::TreeItemData {
-    TreeItemData() { }
+struct Qtilities::CoreGui::TreeItemPrivateData {
+    TreeItemPrivateData() { }
 };
 
 Qtilities::CoreGui::TreeItem::TreeItem(const QString& name, QObject* parent) : TreeItemBase(name,parent) {
-    d = new TreeItemData;
+    d = new TreeItemPrivateData;
     setObjectName(name);
 }
 
@@ -63,7 +63,7 @@ Qtilities::CoreGui::TreeItem::~TreeItem() {
 }
 
 Qtilities::Core::InstanceFactoryInfo Qtilities::CoreGui::TreeItem::instanceFactoryInfo() const {
-    InstanceFactoryInfo instanceFactoryInfo(FACTORY_QTILITIES,FACTORY_TAG_TREE_ITEM,objectName());
+    InstanceFactoryInfo instanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_TREE_ITEM,objectName());
     return instanceFactoryInfo;
 }
 

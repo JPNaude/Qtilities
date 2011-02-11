@@ -50,10 +50,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \struct DynamicSideWidgetWrapperData
-          \brief The DynamicSideWidgetWrapperData class stores private data used by the DynamicSideWidgetWrapper class.
+          \struct DynamicSideWidgetWrapperPrivateData
+          \brief The DynamicSideWidgetWrapperPrivateData class stores private data used by the DynamicSideWidgetWrapper class.
          */
-        struct DynamicSideWidgetWrapperData;
+        struct DynamicSideWidgetWrapperPrivateData;
 
         /*!
         \class DynamicSideWidgetWrapper
@@ -97,7 +97,7 @@ namespace Qtilities {
             void refreshNewWidgetAction();
 
             Ui::DynamicSideWidgetWrapper *ui;
-            DynamicSideWidgetWrapperData* d;
+            DynamicSideWidgetWrapperPrivateData* d;
         };
     }
 }

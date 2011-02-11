@@ -47,14 +47,16 @@ namespace Qtilities {
         using namespace Qtilities::ProjectManagement::Interfaces;
 
         /*!
-          \struct CodeEditorProjectItemWrapperData
-          \brief The CodeEditorProjectItemWrapperData struct stores private data used by the CodeEditorProjectItemWrapper class.
+          \struct CodeEditorProjectItemWrapperPrivateData
+          \brief The CodeEditorProjectItemWrapperPrivateData struct stores private data used by the CodeEditorProjectItemWrapper class.
          */
-        struct CodeEditorProjectItemWrapperData;
+        struct CodeEditorProjectItemWrapperPrivateData;
 
         /*!
         \class CodeEditorProjectItemWrapper
         \brief This class wraps Qtilities::CoreGui::CodeEditorWidget as a project item.
+
+        <i>This class was added in %Qtilities v0.3.</i>
           */
         class PROJECT_MANAGEMENT_SHARED_EXPORT CodeEditorProjectItemWrapper : public QObject, public IProjectItem
         {
@@ -103,7 +105,7 @@ namespace Qtilities {
             const QObject* objectBase() const { return this; }
 
         private:
-            CodeEditorProjectItemWrapperData* d;
+            CodeEditorProjectItemWrapperPrivateData* d;
         };
     }
 }

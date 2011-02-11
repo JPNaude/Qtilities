@@ -45,13 +45,13 @@
 // WidgetLoggerEngine implementation
 // ------------------------------------
 
-struct Qtilities::CoreGui::WidgetLoggerEngineData { 
+struct Qtilities::CoreGui::WidgetLoggerEnginePrivateData { 
     QPointer<WidgetLoggerEngineFrontend> widget;
 };
 
 Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine() : AbstractLoggerEngine()
 {
-    d = new WidgetLoggerEngineData;
+    d = new WidgetLoggerEnginePrivateData;
     setName(QObject::tr("Widget Logger Engine"));
 }
 

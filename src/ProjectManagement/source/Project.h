@@ -43,10 +43,10 @@ namespace Qtilities {
     namespace ProjectManagement {
         using namespace Qtilities::ProjectManagement::Interfaces;
         /*!
-          \struct ProjectData
-          \brief The ProjectData class stores private data used by the Project class.
+          \struct ProjectPrivateData
+          \brief The ProjectPrivateData class stores private data used by the Project class.
          */
-        struct ProjectData;
+        struct ProjectPrivateData;
 
         /*!
           \class Project
@@ -98,7 +98,7 @@ namespace Qtilities {
             const QObject* objectBase() const { return this; }
 
         private:
-            ProjectData* d;
+            ProjectPrivateData* d;
         };
     }
 }

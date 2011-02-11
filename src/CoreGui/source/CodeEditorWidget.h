@@ -59,10 +59,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-        \struct CodeEditorWidgetData
+        \struct CodeEditorWidgetPrivateData
         \brief A structure storing private data in the CodeEditorWidget class.
           */
-        struct CodeEditorWidgetData;
+        struct CodeEditorWidgetPrivateData;
 
         /*!
         \class CodeEditorWidget
@@ -144,8 +144,8 @@ namespace Qtilities {
             // --------------------------------
             // IContext Implementation
             // --------------------------------
-            QString contextString() const { return globalMetaType(); }
-            QString contextHelpId() const { return QString(); }
+            QString contextString() const;
+            QString contextHelpId() const;
 
             // --------------------------------
             // IModificationNotifier Implemenation
@@ -168,27 +168,6 @@ namespace Qtilities {
             // --------------------------------
             //! Returns the action handler interface for this code editor widget.
             IActionProvider* actionProvider();
-            //! Sets the global meta type used for this widget.
-            /*!
-              \returns True if the meta_type string was valid. The validity check is done by checking if that a context with the same name does not yet exist in the context manager.
-
-              \sa globalMetaType()
-              */
-            bool setGlobalMetaType(const QString& meta_type);
-            //! Gets the global meta type used for this widget.
-            /*!
-              The global meta type is a string which defines this widget. The string must be a string which
-              can be registered in the context manager. Thus, such a string must not yet exist as a context in the context
-              manager.
-
-              The global meta type is used for the following:
-              - To register actions in the action manager.
-
-              \returns The meta type used for this widget.
-
-              \sa setGlobalMetaType()
-              */
-            QString globalMetaType() const;
 
         public slots:
             void actionNew();
@@ -249,7 +228,7 @@ namespace Qtilities {
             bool maybeSave();
 
             Ui::CodeEditorWidget *ui;
-            CodeEditorWidgetData* d;
+            CodeEditorWidgetPrivateData* d;
         };
     }
 }

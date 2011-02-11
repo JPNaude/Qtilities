@@ -57,7 +57,7 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::~CodeEditorWidgetConfig() {
 }
 
 QIcon Qtilities::CoreGui::CodeEditorWidgetConfig::configPageIcon() const {
-    return QIcon(ICON_CONFIG_CODE_EDITOR_48x48);
+    return QIcon(qti_icon_CONFIG_CODE_EDITOR_48x48);
 }
 
 QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {

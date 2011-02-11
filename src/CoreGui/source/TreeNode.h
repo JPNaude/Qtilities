@@ -49,10 +49,10 @@ namespace Qtilities {
         using namespace Qtilities::Core;
 
         /*!
-        \struct TreeNodeData
+        \struct TreeNodePrivateData
         \brief Structure used by TreeNode to store private data.
           */
-        struct TreeNodeData;
+        struct TreeNodePrivateData;
 
         /*!
           \class TreeNode
@@ -126,9 +126,9 @@ nodeC->setBackgroundRole(QBrush(Qt::gray));
 // Create the tree items:
 // Be carefull to use it like this. If the addItem() call fails it returns 0.
 nodeA->addItem("Item 1")->setStatusTip("Hello, I'm a status tip.");
-nodeB->addItem("Item 2")->setIcon(QIcon(ICON_EDIT_COPY_16x16));
-nodeB->addItem("Item 3")->setIcon(QIcon(ICON_EDIT_CLEAR_16x16));
-nodeB->addItem("Item 4")->setIcon(QIcon(ICON_EDIT_CUT_16x16));
+nodeB->addItem("Item 2")->setIcon(QIcon(qti_icon_EDIT_COPY_16x16));
+nodeB->addItem("Item 3")->setIcon(QIcon(qti_icon_EDIT_CLEAR_16x16));
+nodeB->addItem("Item 4")->setIcon(QIcon(qti_icon_EDIT_CUT_16x16));
 nodeC->addItem("Item 5")->setWhatsThis("Hello, I'm a What's This message.");
 nodeC->addItem("Item 6")->setToolTip("Hello, I'm a ToolTip text");
 nodeC->addItem("Item 7")->setCategory(QtilitiesCategory("Category 1"),nodeC);
@@ -392,7 +392,7 @@ tree_widget->show();
             static FactoryItem<QObject, TreeNode> factory;
 
         protected:
-            TreeNodeData* nodeData;
+            TreeNodePrivateData* nodeData;
         };
     }
 }

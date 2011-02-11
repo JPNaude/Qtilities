@@ -81,7 +81,7 @@ namespace Qtilities {
             ExportModeFlags supportedFormats() const;
             bool exportBinary(QDataStream& stream) const;
             bool importBinary(QDataStream& stream);
-            QString factoryTag() const { return TAG_LOGGER_ENGINE_FILE; }
+            QString factoryTag() const { return qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE; }
             QString instanceName() const { return name(); }
 
             //! Sets the file name to which this engine will write the log output.

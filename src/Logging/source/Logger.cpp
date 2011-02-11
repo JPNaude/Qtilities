@@ -46,7 +46,7 @@
 
 using namespace Qtilities::Logging::Constants;
 
-struct Qtilities::Logging::LoggerData {
+struct Qtilities::Logging::LoggerPrivateData {
     LoggerFactory<AbstractLoggerEngine> logger_engine_factory;
     QList<QPointer<AbstractLoggerEngine> > logger_engines;
     QList<QPointer<AbstractFormattingEngine> > formatting_engines;
@@ -78,7 +78,7 @@ Qtilities::Logging::Logger* Qtilities::Logging::Logger::instance()
 
 Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
 {    
-    d = new LoggerData;
+    d = new LoggerPrivateData;
 
     d->default_formatting_engine = QString("Uninitialized");
     d->global_log_level = Logger::Debug;
@@ -87,10 +87,10 @@ Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
     d->priority_formatting_engine = 0;
 
     // Make sure App_Path/plugins always exists:
-    QDir sessionDir = QDir(QCoreApplication::applicationDirPath() + PATH_LOG_SESSION);
+    QDir sessionDir = QDir(QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION);
     if (!sessionDir.exists()) {
         sessionDir.cdUp();
-        sessionDir.mkdir(PATH_LOG_SESSION);
+        sessionDir.mkdir(qti_def_PATH_SESSION);
     }
 }
 
@@ -113,10 +113,10 @@ void Qtilities::Logging::Logger::initialize() {
     d->formatting_engines << &FormattingEngine_XML::instance();
     d->formatting_engines << &FormattingEngine_HTML::instance();
     d->formatting_engines << &FormattingEngine_QtMsgEngineFormat::instance();
-    d->default_formatting_engine = QString(FORMATTING_ENGINE_DEFAULT);
+    d->default_formatting_engine = QString(qti_def_FORMATTING_ENGINE_DEFAULT);
 
     // Register the logger enigines that comes as part of the Qtilities Logging Framework
-    d->logger_engine_factory.registerFactoryInterface(TAG_LOGGER_ENGINE_FILE, &FileLoggerEngine::factory);
+    d->logger_engine_factory.registerFactoryInterface(qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE, &FileLoggerEngine::factory);
 
     //qDebug() << tr("> Number of formatting engines available: ") << d->formatting_engines.count();
     //qDebug() << tr("> Number of logger engine factories available: ") << d->logger_engine_factory.tags().count();
@@ -732,7 +732,7 @@ quint32 MARKER_LOGGER_CONFIG_TAG = 0xFAC0000F;
 
 bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
     if (file_name.isEmpty())
-        file_name = QCoreApplication::applicationDirPath() + PATH_LOG_LAST_CONFIG;
+        file_name = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION + "/" + qti_def_PATH_LOGCONFIG_FILE;
 
     LOG_DEBUG(tr("Logging configuration export started to ") + file_name);
 
@@ -747,7 +747,7 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
         return false;
     }
     QDataStream stream(&file);
-    stream << (quint32) QTILITIES_LOGGER_BINARY_EXPORT_FORMAT;
+    stream << (quint32) qti_def_FORMAT_CONFIG_LOGGER;
 
     // Stream exportable engines:
     QList<ILoggerExportable*> export_list;
@@ -805,7 +805,7 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
 
 bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     if (file_name.isEmpty())
-        file_name = QCoreApplication::applicationDirPath() + PATH_LOG_LAST_CONFIG;
+        file_name = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION + "/" + qti_def_PATH_LOGCONFIG_FILE;
 
     LOG_DEBUG(tr("Logging configuration import started from ") + file_name);
     QFile file(file_name);
@@ -815,8 +815,8 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     quint32 ui32;
     stream >> ui32;
     LOG_INFO(QString(tr("Inspecting logger configuration file format: Found binary export file format version: %1")).arg(ui32));
-    if (ui32 != (quint32) QTILITIES_LOGGER_BINARY_EXPORT_FORMAT) {
-        LOG_ERROR(QString(tr("Logger configuration file format does not match the expected binary export file format (expected version: %1). Import will fail.")).arg(QTILITIES_LOGGER_BINARY_EXPORT_FORMAT));
+    if (ui32 != (quint32) qti_def_FORMAT_CONFIG_LOGGER) {
+        LOG_ERROR(QString(tr("Logger configuration file format does not match the expected binary export file format (expected version: %1). Import will fail.")).arg(qti_def_FORMAT_CONFIG_LOGGER));
         return false;
     }
     stream >> ui32;

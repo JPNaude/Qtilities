@@ -39,11 +39,11 @@
 
 using namespace Qtilities::Core::Constants;
 
-struct Qtilities::Core::ObserverRelationalTableData {
-    ObserverRelationalTableData() : observer(0),
+struct Qtilities::Core::ObserverRelationalTablePrivateData {
+    ObserverRelationalTablePrivateData() : observer(0),
     visitor_id_count(0),
     exportable_subjects_only(false) {}
-    ~ObserverRelationalTableData() {
+    ~ObserverRelationalTablePrivateData() {
         for (int i = 0; i < entries.count(); i++)
             delete entries.values().at(i);
     }
@@ -55,7 +55,7 @@ struct Qtilities::Core::ObserverRelationalTableData {
 };
 
 Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(Observer* observer, bool exportable_subjects_only) {
-    d = new ObserverRelationalTableData;
+    d = new ObserverRelationalTablePrivateData;
     d->observer = observer;
     d->exportable_subjects_only = exportable_subjects_only;
 
@@ -67,7 +67,7 @@ Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(Observer* obse
 }
 
 Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(const ObserverRelationalTable &other) {
-    d = new ObserverRelationalTableData;
+    d = new ObserverRelationalTablePrivateData;
     d->observer = other.d->observer;
     d->exportable_subjects_only = other.d->exportable_subjects_only;
     for (int i = 0; i < other.count(); i++) {
@@ -79,7 +79,7 @@ Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(const Observer
 }
 
 Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable() {
-    d = new ObserverRelationalTableData;
+    d = new ObserverRelationalTablePrivateData;
 }
 
 Qtilities::Core::ObserverRelationalTable::~ObserverRelationalTable() {
@@ -415,7 +415,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
 }
 
 int Qtilities::Core::ObserverRelationalTable::getOwnership(QObject* obj) const {
-    QVariant prop_variant = obj->property(OBJECT_OWNERSHIP);
+    QVariant prop_variant = obj->property(qti_prop_OWNERSHIP);
     if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
         SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
         if (prop.isValid()) {
@@ -426,12 +426,12 @@ int Qtilities::Core::ObserverRelationalTable::getOwnership(QObject* obj) const {
 }
 
 int Qtilities::Core::ObserverRelationalTable::addVisitorID(QObject* obj) {
-    if (!Observer::propertyExists(obj, OBSERVER_VISITOR_ID)) {
+    if (!Observer::propertyExists(obj, qti_prop_VISITOR_ID)) {
         // We need to create the property and add it to the object
-        SharedObserverProperty new_prop(d->visitor_id_count,OBSERVER_VISITOR_ID);
+        SharedObserverProperty new_prop(d->visitor_id_count,qti_prop_VISITOR_ID);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
         obj->setProperty(new_prop.propertyName(),new_prop_variant);
-        if (Observer::propertyExists(obj,OBSERVER_VISITOR_ID))
+        if (Observer::propertyExists(obj,qti_prop_VISITOR_ID))
             LOG_TRACE("Added visitor ID property to object: " + obj->objectName());
         else
             LOG_TRACE("Failed to add visitor ID property to object: " + obj->objectName());
@@ -443,10 +443,9 @@ int Qtilities::Core::ObserverRelationalTable::addVisitorID(QObject* obj) {
 }
 
 int Qtilities::Core::ObserverRelationalTable::addLimitedExportProperty(QObject* obj)  {
-    if (!Observer::propertyExists(obj, OBJECT_LIMITED_EXPORTS)) {
+    if (!Observer::propertyExists(obj, qti_prop_LIMITED_EXPORTS)) {
         // We need to create the property and add it to the object
-        SharedObserverProperty new_prop(0,OBJECT_LIMITED_EXPORTS);
-        new_prop.setIsExportable(false);
+        SharedObserverProperty new_prop(0,qti_prop_LIMITED_EXPORTS);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
         obj->setProperty(new_prop.propertyName(),new_prop_variant);
         return d->visitor_id_count;
@@ -458,7 +457,7 @@ int Qtilities::Core::ObserverRelationalTable::getSpecificParent(QObject* obj) co
     int ownership = getOwnership(obj);
     Observer::ObjectOwnership ownership_cast = (Observer::ObjectOwnership) ownership;
     if (ownership_cast == Observer::SpecificObserverOwnership) {
-        QVariant prop_variant = obj->property(OBSERVER_PARENT);
+        QVariant prop_variant = obj->property(qti_prop_PARENT_ID);
         if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
             SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
             if (prop.isValid()) {

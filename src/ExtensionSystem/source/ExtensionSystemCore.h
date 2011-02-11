@@ -49,10 +49,10 @@ namespace Qtilities {
         }
 
         /*!
-          \struct ExtensionSystemCoreData
-          \brief The ExtensionSystemCoreData class stores data used by the ExtensionSystemCore class.
+          \struct ExtensionSystemCorePrivateData
+          \brief The ExtensionSystemCorePrivateData class stores data used by the ExtensionSystemCore class.
          */
-        struct ExtensionSystemCoreData;
+        struct ExtensionSystemCorePrivateData;
 
         /*!
           \class ExtensionSystemCore
@@ -126,7 +126,7 @@ namespace Qtilities {
             //! Gets the name of the current plugin configuration set's file.
             /*!
               When loadPluginConfiguration() is loaded with a valid file, this function will return the file name that
-              was loaded. Otherwise it will return \p App_Path/plugins/default.pconfig.
+              was loaded. Otherwise it will return "App_Path/plugins/default" + qti_def_SUFFIX_PLUGIN_CONFIG.
               */
             QString activePluginConfigurationFile() const;
             //! Sets the name of the current plugin configuration set's file.
@@ -245,7 +245,7 @@ namespace Qtilities {
             ExtensionSystemCore(QObject* parent = 0);
 
             static ExtensionSystemCore* m_Instance;
-            ExtensionSystemCoreData* d;
+            ExtensionSystemCorePrivateData* d;
         };
     }
 }

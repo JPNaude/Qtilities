@@ -39,6 +39,7 @@
 
 #include <ObserverProperty.h>
 #include <QtilitiesCoreConstants.h>
+#include <QtilitiesLogging>
 #include <Logger.h>
 #include <Observer.h>
 #include <Qtilities.h>
@@ -56,13 +57,15 @@
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
+using namespace Qtilities::CoreGui;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
+using namespace Qtilities::Logging::Constants;
 
 bool Qtilities::CoreGui::ActionManager::showed_warning;
 
-struct Qtilities::CoreGui::ActionManagerData {
-    ActionManagerData() { }
+struct Qtilities::CoreGui::ActionManagerPrivateData {
+    ActionManagerPrivateData() { }
 
     QPointer<CommandEditor> command_editor;
     QHash<QString, Command*> id_command_map;
@@ -71,21 +74,21 @@ struct Qtilities::CoreGui::ActionManagerData {
 
 Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManager(parent)
 {
-    d = new ActionManagerData;
+    d = new ActionManagerPrivateData;
     setObjectName(tr("Action Manager"));
 
     // Give the manager an icon
-    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(ICON_MANAGER_16x16))),OBJECT_ROLE_DECORATION);
+    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(qti_icon_MANAGER_16x16))),qti_prop_DECORATION);
     shared_icon_property.setIsExportable(false);
     Observer::setSharedProperty(this,shared_icon_property);
 
     showed_warning = false;
 
     // Make sure App_Path/plugins always exists:
-    QDir sessionDir = QDir(QCoreApplication::applicationDirPath() + "/session");
+    QDir sessionDir = QtilitiesApplication::applicationSessionPath();
     if (!sessionDir.exists()) {
         sessionDir.cdUp();
-        sessionDir.mkdir("/session");
+        sessionDir.mkdir(qti_def_PATH_SESSION);
     }
 }
 
@@ -260,7 +263,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
     QList<int> contexts = active_contexts;
     if (contexts.isEmpty()) {
         // We associate it with the standard context:
-        contexts << CONTEXT_MANAGER->contextID(Qtilities::Core::Constants::CONTEXT_STANDARD);
+        contexts << CONTEXT_MANAGER->contextID(Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD);
     }
 
     // Create new shortcut:
@@ -320,7 +323,7 @@ bool Qtilities::CoreGui::ActionManager::exportShortcutMapping(const QString& fil
     QDomElement export_version = doc.createElement("Export_Format");
     QDomElement qtilities_version = doc.createElement("Qtilities");
     QDomElement application_version = doc.createElement("Application");
-    export_version.setAttribute("version",QString("%1").arg(QTILITIES_SHORTCUT_EXPORT_FORMAT));
+    export_version.setAttribute("version",QString("%1").arg(qti_def_FORMAT_CONFIG_SHORTCUTS));
     qtilities_version.setAttribute("version",QtilitiesApplication::qtilitiesVersion());
     application_version.setAttribute("version",QtilitiesApplication::applicationVersion());
     formatting.appendChild(qtilities_version);
@@ -378,7 +381,7 @@ bool Qtilities::CoreGui::ActionManager::importShortcutMapping(const QString& fil
                 bool ok;
                 int version = version_string.toInt(&ok);
                 if (ok) {
-                    if (version == (int) QTILITIES_SHORTCUT_EXPORT_FORMAT)
+                    if (version == (int) qti_def_FORMAT_CONFIG_SHORTCUTS)
                         valid_file = true;
                 }
             }

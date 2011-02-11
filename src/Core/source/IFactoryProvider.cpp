@@ -45,7 +45,7 @@ Qtilities::Core::InstanceFactoryInfo::InstanceFactoryInfo(QDomDocument* doc, QDo
 bool Qtilities::Core::InstanceFactoryInfo::exportXML(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
 
-    if (d_factory_tag != QString(FACTORY_QTILITIES))
+    if (d_factory_tag != QString(qti_def_FACTORY_QTILITIES))
         object_node->setAttribute("FactoryTag", d_factory_tag);
     object_node->setAttribute("InstanceFactoryInfo", d_instance_tag);
     if (d_instance_tag != d_instance_name)
@@ -60,7 +60,7 @@ bool Qtilities::Core::InstanceFactoryInfo::importXML(QDomDocument* doc, QDomElem
     if (object_node->hasAttribute("FactoryTag"))
         d_factory_tag = object_node->attribute("FactoryTag");
     else
-        d_factory_tag = QString(FACTORY_QTILITIES);
+        d_factory_tag = QString(qti_def_FACTORY_QTILITIES);
 
     d_instance_tag = object_node->attribute("InstanceFactoryInfo");
 

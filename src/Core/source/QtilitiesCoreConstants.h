@@ -43,17 +43,17 @@ namespace Qtilities {
         namespace Constants {
 
             //! The name of the global object pool observer.
-            const char * const GLOBAL_OBJECT_POOL                   = "Qtilities.Core.ObjectPool";
+            const char * const qti_def_GLOBAL_OBJECT_POOL                   = "qti.def.ObjectPool";
             //! %Factory name of the Qtilities factory.
-            const char * const FACTORY_QTILITIES                    = "Factory.Qtilities";
+            const char * const qti_def_FACTORY_QTILITIES                    = "qti.def.QtilitiesFactory";
             //! %Factory tag for activity policy filters.
-            const char * const FACTORY_TAG_ACTIVITY_POLICY_FILTER   = "Activity Policy Filter";
+            const char * const qti_def_FACTORY_TAG_ACTIVITY_FILTER          = "qti.def.FactoryTag.ActivityFilter";
             //! %Factory tag for subject type filters.
-            const char * const FACTORY_TAG_SUBJECT_TYPE_FILTER      = "Subject Type Filter";
+            const char * const qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER      = "qti.def.FactoryTag.SubjectTypeFilter";
             //! %Factory tag for observers.
-            const char * const FACTORY_TAG_OBSERVER                 = "Observer";
+            const char * const qti_def_FACTORY_TAG_OBSERVER                 = "qti.def.FactoryTag.Observer";
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
-            const char * const CONTEXT_STANDARD                     = "General.Standard";
+            const char * const qti_def_CONTEXT_STANDARD                     = "qti.def.Context.Standard";
         }
 
         //! Namespace containing reserved observer properties used inside the Core Module.
@@ -102,10 +102,10 @@ obs->attachSubject(obj);
 QList<Observer*> parents = Observer::parentReferences(obj);
 
 // Get the subject ID of an object within an observer context.
-int subject_id = obs->getObserverPropertyValue(obj,OBSERVER_SUBJECT_IDS).toInt();
+int subject_id = obs->getObserverPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
 \endcode
 */
-const char * const OBSERVER_SUBJECT_IDS   = "Qtilities.Core.ObserverSubjectIDs";
+const char * const qti_prop_OBSERVER_MAP  = "qti.core.ObserverMap";
 
 //! Object Ownership Property
 /*!
@@ -126,24 +126,24 @@ Observer* obs = new Observer("My Observer","");
 QObject* obj = new QObject();
 obs->attachSubject(obj);
 
-QVariant current_ownership = obs->getObserverPropertyValue(obj,OBJECT_OWNERSHIP);
+QVariant current_ownership = obs->getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
 Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
 \endcode
 */
-const char * const OBJECT_OWNERSHIP              = "Qtilities.Core.Ownership";
+const char * const qti_prop_OWNERSHIP              = "qti.core.Ownership";
 
 //! %Observer Parent Property
 /*!
 When an object is attached to an observer using specific ownership this
 property will contain the observer ID of the parent observer.
 
-<b>Permisson:</b> Read/Write<br>
+<b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int, this int is the ObserverID of the observer parent.<br>
 <b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No
 */
-const char * const OBSERVER_PARENT        = "Qtilities.Core.ObserverParent";
+const char * const qti_prop_PARENT_ID        = "qti.core.ParentID";
 
 //! %Observer Limit Property
 /*!
@@ -157,14 +157,14 @@ the object to any observers and cannot be changed afterwards.
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> No<br>
 
-Below is an example of how to add the OBSERVER_LIMIT property to an object.
+Below is an example of how to add the qti_prop_OBSERVER_LIMIT property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty observer_limit_property(QVariant(1),OBSERVER_LIMIT);
+SharedObserverProperty observer_limit_property(QVariant(1),qti_prop_OBSERVER_LIMIT);
 Observer::setSharedProperty(obj, observer_limit_property);
 \endcode
 */
-const char * const OBSERVER_LIMIT         = "Qtilities.Core.ObserverLimit";
+const char * const qti_prop_OBSERVER_LIMIT         = "qti.core.ObserverLimit";
 
 //! %Observer Visitor ID Property
 /*!
@@ -177,7 +177,7 @@ Qtilities::Core::ObserverRelationalTable.
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> No<br>
 */
-const char * const OBSERVER_VISITOR_ID    = "Qtilities.Core.ObserverVisitorID";
+const char * const qti_prop_VISITOR_ID    = "qti.core.VisitorID";
 
 //! Object Limited Exports Property
 /*!
@@ -190,7 +190,7 @@ to make sure an object found multiple times in a tree is only exported once.
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 */
-const char * const OBJECT_LIMITED_EXPORTS   = "Qtilities.Core.ExcludeObj";
+const char * const qti_prop_LIMITED_EXPORTS   = "qti.core.ExcludeObj";
 
 //! Object Access Mode Property
 /*!
@@ -205,14 +205,14 @@ displayed.
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
-Below is an example of how to add the OBJECT_ACCESS_MODE property to an object.
+Below is an example of how to add the qti_prop_ACCESS_MODE property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty access_property(QVariant((int) Observer::ReadOnlyAccess),OBJECT_ACCESS_MODE);
+SharedObserverProperty access_property(QVariant((int) Observer::ReadOnlyAccess),qti_prop_ACCESS_MODE);
 Observer::setSharedProperty(obj, access_property);
 \endcode
 */
-const char * const OBJECT_ACCESS_MODE     = "Qtilities.Core.Access";
+const char * const qti_prop_ACCESS_MODE     = "qti.core.AccessMode";
 
 //! Object Category Property
 /*!
@@ -226,20 +226,20 @@ hint set to categorized hierarchy.
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> Yes<br>
 
-Below is an example of how to add the OBJECT_CATEGORY property to an object.
+Below is an example of how to add the qti_prop_CATEGORY_MAP property to an object.
 \code
 Observer* obs = new Observer("My Observer","Observer showing categories");
 obs->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
 
 QObject* obj = new QObject();
-ObserverProperty category_property(OBJECT_CATEGORY);
+ObserverProperty category_property(qti_prop_CATEGORY_MAP);
 category_property.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),obs->observerID());
 Observer::setObserverProperty(obj,category_property);
 
 obs->attachSubject(obj);
 \endcode
 */
-const char * const OBJECT_CATEGORY        = "Qtilities.Core.Category";
+const char * const qti_prop_CATEGORY_MAP        = "qti.core.CategoryMap";
 
 //! Object Name Property
 /*!
@@ -260,12 +260,12 @@ Below is an example of how you can create a new name for an object. An alternati
 is to get the property, change it and add it again to the object. Both approaches yields the
 same result.
 \code
-SharedObserverProperty new_subject_name_property(QVariant(new_name),OBJECT_NAME);
+SharedObserverProperty new_subject_name_property(QVariant(new_name),qti_prop_NAME);
 new_subject_name_property.setIsExportable(false);
 Observer::setSharedProperty(obj,new_subject_name_property);
 \endcode
 */
-const char * const OBJECT_NAME            = "Qtilities.NamingPolicyFilter.ObjectName";
+const char * const qti_prop_NAME            = "qti.filters.Name";
 
 //! Object Name Manager ID Property
 /*!
@@ -279,7 +279,7 @@ see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 */
-const char * const OBJECT_NAME_MANAGER_ID = "Qtilities.NamingPolicyFilter.ObjectNameManagerID";
+const char * const qti_prop_NAME_MANAGER_ID = "qti.filters.NameManagerID";
 
 //! Instance Names Property
 /*!
@@ -292,7 +292,7 @@ names see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> Yes<br>
 */
-const char * const INSTANCE_NAMES         = "Qtilities.NamingPolicyFilter.InstanceNames";
+const char * const qti_prop_ALIAS_MAP         = "qti.filters.AliasMap";
 
 //! Object Activity Property
 /*!
@@ -305,7 +305,7 @@ filters installed, this property holds the activity for each of those contexts
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> Yes<br>
 */
-const char * const OBJECT_ACTIVITY        = "Qtilities.ActivityPolicyFilter.Activity";
+const char * const qti_prop_ACTIVITY_MAP        = "qti.filters.ActivityMap";
 
 // -------------------------------------------------------
 // Object Role Properties:
@@ -324,11 +324,11 @@ const char * const OBJECT_ACTIVITY        = "Qtilities.ActivityPolicyFilter.Acti
 Below is an example of how to add the OBJECT_TOOLTIP property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Tooltip Text",OBJECT_ROLE_TOOLTIP);
+SharedObserverProperty property("Tooltip Text",qti_prop_TOOLTIP);
 Observer::setSharedProperty(obj,property);
 \endcode
 */
-const char * const OBJECT_ROLE_TOOLTIP            = "Qtilities.Core.Object.Role.Tooltip";
+const char * const qti_prop_TOOLTIP            = "qti.role.Tooltip";
 
 //! Object Decoration Role Property
 /*!
@@ -343,11 +343,11 @@ const char * const OBJECT_ROLE_TOOLTIP            = "Qtilities.Core.Object.Role.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QVariant(QIcon(QString(":/icon_name.png"))),OBJECT_ROLE_DECORATION);
+SharedObserverProperty property(QVariant(QIcon(QString(":/icon_name.png"))),qti_prop_DECORATION);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_DECORATION            = "Qtilities.Core.Object.Role.Decoration";
+const char * const qti_prop_DECORATION            = "qti.role.Decoration";
 
 //! Object Whats This Role Property
 /*!
@@ -363,11 +363,11 @@ for the Qt::WhatsThisRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Whats This Text",OBJECT_ROLE_WHATS_THIS);
+SharedObserverProperty property("Whats This Text",qti_prop_WHATS_THIS);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_WHATS_THIS            = "Qtilities.Core.Object.Role.WhatsThis";
+const char * const qti_prop_WHATS_THIS            = "qti.role.WhatsThis";
 
 //! Object Status Tip Role Property
 /*!
@@ -383,11 +383,11 @@ for the Qt::StatusTipRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Whats This Text",OBJECT_ROLE_STATUSTIP);
+SharedObserverProperty property("Whats This Text",qti_prop_STATUSTIP);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_STATUSTIP            = "Qtilities.Core.Object.Role.StatusTip";
+const char * const qti_prop_STATUSTIP            = "qti.role.StatusTip";
 
 //! Object Size Hint Role Property
 /*!
@@ -403,11 +403,11 @@ for the Qt::SizeHintRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QSize(10,10),OBJECT_ROLE_SIZE_HINT);
+SharedObserverProperty property(QSize(10,10),qti_prop_SIZE_HINT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_SIZE_HINT            = "Qtilities.Core.Object.Role.SizeHint";
+const char * const qti_prop_SIZE_HINT            = "qti.role.SizeHint";
 
 //! Object Font Role Property
 /*!
@@ -423,11 +423,11 @@ for the Qt::FontRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QFont("Arial"),OBJECT_ROLE_FONT);
+SharedObserverProperty property(QFont("Arial"),qti_prop_FONT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_FONT                 = "Qtilities.Core.Object.Role.Font";
+const char * const qti_prop_FONT                 = "qti.role.Font";
 
 //! Object Text Alignment Property
 /*!
@@ -443,11 +443,11 @@ for the Qt::TextAlignmentRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property((int) Qt::AlignLeft,OBJECT_ROLE_TEXT_ALIGNMENT);
+SharedObserverProperty property((int) Qt::AlignLeft,qti_prop_TEXT_ALIGNMENT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_TEXT_ALIGNMENT       = "Qtilities.Core.Object.Role.TextAlignment";
+const char * const qti_prop_TEXT_ALIGNMENT       = "qti.role.TextAlignment";
 
 //! Object Background Role Property
 /*!
@@ -463,11 +463,11 @@ for the Qt::BackgroundRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QBrush(Qt::NoBrush),OBJECT_ROLE_BACKGROUND);
+SharedObserverProperty property(QBrush(Qt::NoBrush),qti_prop_BACKGROUND);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_BACKGROUND       = "Qtilities.Core.Object.Role.Background";
+const char * const qti_prop_BACKGROUND       = "qti.role.Background";
 
 //! Object Foreground Role Property
 /*!
@@ -483,11 +483,11 @@ for the Qt::ForegroundRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QBrush(Qt::NoBrush),OBJECT_ROLE_FOREGROUND);
+SharedObserverProperty property(QBrush(Qt::NoBrush),qti_prop_FOREGROUND);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
-const char * const OBJECT_ROLE_FOREGROUND       = "Qtilities.Core.Object.Role.Foreground";
+const char * const qti_prop_FOREGROUND       = "qti.role.Foreground";
 
         }
     }

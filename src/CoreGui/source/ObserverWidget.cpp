@@ -240,7 +240,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->display_mode = display_mode;
     d->hints_default = new ObserverHints(this);
 
-    setWindowIcon(QIcon(ICON_QTILITIES_SYMBOL_WHITE_16x16));
+    setWindowIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_16x16));
     ui->widgetSearchBox->hide();
 
     // Assign a default meta type for this widget:
@@ -280,7 +280,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
     d->display_mode = display_mode;
     d->hints_default = new ObserverHints(this);
 
-    setWindowIcon(QIcon(ICON_QTILITIES_SYMBOL_WHITE_16x16));
+    setWindowIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_16x16));
     ui->widgetSearchBox->hide();
 
     // Assign a default meta type for this widget:
@@ -473,7 +473,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         d->hints_selection_parent = d_observer->displayHints();
 
         // Check if we must connect to the paste action for the new hints:
-        Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+        Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
         if (command) {
             if (command->action()) {
                 if (activeHints()->actionHints() & ObserverHints::ActionPasteItem)
@@ -1150,39 +1150,39 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // ---------------------------
     // New Item
     // ---------------------------
-    d->actionNewItem = new QAction(QIcon(ICON_NEW_16x16),tr("New Item"),this);
+    d->actionNewItem = new QAction(QIcon(qti_icon_NEW_16x16),tr("New Item"),this);
     d->actionNewItem->setShortcut(QKeySequence("+"));
     connect(d->actionNewItem,SIGNAL(triggered()),SLOT(handle_actionNewItem_triggered()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_NEW_ITEM,d->actionNewItem,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_NEW_ITEM,d->actionNewItem,context);
     d->action_provider->addAction(d->actionNewItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Remove Item
     // ---------------------------
-    d->actionRemoveItem = new QAction(QIcon(ICON_REMOVE_ONE_16x16),tr("Detach Selection"),this);
+    d->actionRemoveItem = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),tr("Detach Selection"),this);
     connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(selectionDetach()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
     d->action_provider->addAction(d->actionRemoveItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Delete Item
     // ---------------------------
-    d->actionDeleteItem = new QAction(QIcon(ICON_DELETE_ONE_16x16),tr("Delete Selection"),this);
+    d->actionDeleteItem = new QAction(QIcon(qti_icon_DELETE_ONE_16x16),tr("Delete Selection"),this);
     d->actionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(selectionDelete()));
-    ACTION_MANAGER->registerAction(MENU_SELECTION_DELETE,d->actionDeleteItem,context);
+    ACTION_MANAGER->registerAction(qti_action_SELECTION_DELETE,d->actionDeleteItem,context);
     d->action_provider->addAction(d->actionDeleteItem,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Remove All
     // ---------------------------    
-    d->actionRemoveAll = new QAction(QIcon(ICON_REMOVE_ALL_16x16),tr("Deatch All Children"),this);
+    d->actionRemoveAll = new QAction(QIcon(qti_icon_REMOVE_ALL_16x16),tr("Deatch All Children"),this);
     connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(selectionDetachAll()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
     d->action_provider->addAction(d->actionRemoveAll,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Delete All
     // ---------------------------
-    d->actionDeleteAll = new QAction(QIcon(ICON_DELETE_ALL_16x16),tr("Delete All Children"),this);
+    d->actionDeleteAll = new QAction(QIcon(qti_icon_DELETE_ALL_16x16),tr("Delete All Children"),this);
     connect(d->actionDeleteAll,SIGNAL(triggered()),SLOT(selectionDeleteAll()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
     d->action_provider->addAction(d->actionDeleteAll,QtilitiesCategory(tr("Items")));
     // ---------------------------
     // Switch View
@@ -1190,70 +1190,70 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionSwitchView = new QAction(QIcon(),tr("Switch View"),this);
     d->actionSwitchView->setShortcut(QKeySequence("F4"));
     connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(toggleDisplayMode()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
     d->action_provider->addAction(d->actionSwitchView,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Refresh View
     // ---------------------------
-    d->actionRefreshView = new QAction(QIcon(ICON_REFRESH_16x16),tr("Refresh View"),this);
+    d->actionRefreshView = new QAction(QIcon(qti_icon_REFRESH_16x16),tr("Refresh View"),this);
     connect(d->actionRefreshView,SIGNAL(triggered()),SLOT(refresh()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
     d->action_provider->addAction(d->actionRefreshView,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Find Item
     // ---------------------------
-    d->actionFindItem = new QAction(QIcon(ICON_FIND_16x16),tr("Find"),this);
+    d->actionFindItem = new QAction(QIcon(qti_icon_FIND_16x16),tr("Find"),this);
     d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
     connect(d->actionFindItem,SIGNAL(triggered()),SLOT(toggleSearchBox()));
-    ACTION_MANAGER->registerAction(MENU_EDIT_FIND,d->actionFindItem,context);
+    ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFindItem,context);
     d->action_provider->addAction(d->actionFindItem,QtilitiesCategory(tr("View")));
     // ---------------------------
     // Go To Parent
     // ---------------------------
-    d->actionPushUp = new QAction(QIcon(ICON_PUSH_UP_CURRENT_16x16),tr("Go To Parent"),this);
+    d->actionPushUp = new QAction(QIcon(qti_icon_PUSH_UP_CURRENT_16x16),tr("Go To Parent"),this);
     d->actionPushUp->setShortcut(QKeySequence("Left"));
     connect(d->actionPushUp,SIGNAL(triggered()),SLOT(selectionPushUp()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
     d->action_provider->addAction(d->actionPushUp,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Go To Parent In New Window
     // ---------------------------
-    d->actionPushUpNew = new QAction(QIcon(ICON_PUSH_UP_NEW_16x16),tr("Go To Parent (New Window)"),this);
+    d->actionPushUpNew = new QAction(QIcon(qti_icon_PUSH_UP_NEW_16x16),tr("Go To Parent (New Window)"),this);
     connect(d->actionPushUpNew,SIGNAL(triggered()),SLOT(selectionPushUpNew()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
     d->action_provider->addAction(d->actionPushUpNew,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Push Down
     // ---------------------------
-    d->actionPushDown = new QAction(QIcon(ICON_PUSH_DOWN_CURRENT_16x16),tr("Push Down"),this);
+    d->actionPushDown = new QAction(QIcon(qti_icon_PUSH_DOWN_CURRENT_16x16),tr("Push Down"),this);
     d->actionPushDown->setShortcut(QKeySequence("Right"));
     connect(d->actionPushDown,SIGNAL(triggered()),SLOT(selectionPushDown()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
     d->action_provider->addAction(d->actionPushDown,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Push Down In New Window
     // ---------------------------
-    d->actionPushDownNew = new QAction(QIcon(ICON_PUSH_DOWN_NEW_16x16),tr("Push Down (New Window)"),this);
+    d->actionPushDownNew = new QAction(QIcon(qti_icon_PUSH_DOWN_NEW_16x16),tr("Push Down (New Window)"),this);
     connect(d->actionPushDownNew,SIGNAL(triggered()),SLOT(selectionPushDownNew()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
     d->action_provider->addAction(d->actionPushDownNew,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Expand All
     // ---------------------------
-    d->actionExpandAll = new QAction(QIcon(ICON_MAGNIFY_PLUS_16x16),tr("Expand All"),this);
+    d->actionExpandAll = new QAction(QIcon(qti_icon_MAGNIFY_PLUS_16x16),tr("Expand All"),this);
     d->actionExpandAll->setObjectName("Expand All");
     d->actionExpandAll->setShortcut(QKeySequence("Ctrl+>"));
     connect(d->actionExpandAll,SIGNAL(triggered()),SLOT(viewExpandAll()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
     d->action_provider->addAction(d->actionExpandAll,QtilitiesCategory(tr("Hierarchy")));
     // ---------------------------
     // Collapse All
     // ---------------------------
-    d->actionCollapseAll = new QAction(QIcon(ICON_MAGNIFY_MINUS_16x16),tr("Collapse All"),this);
+    d->actionCollapseAll = new QAction(QIcon(qti_icon_MAGNIFY_MINUS_16x16),tr("Collapse All"),this);
     d->actionCollapseAll->setObjectName("Collapse All");
     d->actionCollapseAll->setShortcut(QKeySequence("Ctrl+<"));
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(viewCollapseAll()));
-    ACTION_MANAGER->registerAction(MENU_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
+    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
     d->action_provider->addAction(d->actionCollapseAll,QtilitiesCategory(tr("Hierarchy")));
 }
 
@@ -1343,7 +1343,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 
     // Navigating Up/Down Actions
     if (d->display_mode == TableView) {
-        d->actionSwitchView->setIcon(QIcon(ICON_TREE_16x16));
+        d->actionSwitchView->setIcon(QIcon(qti_icon_TREE_16x16));
         if (d->navigation_stack.count() == 0) {
             d->actionPushUp->setEnabled(false);
             d->actionPushUpNew->setEnabled(false);
@@ -1372,7 +1372,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             }
         }
     } else {
-        d->actionSwitchView->setIcon(QIcon(ICON_TABLE_16x16));
+        d->actionSwitchView->setIcon(QIcon(qti_icon_TABLE_16x16));
         d->actionCollapseAll->setVisible(true);
         d->actionExpandAll->setVisible(true);
         d->actionCollapseAll->setEnabled(true);
@@ -1457,7 +1457,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     }
 
                     // Can only delete or remove an item if its category is not const:
-                    QtilitiesCategory category = d_observer->getObserverPropertyValue(d->current_selection.at(0),OBJECT_CATEGORY).value<QtilitiesCategory>();
+                    QtilitiesCategory category = d_observer->getObserverPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
                     Observer::AccessMode access_mode = d_observer->accessMode(category);
                     if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
                         d->actionDeleteItem->setEnabled(false);
@@ -1479,7 +1479,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 
                 // Can only delete or remove an item if it's category is not const:
                 if (selectionParent()) {
-                    QtilitiesCategory category = selectionParent()->getObserverPropertyValue(d->current_selection.at(0),OBJECT_CATEGORY).value<QtilitiesCategory>();
+                    QtilitiesCategory category = selectionParent()->getObserverPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
                     Observer::AccessMode access_mode = selectionParent()->accessMode(category);
                     if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
                         d->actionDeleteItem->setEnabled(false);
@@ -2457,7 +2457,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             // ---------------------------
             // The copy action is not a multi context action. It's enabled/disabled depending on the state of the application
             // clipboard. Thus we just connect to the paste action here and check the observer flag in the paste slot.
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_COPY);
+            Command* command = ACTION_MANAGER->command(qti_action_EDIT_COPY);
             if (command) {
                 if (command->action()) {
                     command->action()->setEnabled(true);
@@ -2472,7 +2472,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             // ---------------------------
             // The cut action is not a multi context action. It's enabled/disabled depending on the state of the application
             // clipboard. Thus we just connect to the paste action here and check the observer flag in the paste slot.
-            Command* command = ACTION_MANAGER->command(MENU_EDIT_CUT);
+            Command* command = ACTION_MANAGER->command(qti_action_EDIT_CUT);
             if (command) {
                 if (command->action()) {
                     command->action()->setEnabled(true);
@@ -2514,7 +2514,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::disconnectClipboard() {
-    Command* command = ACTION_MANAGER->command(MENU_EDIT_COPY);
+    Command* command = ACTION_MANAGER->command(qti_action_EDIT_COPY);
     if (command) {
         if (command->action()) {
             command->action()->setEnabled(false);
@@ -2522,7 +2522,7 @@ void Qtilities::CoreGui::ObserverWidget::disconnectClipboard() {
         }
     }
 
-    command = ACTION_MANAGER->command(MENU_EDIT_CUT);
+    command = ACTION_MANAGER->command(qti_action_EDIT_CUT);
     if (command) {
         if (command->action()) {
             command->action()->setEnabled(false);
@@ -2942,7 +2942,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         if (object == d->table_view && event->type() == QEvent::FocusIn) {
             // Connect to the paste action
             if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
-                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
                 if (command) {
                     if (command->action())
                         connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
@@ -2961,7 +2961,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         } else if (object == d->table_view && event->type() == QEvent::FocusOut) {
             // Disconnect the paste action from the this widget.
             if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
-                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
                 if (command) {
                     if (command->action())
                         command->action()->disconnect(this);
@@ -2981,7 +2981,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
 
             // Connect to the paste action
             if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
-                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
                 if (command) {
                     if (command->action())
                         connect(command->action(),SIGNAL(triggered()),SLOT(handle_actionPaste_triggered()));
@@ -3000,7 +3000,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         } else if (object == d->tree_view && event->type() == QEvent::FocusOut) {
             if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
                 // Disconnect the paste action from the this widget.
-                Command* command = ACTION_MANAGER->command(MENU_EDIT_PASTE);
+                Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
                 if (command) {
                     if (command->action())
                         command->action()->disconnect(this);
@@ -3152,7 +3152,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         // We check if the event is a QtilitiesPropertyChangeEvent.
         QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
         if (qtilities_event) {
-            if (!strcmp(qtilities_event->propertyName().data(),OBSERVER_SUBJECT_IDS)) {
+            if (!strcmp(qtilities_event->propertyName().data(),qti_prop_OBSERVER_MAP)) {
                 // This implementation can be improved in the future. For now we don't care if the change affects this view.
                 // We just close this window.
                 contextDeleted();

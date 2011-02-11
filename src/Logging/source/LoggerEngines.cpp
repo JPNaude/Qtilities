@@ -80,7 +80,7 @@ bool Qtilities::Logging::FileLoggerEngine::initialize() {
         AbstractFormattingEngine* formatting_engine_inst = Log->formattingEngineReferenceFromExtension(extension);
         if (!formatting_engine_inst) {
             // We assign a default formatting engine:
-            abstractLoggerEngineData->formatting_engine = Log->formattingEngineReference(FORMATTING_ENGINE_DEFAULT);
+            abstractLoggerEngineData->formatting_engine = Log->formattingEngineReference(qti_def_FORMATTING_ENGINE_DEFAULT);
             LOG_INFO(QString(tr("Assigning default formatting engine to file logger engine (%1).").arg(objectName())));
         } else {
             abstractLoggerEngineData->formatting_engine = formatting_engine_inst;

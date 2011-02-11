@@ -99,7 +99,7 @@ Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig(
 }
 
 QIcon Qtilities::ProjectManagement::ProjectManagementConfig::configPageIcon() const {
-    return QIcon(ICON_CONFIG_PROJECTS_48x48);
+    return QIcon(qti_icon_CONFIG_PROJECTS_48x48);
 }
 
 QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget() {

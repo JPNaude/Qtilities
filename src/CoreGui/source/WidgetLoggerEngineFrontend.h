@@ -50,7 +50,7 @@ using namespace Qtilities::Core::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
-        struct WidgetLoggerEngineFrontendData;
+        struct WidgetLoggerEngineFrontendPrivateData;
         using namespace Qtilities::Core::Interfaces;
 
         /*!
@@ -121,7 +121,7 @@ namespace Qtilities {
         private:
             void constructActions();
 
-            WidgetLoggerEngineFrontendData* d;
+            WidgetLoggerEngineFrontendPrivateData* d;
         };
     }
 }

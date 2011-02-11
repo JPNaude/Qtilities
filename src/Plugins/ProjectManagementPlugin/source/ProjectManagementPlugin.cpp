@@ -56,8 +56,8 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::ProjectManagement;
 using namespace Qtilities::Plugins::ProjectManagement::Constants;
 
-struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
-    ProjectManagementPluginData() : actionProjectNew(0),
+struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginPrivateData {
+    ProjectManagementPluginPrivateData() : actionProjectNew(0),
     actionProjectOpen(0),
     actionProjectClose(0),
     actionProjectSave(0),
@@ -75,7 +75,7 @@ struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginData {
 };
 
 Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagementPlugin(QObject* parent) : QObject(parent) {
-    d = new ProjectManagementPluginData;
+    d = new ProjectManagementPluginPrivateData;
     setObjectName(pluginName());
     connect(PROJECT_MANAGER,SIGNAL(modificationStateChanged(bool)),SLOT(handle_projectStateChanged()));
 }
@@ -91,10 +91,10 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // Create and add project management actions:
     // Add project menu items
     bool existed;
-    ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
     // We construct each action and then register it
     QList<int> context;
-    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
     // ---------------------------
     // New Project
@@ -102,24 +102,24 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectNew = new QAction(QIcon(),tr("New Project"),this);
     d->actionProjectNew->setShortcut(QKeySequence(QKeySequence::New));
     connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
-    Command* command = ACTION_MANAGER->registerAction(MENU_PROJECTS_NEW,d->actionProjectNew,context);
-    file_menu->addAction(command,MENU_FILE_SETTINGS);
+    Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_NEW,d->actionProjectNew,context);
+    file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Open Project
     // ---------------------------
     d->actionProjectOpen = new QAction(QIcon(),tr("Open Project"),this);
     d->actionProjectOpen->setShortcut(QKeySequence(QKeySequence::Open));
     connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
-    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_OPEN,d->actionProjectOpen,context);
-    file_menu->addAction(command,MENU_FILE_SETTINGS);
+    command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_OPEN,d->actionProjectOpen,context);
+    file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Close Project
     // ---------------------------
     d->actionProjectClose = new QAction(QIcon(),tr("Close Project"),this);
     d->actionProjectClose->setEnabled(false);
     connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
-    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_CLOSE,d->actionProjectClose,context);
-    file_menu->addAction(command,MENU_FILE_SETTINGS);
+    command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_CLOSE,d->actionProjectClose,context);
+    file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Save Project
     // ---------------------------
@@ -127,8 +127,8 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSave->setEnabled(false);
     d->actionProjectSave->setShortcut(QKeySequence(QKeySequence::Save));
     connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
-    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE,d->actionProjectSave,context);
-    file_menu->addAction(command,MENU_FILE_SETTINGS);
+    command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE,d->actionProjectSave,context);
+    file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Save Project As
     // ---------------------------
@@ -136,9 +136,9 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSaveAs->setEnabled(false);
     d->actionProjectSaveAs->setShortcut(QKeySequence(QKeySequence::SaveAs));
     connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
-    command = ACTION_MANAGER->registerAction(MENU_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
-    file_menu->addAction(command,MENU_FILE_SETTINGS);
-    file_menu->addSeperator(MENU_FILE_SETTINGS);
+    command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
+    file_menu->addAction(command,qti_action_FILE_SETTINGS);
+    file_menu->addSeperator(qti_action_FILE_SETTINGS);
 
     // Register project management config page.
     OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
@@ -167,7 +167,7 @@ QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin
 }
 
 double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(QTILITIES_VERSION_MAJOR).arg(QTILITIES_VERSION_MINOR).arg(QTILITIES_VERSION_REVISION)).toDouble();
+    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
 }
 
 QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {
