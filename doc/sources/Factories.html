@@ -1,1 +1,228 @@
-/**\page page_factories Factories<table CELLPADDING=0 style="width:100%;  table-layout:fixed;	margin:0px 0px 0px 0px;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;"><tr> <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left"><h1 style="margin:0px; padding:0px">Overview</h1>The C++ factory pattern is a powerful tool which can be used to create objects using only a tag such as a string. The %Qtilities libraries provides an advanced factory pattern implementation which allows the developer to easily create factories, and to manage multiple factories in an application.Table of contents:- \ref creating_factories  - \ref example_factory  - \ref factories_identifying_items  .- \ref managing_factories  - \ref ifactory_interface  - \ref managing_ifactory_providers  - \ref bringing_together  - \ref factory_iexportable_relationship    - \ref factory_debugging  .</td><td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;"><table style="table-layout:auto;	margin:0px 0px 0px 0px;   width: 100%;	border-width:0px 0px 0px 0px; 	border-color:#7F7F7F;  background-color: #d1d3d4;"><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">First Steps</h2></td></tr><tr><td>- <a href="page_getting_started.html">Getting Started</a><br>- <a href="page_the_basics.html">The Basics</a><br>- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br></td></tr><tr><td style="background-color: #5a5c5e; text-align: center"><h2 style ="color:#FFFFFF">Overviews</h2></td></tr><tr><td>- <a href="page_action_management.html">Action Management</a><br>- <a href="page_extension_system.html">Extension System</a><br>- <a href="page_factories.html">Factories</a><br>- <a href="page_logging.html">Logging</a><br>- <a href="page_modules_overview.html">Modules</a><br>- <a href="page_object_management.html">Object Management</a><br>- <a href="page_observers.html">Observers</a><br>- <a href="page_observer_widgets.html">Observer Widgets</a><br>- <a href="page_project_management.html">Project Management</a><br>- <a href="page_tree_structures.html">Building Trees</a><br>- <a href="page_widget_set.html">Widget Set</a><br></td></tr></table></td></tr></table>\section creating_factories Creating factoriesWhen creating factories there are a few classes that come into play. Lets look at each of these classes:- Qtilities::Core::Factory : A class which can produce class instances.- Qtilities::Core::FactoryInterface : Class defining the interface used by the Factory class.- Qtilities::Core::FactoryItem : An implementation of the FactoryInterface interface used by objects we want to be able to produce.- Qtilities::Core::FactoryItemID : A struct used to identify a factory interface registered within a factory.The image below provides a visualization of the interaction between these classes.\image html factory_classes.jpg "Factory Creation Classes"\subsection example_factory Basic usage of the factory implementationThe factory implementation is best described by an example. In the example we have a base class \p ExampleBase which is the base class used by the factory. \p ProduceMe is the class which is registered in the factory and it is able to produce instances of \p ProduceMe.\code// --------------------------------------------// The following goes into your header file, lets say ProduceMe.h// --------------------------------------------#include <QtilitiesCore>// Be careful of namespace pollution, this is just an example.using namespace QtilitiesCore;// Base class:class ExampleBase {    ExampleBase() {}    virtual ~ExampleBase() {}}// ProduceMe class derived from ExampleBase:class ProduceMe : public ExampleBase {    ProduceMe() : ExampleBase() {}    ~ProduceMe() {}    // Make this class a factory item:    static FactoryItem<ExampleBase, ProduceMe> factory;}// --------------------------------------------// The following goes into ProduceMe.cpp// --------------------------------------------FactoryItem<ExampleBase, ProduceMe> ProduceMe::factory;// --------------------------------------------// You can now produce instances of the ProduceMe class as follows:// --------------------------------------------Factory<ExampleBase> exampleFactory;FactoryItemID produce_me_id("Example Tag");exampleFactory.registerFactoryInterface(&ProduceMe::factory,produce_me_id);// We can create instances of ProduceMe as follows:ExampleBase* base_inst = exampleFactory.createInstance(produce_me_id.tag);ProduceMe* produceMe_inst = qobject_cast<ProduceMe*> (base_inst);\endcode\subsection factories_identifying_items Identifying items within a factoryIn the example above we used the Qtilities::Core::FactoryItemID struct which contains all the information necessary to register and create a specific instance in the factory. This structure has the ability to not only define a tag which can be used to produce the object, it can also provide other information along with the tag. Lets take a look at the information it provides for each factory interface registered:- Interface Tag: The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.- Interface Category: The category to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.- Interface Contexts: A list of contexts which must be associated with this interface.To produce the object only the tag is required, but to group factory interfaces properly the other fields can be used.\section managing_factories Managing factoriesAs an application gets bigger there is often a need for multiple factories. When managing factories there's a different set of classes that come into play. Lets look at each of these classes:- Qtilities::Core::Interfaces::IFactoryProvider : An interface exposing a set of factories.- Qtilities::Core::InstanceFactoryInfo : A struct used to identify a factory interface registered within a factory exposed by an object implementing IFactoryProvider.- Qtilities::Core::ObjectManager : The object manager class which is used in many other places in %Qtilities as well. Used to register objects which implements the IFactoryProvider interface.While reading through this section it is important to note that the factory management classes can be used with any factory implementation. It is not necessary to use the %Qtilities factory classes in order to use the factory management classes.\subsection ifactory_interface The IFactoryProvider interfaceThe goal of the factory provider interface is to expose a set of factories and can be implemented by any object which wish to expose one or more factories to the rest of the application. The image below visualizes this concept.\image html factory_management.jpg "The Factory Provider Concept" The image above shows the functions which can be used to query factories exposed through the interface.\subsection managing_ifactory_providers Managing multiple IFactoryProvider instancesImplementations of the IFactoryProvider interface can be registered in the object manager using the Qtilities::Core::Interfaces::IObjectManager::registerIFactoryProvider() function. Once registered, it is possible to obtain the factory provider interface which contains a specific factory using the Qtilities::Core::Interfaces::IObjectManager::referenceIFactoryProvider() function.\image html object_manager_ifactoryprovider.jpg "Managing Multiple IFactoryProviders"\subsection bringing_together Bringing it all together: The InstanceFactoryInfo structWhen looking closely at the previous sections, it is observed that we need the following information to create an instance of an object in a factory exposed through the IFactoryProvider interface:- The name of the factory.- The tag associated with the factory interface which can produce the object.The Qtilities::Core::InstanceFactoryInfo struct was created for this exact reason. It provides all the information needed to locate the needed factory through the object manager, as well as the tag to use in that factory.\subsection factory_iexportable_relationship The IExportable interface, what does it have to do with factories?As discussed in the previous section, a Qtilities::Core::InstanceFactoryInfo object contains all the information needed to construct an object somewhere in a factory exposed to the object manager. For this reason any object implementing the Qtilities::Core::Interfaces::IExportable interface must provide an InstanceFactoryInfo object. This way we can reconstruct the object during import operations on the interface. The InstanceFactoryInfo class has constructors for all of the export formats provided by the IExportable interface for this reason. This gets us to a very important point: When implementing the IExportable interface, the first thing that must be added to the export object (whether it is a QDataStream during binary exporting, or a QDomElement during XML exporting) is the information contained by InstanceFactoryInfo. During import we get this information, construct the object and then pass the import object to the reconstructed object.\subsection qtilities_factory Ready to use factory and factory classesThe object manager provides a ready to use factory, called the %Qtilities factory in the documentation and by Qtilities::Core::Constants::FACTORY_QTILITIES name in the %Qtilities sources. This factory can produce any QObject based class for which a factory interface was registered in the object manager. Many of the %Qtilities classes are registered by default and can be produced using this factory (See \ref factory_debugging).Lets look at an example where we create change the \p ProduceMe class in the above example. We make it QObject based, register it in the factory and then produce it:\code// --------------------------------------------// The following goes into your header file, lets say ProduceMe.h// --------------------------------------------// ProduceMe class derived from QObject:class ProduceMe : public QObject {    ProduceMe(Qbject* parent = 0) : QObject(parent) {}    ~ProduceMe() {}    // Make this class a factory item:    static FactoryItem<QObject, ProduceMe> factory;}// --------------------------------------------// The following goes into ProduceMe.cpp// --------------------------------------------FactoryItem<QObject, ProduceMe> ProduceMe::factory;// --------------------------------------------// In the application code:// --------------------------------------------// Register ProduceMe in the Qtilities factory:FactoryItemID produce_me_id("Example Tag");OBJECT_MANAGER->registerFactoryInterface(&ProduceMe::factory,produce_me_id);// Now we can produce it as follows:InstanceFactoryInfo instance_factory_info(FACTORY_QTILITIES,produce_me_id.tag,"ObjectNameWhenCreated");IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instance_factory_info.d_factory_tag);if (ifactory) {    QObject* obj = ifactory->createInstance(instance_factory_info);    obj->setObjectName(instance_factory_info.d_instance_name);    ProduceMe* produceMe_inst = qobject_cast<ProduceMe*> (obj);   }\endcode\subsection factory_debugging Visual overview of factories using the Debug pluginThe Qtilities::Plugins::Debug plugin provides a visual overview of the factory provider interfaces registered in the object manager as well as the tags in each interface. This is shown in the image below:\image html factory_debugging.jpg "Factory Overview Using Debug Plugin"*/
+/**
+\page page_factories Factories
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+The C++ factory pattern is a powerful tool which can be used to create objects using only a tag such as a string. The %Qtilities libraries provides an advanced factory pattern implementation which allows the developer to easily create factories, and to manage multiple factories in an application.
+
+Table of contents:
+- \ref creating_factories
+  - \ref example_factory
+  - \ref factories_identifying_items
+  .
+- \ref managing_factories
+  - \ref ifactory_interface
+  - \ref managing_ifactory_providers
+  - \ref bringing_together
+  - \ref factory_iexportable_relationship  
+  - \ref factory_debugging
+  .
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section creating_factories Creating factories
+
+When creating factories there are a few classes that come into play. Lets look at each of these classes:
+
+- Qtilities::Core::Factory : A class which can produce class instances.
+- Qtilities::Core::FactoryInterface : Class defining the interface used by the Factory class.
+- Qtilities::Core::FactoryItem : An implementation of the FactoryInterface interface used by objects we want to be able to produce.
+- Qtilities::Core::FactoryItemID : A struct used to identify a factory interface registered within a factory.
+
+The image below provides a visualization of the interaction between these classes.
+
+\image html factory_classes.jpg "Factory Creation Classes"
+
+\subsection example_factory Basic usage of the factory implementation
+
+The factory implementation is best described by an example. In the example we have a base class \p ExampleBase which is the base class used by the factory. \p ProduceMe is the class which is registered in the factory and it is able to produce instances of \p ProduceMe.
+
+\code
+// --------------------------------------------
+// The following goes into your header file, lets say ProduceMe.h
+// --------------------------------------------
+#include <QtilitiesCore>
+// Be careful of namespace pollution, this is just an example.
+using namespace QtilitiesCore;
+
+// Base class:
+class ExampleBase {
+    ExampleBase() {}
+    virtual ~ExampleBase() {}
+}
+
+// ProduceMe class derived from ExampleBase:
+class ProduceMe : public ExampleBase {
+    ProduceMe() : ExampleBase() {}
+    ~ProduceMe() {}
+
+    // Make this class a factory item:
+    static FactoryItem<ExampleBase, ProduceMe> factory;
+}
+
+// --------------------------------------------
+// The following goes into ProduceMe.cpp
+// --------------------------------------------
+FactoryItem<ExampleBase, ProduceMe> ProduceMe::factory;
+
+// --------------------------------------------
+// You can now produce instances of the ProduceMe class as follows:
+// --------------------------------------------
+Factory<ExampleBase> exampleFactory;
+FactoryItemID produce_me_id("Example Tag");
+exampleFactory.registerFactoryInterface(&ProduceMe::factory,produce_me_id);
+
+// We can create instances of ProduceMe as follows:
+ExampleBase* base_inst = exampleFactory.createInstance(produce_me_id.tag);
+ProduceMe* produceMe_inst = qobject_cast<ProduceMe*> (base_inst);
+\endcode
+
+\subsection factories_identifying_items Identifying items within a factory
+
+In the example above we used the Qtilities::Core::FactoryItemID struct which contains all the information necessary to register and create a specific instance in the factory. This structure has the ability to not only define a tag which can be used to produce the object, it can also provide other information along with the tag. Lets take a look at the information it provides for each factory interface registered:
+
+- Interface Tag: The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.
+- Interface Category: The category to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
+- Interface Contexts: A list of contexts which must be associated with this interface.
+
+To produce the object only the tag is required, but to group factory interfaces properly the other fields can be used.
+
+\section managing_factories Managing factories
+
+As an application gets bigger there is often a need for multiple factories. When managing factories there's a different set of classes that come into play. Lets look at each of these classes:
+
+- Qtilities::Core::Interfaces::IFactoryProvider : An interface exposing a set of factories.
+- Qtilities::Core::InstanceFactoryInfo : A struct used to identify a factory interface registered within a factory exposed by an object implementing IFactoryProvider.
+- Qtilities::Core::ObjectManager : The object manager class which is used in many other places in %Qtilities as well. Used to register objects which implements the IFactoryProvider interface.
+
+While reading through this section it is important to note that the factory management classes can be used with any factory implementation. It is not necessary to use the %Qtilities factory classes in order to use the factory management classes.
+
+\subsection ifactory_interface The IFactoryProvider interface
+
+The goal of the factory provider interface is to expose a set of factories and can be implemented by any object which wish to expose one or more factories to the rest of the application. The image below visualizes this concept.
+
+\image html factory_management.jpg "The Factory Provider Concept" 
+
+The image above shows the functions which can be used to query factories exposed through the interface.
+
+\subsection managing_ifactory_providers Managing multiple IFactoryProvider instances
+
+Implementations of the IFactoryProvider interface can be registered in the object manager using the Qtilities::Core::Interfaces::IObjectManager::registerIFactoryProvider() function. Once registered, it is possible to obtain the factory provider interface which contains a specific factory using the Qtilities::Core::Interfaces::IObjectManager::referenceIFactoryProvider() function.
+
+\image html object_manager_ifactoryprovider.jpg "Managing Multiple IFactoryProviders"
+
+\subsection bringing_together Bringing it all together: The InstanceFactoryInfo struct
+
+When looking closely at the previous sections, it is observed that we need the following information to create an instance of an object in a factory exposed through the IFactoryProvider interface:
+- The name of the factory.
+- The tag associated with the factory interface which can produce the object.
+
+The Qtilities::Core::InstanceFactoryInfo struct was created for this exact reason. It provides all the information needed to locate the needed factory through the object manager, as well as the tag to use in that factory.
+
+\subsection factory_iexportable_relationship The IExportable interface, what does it have to do with factories?
+
+As discussed in the previous section, a Qtilities::Core::InstanceFactoryInfo object contains all the information needed to construct an object somewhere in a factory exposed to the object manager. For this reason any object implementing the Qtilities::Core::Interfaces::IExportable interface must provide an InstanceFactoryInfo object. This way we can reconstruct the object during import operations on the interface. The InstanceFactoryInfo class has constructors for all of the export formats provided by the IExportable interface for this reason. 
+
+This gets us to a very important point: When implementing the IExportable interface, the first thing that must be added to the export object (whether it is a QDataStream during binary exporting, or a QDomElement during XML exporting) is the information contained by InstanceFactoryInfo. During import we get this information, construct the object and then pass the import object to the reconstructed object.
+
+\subsection qtilities_factory Ready to use factory and factory classes
+
+The object manager provides a ready to use factory, called the %Qtilities factory in the documentation and by Qtilities::Core::Constants::qti_def_FACTORY_QTILITIES name in the %Qtilities sources. This factory can produce any QObject based class for which a factory interface was registered in the object manager. Many of the %Qtilities classes are registered by default and can be produced using this factory (See \ref factory_debugging).
+
+Lets look at an example where we create change the \p ProduceMe class in the above example. We make it QObject based, register it in the factory and then produce it:
+
+\code
+// --------------------------------------------
+// The following goes into your header file, lets say ProduceMe.h
+// --------------------------------------------
+// ProduceMe class derived from QObject:
+class ProduceMe : public QObject {
+    ProduceMe(Qbject* parent = 0) : QObject(parent) {}
+    ~ProduceMe() {}
+
+    // Make this class a factory item:
+    static FactoryItem<QObject, ProduceMe> factory;
+}
+
+// --------------------------------------------
+// The following goes into ProduceMe.cpp
+// --------------------------------------------
+FactoryItem<QObject, ProduceMe> ProduceMe::factory;
+
+// --------------------------------------------
+// In the application code:
+// --------------------------------------------
+// Register ProduceMe in the Qtilities factory:
+FactoryItemID produce_me_id("Example Tag");
+OBJECT_MANAGER->registerFactoryInterface(&ProduceMe::factory,produce_me_id);
+
+// Now we can produce it as follows:
+InstanceFactoryInfo instance_factory_info(qti_def_FACTORY_QTILITIES,produce_me_id.tag,"ObjectNameWhenCreated");
+IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instance_factory_info.d_factory_tag);
+if (ifactory) {
+    QObject* obj = ifactory->createInstance(instance_factory_info);
+    obj->setObjectName(instance_factory_info.d_instance_name);
+    ProduceMe* produceMe_inst = qobject_cast<ProduceMe*> (obj);   
+}
+\endcode
+
+\subsection factory_debugging Visual overview of factories using the Debug plugin
+
+The Qtilities::Plugins::Debug plugin provides a visual overview of the factory provider interfaces registered in the object manager as well as the tags in each interface. This is shown in the image below:
+
+\image html factory_debugging.jpg "Factory Overview Using Debug Plugin"
+
+*/

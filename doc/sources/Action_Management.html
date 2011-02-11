@@ -75,7 +75,7 @@ Table of contents:
 
 The context manager is part of the Qtilities::Core module and can be accessed using the CONTEXT_MANAGER macro definition which returns a pointer to the context manager. The context manager implements the Qtilities::Core::Interfaces::IContextManager interface through which developers can communicate with it.
 
-Contexts are represented using a QString value which is assigned to an unique ID as soon as the context is registered in the context manager. It is possible to access and control a context through either its name or id. At any given time 1 or more contexts can be active and contexts can be appended to the current set of active contexts using the Qtilities::Core::Interfaces::IContextManager::appendContext() functions. When the active contexts must be replaced by a new context the Qtilities::Core::Interfaces::IContextManager::setNewContext() function can be called, or when one of the active contexts must be removed Qtilities::Core::Interfaces::IContextManager::removeContext() can be called. %Qtilities provides the Qtilities::Core::Constants::CONTEXT_STANDARD context which is always active. Thus if it is needed to use a context which will always be active, the standard context must be used.
+Contexts are represented using a QString value which is assigned to an unique ID as soon as the context is registered in the context manager. It is possible to access and control a context through either its name or id. At any given time 1 or more contexts can be active and contexts can be appended to the current set of active contexts using the Qtilities::Core::Interfaces::IContextManager::appendContext() functions. When the active contexts must be replaced by a new context the Qtilities::Core::Interfaces::IContextManager::setNewContext() function can be called, or when one of the active contexts must be removed Qtilities::Core::Interfaces::IContextManager::removeContext() can be called. %Qtilities provides the Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD context which is always active. Thus if it is needed to use a context which will always be active, the standard context must be used.
 
 %Qtilities provides the Qtilities::Core::Interfaces::IContext interface which objects can implement to indicate that they represent an context. When objects representing this interface are registered in the global object pool their context will automatically be added to the context manager. Contexts can also be registered manually through the Qtilities::Core::Interfaces::IContextManager interface and the current contexts can be obtained and set through this interface.  A range of signals are provided which give notifications about context changes and the Qtilities::Core::Interfaces::IContextManager::broadcastState() function can be used to emit the current state of the context manager at any given time. 
 
@@ -110,7 +110,7 @@ The Qtilities::CoreGui::Actions namespace contains a set of ready to use actions
 Actions can be registered in the action manager in three ways:
 - An action place holder can be registered which does not have any action back-ends or contexts associated with it. Action/Contexts pairs can then be added to the place holder at a later time as back-end actions..This option is useful when you want to define the layout/structure of your menus in your main function. This is useful in cases where the core menu layout/structure is defined and plugins can then add actions or action back-ends and context to the core menu layout/structure. The Qtilities::CoreGui::Interfaces::IActionManager::registerActionPlaceHolder() function provides this functionality.
 - The second option is to register actions directly using Qtilities::CoreGui::Interfaces::IActionManager::registerAction() in which an action and context combination is registered together. This approach creates the action placeholder described in the previous approach automatically.
-- For cases where you do not want to manage your back-end action manually and you know that you will only have one back-end action, you can create a multi context action which manages its own single back-end action. This is useful for actions such as File->Exit which is always going to be active and therefore uses the standard context. To create such an action, you can pass the contexts in which the back-end action must be active as the last argument in Qtilities::CoreGui::Interfaces::IActionManager::registerActionPlaceHolder(). This will return a Command class and you can access the back-end action created for you using the action() function on the command. In the example below, the MENU_FILE_EXIT and MENU_FILE_SETTINGS actions are examples of this approach.
+- For cases where you do not want to manage your back-end action manually and you know that you will only have one back-end action, you can create a multi context action which manages its own single back-end action. This is useful for actions such as File->Exit which is always going to be active and therefore uses the standard context. To create such an action, you can pass the contexts in which the back-end action must be active as the last argument in Qtilities::CoreGui::Interfaces::IActionManager::registerActionPlaceHolder(). This will return a Command class and you can access the back-end action created for you using the action() function on the command. In the example below, the qti_action_FILE_EXIT and qti_action_FILE_SETTINGS actions are examples of this approach.
 
 \subsection example_application Example application: Creating action placeholders in your main() function
 
@@ -142,40 +142,40 @@ int main(int argc, char *argv[])
 	
     // Create menus
     bool existed;
-    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
+    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
     exampleMainWindow->setMenuBar(menu_bar->menuBar());	
-    ActionContainer* file_menu = ACTION_MANAGER->createMenu(MENU_FILE,existed);
-    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(MENU_EDIT,existed);
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
+    ActionContainer* edit_menu = ACTION_MANAGER->createMenu(qti_action_EDIT,existed);
     menu_bar->addMenu(file_menu);
     menu_bar->addMenu(edit_menu);	
 	
     // Register action place holders for this application. This allows control of your menu structure:
     // File Menu
     QList<int> std_context;
-    std_context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
-    Command* command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     // Create the configuration widget here and then connect it to the above command
     ConfigurationWidget config_widget;
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
     file_menu->addSeperator();
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);
 
     // Edit Menu
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
     edit_menu->addAction(command);
-    command = ACTION_MANAGER->registerActionPlaceHolder(MENU_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
     edit_menu->addAction(command);	
 	
     // Register command editor config page:
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());	
 	
     // Load the previous session's keyboard mapping file:
-    QString shortcut_mapping_file = QString("%1/session/%2").arg(QApplication::applicationDirPath()).arg(FILE_SHORTCUT_MAPPING);
+    QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
     if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Successfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
@@ -212,6 +212,6 @@ The figure below shows an example of the command editor widget, taken from the o
 
 The clipboard manager is part of the Qtilities::CoreGui module and can be accessed using CLIPBOARD_MANAGER macro definition which returns a pointer to the context manager. The action manager implements the Qtilities::CoreGui::Interfaces::IClipboard interface through which developers can communicate with it.
 
-The goal of the clipboard manager is to register back-ends (associated with the standard context) for the Qtilities::CoreGui::Actions::MENU_EDIT_COPY, Qtilities::CoreGui::Actions::MENU_EDIT_CUT and Qtilities::CoreGui::Actions::MENU_EDIT_PASTE action placeholders. This is done when the CLIPBOARD_MANAGER->initialize() function is called, allowing control over disabling and enabling these three actions in %Qtilities applications. For example, the paste action should only be enabled if something exists in the the clipboard. Also, when you perform a paste operation, the paste action must become disabled again. The clipboard manager provides this functionality. See the Qtilities::CoreGui::Interfaces::IClipboard class description for more details.
+The goal of the clipboard manager is to register back-ends (associated with the standard context) for the Qtilities::CoreGui::Actions::qti_action_EDIT_COPY, Qtilities::CoreGui::Actions::qti_action_EDIT_CUT and Qtilities::CoreGui::Actions::qti_action_EDIT_PASTE action placeholders. This is done when the CLIPBOARD_MANAGER->initialize() function is called, allowing control over disabling and enabling these three actions in %Qtilities applications. For example, the paste action should only be enabled if something exists in the the clipboard. Also, when you perform a paste operation, the paste action must become disabled again. The clipboard manager provides this functionality. See the Qtilities::CoreGui::Interfaces::IClipboard class description for more details.
 
 */

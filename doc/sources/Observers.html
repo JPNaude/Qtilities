@@ -148,11 +148,11 @@ Now each object will be attached both observer A and observer B. The above code 
 
 Every observer created in your application will have an unique integer ID associated with it. This value is assigned to the observer by the object manager in its constructor. The ID of an observer can be accessed using the Qtilities::Core::Observer::observerID() function. It is also possible to access any observer instance through the Qtilities::Core::ObjectManager::observerReference() function. 
 
-When an object is attached to one or more observers it is assigned an unique ID within each context. The ID is stored on the object using the Qtilities::Core::Properties::OBSERVER_SUBJECT_IDS dynamic property. The \ref observer_properties section explores dynamic properties in detail.
+When an object is attached to one or more observers it is assigned an unique ID within each context. The ID is stored on the object using the Qtilities::Core::Properties::qti_prop_OBSERVER_MAP dynamic property. The \ref observer_properties section explores dynamic properties in detail.
 
 \subsection object_categories Object categories: Organizing objects into categories inside a context
 
-When objects should be managed into categories inside an observer it can be done by setting the Qtilities::Core::Properties::OBJECT_CATEGORY property on an object before attaching it to an observer which has its Qtilities::Core::Observer::HierarchicalDisplay hint set to categorized hierarchy. When viewing such an observer using the Qtilities::CoreGui::ObserverWidget class it will show the objects under such observers using the categories specified on the objects.
+When objects should be managed into categories inside an observer it can be done by setting the Qtilities::Core::Properties::qti_prop_CATEGORY_MAP property on an object before attaching it to an observer which has its Qtilities::Core::Observer::HierarchicalDisplay hint set to categorized hierarchy. When viewing such an observer using the Qtilities::CoreGui::ObserverWidget class it will show the objects under such observers using the categories specified on the objects.
 
 For examples of how observer widgets visualize categories, see the \ref hierarchical_display section of the \ref page_observer_widgets article.
 
@@ -378,7 +378,7 @@ Observer* obs = new Observer("My Observer","Example observer description");
 // Create shared property
 QString property_name = "Example Property Name";
 SharedObserverProperty string_property("Example text",property_name);
-// For this example we don't need to make the property exportable. By default all properties are exportable
+// For this example we don't need to make the property exportable. By default all properties are exportable.
 string_property.setIsExportable(false);
 
 // Set the property using the static convenience function provided by the observer class
@@ -462,18 +462,18 @@ To change a property is easy, but care should be taken when changing properties 
 // First check if the property exists. If it does we need to change only the context we
 // are interested in. If we replace the complete property we will lose the information
 // for all other contexts.
-if (Observer::propertyExists(obj,OBJECT_CATEGORY)) {
-    ObserverProperty category_property = Observer::getObserverProperty(obj,OBJECT_CATEGORY);
+if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+    ObserverProperty category_property = Observer::getObserverProperty(obj,qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(NEW_CATEGORY),OBSERVER_ID);
     Observer::setObserverProperty(obj,category_property);
 } else {
-    ObserverProperty category_property(OBJECT_CATEGORY);
+    ObserverProperty category_property(qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(NEW_CATEGORY),OBSERVER_ID);
     Observer::setObserverProperty(obj,category_property);
 }
 \endcode
 
-If an observer has an activity policy filter installed and the Qtilities::Core::Properties::OBJECT_ACTIVITY property on an object within the context is changed, the change will be detected by the observer and passed to the activity policy filter. The filter will then validate the activity state of all objects in the context. The way the validation is performed depends on the setup of the activity policy filter. The property change is thus validated by all the attached subject filters and by the observer itself. 
+If an observer has an activity policy filter installed and the Qtilities::Core::Properties::qti_prop_ACTIVITY_MAP property on an object within the context is changed, the change will be detected by the observer and passed to the activity policy filter. The filter will then validate the activity state of all objects in the context. The way the validation is performed depends on the setup of the activity policy filter. The property change is thus validated by all the attached subject filters and by the observer itself. 
 
 For properties which has the "Change Notifications" parameter as Yes in their documentation, notifications are available when property changes were valid in the following ways (always both):
 - The Qtilities::Core::Observer::monitoredPropertyChanged() signal is emitted with information about the change.
@@ -485,9 +485,9 @@ bool MyObject::eventFilter(QObject *object, QEvent *event) {
     if (object == this && event->type() == QEvent::User) {
         QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
         if (qtilities_event) {
-            // Lets check for example if the OBJECT_NAME property changed:
-            if (!qstrcmp(qtilities_event->propertyName().data(),OBJECT_NAME)) {
-                // Remembering that OBJECT_NAME is managed by a name manager and that 
+            // Lets check for example if the qti_prop_NAME property changed:
+            if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_NAME)) {
+                // Remembering that qti_prop_NAME is managed by a name manager and that 
                 // it is sync'ed with objectName(), we can now get the new name of the object.
                 QString new_name = objectName();
             }
