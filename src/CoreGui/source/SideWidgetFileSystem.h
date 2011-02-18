@@ -73,6 +73,7 @@ namespace Qtilities {
               */
             explicit SideWidgetFileSystem(const QString& start_path = QString(), QWidget *parent = 0);
             virtual ~SideWidgetFileSystem() {}
+            bool eventFilter(QObject *object, QEvent *event);
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -88,14 +89,14 @@ namespace Qtilities {
             void handleRootPathChanged(const QString& newPath);
             void handleBtnBrowse();
             void handleDoubleClicked(const QModelIndex& index);
-
             void on_btnCdUp_clicked();
+            void on_txtCurrentPath_editingFinished();
 
         signals:
             void requestEditor(const QString& file_name);
 
         protected:
-            Ui::SideWidgetFileSystem *m_ui;
+            Ui::SideWidgetFileSystem *ui;
             SideWidgetFileSystemPrivateData* d;
         };
     }

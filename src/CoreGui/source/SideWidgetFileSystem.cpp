@@ -50,20 +50,21 @@ struct Qtilities::CoreGui::SideWidgetFileSystemPrivateData {
     SideWidgetFileSystemPrivateData(): model(0) {}
 
     QFileSystemModel *model;
+    QPoint dragStartPosition;
 };
 
 Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& start_path, QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui::SideWidgetFileSystem)
+    ui(new Ui::SideWidgetFileSystem)
 {
-    m_ui->setupUi(this);
+    ui->setupUi(this);
     d = new SideWidgetFileSystemPrivateData;
 
     d->model = new QFileSystemModel;
 
     // Set up drag ability:
     d->model->setSupportedDragActions(Qt::CopyAction);
-    m_ui->treeView->setDragEnabled(true);
+    ui->treeView->setDragEnabled(true);
 
     // Set up model etc.:
     QDir dir(start_path);
@@ -71,17 +72,20 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
         d->model->setRootPath(QDir::currentPath());
     else
         d->model->setRootPath(start_path);
-    m_ui->treeView->setModel(d->model);
-    m_ui->treeView->hideColumn(1);
-    m_ui->treeView->hideColumn(2);
-    m_ui->treeView->hideColumn(3);
-    m_ui->txtCurrentPath->setText(QDir::currentPath());
-    m_ui->treeView->setRootIndex(d->model->index(QDir::currentPath()));
+    ui->treeView->setModel(d->model);
+    ui->treeView->hideColumn(1);
+    ui->treeView->hideColumn(2);
+    ui->treeView->hideColumn(3);
+    ui->txtCurrentPath->setText(QDir::currentPath());
+    ui->treeView->setRootIndex(d->model->index(QDir::currentPath()));
 
     // Make neccesarry connections:
     connect(d->model,SIGNAL(rootPathChanged(QString)),SLOT(handleRootPathChanged(QString)));
-    connect(m_ui->btnBrowse,SIGNAL(clicked()),SLOT(handleBtnBrowse()));
-    connect(m_ui->treeView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClicked(QModelIndex)));
+    connect(ui->btnBrowse,SIGNAL(clicked()),SLOT(handleBtnBrowse()));
+    connect(ui->treeView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClicked(QModelIndex)));
+
+    // Handle drag drop events manually:
+    ui->treeView->viewport()->installEventFilter(this);
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::handleRootPathChanged(const QString& newPath) {
@@ -89,17 +93,17 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleRootPathChanged(const QStri
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::handleBtnBrowse() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Select Path"),m_ui->txtCurrentPath->text(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Path"),ui->txtCurrentPath->text(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (!path.isEmpty()) {
         QDir dir(path);
         if (dir.exists()) {
-            m_ui->treeView->setRootIndex(d->model->index(dir.path()));
-            m_ui->txtCurrentPath->setText(dir.path());
+            ui->treeView->setRootIndex(d->model->index(dir.path()));
+            ui->txtCurrentPath->setText(dir.path());
 
             if (dir.isRoot())
-                m_ui->btnCdUp->setEnabled(false);
+                ui->btnCdUp->setEnabled(false);
             else
-                m_ui->btnCdUp->setEnabled(true);
+                ui->btnCdUp->setEnabled(true);
         }
     }
 }
@@ -119,23 +123,70 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleDoubleClicked(const QModelI
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
-    m_ui->treeView->setRootIndex(d->model->index(path));
-    m_ui->txtCurrentPath->setText(path);
+    ui->treeView->setRootIndex(d->model->index(path));
+    ui->txtCurrentPath->setText(path);
 }
 
 QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
-    return m_ui->txtCurrentPath->text();
+    return ui->txtCurrentPath->text();
 }
 
-void Qtilities::CoreGui::SideWidgetFileSystem::on_btnCdUp_clicked()
-{
-    QDir dir(m_ui->txtCurrentPath->text());
+void Qtilities::CoreGui::SideWidgetFileSystem::on_btnCdUp_clicked() {
+    QDir dir(ui->txtCurrentPath->text());
     dir.cdUp();
     if (dir.exists()) {
-        m_ui->treeView->setRootIndex(d->model->index(dir.path()));
-        m_ui->txtCurrentPath->setText(dir.path());
+        ui->treeView->setRootIndex(d->model->index(dir.path()));
+        ui->txtCurrentPath->setText(dir.path());
 
         if (dir.isRoot())
-            m_ui->btnCdUp->setEnabled(false);
+            ui->btnCdUp->setEnabled(false);
     }
+}
+
+void Qtilities::CoreGui::SideWidgetFileSystem::on_txtCurrentPath_editingFinished() {
+    QDir dir(ui->txtCurrentPath->text());
+    if (dir.exists()) {
+        ui->treeView->setRootIndex(d->model->index(dir.path()));
+        ui->txtCurrentPath->setText(dir.path());
+
+        if (dir.isRoot())
+            ui->btnCdUp->setEnabled(false);
+    }
+}
+
+bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEvent *event) {
+    if (object == ui->treeView->viewport()) {
+        if (event->type() == QEvent::MouseMove) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if (!(mouseEvent->buttons() & Qt::LeftButton || mouseEvent->buttons() & Qt::RightButton))
+                return false;
+            if ((mouseEvent->pos() - d->dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+                return false;
+
+            QDrag *drag = new QDrag(this);
+
+            // Get the urls currently selected:
+            QList<QUrl> urls;
+            foreach (QModelIndex index, ui->treeView->selectionModel()->selectedIndexes()) {
+                if (index.column() == 0)
+                    urls << QUrl::fromLocalFile(d->model->filePath(index));
+            }
+
+            QMimeData *mimeData = new QMimeData;
+            mimeData->setUrls(urls);
+            drag->setMimeData(mimeData);
+
+            if (mouseEvent->buttons() == Qt::LeftButton)
+               drag->exec(Qt::CopyAction);
+            else if (mouseEvent->buttons() == Qt::RightButton)
+               drag->exec(Qt::MoveAction);
+            return true;
+        } else if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+            if ((mouseEvent->buttons() & Qt::LeftButton || mouseEvent->buttons() & Qt::RightButton))
+                d->dragStartPosition = mouseEvent->pos();
+        }
+    }
+
+    return false;
 }
