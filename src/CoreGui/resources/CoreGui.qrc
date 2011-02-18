@@ -90,5 +90,7 @@
         <file>icons/warning_12x12.png</file>
         <file>icons/error_12x12.png</file>
         <file>icons/info_12x12.png</file>
+        <file>icons/debug_48x48.png</file>
+        <file>icons/debug_16x16.png</file>
     </qresource>
 </RCC>
