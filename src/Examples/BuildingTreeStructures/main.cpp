@@ -36,8 +36,6 @@
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 
-#include "../../Core/source/ObserverDotGraph.h"
-
 int main(int argc, char *argv[])
 {
     QtilitiesApplication a(argc, argv);
@@ -162,7 +160,7 @@ int main(int argc, char *argv[])
     nodeB->addItem("Item 4");
 
     // Create a dot script for this tree:
-    ObserverDotGraph dotGraph(node);
+    ObserverDotWriter dotGraph(node);
     dotGraph.generateDotScript();
     dotGraph.saveToFile(QApplication::applicationDirPath() + "/output_file.gv");*/
 

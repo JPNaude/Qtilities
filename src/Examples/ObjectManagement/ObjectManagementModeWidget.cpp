@@ -75,6 +75,8 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->top_level_node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     d->top_level_node->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
+    OBJECT_MANAGER->registerObject(d->top_level_node,QtilitiesCategory("Example Objects"));
+
     // ---------------------------
     // Factory and Project Item Stuff
     // ---------------------------
@@ -250,7 +252,6 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeA, Observer::ObserverScopeOwnership);
-    OBJECT_MANAGER->registerObject(nodeA,QtilitiesCategory("Example Objects"));
 
     // Create a second node:
     TreeNode* nodeB = new TreeNode("Node B");
@@ -266,7 +267,6 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeB, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeB, Observer::ObserverScopeOwnership);
-    OBJECT_MANAGER->registerObject(nodeB,QtilitiesCategory("Example Objects"));
 
     // Create a node with some QWidgets:
     TreeNode* nodeC = new TreeNode("Node C");
@@ -291,7 +291,6 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         d->top_level_node->attachSubject(nodeC, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeC, Observer::ObserverScopeOwnership);
-    OBJECT_MANAGER->registerObject(nodeC,QtilitiesCategory("Example Objects"));
 
     d->top_level_node->refreshViewsLayout();
 }
@@ -359,10 +358,19 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_s
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDotFile() {
-    ObserverDotGraph dotGraph(d->top_level_node);
+    ObserverDotWriter dotGraph(d->top_level_node);
+    dotGraph.addNodeAttribute(d->top_level_node->treeChildren().front(),"color","red");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label","My label");
     dotGraph.generateDotScript();
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QApplication::applicationDirPath(),tr("Dot Input Files (*.gv)"));
-    if (!fileName.isEmpty())
+    if (!fileName.isEmpty()) {
         dotGraph.saveToFile(fileName);
+
+        CodeEditorWidget* editor_widget = new CodeEditorWidget;
+        editor_widget->setAttribute(Qt::WA_DeleteOnClose,true);
+        editor_widget->setAttribute(Qt::WA_QuitOnClose,true);
+        editor_widget->loadFile(fileName);
+        editor_widget->show();
+    }
 }
