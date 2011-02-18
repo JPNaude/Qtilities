@@ -1009,9 +1009,14 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
         d->selection_parent = parentOfIndex(index_list.front());
         d->selection_index = index_list.front();
 
+        // Do some hints debugging:
+        /*if (d->selection_parent) {
+            qDebug() << "New selection parent: " << d->selection_parent->objectName() << " with display hints: " << d->selection_parent->displayHints()->displayFlagsHint();
+        }*/
+
         // Get the hints from the observer:
         if (d->selection_parent) {
-            copyObserverHints(d->selection_parent);
+            model->hints_selection_parent = d->selection_parent->displayHints();
         }
 
         emit selectionParentChanged(d->selection_parent);
