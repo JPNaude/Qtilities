@@ -28,7 +28,7 @@
 #include "SubjectTypeFilter.h"
 #include "QtilitiesCategory.h"
 #include "IExportableFormatting.h"
-#include "ObserverDotGraph.h"
+#include "ObserverDotWriter.h"
 #include "FileUtils.h"
 #include "QtilitiesFileInfo.h"
 
