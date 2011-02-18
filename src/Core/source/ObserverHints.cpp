@@ -114,7 +114,6 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
     d->display_flags = other.displayFlagsHint();
     d->item_view_column_hint = other.itemViewColumnHint();
     d->action_hints = other.actionHints();
-    d->display_flags = other.displayFlagsHint();
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
