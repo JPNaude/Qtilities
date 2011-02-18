@@ -233,7 +233,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     LOG_DEBUG(tr("Starting to load project from file: ") + file_name);
     QFile file(file_name);
     if (!file.exists()) {
-        LOG_ERROR_P(QString(tr("Project file does not exist. Project will not be loaded.")));
+        LOG_ERROR_P(QString(tr("Project file does not exist at path \"") + file_name + tr("\". Project will not be loaded.")));
         return false;
     }
     d->project_file = file_name;
@@ -537,7 +537,7 @@ bool Qtilities::ProjectManagement::Project::isModified() const {
 void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         for (int i = 0; i < d->project_items.count(); i++)
-            d->project_items.at(i)->setModificationState(new_state,IModificationNotifier::NotifySubjects);
+            d->project_items.at(i)->setModificationState(new_state,notification_targets);
     }
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
