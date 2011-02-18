@@ -551,7 +551,7 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               are not unique, the first match of the given subject_name will be used. If you don't care about unique subject names,
               rather use subjectReference(int ID) to get subject references.
               */
-            QObject* subjectReference(const QString& subject_name) const;
+            QObject* subjectReference(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
             //! Returns true if a given subject is currently observed by the observer.
             bool contains(const QObject* object) const;
 

@@ -736,7 +736,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                                          QtilitiesCategory category(category_string,"::");
                                          ObserverProperty category_property(qti_prop_CATEGORY_MAP);
                                          category_property.setValue(qVariantFromValue(category),observerID());
-                                         Observer::setObserverProperty(iface->objectBase(),category_property);
+                                         if (!Observer::setObserverProperty(iface->objectBase(),category_property))
+                                             result = IExportable::Incomplete;
                                      }
 
                                     // Now that we created the item, init its data and children:
@@ -830,30 +831,35 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
         }
     }
 
-    observerData->is_modified = new_state;
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         // First notify all objects in this context.
         for (int i = 0; i < observerData->subject_list.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,IModificationNotifier::NotifySubjects);
+                mod_iface->setModificationState(new_state,notification_targets);
             }
         }
         // Also notify all subject filters.
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,IModificationNotifier::NotifySubjects);
+                mod_iface->setModificationState(new_state,notification_targets);
             }
         }
         // Also notify observer hints.
         if (observerData->display_hints) {
-            observerData->display_hints->setModificationState(new_state,IModificationNotifier::NotifySubjects);
+            observerData->display_hints->setModificationState(new_state,notification_targets);
         }
     }
-    if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
-        emit modificationStateChanged(new_state);
+
+    // For observers we only notify targets if the actual state changed:
+    if (observerData->is_modified != new_state) {
+        if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
+            emit modificationStateChanged(new_state);
+        }
     }
+
+    observerData->is_modified = new_state;
 }
 
 void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection) {
@@ -2089,15 +2095,15 @@ QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
     return 0;
 }
 
-QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name) const {
+QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name, Qt::CaseSensitivity cs) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QObject* obj = observerData->subject_list.at(i);
         QVariant prop = getObserverPropertyValue(obj,qti_prop_NAME);
         if (!prop.isValid()) {
-            if (observerData->subject_list.at(i)->objectName() == subject_name)
+            if (observerData->subject_list.at(i)->objectName().compare(subject_name,cs) == 0)
                 return observerData->subject_list.at(i);
         } else {
-            if (prop.toString() == subject_name)
+            if (prop.toString().compare(subject_name,cs) == 0)
                 return obj;
         }
     }
