@@ -222,6 +222,16 @@ categorized_widget->show();
             QString contextString() const { return globalMetaType(); }
             QString contextHelpId() const { return QString(); }
 
+            //! Indicates if this observer widget appends contexts of selected objects implementing IContext.
+            /*!
+              False by default.
+
+              \sa setAppendSelectedContexts()
+              */
+            bool appendSelectedContexts() const;
+            //! Enables/disables appending of selected contexts when selected objects change.
+            void setAppendSelectedContexts(bool enable);
+
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
@@ -233,10 +243,7 @@ categorized_widget->show();
             // --------------------------------
             //! Function to toggle usage of hints from the active parent observer. If not default hints will be used.
             /*!
-              \note When using category filtering the hints to do that must be set on the observer context
-              on which category filtering must be enabled. For more information see Qtilities::Core::ObserverHints::setDisplayedCategories()
-
-              \sa activeHints
+                \sa activeHints(), setCustomHints()
               */
             void toggleUseObserverHints(bool toggle);
             //! Indicates if this widget uses its own custom hints of that of the active observer.
@@ -247,9 +254,9 @@ categorized_widget->show();
 
               \return True if successfull, false otherwise.
 
-              \sa toggleUseObserverHints()
+              \sa toggleUseObserverHints(), activeHints()
               */
-            bool copyCustomHints(ObserverHints* custom_hints);
+            bool setCustomHints(ObserverHints* custom_hints);
             //! This function will provide the hints which should be used by this widget at any time.
             /*!
               \sa toggleUseObserverHints(), copyCustomHints()
@@ -602,6 +609,12 @@ categorized_widget->show();
             void handleSearchItemTypesChanged();
             //! Refreshes the state of all actions.
             void refreshActions();
+
+        private slots:
+            #ifndef QT_NO_DEBUG
+            void selectionDebug() const;
+            #endif
+
         protected:
             //! Constructs actions inside the observer widget.
             void constructActions();

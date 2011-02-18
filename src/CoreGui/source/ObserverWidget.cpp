@@ -47,6 +47,7 @@
 #include "ObserverTreeModelProxyFilter.h"
 #include "ActionProvider.h"
 #include "ObserverTreeItem.h"
+#include "QtilitiesMainWindow.h"
 
 #include <ActivityPolicyFilter.h>
 #include <ObserverHints.h>
@@ -111,6 +112,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         hints_selection_parent(0),
         use_observer_hints(true),
         update_global_active_objects(false),
+        append_selected_contexts(false),
         action_provider(0),
         default_row_height(17),
         confirm_deletes(true),
@@ -136,6 +138,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QAction* actionExpandAll;
     QAction* actionCollapseAll;
     QAction* actionFindItem;
+    #ifndef QT_NO_DEBUG
+    QAction* actionDebugObject;
+    #endif
 
     //! The navigation stack of this widget, used only in TableView mode.
     QStack<int> navigation_stack;
@@ -193,6 +198,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QString shared_global_meta_type;
     //! A list of appended contexts which have been appended when the selection changes in this widget.
     QStringList appended_contexts;
+    //! Indicates if appending of contexts is enabled.
+    bool append_selected_contexts;
 
     //! The current selection in this widget. Set in the selectedObjects() function.
     QList<QPointer<QObject> > current_selection;
@@ -515,7 +522,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 if (!d->tree_model) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
                     d->tree_model->toggleUseObserverHints(d->use_observer_hints);
-                    d->tree_model->copyCustomHints(d->hints_default);
+                    d->tree_model->setCustomHints(d->hints_default);
                 }
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
@@ -565,7 +572,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setModel(d->proxy_model);
 
             if (d->tree_view->selectionModel())
-                connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
+                connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()),Qt::UniqueConnection);
 
             // The view must always be visible.
             d->tree_view->setVisible(true);
@@ -588,7 +595,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 if (!d->table_model) {
                     d->table_model = new ObserverTableModel(d->table_view);
                     d->table_model->toggleUseObserverHints(d->use_observer_hints);
-                    d->table_model->copyCustomHints(d->hints_default);
+                    d->table_model->setCustomHints(d->hints_default);
                 }
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
@@ -637,7 +644,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             if (d->table_view->selectionModel()) {
                 d->table_view->selectionModel()->clear();
-                connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()));
+                connect(d->table_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()),Qt::UniqueConnection);
             }
 
             // The view must always be visible.
@@ -781,46 +788,40 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         installEventFilter(this);
     }
 
-    // Handle initial selections:
-    if (d->use_observer_hints) {
-        // Check if the observer does not specify flags, if so we use the defaults
-        if (activeHints()->displayFlagsHint() == ObserverHints::NoDisplayFlagsHint)
-            activeHints()->setDisplayFlagsHint(ObserverHints::ItemView);
+    bool create_default_selection = true;
+    if (activeHints()) {
+        // Ok since the new observer provides hints, we need to see if we must select its' active objects:
+        // Check if the observer has a FollowSelection actity policy
+        // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
+        if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
+            // Check if the observer has an activity filter, which it should have with this hint:
+            ActivityPolicyFilter* filter = 0;
+            for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+                filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
+                if (filter) {
+                    d->activity_filter = filter;
 
-        bool create_default_selection = true;
-        if (activeHints()) {
-            // Ok since the new observer provides hints, we need to see if we must select its' active objects:
-            // Check if the observer has a FollowSelection actity policy
-            // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
-            if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
-                // Check if the observer has an activity filter, which it should have with this hint:
-                ActivityPolicyFilter* filter = 0;
-                for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
-                    filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
-                    if (filter) {
-                        d->activity_filter = filter;
-
-                        // Connect to the activity change signal (to update activity on observer widget side):
-                        connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
-                        QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
-                        selectObjects(active_subjects);
-                        create_default_selection = false;
-                    }
+                    // Connect to the activity change signal (to update activity on observer widget side):
+                    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
+                    QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
+                    selectObjects(active_subjects);
+                    create_default_selection = false;
                 }
-            } else {
-                if (d->activity_filter)
-                    d->activity_filter->disconnect(this);
-                d->activity_filter = 0;
             }
+        } else {
+            if (d->activity_filter)
+                d->activity_filter->disconnect(this);
+            d->activity_filter = 0;
+        }
 
-            if (create_default_selection && d->update_selection_activity) {
-                selectObjects(QList<QObject*>());
-            }
+        if (create_default_selection && d->update_selection_activity) {
+            selectObjects(QList<QObject*>());
         }
     }
 
     // Init all actions
     refreshActions();
+    refreshActionToolBar();
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -870,7 +871,7 @@ bool Qtilities::CoreGui::ObserverWidget::usesObserverHints() const {
     return d->use_observer_hints;
 }
 
-bool Qtilities::CoreGui::ObserverWidget::copyCustomHints(ObserverHints* custom_hints) {
+bool Qtilities::CoreGui::ObserverWidget::setCustomHints(ObserverHints* custom_hints) {
     if (!custom_hints)
         return false;
 
@@ -880,9 +881,9 @@ bool Qtilities::CoreGui::ObserverWidget::copyCustomHints(ObserverHints* custom_h
     *d->hints_default = *custom_hints;
     // Important: We need to change the models of this observer widget as well:
     if (d->tree_model)
-        d->tree_model->copyCustomHints(custom_hints);
+        d->tree_model->setCustomHints(custom_hints);
     if (d->table_model)
-        d->table_model->copyCustomHints(custom_hints);
+        d->table_model->setCustomHints(custom_hints);
 
     return true;
 }
@@ -1255,7 +1256,32 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(viewCollapseAll()));
     ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
     d->action_provider->addAction(d->actionCollapseAll,QtilitiesCategory(tr("Hierarchy")));
+
+    #ifndef QT_NO_DEBUG
+    // ---------------------------
+    // Debug Object
+    // ---------------------------
+    d->actionDebugObject = new QAction(QIcon(qti_icon_DEBUG_16x16),tr("Debug Object<br><br><span style=\"color: gray;\">Adds the selected object to your global object pool and switches to the Qtilities Debugging plugin which provides numerous ways of debugging your object.</span>"),this);
+    connect(d->actionDebugObject,SIGNAL(triggered()),SLOT(selectionDebug()));
+    d->action_provider->addAction(d->actionDebugObject,QtilitiesCategory(tr("Items")));
+    #endif
 }
+
+#ifndef QT_NO_DEBUG
+void Qtilities::CoreGui::ObserverWidget::selectionDebug() const {
+    if (d->current_selection.count() == 1) {
+        QObject* selection = d->current_selection.front();
+        OBJECT_MANAGER->registerObject(selection);
+
+        QtilitiesMainWindow* main_window = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
+        if (main_window) {
+            if (main_window->modeManager()) {
+                main_window->modeManager()->setActiveMode("Qtilities Debugging");
+            }
+        }
+    }
+}
+#endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     if (!d->initialized || !d->actionRemoveItem) {
@@ -1404,7 +1430,13 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             d->actionRemoveAll->setEnabled(false);
             d->actionDeleteAll->setEnabled(false);
         }
+        #ifndef QT_NO_DEBUG
+        d->actionDebugObject->setVisible(false);
+        #endif
     } else {
+        #ifndef QT_NO_DEBUG
+        d->actionDebugObject->setVisible(true);
+        #endif
         if (d->display_mode == TableView) {
             d->actionDeleteItem->setEnabled(true);
             d->actionRemoveItem->setEnabled(true);
@@ -1553,8 +1585,6 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             }
         }
     }
-
-    refreshActionToolBar();
 }
 
 void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
@@ -1563,7 +1593,22 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     if (!observer)
         observer = d->top_level_observer;
 
-    setObserverContext(observer);
+    if (!setObserverContext(observer))
+        return;
+
+    // Do some hints debugging:
+    /*if (observer) {
+        qDebug() << "New selection parent: " << observer << " with display hints.";
+        if (observer->displayHints()) {
+            ObserverHints::DisplayFlags display_flags_hint = observer->displayHints()->displayFlagsHint();
+            if (observer->displayHints()->displayFlagsHint() & ObserverHints::ActionToolBar) {
+                qDebug() << "-> Action toolbar enabled";
+            }
+        }
+    } else {
+        qDebug() << "New selection parent: " << observer << " with NO display hints.";
+    }*/
+
     // We set d->update_selection_activity to false in here since we don't want an initial selection
     // to be created in initialize()
     d->update_selection_activity = false;
@@ -2403,6 +2448,14 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
     }
 }
 
+bool Qtilities::CoreGui::ObserverWidget::appendSelectedContexts() const {
+    return d->append_selected_contexts;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setAppendSelectedContexts(bool enable) {
+    d->append_selected_contexts = enable;
+}
+
 void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     if (!d->initialized)
         return;
@@ -2417,21 +2470,23 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     refreshActions();
 
     // Remove contexts from previous selection
-    int count = d->appended_contexts.count()-1;
-    for (int i = count; i >= 0; i--) {
-        CONTEXT_MANAGER->removeContext(d->appended_contexts.at(i),false);
-        d->appended_contexts.removeAt(i);
-    }
+    if (d->append_selected_contexts) {
+        int count = d->appended_contexts.count()-1;
+        for (int i = count; i >= 0; i--) {
+            CONTEXT_MANAGER->removeContext(d->appended_contexts.at(i),false);
+            d->appended_contexts.removeAt(i);
+        }
 
-    QStringList contexts_in_current_selection;
-    // Check if any of the objects implements IContext, if so we append the given context.
-    for (int i = 0; i < object_list.count(); i++) {
-        IContext* context = qobject_cast<IContext*> (object_list.at(i));
-        if (context) {
-            if (!d->appended_contexts.contains(context->contextString())) {
-                CONTEXT_MANAGER->appendContext(context->contextString(),false);
-                contexts_in_current_selection << context->contextString();
-                d->appended_contexts << context->contextString();
+        QStringList contexts_in_current_selection;
+        // Check if any of the objects implements IContext, if so we append the given context.
+        for (int i = 0; i < object_list.count(); i++) {
+            IContext* context = qobject_cast<IContext*> (object_list.at(i));
+            if (context) {
+                if (!d->appended_contexts.contains(context->contextString())) {
+                    CONTEXT_MANAGER->appendContext(context->contextString(),false);
+                    contexts_in_current_selection << context->contextString();
+                    d->appended_contexts << context->contextString();
+                }
             }
         }
     }
@@ -2640,6 +2695,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
         } else if (d->tree_view) {
             if (d->tree_view->selectionModel())
                 d->tree_view->selectionModel()->clear();
+            viewExpandAll();
         }
     } else {
         QList<QObject*> simple_list;
@@ -2800,8 +2856,6 @@ void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
-        ObserverHints::DisplayFlags last_display_flags = d->last_display_flags;
-        ObserverHints::DisplayFlags active_display_flags = activeHints()->displayFlagsHint();
         if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
             d->last_display_flags = activeHints()->displayFlagsHint();
         else {
