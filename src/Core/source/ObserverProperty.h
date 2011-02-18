@@ -86,6 +86,15 @@ See the \ref observer_properties section of the \ref page_observers article for 
                 is_removable = observer_property.isRemovable();
                 supports_change_notifications = observer_property.supportsChangeNotifications();
             }
+            void operator=(const ObserverProperty& observer_property) {
+                observer_map = observer_property.observerMap();
+                name = observer_property.propertyName();
+                last_change_context = observer_property.lastChangedContext();
+                is_exportable = observer_property.isExportable();
+                is_reserved = observer_property.isReserved();
+                is_removable = observer_property.isRemovable();
+                supports_change_notifications = observer_property.supportsChangeNotifications();
+            }
             virtual ~ObserverProperty() {}
 
             //! Exports the observer properties to a QDataStream.
@@ -232,7 +241,7 @@ See the \ref observer_properties section of the \ref page_observers article for 
                 property_value = shared_property.value();
                 supports_change_notifications = shared_property.supportsChangeNotifications();
             }
-            ~SharedObserverProperty() {}
+            ~SharedObserverProperty() {}         
 
             //! Exports the shared observer properties to a QDataStream.
             bool exportSharedPropertyBinary(QDataStream& stream) const;
