@@ -132,7 +132,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     new_hints->setDisplayFlagsHint(display_flags);
     new_hints->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     new_hints->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    d->object_pool_widget->copyCustomHints(new_hints);
+    d->object_pool_widget->setCustomHints(new_hints);
 
     d->object_pool_widget->initialize();
     d->object_pool_widget->show();
@@ -269,7 +269,7 @@ QWidget* Qtilities::Plugins::Debug::DebugWidget::modeWidget() {
 }
 
 QIcon Qtilities::Plugins::Debug::DebugWidget::modeIcon() const {
-    return QIcon(":/debug_log_mode.png");
+    return QIcon(qti_icon_DEBUG_48x48);
 }
 
 QString Qtilities::Plugins::Debug::DebugWidget::modeName() const {
@@ -725,7 +725,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
             ui->tableSelectedActionOverview->setItem(i, 0, newItem);
             // Backend Action Address:
             QAction* tmp_action = current_command;
-            newItem = new QTableWidgetItem(QString("0x%1").arg((int) tmp_action,8,16,QChar('0')));
+            newItem = new QTableWidgetItem(objectAddress(tmp_action));
             ui->tableSelectedActionOverview->setItem(i, 1, newItem);
             // Parent Name:
             QString parent_name = "No Parent";
@@ -736,7 +736,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
             // Parent Address:
             QString parent_address = "No Parent";
             if (current_command->parent())
-                parent_address = (QString("0x%1").arg((int) current_command->parent(),8,16,QChar('0')));
+                parent_address = objectAddress(current_command->parent());
             newItem = new QTableWidgetItem(parent_address);
             ui->tableSelectedActionOverview->setItem(i, 3, newItem);
             // Is Active:
@@ -943,4 +943,8 @@ void Qtilities::Plugins::Debug::DebugWidget::on_chkRefreshProperties_toggled(boo
         d->object_dynamic_property_browser->setObject(d->current_object);
     }
     #endif
+}
+
+QString Qtilities::Plugins::Debug::DebugWidget::objectAddress(QObject* obj) const {
+    return QString ("0x%1").arg (reinterpret_cast <quintptr> (obj), sizeof(quintptr)*2, 16, QChar('0'));
 }

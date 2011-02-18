@@ -138,6 +138,9 @@ namespace Qtilities {
                 void refreshEditedPluginState();
                 //! Refreshes the application's factory information.
                 void refreshFactories();
+                //! Gets an object's address.
+                QString objectAddress(QObject* obj) const;
+
 
                 Ui::DebugWidget *ui;
                 DebugWidgetPrivateData* d;
