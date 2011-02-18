@@ -64,6 +64,10 @@ namespace Qtilities {
 
         //! Namespace containing available icons which forms part of the CoreGui Module.
         namespace Icons {
+            //! Icon used to debug selections in observer widgets.
+            const char * const qti_icon_DEBUG_16x16                   = ":/icons/debug_16x16.png";
+            //! Icon used to debug selections in observer widgets.
+            const char * const qti_icon_DEBUG_48x48                   = ":/icons/debug_48x48.png";
             //! Icon used for shortcuts config page.
             const char * const qti_icon_CONFIG_SHORTCUTS_48x48        = ":/icons/config_shortcuts_48x48.png";
             //! Icon used for logging config page.
