@@ -287,7 +287,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
     // Get the ownership of this observer.
     int observer_ownership = getOwnership(observer);
     // Add the observer itself to the table entries map:
-    RelationalTableEntry* observer_entry = new RelationalTableEntry(d->visitor_id_count,observer->observerID(),observer->observerName(),observer_ownership);
+    RelationalTableEntry* observer_entry = new RelationalTableEntry(d->visitor_id_count,observer->observerID(),observer->observerName(),observer_ownership,observer);
     // Add the unique visitor ID to the observer.
     int observer_id = addVisitorID(observer);
     if (observer_id == -1)
@@ -387,7 +387,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
             } else {
                 // Did not exist:
                 // Add the subject to the table entries map:
-                subject_entry = new RelationalTableEntry(subject_id,-1,observer->subjectNameInContext(obj),subject_ownership);
+                subject_entry = new RelationalTableEntry(subject_id,-1,observer->subjectNameInContext(obj),subject_ownership,obj);
                 d->entries[subject_id] = subject_entry;
                 // Now add this observer as a parent to the subject
                 subject_entry->d_parents.append(observer_id);

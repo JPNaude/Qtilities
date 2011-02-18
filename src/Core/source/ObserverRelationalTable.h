@@ -57,14 +57,16 @@ namespace Qtilities {
                 d_name = "";
                 d_ownership = -1;
                 d_sessionID = -1;
+                d_obj = 0;
             }
-            RelationalTableEntry(int visitorID, int sessionID, const QString& name, int ownership) {
+            RelationalTableEntry(int visitorID, int sessionID, const QString& name, int ownership, QObject* obj = 0) {
                 d_visitorID = visitorID;
                 d_sessionID = sessionID;
                 d_name = name;
                 d_ownership = ownership;
                 d_parentVisitorID = -1;
                 d_previousSessionID = -1;
+                d_obj = obj;
             }
             RelationalTableEntry(const RelationalTableEntry& other) {
                 d_parents = other.d_parents;
@@ -75,6 +77,7 @@ namespace Qtilities {
                 d_ownership = other.d_ownership;
                 d_parentVisitorID = other.d_parentVisitorID;
                 d_previousSessionID = other.d_previousSessionID;
+                d_obj = other.d_obj;
             }
             bool operator==(const RelationalTableEntry& other) {
                 bool equal = true;
@@ -150,6 +153,8 @@ namespace Qtilities {
             int             d_ownership;
             //! When \p d_ownership is equal to Qtilities::Core::Observer::SpecificObserverOwnership this field contains the visitor ID of its specific parent.
             int             d_parentVisitorID;
+            //! A reference to the object.
+            QObject*        d_obj;
         };
 
         /*!
@@ -238,7 +243,7 @@ for (int i = 0; i < table.count(); i++) {
 
           As the above example shows, it is very easy to access the information about all the relationships of items in the tree. The
           ObserverRelationalTable class allows developers to easily build classes using the tree's relationships around it. The
-          Qtilities::Core::ObserverDotGraph is an example of such a class.
+          Qtilities::Core::ObserverDotWriter is an example of such a class.
 
           Another powerfull feature of the ObserverRelationalTable class is its functionality to compare two ObserverRelationalTable objects with each other using the compare() method or the overloaded \p == and \p != operators.
           */
