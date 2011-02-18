@@ -272,8 +272,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     if (observer_id == -1) {
         // Check the parent count:
         if (Observer::parentCount(objectBase()) != 1) {
-            Q_ASSERT(Observer::parentCount(objectBase()) != 1);
-            LOG_ERROR(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+            LOG_DEBUG(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
             return false;
         } else {
             ObserverProperty prop = Observer::getObserverProperty(objectBase(),qti_prop_OBSERVER_MAP);

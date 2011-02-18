@@ -49,37 +49,18 @@ Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
     delete model;
 }
 
-void Qtilities::CoreGui::AbstractObserverItemModel::toggleUseObserverHints(bool toggle, Observer* observer) {
+void Qtilities::CoreGui::AbstractObserverItemModel::toggleUseObserverHints(bool toggle) {
     if (toggle == model->use_observer_hints)
         return;
 
     model->use_observer_hints = toggle;
-    if (toggle)
-        copyObserverHints(observer);
-    else
-        copyObserverHints(d_observer);
 }
 
 bool Qtilities::CoreGui::AbstractObserverItemModel::usesObserverHints() const {
     return model->use_observer_hints;
 }
 
-bool Qtilities::CoreGui::AbstractObserverItemModel::copyObserverHints(const Observer* observer) {
-    if (!observer)
-        return false;
-
-    if (!observer->displayHints())
-        return false;
-
-    if (!model->hints_selection_parent)
-        model->hints_selection_parent = new ObserverHints;
-
-    // Ok now we use the hints from this observer
-    *model->hints_selection_parent = observer->displayHints();
-    return true;
-}
-
-bool Qtilities::CoreGui::AbstractObserverItemModel::copyCustomHints(ObserverHints* custom_hints) {
+bool Qtilities::CoreGui::AbstractObserverItemModel::setCustomHints(ObserverHints* custom_hints) {
     if (!custom_hints)
         return false;
 
