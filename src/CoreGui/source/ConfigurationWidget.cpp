@@ -140,7 +140,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                             Observer::setObserverProperty(config_page->objectBase(),category_property);
                     } else {
                         ObserverProperty category_property(qti_prop_CATEGORY_MAP);
-                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()));
+                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
                             Observer::setObserverProperty(config_page->objectBase(),category_property);
                     }
                 }
