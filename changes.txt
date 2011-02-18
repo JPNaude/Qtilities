@@ -28,7 +28,7 @@ Things outstanding for v0.3 release:
 - Linux problems:
     - Sort out Linux dll versioning
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
-- ObserverDotGraph finish & blog post
+- ObserverDotWriter finish & blog post
 - Unit testing + some tests off course
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Add tree depth function to TreeNode.
@@ -42,6 +42,7 @@ Things outstanding for v0.3 release:
 - File system side widget must allow path to be entered.
 - Problem in action manager, it does not assign tooltips correctly at startup.
 - Reserved properties in Observer::eventFilter() not checked (the ones that Qtilities adds).
+- ObserverWidget still uses CUT and COPY actions in wrong way.
 
 - Docs & finalization stuff:
     - QTILITIES_NO_PROPERTY_BROWSER now exlcudes ObjectDynamicPropertyBrowser as well.
@@ -56,6 +57,7 @@ Things outstanding for v0.3 release:
     - Update Qtilities::Core::Properties namespace docs + add removability to each property.
     - ObjectHierarhcyNavigator references invalid image.
     - Document AbstractLoggerEngineData.
+    - Hints and observer widget docs are outdated with regard to useObserverHints().
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -114,6 +116,7 @@ Qtilities v0.3 Implemented Changes
         - Observer & Project modification state optimizations. When notifying subjects it no longer let them notify their listeners as well since this results in a huge amount of recursive signals emissions. The order in which subjects and listeners are notified also changed: Subjects are first notified and then listeners, in this way listeners can check the modiciation state and it would return the correct results.
         - Whenever it is needed to emit the numberOfSubjectChanged() signal, Observer will now first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
         - Previously observer deleted objects directly when needed in its constructor as well as when an object was detached and went out of scope. This was changed to call deleteLater() on those objects, making it safer for objects living in other threads.
+        - Observer::subjectReference(const QString& name) got new case sensitivity parameter.
     - Subject Filters
         - Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
         - ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
@@ -134,6 +137,7 @@ Qtilities v0.3 Implemented Changes
         - ObserverProperty::isReserved(), ObserverProperty::makeReserved() and ObserverProperty::supportsChangeNotifications() added.
         - Added new propertyIsExportable(), propertyIsReserved() and propertySupportsChangeNotifications() static functions to both ObserverProperty and SharedObserverProperty to check Qtilities property names.
         - isReserved() and supportsChangeNotifications() not part of observer property binary exports.
+        - Operator = overload added for ObserverProperty class.
     - General
         - IExportable is now much easier to use. All export functions now have default implementations which exports the InstanceFactoryInfo of the object. Thus you can create objects which will be exported/imported successfully without having to implement any of the export/import functions.
         - New ObserverRelationalTable::refresh() method which can be used to refresh the table data after an observer changed.
@@ -178,7 +182,7 @@ Qtilities v0.3 Implemented Changes
         - A custom mode icon can now be set if modes allow it. The session log mode in the session log plugin now allows this.created. The documentation of the IMode interface was improved to properly explain these changes and the interface's functions were renamed to more meaningfull equivalents.
         - IMode got two new functions: aboutToBeActivated() and justActivated().
         - QtilitiesMainWindow now uses scaled down icons (12x12) for priority messages which does not cause the status bar to change height anymore.
-        - QtilitiesMainWindow now shows a success icon for messages starting with "Successfully" or any translation of it.
+        - QtilitiesMainWindow now shows a success icon for messages starting with "Successfully" or any translation of it. It also ignores empty messages from now on.
     - Tree Building Classes
         - TreeFileItem was almost rewritten from scratch and it now uses the new QtilitiesCore::QtilitiesFileInfo class at its core.
         - TreeNode got new functions to easily set up a SubjectTypeFilter on itself. This allows observer widgets to use meaningfull text in the name column's header. The ObserverTreeModel now respects this as well, previously only table models did.
@@ -187,6 +191,7 @@ Qtilities v0.3 Implemented Changes
         - AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
         - TreeFileItem XML import & export methods are now virtual.
     - Observer Widgets & Observer Models
+        - ObserverWidget got a new action which only appear when built in debug mode which allow you to add any selection in any ObserverWidget to the global object pool and debug it there using the Qtilities Debugging plugin.
         - ObserverWidget handles ObserverHints::DisplayFlags better. It will not reconstruct toolbars everytime if the activeHints()'s display flags did not change. This could have caused the order of toolbars to change when it shouldn't.
         - ObserverWidget in table mode now resize all rows to contents every time that new items are added, previously this only happened when the widget's observer context changed.
         - Important: The complete thinking behind the way helper functions were used in observer models were abandoned. Thus, AbstractObserverTableModel is now just ObserverTableModel and AbstractObserverTreeModel is now just ObserverTreeModel. In custom observer models, you should now inherit from either ObserverTableModel or ObserverTreeModel and just call the AbstractItemModel's virtual functions rather than calling the virtual functions which was needed previously.
@@ -208,6 +213,7 @@ Qtilities v0.3 Implemented Changes
         - ObjectPropertyBrowser got a new refresh() function to refresh the displayed properties.
         - SideViewerWidgetHelper is now called SideViewerWidgetFactory
         - SideWidgetFileSystem has a new button to change to the parent directory and the browse button got an icon.
+        - SideWidgetFileSystem now allows a custom path to be entered in the path text box.
         - SearchBoxWidget now allows the hide button to either be an Up or a Down arrow.
         - ConfigurationWidget and AboutWindow will now close when you close an application while they are still open and the application will actually close.
         - ConfigurationWidget and ModeManager will now search for and register all config pages and modes found in the global object pool by just calling initialize() on them.
@@ -247,6 +253,7 @@ Qtilities v0.3 Implemented Changes
     - Fixed bug in ObjectScopeWidget where it created duplicate connections on the monitored object.
     - Fixed bug in ObserverWidget::toggleUseObserverHints() where it did not toggle this on the models used as well.
     - Fixed numerous bugs in Observer models which occured if an Observer with no hints was displayed.
+    - Fixed serious bug in ObserverWidget where it incorrectly reset observer hints in some cases.
 
     ============================
     QtilitiesExtensionSystem:
