@@ -447,14 +447,17 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             changed_objects.push_back(obj);
             emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
 
-            // 3. Emit the activeSubjectsChanged() signal:
-            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
-            // 4. Change the modification state of the filter:
-            setModificationState(true);
+            if (!observer->isProcessingCycleActive()) {
+                // 3. Emit the activeSubjectsChanged() signal:
+                emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
-            // 5. Emit the dataChanged() signal on the observer context:
-            observer->refreshViewsData();
+                // 4. Change the modification state of the filter:
+                setModificationState(true);
+
+                // 5. Emit the dataChanged() signal on the observer context:
+                observer->refreshViewsData();
+            }
         }
         filter_mutex.unlock();
     }
@@ -474,9 +477,6 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
     // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
     filter_mutex.tryLock();
-
-    QString name = observer->observerName();
-    QList<QObject*> list = observer->subjectReferences();
     if (observer->subjectCount() >= 1) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
@@ -492,12 +492,16 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
             }
         }
 
-        emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+        if (!observer->isProcessingCycleActive())
+            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
     }
 
     // Unlock the filter mutex.
     filter_mutex.unlock();
-    setModificationState(true);
+    if (!observer->isProcessingCycleActive())
+        setModificationState(true);
+    else
+        d->is_modified = true;
 }
 
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {

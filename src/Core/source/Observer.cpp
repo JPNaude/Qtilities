@@ -588,12 +588,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
                 IExportable::Result intermediate_result = export_iface->exportXML(doc,&subject_item,params);
                 if (intermediate_result == IExportable::Failed) {
                     return IExportable::Failed;
-                    LOG_DEBUG("TreeItem (" + export_iface->objectBase()->objectName() + ") failed.");
+                    LOG_TRACE("TreeItem (" + export_iface->objectBase()->objectName() + ") failed.");
                 } else if (intermediate_result == IExportable::Incomplete) {
                     result = intermediate_result;
-                    LOG_DEBUG("TreeItem (" + export_iface->objectBase()->objectName() + ") is incomplete.");
+                    LOG_TRACE("TreeItem (" + export_iface->objectBase()->objectName() + ") is incomplete.");
                 } else if (intermediate_result == IExportable::Complete) {
-                    LOG_DEBUG("TreeItem (" + export_iface->objectBase()->objectName() + ") is complete.");
+                    LOG_TRACE("TreeItem (" + export_iface->objectBase()->objectName() + ") is complete.");
                 }
             } else {
                 LOG_WARNING(tr("XML export found an interface (") + subjectNameInContext(export_iface->objectBase()) + tr(" in context ") + observerName() + tr(") which does not support XML exporting. XML export will be incomplete."));
