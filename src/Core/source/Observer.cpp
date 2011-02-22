@@ -774,7 +774,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                 for (int i = 0; i < subjectFilters().count(); i++) {
                     ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
                     if (activity_filter) {
-                        activity_filter->setActiveSubjects(active_subjects);
+                        activity_filter->setActiveSubjects(active_subjects,!has_active_processing_cycle);
                         break;
                     }
                 }
