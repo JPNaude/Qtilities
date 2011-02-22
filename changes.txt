@@ -218,6 +218,7 @@ Qtilities v0.3 Implemented Changes
         - ConfigurationWidget and AboutWindow will now close when you close an application while they are still open and the application will actually close.
         - ConfigurationWidget and ModeManager will now search for and register all config pages and modes found in the global object pool by just calling initialize() on them.
         - ObjectScopeWidget's way of handling and regitering actions improved considerably.
+        - CodeEditor::removeWordHighlighting() is now implemented.
     - Interafaces
         - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
     - Naming Policy Subject Filter
