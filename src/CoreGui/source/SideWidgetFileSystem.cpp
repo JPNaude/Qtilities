@@ -86,7 +86,40 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
 
     // Handle drag drop events manually:
     ui->treeView->viewport()->installEventFilter(this);
+    setAcceptDrops(true);
 }
+
+void Qtilities::CoreGui::SideWidgetFileSystem::dragEnterEvent(QDragEnterEvent *event) {
+     if (event->mimeData()->hasUrls())
+         event->acceptProposedAction();
+ }
+
+void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
+    // For now we just copy files (not folders) dropped here:
+    foreach(QUrl url, event->mimeData()->urls()) {
+        // Create the source path:
+        QString source_path = url.path();
+        if (source_path.startsWith("/"))
+            source_path.remove(0,1);
+
+        QFile file(source_path);
+        QFileInfo file_info(source_path);
+        if (!file_info.isDir()) {
+            // Create the destination path:
+            QString dest_path = path();
+            if (!dest_path.endsWith("/"))
+                dest_path.append("/");
+            dest_path.append(file_info.fileName());
+
+            if (file.copy(dest_path))
+                LOG_INFO_P(tr(QString("Successfully copied file from \"" + dest_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
+            else
+                LOG_ERROR_P(tr(QString("Successfully copied file from \"" + dest_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
+        }
+    }
+
+    event->acceptProposedAction();
+ }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::handleRootPathChanged(const QString& newPath) {
     QDir::setCurrent(newPath);
@@ -180,7 +213,7 @@ bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEve
                drag->exec(Qt::CopyAction);
             else if (mouseEvent->buttons() == Qt::RightButton)
                drag->exec(Qt::MoveAction);
-            return true;
+            return false;
         } else if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if ((mouseEvent->buttons() & Qt::LeftButton || mouseEvent->buttons() & Qt::RightButton))

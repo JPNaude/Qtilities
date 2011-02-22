@@ -74,6 +74,8 @@ namespace Qtilities {
             explicit SideWidgetFileSystem(const QString& start_path = QString(), QWidget *parent = 0);
             virtual ~SideWidgetFileSystem() {}
             bool eventFilter(QObject *object, QEvent *event);
+            void dragEnterEvent(QDragEnterEvent *event);
+            void dropEvent(QDropEvent *event);
 
             // --------------------------------
             // Factory Interface Implemenation
