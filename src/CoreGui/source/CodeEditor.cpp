@@ -49,6 +49,8 @@ struct Qtilities::CoreGui::CodeEditorPrivateData {
     QTextCursor cursor_find;
     //! A QTextCursor which handles replacing of words.
     QTextCursor cursor_replace;
+    //! Previous set of highlighted words.
+    QStringList previous_highlight_words;
 };
 
 Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent) {
@@ -179,9 +181,11 @@ void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, co
         d->cursor_word_highlighter.movePosition(QTextCursor::NextWord);
         d->cursor_word_highlighter.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
     }
+
+    d->previous_highlight_words << words;
 }
 
 void Qtilities::CoreGui::CodeEditor::removeWordHighlighting() {
-
+    highlightWords(d->previous_highlight_words,QBrush());
 }
 
