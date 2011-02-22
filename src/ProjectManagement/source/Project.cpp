@@ -230,7 +230,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     if (close_current_first)
         closeProject();
 
-    LOG_DEBUG(tr("Starting to load project from file: ") + file_name);
+    LOG_INFO_P(tr("Loading project: ") + file_name);
     QFile file(file_name);
     if (!file.exists()) {
         LOG_ERROR_P(QString(tr("Project file does not exist at path \"") + file_name + tr("\". Project will not be loaded.")));
@@ -457,6 +457,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 }
 
 bool Qtilities::ProjectManagement::Project::closeProject() {
+    LOG_INFO_P(tr("Closing project: ") + d->project_file);
     for (int i = 0; i < d->project_items.count(); i++) {
         d->project_items.at(i)->closeProjectItem();
     }
