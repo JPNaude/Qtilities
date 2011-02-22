@@ -225,7 +225,9 @@ void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::Mes
             d->priority_messages_icon.setVisible(true);
         }
 
+        QApplication::processEvents();
         d->priority_messages_text.setText(message);
+        QApplication::processEvents();
         d->priority_message_timer.start(5000);
     }
     QApplication::processEvents();
