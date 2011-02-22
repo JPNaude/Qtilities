@@ -174,7 +174,7 @@ QString Qtilities::CoreGui::TreeFileItem::displayName() {
         return treeFileItemBase->file_info.actualFilePath();
     }
 
-    return QString("Invalid display name type. See Qtilities::CoreGui::TreeFileItem::displayName()");
+    return QString(tr("Invalid display name type. See Qtilities::CoreGui::TreeFileItem::displayName()"));
 }
 
 void Qtilities::CoreGui::TreeFileItem::setDisplayName(const QString& new_display_name) {
@@ -296,6 +296,6 @@ bool Qtilities::CoreGui::TreeFileItem::exists() const {
     return file_info.exists();
 }
 
-Qtilities::Core::QtilitiesFileInfo Qtilities::CoreGui::TreeFileItem::fileInfo() {
+Qtilities::Core::QtilitiesFileInfo Qtilities::CoreGui::TreeFileItem::fileInfo() const {
     return treeFileItemBase->file_info;
 }

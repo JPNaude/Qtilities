@@ -163,7 +163,7 @@ namespace Qtilities {
             virtual bool exists() const;
 
             //! Extended access to file info object.
-            QtilitiesFileInfo fileInfo();
+            QtilitiesFileInfo fileInfo() const;
 
             // --------------------------------
             // Factory Interface Implemenation
