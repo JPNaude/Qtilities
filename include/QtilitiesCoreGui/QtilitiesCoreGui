@@ -57,6 +57,7 @@
 #include "TreeItemBase.h"
 #include "SideWidgetFileSystem.h"
 #include "ObjectDynamicPropertyBrowser.h"
+#include "StringListWidget.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
