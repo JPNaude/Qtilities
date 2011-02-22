@@ -249,11 +249,11 @@ namespace Qtilities {
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.
-            void setActiveSubjects(QList<QObject*> objects);
+            void setActiveSubjects(QList<QObject*> objects, bool broadcast = true);
             //! Sets the active subjects.
-            void setActiveSubjects(QList<QPointer<QObject> > objects);
+            void setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast = true);
             //! Sets a single active subject.
-            void setActiveSubject(QObject* obj);
+            void setActiveSubject(QObject* obj, bool broadcast = true);
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.

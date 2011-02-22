@@ -249,7 +249,7 @@ void Qtilities::Core::ActivityPolicyFilter::setModificationState(bool new_state,
     }
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> objects) {
+void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> objects, bool broadcast) {
     if (!observer) {
         LOG_TRACE("Cannot set active objects in an activity subject filter without an observer context.");
         return;
@@ -318,27 +318,29 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     changed_objects << observer->subjectReferences();
     emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
 
-    // 3. Emit the activeSubjectsChanged() signal:
-    emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+    if (broadcast) {
+        // 3. Emit the activeSubjectsChanged() signal:
+        emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
-    // 4. Change the modification state of the filter:
-    setModificationState(true);
+        // 4. Change the modification state of the filter:
+        setModificationState(true);
 
-    // 5. Emit the dataChanged() signal on the observer context:
-    observer->refreshViewsData();
+        // 5. Emit the dataChanged() signal on the observer context:
+        observer->refreshViewsData();
+    }
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QObject> > objects) {
+void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast) {
     QList<QObject*> simple_objects;
     for (int i = 0; i < objects.count(); i++)
         simple_objects << objects.at(i);
-    setActiveSubjects(simple_objects);
+    setActiveSubjects(simple_objects,broadcast);
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj) {
+void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj, bool broadcast) {
     QList<QObject*> objects;
     objects << obj;
-    setActiveSubjects(objects);
+    setActiveSubjects(objects,broadcast);
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
@@ -457,6 +459,8 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
 
                 // 5. Emit the dataChanged() signal on the observer context:
                 observer->refreshViewsData();
+            } else {
+                setModificationState(true,IModificationNotifier::NotifyNone);
             }
         }
         filter_mutex.unlock();
@@ -501,7 +505,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     if (!observer->isProcessingCycleActive())
         setModificationState(true);
     else
-        d->is_modified = true;
+        setModificationState(true,IModificationNotifier::NotifyNone);
 }
 
 QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
