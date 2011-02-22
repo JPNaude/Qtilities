@@ -1593,9 +1593,6 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     if (!observer)
         observer = d->top_level_observer;
 
-    if (!setObserverContext(observer))
-        return;
-
     // Do some hints debugging:
     /*if (observer) {
         qDebug() << "New selection parent: " << observer << " with display hints.";
@@ -1609,11 +1606,14 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
         qDebug() << "New selection parent: " << observer << " with NO display hints.";
     }*/
 
-    // We set d->update_selection_activity to false in here since we don't want an initial selection
-    // to be created in initialize()
-    d->update_selection_activity = false;
-    initialize(true);
-    d->update_selection_activity = true;
+
+    if (setObserverContext(observer)) {
+        // We set d->update_selection_activity to false in here since we don't want an initial selection
+        // to be created in initialize()
+        d->update_selection_activity = false;
+        initialize(true);
+        d->update_selection_activity = true;
+    }
 
     // We need to look at the current selection parent if in tree mode, otherwise in table mode we use d_observer:
     if (d->update_selection_activity && observer) {
@@ -1626,7 +1626,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
                 if (filter) {
                     // We set d->update_selection_activity to false in here since we don't want selectObjects()
                     // to select the objects again. We will get in this slot when the user already made a new
-                    // selected and we do not want to go into a endless loop.
+                    // selection and we do not want to go into a endless loop.
                     d->update_selection_activity = false;
                     filter->setActiveSubjects(d->current_selection);
                     d->update_selection_activity = true;
