@@ -608,6 +608,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
     Q_UNUSED(params)
 
+    QList<QPointer<QObject> > active_subjects;
     bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     IExportable::Result result = IExportable::Complete;
@@ -691,7 +692,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         }
 
         if (child.tagName() == "Children") {
-            QList<QPointer<QObject> > active_subjects;
             QDomNodeList childrenNodes = child.childNodes();
             for(int i = 0; i < childrenNodes.count(); i++)
             {
@@ -768,18 +768,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
                     continue;
                 }
             }
-
-            // If active_subjects has items in it we must set them active:
-            if (active_subjects.count() > 0) {
-                for (int i = 0; i < subjectFilters().count(); i++) {
-                    ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
-                    if (activity_filter) {
-                        activity_filter->setActiveSubjects(active_subjects,!has_active_processing_cycle);
-                        break;
-                    }
-                }
-            }
-
             continue;
         }
     }
@@ -788,6 +776,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::impo
         endProcessingCycle();
 
     refreshViewsLayout();
+
+    // If active_subjects has items in it we must set them active:
+    if (active_subjects.count() > 0) {
+        for (int i = 0; i < subjectFilters().count(); i++) {
+            ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
+            if (activity_filter) {
+                activity_filter->setActiveSubjects(active_subjects,true);
+                break;
+            }
+        }
+    }
+
     return result;
 }
 

@@ -278,7 +278,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
             return;
     }
 
-    // Now we know that the list is valid, lock the mutex
+    // Now we know that the list is valid, lock the mutex so that property changes will be blocked.
     filter_mutex.tryLock();
     // Set all objects as inactive
     for (int i = 0; i < observer->subjectCount(); i++) {
@@ -327,6 +327,8 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 
         // 5. Emit the dataChanged() signal on the observer context:
         observer->refreshViewsData();
+    } else {
+        setModificationState(true,IModificationNotifier::NotifyNone);
     }
 }
 
