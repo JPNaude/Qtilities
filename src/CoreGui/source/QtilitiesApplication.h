@@ -166,7 +166,7 @@ QtilitiesApplication::initialize();
 
                 This function will emit settingsUpdateRequest() with the given \p request_id.
               */
-            static inline void newSettingsUpdateRequest(const QString& request_id) { emit m_Instance->settingsUpdateRequest(request_id); }
+            static inline void newSettingsUpdateRequest(const QString& request_id) { if (m_Instance) { emit m_Instance->settingsUpdateRequest(request_id); } }
 
             //! Returns a session path for your application where you can store session related information (for example shortcut configurations etc.)
             /*!
