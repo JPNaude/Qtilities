@@ -97,9 +97,11 @@ namespace Qtilities {
 
     History:<br>
     XML exporting was introduced in %Qtilities v0.2<br>
-    1 - %Qtililties v0.2 onwards<br>
+    1 - %Qtililties v0.2<br>
+    2 - %Qtililties v0.3 onwards<br>
+        - The factory tags defined and used throughout %Qtilities changed, causing the required version step.
     */
-    #define qti_def_FORMAT_TREES_XML 1
+    #define qti_def_FORMAT_TREES_XML 2
 
     //! The %Qtilities Extension System plugin configuration export format.
     /*!
