@@ -68,73 +68,51 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Tr
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    // 1.1 Formatting:
+    IExportable::Result result = saveFormattingToXML(doc,object_node,exportVersion());
 
-    // 1. Factory attributes is added to this item's node:
-    instanceFactoryInfo().exportXML(doc,object_node);
-
-    // 2. The data of this item is added to a new data node:
-    QDomElement item_data = doc->createElement("Data");
-    object_node->appendChild(item_data);
-
-    // 2.1 Formatting:
-    IExportable::Result result = saveFormattingToXML(doc,&item_data);
-
-    // 2.2 File Information:
-    QDomElement file_data = doc->createElement("File");
-    item_data.appendChild(file_data);
-    file_data.setAttribute("Path",path());
+    // 1.2 File Information:
+    QDomElement file_data = doc->createElement("FileInfo");
+    object_node->appendChild(file_data);
+    file_data.setAttribute("Path",filePath());
     file_data.setAttribute("RelativeToPath",relativeToPath());
     file_data.setAttribute("PathDisplay",(int) pathDisplay());
-
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
-    Q_UNUSED(params)
     Q_UNUSED(import_list)
 
     IExportable::Result result = IExportable::Incomplete;
 
-    QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++) {
-        QDomNode childNode = childNodes.item(i);
-        QDomElement child = childNode.toElement();
+    QDomNodeList dataNodes = object_node->childNodes();
+    for(int i = 0; i < dataNodes.count(); i++) {
+        QDomNode dataNode = dataNodes.item(i);
+        QDomElement data = dataNode.toElement();
 
-        if (child.isNull())
+        if (data.isNull())
             continue;
 
-        if (child.tagName() == "Data") {
-            QDomNodeList dataNodes = child.childNodes();
-            for(int i = 0; i < dataNodes.count(); i++) {
-                QDomNode dataNode = dataNodes.item(i);
-                QDomElement data = dataNode.toElement();
-
-                if (data.isNull())
-                    continue;
-
-                if (data.tagName() == "File") {
-                    // Restore the file path/name:
-                    if (data.hasAttribute("Path")) {
-                        setFile(data.attribute("Path"));
-                        result = IExportable::Complete;
-                    }
-                    if (data.hasAttribute("RelativeToPath")) {
-                        setRelativeToPath(data.attribute("RelativeToPath"));
-                        result = IExportable::Complete;
-                    }
-                    if (data.hasAttribute("PathDisplay")) {
-                        setPathDisplay((PathDisplay) data.attribute("PathDisplay").toInt());
-                        result = IExportable::Complete;
-                    }
-                }
+        if (data.tagName() == "FileInfo") {
+            // Restore the file path/name:
+            if (data.hasAttribute("Path")) {
+                setFile(data.attribute("Path"));
+                result = IExportable::Complete;
+            }
+            if (data.hasAttribute("RelativeToPath")) {
+                setRelativeToPath(data.attribute("RelativeToPath"));
+                result = IExportable::Complete;
+            }
+            if (data.hasAttribute("PathDisplay")) {
+                setPathDisplay((PathDisplay) data.attribute("PathDisplay").toInt());
+                result = IExportable::Complete;
             }
         }
     }
 
-    IExportable::Result formatting_result = loadFormattingFromXML(doc,object_node);
+    IExportable::Result formatting_result = loadFormattingFromXML(doc,object_node,exportVersion());
     if (formatting_result != IExportable::Complete)
         result = formatting_result;
 
@@ -196,7 +174,7 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const Q
 
     // We need to check if an object name exists
     if (Observer::propertyExists(this,qti_prop_NAME)) {
-        SharedObserverProperty new_subject_name_property(QVariant(displayName()),qti_prop_NAME);
+        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(displayName()));
         Observer::setSharedProperty(this,new_subject_name_property);
     } else {
         setObjectName(displayName());

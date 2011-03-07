@@ -107,9 +107,7 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::CodeEditorPro
     return InstanceFactoryInfo();
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportBinary(QDataStream& stream) const {
     if (!d->code_editor)
         return IExportable::Failed;
 
@@ -119,9 +117,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
-    Q_UNUSED(params)
 
     if (!d->code_editor)
         return IExportable::Failed;
@@ -133,9 +130,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     if (d->code_editor) {
         // Add a new node for this code editor. We don't want it to add its factory data
         // to the ProjectItem node.
@@ -151,8 +146,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
         return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(params)
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+
     Q_UNUSED(import_list)
     Q_UNUSED(doc)
 
@@ -177,6 +172,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
                         continue;
 
                     d->code_editor->codeEditor()->setPlainText(cdata.data());
+                    return IExportable::Complete;
                 }
             }
         }

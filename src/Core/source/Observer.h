@@ -38,7 +38,7 @@
 #include "QtilitiesCoreApplication.h"
 #include "QtilitiesCoreConstants.h"
 #include "PointerList.h"
-#include "ObserverProperty.h"
+#include "QtilitiesProperty.h"
 #include "ObserverData.h"
 #include "IExportable.h"
 #include "IFactoryProvider.h"
@@ -65,6 +65,12 @@ namespace Qtilities {
         \class Observer
         \brief The observer class is an extended implementation of an observer in the subject-observer pattern.
 
+
+
+        \section Observer Tree Classification
+
+        \image html observer_tree_classification.jpg "Observer Trees"
+
         See the \ref page_observers article for more information.
         */
         class QTILIITES_CORE_SHARED_EXPORT Observer : public QObject, public IExportable, public IModificationNotifier
@@ -76,6 +82,7 @@ namespace Qtilities {
             Q_ENUMS(ObjectOwnership);            
             Q_ENUMS(EvaluationResult)
             Q_ENUMS(AccessMode)
+            Q_ENUMS(ExtendedExportItem)
 
             Q_PROPERTY(QString Name READ observerName);
             Q_PROPERTY(QString Description READ observerDescription);
@@ -116,7 +123,7 @@ namespace Qtilities {
             enum ObjectOwnership {
                 ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted. */
                 AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a \p parent(), if so Observer::ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using Observer::ObserverScopeOwnership. */
-                SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. */
+                SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. In this case, the normal QObject::parent() function on the subject will be set to this observer. */
                 ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
                 OwnedBySubjectOwnership     /*!< The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When Observer::OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using Observer::OwnedBySubjectOwnership it is attached to all other contexts after that using Observer::OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using Observer::OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
             };
@@ -210,30 +217,23 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            /*!
-              XML exporting of observers is intended to stream tree structures. It has some limitations compared to exportBinary():
-              - It does not export relationships between objects and does not use the visitor pattern export mechanism used during binary exports. Thus if a item exists more than once in a tree, the reconstructed tree will create different items for all the places where it existed.
-              - It does not export all properties only activity and category information are exported.
-
-              Because of these limitations XML observer exports are best suited for visual tree structures, especially trees build using the Qtilities::CoreGui::TreeNode and Qtilities::CoreGui::TreeItem instances.
-              For complex observer structures binary exports should be used. Note that XML exports is much faster than
-              binary exports.
-
-              This function will add factory data to \p object_node and data and child information as new nodes underneath
-              \p object_node.
-              */
-            virtual IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
+            virtual void setExportVersion(Qtilities::ExportVersion version);
+            virtual void setApplicationExportVersion(quint32 version);
+            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
             /*!
               For children, the sequence in which the object reconstruction happens is as follows:
               - Construct object and set object name according to factory data.
               - Attach object.
               - Set object category if it exists.
-              - Call the importXML() function on the object's IExportable implementation.
+              - Call the importXml() function on the object's IExportable implementation.
               - Set object activity.
               */
-            virtual IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
+            virtual IExportable::Result exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
+            virtual IExportable::Result exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
 
             // --------------------------------
             // IModificationNotifier Implementation
@@ -396,27 +396,29 @@ namespace Qtilities {
             // Observer property related functions
             // --------------------------------
         public:
-            //! Convenience function which will get the value of a ObserverProperty based dynamic property, and not the observer property itself.
+            //! Convenience function which will get the value of a MultiContextProperty based dynamic property, and not the observer property itself.
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will get the property's value.
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
-            QVariant getObserverPropertyValue(const QObject* obj, const char* property_name) const;
-            //! Convenience function which will set the value of a ObserverProperty based dynamic property, and not the observer property itself.
+            QVariant getQtilitiesPropertyValue(const QObject* obj, const char* property_name) const;
+            //! Convenience function which will set the value of a MultiContextProperty based dynamic property, and not the observer property itself.
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will set the property's value.
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
-            bool setObserverPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
+            bool setQtilitiesPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
 
             // --------------------------------
             // Static functions
             // --------------------------------
-            //! Convenience function which will get the specified ObserverProperty of the specified object.
-            static ObserverProperty getObserverProperty(const QObject* obj, const char* property_name);
-            //! Convenience function which will set the specified ObserverProperty on the specified object.
+            //! Function which returns all the observers in a QList<QObject*> input list.
+            static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);
+            //! Convenience function which will get the specified MultiContextProperty of the specified object.
+            static MultiContextProperty getMultiContextProperty(const QObject* obj, const char* property_name);
+            //! Convenience function which will set the specified MultiContextProperty on the specified object.
             /*!
               Caution should be taken when using this function because you can easily overwrite property values for other
               contexts since the property has different values for different contexts.
@@ -427,27 +429,27 @@ QtilitiesCategory category("Test Category");
 // Check if the property exists:
 if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
     // If it does we MUST append the value for our context:
-    ObserverProperty category_property = Observer::getObserverProperty(iface->objectBase(),qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property = Observer::getMultiContextProperty(iface->objectBase(),qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(category),observerID());
-    Observer::setObserverProperty(iface->objectBase(),category_property);
+    Observer::setMultiContextProperty(iface->objectBase(),category_property);
 } else {
     // If not we create a new property with the value for our context:
-    ObserverProperty category_property(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
     category_property.setValue(qVariantFromValue(category),observerID());
-    Observer::setObserverProperty(iface->objectBase(),category_property);
+    Observer::setMultiContextProperty(iface->objectBase(),category_property);
 }
 \endcode
               */
-            static bool setObserverProperty(QObject* obj, ObserverProperty observer_property);
-            //! Convenience function which will get the specified SharedObserverProperty of the specified object.
-            static SharedObserverProperty getSharedProperty(const QObject* obj, const char* property_name);
-            //! Convenience function which will set the specified SharedObserverProperty on the specified object.
-            static bool setSharedProperty(QObject* obj, SharedObserverProperty shared_property);
+            static bool setMultiContextProperty(QObject* obj, MultiContextProperty observer_property);
+            //! Convenience function which will get the specified SharedProperty of the specified object.
+            static SharedProperty getSharedProperty(const QObject* obj, const char* property_name);
+            //! Convenience function which will set the specified SharedProperty on the specified object.
+            static bool setSharedProperty(QObject* obj, SharedProperty shared_property);
             //! Convenience function to get the number of observers observing the specified object. Thus the number of parents of this object.
             static int parentCount(const QObject* obj);
             //! Convenience function to get the a list of parent observers for this object.
             static QList<Observer*> parentReferences(const QObject* obj);
-            //! Convenience function to check if a property exists on a object.
+            //! Convenience function to check if a dynamic property exists on a object.
             static bool propertyExists(const QObject* obj, const char* property_name);
             //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
             /*!
@@ -457,7 +459,7 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
 
         private:
             //! This function will remove this observer from all the properties which it might have added to an obj.
-            void removeObserverProperties(QObject* obj);
+            void removeQtilitiesProperties(QObject* obj);
 
         public:
             // --------------------------------

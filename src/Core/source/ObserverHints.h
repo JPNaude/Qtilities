@@ -260,9 +260,9 @@ namespace Qtilities {
               \sa setDragDropHint(), dragDropHint()
               */
             enum DragDropHint {
-                NoDragDrop =    0, /*!< No drag or drops allowed. */
-                AcceptDrops =   1, /*!< This context accepts drops.*/
-                AllowDrags =    2, /*!< This context allows drags. */
+                NoDragDrop  =    0, /*!< No drag or drops allowed. */
+                AcceptDrops =    1, /*!< This context accepts drops.*/
+                AllowDrags  =    2, /*!< This context allows drags. */
                 AllDragDrop = AcceptDrops | AllowDrags
             };
             Q_DECLARE_FLAGS(DragDropFlags, DragDropHint);
@@ -301,39 +301,23 @@ activity_control(ObserverHints::NoActivityControlHint),
 item_selection_control(ObserverHints::SelectableItems),
 hierarhical_display(ObserverHints::NoHierarchicalDisplayHint),
 display_flags(NoDisplayFlagsHint),
-item_view_column_hint(ObserverHints::NoItemViewColumnHint),
+item_view_column_hint(ObserverHints::ColumnNoHints),
 drag_drop_flags(ObserverHints::NoDragDrop);
 action_hints(ObserverHints::ActionNoHints),
 modification_state_display(ObserverHints::NoModificationStateDisplayHint),
 category_list(QStringList()),
 inverse_categories(true),
 category_filter_enabled(false),
-is_exportable(true)
 \endcode
               */
             ObserverHints(QObject* parent = 0);
             //! Copy constructor.
             ObserverHints(const ObserverHints& other);
-            //! Overloaded = operator.
-            void operator=(const ObserverHints& other);
             //! Destructor.
             virtual ~ObserverHints();
-
-            //! Indicates if this observer hints instance must be exported when the observer in which it is used is exported.
-            /*!
-              When users have the ability to change hints it makes sense to export the hints along with an observer.
-              However if the user do not have the ability to change the hints, we do not need to export them.
-
-              \returns True if the hints is exportable, false otherwise. The default is true.
-
-              \sa setIsExportable();
-              */
-            bool isExportable() const;
-            //! Sets if this observer hints instance are exportable.
-            /*!
-              \sa isExportable()
-              */
-            void setIsExportable(bool is_exportable);
+            void operator=(const ObserverHints& other);
+            bool operator==(const ObserverHints& other) const;
+            bool operator!=(const ObserverHints& other) const;
 
             // --------------------------------
             // Hints Getter and Setter Functions
@@ -433,10 +417,10 @@ is_exportable(true)
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
             // IModificationNotifier Implemenation
@@ -457,5 +441,8 @@ is_exportable(true)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DragDropFlags)
     }
 }
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::ObserverHints& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::ObserverHints& stream_obj);
 
 #endif // OBSERVERHINTS_H

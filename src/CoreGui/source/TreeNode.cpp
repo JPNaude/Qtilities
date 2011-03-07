@@ -33,6 +33,7 @@
 
 #include "TreeNode.h"
 #include "QtilitiesCoreGuiConstants.h"
+#include "QtilitiesApplication.h"
 
 #include <QApplication>
 #include <QtXml>
@@ -69,12 +70,12 @@ Qtilities::CoreGui::TreeNode::~TreeNode() {
     delete nodeData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const {
-    return saveFormattingToXML(doc,object_node);
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
+    return saveFormattingToXML(doc,object_node,version);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::importFormattingXML(QDomDocument* doc, QDomElement* object_node) {
-    return loadFormattingFromXML(doc,object_node);
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
+    return loadFormattingFromXML(doc,object_node,version);
 }
 
 bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
@@ -248,7 +249,7 @@ void Qtilities::CoreGui::TreeNode::endProcessingCycle() {
 Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
     TreeItem* new_item = new TreeItem(name);
     new_item->setCategory(category,this);
-    if (attachSubject(new_item,Observer::ObserverScopeOwnership)) {
+    if (attachSubject(new_item,Observer::SpecificObserverOwnership)) {
         return new_item;
     } else {
         delete new_item;
@@ -259,7 +260,7 @@ Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QStrin
 Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name, const QtilitiesCategory& category) {
     TreeNode* new_node = new TreeNode(name);
     new_node->setCategory(category,this);
-    if (attachSubject(new_node,Observer::ObserverScopeOwnership)) {
+    if (attachSubject(new_node,Observer::SpecificObserverOwnership)) {
         return new_node;
     } else {
         delete new_node;
@@ -308,7 +309,7 @@ bool Qtilities::CoreGui::TreeNode::removeNode(TreeItemBase* node) {
     return detachSubject(node);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
     QFile file(file_name);
     if(!file.open(QFile::WriteOnly)) {
         if (errorMsg)
@@ -322,13 +323,23 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     // Create the QDomDocument:
     QDomDocument doc("QtilitiesTreeDoc");
     QDomElement root = doc.createElement("QtilitiesTree");
-    root.setAttribute("DocumentVersion",qti_def_FORMAT_TREES_XML);
     doc.appendChild(root);
 
-    // Do XML export in observer base class:
+    // ---------------------------------------------------
+    // Save file format information:
+    // ---------------------------------------------------
+    root.setAttribute("ExportVersion",QString::number(exportVersion()));
+    root.setAttribute("QtilitiesVersion",CoreGui::QtilitiesApplication::qtilitiesVersionString());
+    root.setAttribute("ApplicationExportVersion",QString::number(applicationExportVersion()));
+    root.setAttribute("ApplicationVersion",QApplication::applicationVersion());
+    root.setAttribute("ApplicationName",QApplication::applicationName());
+
+    // ---------------------------------------------------
+    // Do the actual export:
+    // ---------------------------------------------------
     QDomElement rootItem = doc.createElement("Root");
     root.appendChild(rootItem);
-    IExportable::Result result = exportXML(&doc,&rootItem);
+    IExportable::Result result = exportXmlExt(&doc,&rootItem,export_flags);
     if (result == IExportable::Failed && errorMsg)
         *errorMsg = QString(tr("XML exporting on the observer base class failed. Please see the log for details."));
 
@@ -372,25 +383,47 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     // Interpret the loaded doc:
     QDomElement root = doc.documentElement();
 
-    // Check the document version:
-    if (root.hasAttribute("DocumentVersion")) {
-        QString document_version = root.attribute("DocumentVersion");
-        if (document_version.toInt() > qti_def_FORMAT_TREES_XML) {
-            if (errorMsg)
-                *errorMsg = QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML);
-            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML));
-            QApplication::restoreOverrideCursor();
-            return IExportable::Failed;
-        }
+    // ---------------------------------------------------
+    // Inspect file format:
+    // ---------------------------------------------------
+    Qtilities::ExportVersion read_version;
+    if (root.hasAttribute("ExportVersion")) {
+        read_version = (Qtilities::ExportVersion) root.attribute("ExportVersion").toInt();
+        LOG_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(read_version));
     } else {
-        if (errorMsg)
-            *errorMsg = QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed."));
-        LOG_ERROR(QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed.")));
+        LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
+    if (root.hasAttribute("QtilitiesVersion"))
+        LOG_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(root.attribute("QtilitiesVersion")));
+    quint32 application_read_version = 0;
+    if (root.hasAttribute("ApplicationExportVersion")) {
+        application_read_version = root.attribute("ApplicationExportVersion").toInt();
+        LOG_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(application_read_version));
+    } else {
+        LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        QApplication::restoreOverrideCursor();
+        return IExportable::Failed;
+    }
+    if (root.hasAttribute("ApplicationVersion"))
+        LOG_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(root.attribute("ApplicationVersion")));
 
-    // Now check out all the children below the root node:
+    // ---------------------------------------------------
+    // Check if input format is supported:
+    // ---------------------------------------------------
+    bool is_supported_format = false;
+    if (read_version == Qtilities::Qtilities_0_3)
+        is_supported_format = true;
+
+    if (!is_supported_format) {
+        LOG_ERROR(QString(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.")).arg(read_version));
+        return IExportable::Failed;
+    }
+
+    // ---------------------------------------------------
+    // Do the actual import:
+    // ---------------------------------------------------
     IExportable::Result result = IExportable::Complete;
     QList<QPointer<QObject> > internal_import_list;
     QDomNodeList childNodes = root.childNodes();
@@ -407,7 +440,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
                 setObjectName(child.attribute("Name"));
 
             // Do import on observer base class:
-            IExportable::Result intermediate_result = importXML(&doc,&child,internal_import_list);
+            IExportable::Result intermediate_result = importXml(&doc,&child,internal_import_list);
             if (intermediate_result == IExportable::Failed) {
                 if (errorMsg)
                     *errorMsg = QString(tr("XML importing on the observer base class failed. Please see the log for details."));

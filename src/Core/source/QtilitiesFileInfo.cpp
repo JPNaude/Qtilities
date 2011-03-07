@@ -35,20 +35,20 @@
 
 #include <QDir>
 
-struct Qtilities::Core::QtilitiesFileInfoData {
-    QtilitiesFileInfoData() {}
+struct Qtilities::Core::QtilitiesFileInfoPrivateData {
+    QtilitiesFileInfoPrivateData() {}
 
     //! The relative to path of this file.
     QString relative_to_path;
 };
 
 Qtilities::Core::QtilitiesFileInfo::QtilitiesFileInfo(const QString& file, const QString& relative_to_path) : QFileInfo(file) {
-    d = new QtilitiesFileInfoData;
+    d = new QtilitiesFileInfoPrivateData;
     d->relative_to_path = relative_to_path;
 }
 
 Qtilities::Core::QtilitiesFileInfo::QtilitiesFileInfo(const QtilitiesFileInfo& ref) : QFileInfo(ref) {
-    d = new QtilitiesFileInfoData;
+    d = new QtilitiesFileInfoPrivateData;
     d->relative_to_path = ref.relativeToPath();
 }
 

@@ -51,7 +51,7 @@ namespace Qtilities {
         //! Namespace containing constants used inside the CoreGui Module.
         namespace Constants {
             //! %Factory tag for naming policy subject filters.
-            const char * const qti_def_FACTORY_TAG_NAMING_FILTER     = "qti.def.NamingFilter";
+            const char * const qti_def_FACTORY_TAG_NAMING_FILTER     = "qti.def.FactoryTag.NamingFilter";
             //! %Factory tag for tree nodes.
             const char * const qti_def_FACTORY_TAG_TREE_NODE         = "qti.def.FactoryTag.TreeNode";
             //! %Factory tag for tree items.

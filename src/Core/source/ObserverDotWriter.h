@@ -157,8 +157,7 @@ digraph "Root Node" {
 
         The properties that can be applied to each of these are detailed in the <a href="http://www.graphviz.org/Documentation/dotguide.pdf">The Dot Guide</a> and
         will not be repeated here. For all properties the defaults of the \p dot language is used since ObserverDotWriter does
-        not add them to the script if they are not specified. The only aspect of the graph that is set explicitly is
-        the type of graph: undirected or directed which can be specified using setGraphType().
+        not add them to the script if they are not specified.
 
         \subsection observer_dot_graph_attributes Graph Attributes
 
@@ -173,6 +172,7 @@ node->addItem("Item 3");
 
 // Create a dot script for this tree:
 ObserverDotWriter dotGraph(node);
+dotGraph.addGraphAttribute("label","Graph Title");
 dotGraph.generateDotScript();
 dotGraph.saveToFile("output_file.gv");
 \endcode
@@ -180,6 +180,7 @@ dotGraph.saveToFile("output_file.gv");
         The resulting \p dot script looks like this:
 \code
 digraph "Root Node" {
+    label = "Graph Title";
     0 [label="Root Node" color="red"];
     0 -> 1;
     0 -> 2;
@@ -221,6 +222,45 @@ digraph "Root Node" {
 }
 \endcode
 
+        \subsection observer_dot_graph_edge_attributes Edge Attributes
+
+        It is possible to add any edge attribute specified in the dot language between two nodes in your graph. For example:
+
+\code
+// Create tree structure:
+TreeNode* node = new TreeNode("Root Node");
+TreeItem* item1 = node->addItem("Item 1");
+TreeItem* item2 = node->addItem("Item 2");
+node->addItem("Item 3");
+
+// Create a dot script for this tree:
+ObserverDotWriter dotGraph(node);
+dotGraph.addEdgeAttribute(node,item1,"label","\"My label\"");
+dotGraph.addEdgeAttribute(node,item1,"style","bold");
+dotGraph.addEdgeAttribute(node,item12,"color","red");
+dotGraph.generateDotScript();
+dotGraph.saveToFile("output_file.gv");
+\endcode
+
+        The resulting \p dot script looks like this:
+\code
+digraph "Root Node" {
+    label = "Graph Title";
+    0 [label="Root Node" color="red"];
+    0 -> 1 [label="My label",style=bold];
+    0 -> 2 [color=red];
+    0 -> 3;
+    1 [label="Item 1"];
+    2 [label="Item 2"];
+    3 [label="Item 3"];
+}
+\endcode
+
+        Note the needed extra \p \" characters for the \p label attribute.
+
+        Combining all of the different attributes that we've set above, we get a graph like this:
+
+        \image html observer_dot_graph_example_attributes_dot.jpg "Example Graph With Attributes (Dot Layout Engine)"
 
         <i>This class was added in %Qtilities v0.3.</i>
           */
@@ -230,23 +270,12 @@ digraph "Root Node" {
             Q_ENUMS(GraphType)
 
         public:
-            //! The possible graph types.
-            /*!
-              Default is Directed.
-
-              \sa setGraphType(), graphType()
-              */
-            enum GraphType {
-                Directed =    0, /*!< Directed graph. */
-                Undirected =  1  /*!< Undirected graph. */
-            };
-
             //! Default constructor
             /*!
                \param observer The observer for which the script must be generated. The observer will also become the parent of this class.
                \param graph_type The type of graph.
               */
-            ObserverDotWriter(Observer* observer = 0, GraphType graph_type = Directed);
+            ObserverDotWriter(Observer* observer = 0);
             //! Copy constructor.
             ObserverDotWriter(const ObserverDotWriter& other);
             //! Overloaded = operator.
@@ -258,11 +287,6 @@ digraph "Root Node" {
             bool setObserverContext(Observer* observer);
             //! Gets a pointer to the observer context.
             Observer* observerContext() const;
-
-            //! Gets the graph type.
-            GraphType type() const;
-            //! Sets the graph type.
-            void setType(GraphType type);
 
             //! Saves the dot script to a file.
             /*!

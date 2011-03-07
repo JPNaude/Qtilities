@@ -41,6 +41,8 @@ namespace Qtilities {
         /*!
         \class FileUtils
         \brief The FileUtils class provides commonly used file related functionality.
+
+        <i>This class was added in %Qtilities v0.3.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT FileUtils
         {
@@ -48,13 +50,22 @@ namespace Qtilities {
             //! Removes the specified directory along with all of its contents.
             /*!
                \param dirName Path of directory to remove.
-               \return true on success; false on error.
+               \return true on success, false otherwise.
               */
             static bool removeDir(const QString &dirName);
             //! Appends a string to the file name part of the file, that is after the file's name and before the extension.
             static QString appendToFileName(const QString &fullFileName, const QString& append_string);
             //! Removes the specified number of characters from the end of the file name part of the file, that is after the file's name and before the extension.
             static QString removeFromFileName(const QString &fullFileName, int len);
+            //! Calculates a hash code for a text file.
+            /*!
+              If something went wrong, -1 is returned as an error code.
+              */
+            static int textFileHashCode(const QString& file);
+            //! Compares two text files and returns true if they are exactly the same, false otherwise.
+            static bool compareTextFiles(const QString& file1, const QString& file2);
+            //! Compares two binary files and returns true if they are exactly the same, false otherwise.
+            static bool compareBinaryFiles(const QString& file1, const QString& file2);
         };
     }
 }

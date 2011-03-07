@@ -6,7 +6,8 @@
 # ***************************************************************************
 # Qtilities Unit Tests Library
 # ***************************************************************************
-QTILITIES += coregui
+QTILITIES += project_management
+QTILITIES += extension_system
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/UnitTests
 
@@ -15,6 +16,7 @@ CONFIG += qt \
     ordered
 
 QT += core
+QT += xml
 CONFIG += qtestlib
 
 CONFIG(debug, debug|release) {
@@ -39,7 +41,15 @@ UI_DIR = $$QTILITIES_TEMP/UnitTests
 HEADERS += source/UnitTestsConstants.h \
         source/UnitTests_global.h \
         source/TestObserver.h \
-        source/TestObserverRelationalTable.h
-SOURCES += source/TestObserver.cpp \
-        source/TestObserverRelationalTable.cpp
+        source/TestObserverRelationalTable.h \
+        source/TestVersionNumber.h \
+        source/TestExporting.h \
+        source/TestSubjectIterator.h \
+        source/TestTreeIterator.h
 
+SOURCES += source/TestObserver.cpp \
+        source/TestObserverRelationalTable.cpp \
+        source/TestVersionNumber.cpp \
+        source/TestExporting.cpp \
+        source/TestSubjectIterator.cpp \
+        source/TestTreeIterator.cpp

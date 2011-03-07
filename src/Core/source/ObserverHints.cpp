@@ -49,8 +49,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
         modification_state_display(ObserverHints::NoModificationStateDisplayHint),
         has_inversed_category_display(true),
         category_filter_enabled(false),
-        is_modified(false),
-        is_exportable(true) {}
+        is_modified(false) {}
 
     ObserverHints::ObserverSelectionContext     observer_selection_context;
     ObserverHints::NamingControl                naming_control;
@@ -63,11 +62,10 @@ struct Qtilities::Core::ObserverHintsPrivateData {
     ObserverHints::ActionHints                  action_hints;
     ObserverHints::DragDropFlags                drag_drop_flags;
     ObserverHints::ModificationStateDisplayHint modification_state_display;
-    QList<QtilitiesCategory>                    displayed_categories;
+    QList<Qtilities::Core::QtilitiesCategory>   displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
     bool                                        is_modified;
-    bool                                        is_exportable;
 };
 
 Qtilities::Core::ObserverHints::ObserverHints(QObject* parent) : QObject(parent), ObserverAwareBase() {
@@ -97,8 +95,9 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
-    d->is_exportable = other.isExportable();
     d->modification_state_display = other.modificationStateDisplayHint();
+
+    setIsExportable(other.isExportable());
 
     if (observerContext())
         observerContext()->setModificationState(true);
@@ -117,19 +116,47 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
-    d->is_exportable = other.isExportable();
     d->modification_state_display = other.modificationStateDisplayHint();
+
+    setIsExportable(other.isExportable());
 
     if (observerContext())
         observerContext()->setModificationState(true);
 }
 
-bool Qtilities::Core::ObserverHints::isExportable() const {
-    return d->is_exportable;
+bool Qtilities::Core::ObserverHints::operator==(const ObserverHints& other) const {
+    if (d->observer_selection_context != other.observerSelectionContextHint())
+        return false;
+    if (d->naming_control != other.namingControlHint())
+        return false;
+    if (d->activity_display != other.activityDisplayHint())
+        return false;
+    if (d->activity_control != other.activityControlHint())
+        return false;
+    if (d->item_selection_control != other.itemSelectionControlHint())
+        return false;
+    if (d->hierarhical_display != other.hierarchicalDisplayHint())
+        return false;
+    if (d->display_flags != other.displayFlagsHint())
+        return false;
+    if (d->item_view_column_hint != other.itemViewColumnHint())
+        return false;
+    if (d->action_hints != other.actionHints())
+        return false;
+    if (d->displayed_categories != other.displayedCategories())
+        return false;
+    if (d->has_inversed_category_display != other.hasInversedCategoryDisplay())
+        return false;
+    if (d->category_filter_enabled != other.categoryFilterEnabled())
+        return false;
+    if (d->modification_state_display != other.modificationStateDisplayHint())
+        return false;
+
+    return true;
 }
 
-void Qtilities::Core::ObserverHints::setIsExportable(bool is_exportable) {
-    d->is_exportable = is_exportable;
+bool Qtilities::Core::ObserverHints::operator!=(const ObserverHints& other) const {
+    return !(*this==other);
 }
 
 void Qtilities::Core::ObserverHints::setObserverSelectionContextHint(ObserverHints::ObserverSelectionContext observer_selection_context) {
@@ -533,9 +560,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
     stream << (quint32) d->observer_selection_context;
     stream << (quint32) d->naming_control;
     stream << (quint32) d->activity_display;
@@ -558,10 +583,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
-    Q_UNUSED(params)
-
+     
     quint32 qi32;
     stream >> qi32;
     d->observer_selection_context = ObserverHints::ObserverSelectionContext (qi32);
@@ -589,7 +613,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     stream >> qi32;
     int category_count = qi32;
     for (int i = 0; i < category_count; i++) {
-        QtilitiesCategory category(stream);
+        QtilitiesCategory category(stream,exportVersion());
         d->displayed_categories << category;
     }
 
@@ -602,9 +626,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     // Export hints:
     if (d->action_hints != ActionNoHints)
         object_node->setAttribute("ActionHints",actionHintsToString(d->action_hints));
@@ -642,22 +664,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
             category_data.setAttribute("FilterInversed","True");
         else
             category_data.setAttribute("FilterInversed","False");
+        category_data.setAttribute("CategoryCount",d->displayed_categories.count());
 
-        QDomElement displayed_category_data = doc->createElement("Categories");
-        category_data.appendChild(displayed_category_data);
         for (int i = 0; i < d->displayed_categories.count(); i++) {
-            QDomElement category_item = doc->createElement("Category");
-            displayed_category_data.appendChild(category_item);
-            category_item.setAttribute("Name",d->displayed_categories.at(i).toString());
+            QDomElement category_item = doc->createElement("Category_" + QString::number(i));
+            d->displayed_categories.at(i).exportXml(doc,&category_item);
+            category_data.appendChild(category_item);
         }
     }
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
-    Q_UNUSED(params)
-
+     
     // Hints:
     if (object_node->hasAttribute("ActionHints"))
         d->action_hints = stringToActionHints(object_node->attribute("ActionHints"));
@@ -710,9 +730,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
                 if (category.isNull())
                     continue;
 
-                if (category.tagName() == "Categories") {
+                if (category.tagName().startsWith("Category_")) {
                     QtilitiesCategory new_category;
-                    new_category.importXML(doc,&category,import_list);
+                    new_category.importXml(doc,&category,import_list);
                     if (new_category.isValid())
                         d->displayed_categories << new_category;
                     continue;
@@ -723,4 +743,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     }
 
     return IExportable::Complete;
+}
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::ObserverHints& stream_obj) {
+    stream_obj.exportBinary(stream);
+    return stream;
+}
+
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::ObserverHints& stream_obj) {
+    QList<QPointer<QObject> > import_list;
+    stream_obj.importBinary(stream,import_list);
+    return stream;
 }

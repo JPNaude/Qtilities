@@ -1,0 +1,283 @@
+/**
+\page page_debugging Debugging %Qtilities Applications
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+%Qtilities provides a debugging plugin which can help you to debug your applications. The debug plugin provides
+many different views and ideas to help you debug your applications at runtime. The idea is not to replace
+your standard C++ debugger, but rather to give you runtime information about your application's state as well as
+specific information about any QObject in your application.
+
+This page will give an overview of the debugging plugin and highlight some of its more usefull features.
+
+Table of contents:
+- \ref debugging_introduction
+- \ref debugging_global_object_pool_view
+    - \ref debugging_object_static_properties
+    - \ref debugging_object_dynamic_properties
+    - \ref debugging_object_scope
+    - \ref debugging_signals_and_slots
+    .
+- \ref debugging_global_application_state_view
+    - \ref debugging_state_modes
+    - \ref debugging_state_contexts
+    - \ref debugging_state_actions
+    - \ref debugging_state_factories
+    - \ref debugging_state_projects
+    .
+- \ref debugging_plugins_view
+    - \ref debuggin_plugins_state
+    - \ref debuggin_plugins_custom
+    .
+- \ref debugging_inspecting_qobjects
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_debugging.html">Debugging Applications</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section debugging_introduction Introduction
+
+The debugging plugin is part of the \p QtilitiesPlugins project and is called \p DebugPlugin. You can see the documentation
+for the plugin here: Qtilities::Plugins::Debug::DebugPlugin.
+
+First of all, the easiest way to use the plugin is to make your application extendable (which is a very good thing)
+and then to add the debug plugin library to your application's plugin path. It will automatically be loaded as a mode
+in your application, thus you also need to use the Qtilities::CoreGui::QtilitiesMainWindow and set it up to use modes:
+
+\code
+int main(int argc, char *argv[])
+{
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setApplicationName("Main Window Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
+
+    // Create a QtilitiesMainWindow to show our different modes:
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
+
+    // Lots of application code...
+}
+\endcode
+
+Now you are ready to go. The image below shows the added mode in your application:
+
+\image html debugging_added_mode.jpg "Debug Mode Added To Your Application"
+
+Both the \p MainWindowExample and the \p ObjectManagement examples in the \p QtilitiesExamples project make use
+of the debug plugin and can be used as a refrence if you have trouble getting it to work.
+
+\section debugging_global_object_pool_view The Global Object Pool Tab
+
+Before going on, lets start with an image of how the debug mode looks. The image below shows the mode with the "Global Object Pool"
+tab selected in the \p MainWindowExample example.
+
+\image html debugging_object_pool_tab.jpg "Global Object Pool Tab"
+
+The "Global Object Pool" tab presents you with a list of all objects in your global object pool on the left and information
+about the selected object on the right. %Qtilities automatically adds several objects to the global object pool
+as you can see in the above image. In code you can add any QObject to the pool like this:
+
+\code
+QObject* my_object = new QObject;
+OBJECT_MANAGER->registerObject(my_object,QtilitiesCategory("My Category");
+// Note that the category parameter is optional but it makes debugging easier.
+\endcode
+
+Once you object is in the pool you can select it and get the following information about it:
+
+\subsection debugging_object_static_properties Static Properties
+
+An overview of the static properties on your object. The static properties are those added to your object using
+the \p Q_PROPERTY macro in your class definition. You can use the property editor widget to edit these
+properties and it is nicely displayed for each class that your object inherits.
+
+\image html debugging_static_properties.jpg "Static Properties"
+
+Note that %Qtilities must be build without the \p QTILITIES_NO_PROPERTY_BROWSER define for the properties to be show.
+
+\subsection debugging_object_dynamic_properties Dynamic Properties
+
+An overview of the dynamic properties on your object. The dynamic properties are those added to your object using
+the QObject::setProperty() function. Since %Qtilities uses dynamic properties extensively on objects it manage
+the objects in the example application already have some dynamic properties as shown below.
+
+\image html debugging_dynamic_properties.jpg "Dynamic Properties"
+
+It is also possible to add, edit and remove dynamic properties on your objects.
+
+Note that %Qtilities must be build without the \p QTILITIES_NO_PROPERTY_BROWSER define for the properties to be show.
+
+\subsection debugging_object_scope Object Scope
+
+The "Object Scope" view shows the scopes in which your object is visible. The Subject-Observer
+pattern implementation in %Qtilities allows objects to be attached to (observed by) multiple contexts. This
+view shows the contexts in which you object is observer.
+
+\image html debugging_object_scope.jpg "Object Scope"
+
+If this does not really make sense, perhapts see the \ref page_observers article for an introduction on the topic.
+
+\subsection debugging_signals_and_slots Signal and Slot Analysis
+
+Perhaps one of the most usefull features on this page is the ability to analyze signals and slots on your object. This
+is done through integration with <a href="http://sourceforge.net/projects/conanforqt/">Conan for Qt</a>. Since
+there is a detailed description on the project page of the Conan libary we will not go into all of its features here.
+
+In a nutshell, it allows you to analyze signal and slots connections, signal emissions and it even lets you search
+for duplicate connections in your application.
+
+Below is an example where we can see the analysis for the Plugins configuration page in the example.
+
+\image html debugging_conan.jpg "Analyzing The Plugins Configuration Page Object"
+
+We can see that the object's \p destroyed(QObject*) signal is connected to a few slots where views will update
+themselves if the object is removed, and also to the two observers to which it was attached.
+
+It is also possible to spy specific signals which will log all emissions of that signal.
+
+\image html debugging_conan_spies.jpg "Adding Signal Spies"
+
+When the \p destroyed(QObject*) signal is emitted a notification will be printed in your application's output:
+
+@code
+"Qtilities::ExtensionSystem::ExtensionSystemConfig :: Plugins , destroyed(QObject*) ,  {QObject*}"
+@endcode
+
+Note that %Qtilities must be build without the \p QTILITIES_NO_CONAN define for the analysis to work. If you built it with this define, the buttons will just be grayed out. Also note that Conan supports very specific versions of Qt, thus see the project's page to make sure your version is supported.
+
+\section debugging_global_application_state_view The Application State Tab
+
+The "Application State" tab gives information about the state of your application.
+
+\subsection debugging_state_modes Application Modes
+
+The application modes view gives an overview of all the modes added to your application.
+
+\image html debugging_state_modes.jpg "Application Modes Overview"
+
+\subsection debugging_state_contexts Context Management
+
+The context management view gives an overview of all the contexts registered in your application. It
+is possible to modify the active contexts in your application through this view which can
+be extremely usefull when debugging your own context specific items. The view is a
+dockable widget which can be undocked to allow you to undock it and observe other parts of the application when
+you manually change the active contexts.
+
+\image html debugging_state_contexts.jpg "Context Management"
+
+\subsection debugging_state_actions Action Management
+
+The action management view gives an overview of all the actions and shortcuts registered in the Action Manager. You can
+select an action or shortcut and an overview of the action will be given. If the action is a Qtilities::CoreGui::MultiContextAction
+the overview will provide details of the backend actions registered for the frontend (proxy) action as shown below.
+
+It is also possible to analyze and verify signal and slot connections between the frontend action
+and the active backend actions in this view. Again, this uses the Conan integration described in \ref debugging_signals_and_slots.
+
+\image html debugging_state_actions.jpg "Action Management"
+
+\subsection debugging_state_factories Factories Overview
+
+The factories view gives an overview of all the factories registered in the Object Manager and the available
+tags registered in each factory.
+
+\image html debugging_state_factories.jpg "Factories Overview"
+
+\subsection debugging_state_projects "Project Management"
+
+If you use projects in your application, the project management view will provide you with details about the
+Project Manager's current state. It is possible to open the current project or it's path and to get an overview
+of project items registered in both the active project and the Project Manager. Lastly, a list of recent projects
+is also provided.
+
+\image html debugging_state_projects.jpg "Project Management"
+
+\section debugging_plugins_view The Plugin Management Tab
+
+The "Plugin Management" tab provides plugin management and overview views.
+
+\subsection debuggin_plugins_state Extension System's Current State
+
+The currents state view shows the current state of the extension system in terms of the currently loaded plugins
+and the active plugin configuration set.
+
+\image html debugging_plugins_state.jpg "Extension System's Current State"
+
+\subsection debuggin_plugins_custom Creating Custom Plugin Configuration Sets
+
+A very usefull feature of the plugin management tab is the ability to create custom plugin configuration sets
+easily. It provides an easy to use interface for dragging and dropping plugins to change their classification
+and it does integrity checks in the background. For example, you cannot make a core plugin part of your
+In-Active Plugins list. It will also automatically create a filter expression for existing plugin's file names
+when you make them part of the Plugin Filter Expressions list. You can add and remove new plugins and an
+overview of the different plugin classifications are given.
+
+If you use this view to create your custom configuration sets, you don't have to worry about the file format
+used by the extension system and you can edit and save old sets easily.
+
+\image html debugging_plugins_custom.jpg "Creating Custom Plugin Configuration Sets"
+
+\section debugging_inspecting_qobjects Inspecting QObjects At Runtime
+
+To make debugging easier all Qtilities::CoreGui::ObserverWidget widgets will automatically add a new "Debug Selected Object"
+action to their action toolbars (when build in debug mode) as shown below:
+
+\image html debugging_observer_widget_action.jpg "Debug Selected Object Action"
+
+This action (blue bug) will add the selected object to your global object pool and then switch to the debugging plugin.
+The objects of the global object pool are the ones that you can debug as shown in the next section.
+
+*/

@@ -37,7 +37,7 @@
 #include "ui_NamingPolicyInputDialog.h"
 #include "QtilitiesCoreGuiConstants.h"
 
-#include <ObserverProperty>
+#include <QtilitiesProperty>
 #include <QtilitiesCoreConstants>
 #include <Observer>
 
@@ -252,8 +252,8 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setName(const QString& new_nam
         // We use the qti_prop_NAME property:
         QVariant object_name_prop;
         object_name_prop = object->property(qti_prop_NAME);
-        if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>()) {
-            SharedObserverProperty name_property(QVariant(new_name),qti_prop_NAME);
+        if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>()) {
+            SharedProperty name_property(qti_prop_NAME,QVariant(new_name));
             QVariant property = qVariantFromValue(name_property);
             object->setProperty(qti_prop_NAME,QVariant(property));
         }
@@ -261,8 +261,8 @@ void Qtilities::CoreGui::NamingPolicyInputDialog::setName(const QString& new_nam
         // We use the qti_prop_ALIAS_MAP property:
         QVariant instance_names_prop;
         instance_names_prop = object->property(qti_prop_ALIAS_MAP);
-        if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>()) {
-            ObserverProperty new_instance_name = instance_names_prop.value<ObserverProperty>();
+        if (instance_names_prop.isValid() && instance_names_prop.canConvert<MultiContextProperty>()) {
+            MultiContextProperty new_instance_name = instance_names_prop.value<MultiContextProperty>();
             new_instance_name.setValue(QVariant(new_name),observer_id);
             object->setProperty(qti_prop_ALIAS_MAP,qVariantFromValue(new_instance_name));
         }
@@ -278,14 +278,14 @@ QString Qtilities::CoreGui::NamingPolicyInputDialog::getName() {
         // We use the qti_prop_NAME property:
         QVariant object_name_prop;
         object_name_prop = object->property(qti_prop_NAME);
-        if (object_name_prop.isValid() && object_name_prop.canConvert<SharedObserverProperty>())
-                return (object_name_prop.value<SharedObserverProperty>()).value().toString();
+        if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>())
+                return (object_name_prop.value<SharedProperty>()).value().toString();
     } else {
         // We use the qti_prop_ALIAS_MAP property:
         QVariant instance_names_prop;
         instance_names_prop = object->property(qti_prop_ALIAS_MAP);
-        if (instance_names_prop.isValid() && instance_names_prop.canConvert<ObserverProperty>())
-            return (instance_names_prop.value<ObserverProperty>()).value(observer_id).toString();
+        if (instance_names_prop.isValid() && instance_names_prop.canConvert<MultiContextProperty>())
+            return (instance_names_prop.value<MultiContextProperty>()).value(observer_id).toString();
 
     }
     return QString();

@@ -56,7 +56,7 @@ namespace Qtilities {
           \sa Qtilities::CoreGui::ObjectDynamicPropertyBrowser
           */
         struct ObjectDynamicPropertyBrowserPrivateData;
-        struct qti_private_ObserverPropertyData;
+        struct qti_private_MultiContextPropertyData;
 
         /*!
           \class Qtilities::CoreGui::ObjectDynamicPropertyBrowser

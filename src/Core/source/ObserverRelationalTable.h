@@ -37,6 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "QtilitiesCoreConstants.h"
 #include "Observer.h"
+#include "IExportable.h"
 
 #include <QObject>
 
@@ -44,118 +45,101 @@ using namespace Qtilities::Core::Properties;
 
 namespace Qtilities {
     namespace Core {
+        using namespace Qtilities::Core::Interfaces;
+
+        // -------------------------------------------------------
+        // RelationalTableEntry
+        // -------------------------------------------------------
+        /*!
+        \struct RelationalTableEntryData
+        \brief The RelationalTableEntryData stores private data used by the RelationalTableEntry class.
+          */
+        struct RelationalTableEntryData;
+
         /*!
           \class RelationalTableEntry
           \brief The RelationalTableEntry class represents a single entry in an observer relational table.
          */
-        class QTILIITES_CORE_SHARED_EXPORT RelationalTableEntry {
+        class QTILIITES_CORE_SHARED_EXPORT RelationalTableEntry  : public IExportable {
         public:
-            RelationalTableEntry() {
-                d_previousSessionID = -1;
-                d_parentVisitorID = -1;
-                d_visitorID = -1;
-                d_name = "";
-                d_ownership = -1;
-                d_sessionID = -1;
-                d_obj = 0;
-            }
-            RelationalTableEntry(int visitorID, int sessionID, const QString& name, int ownership, QObject* obj = 0) {
-                d_visitorID = visitorID;
-                d_sessionID = sessionID;
-                d_name = name;
-                d_ownership = ownership;
-                d_parentVisitorID = -1;
-                d_previousSessionID = -1;
-                d_obj = obj;
-            }
-            RelationalTableEntry(const RelationalTableEntry& other) {
-                d_parents = other.d_parents;
-                d_children = other.d_children;
-                d_visitorID = other.d_visitorID;
-                d_sessionID = other.d_sessionID;
-                d_name = other.d_name;
-                d_ownership = other.d_ownership;
-                d_parentVisitorID = other.d_parentVisitorID;
-                d_previousSessionID = other.d_previousSessionID;
-                d_obj = other.d_obj;
-            }
-            bool operator==(const RelationalTableEntry& other) {
-                bool equal = true;
-                if (equal)
-                    equal = (d_parents == other.d_parents);
-                if (equal)
-                    equal = (d_children == other.d_children);
-                if (equal)
-                    equal = (d_visitorID == other.d_visitorID);
-                if (equal)
-                    equal = (d_name == other.d_name);
-                if (equal)
-                    equal = (d_ownership == other.d_ownership);
-                if (equal)
-                    equal = (d_parentVisitorID == other.d_parentVisitorID);
-                return equal;
-            }
-            bool operator!=(const RelationalTableEntry& other) {
-                bool equal = false;
-                if (!equal)
-                    equal = (d_parents != other.d_parents);
-                if (!equal)
-                    equal = (d_children != other.d_children);
-                if (!equal)
-                    equal = (d_visitorID != other.d_visitorID);
-                if (!equal)
-                    equal = (d_name != other.d_name);
-                if (!equal)
-                    equal = (d_ownership != other.d_ownership);
-                if (!equal)
-                    equal = (d_parentVisitorID != other.d_parentVisitorID);
-                return equal;
-            }
-            bool exportBinary(QDataStream& stream) const {
-                stream << d_name;
-                stream << d_parents;
-                stream << d_children;
-                stream << (qint32) d_visitorID;
-                stream << (qint32) d_sessionID;
-                stream << (qint32) d_ownership;
-                stream << (qint32) d_parentVisitorID;
-                return true;
-            }
-            bool importBinary(QDataStream& stream) {
-                stream >> d_name;
-                stream >> d_parents;
-                stream >> d_children;
-                qint32 qi32;
-                stream >> qi32;
-                d_visitorID = qi32;
-                stream >> qi32;
-                d_sessionID = qi32;
-                stream >> qi32;
-                d_ownership = qi32;
-                stream >> qi32;
-                d_parentVisitorID = qi32;
-                return true;
-            }
+            RelationalTableEntry();
+            RelationalTableEntry(int visitorID, int sessionID, const QString& name, int ownership, QObject* obj = 0);
+            RelationalTableEntry(const RelationalTableEntry& other);
+            bool operator==(const RelationalTableEntry& other);
+            bool operator!=(const RelationalTableEntry& other);
 
-            //! The visitor IDs of all parents of this item.
-            QList<qint32>   d_parents;
-            //! The visitor IDs of all children of this item.
-            QList<qint32>   d_children;
-            //! The visitor ID of this item.
-            int             d_visitorID;
-            //! The session ID of this item. The session ID is only applicable to observers and is equal to their observer IDs.
-            int             d_sessionID;
-            //! The previous session ID of this item. The session ID is only applicable to observers and is equal to their observer IDs. This is only used during relationship reconstruction during observer export/import operations.
-            int             d_previousSessionID;
-            //! The objectName() of the object for which this table entry was created.
-            QString         d_name;
-            //! The ownership of this object in its parent observer.
-            int             d_ownership;
-            //! When \p d_ownership is equal to Qtilities::Core::Observer::SpecificObserverOwnership this field contains the visitor ID of its specific parent.
-            int             d_parentVisitorID;
-            //! A reference to the object.
-            QObject*        d_obj;
+            //! Get the parents of the entry.
+            QList<int> parents() const;
+            //! Set the parents of the entry.
+            void setParents(QList<int> parents);
+            //! Adds a parent to the entry.
+            void addParent(int parent_id);
+            //! Get the children of the entry.
+            QList<int> children() const;
+            //! Set the children of the entry.
+            void setChildren(QList<int> children);
+            //! Adds a child to the entry.
+            void addChild(int child_id);
+            //! Gets the visitor ID of the entry.
+            int visitorID() const;
+            //! Sets the visitor ID of the entry.
+            void setVisitorID(int visitor_id);
+            //! Gets the session ID of the entry.
+            int sessionID() const;
+            //! Sets the session ID of the entry.
+            void setSessionID(int session_id);
+            //! Gets the previous session ID of the entry.
+            int previousSessionID() const;
+            //! Sets the previous session ID of the entry.
+            void setPreviousSessionID(int session_id);
+            //! Gets the name of the entry.
+            QString name() const;
+            //! Sets the name of the entry.
+            void setName(QString name);
+            //! Gets the ownership of the entry.
+            int ownership() const;
+            //! Sets the ownership of the entry.
+            void setOwnership(int ownership);
+            //! Gets the parent visitor ID of the entry.
+            int parentVisitorID() const;
+            //! Sets the parent visitor ID of the entry.
+            void setParentVisitorID(int parent_visitor_id);
+            //! Gets a reference to the object for which the entry was created.
+            QObject* object() const;
+            //! Sets a reference to the object for which the entry was created.
+            void setObject(QObject* object);
+
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            /*!
+              \note RelationalTableEntry is not a QObject, thus it returns 0.
+              */
+            QObject* objectBase() { return 0; }
+            /*!
+              \note RelationalTableEntry is not a QObject, thus it returns 0.
+              */
+            const QObject* objectBase() const { return 0; }
+
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            IExportable::ExportModeFlags supportedFormats() const;
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
+        private:
+            QString intListToString(QList<int> list) const;
+            QList<int> stringToIntList(const QString& string) const;
+
+            RelationalTableEntryData* d;
         };
+
+        // -------------------------------------------------------
+        // ObserverRelationalTable
+        // -------------------------------------------------------
 
         /*!
         \struct ObserverRelationalTablePrivateData
@@ -201,7 +185,7 @@ ObserverRelationalTable table(rootNode);
             contains information about the parents and children of the entry among other information.
 
             All entries in the table has an unique visitor ID which is assigned to each object in the tree by adding the
-            Qtilities::Core::Properties::qti_prop_VISITOR_ID shared property (Qtilities::Core::SharedObserverProperty) on each item. This unique ID is the most
+            Qtilities::Core::Properties::qti_prop_VISITOR_ID shared property (Qtilities::Core::SharedProperty) on each item. This unique ID is the most
             important field in each entry since the parents and children of the entry are defined using their respective visitor IDs. As soon as the
             ObserverRelationalTable is deleted the visitor ID properties on all object will be removed. Thus it is very important not to create multiple
             ObserverRelationalTable objects on the same observer at the same time. The class provides functions such as entryWithVisitorID() etc. to
@@ -248,9 +232,9 @@ for (int i = 0; i < table.count(); i++) {
           Another powerfull feature of the ObserverRelationalTable class is its functionality to compare two ObserverRelationalTable objects with each other using the compare() method or the overloaded \p == and \p != operators.
           */
 
-        class QTILIITES_CORE_SHARED_EXPORT ObserverRelationalTable
+        class QTILIITES_CORE_SHARED_EXPORT ObserverRelationalTable : public IExportable
         {            
-            friend class Qtilities::Core::ObjectManager;
+            friend class Qtilities::Core::ObserverData;
 
         public:
             //! Constructs an observer relational table for the given observer.
@@ -273,10 +257,10 @@ for (int i = 0; i < table.count(); i++) {
             ObserverRelationalTable();
             ~ObserverRelationalTable();
 
-            bool operator==(const ObserverRelationalTable other) {
+            bool operator==(const ObserverRelationalTable& other) {
                 return compare(other);
             }
-            bool operator!=(const ObserverRelationalTable other) {
+            bool operator!=(const ObserverRelationalTable& other) {
                 return !compare(other);
             }
 
@@ -295,80 +279,50 @@ for (int i = 0; i < table.count(); i++) {
             //! Returns the number of entries in the table.
             int count() const;
             //! Returns the entry with the given visitor ID.
-            RelationalTableEntry* entryWithVisitorID(int visitor_id);
+            RelationalTableEntry* entryWithVisitorID(int visitor_id) const;
             //! Returns the entry with the given session ID.
-            RelationalTableEntry* entryWithSessionID(int session_id);
+            RelationalTableEntry* entryWithSessionID(int session_id) const;
             //! Returns the entry with the given previous session ID.
-            RelationalTableEntry* entryWithPreviousSessionID(int session_id);
+            RelationalTableEntry* entryWithPreviousSessionID(int session_id) const;
             //! Returns the entry at position index.
             RelationalTableEntry* entryAt(int index);
             //! Returns the entry at position index.
             RelationalTableEntry* entryAt(int index) const;
-
-            //! Exports the relational table to the given data stream.
-            bool exportBinary(QDataStream& stream) const;
-            //! Imports the relational table to the given data stream.
-            bool importBinary(QDataStream& stream);
             
             //! Prints the table information to the debug output.
             void dumpTableInfo() const;
-
             //! Gets the visitor ID of an object. Returns -1 if no visitor ID exists.
-            static int getVisitorID(QObject* obj) {
-                if (!obj)
-                    return -1;
-
-                QVariant prop_variant = obj->property(qti_prop_VISITOR_ID);
-                if (prop_variant.isValid() && prop_variant.canConvert<SharedObserverProperty>()) {
-                    SharedObserverProperty prop = prop_variant.value<SharedObserverProperty>();
-                    if (prop.isValid()) {
-                         return prop.value().toInt();
-                    }
-                }
-                return -1;
-            }          
-
+            static int getVisitorID(QObject* obj);
             //! Function to remove all visitorID properties in the specified hierarchy.
-            static void removeRelationalProperties(Observer* observer) {
-                observer->setProperty(qti_prop_VISITOR_ID,QVariant());
-                observer->setProperty(qti_prop_LIMITED_EXPORTS,QVariant());
+            static void removeRelationalProperties(Observer* observer);
+            //! Takes the parents() of an entry and converts them to their equavalent list of observerIDs.
+            /*!
+              \returns A map with keys being the parent visitor IDs and the repective values being the observerIDs.
 
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    QObject* obj = observer->subjectAt(i);
-                    bool is_iface = false;
-                    bool is_observer = false;
-                    bool has_child_observer = false;
+              \note If ALL of the parents cannot be converted to equavalent observer IDs, an empty map is returned.
+              */
+            QMap<int,int> parentsToObserverIDs(RelationalTableEntry* entry) const;
 
-                    // We need to iterate through the hierarchy in the same way
-                    // that constructTable() does it.
-                    IExportable* exportable_iface = qobject_cast<IExportable*> (obj);
-                    if (exportable_iface)
-                        is_iface = true;
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            /*!
+              \note MultiContextProperty is not a QObject, thus it returns 0.
+              */
+            QObject* objectBase() { return 0; }
+            /*!
+              \note MultiContextProperty is not a QObject, thus it returns 0.
+              */
+            const QObject* objectBase() const { return 0; }
 
-                    Observer* obs = qobject_cast<Observer*> (obj);
-                    if (obs)
-                        is_observer = true;
-
-                    if (!obs) {
-                        for (int r = 0; r < obj->children().count(); r++) {
-                            obs = qobject_cast<Observer*> (obj->children().at(r));
-                            if (obs) {
-                                has_child_observer = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (is_iface && is_observer) {
-                        removeRelationalProperties(obs);
-                    } else if (!is_iface && has_child_observer) {
-                        removeRelationalProperties(obs);
-                    } else if ((is_iface && !is_observer) || (!is_iface)) {
-                        obj->setProperty(qti_prop_VISITOR_ID,QVariant());
-                        obj->setProperty(qti_prop_LIMITED_EXPORTS,QVariant());
-                    }
-                }
-            }
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            IExportable::ExportModeFlags supportedFormats() const;
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:
             //! Returns true if all the objects in the pointer list matches the objects in the table using the visitor ID property on each object. This comparison does not take any relational data into account.
@@ -381,12 +335,17 @@ for (int i = 0; i < table.count(); i++) {
             int addVisitorID(QObject* obj);
             //! Add a property to the object which observer exports check to see if the object must be exported only once.
             int addLimitedExportProperty(QObject* obj);
-            //! Gets the specific parent of an object. Returns -1 if no specific parent exists.
+            //! Gets the specific parent of an object (that is, parent with ownership of SpecificObserverOwnership). Returns -1 if no specific parent exists.
             int getSpecificParent(QObject* obj) const;
 
             ObserverRelationalTablePrivateData* d;
         };
     }
 }
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::RelationalTableEntry& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::RelationalTableEntry& stream_obj);
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::ObserverRelationalTable& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::ObserverRelationalTable& stream_obj);
 
 #endif // OBSERVERRELATIONALTABLE_H

@@ -1489,7 +1489,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     }
 
                     // Can only delete or remove an item if its category is not const:
-                    QtilitiesCategory category = d_observer->getObserverPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
+                    QtilitiesCategory category = d_observer->getQtilitiesPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
                     Observer::AccessMode access_mode = d_observer->accessMode(category);
                     if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
                         d->actionDeleteItem->setEnabled(false);
@@ -1511,7 +1511,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 
                 // Can only delete or remove an item if it's category is not const:
                 if (selectionParent()) {
-                    QtilitiesCategory category = selectionParent()->getObserverPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
+                    QtilitiesCategory category = selectionParent()->getQtilitiesPropertyValue(d->current_selection.at(0),qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
                     Observer::AccessMode access_mode = selectionParent()->accessMode(category);
                     if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
                         d->actionDeleteItem->setEnabled(false);

@@ -83,8 +83,7 @@ namespace Qtilities {
                 void finalize();
                 QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
-                double pluginVersion() const;
-                QStringList pluginCompatibilityVersions() const;
+                VersionInformation pluginVersionInformation() const;
                 QString pluginPublisher() const;
                 QString pluginPublisherWebsite() const;
                 QString pluginPublisherContact() const;

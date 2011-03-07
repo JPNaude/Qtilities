@@ -107,7 +107,11 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::mainWindow() {
     return QtilitiesApplicationPrivate::instance()->mainWindow();
 }
 
-QString Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersion() {
+QString Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersionString() {
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString();
+}
+
+Qtilities::Core::VersionNumber Qtilities::CoreGui::QtilitiesApplication::qtilitiesVersion() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
 }
 
@@ -172,7 +176,7 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
     about_window->setWebsite("http://www.qtilities.org");
     about_window->setAttribute(Qt::WA_DeleteOnClose);
     about_window->setExtendedDescription(tr("This application uses the Qtilities libraries. For more information see the link below."));
-    about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion());
+    about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString());
 
     about_window->setWindowTitle(tr("About Qtilities"));
     if (show)
@@ -188,4 +192,11 @@ void Qtilities::CoreGui::QtilitiesApplication::setApplicationSessionPath(const Q
     QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(path);
 }
 
+void Qtilities::CoreGui::QtilitiesApplication::setApplicationExportVersion(quint32 application_export_version) {
+    QtilitiesCoreApplicationPrivate::instance()->setApplicationExportVersion(application_export_version);
+}
+
+quint32 Qtilities::CoreGui::QtilitiesApplication::applicationExportVersion() {
+    return QtilitiesCoreApplicationPrivate::instance()->applicationExportVersion();
+}
 

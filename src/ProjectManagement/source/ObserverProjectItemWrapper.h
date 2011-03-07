@@ -55,6 +55,16 @@ namespace Qtilities {
         /*!
         \class ObserverProjectItemWrapper
         \brief This class wraps Qtilities::Core::Observer as a project item.
+
+        Using ObserverProjectItemWrapper you can easily make any Qtilities::Core::Observer part of a project. For example:
+
+\code
+Observer* obs = new Observer;
+ObserverProjectItemWrapper* project_item = new ObserverProjectItemWrapper(obs);
+OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
+\endcode
+
+        Make sure you register the project item in the global object pool before initializing the project manager.
           */
         class PROJECT_MANAGEMENT_SHARED_EXPORT ObserverProjectItemWrapper : public QObject, public IProjectItem
         {
@@ -81,10 +91,24 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual void setExportVersion(Qtilities::ExportVersion version);
+            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
+            //! Sets the export item flags to be used for this project item.
+            /*!
+              \sa exportItemFlags()
+              */
+            void setExportItemFlags(ObserverData::ExportItemFlags flags);
+            //! Get the export item flags to be used for this project item.
+            /*!
+              The default ObserverData::ExportData.
+
+              \sa setExportItemFlags()
+              */
+            ObserverData::ExportItemFlags exportItemFlags() const;
 
             // --------------------------------
             // IModificationNotifier Implemenation

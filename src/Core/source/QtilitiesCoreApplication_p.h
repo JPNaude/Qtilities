@@ -37,6 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "ObjectManager.h"
 #include "ContextManager.h"
+#include "VersionInformation.h"
 
 namespace Qtilities {
     namespace Core {
@@ -59,11 +60,23 @@ namespace Qtilities {
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
               */
-            QString qtilitiesVersion() const;
+            QString qtilitiesVersionString() const;
+            //! Returns the version number of %Qtilities.
+            VersionNumber qtilitiesVersion() const;
             //! Gets the session path used in your application.
             QString applicationSessionPath() const;
             //! Sets the session path to be used in your application.
             void setApplicationSessionPath(const QString& path);
+            //! Sets the application export format for your application.
+            /*!
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), applicationExportVersion()
+              */
+            void setApplicationExportVersion(quint32 application_export_version);
+            //! Gets the application export format for your application.
+            /*!
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), setApplicationExportVersion()
+              */
+            quint32 applicationExportVersion() const;
 
         private:
             QtilitiesCoreApplicationPrivate();
@@ -74,6 +87,8 @@ namespace Qtilities {
             ContextManager*     d_contextManager;
             IContextManager*    d_contextManagerIFace;
             QString             d_application_session_path;
+            VersionNumber       d_version_number;
+            quint32              d_application_export_version;
         };
     }
 }

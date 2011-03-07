@@ -31,43 +31,31 @@
 **
 ****************************************************************************/
 
-#include "IFactoryProvider.h"
-#include "QtilitiesCoreConstants.h"
+#ifndef TEST_TREE_ITERATOR_H
+#define TEST_TREE_ITERATOR_H
 
-#include <QtXml>
+#include "UnitTests_global.h"
 
-using namespace Qtilities::Core::Constants;
+#include <QtTest/QtTest>
 
-Qtilities::Core::InstanceFactoryInfo::InstanceFactoryInfo(QDomDocument* doc, QDomElement* object_node) {
-    importXML(doc,object_node);
+namespace Qtilities {
+    namespace UnitTests {
+        //! Allows testing of Qtilities::Core::SubjectIterator.
+        class UNIT_TESTS_SHARED_EXPORT TestTreeIterator: public QObject
+        {
+            Q_OBJECT
+        private slots:
+            //! Tests forward interation through a simple tree.
+            void testIterationForwardSimple();
+            //! Tests forward interation through a more complex tree.
+            void testIterationForwardComplex();
+            //! Tests backward interation through a simple tree.
+            void testIterationBackwardSimple();
+            //! Tests backward interation through a more complex tree.
+            void testIterationBackwardComplex();
+
+        };
+    }
 }
 
-bool Qtilities::Core::InstanceFactoryInfo::exportXML(QDomDocument* doc, QDomElement* object_node) const {
-    Q_UNUSED(doc)
-
-    if (d_factory_tag != QString(qti_def_FACTORY_QTILITIES))
-        object_node->setAttribute("FactoryTag", d_factory_tag);
-    object_node->setAttribute("InstanceFactoryInfo", d_instance_tag);
-    if (d_instance_tag != d_instance_name)
-        object_node->setAttribute("Name", d_instance_name);
-
-    return true;
-}
-
-bool Qtilities::Core::InstanceFactoryInfo::importXML(QDomDocument* doc, QDomElement* object_node) {
-    Q_UNUSED(doc)
-
-    if (object_node->hasAttribute("FactoryTag"))
-        d_factory_tag = object_node->attribute("FactoryTag");
-    else
-        d_factory_tag = QString(qti_def_FACTORY_QTILITIES);
-
-    d_instance_tag = object_node->attribute("InstanceFactoryInfo");
-
-    if (!object_node->hasAttribute("Name"))
-        d_instance_name = d_instance_tag;
-    else
-        d_instance_name = object_node->attribute("Name");
-
-    return true;
-}
+#endif // TEST_TREE_ITERATOR_H

@@ -178,8 +178,8 @@ tree_widget->show();
             // --------------------------------
             // IExportableFormatting Implementation
             // --------------------------------
-            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node);
+            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
+            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);
 
             // --------------------------------
             // AbstractTreeItem virtual overwrites
@@ -297,7 +297,7 @@ tree_widget->show();
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeItem created.
 
-              \note This tree node will manage the lifetime of the new tree item.
+              \note This tree node will manage the lifetime of the node item and this node can be obtained through the normal QObject parent() function.
               */
             TreeItem* addItem(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
             //! Creates a new tree node and then add it as a tree item under this node.
@@ -306,7 +306,7 @@ tree_widget->show();
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeNode created.
 
-              \note This tree node will manage the lifetime of the new tree node.
+              \note This tree node will manage the lifetime of the node item and this node can be obtained through the normal QObject parent() function.
               */
             TreeNode* addNode(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
             //! Adds a tree item under this node.
@@ -324,7 +324,7 @@ tree_widget->show();
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns True if the node was attached successfully, false otherwise.
 
-              \note This tree node will manage the lifetime of the node item.
+              \note This tree node will manage the lifetime of the tree item.
               */
             bool addNode(TreeNode* node, const QtilitiesCategory& category = QtilitiesCategory());
             //! Adds a tree mode under this from a file.
@@ -369,7 +369,7 @@ tree_widget->show();
 
               \sa loadFromFile()
               */
-            IExportable::Result saveToFile(const QString& file_name, QString* errorMsg = 0) const;
+            IExportable::Result saveToFile(const QString& file_name, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
             //! Loads the tree under this tree node from an XML file.
             /*!
               \param file_name The file name from which the tree must be loaded.

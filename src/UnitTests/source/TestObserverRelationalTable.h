@@ -51,10 +51,6 @@ namespace Qtilities {
             void testVisitorIDs();
             //! Tests table comparison.
             void testCompare();
-            //! Binary streaming test.
-
-            //! Containment tests.
-
         };
     }
 }

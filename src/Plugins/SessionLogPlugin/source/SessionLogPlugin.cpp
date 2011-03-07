@@ -96,12 +96,9 @@ QtilitiesCategory Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCatego
     return QtilitiesCategory(tr("General"));
 }
 
-double Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
-}
-
-QStringList Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCompatibilityVersions() const {
-    return QStringList();
+Qtilities::Core::VersionInformation Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersionInformation() const {
+    VersionInformation version_info(qti_def_VERSION_MAJOR,qti_def_VERSION_MINOR,qti_def_VERSION_REVISION);
+    return version_info;
 }
 
 QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginPublisher() const {

@@ -55,10 +55,11 @@ namespace Qtilities {
           When creating a new project using the ProjectManager class it will create an instance of this class
           and set it as the current open project.
          */
-        class PROJECT_MANAGEMENT_SHARED_EXPORT Project : public QObject, public IProject
+        class PROJECT_MANAGEMENT_SHARED_EXPORT Project : public QObject, public IProject, public IExportable
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::ProjectManagement::Interfaces::IProject)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
 
         public:
             Project(QObject* parent = 0);
@@ -91,6 +92,15 @@ namespace Qtilities {
             void modificationStateChanged(bool is_modified) const;
 
         public:
+            // --------------------------------
+            // IExportable Implementation
+            // --------------------------------
+            ExportModeFlags supportedFormats() const;
+            IExportable::Result exportBinary(QDataStream& stream) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------

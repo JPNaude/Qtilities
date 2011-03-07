@@ -3,6 +3,10 @@
 
 #include "TestObserver.h"
 #include "TestObserverRelationalTable.h"
+#include "TestVersionNumber.h"
+#include "TestExporting.h"
+#include "TestSubjectIterator.h"
+#include "TestTreeIterator.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesUnitTests { 

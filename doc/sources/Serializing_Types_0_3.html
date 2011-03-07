@@ -1,0 +1,1021 @@
+/**
+\page page_serializing_overview_0_3 Serializing %Qtilities Data Types (Version 0.3)
+
+<br>
+This page provides an overview of the data formats used for both Binary and XML exports in %Qtilities v0.3, represented by Qtilities::Qtilities_0_3. See \ref page_serializing_overview for an overview of the different versions available.
+
+Table of contents:
+- \ref page_serializing_overview_0_3_binary
+- \ref page_serializing_overview_0_3_xml
+- \ref page_serializing_overview_0_3_factory_info
+- \ref page_serializing_overview_0_3_session_files
+
+\section page_serializing_overview_0_3_binary Binary Formats
+
+<div>
+<table width="100%">
+<tr>
+<td>
+<table>
+<tr>
+<td>
+<h2>Class</h2>
+</td>
+<td>
+<h2>Binary Representation</h2>
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ActivityPolicyFilter
+</td>
+<td>
+- Activity policy (quint32)
+- Minimum activity policy (quint32)
+- New subject activity policy (quint32)
+- Parent tracking policy (quint32)
+- Is modification state monitored (quint32)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::CategoryLevel
+</td>
+<td>
+- The name of the level (QString)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::InstanceFactoryInfo<br>
+MARKER_IFI_CLASS_SECTION = (quint32) 0xBABEFACE
+</td>
+<td>
+- MARKER_IFI_CLASS_SECTION
+- Factory tag (QString)
+- Instance tag (QString)
+- Instance name (QString)
+- MARKER_IFI_CLASS_SECTION
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::MultiContextProperty<br>
+MARKER_OBSERVER_PROPERTY = (quint32) 0xBABEFACE
+</td>
+<td>
+- MARKER_OBSERVER_PROPERTY
+- Property name (QString)
+- Is reserved (bool)
+- Supports change notifications (bool)
+- Observer map (QMap<quint32,QVariant>)
+  - Keys: Observer IDs
+  - Values: QVariant with property values.
+- MARKER_OBSERVER_PROPERTY  
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::NamingPolicyFilter
+</td>
+<td>
+- The uniqueness policy (quint32)
+- The uniqueness resolution policy (quint32)
+- The validity resolution policy (quint32)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::Observer<br>
+</td>
+<td>
+See Qtilities::Core::ObserverData.
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ObserverData<br>
+MARKER_OBS_CLASS_SECTION =(quint32) 0xDEADBEEF<br>
+MARKER_OBJECT_PROPERTY_SECTION = (quint32) 0xA0B0C0D0
+</td>
+<td>
+The contents of the observer export depends on the export flags used. By default (using the default \p exportBinary() function) the export just contains the observer's data along with its children. When other flags are also active and you call \p exportBinaryExt() on observer, the export will look different. See Qtilities::Core::ObserverData::ExportItem for more details.
+
+- MARKER_OBS_CLASS_SECTION
+- Export flags (quint32)
+
+If \p ExportRelationalData is enabled: 
+  - Relationship data for the observer (Qtilities::Core::ObserverRelationalTable)
+
+If \p ExportData is enabled:
+  - Subject limit (quint32)
+  - Observer description (QString)
+  - Access mode (quint32)
+  - Access mode scope (quint32)
+  - Number of categories for which access modes are defined (quint32)
+  - The categories (Qtilities::Core::QtilitiesCategory)
+  - Indication if observer hints are used in the observer (bool)
+  - If hints are used, the observer hints (Qtilities::Core::ObserverHints)
+  - MARKER_OBS_CLASS_SECTION
+  - Number of exportable subject filters (quint32)
+    - The factory info of the filter (Qtilities::Core::InstanceFactoryInfo)
+    - The subject filter's data (Implementation of Qtilities::Core::IExportable)
+  - MARKER_OBS_CLASS_SECTION
+  - Number of subjects implementing Qtilities::Core::Interfaces::IExportable.
+    - The exportBinary() implementation of the export interface.
+    - If \p ExportQtilitiesProperties is enabled:
+      - The observer properties on the object exported using Qtilities::Core::ObjectManager::exportObjectProperties():
+        - MARKER_OBJECT_PROPERTY_SECTION
+        - Number of shared properties exported (quint32)
+        - Shared property items (Qtilities::Core::SharedProperty)
+        - Number of observer properties exported (quint32)
+        - Observer property items (Qtilities::Core::MultiContextProperty)    
+        - MARKER_OBJECT_PROPERTY_SECTION<br>
+  - MARKER_OBS_CLASS_SECTION<br>
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ObserverHints
+</td>
+<td>
+- Observer selection context (quint32)
+- Naming control hint (quint32)
+- Activity display (quint32)
+- Activity control (quint32)
+- Item selection control (quint32)
+- Hierarchical display hint (quint32)
+- Display flags (quint32)
+- Item view column hint (quint32)
+- Action hints (quint32)
+- Drag/drop flags (quint32)
+- Modification state display (quint32)
+- The number of displayed categories (quint32)
+- The categories (Qtilities::Core::QtilitiesCategory)
+- Has inversed category display enabled (bool) 
+- Category filter enabled (bool)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ObserverRelationalTable<br>
+MARKER_RELATIONAL_TABLE_SECTION = (quint32) 0xEEEEEEEE
+</td>
+<td>
+- MARKER_RELATIONAL_TABLE_SECTION
+- Number of table entries (quint32)
+- The table entries (Qtilities::Core::RelationalTableEntry)
+- MARKER_RELATIONAL_TABLE_SECTION
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::Project<br>
+MARKER_PROJECT_SECTION = (quint32) 0xBABEFACE<br>
+<br>
+Sets the QDataStream verison to QDataStream::Qt_4_7.<br><br>
+Note that Project::saveProject() is shown, not Project::exportBinary().
+</td>
+<td>
+- MARKER_PROJECT_SECTION
+- %Qtilities export version(quint32)
+- %Qtilities version (QString)
+- Application export version (quint32)
+- Application version (QString)
+- MARKER_PROJECT_SECTION
+- Project name (QString)
+- Number of project items (quint32)
+- Project item names (QStringList)
+- Each project item's exportBinary() implementation.
+- MARKER_PROJECT_SECTION  
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::RelationalTableEntry
+</td>
+<td>
+- Name (QString)
+- Parents (QList<qint32>)
+- Children (QList<qint32>)
+- Visitor ID (qint32)
+- Session ID (qint32)
+- Ownership (qint32)
+- Parent Visitor ID (qint32)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::SharedProperty<br>
+MARKER_OBSERVER_PROPERTY = (quint32) 0xBABEFACE
+</td>
+<td>
+- MARKER_OBSERVER_PROPERTY
+- Property name (QString)
+- Is reserved (bool)
+- Supports change notifications (bool)
+- Property value (QVariant)
+- MARKER_OBSERVER_PROPERTY
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::QtilitiesCategory
+</td>
+<td>
+- Access mode of the category (quint32)
+- The depth of the category (quint32)
+- The category levels (Qtilities::Core::CategoryLevel)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::SubjectTypeFilter
+</td>
+<td>
+- Inversed filtering enabled (bool)
+- Known objects group name (QString)
+- Number of known subject types (quint32)
+- The known subject types:
+  - Meta type (QString)
+  - Name (QString)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeFileItem
+</td>
+<td>
+- Only supports XML exports in this version.
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeItem
+</td>
+<td>
+- At present the formatting information if only part of XML exports.
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeNode
+</td>
+<td>
+- Same as Qtilities::Core::Observer.
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::CodeEditorProjectItemWrapper
+</td>
+<td>
+- The text in the code editor (QString)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::ObserverProjectItemWrapper
+</td>
+<td>
+- The contents of the wrapped observer exported using Qtilities::Core::ObjectManager::exportObserverBinary()
+  - Observer relational table of wrapped observer (Qtilities::Core::ObserverRelationalTable)
+  - Observer exportBinary() implementation on wrapped observer (Qtilities::Core::Observer)
+  - Properties export on wrapped observer (Qtilities::Core::ObjectManager::exportObjectProperties())
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+</div>
+
+\section page_serializing_overview_0_3_xml XML Formats
+
+It is important to note that XML exports of classes does not export default information. In the XML exports shown below, the "object_node" XML node represents the \p object_node parameter in Qtilities::Core::Interfaces::IExportable::exportXml(). Where neccessarry XML line breaks (\p &#xD) have been added to simplify reading.
+
+<div>
+<table width="100%">
+<tr>
+<td>
+<table>
+<tr>
+<td>
+<h2>Class</h2>
+</td>
+<td>
+<h2>XML Representation</h2>
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::AbstractTreeItem Formatting Information<br>
+(See Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML())
+</td>
+<td>
+@code
+<Formatting ToolTip="Example Tool Tip" ForegroundColor="#800000" BackgroundColor="#a0a0a4"&#xD
+            StatusTip="Example Status Tip" WhatsThis="Example Whats This">
+  <Size Width="10" Height="20"/>
+  <Font Weigth="50" Family="Helvetica [Cronyx]" Bold="False" PointSize="20" Italic="False"/>
+</Formatting>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::AbstractSubjectFilter
+</td>
+<td>
+@code
+<object_node NewSubjectActivityPolicy="SetNewActive"&#xD
+  IsModificationStateMonitored="false"&#xD
+  MinimumActivityPolicy="ProhibitNoneActive"&#xD
+  ParentTrackingPolicy="ParentFollowActivity"&#xD
+  ActivityPolicy="UniqueActivity"/>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::CategoryLevel
+</td>
+<td>
+@code
+<object_node Name="TestTest"/>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::NamingPolicyFilter
+</td>
+<td>
+@code
+<object_node ValidityResolutionPolicy="Reject"&#xD
+  UniquenessPolicy="ProhibitDuplicateNames"&#xD
+  UniquenessResolutionPolicy="Reject"/>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::Observer
+</td>
+<td>
+See Qtilities::Core::ObserverData
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ObserverData
+</td>
+<td>
+The contents of the observer export depends on the export flags used. By default (using the default \p exportXml() function) the export just contains the observer's data along with its children. When other flags are also active and you call \p exportXmlExt() on observer, the export will look different. See Qtilities::Core::ObserverData::ExportItem for more details.
+
+Lets look at the default output format of Observer for simple tree constructed like this:
+@code
+// Set up the root node:
+TreeNode* rootNode = new TreeNode("Root Node");
+rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
+rootNode->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
+rootNode->setChildType("Example child type");
+
+// Construct a simple tree:
+rootNode->addItem("Item 1");
+rootNode->addItem("Item 2");
+rootNode->addItem("Item 3");
+TreeNode* child_node = rootNode->addNode("TestNode1");
+child_node->addItem("TestChild1");
+child_node->addItem("TestChild2");
+child_node->addItem("TestChild3");
+@endcode
+
+The resulting export looks like this (Just using \p ExportData):
+@code
+<object_node ExportFlags="1">
+  <Data>
+    <ObserverHints ActivityDisplay="CheckboxActivityDisplay" NamingControl="ReadOnlyNames"/>
+    <SubjectFilter NewSubjectActivityPolicy="SetNewInactive"&#xD
+                   MinimumActivityPolicy="AllowNoneActive"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.ActivityFilter"&#xD
+                   Name=""&#xD
+                   ParentTrackingPolicy="ParentIgnoreActivity"&#xD
+                   ActivityPolicy="MultipleActivity"/>
+    <SubjectFilter ValidityResolutionPolicy="PromptUser"&#xD
+                   UniquenessPolicy="ProhibitDuplicateNames"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.NamingFilter"&#xD
+                   UniquenessResolutionPolicy="PromptUser"/>
+    <SubjectFilter GroupName="Example child type"&#xD
+                   InversedFiltering="True"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.SubjectTypeFilter"&#xD
+                   TypeCount="0"/>
+  </Data>
+  <Children>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 1"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 2"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 3"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              ExportFlags="1"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeNode"&#xD
+              Name="TestNode1"&#xD
+              Activity="Inactive">
+      <Data>
+        <ObserverHints/>
+      </Data>
+      <Children>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild1"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild2"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild3"/>
+        <TreeItem InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="Item 3"&#xD
+                  Activity="Inactive"/>
+      </Children>
+    </TreeItem>
+  </Children>
+</object_node>
+@endcode
+
+For more complex cases the relational data can be added (using \p ExportRelationalData) along with a VisitorID on each item in the tree. Again lets look at an example tree:
+@code
+// Set up the root node:
+TreeNode* rootNode = new TreeNode("Root Node");
+rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
+rootNode->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
+rootNode->setChildType("Example child type");
+
+// Build a tree with an \p shared_item having multiple parents.
+rootNode->addItem("Item 1");
+rootNode->addItem("Item 2");
+TreeItem* shared_item = rootNode->addItem("Item 3");
+TreeNode* child_nodeA = rootNode->addNode("TestNodeA");
+child_nodeA->addItem("TestChild1");
+child_nodeA->addItem("TestChild2");
+child_nodeA->addItem("TestChild3");
+TreeNode* child_nodeB = rootNode->addNode("TestNodeB");
+child_nodeB->addItem("TestChild1");
+child_nodeB->addItem("TestChild2");
+child_nodeB->addItem("TestChild3");
+child_nodeB->addItem(shared_item);
+@endcode
+
+The result looks like this:
+@code
+<object_node ExportFlags="7" VisitorID="0">
+  <RelationalData EntryCount="12">
+    <Entry_0 SessionID="20" Ownership="-1" Name="Root Node"&#xD
+             VisitorID="0" Children="1,2,3,4,8" ParentVisitorID="-1"/>
+    <Entry_1 SessionID="-1" Parents="0" Ownership="2" Name="Item 1"&#xD
+             VisitorID="1" ParentVisitorID="0"/>
+    <Entry_2 SessionID="-1" Parents="0" Ownership="2" Name="Item 2"&#xD
+             VisitorID="2" ParentVisitorID="0"/>
+    <Entry_3 SessionID="-1" Parents="0,8" Ownership="3" Name="Shared Item"&#xD
+             VisitorID="3" ParentVisitorID="-1"/>
+    <Entry_4 SessionID="22" Parents="0" Ownership="2" Name="TestNodeA"&#xD
+             VisitorID="4" Children="5,6,7" ParentVisitorID="0"/>
+    <Entry_5 SessionID="-1" Parents="4" Ownership="2" Name="TestChild1"&#xD
+             VisitorID="5" ParentVisitorID="4"/>
+    <Entry_6 SessionID="-1" Parents="4" Ownership="2" Name="TestChild2"&#xD
+             VisitorID="6" ParentVisitorID="4"/>
+    <Entry_7 SessionID="-1" Parents="4" Ownership="2" Name="TestChild3"&#xD
+             VisitorID="7" ParentVisitorID="4"/>
+    <Entry_8 SessionID="23" Parents="0" Ownership="2" Name="TestNodeB"&#xD
+             VisitorID="8" Children="9,10,11,3" ParentVisitorID="0"/>
+    <Entry_9 SessionID="-1" Parents="8" Ownership="2" Name="TestChild1"&#xD
+             VisitorID="9" ParentVisitorID="8"/>
+    <Entry_10 SessionID="-1" Parents="8" Ownership="2" Name="TestChild2"&#xD
+              VisitorID="10" ParentVisitorID="8"/>
+    <Entry_11 SessionID="-1" Parents="8" Ownership="2" Name="TestChild3"&#xD
+              VisitorID="11" ParentVisitorID="8"/>
+  </RelationalData>
+  <Data>
+   <ObserverHints ActivityDisplay="CheckboxActivityDisplay" NamingControl="ReadOnlyNames"/>
+    <SubjectFilter NewSubjectActivityPolicy="SetNewInactive"&#xD
+                   MinimumActivityPolicy="AllowNoneActive"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.ActivityFilter"&#xD
+                   Name=""&#xD
+                   ParentTrackingPolicy="ParentIgnoreActivity"&#xD
+                   ActivityPolicy="MultipleActivity"/>
+    <SubjectFilter ValidityResolutionPolicy="PromptUser"&#xD
+                   UniquenessPolicy="ProhibitDuplicateNames"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.NamingFilter"&#xD
+                   UniquenessResolutionPolicy="PromptUser"/>
+    <SubjectFilter GroupName="Example child type"&#xD
+                   InversedFiltering="True"&#xD
+                   InstanceFactoryInfo="qti.def.FactoryTag.SubjectTypeFilter"&#xD
+                   TypeCount="0"/>
+  </Data>
+  <Children>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 1"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 2"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              Name="Item 3"&#xD
+              Activity="Inactive"/>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              ExportFlags="1"&#xD
+              InstanceFactoryInfo="qti.def.FactoryTag.TreeNode"&#xD
+              Name="TestNode1"&#xD
+              Activity="Inactive">
+      <Data>
+        <ObserverHints/>
+      </Data>
+      <Children>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild1"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild2"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="TestChild3"/>
+        <TreeItem InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  Name="Shared Item&#xD
+                  Activity="Inactive"/>
+      </Children>
+    </TreeItem>
+  </Children>
+</object_node>
+@endcode
+
+With categories we can construct a tree like this:
+@code
+TreeNode* rootNode = new TreeNode("Root Node");
+
+// Add all known filters:
+rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
+rootNode->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
+rootNode->setChildType("Example child type");
+rootNode->enableCategorizedDisplay();
+
+// Build a tree:
+rootNode->addItem("Item 1",QtilitiesCategory("TestCategory1"));
+rootNode->addItem("Item 2",QtilitiesCategory("TestCategory1::LowerTestLevel","::"));
+rootNode->addItem("Item 3",QtilitiesCategory("TestCategory2"));
+TreeNode* child_node = rootNode->addNode("TestNode1");
+child_node->addItem("TestChild1");
+child_node->addItem("TestChild2");
+child_node->addItem("TestChild3");
+@endcode
+
+And the output looks like this:
+@code
+  <object_node ExportFlags="1">
+    <Data>
+      <ObserverHints HierarchicalDisplay="CategorizedHierarchy"/>
+    </Data>
+    <Children>
+      <TreeItem Ownership="SpecificObserverOwnership" InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+        Name="Item 1" Activity="Inactive">
+        <Category AccessMode="3" Depth="1">
+          <CategoryLevel_0 Name="TestCategory1"/>
+        </Category>
+      </TreeItem>
+      <TreeItem Ownership="SpecificObserverOwnership" InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+        Name="Item 2" Activity="Inactive">
+        <Category AccessMode="3" Depth="2">
+          <CategoryLevel_0 Name="TestCategory1"/>
+          <CategoryLevel_1 Name="LowerTestLevel"/>
+        </Category>
+      </TreeItem>
+      <TreeItem Ownership="SpecificObserverOwnership" InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+        Name="Item 3" Activity="Inactive">
+        <Category AccessMode="3" Depth="1">
+          <CategoryLevel_0 Name="TestCategory2"/>
+        </Category>
+      </TreeItem>
+      <TreeItem Ownership="SpecificObserverOwnership" ExportFlags="1"&#xD
+       InstanceFactoryInfo="qti.def.FactoryTag.TreeNode" Name="TestNode1" Activity="Inactive">
+        <Data>
+          <ObserverHints/>
+        </Data>
+        <Children>
+          <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                    InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                    Name="TestChild1"/>
+          <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                    InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                    Name="TestChild2"/>
+          <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                    InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                    Name="TestChild3"/>
+        </Children>
+      </TreeItem>
+    </Children>
+  </object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ObserverHints
+</td>
+<td>
+@code
+<object_node ActivityControl="CheckboxTriggered"&#xD
+  ActivityDisplay="CheckboxActivityDisplay"&#xD
+  DragDropFlags="3"&#xD
+  HierarchicalDisplay="CategorizedHierarchy"&#xD
+  ObserverSelectionContext="SelectionUseSelectedContext"&#xD
+  NamingControl="ReadOnlyNames"&#xD
+  ActionHints="425967"&#xD
+  ItemViewColumnFlags="61"&#xD
+  ModificationStateDisplay="CharacterModificationStateDisplay"&#xD
+  DisplayFlags="4"&#xD
+  ItemSelectionControl="NonSelectableItems">
+  <CategoryFilter FilterInversed="True" FilterEnabled="True" CategoryCount"2">
+    <Category_0 AccessMode="3" Depth="3">
+      <CategoryLevel_0 Name="Test1"/>
+      <CategoryLevel_1 Name="Test1"/>
+      <CategoryLevel_2 Name="Test1"/>
+    </Category_0>
+    <Category_1 AccessMode="3" Depth="3">
+      <CategoryLevel_0 Name="Test2"/>
+      <CategoryLevel_1 Name="Test2"/>
+      <CategoryLevel_2 Name="Test2"/>
+    </Category_1>
+  </CategoryFilter>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::QtilitiesCategory
+</td>
+<td>
+@code
+<object_node AccessMode="1" Depth="3">
+  <CategoryLevel_0 Name="Top Level Category"/>
+  <CategoryLevel_1 Name="Middle Level Category"/>
+  <CategoryLevel_2 Name="Lowest Level Category"/>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::Project<br><br>
+Note that Project::saveProject() is shown, not Project::exportXml().
+</td>
+<td>
+@code
+<!DOCTYPE QtilitiesXMLProject>
+<QtilitiesXMLProject QtilitiesVersion="0.3.0" ApplicationName="Qtilities Tester" ExportVersion="0"&#xD
+                     ApplicationExportVersion="0" ApplicationVersion="0.3.0">
+  <ProjectItem_0 Name="Code Editor Project Item">
+    <CodeEditorProjectItemWrapper><![CDATA[Testing Plain Text... Hooray!]]></CodeEditorProjectItemWrapper>
+  </ProjectItem_0>
+</QtilitiesXMLProject>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::SubjectTypeFilter
+</td>
+<td>
+@code
+<object_node GroupName="TestGroupName" InversedFiltering="True" TypeCount="4">
+  <KnownTypes>
+    <Type_0 MetaType="TestMetaType1" Name="TestTypeName1"/>
+    <Type_1 MetaType="TestMetaType2" Name="TestTypeName2"/>
+    <Type_2 MetaType="TestMetaType3" Name="TestTypeName3"/>
+    <Type_3 MetaType="TestMetaType4" Name="TestTypeName4"/>
+  </KnownTypes>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeFileItem
+</td>
+<td>
+@code
+<object_node>
+  <Formatting ToolTip="Example Tool Tip" ForegroundColor="#800000" BackgroundColor="#a0a0a4"&#xD
+              StatusTip="Example Status Tip" WhatsThis="Example Whats This">
+    <Size Width="10" Height="20"/>
+    <Font Weigth="50" Family="Helvetica [Cronyx]" Bold="False" PointSize="20" Italic="False"/>
+  </Formatting>
+  <FileInfo PathDisplay="0" Path="TestFileName.txt" RelativeToPath="/RelativeToPath"/>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeItem
+</td>
+<td>
+@code
+<object_node>
+    <Formatting ToolTip="Example Tool Tip" ForegroundColor="#800000" BackgroundColor="#a0a0a4"&#xD
+                StatusTip="Example Status Tip" WhatsThis="Example Whats This">
+    <Size Width="10" Height="20"/>
+    <Font Weigth="50" Family="Helvetica [Cronyx]" Bold="False" PointSize="20" Italic="False"/>
+  </Formatting>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeNode
+</td>
+<td>
+Same as Qtilities::Core::Observer.
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::CodeEditorProjectItemWrapper
+</td>
+<td>
+@code
+<object_node>
+  <CodeEditorProjectItemWrapper><![CDATA[Testing Plain Text... Hooray!]]></CodeEditorProjectItemWrapper>
+</object_node>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::ProjectManagement::ObserverProjectItemWrapper
+</td>
+<td>
+The example below has an wrapped Observer with no data or children.
+@code
+<object_node>
+  <ObserverProjectItemWrapper ExportFlags="1">
+    <Data/>
+    <Children/>
+  </ObserverProjectItemWrapper>
+</object_node>
+@endcode
+</td>
+</tr>
+
+
+</table>
+</td>
+</tr>
+</table>
+</div>
+
+\section page_serializing_overview_0_3_factory_info Instance Factory Info
+
+For more information regarding the use of the Qtilities::Core::InstanceFactoryInfo, see \ref page_factories.
+
+<div>
+<table width="100%">
+<tr>
+<td>
+<table>
+<tr>
+<td>
+<h2>Class</h2>
+</td>
+<td>
+<h2>Factory Information</h2>
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::ActivityPolicyFilter
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.ActivityFilter
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::NamingPolicyFilter
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.NamingFilter
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::Observer
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.Observer
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::SubjectTypeFilter
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.SubjectTypeFilter
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeFileItem
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.TreeFileItem
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeItem
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.TreeItem
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::CoreGui::TreeNode
+</td>
+<td>
+- Factory Tag: \p qti.def.QtilitiesFactory
+- Instance Tag: \p qti.def.FactoryTag.TreeNode
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+</div>
+
+\section page_serializing_overview_0_3_session_files Session Related Files
+
+This section provides an overview of the formats used for session related files produced by %Qtilities for this version.
+
+<div>
+<table width="100%">
+<tr>
+<td>
+<table>
+<tr>
+<td>
+<h2>File Type</h2>
+</td>
+<td>
+<h2>File Format</h2>
+</td>
+</tr>
+
+<tr>
+<td>
+Shortcut Mapping Files
+</td>
+<td>
+@code
+<!DOCTYPE QtilitiesShortcutsMapping>
+<QtilitiesShortcutsMapping QtilitiesVersion="0.3.0" ExportVersion="0">
+  <Shortcuts>
+    <Shortcut_0 CommandID="File.SaveAs" KeySequence=""/>
+    <Shortcut_1 CommandID="Edit.Copy" KeySequence=""/>
+    <Shortcut_2 CommandID="File.PrintPreview" KeySequence=""/>
+    <Shortcut_3 CommandID="File.Print" KeySequence=""/>
+    <Shortcut_4 CommandID="Edit.Find" KeySequence=""/>
+    <Shortcut_5 CommandID="File.Save" KeySequence=""/>
+    <Shortcut_6 CommandID="Edit.SelectAll" KeySequence=""/>
+    <Shortcut_7 CommandID="Edit.Clear" KeySequence=""/>
+    <Shortcut_8 CommandID="Edit.Redo" KeySequence=""/>
+    <Shortcut_9 CommandID="Edit.Cut" KeySequence=""/>
+    <Shortcut_10 CommandID="File.Open" KeySequence=""/>
+    <Shortcut_11 CommandID="Edit.Undo" KeySequence=""/>
+    <Shortcut_12 CommandID="File.PrintPDF" KeySequence=""/>
+  </Shortcuts>
+</QtilitiesShortcutsMapping>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Plugin Configuration Sets
+</td>
+<td>
+@code
+<!DOCTYPE QtilitiesPluginConfiguration>
+<QtilitiesPluginConfiguration QtilitiesVersion="0.3.0" ExportVersion="0">
+  <InactivePlugins>
+    <PluginName Value="Test Plugin 1"/>
+    <PluginName Value="Test Plugin 2"/>
+    <PluginName Value="Test Plugin 3"/>
+  </InactivePlugins>
+  <FilteredPlugins>
+    <Expression Value="Filter1*"/>
+    <Expression Value="Filter2*"/>
+    <Expression Value="Filter3*"/>
+  </FilteredPlugins>
+</QtilitiesPluginConfiguration>
+@endcode
+</td>
+</tr>
+
+<tr>
+<td>
+Logging Configuration Export<br>
+MARKER_LOGGER_CONFIG_TAG = (quint32) 0xFAC0000F<br>
+<br>
+Sets the QDataStream verison to QDataStream::Qt_4_7.
+</td>
+<td>
+- MARKER_LOGGER_CONFIG_TAG
+- %Qtilities export version (quint32)
+- MARKER_LOGGER_CONFIG_TAG
+- Global log level (quint32)
+- The number of exportable logger engines found (quint32)
+- The logger engine exports:
+  - Factory tag (QString)
+  - Instance name (QString)
+  - The export on the Qtilities::Logger::ILoggerExportable implementation.
+- MARKER_LOGGER_CONFIG_TAG
+- The number of logger engines in the logger (quint32)
+- Information for each logger engine:
+  - Name (QString)
+  - Formatting engine name (QString)
+  - Message context (quint32)
+- MARKER_LOGGER_CONFIG_TAG
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+</div>
+
+ */
+

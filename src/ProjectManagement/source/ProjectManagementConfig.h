@@ -82,7 +82,6 @@ namespace Qtilities {
             void handle_radioPromptUserToSave(bool toggle);
             void handle_radioSaveAutomatically(bool toggle);
             void handle_chkUseCustomProjectsPath(bool toggle);
-            void handle_checkVerboseLogging(bool toggle);
             void handle_btnOpenProjectsPath();
             void handle_txtCustomProjectsPathTextChanged(QString new_path);
 

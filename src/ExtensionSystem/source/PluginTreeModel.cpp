@@ -48,7 +48,7 @@ QVariant Qtilities::ExtensionSystem::PluginTreeModel::data(const QModelIndex &in
         if (obj) {
             IPlugin* pluginIFace = qobject_cast<IPlugin*> (obj);
             if (pluginIFace)
-                return pluginIFace->pluginVersion();         
+                return pluginIFace->pluginVersionInformation().version().toString();
         }
         return QVariant();
     } else if ((index.column() == columnCount() - 1) && (role == Qt::ForegroundRole)) {

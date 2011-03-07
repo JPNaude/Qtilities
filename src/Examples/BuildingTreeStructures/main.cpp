@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Building Tree Structures Example");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create the tree nodes:
     /*TreeNode* nodeA = new TreeNode("Node A");

@@ -51,16 +51,43 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::SubjectTypeFilterPrivateData {
-    SubjectTypeFilterPrivateData() : inversed_filtering(false) {}
+    SubjectTypeFilterPrivateData() : inversed_filtering(false),
+        is_modified(false) {}
 
-    bool inversed_filtering;
-    QList<SubjectTypeInfo> known_subject_types;
-    QString known_objects_group_name;
+    bool                    inversed_filtering;
+    bool                    is_modified;
+    QList<SubjectTypeInfo>  known_subject_types;
+    QString                 known_objects_group_name;
 };
 
 Qtilities::Core::SubjectTypeFilter::SubjectTypeFilter(const QString& known_objects_group_name, QObject* parent) : AbstractSubjectFilter(parent) {
     d = new SubjectTypeFilterPrivateData;
     d->known_objects_group_name = known_objects_group_name;
+}
+
+Qtilities::Core::SubjectTypeFilter::~SubjectTypeFilter() {
+    delete d;
+}
+
+void Qtilities::Core::SubjectTypeFilter::operator=(const SubjectTypeFilter& ref) {
+    d->inversed_filtering = ref.inverseFilteringEnabled();
+    d->known_subject_types = ref.knownSubjectTypes();
+    d->known_objects_group_name = ref.groupName();
+}
+
+bool Qtilities::Core::SubjectTypeFilter::operator==(const SubjectTypeFilter& ref) const {
+    if (d->inversed_filtering != ref.inverseFilteringEnabled())
+        return false;
+    if (d->known_subject_types != ref.knownSubjectTypes())
+        return false;
+    if (d->known_objects_group_name != ref.groupName())
+        return false;
+
+    return true;
+}
+
+bool Qtilities::Core::SubjectTypeFilter::operator!=(const SubjectTypeFilter& ref) const {
+    return !(*this==ref);
 }
 
 bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
@@ -125,6 +152,13 @@ QString Qtilities::Core::SubjectTypeFilter::groupName() const {
     return d->known_objects_group_name;
 }
 
+void Qtilities::Core::SubjectTypeFilter::setGroupName(const QString& group_name) {
+    if (d->known_objects_group_name != group_name) {
+        d->known_objects_group_name = group_name;
+        setModificationState(true);
+    }
+}
+
 void Qtilities::Core::SubjectTypeFilter::addSubjectType(SubjectTypeInfo subject_type_info) {
     if (observer) {
         if (observer->subjectCount() > 0)
@@ -132,6 +166,7 @@ void Qtilities::Core::SubjectTypeFilter::addSubjectType(SubjectTypeInfo subject_
     }
 
     d->known_subject_types.append(subject_type_info);
+    setModificationState(true);
 }
 
 bool Qtilities::Core::SubjectTypeFilter::isKnownType(const QString& meta_type) const {
@@ -153,12 +188,15 @@ QList<Qtilities::Core::SubjectTypeInfo> Qtilities::Core::SubjectTypeFilter::know
 }
 
 void Qtilities::Core::SubjectTypeFilter::enableInverseFiltering(bool enabled) {
-    if (observer) {
-        if (observer->subjectCount() > 0)
-            return;
-    }
+    if (d->inversed_filtering != enabled) {
+        if (observer) {
+            if (observer->subjectCount() > 0)
+                return;
+        }
 
-    d->inversed_filtering = enabled;
+        d->inversed_filtering = enabled;
+        setModificationState(true);
+    }
 }
 
 bool Qtilities::Core::SubjectTypeFilter::inverseFilteringEnabled() const {
@@ -173,15 +211,11 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectTypeFilter::instanc
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectTypeFilter::supportedFormats() const {
     IExportable::ExportModeFlags flags = 0;
     flags |= IExportable::Binary;
+    flags |= IExportable::XML;
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
-    InstanceFactoryInfo factory_data = instanceFactoryInfo();
-    factory_data.exportBinary(stream);
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportBinary(QDataStream& stream) const {
     stream << d->inversed_filtering;
     stream << d->known_objects_group_name;
     stream << (quint32) d->known_subject_types.count();
@@ -193,9 +227,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
-    Q_UNUSED(params)
 
     stream >> d->inversed_filtering;
     stream >> d->known_objects_group_name;
@@ -209,30 +242,31 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
         stream >> meta_type;
         stream >> name;
         SubjectTypeInfo new_type(meta_type, name);
-        d->known_subject_types << new_type;
+        d->known_subject_types.append(new_type);
     }
 
-    return IExportable::Complete;
+    if (d->known_subject_types.count() == (int) known_type_count)
+        return IExportable::Complete;
+    else
+        return IExportable::Failed;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
-    Q_UNUSED(params)
-
-    QDomElement filter_data = doc->createElement("Data");
-    object_node->appendChild(filter_data);
+     
     if (d->inversed_filtering)
-        filter_data.setAttribute("InversedFiltering","True");
+        object_node->setAttribute("InversedFiltering","True");
     if (!d->known_objects_group_name.isEmpty())
-        filter_data.setAttribute("GroupName",d->known_objects_group_name);
+        object_node->setAttribute("GroupName",d->known_objects_group_name);
+    object_node->setAttribute("TypeCount",d->known_subject_types.count());
 
     // Categories:
     if (d->known_subject_types.count() > 0) {
         QDomElement known_type_node = doc->createElement("KnownTypes");
         object_node->appendChild(known_type_node);
         for (int i = 0; i < d->known_subject_types.count(); i++) {
-            QDomElement known_type = doc->createElement("Type");
+            QDomElement known_type = doc->createElement("Type_" + QString::number(i));
             known_type_node.appendChild(known_type);
             known_type.setAttribute("MetaType",d->known_subject_types.at(i).d_meta_type);
             known_type.setAttribute("Name",d->known_subject_types.at(i).d_name);
@@ -242,10 +276,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
-    Q_UNUSED(object_node)
-    Q_UNUSED(params)
     Q_UNUSED(import_list)
 
     if (object_node->hasAttribute("InversedFiltering")) {
@@ -256,6 +288,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     }
     if (object_node->hasAttribute("GroupName"))
         d->known_objects_group_name = object_node->attribute("GroupName");
+
+    int count_readback;
+    if (object_node->hasAttribute("TypeCount"))
+        count_readback = object_node->attribute("TypeCount").toInt();
 
     // Known types stuff:
     QDomNodeList childNodes = object_node->childNodes();
@@ -277,7 +313,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
                 if (knownType.isNull())
                     continue;
 
-                if (knownType.tagName() == "Type") {
+                if (knownType.tagName().startsWith("Type")) {
                     QString meta_type = knownType.attribute("MetaType");
                     QString name = knownType.attribute("Name");
                     if (meta_type.isEmpty() || name.isEmpty()) {
@@ -293,6 +329,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
         }
     }
 
+    if (d->known_subject_types.count() == count_readback)
+        return IExportable::Complete;
+    else
+        return IExportable::Failed;
+}
 
-    return IExportable::Complete;
+bool Qtilities::Core::SubjectTypeFilter::isModified() const {
+    return d->is_modified;
+}
+
+void Qtilities::Core::SubjectTypeFilter::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    d->is_modified = new_state;
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
+    }
+}
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SubjectTypeFilter& stream_obj) {
+    stream_obj.exportBinary(stream);
+    return stream;
+}
+
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SubjectTypeFilter& stream_obj) {
+    QList<QPointer<QObject> > import_list;
+    stream_obj.importBinary(stream,import_list);
+    return stream;
 }

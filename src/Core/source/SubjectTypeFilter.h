@@ -38,10 +38,13 @@
 #include "Factory.h"
 #include "QtilitiesCoreConstants.h"
 #include "AbstractSubjectFilter.h"
+#include "VersionInformation.h"
+#include "IModificationNotifier.h"
 
 namespace Qtilities {
     namespace Core {
         using namespace Qtilities::Core::Constants;
+        using namespace Qtilities::Core::Interfaces;
 
         /*!
           \struct SubjectTypeFilterPrivateData
@@ -53,26 +56,26 @@ namespace Qtilities {
         \class SubjectTypeFilter
         \brief A subject filter which only allows attachement of specific object types.
 
-        The SubjectTypeFilter allows control over the types of objects which can be attached to an observer context. The filter
-        only allows known subject types to be attached. A subject type is defined by the SubjectTypeInfo struct and each
-        filter only knows about subject types added to it using the addSubjectType() function. You can inverse the known
-        filter types by calling the enableInverseFiltering() function. In this scenario the filter will only allow attachment
-        of unknown filter type and it will filter all known types.
+        The SubjectTypeFilter allows control over the types of objects which can be attached to an observer context. The filter only allows known subject types to be attached. A subject type is defined by the SubjectTypeInfo struct and each filter only knows about subject types added to it using the addSubjectType() function. You can inverse the known filter types by calling the enableInverseFiltering() function. In this scenario the filter will only allow attachment of unknown filter type and it will filter all known types.
 
-        Another usefull feature of the SubjectTypeFilter class is that it provides a name for the group of subjects that is known to
-        it which is accessable through groupName(). The group name is set in the constructor of the filter.
+        Another usefull feature of the SubjectTypeFilter class is that it provides a name for the group of subjects that is known to it which is accessable through groupName(). The group name is set in the constructor of the filter.
 
         \note You need to set up your filter before attaching any subjects to its observer context.
 
         \sa Observer, AbstractSubjectFilter, ActivityPolicyFilter, NamingPolicyFilter
           */	
-        class QTILIITES_CORE_SHARED_EXPORT SubjectTypeFilter : public AbstractSubjectFilter
+        class QTILIITES_CORE_SHARED_EXPORT SubjectTypeFilter : public AbstractSubjectFilter, public IModificationNotifier
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
             SubjectTypeFilter(const QString& known_objects_group_name = QString(), QObject* parent = 0);
-            ~SubjectTypeFilter() {}
+            virtual ~SubjectTypeFilter();
+
+            void operator=(const SubjectTypeFilter& ref);
+            bool operator==(const SubjectTypeFilter& ref) const;
+            bool operator!=(const SubjectTypeFilter& ref) const;
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -87,6 +90,7 @@ namespace Qtilities {
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -98,10 +102,19 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
 
         public:
             // --------------------------------
@@ -109,6 +122,8 @@ namespace Qtilities {
             // --------------------------------
             //! Gets the name describing the known subject grouping.
             QString groupName() const;
+            //! Sets the name describing the known subject grouping.
+            void setGroupName(const QString& group_name);
             //! Sets the filter list.
             void addSubjectType(SubjectTypeInfo subject_type_info);
             //! Returns true if the specified type if a known type in this filter. This call takes the inverse filtering setting into account. Note that the name of the SubjectTypeInfo struct is not checked but rather the d_meta_type field.
@@ -126,5 +141,7 @@ namespace Qtilities {
     }
 }
 
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SubjectTypeFilter& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SubjectTypeFilter& stream_obj);
 
 #endif // SUBJECT_TYPE_FILTER_H

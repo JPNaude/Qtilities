@@ -9,7 +9,6 @@
 QTILITIES += coregui
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-
 CONFIG += qt \
     dll \
     ordered

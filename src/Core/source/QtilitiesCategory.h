@@ -54,8 +54,9 @@ namespace Qtilities {
          */
         class QTILIITES_CORE_SHARED_EXPORT CategoryLevel : public IExportable {
         public:
-            CategoryLevel(QDataStream& stream) {
+            CategoryLevel(QDataStream& stream, Qtilities::ExportVersion version) {
                 QList<QPointer<QObject> > import_list;
+                setExportVersion(version);
                 importBinary(stream,import_list);
             }
             CategoryLevel(const QString& name = QString()) {
@@ -66,6 +67,12 @@ namespace Qtilities {
             }
             void operator=(const CategoryLevel& ref) {
                 d_name = ref.d_name;
+            }
+            bool operator==(const CategoryLevel& ref) const {
+                return d_name == ref.d_name;
+            }
+            bool operator!=(const CategoryLevel& ref) const {
+                return !(*this==ref);
             }
 
             // --------------------------------
@@ -84,17 +91,13 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            /*!
-              \note CategoryLevel returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
-              */
-            InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             /*!
               This function adds a category level node under \p object_node with all the information about this category level.
               */
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             //! The name of the category level.
             QString                 d_name;
@@ -147,9 +150,9 @@ observer->useDisplayHints();
 observer->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedDisplay);
 QObject* object = new QObject();
 object->setObjectName("Categorized Item");
-ObserverProperty category_property(qti_prop_CATEGORY_MAP);
+MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
 category_property.setValue(qVariantFromValue(QtilitiesCategory("Item Category")),observer->observerID());
-Observer::setObserverProperty(object,category_property);
+Observer::setMultiContextProperty(object,category_property);
 observer->attachSubject(object);
 
 // Using TreeNode (which inherits from Observer):
@@ -185,8 +188,9 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             QtilitiesCategory(const QString& category_levels, const QString& seperator);
             //! Creates a QtilitiesCategory object from a QStringList.
             QtilitiesCategory(const QStringList& category_name_list);
-            QtilitiesCategory(QDataStream &ds) {
+            QtilitiesCategory(QDataStream &ds, Qtilities::ExportVersion version) {
                 QList<QPointer<QObject> > import_list;
+                setExportVersion(version);
                 importBinary(ds,import_list);
             }
             QtilitiesCategory(const QtilitiesCategory& category) {
@@ -194,66 +198,36 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
                 d_access_mode = category.d_access_mode;
             }
             virtual ~QtilitiesCategory() {}
-
-            //! Indicates if this category is valid.
-            /*!
-              The validation check checks if the category has any levels, if not it is invalid.
-              */
-            inline bool isValid() const { return d_category_levels.count() > 0; }
-
+            void operator=(const QtilitiesCategory& other);
             //! Operator overload to compare two QtilitiesCategory objects with each other.
             /*!
               \note Only the category names are used in this comparison.
               */
-            bool operator==(const QtilitiesCategory& ref) const {
-                if (ref.d_category_levels.count() != d_category_levels.count())
-                    return false;
-
-                for (int i = 0; i < d_category_levels.count(); i++) {
-                    if (ref.d_category_levels.at(i).d_name != d_category_levels.at(i).d_name)
-                        return false;
-                }
-
-                return true;
-            }
-
+            bool operator==(const QtilitiesCategory& ref) const;
             //! Operator overload to compare two QtilitiesCategory objects are not equal.
             /*!
               \note Only the category names are used in this comparison.
               */
-            bool operator!=(const QtilitiesCategory& ref) const {
-                if (ref.d_category_levels.count() != d_category_levels.count())
-                    return true;
-
-                for (int i = 0; i < d_category_levels.count(); i++) {
-                    if (ref.d_category_levels.at(i).d_name != d_category_levels.at(i).d_name)
-                        return true;
-                }
-
-                return false;
-            }
-
-            //! Operator overload to assign one QtilitiesCategory to another QtilitiesCategory.
-            void operator=(const QtilitiesCategory& ref) {
-                d_category_levels = ref.d_category_levels;
-                d_access_mode = ref.d_access_mode;
-            }
-
+            bool operator!=(const QtilitiesCategory& ref) const;
             //! Overload << operator so that we can build up a category structure in the same way as QStringList.
             inline QtilitiesCategory& operator<<(const QString &category_level_name)
             {
                addLevel(category_level_name);
                return *this;
             }
-
             //! Overload < operator so that we can use QtilitiesCategory in a QMap.
             inline bool operator<(const QtilitiesCategory &e1) const
             {
                 return toString() < e1.toString();
             }
 
-            //! Returns the depth of this category.
-            inline int categoryDepth() const { return d_category_levels.count(); }
+            //! Indicates if this category is valid.
+            /*!
+              The validation check checks if the category has any levels, if not it is invalid.
+              */
+            inline bool isValid() const { return d_category_levels.count() > 0; }
+            //! Indicates if this category is empty. Thus no levels have been added to it.
+            inline bool isEmpty() const { return (d_category_levels.count() == 0); }
 
             //! Returns the category as a QString.
             /*!
@@ -268,6 +242,19 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
               */
             QStringList toStringList(int level = -1) const;
 
+            //! Gets the access mode of this category.
+            inline int accessMode() const { return d_access_mode; }
+            //! Sets the access mode of this category.
+            inline void setAccessMode(int access_mode) { d_access_mode = access_mode; }
+
+            //! Returns the depth of this category.
+            inline int categoryDepth() const { return d_category_levels.count(); }
+            //! Adds a level to the category by providing the information needed to construct a CategoryLevel.
+            void addLevel(const QString& name);
+            //! Adds a level to the category by providing a ready to use CategoryLevel structure.
+            void addLevel(CategoryLevel category_level);
+            //! Returns the category levels where the first item in the list is always the top level category and the last item is the bottom level.
+            inline QList<CategoryLevel> categoryLevels() const { return d_category_levels; }
             //! Returns the top level category in this category object.
             /*!
               This function is a convenience function. It returns the same as categoryLevels().front().d_name;
@@ -289,11 +276,6 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
                     return QString();
             }
 
-            //! Gets the access mode of this category.
-            inline int accessMode() const { return d_access_mode; }
-            //! Sets the access mode of this category.
-            inline void setAccessMode(int access_mode) { d_access_mode = access_mode; }
-
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -310,28 +292,14 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            /*!
-              \note QtilitiesCategory returns an invalid InstanceFactoryInfo object since it is not registered in any factory.
-              */
-            InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            void setExportVersion(Qtilities::ExportVersion version);
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             /*!
               This function adds a category node under \p object_node with all the information about this category.
               */
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-
-            //! Adds a level to the category by providing the information needed to construct a CategoryLevel.
-            void addLevel(const QString& name);
-            //! Adds a level to the category by providing a ready to use CategoryLevel structure.
-            void addLevel(CategoryLevel category_level);
-
-            //! Returns the category levels where the first item in the list is always the top level category and the last item is the bottom level.
-            inline QList<CategoryLevel> categoryLevels() const { return d_category_levels; }
-
-            //! Indicates if this category is empty. Thus no levels have been added to it.
-            inline bool isEmpty() const { return (d_category_levels.count() == 0); }
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
             QList<CategoryLevel>    d_category_levels;
@@ -342,7 +310,9 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
 
 Q_DECLARE_METATYPE(Qtilities::Core::QtilitiesCategory);
 
-QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::QtilitiesCategory& category);
-QDataStream & operator>> (QDataStream& stream, Qtilities::Core::QtilitiesCategory& category);
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::CategoryLevel& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::CategoryLevel& stream_obj);
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::QtilitiesCategory& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::QtilitiesCategory& stream_obj);
 
 #endif // QTILITIES_CATEGORY_H

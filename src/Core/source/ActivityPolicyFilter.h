@@ -66,8 +66,12 @@ namespace Qtilities {
 
         public:
             ActivityPolicyFilter(QObject* parent = 0);
-            ~ActivityPolicyFilter();
+            virtual ~ActivityPolicyFilter();
             bool eventFilter(QObject *object, QEvent *event);
+
+            void operator=(const ActivityPolicyFilter& ref);
+            bool operator==(const ActivityPolicyFilter& ref) const;
+            bool operator!=(const ActivityPolicyFilter& ref) const;
 
             //! Reimplemented from AbstractSubjectFilter in order to install event filter on \p observer_context.
             bool setObserverContext(Observer* observer_context);
@@ -221,17 +225,17 @@ namespace Qtilities {
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // IExportable Implemenation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
-        public:
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
@@ -264,5 +268,8 @@ namespace Qtilities {
         };
     }
 }
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::ActivityPolicyFilter& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::ActivityPolicyFilter& stream_obj);
 
 #endif // ACTIVITYPOLICYFILTER_H

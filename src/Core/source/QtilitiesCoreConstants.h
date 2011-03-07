@@ -61,19 +61,8 @@ namespace Qtilities {
           Observer classes use the dynamic property features of QObject classes extensively to manage objects in different contexts.
           This namespace contains a set of properties which are defined and used internally in %Qtilities.
 
-          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers article. Note that all properties used by %Qtilities starts with "%Qtilities", for example \p Qtilities.Core.ObserverSubjectIDs.
+          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers article, or Qtilities::Core::QtilitiesProperty. Note that all properties used by %Qtilities starts with "qti_prop".
 
-          The following is defined for each property:
-          - Permission: Indicates the permission on the property. When \p Reserved the property cannot be changed
-          by the developer and when an attempt is made to change the property it will be filtered by the observer managing
-          the object on which the property exist. Observers emits the Qtilities::Core::Observer::propertyChangeFiltered() signal
-          when this happens. When the permission is specified as \p Read/Write the property can be changed by the
-          developer at any time.
-          - Data Type: This field indicates the type of data stored in a property.
-          - Property Type: All properties are QVariants of either ObserverProperty or SharedObserverProperty. This field indicates
-          the type of property.
-          - Is Exportable: Indicates if the property is exportable. See ObserverProperty::isExportable() for more information.
-          - Change Notifications: Indicates if a property is monitored. See Observer::monitoredProperties() for more information.
 
           For an overview of property changes and changing properties see the \ref monitoring_property_changes section of the
           \ref page_observers article.
@@ -87,7 +76,7 @@ is used to keep track in which contexts the object is visible.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> QMap<int,int> where the keys are observer IDs of the contexts in which the object is visible and values are the unqiue IDs of the object in the different observers<br>
-<b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No
 
@@ -102,7 +91,7 @@ obs->attachSubject(obj);
 QList<Observer*> parents = Observer::parentReferences(obj);
 
 // Get the subject ID of an object within an observer context.
-int subject_id = obs->getObserverPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
+int subject_id = obs->getQtilitiesPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
 \endcode
 */
 const char * const qti_prop_OBSERVER_MAP  = "qti.core.ObserverMap";
@@ -115,7 +104,7 @@ of the object in that context.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int, cast to Observer::ObjectOwnership to get the ownership<br>
-<b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No
 
@@ -126,7 +115,7 @@ Observer* obs = new Observer("My Observer","");
 QObject* obj = new QObject();
 obs->attachSubject(obj);
 
-QVariant current_ownership = obs->getObserverPropertyValue(obj,qti_prop_OWNERSHIP);
+QVariant current_ownership = obs->getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
 Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
 \endcode
 */
@@ -139,7 +128,7 @@ property will contain the observer ID of the parent observer.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int, this int is the ObserverID of the observer parent.<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No
 */
@@ -153,14 +142,14 @@ the object to any observers and cannot be changed afterwards.
 
 <b>Permisson:</b> Read/Write, Reserved (after attachment)<br>
 <b>Data Type:</b> int<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> No<br>
 
 Below is an example of how to add the qti_prop_OBSERVER_LIMIT property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty observer_limit_property(QVariant(1),qti_prop_OBSERVER_LIMIT);
+SharedProperty observer_limit_property(QVariant(1),qti_prop_OBSERVER_LIMIT);
 Observer::setSharedProperty(obj, observer_limit_property);
 \endcode
 */
@@ -173,7 +162,7 @@ Qtilities::Core::ObserverRelationalTable.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> No<br>
 */
@@ -186,7 +175,7 @@ to make sure an object found multiple times in a tree is only exported once.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 */
@@ -201,14 +190,14 @@ displayed.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> int, cast to Observer::AccessMode to get the access mode<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Yes by default, depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add the qti_prop_ACCESS_MODE property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty access_property(QVariant((int) Observer::ReadOnlyAccess),qti_prop_ACCESS_MODE);
+SharedProperty access_property(QVariant((int) Observer::ReadOnlyAccess),qti_prop_ACCESS_MODE);
 Observer::setSharedProperty(obj, access_property);
 \endcode
 */
@@ -222,7 +211,7 @@ hint set to categorized hierarchy.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QtilitiesCategory<br>
-<b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> Yes<br>
 
@@ -232,9 +221,9 @@ Observer* obs = new Observer("My Observer","Observer showing categories");
 obs->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
 
 QObject* obj = new QObject();
-ObserverProperty category_property(qti_prop_CATEGORY_MAP);
+MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
 category_property.setValue(qVariantFromValue(QtilitiesCategory("Category 1")),obs->observerID());
-Observer::setObserverProperty(obj,category_property);
+Observer::setMultiContextProperty(obj,category_property);
 
 obs->attachSubject(obj);
 \endcode
@@ -248,7 +237,7 @@ For more information on this property and name managers see the Qtilities::CoreG
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QString<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> Yes<br>
 
@@ -260,7 +249,7 @@ Below is an example of how you can create a new name for an object. An alternati
 is to get the property, change it and add it again to the object. Both approaches yields the
 same result.
 \code
-SharedObserverProperty new_subject_name_property(QVariant(new_name),qti_prop_NAME);
+SharedProperty new_subject_name_property(QVariant(new_name),qti_prop_NAME);
 new_subject_name_property.setIsExportable(false);
 Observer::setSharedProperty(obj,new_subject_name_property);
 \endcode
@@ -275,7 +264,7 @@ see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 
 <b>Permisson:</b> Reserved<br>
 <b>Data Type:</b> int<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 */
@@ -288,7 +277,7 @@ names see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QMap<int,QString>, where the keys are observer IDs and the values are the corresponding instance names<br>
-<b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> Yes<br>
 */
@@ -301,7 +290,7 @@ filters installed, this property holds the activity for each of those contexts
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QMap<int,bool>, where the keys are observer IDs and the values are the corresponding activities<br>
-<b>Property Type:</b> Qtilities::Core::ObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> Yes<br>
 <b>Change Notifications:</b> Yes<br>
 */
@@ -317,14 +306,14 @@ const char * const qti_prop_ACTIVITY_MAP        = "qti.filters.ActivityMap";
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QString<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> No by default, depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add the OBJECT_TOOLTIP property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Tooltip Text",qti_prop_TOOLTIP);
+SharedProperty property("Tooltip Text",qti_prop_TOOLTIP);
 Observer::setSharedProperty(obj,property);
 \endcode
 */
@@ -336,14 +325,14 @@ const char * const qti_prop_TOOLTIP            = "qti.role.Tooltip";
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QColor, QIcon or QPixmap<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QVariant(QIcon(QString(":/icon_name.png"))),qti_prop_DECORATION);
+SharedProperty property(QVariant(QIcon(QString(":/icon_name.png"))),qti_prop_DECORATION);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -356,14 +345,14 @@ for the Qt::WhatsThisRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QString<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Whats This Text",qti_prop_WHATS_THIS);
+SharedProperty property("Whats This Text",qti_prop_WHATS_THIS);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -376,14 +365,14 @@ for the Qt::StatusTipRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QString<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property("Whats This Text",qti_prop_STATUSTIP);
+SharedProperty property("Whats This Text",qti_prop_STATUSTIP);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -396,14 +385,14 @@ for the Qt::SizeHintRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QSize<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QSize(10,10),qti_prop_SIZE_HINT);
+SharedProperty property(QSize(10,10),qti_prop_SIZE_HINT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -416,14 +405,14 @@ for the Qt::FontRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QFont<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QFont("Arial"),qti_prop_FONT);
+SharedProperty property(QFont("Arial"),qti_prop_FONT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -436,14 +425,14 @@ for the Qt::TextAlignmentRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> int, cast to Qt::AlignmentFlag<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property((int) Qt::AlignLeft,qti_prop_TEXT_ALIGNMENT);
+SharedProperty property((int) Qt::AlignLeft,qti_prop_TEXT_ALIGNMENT);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -456,14 +445,14 @@ for the Qt::BackgroundRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QBrush<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QBrush(Qt::NoBrush),qti_prop_BACKGROUND);
+SharedProperty property(QBrush(Qt::NoBrush),qti_prop_BACKGROUND);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -476,14 +465,14 @@ for the Qt::ForegroundRole.
 
 <b>Permisson:</b> Read/Write<br>
 <b>Data Type:</b> QBrush<br>
-<b>Property Type:</b> Qtilities::Core::SharedObserverProperty<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
 <b>Is Exportable:</b> Depends on usage<br>
 <b>Change Notifications:</b> Yes<br>
 
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedObserverProperty property(QBrush(Qt::NoBrush),qti_prop_FOREGROUND);
+SharedProperty property(QBrush(Qt::NoBrush),qti_prop_FOREGROUND);
 Observer::setSharedProperty(obj, property);
 \endcode
 */

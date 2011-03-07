@@ -35,6 +35,15 @@
 #define QTILITIES_H
 
 namespace Qtilities {
+    //! The possible versions supported by Qtilities::Core::Intefaces::IExportable.
+    /*!
+      \note Versioning was introducted in %Qtilities v0.3, therefore versions before v0.3 are not supported any more. All future versions will be backward compatible.
+      */
+    enum ExportVersion {
+        Qtilities_0_3           = 0,     /*!< %Qtilities version 0.3. See \ref page_serializing_overview_0_3 for an detailed overview. */
+        Qtilities_Latest        = Qtilities_0_3
+    };
+
     //! The %Qtilities major version number.
     #define qti_def_VERSION_MAJOR 0
     //! The %Qtilities minor version number.
@@ -45,73 +54,6 @@ namespace Qtilities {
     #define qti_def_VERSION_BETA 0
     //! The %Qtilities alpha number.
     #define qti_def_VERSION_ALPHA 0
-
-    //! The %Qtilities binary export formats version
-    /*!
-    The binary export format defines the binary format used by the classes implementing Qtilities::Core::Interfaces::IExportable.
-
-    Binary exports are not backwards compatible at this stage.
-
-    History: <br>
-    0 - %Qtilities v0.1 Beta 1 <br>
-    1 - %Qtilities v0.1 <br>
-    2 - %Qtilities v0.2 <br>
-        - Observer hints are not exported by default anymore. They now provide a hint to observers which checks this hint during export.
-        - Observers now export their memory of category access modes using the new QtilitiesCategory class.<br>
-
-    3 - %Qtilities v0.3 onwards<br>
-        - ActivityPolicyFilter::parentTrackingPolicy() now part of activity filter exports.
-        - ObserverHints::modificationStateDisplayHint() now part of observer hints exports.
-        - ObserverProperty::isReserved() is now part of Observer properties.
-        - ObserverProperty::supportsChangeNotifications() is now part of Observer properties.
-        - AbstractSubjectFilter::isModificationStateMonitored() is part of all %Qtilities subject filters.
-        - All %Qtilities properties's names changed.
-    */
-    #define qti_def_FORMAT_TREES_BINARY 3
-
-    //! The shortcut export format version.
-    /*!
-    History:<br>
-    No version defined - %Qtilities v0.1 Beta 1<br>
-    1 - %Qtililties v0.1 onwards
-    */
-    #define qti_def_FORMAT_CONFIG_SHORTCUTS 1
-
-    //! The %Qtilities logger's binary export format.
-    /*!
-    The logger binary export format defines the binary format used by the classes implementing Qtilities::Logging::Interfaces::ILoggerExportable.
-
-    History:<br>
-    No version defined - %Qtilities v0.1 Beta 1<br>
-    1 - %Qtilities v0.1<br>
-    2 - %Qtilities v0.2<br>
-    3 - %Qtilities v0.3 onwards<br>
-        - The logger binary export now includes the name of the engine. This fixes the bug where engine specific properties could not be restored properly.
-        - The export now contains the message contexts of each engine.
-    */
-    #define qti_def_FORMAT_CONFIG_LOGGER 3
-
-    //! The %Qtilities XML export format.
-    /*!
-    The XML format defines the format which is used to export XML trees.
-
-    History:<br>
-    XML exporting was introduced in %Qtilities v0.2<br>
-    1 - %Qtililties v0.2<br>
-    2 - %Qtililties v0.3 onwards<br>
-        - The factory tags defined and used throughout %Qtilities changed, causing the required version step.
-    */
-    #define qti_def_FORMAT_TREES_XML 2
-
-    //! The %Qtilities Extension System plugin configuration export format.
-    /*!
-    The plugin configuration format defines the format which is used to export plugin configuration set files.
-
-    History:<br>
-    Plugin configuration sets exporting was introduced in %Qtilities v0.3<br>
-    1 - %Qtililties v0.3 onwards<br>
-    */
-    #define qti_def_FORMAT_CONFIG_PLUGINS 1
 }
 
 #endif // QTILITIES_H

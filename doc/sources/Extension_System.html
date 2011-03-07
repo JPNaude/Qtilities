@@ -61,6 +61,7 @@ Table of contents:
 <tr>
 <td>
 - <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_debugging.html">Debugging Applications</a><br>
 - <a href="page_extension_system.html">Extension System</a><br>
 - <a href="page_factories.html">Factories</a><br>
 - <a href="page_logging.html">Logging</a><br>
@@ -317,17 +318,23 @@ The Qtilities::ExtensionSystem::ExtensionSystemCore class provides different fun
 
 Creating configuration sets is easy and flexible. The important thing to remember is: The plugin configuration set that will be used is the one that is active at the time that the extension system's \p initialize() function is called. There are different ways to set it up:
 - Manually calling the functions that grounp plugins into different categories, like Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins() for example.
-- Loading the configuration from a XML file (ending with \p .pconfig by default). The configuration setup can be saved to a XML file at any stage. The following is an example plugin configuration file that specified that the "Session Log Plugin" must be handled as an incative plugin and that any plugin files starting with \p ProjectManagement must be filtered and not loaded at all.
+- Loading the configuration from a XML file (ending with \p .pconfig by default). The configuration setup can be saved to a XML file at any stage. The debug plugin allows you to create custom sets, for more information see \ref debugging_plugins_custom.
+
+Below is an example plugin configuration set file:
 
 \code
 <!DOCTYPE QtilitiesPluginConfiguration>
-<QtilitiesPluginConfiguration DocumentVersion="1">
-    <InactivePlugins>
-        <PluginName Value="Session Log Plugin"/>
-    </InactivePlugins>
-    <FilteredPlugins>
-        <Expression Value="ProjectManagement"/>
-    </FilteredPlugins>
+<QtilitiesPluginConfiguration QtilitiesVersion="0.3.0" ExportVersion="0">
+  <InactivePlugins>
+    <PluginName Value="Test Plugin 1"/>
+    <PluginName Value="Test Plugin 2"/>
+    <PluginName Value="Test Plugin 3"/>
+  </InactivePlugins>
+  <FilteredPlugins>
+    <Expression Value="Filter1*"/>
+    <Expression Value="Filter2*"/>
+    <Expression Value="Filter3*"/>
+  </FilteredPlugins>
 </QtilitiesPluginConfiguration>
 \endcode
 
@@ -342,6 +349,6 @@ Below is an example of the plugin configuration widget with the above two activi
 
 \image html extension_system_widget_with_config_control.jpg "Plugin Configuration Set Display"
 
-When the user is given control over plugin configuration sets, changing the current set will automatically save the new configuration to the file name of the loaded set. By default this is \p App_Path/plugins/default.pconfig. However if a valid plugin configuration has been loaded using the Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration() function, this loaded configuration file will be updated to reflect the changes the user made. The Qtilities::ExtensionSystem::ExtensionSystemCore::setActivePluginConfigurationFile() function can be specified. It is important to note that the extension system's \p initialize() function loads the active plugin configuration file automatically if it exists. Thus is does not make sense to load the configuration before calling \p initialize() unless you want to modify it.
+When the user is given control over plugin configuration sets, changing the current set will automatically save the new configuration to the file name of the loaded set. By default this is \p App_Path/session/default.pconfig. However if a valid plugin configuration has been loaded using the Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration() function, this loaded configuration file will be updated to reflect the changes the user made. The Qtilities::ExtensionSystem::ExtensionSystemCore::setActivePluginConfigurationFile() function can be specified. It is important to note that the extension system's \p initialize() function loads the active plugin configuration file automatically if it exists. Thus is does not make sense to load the configuration before calling \p initialize() unless you want to modify it.
  
 */

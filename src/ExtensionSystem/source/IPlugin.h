@@ -38,6 +38,7 @@
 
 #include <IObjectBase>
 #include <QtilitiesCategory>
+#include <VersionInformation>
 
 #include <QObject>
 #include <QList>
@@ -121,14 +122,12 @@ namespace Qtilities {
                 virtual QString pluginName() const = 0;
                 //! The category of the plugin.
                 virtual QtilitiesCategory pluginCategory() const = 0;
-                //! The version of the plugin.
-                virtual double pluginVersion() const = 0;
-                //! The version of the application for which the plugin is developed which the plugin was designed for.
+                //! The version information of the plugin.
                 /*!
-                  If your plugin does not depend on the application it is used in, you can return an empty QStringList()
+                  If your plugin does not depend on the application it is used in, you can return an empty list of supported versions (this is the default)
                   to let the extension system know not to check the compatibility of your plugin.
                   */
-                virtual QStringList pluginCompatibilityVersions() const = 0;
+                virtual VersionInformation pluginVersionInformation() const = 0;
                 //! The name of the plugin's publisher.
                 virtual QString pluginPublisher() const = 0;
                 //! The website of the plugin's publisher.

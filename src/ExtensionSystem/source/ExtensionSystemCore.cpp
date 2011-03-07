@@ -198,21 +198,20 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             pluginIFace->objectBase()->setObjectName(pluginIFace->pluginName());
 
                             // Set the category property of the plugin:
-                            ObserverProperty category_property(qti_prop_CATEGORY_MAP);
+                            MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
                             category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());
-                            Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
+                            Observer::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
                             // Store the file name:
                             pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
 
                             // Do a plugin compatibility check here:
-                            pluginIFace->pluginVersion();
-                            if (!pluginIFace->pluginCompatibilityVersions().isEmpty()) {
-                                if (!pluginIFace->pluginCompatibilityVersions().contains(QCoreApplication::applicationVersion())) {
+                            if (!pluginIFace->pluginVersionInformation().hasSupportedVersions()) {
+                                if (!pluginIFace->pluginVersionInformation().isSupportedVersion(QCoreApplication::applicationVersion())) {
                                     LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
                                     pluginIFace->setPluginState(IPlugin::CompatibilityError);
                                     pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
-                                    SharedObserverProperty icon_property(QIcon(qti_icon_WARNING_16x16),qti_prop_DECORATION);
+                                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_WARNING_16x16));
                                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                                 }
                             }
@@ -233,7 +232,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                                     LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
                                     pluginIFace->setPluginState(IPlugin::InitializationError);
                                     pluginIFace->setErrorString(error_string);
-                                    SharedObserverProperty icon_property(QIcon(qti_icon_ERROR_16x16),qti_prop_DECORATION);
+                                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
                                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                                 } else {
                                     LOG_DEBUG(tr("Plugin (") + stripped_file_name + tr(") initialized successfully."));
@@ -275,7 +274,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                     LOG_ERROR(error_string);
                     pluginIFace->setPluginState(IPlugin::DependancyError);
                     pluginIFace->setErrorString(error_string);
-                    SharedObserverProperty icon_property(QIcon(qti_icon_ERROR_16x16),qti_prop_DECORATION);
+                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                 } else {
                     // Set the default state of the plugin:
@@ -283,7 +282,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                     pluginIFace->setErrorString(tr("No errors detected."));
 
                     // Give it a success icon by default:
-                    SharedObserverProperty icon_property(QIcon(qti_icon_SUCCESS_16x16),qti_prop_DECORATION);
+                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
 
                     // Add it to the active list:
@@ -293,7 +292,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 // Set the foreground color of core plugins:
                 if (d->core_plugins.contains(pluginIFace->pluginName())) {
                     QBrush disabled_brush = QApplication::palette().brush(QPalette::Disabled,QPalette::Text);
-                    SharedObserverProperty property(disabled_brush,qti_prop_FOREGROUND);
+                    SharedProperty property(qti_prop_FOREGROUND,disabled_brush);
                     Observer::setSharedProperty(pluginIFace->objectBase(), property);
                 }
             } else {
@@ -303,12 +302,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 d->current_inactive_plugins << pluginIFace->pluginName();
 
                 // Make it inactive:
-                ObserverProperty category_property(qti_prop_ACTIVITY_MAP);
+                MultiContextProperty category_property(qti_prop_ACTIVITY_MAP);
                 category_property.setValue(false,d->plugins.observerID());
-                Observer::setObserverProperty(pluginIFace->objectBase(),category_property);
+                Observer::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
                 // Give it a success icon by default:
-                SharedObserverProperty icon_property(QIcon(qti_icon_SUCCESS_16x16),qti_prop_DECORATION);
+                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
                 Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
 
                 LOG_INFO(QString(tr("Inactive plugin found which will not be initialized: %1")).arg(pluginIFace->pluginName()));
@@ -417,7 +416,7 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::filteredPluginsCurr
     return d->set_filtered_plugins;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins) const {
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins, Qtilities::ExportVersion version) const {
     if (file_name.isEmpty())
         file_name = d->active_configuration_file;
 
@@ -442,9 +441,13 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
     // Create the QDomDocument:
     QDomDocument doc("QtilitiesPluginConfiguration");
     QDomElement root = doc.createElement("QtilitiesPluginConfiguration");
-    root.setAttribute("DocumentVersion",qti_def_FORMAT_CONFIG_PLUGINS);
+    root.setAttribute("ExportVersion",QString::number(version));
+    root.setAttribute("QtilitiesVersion",CoreGui::QtilitiesApplication::qtilitiesVersionString());
     doc.appendChild(root);
 
+    // ---------------------------------------------------
+    // Do the actual export:
+    // ---------------------------------------------------
     // Do XML of inactive and filter lists:
     // Inactive Plugins:
     QDomElement inactive_node = doc.createElement("InactivePlugins");
@@ -502,23 +505,35 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
     }
     file.close();
 
-    // Interpret the loaded doc:
+    // ---------------------------------------------------
+    // Inspect file format:
+    // ---------------------------------------------------
     QDomElement root = doc.documentElement();
-
+    Qtilities::ExportVersion read_version;
     // Check the document version:
-    if (root.hasAttribute("DocumentVersion")) {
-        QString document_version = root.attribute("DocumentVersion");
-        if (document_version.toInt() > qti_def_FORMAT_CONFIG_PLUGINS) {
-            LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_CONFIG_PLUGINS));
-            LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
-            return false;
-        }
+    if (root.hasAttribute("ExportVersion")) {
+        read_version = (Qtilities::ExportVersion) root.attribute("ExportVersion").toInt();
     } else {
-        LOG_ERROR(QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed.")));
+        LOG_ERROR(QString(tr("The ExportVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The plugin configuration will not be parsed.")));
         LOG_ERROR(tr("Failed to load plugin configuration from file: ") + file_name);
         return false;
     }
 
+    // ---------------------------------------------------
+    // Check if input format is supported:
+    // ---------------------------------------------------
+    bool is_supported_format = false;
+    if (read_version == Qtilities::Qtilities_0_3)
+        is_supported_format = true;
+
+    if (!is_supported_format) {
+        LOG_ERROR(QString(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.")).arg(read_version));
+        return IExportable::Failed;
+    }
+
+    // ---------------------------------------------------
+    // Do the actual import:
+    // ---------------------------------------------------
     if (!inactive_plugins)
         d->set_inactive_plugins.clear();
     else
@@ -645,9 +660,9 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
                 msgBox.setText(QString(tr("%1 is a core plugin and must be active at all times.")).arg(iface->pluginName()));
                 msgBox.exec();
 
-                ObserverProperty category_property(qti_prop_ACTIVITY_MAP);
+                MultiContextProperty category_property(qti_prop_ACTIVITY_MAP);
                 category_property.setValue(true,d->plugins.observerID());
-                Observer::setObserverProperty(iface->objectBase(),category_property);
+                Observer::setMultiContextProperty(iface->objectBase(),category_property);
                 d->plugins.refreshViewsData();
              } else
                 new_inactive_plugins << iface->pluginName();

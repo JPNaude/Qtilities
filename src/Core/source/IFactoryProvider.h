@@ -35,121 +35,21 @@
 #define IFACTORY
 
 #include "QtilitiesCore_global.h"
-#include "ObserverProperty.h"
 #include "PointerList.h"
+#include "InstanceFactoryInfo.h"
 
-#include <Logger.h>
+#include <Logger>
 
 #include <QObject>
 #include <QStringList>
 #include <QDataStream>
-
-using namespace Qtilities::Logging;
 
 class QDomDocument;
 class QDomElement;
 
 namespace Qtilities {
     namespace Core {
-        /*!
-          \struct InstanceFactoryInfo
-          \brief The InstanceFactoryInfo struct contains all the information required to create an object instance using the object manager.
-            The InstanceFactoryInfo struct contains all the information required to create an instance through the
-            Qtilities::Core::Interfaces::IFactoryProvider::createInstance() method.
-
-            That is:
-            - The factory which must be used.
-            - The tag to use in that factory.
-            - And the name that must be given to the reconstructed object.
-
-            For more information see the \ref page_factories article.
-
-            \sa Factory, Interfaces::IFactoryProvider
-         */
-        struct QTILIITES_CORE_SHARED_EXPORT InstanceFactoryInfo {
-        public:
-            InstanceFactoryInfo() {
-                d_factory_tag = QString();
-                d_instance_tag = QString();
-                d_instance_name = QString();
-            }
-            InstanceFactoryInfo(QDataStream& stream) {
-                importBinary(stream);
-            }
-            InstanceFactoryInfo(QDomDocument* doc, QDomElement* object_node);
-            /*!
-              \param factory_tag The factory tag which identifies the factory to be used when constructing the new instance. The Qtilities::Core::Interfaces::IObjectManager::factoryReference() function takes this tag
-              as a parameter. Make sure the factory you want to use is registered in the object manager under this tag name.
-              \param instance_tag The instance tag which identifies the tag to be used in the factory identified by factory_tag.
-              \param instance_name The name that must be given to the newly created object.
-              */
-            InstanceFactoryInfo(const QString& factory_tag, const QString& instance_tag, const QString& instance_name = QString()) {
-                d_factory_tag = factory_tag;
-                d_instance_tag = instance_tag;
-                d_instance_name = instance_name;
-            }
-            InstanceFactoryInfo(const InstanceFactoryInfo& ref) {
-                d_factory_tag = ref.d_factory_tag;
-                d_instance_tag = ref.d_instance_tag;
-                d_instance_name = ref.d_instance_name;
-            }
-            void operator=(const InstanceFactoryInfo& ref) {
-                d_factory_tag = ref.d_factory_tag;
-                d_instance_tag = ref.d_instance_tag;
-                d_instance_name = ref.d_instance_name;
-            }
-            virtual bool exportBinary(QDataStream& stream) const {
-                stream << (quint32) 0xDDDDDDDD;
-                stream << d_factory_tag;
-                stream << d_instance_name;
-                stream << d_instance_tag;
-                stream << (quint32) 0xDDDDDDDD;
-                return true;
-            }
-            virtual bool importBinary(QDataStream& stream) {
-                quint32 ui32;
-                stream >> ui32;
-                if (ui32 != (quint32) 0xDDDDDDDD) {
-                    LOG_ERROR("InstanceFactoryInfo binary import failed to detect start marker. Import will fail.");
-                    return false;
-                }
-                stream >> d_factory_tag;
-                stream >> d_instance_name;
-                stream >> d_instance_tag;
-                stream >> ui32;
-                if (ui32 != (quint32) 0xDDDDDDDD) {
-                    LOG_ERROR("InstanceFactoryInfo binary import failed to detect end marker. Import will fail.");
-                    return false;
-                }
-                return true;
-            }
-            /*!
-              In the case of InstanceFactoryInfo, this function will add the factory tag, instance tag etc. as
-              attributes on \p object_node.
-              */
-            virtual bool exportXML(QDomDocument* doc, QDomElement* object_node) const;
-            /*!
-              \note If \p object_node does not have an \p FactoryTag attribute associated with it,
-              the &Qtilities factory tag is used by default.
-              */
-            virtual bool importXML(QDomDocument* doc, QDomElement* object_node);
-
-            //! Returns true if this object contains the neccessary information to be used during object construction.
-            bool isValid() {
-                if (d_factory_tag.isEmpty())
-                    return false;
-                if (d_instance_tag.isEmpty())
-                    return false;
-                return true;
-            }
-
-            //! The name of the factory which must be used to create the instance.
-            QString d_factory_tag;
-            //! The tag that must be used in the factory during instance creation.
-            QString d_instance_tag;
-            //! The name that must be given to the instance once it is created. This is done by calling setObjectName().
-            QString d_instance_name;
-        };
+        using namespace Qtilities::Logging;
 
         namespace Interfaces {
             /*!
@@ -157,8 +57,8 @@ namespace Qtilities {
             \brief Objects managing instances of factories can implement this interface if they want to expose these factories to the object manager.
 
             Objects managing instances of factories can implement this interface if they want to expose these factories to the object manager using the
-            Qtilities::Core::Interfaces::IObjectManager::registerIFactoryProvider() function. The interface can be used to represent multiple factories
-            represented by QString values.  To get a list of all factories provided through the interface, see the providedFactoryTags() function.
+            Qtilities::Core::Interfaces::IObjectManager::registerIFactoryProvider() function. The interface can be used to represent multiple factories,
+            each represented by a QString values.  To get a list of all factories provided through the interface, see the providedFactoryTags() function.
 
             For more information see the \ref page_factories article.
             */
