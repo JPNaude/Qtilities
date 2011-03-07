@@ -166,12 +166,9 @@ QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin
     return QtilitiesCategory(tr("General"));
 }
 
-double Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
-}
-
-QStringList Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCompatibilityVersions() const {
-    return QStringList();
+Qtilities::Core::VersionInformation Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersionInformation() const {
+    VersionInformation version_info(qti_def_VERSION_MAJOR,qti_def_VERSION_MINOR,qti_def_VERSION_REVISION);
+    return version_info;
 }
 
 QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginPublisher() const {
@@ -214,7 +211,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
         return;
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
-        file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
+        file_name.append(PROJECT_MANAGER->projectTypeSuffix(PROJECT_MANAGER->defaultProjectType()));
 
     PROJECT_MANAGER->openProject(file_name);
 }
@@ -249,7 +246,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
         return;
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
-        file_name.append(PROJECT_MANAGER->projectTypeFileExtension(PROJECT_MANAGER->defaultProjectType()));
+        file_name.append(PROJECT_MANAGER->projectTypeSuffix(PROJECT_MANAGER->defaultProjectType()));
 
     PROJECT_MANAGER->saveProject(file_name);
 }

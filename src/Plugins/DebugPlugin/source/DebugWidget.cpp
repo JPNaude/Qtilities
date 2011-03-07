@@ -44,6 +44,8 @@
 
 #include <QtilitiesExtensionSystem>
 using namespace QtilitiesExtensionSystem;
+#include <QtilitiesProjectManagement>
+using namespace QtilitiesProjectManagement;
 
 struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
     DebugWidgetPrivateData() : object_pool_widget(0),
@@ -106,7 +108,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     setObjectName(tr("Qtilities Debug Mode"));
 
     // Version:
-    ui->labelVersion->setText(QtilitiesApplication::qtilitiesVersion());
+    ui->labelVersion->setText(QtilitiesApplication::qtilitiesVersionString());
 
     // Global Object Pool:
     d->object_pool_widget = new ObserverWidget(Qtilities::TreeView);
@@ -369,6 +371,11 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnRefreshViews_clicked() {
     // Refresh Factories:
     // ===============================
     refreshFactories();
+
+    // ===============================
+    // Refresh Projects:
+    // ===============================
+    refreshProjectsState();
 
     // Refresh Global Object Pool:
     d->object_pool_widget->refresh();
@@ -947,4 +954,58 @@ void Qtilities::Plugins::Debug::DebugWidget::on_chkRefreshProperties_toggled(boo
 
 QString Qtilities::Plugins::Debug::DebugWidget::objectAddress(QObject* obj) const {
     return QString ("0x%1").arg (reinterpret_cast <quintptr> (obj), sizeof(quintptr)*2, 16, QChar('0'));
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_btnProjectsCurrentOpenPath_clicked()
+{
+    if (ui->txtProjectsCurrentFileName->text().isEmpty())
+        return;
+
+    QDesktopServices explorer_service;
+    QFileInfo fi(ui->txtProjectsCurrentFileName->text());
+    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
+        LOG_ERROR_P(QString("Failed to open folder: %1").arg(fi.path()));
+    }
+    else
+        LOG_INFO_P(QString("Successfully opened folder: %1").arg(fi.path()));
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::on_btnProjectsCurrentOpenFile_clicked()
+{
+    if (ui->txtProjectsCurrentFileName->text().isEmpty())
+        return;
+
+    QDesktopServices explorer_service;
+    QFileInfo fi(ui->txtProjectsCurrentFileName->text());
+    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
+        LOG_ERROR_P(QString("Failed to open file: %1").arg(fi.filePath()));
+    }
+    else
+        LOG_INFO_P(QString("Successfully opened file: %1").arg(fi.filePath()));
+}
+
+void Qtilities::Plugins::Debug::DebugWidget::refreshProjectsState() {
+    if (PROJECT_MANAGER->currentProjectFileName().isEmpty()) {
+        ui->txtProjectsCurrentFileName->clear();
+        ui->txtProjectsCurrentFileName->setEnabled(false);
+        ui->btnProjectsCurrentOpenFile->setEnabled(false);
+        ui->btnProjectsCurrentOpenPath->setEnabled(false);
+    } else {
+        ui->txtProjectsCurrentFileName->setText(PROJECT_MANAGER->currentProjectFileName());
+        ui->txtProjectsCurrentFileName->setEnabled(true);
+        ui->btnProjectsCurrentOpenFile->setEnabled(true);
+        ui->btnProjectsCurrentOpenPath->setEnabled(true);
+    }
+
+    ui->listProjectsCurrentItems->clear();
+    ui->listProjectsRecent->clear();
+    ui->listProjectsRegisteredItems->clear();
+
+    if (PROJECT_MANAGER->currentProject()) {
+        ui->listProjectsCurrentItems->addItems(PROJECT_MANAGER->currentProject()->projectItemNames());
+    }
+
+    ui->listProjectsRecent->addItems(PROJECT_MANAGER->recentProjectPaths());
+    ui->listProjectsRegisteredItems->addItems(PROJECT_MANAGER->registeredProjectItemNames());
+
 }

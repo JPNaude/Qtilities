@@ -98,6 +98,8 @@ namespace Qtilities {
                 void changeEvent(QEvent *e);
 
             private slots:
+                void on_btnProjectsCurrentOpenFile_clicked();
+                void on_btnProjectsCurrentOpenPath_clicked();
                 void on_btnRefreshViews_clicked();
                 void on_btnExplorePluginConfigSetPath_clicked();
                 bool on_btnSavePluginConfigSet_clicked();
@@ -122,7 +124,6 @@ namespace Qtilities {
                 void on_btnAnalyzeCurrentObject_clicked();
                 void on_btnAboutConan_clicked();
                 void on_btnAnalyzeAction_clicked();
-
                 void on_chkRefreshProperties_toggled(bool checked);
 
             private:
@@ -138,6 +139,8 @@ namespace Qtilities {
                 void refreshEditedPluginState();
                 //! Refreshes the application's factory information.
                 void refreshFactories();
+                //! Refreshes the projects state of the application.
+                void refreshProjectsState();
                 //! Gets an object's address.
                 QString objectAddress(QObject* obj) const;
 

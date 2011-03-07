@@ -84,15 +84,9 @@ QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory()
     return QtilitiesCategory(tr("General"));
 }
 
-double Qtilities::Plugins::Template::PluginTemplate::pluginVersion() const {
-    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
-}
-
-QStringList Qtilities::Plugins::Template::PluginTemplate::pluginCompatibilityVersions() const {
-    // Returning an empty QStringList() indicates that the plugin can be used in any application, thus
-    // it is not dependent on the application it is used. Examples are the Session Log and Project
-    // Management plugins that comes with %Qtilities.
-    return QStringList();
+Qtilities::Core::VersionInformation Qtilities::Plugins::Template::PluginTemplate::pluginVersionInformation() const {
+    VersionInformation version_info(qti_def_VERSION_MAJOR,qti_def_VERSION_MINOR,qti_def_VERSION_REVISION);
+    return version_info;
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginPublisher() const {

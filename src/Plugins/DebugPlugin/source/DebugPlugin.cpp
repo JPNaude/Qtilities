@@ -94,12 +94,9 @@ QtilitiesCategory Qtilities::Plugins::Debug::DebugPlugin::pluginCategory() const
     return QtilitiesCategory(tr("Debugging"));
 }
 
-double Qtilities::Plugins::Debug::DebugPlugin::pluginVersion() const {
-    return (QString("%1.%2%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION)).toDouble();
-}
-
-QStringList Qtilities::Plugins::Debug::DebugPlugin::pluginCompatibilityVersions() const {
-    return QStringList();
+Qtilities::Core::VersionInformation Qtilities::Plugins::Debug::DebugPlugin::pluginVersionInformation() const {
+    VersionInformation version_info(qti_def_VERSION_MAJOR,qti_def_VERSION_MINOR,qti_def_VERSION_REVISION);
+    return version_info;
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginPublisher() const {
