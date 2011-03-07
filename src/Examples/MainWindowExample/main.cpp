@@ -49,10 +49,10 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Main Window Example");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create a QtilitiesMainWindow to show our different modes:
-    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Create the configuration widget:
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
     // Load the previous session's keyboard mapping file.
     QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-    if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     PROJECT_MANAGER_FINALIZE();
 
     // Save the current keyboard mapping for the next session.
-    if (ACTION_MANAGER->exportShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);

@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Clipboard Example");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     QMainWindow* main_window = new QMainWindow();
     QtilitiesApplication::setMainWindow(main_window);
@@ -178,57 +178,57 @@ int main(int argc, char *argv[])
     // Create the objects
     QObject* object1 = new QObject();
     object1->setObjectName("Object 1");
-    ObserverProperty category_property1(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property1(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category1;
     multi_category1 << "Category 1";
     category_property1.setValue(qVariantFromValue(multi_category1),observerC->observerID());
-    Observer::setObserverProperty(object1,category_property1);
+    Observer::setMultiContextProperty(object1,category_property1);
 
     QObject* object2 = new QObject();
     object2->setObjectName("Object 2");
-    ObserverProperty category_property2(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property2(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category2;
     multi_category2 << "Category 1";
     category_property2.setValue(qVariantFromValue(multi_category2),observerC->observerID());
-    Observer::setObserverProperty(object2,category_property2);
+    Observer::setMultiContextProperty(object2,category_property2);
 
     QObject* object3 = new QObject();
     object3->setObjectName("Object 3");
-    ObserverProperty category_property3(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property3(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category3;
     multi_category3 << "Category 1" << "Sub Category 3";
     category_property3.setValue(qVariantFromValue(multi_category3),observerC->observerID());
-    Observer::setObserverProperty(object3,category_property3);
+    Observer::setMultiContextProperty(object3,category_property3);
 
     QObject* object4 = new QObject();
     object4->setObjectName("Object 4");
-    ObserverProperty category_property4(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property4(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category4;
     multi_category4 << "Category 1" << "Sub Category 2";
     category_property4.setValue(qVariantFromValue(multi_category4),observerC->observerID());
-    Observer::setObserverProperty(object4,category_property4);
+    Observer::setMultiContextProperty(object4,category_property4);
 
     QObject* object5 = new QObject();
     object5->setObjectName("Object 5");
-    ObserverProperty category_property5(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property5(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category5;
     multi_category5 << "Category 1";
     category_property5.setValue(qVariantFromValue(multi_category5),observerC->observerID());
-    Observer::setObserverProperty(object5,category_property5);
+    Observer::setMultiContextProperty(object5,category_property5);
 
     QObject* object6 = new QObject();
     object6->setObjectName("Object 6");
-    ObserverProperty category_property6(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property6(qti_prop_CATEGORY_MAP);
     QtilitiesCategory multi_category6;
     multi_category6 << "Category 1" << "Sub Category 1";
     category_property6.setValue(qVariantFromValue(multi_category6),observerC->observerID());
-    Observer::setObserverProperty(object6,category_property6);
+    Observer::setMultiContextProperty(object6,category_property6);
 
     QObject* object7 = new QObject();
     object7->setObjectName("Object 7");
-    ObserverProperty category_property7(qti_prop_CATEGORY_MAP);
+    MultiContextProperty category_property7(qti_prop_CATEGORY_MAP);
     category_property7.setValue(qVariantFromValue(QtilitiesCategory("Category 2")),observerC->observerID());
-    Observer::setObserverProperty(object7,category_property7);
+    Observer::setMultiContextProperty(object7,category_property7);
 
     // Create the structure of the tree
     observerA->attachSubject(observerB);
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
 
     // Load the previous session's keyboard mapping file.
     QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-    if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
     settings.endGroup();
 
     // Save the current keyboard mapping for the next session.
-    if (ACTION_MANAGER->exportShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Succesfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);

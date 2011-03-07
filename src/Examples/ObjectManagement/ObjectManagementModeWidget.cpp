@@ -177,7 +177,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                             subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
-                            ObserverProperty object_category(qti_prop_CATEGORY_MAP);
+                            MultiContextProperty object_category(qti_prop_CATEGORY_MAP);
                             object_category.setValue(QVariant(subject_category),observer->observerID());
                             QVariant object_category_variant = qVariantFromValue(object_category);
                             new_item->setProperty(object_category.propertyName(),object_category_variant);
@@ -360,7 +360,10 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_s
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDotFile() {
     ObserverDotWriter dotGraph(d->top_level_node);
     dotGraph.addNodeAttribute(d->top_level_node->treeChildren().front(),"color","red");
-    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label","My label");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label","\"My label\"");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"style","bold");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().at(1),"color","red");
+    dotGraph.addGraphAttribute("label","Graph Title");
     dotGraph.generateDotScript();
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QApplication::applicationDirPath(),tr("Dot Input Files (*.gv)"));
@@ -374,3 +377,4 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDo
         editor_widget->show();
     }
 }
+
