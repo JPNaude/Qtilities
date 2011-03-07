@@ -18,7 +18,7 @@
 #include "Observer.h"
 #include "ObserverData.h"
 #include "ObserverMimeData.h"
-#include "ObserverProperty.h"
+#include "QtilitiesProperty.h"
 #include "ObserverRelationalTable.h"
 #include "PointerList.h"
 #include "QtilitiesCoreApplication.h"
@@ -31,6 +31,11 @@
 #include "ObserverDotWriter.h"
 #include "FileUtils.h"
 #include "QtilitiesFileInfo.h"
+#include "VersionInformation.h"
+#include "InstanceFactoryInfo.h"
+#include "IIterator.h"
+#include "SubjectIterator.h"
+#include "TreeIterator.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 
