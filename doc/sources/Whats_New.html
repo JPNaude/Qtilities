@@ -1,0 +1,94 @@
+/**
+\page page_whats_new What's New In %Qtilities v0.3
+
+\section whats_new_classes New Classes
+
+%Qtilities v0.3 provides the following new classes which extends the previous functionality of the libaries as well as some completely new classed:
+
+- Qtilities::Core::IIterator
+- Qtilities::Core::IConstIterator
+- Qtilities::Core::SubjectIterator
+- Qtilities::Core::ConstSubjectIterator
+- Qtilities::Core::TreeIterator
+- Qtilities::Core::ConstTreeIterator
+- Qtilities::Core::FileUtils
+- Qtilities::Core::ObserverDotWriter
+- Qtilities::Core::QtilitiesFileInfo
+- Qtilities::Core::VersionInformation
+- Qtilities::Core::VersionNumber
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser
+- Qtilities::CoreGui::StringListWidget
+- Qtilities::CoreGui::CodeEditorWidget (Was part of v0.2 in testing phase)
+- Qtilities::ProjectManagement::CodeEditorProjectItemWrapper
+
+A new unit testing library was added which contains tests for numerous classes as well as new \p QtilitiesTester application was added which runs all available unit tests.
+
+\section whats_new_exporting_architecture Revamped Exporting Architecture
+
+The exporting architecture was revamped and improved significantly.
+- The Qtilities::Core::Interfaces::IExportable interface was improved and is now much easier to implement. The interface's documentation was also rewritten and much improved.
+- All %Qtilities classes which implements \p IExportable will be backward compatible from v0.3 onwards for both binary and XML exports. This
+includes session related files such as logger configurations, shortcut configurations, projects etc.
+- The export formats used by %Qtilities is now properly documented in \ref page_serializing_overview.
+- A new concept of a global application export versioning was added which allows applications that use %Qtilities to easily make data formats it use backward compatible with older versions of the applications.
+- A proper set of unit tests was added to test all classes that implements \p IExportable. Many, many bugs have been found in these tests and
+they were all fixed.
+- Many classes have improved export interfaces, for example \p ObserverRelationalTable and \p RelationalTableEntry now supports XML exports.
+- A new example called \p ExportingExample was added to the \p QtilitiesExamples project which clearly shows how to implement \p IExportable for your own classes.
+- All classes that supports binary exports now has their stream operators overloaded as well.
+
+\section whats_new_logging Improved Logging
+
+- The logging library was improved and now provides a new concept of message contexts. A message context defines the origin of a message (for
+example you can have a priority message, engine specific message etc.) and engines can now specify which contexts they are interested in.
+- The \p LoggerGui class now has the ability to create temporary log widgets which can be used to display the status of a intermediate
+process.
+
+\section whats_new_extension_system Improved Extension System
+
+The extension system was now supports the concept of plugin configuration sets which allows you to deploy custom configuration sets. The
+\ref page_extension_system article has a new section on this topic. The debug plugin now also has nice configuration set management
+features.
+
+\section whats_new_documentation Improved Documentation
+
+The %Qtilities documentation was again improved and an effort was made to improve the documentation on a class level. Many classes have been properly documented now and overall many small fixes and improvements were made.
+
+\section whats_new_properties Improved Property Management
+
+Since %Qtilities uses dynamic properties in many places, this is process was improved significantly and the classes used were changed and improved as well. See Qtilities::Core::QtilitiesProperty for more information.
+
+\section whats_new_definitions All Constants Now Defined In A Constant Way
+
+In previous versions all constant definitions made throughout %Qtilities was done in a random way. Everything is now done in a unified way where all reserved %Qtilities defines starts with \p qti_
+
+The defines are also grouped into proper categories now by the way they start:
+- \p qti_def_* defines any general definition made.
+- \p qti_prop_* defines all %Qtilities properties.
+- \p qti_action_* defines all actions defined in %Qtilities.
+- \p qti_icon_* defines all icons defined in %Qtilities.
+
+
+\section whats_new_debug Improved Debug Plugin
+
+The debug plugin was improved significantly and is now really usefull. A new article was added to the documentation which provides a detailed
+overview of the plugin: \ref page_debugging. Lastly, the <a href="http://sourceforge.net/projects/conanforqt/">Conan for Qt</a> libary is now fully integrated with the debug plugin, thus it allows you to analyze signal and slot connections directly in the plugin.
+
+Below is a screenshot of the new plugin in action:
+
+\image html debugging_object_pool_tab.jpg "Improved Debug Plugin"
+
+\section whats_new_mode_management Improved Mode Management
+
+Mode management was much improved and also looks a lot nicer. For example:
+
+\image html class_qtilitiesmainwindow_modes_top.jpg "Main Window With Modes At The Top"
+
+\section whats_new_bugs Bug Fixes, And More Bug Fixes
+
+%Qtlities v0.3 has fixed tons of bugs which were everywhere accros the library. Alongside this more than 100 crashes have been fixed.
+
+Many many improvements have been made all over the different libraries and the
+project is getting to a state where it is ready for use in big, production applications.
+
+*/

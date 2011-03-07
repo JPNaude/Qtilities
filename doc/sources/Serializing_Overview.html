@@ -1,0 +1,15 @@
+/**
+\page page_serializing_overview Serializing %Qtilities Data Types Overview
+
+<br>
+%Qtilities uses the Qtilities::Core::Interfaces::IExportable interface to serialze the custom classes used by %Qtilities. In cases where this interface is not used, functions with the same names are used (thus, importXml(), exportXml() etc.)
+
+Much like the way QDataStream::version() functionality allows easy management of the format that internal Qt classes use during data streaming operations, the interface provides the exportVersion() and setExportVersion() functions on the IExportable interface in order to determine the formats used during export and import operations on Qtilities classes. For more information on this topic, see \ref iexportable_versioning.
+
+This page gives an overview of the different versions used in %Qtilities.
+- \ref page_serializing_overview_0_3.
+<br>
+
+
+ */
+ 

@@ -53,6 +53,7 @@ Table of contents:
 <tr>
 <td>
 - <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_debugging.html">Debugging Applications</a><br>
 - <a href="page_extension_system.html">Extension System</a><br>
 - <a href="page_factories.html">Factories</a><br>
 - <a href="page_logging.html">Logging</a><br>
@@ -176,7 +177,7 @@ int main(int argc, char *argv[])
 	
     // Load the previous session's keyboard mapping file:
     QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-    if (ACTION_MANAGER->importShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Successfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to loaded shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
@@ -189,7 +190,7 @@ int main(int argc, char *argv[])
     exampleMainWindow->writeSettings();
 	
     // Save the current keyboard mapping for the next session:
-    if (ACTION_MANAGER->exportShortcutMapping(shortcut_mapping_file))
+    if (ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file))
         LOG_INFO(QObject::tr("Successfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);	
@@ -199,7 +200,7 @@ int main(int argc, char *argv[])
 }
 \endcode
 
-%Qtilities has the ability to remember shortcut configurations between different application sessions. The Qtilities::CoreGui::Interfaces::IActionManager::importShortcutMapping() and Qtilities::CoreGui::Interfaces::IActionManager::exportShortcutMapping() functions provide this functionality and the above example shows how to load the shortcut mapping. The example also shows how action manager can save the shortcut mapping for a session when the application exists.
+%Qtilities has the ability to remember shortcut configurations between different application sessions. The Qtilities::CoreGui::Interfaces::IActionManager::loadShortcutMapping() and Qtilities::CoreGui::Interfaces::IActionManager::saveShortcutMapping() functions provide this functionality and the above example shows how to load the shortcut mapping. The example also shows how action manager can save the shortcut mapping for a session when the application exists.
 
 The Qtilities::CoreGui::CommandEditor class provides a shortcuts widget which can be added to your application's configuration widget as shown in the above example. This widgets lists all the registered commands in the action manager where the "Command Name" column refers to the commands' string id and the "Label" column refers to the user text id of actions.
 
