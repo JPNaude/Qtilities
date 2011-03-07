@@ -11,53 +11,53 @@ In no particular order:
 - Some new plugins
     - Help
     - Code Editor
-- Observer tree models should remember what was expanded and what not.
+- Observer tree models should remember what was expanded and what not, the new export format in v0.3 is the first step towards this
+
 - Action manager must check for duplicate shortcut assignments.
 - Observer properties: What can we learn from QMetaProperty.
+- ConfigurationWidget: Improve to allow easier categorizing. For example allow multiple pages to be grouped under the same category in table view mode.
 
 ================================
 Things outstanding for v0.3 release:
 ================================
-- Property editor must refresh when properties changes.
-- Fix and test Observer copy constructor using unit test.
-- Problem where mode switching causes setNewContext() to be called twice. Check session log plugin mode for example.
-- Command editor widget, remove dependency on property browser lib.
+- Property editor must refresh when properties change (see how dynamic one does it and test).
 - Action manager:
     - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
-    - Action manager should act as a pointer list when commands are deleted. Thus they should be removed.
 - Linux problems:
     - Sort out Linux dll versioning
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
-- ObserverDotWriter finish & blog post
-- Unit testing + some tests off course
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
-- Add tree depth function to TreeNode.
 - Modes does not get shortcuts at startup. Only when switching. See Firmware Tool for example.
-- Find a way to check if subject lives in different thread in Observer. Current implementation does not seem to work, or does it?
 - Do some checking for double connections using Conan.
-- Observer tree widgets does not expand at startup.
-- Information icons in debug widget.
-- Step binary export version because subject filters changed.
-- Add << and >> operator overloads for all classes which implements IExportable's binary functions.
-- File system side widget must allow path to be entered.
-- Problem in action manager, it does not assign tooltips correctly at startup.
-- Reserved properties in Observer::eventFilter() not checked (the ones that Qtilities adds).
 - ObserverWidget still uses CUT and COPY actions in wrong way.
+- Fix relational observer imports etc.
+- Examples: projects does not work...
+- Qtilities debugging action in ObserverWidget does not always show.
 
 - Docs & finalization stuff:
+    - Properly document new StringListWidget
+    - Unit tests not part of documentation
+    - Qtilities::CoreGui::Actions not defined anymore.
     - QTILITIES_NO_PROPERTY_BROWSER now exlcudes ObjectDynamicPropertyBrowser as well.
     - License header for GPL only files...
     - Add notes on threading to Observer: Subject's threads as well as thread safety.
     - Add tree and subject function descriptions to Observer docs. And add some actual docs to Observer.
     - Getting started article should show more: QtilitiesMainWindow.
-    - Must update images in ObjectManagement and MainWindow examples.
+    - Must update images in ObjectManagement and MainWindow examples, as well as bottom of Factory article.
     - In tree structure page, first image uses FileTreeItem, instead of TreeFileItem.
     - Use seperate release and debug folders.
-    - Add debugging Qtilities applications page to docs.
     - Update Qtilities::Core::Properties namespace docs + add removability to each property.
     - ObjectHierarhcyNavigator references invalid image.
     - Document AbstractLoggerEngineData.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
+    - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
+    - Update QtilitiesApplication and QtilitiesCoreApplication to include version number and export version information.
+    - Better VersionNumber docs.
+    - Add new widgets to Widgets page.
+    - Add exporting example to examples page.
+    - Add debugging pics to property browser classes.
+    - Action manager article update needed.
+    - Extension System article does not use VersionInformation.
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -68,17 +68,14 @@ Qtilities v0.3 Implemented Changes
         - Documentation now uses Doxygen's COLORSTYLE parameters to style the docs properly.
         - Getting Started article improved and updated, especially the Linux information.
         - The Basics article now uses a more usefull example. The previous one did not compile either.
-        - At this stage proper documentation is still lacking on a class level for many classes. There is an effort to document these classes and below is a list of classes that were properly documented for this release:
-            - Qtilities::CoreGui::SearchBoxWidget
-            - Qtilities::Core::ObserverRelationalTable
-            - Qtilities::Core::RelationalTableEntry
-    - Some places in Qtilities uses folders under the application directory, for example: "/session" to save data like logging configurations, shortcut mappings etc. Previously these save operations failed if there was no session directory under the application folder. In this version the "/session" directory is automatically created when needed and the actual path used for the session directory is defined using qti_def_PATH_SESSION. You can now change the seesion path using QtilitiesCoreApplication::setApplicationSessionPath() and get it using QtilitiesCoreApplication::applicationSessionPath().
+        - Lots of classes' documentation improved and extended.
+    - Some places in Qtilities uses folders under the application directory, for example: "/session" to save session related data like logging configurations, shortcut mappings etc. Previously these save operations failed if there was no session directory under the application folder. In this version the "/session" directory is automatically created when needed and the actual path used for the session directory is defined using qti_def_PATH_SESSION. You can now change the seesion path using QtilitiesCoreApplication::setApplicationSessionPath() and get it using QtilitiesCoreApplication::applicationSessionPath().
     - Removed Qtilities::Plugin::Help namespace from documentation. This plugin is not part of Qtilities yet.
     - Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
     - Ubuntu: Fixed icon display & resource loading problems.
     - Added this changes.txt file.
     - Added needed Q_UNUSED on unused variables throughout the libraries.
-    - All constants defined by Qtilities now starts with qti_
+    - All constants defined by Qtilities now starts with "qti_".
 
     ============================
     QtilitiesLogging:
@@ -107,6 +104,7 @@ Qtilities v0.3 Implemented Changes
 
     Improvements and Notable Changes:
     - Observers
+        - Observer::specificObserverOwnership attachment now makes the observer to which is attached the QObject parent() of the subject.
         - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your views.
         - Observer's layoutChanged() signal got a new parameter which will contain references of added objects if addition of objects triggered the signal, or if a paramater was passed through the refreshViewsLayout() signal.
         - OBSERVER_UNCATEGORIZED_CATEGORY is now removed. Thus you can add categorized and uncategorized subjects to the same observer.
@@ -133,14 +131,19 @@ Qtilities v0.3 Implemented Changes
         - The context manager got a new function called addContext(QObject* obj) to register an object's implementation of IContext.
         - IContextManager::currentContexts() is now called IContextManager::activeContexts().
         - IContext interface now inherits IObjectBase in the same was as all other interfaces does.
-    - Observer Properties:
-        - ObserverProperty::isReserved(), ObserverProperty::makeReserved() and ObserverProperty::supportsChangeNotifications() added.
-        - Added new propertyIsExportable(), propertyIsReserved() and propertySupportsChangeNotifications() static functions to both ObserverProperty and SharedObserverProperty to check Qtilities property names.
+    - Properties:
+        - TODO
+        - MultiContextProperty::isReserved(), MultiContextProperty::makeReserved() and MultiContextProperty::supportsChangeNotifications() added.
+        - Added new propertyIsExportable(), propertyIsReserved() and propertySupportsChangeNotifications() static functions to both MultiContextProperty and SharedProperty to check Qtilities property names.
         - isReserved() and supportsChangeNotifications() not part of observer property binary exports.
-        - Operator = overload added for ObserverProperty class.
-    - General
+        - Operator = overload added for MultiContextProperty class.
+    - Exporting through IExportable:
         - IExportable is now much easier to use. All export functions now have default implementations which exports the InstanceFactoryInfo of the object. Thus you can create objects which will be exported/imported successfully without having to implement any of the export/import functions.
+        - IExportable's params parameter in the export and import function was removed. This is not used anywhere and to be honest I can't think of real use case scenarios where it will be usefull with the end result that it just bloated the code everywhere.
+        - Proper versioning is now implemented which will allow backward compatibility in future versions.
+    - General
         - New ObserverRelationalTable::refresh() method which can be used to refresh the table data after an observer changed.
+        - New ObserverRelationalTable::parentsToObserverIDs() methods to convert parents() of an entry to a list of observer IDs.
         - qti_def_FORMAT_TREES_BINARY stepped to 3 for this version. See it's documentation for list of changes.
 
     Bug Fixes:
@@ -149,19 +152,21 @@ Qtilities v0.3 Implemented Changes
     - Fixed memory leak in ActivityPolicyFilter destructor.
     - Fixed memory leak in ObserverRelationalTable destructor.
     - Fixed memory leak in SubjectFilterTemplate.
+    - Fixed memory leak in SubjectTypeFilter.
     - Fixed bugs in Observer::treeCount(), Observer::treeChildren() and Observer::isParentInHierarchy() when using the containment tree building approach.
     - Fixed bug where ObserverRelationalTable did not remove qti_prop_VISITOR_ID properties in its destructor.
-    - Fixed bug where Observer::exportXML() did not take the exportability property of subject filters into account. This resulted in subject filters always being exported.
+    - Fixed bug where Observer::exportXml() did not take the exportability property of subject filters into account. This resulted in subject filters always being exported.
     - Fixed bug where Observer::deleteAll() did not change the modification state of the observer.
     - Fixed bug in Observer where the QtilitiesPropertyChangeEvent for subject filter's monitoredProperties() were not delivered correctly.
     - Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
     - Fixed possible crash in ActivityPolicyFilter::setActiveSubjects() when called with null objects.
-    - Fixed bug in Observer::importXML() where it could have passed invalid active subjects to activity policy filters if installed.
+    - Fixed bug in Observer::importXml() where it could have passed invalid active subjects to activity policy filters if installed.
     - Fixed bugs in Observer::attachSubjects() and Observer::detachSubjects() where the Observer::numberOfSubjectsChanged() signal was emitted incorrectly.
     - Fixed bug in Context Manager where it would have registered invalid contexts in some cases.
     - Fixed bugs related to event filtering and property change event delivery in Observer.
     - Fixed bug where Observer never removed the event filter it installs on subjects when they are detached.
     - Fixed bug in Observer destructor where it did not cleanup object properly.
+    - Fixed bug in QtilitiesCoreApplication::notify().
 
     ============================
     QtilitiesCoreGui:
@@ -204,6 +209,7 @@ Qtilities v0.3 Implemented Changes
         - ObserverTreeModelProxyFilter and ObserverTableModelCategoryFilter can now be subclassed.
         - Fixed problem with custom hints (thus not using observer hints) which did not work always.
         - Removed the non-const activeHints() functions from ObserverWidget and AbstractObserverItemModel.
+        - TreeNode's string addNode() and addItem() now uses SpecificObserverOwnership during attachment.
     - Configuration Widget
         - ConfigurationWidget now sorts config pages and figures out the max sizes of all pages and resizes itself according to this when constructed.
         - ConfigurationWidget has new setApplyAllPages() function which allows the 'Apply' button to apply changes on all pages, not just the current one.
@@ -283,6 +289,7 @@ Qtilities v0.3 Implemented Changes
     - The project manager got projectLoadingStarted() and projectLoadingFinished() signals.
     - ProjectManager::initialize() improved.
     - A new checkbox to allow verbose debug information during project loading and saving (only Binary projects at present) was added to the project management configuraiton page.
+    - The project manager now supports custom project suffices.
 
     Bug Fixes:
     - Fixed memory leak in ProjectManager.
@@ -293,7 +300,7 @@ Qtilities v0.3 Implemented Changes
     Improvements and Notable Changes:
     - Much improved Debug Plugin:
         - Automatically refreshes now everytime you swith to the Debug mode.
-        - New application state tab that gives runtime information about Application Modes, Contexts, Action, Factories etc.
+        - New application state tab that gives runtime information about Application Modes, Contexts, Action, Factories, Projects etc.
         - The global object pool view was improved and now has different information about the selected object next to the pool view.
         - A new "Plugin Management" tab which allows you to view, manage and create new plugin configuration sets.
         - The Conan library (http://sourceforge.net/projects/conanforqt/) is now nicely integrated in the Debug plugin and can be controlled through the QTILITIES_NO_CONAN define in Qtilities.pri. This results in the Debug plugin being release only under GPL and not under the Qtilities Dual License.
@@ -303,9 +310,12 @@ Qtilities v0.3 Implemented Changes
         - The clipboard manager is now correctly initialized.
         - The code editor is now part of the saved project.
         - Proper project integration.
+    - Object Management Example:
+        - New menu item in File menu which allows you to write out a dot file for the tree you've built. This is done using the new ObserverDotWriter class.
+        - Code refactoring in the example to make it better.
 
     Bug Fixes:
-    - Fixes issue where multiple spaces were added between the application name and the project name when closing/opening project alot.
+    - Fixes issue where multiple spaces were added between the application name and the project name when closing/opening projects a lot.
 
 
 ================================
