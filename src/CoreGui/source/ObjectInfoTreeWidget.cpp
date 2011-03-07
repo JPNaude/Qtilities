@@ -36,7 +36,7 @@
 #include "QtilitiesApplication.h"
 
 #include <QtilitiesCoreConstants.h>
-#include <ObserverProperty.h>
+#include <QtilitiesProperty.h>
 #include <Observer.h>
 
 #include <QMetaObject>
@@ -110,8 +110,8 @@ void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setObjectMap(QMap<QPo
         QTreeWidgetItem* item = 0;
         QString category_string = tr("More...");
         QVariant prop = object_map.keys().at(i)->property(qti_prop_CATEGORY_MAP);
-        if (prop.isValid() && prop.canConvert<SharedObserverProperty>()) {
-            SharedObserverProperty observer_property =  prop.value<SharedObserverProperty>();
+        if (prop.isValid() && prop.canConvert<SharedProperty>()) {
+            SharedProperty observer_property =  prop.value<SharedProperty>();
             if (observer_property.isValid()) {
                 // Check if the top level category already exists
                 category_string = observer_property.value().toString();
@@ -139,8 +139,8 @@ void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setObjectMap(QMap<QPo
 
         // Check if it has the OBJECT_ICON shared property set.
         prop = object_map.keys().at(i)->property(qti_prop_DECORATION);
-        if (prop.isValid() && prop.canConvert<SharedObserverProperty>())
-            child->setIcon(0,(prop.value<SharedObserverProperty>().value().value<QIcon>()));
+        if (prop.isValid() && prop.canConvert<SharedProperty>())
+            child->setIcon(0,(prop.value<SharedProperty>().value().value<QIcon>()));
 
         // Handle the case where the object has an observer as a child
         /*foreach (QObject* child, item->getObject()->children()) {

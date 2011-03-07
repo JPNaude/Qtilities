@@ -472,6 +472,9 @@ void Qtilities::CoreGui::CodeEditorWidget::showSearchBox() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {
+    if (!d->actionSave)
+        return;
+
     if (d->codeEditor->document()->isModified())
         d->actionSave->setEnabled(true);
     else
@@ -646,17 +649,24 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
         }
     }
 
-    connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCut, SLOT(setEnabled(bool)));
-    connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCopy, SLOT(setEnabled(bool)));
-    connect(d->codeEditor, SIGNAL(undoAvailable(bool)), d->actionUndo, SLOT(setEnabled(bool)));
-    connect(d->codeEditor, SIGNAL(redoAvailable(bool)), d->actionRedo, SLOT(setEnabled(bool)));
-    connect(d->codeEditor,SIGNAL(modificationChanged(bool)),d->actionSave,SLOT(setEnabled(bool)));
+    if (d->actionCut)
+        connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCut, SLOT(setEnabled(bool)));
+    if (d->actionCopy)
+        connect(d->codeEditor, SIGNAL(copyAvailable(bool)), d->actionCopy, SLOT(setEnabled(bool)));
+    if (d->actionUndo)
+        connect(d->codeEditor, SIGNAL(undoAvailable(bool)), d->actionUndo, SLOT(setEnabled(bool)));
+    if (d->actionRedo)
+        connect(d->codeEditor, SIGNAL(redoAvailable(bool)), d->actionRedo, SLOT(setEnabled(bool)));
+    if (d->actionSave)
+        connect(d->codeEditor,SIGNAL(modificationChanged(bool)),d->actionSave,SLOT(setEnabled(bool)));
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {
     // Update actions
-    d->actionUndo->setEnabled(d->codeEditor->document()->isUndoAvailable());
-    d->actionRedo->setEnabled(d->codeEditor->document()->isRedoAvailable());
+    if (d->actionUndo)
+        d->actionUndo->setEnabled(d->codeEditor->document()->isUndoAvailable());
+    if (d->actionRedo)
+        d->actionRedo->setEnabled(d->codeEditor->document()->isRedoAvailable());
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::showEditorSettings() {

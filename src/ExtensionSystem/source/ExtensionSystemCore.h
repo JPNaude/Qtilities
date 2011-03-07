@@ -229,7 +229,7 @@ namespace Qtilities {
                 \param inactive_plugins The list of plugins which must be inactive plugins in the saved configuration file. When null, extension system's active plugin configuration's inactive plugins will be used. See inactivePlugins() for more information.
                 \param filtered_plugins The list of plugin filter expressions which must be used the saved configuration file. When null, extension system's active plugin configuration's filtered plugins will be used. See filteredPlugins() for more information.
               */
-            bool savePluginConfiguration(QString file_name = QString(), QStringList* inactive_plugins = 0, QStringList* filtered_plugins = 0) const;
+            bool savePluginConfiguration(QString file_name = QString(), QStringList* inactive_plugins = 0, QStringList* filtered_plugins = 0, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) const;
 
         signals:
             //! Progress messages submitted during application startup.

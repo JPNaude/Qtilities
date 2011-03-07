@@ -41,28 +41,23 @@
 namespace Qtilities {
     namespace Core {
         /*!
-        \struct QtilitiesFileInfoData
+        \struct QtilitiesFileInfoPrivateData
         \brief Structure used by QtilitiesFileInfo to store private data.
           */
-        struct QtilitiesFileInfoData;
+        struct QtilitiesFileInfoPrivateData;
 
         /*!
         \class QtilitiesFileInfo
         \brief QtilitiesFileInfo is a class which extends QFileInfo with additional functionality.
 
-        QtilitiesFileInfo extends the way that QFileInfo handles relative files so that the path which relative to files are
-        relative to can be specified. Normally QFileInfo::makeAbsolute() will make relative to paths relative to the application path. QtilitiesFileInfo
-        allows you to specify the relative to path using setRelativeToPath() and provides a relativeToPath() access function. It is also possible
-        to set the relativeToPath() as part of the constructor.
+        QtilitiesFileInfo extends the way that QFileInfo handles relative files so that the path which relative to files are relative to can be specified. Normally QFileInfo::makeAbsolute() will make relative to paths relative to the application path. QtilitiesFileInfo allows you to specify the relative to path using setRelativeToPath() and provides a relativeToPath() access function. It is also possible to set the relativeToPath() as part of the constructor.
 
-        The actualPath() and actualFilePath() functions allows you to get the actual path of a file without needing to know if it is
-        relative or not (for relative files, a relativeToPath must be specified to get the actual path).
+        The actualPath() and actualFilePath() functions allows you to get the actual path of a file without needing to know if it is relative or not (for relative files, a relativeToPath must be specified to get the actual path).
 
         Additional extended functions include:
         - The ability to set the file name part only using setFileName().
 
-        The following example shows how the class works and you will notice that it is very close to QFileInfo, except for the additional
-        functionality:
+        The following example shows how the class works and you will notice that it is very close to QFileInfo, except for the additional functionality:
 
 \code
 // Test 1: c:/relative_to_path/relative_path/file_name.tar.gz
@@ -239,7 +234,7 @@ completeSuffix:  "tar.gz"
             QString actualFilePath() const;
 
         private:
-            QtilitiesFileInfoData* d;
+            QtilitiesFileInfoPrivateData* d;
         };
     }
 }

@@ -45,11 +45,11 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     ui(new Ui::ProjectManagementConfig)
 {
     ui->setupUi(this);
+    ui->btnOpenProjectsPath->setIcon(QIcon(qti_icon_FILE_OPEN_16x16));
     ui->chkOpenLastProject->setChecked(PROJECT_MANAGER->openLastProjectOnStartup());
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());
     ui->chkUseCustomProjectsPath->setChecked(PROJECT_MANAGER->useCustomProjectsPath());
-    ui->checkVerboseLogging->setChecked(PROJECT_MANAGER->verboseLogging());
     ui->txtCustomProjectsPath->setText(PROJECT_MANAGER->customProjectsPath());
     if (ui->chkOpenLastProject->isChecked()) {
         ui->chkCreateNewOnStartup->setEnabled(true);
@@ -78,7 +78,6 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
         ui->btnOpenProjectsPath->setEnabled(false);
     }
 
-    connect(ui->checkVerboseLogging,SIGNAL(toggled(bool)),SLOT(handle_checkVerboseLogging(bool)));
     connect(ui->btnClearRecentProjectList,SIGNAL(clicked()),SLOT(handle_btnClearRecentProjectList()));
     connect(ui->chkCreateNewOnStartup,SIGNAL(toggled(bool)),SLOT(handle_chkCreateNewOnStartup(bool)));
     connect(ui->chkOpenLastProject,SIGNAL(toggled(bool)),SLOT(handle_chkOpenLastProject(bool)));
@@ -88,9 +87,6 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     connect(ui->radioSaveAutomatically,SIGNAL(toggled(bool)),SLOT(handle_radioSaveAutomatically(bool)));
     connect(ui->txtCustomProjectsPath,SIGNAL(textChanged(QString)),SLOT(handle_txtCustomProjectsPathTextChanged(QString)));
     connect(ui->btnOpenProjectsPath,SIGNAL(clicked()),SLOT(handle_btnOpenProjectsPath()));
-
-    if (!(PROJECT_MANAGER->allowedProjectTypes() & IExportable::Binary))
-        ui->checkVerboseLogging->setVisible(false);
 }
 
 Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
@@ -158,10 +154,6 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_radioSaveAuto
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_chkUseCustomProjectsPath(bool toggle) {
     PROJECT_MANAGER->setUseCustomProjectsPath(toggle);
-}
-
-void Qtilities::ProjectManagement::ProjectManagementConfig::handle_checkVerboseLogging(bool toggle) {
-    PROJECT_MANAGER->setVerboseLogging(toggle);
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnOpenProjectsPath() {

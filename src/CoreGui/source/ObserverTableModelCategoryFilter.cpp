@@ -66,7 +66,7 @@ bool Qtilities::CoreGui::ObserverTableModelCategoryFilter::filterAcceptsRow(int 
                     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
                     QObject* object_at_index = table_model->getObject(index);
                     if (object_at_index) {
-                        QVariant category_variant = observer->getObserverPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
+                        QVariant category_variant = observer->getQtilitiesPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
                         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
                         if (!category.isValid())
                             category << QString();

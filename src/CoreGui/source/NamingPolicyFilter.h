@@ -40,6 +40,7 @@
 #include <AbstractSubjectFilter>
 #include <IModificationNotifier>
 #include <Factory>
+#include <VersionInformation>
 
 #include <QItemDelegate>
 #include <QValidator>
@@ -73,7 +74,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
         It is important to note that the UniquenessPolicy and the subject's filter's validator can only be set while no subjects are attached within the subject filter's observer context.
 
-        Once the NamingPolicyFilter is set up the way you need it, it will add a single shared property (see SharedObserverProperty) to subjects attached to it's observer context.
+        Once the NamingPolicyFilter is set up the way you need it, it will add a single shared property (see SharedProperty) to subjects attached to it's observer context.
         The name of this property is defined in code using the Qtilities::Core::Properties::qti_prop_NAME constant.
 
         This dynamic property will be sync'ed with objectName() at all times. Since there is no way to know when setObjectName() is called on a QObject, a dynamic property
@@ -107,6 +108,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         public:
             NamingPolicyFilter(QObject* parent = 0);
             virtual ~NamingPolicyFilter();
+
+            void operator=(const NamingPolicyFilter& ref);
+            bool operator==(const NamingPolicyFilter& ref) const;
+            bool operator!=(const NamingPolicyFilter& ref) const;
 
             // --------------------------------
             // Enumerations
@@ -167,6 +172,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
 
+        public:
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -178,10 +184,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            IExportable::Result exportBinary(QDataStream& stream ) const;
+            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
             // IModificationNotifier Implemenation
@@ -199,16 +205,25 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Sets the naming uniqueness policy of this subject filter.
             void setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy naming_uniqueness_policy);
             //! Gets the naming uniqueness policy used by this subject filter.
+            /*!
+              The default is ProhibitDuplicateNames.
+              */
             NamingPolicyFilter::UniquenessPolicy uniquenessNamingPolicy() const;
 
             //! Sets the naming uniqueness conflict policy used by this subject filter.
             void setUniquenessResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_uniqueness_resolution_policy);
             //! Gets the naming uniqueness conflict policy used by this subject filter.
+            /*!
+              The default is PromptUser.
+              */
             NamingPolicyFilter::ResolutionPolicy uniquenessResolutionPolicy() const;
 
             //! Sets the naming validity conflict policy used by this subject filter.
             void setValidityResolutionPolicy(NamingPolicyFilter::ResolutionPolicy naming_validity_resolution_policy);
             //! Gets the naming validity conflict policy used by this subject filter.
+            /*!
+              The default is PromptUser.
+              */
             NamingPolicyFilter::ResolutionPolicy validityResolutionPolicy() const;
 
             //! Evaluates a name in the observer context in which this subject filter is installed.
@@ -352,5 +367,8 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
          };									
     }
 }
+
+QDataStream & operator<< (QDataStream& stream, const Qtilities::CoreGui::NamingPolicyFilter& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::CoreGui::NamingPolicyFilter& stream_obj);
 
 #endif // NAMINGPOLICYFILTER_H

@@ -39,6 +39,8 @@
 #include "Logging_global.h"
 #include "LoggerFactory.h"
 
+#include <Qtilities.h>
+
 namespace Qtilities {
     namespace Logging {
         class AbstractFormattingEngine;
@@ -318,7 +320,7 @@ namespace Qtilities {
             //! Loads the session config from a previous session. If no file name is passed, the default session log file is used.
             bool loadSessionConfig(QString file_name = QString());
             //! Save the current config to a file. If no file name is passed, the default session log file is used.
-            bool saveSessionConfig(QString file_name = QString()) const;
+            bool saveSessionConfig(QString file_name = QString(), Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) const;
 
         signals:
             //! Signal which is emitted when a new message was logged. The logger connects all logger engines to this signal.

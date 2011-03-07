@@ -52,9 +52,7 @@ using namespace Qtilities::ProjectManagement::Constants;
 struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
     recent_projects_size(5),
-    project_file_version(0),
     is_initialized(false),
-    verbose_logging(false),
     project_types(IExportable::Binary | IExportable::XML),
     default_project_type(IExportable::XML) {}
 
@@ -69,12 +67,11 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     bool                            use_custom_projects_path;
     QString                         custom_projects_path;
     bool                            check_modified_projects;
-    quint32                         project_file_version;
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
     bool                            is_initialized;
-    bool                            verbose_logging;
     IExportable::ExportModeFlags    project_types;
     IExportable::ExportMode         default_project_type;
+    QMap<IExportable::ExportMode,QString> suffices;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -99,6 +96,9 @@ Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : 
 {    
     d = new ProjectManagerPrivateData;
     readSettings();
+
+    d->suffices[IExportable::Binary] = qti_def_SUFFIX_PROJECT_BINARY;
+    d->suffices[IExportable::XML] = qti_def_SUFFIX_PROJECT_XML;
 }
 
 Qtilities::ProjectManagement::ProjectManager::~ProjectManager()
@@ -123,6 +123,14 @@ void Qtilities::ProjectManagement::ProjectManager::setAllowedProjectTypes(IExpor
     }
 }
 
+void Qtilities::ProjectManagement::ProjectManager::setProjectTypeSuffix(IExportable::ExportMode project_type, const QString& suffix) {
+    d->suffices[project_type] = suffix;
+}
+
+QString Qtilities::ProjectManagement::ProjectManager::projectTypeSuffix(IExportable::ExportMode project_type) {
+    return d->suffices[project_type];
+}
+
 Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::ProjectManagement::ProjectManager::defaultProjectType() const {
     return d->default_project_type;
 }
@@ -135,25 +143,16 @@ void Qtilities::ProjectManagement::ProjectManager::setDefaultProjectType(IExport
 QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter() const {
     QStringList filter_list;
     if (d->project_types & IExportable::Binary)
-        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(qti_def_SUFFIX_PROJECT_BINARY));
+        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(d->suffices[IExportable::Binary]));
     if (d->project_types & IExportable::XML)
-        filter_list.append(QString(tr("XML Project File (*%1)")).arg(qti_def_SUFFIX_PROJECT_XML));
+        filter_list.append(QString(tr("XML Project File (*%1)")).arg(d->suffices[IExportable::XML]));
 
     return filter_list.join(";;");
 }
 
-QString Qtilities::ProjectManagement::ProjectManager::projectTypeFileExtension(IExportable::ExportMode project_type) const {
-    if (project_type & IExportable::Binary)
-        return QString(qti_def_SUFFIX_PROJECT_BINARY);
-    if (project_type & IExportable::XML)
-        return QString(qti_def_SUFFIX_PROJECT_XML);
-
-    Q_ASSERT(0);
-    return QString();
-}
-
 bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QString& file_name) const {
-    if (file_name.endsWith(QString(qti_def_SUFFIX_PROJECT_BINARY)) || file_name.endsWith(QString(qti_def_SUFFIX_PROJECT_XML)))
+    QFileInfo fi(file_name);
+    if (d->suffices.values().contains(fi.suffix()))
         return true;
     else
         return false;
@@ -163,13 +162,13 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
     // Check if a current project exist.
     // If not, create it.
     if (!d->current_project) {
-        d->current_project = new Project();
+        d->current_project = new Project;
         connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         d->current_project->setProjectItems(d->item_list,true);
         return true;
     } else {
         closeProject();
-        d->current_project = new Project();
+        d->current_project = new Project;
         connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
         d->current_project->setProjectItems(d->item_list,true);
         return true;
@@ -250,7 +249,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
                 return false;
             } else {
                 if (!isAllowedFileName(file_name))
-                    file_name.append(projectTypeFileExtension(defaultProjectType()));
+                    file_name.append(projectTypeSuffix(defaultProjectType()));
             }
         } else
             file_name = d->current_project->projectFile();
@@ -309,18 +308,18 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
     setProjectItemList(projectItems);
 }
 
-QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() {
+QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() const {
     QStringList recent_project_names;
     for (int i = 0; i < d->recent_project_names.values().count();i++)
         recent_project_names << d->recent_project_names.values().at(i).toString();
     return recent_project_names;
 }
 
-QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectPaths() {
+QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectPaths() const {
     return d->recent_project_names.keys();
 }
 
-QString Qtilities::ProjectManagement::ProjectManager::recentProjectPath(const QString& recent_project_name) {
+QString Qtilities::ProjectManagement::ProjectManager::recentProjectPath(const QString& recent_project_name) const {
     for (int i = 0; i < d->recent_project_names.size(); i++) {
         if (d->recent_project_names.values().at(i).toString() == recent_project_name)
             return d->recent_project_names.keys().at(i);
@@ -338,12 +337,13 @@ void Qtilities::ProjectManagement::ProjectManager::setProjectItemList(QList<IPro
     d->item_list = item_list;
 }
 
-void Qtilities::ProjectManagement::ProjectManager::setProjectFileVersion(quint32 project_file_version) {
-    d->project_file_version = project_file_version;
-}
-
-quint32 Qtilities::ProjectManagement::ProjectManager::projectFileVersion() const {
-    return d->project_file_version;
+QStringList Qtilities::ProjectManagement::ProjectManager::registeredProjectItemNames() const {
+    QStringList list;
+    for (int i = 0; i < d->item_list.count(); i++) {
+        if (d->item_list.at(i))
+            list << d->item_list.at(i)->projectItemName();
+    }
+    return list;
 }
 
 QWidget* Qtilities::ProjectManagement::ProjectManager::configWidget() {
@@ -360,14 +360,6 @@ void Qtilities::ProjectManagement::ProjectManager::setOpenLastProjectOnStartup(b
 
 bool Qtilities::ProjectManagement::ProjectManager::openLastProjectOnStartup() const {
     return d->open_last_project;
-}
-
-void Qtilities::ProjectManagement::ProjectManager::setVerboseLogging(bool toggle) {
-    d->verbose_logging = toggle;
-}
-
-bool Qtilities::ProjectManagement::ProjectManager::verboseLogging() const {
-    return d->verbose_logging;
 }
 
 void Qtilities::ProjectManagement::ProjectManager::setCreateNewProjectOnStartup(bool toggle) {
@@ -418,7 +410,6 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.beginGroup("Projects");
     settings.setValue("open_last_project", d->open_last_project);
     settings.setValue("auto_create_new_project", d->auto_create_new_project);
-    settings.setValue("verbose_logging", d->verbose_logging);
     settings.setValue("recent_project_map", QVariant(d->recent_project_names));
     settings.setValue("recent_project_stack", QVariant(d->recent_project_stack));
     settings.setValue("use_custom_projects_path", d->use_custom_projects_path);
@@ -436,7 +427,6 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     QSettings settings;
     settings.beginGroup("Projects");
     d->open_last_project = settings.value("open_last_project", false).toBool();
-    d->verbose_logging = settings.value("verbose_logging", false).toBool();
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
     d->use_custom_projects_path = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();

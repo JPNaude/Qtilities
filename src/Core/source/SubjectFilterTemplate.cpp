@@ -42,9 +42,7 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::SubjectFilterTemplatePrivateData {
-    SubjectFilterTemplatePrivateData() : is_exportable(true) {}
-
-    bool is_exportable;
+    SubjectFilterTemplatePrivateData()  {}
 };
 
 Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) : AbstractSubjectFilter(parent) {
@@ -115,14 +113,6 @@ void Qtilities::Core::SubjectFilterTemplate::finalizeDetachment(QObject* obj, bo
     Q_UNUSED(subject_deleted)
 }
 
-void Qtilities::Core::SubjectFilterTemplate::setIsExportable(bool is_exportable) {
-    d->is_exportable = is_exportable;
-}
-
-bool Qtilities::Core::SubjectFilterTemplate::isExportable() const {
-    return d->is_exportable;
-}
-
 QStringList Qtilities::Core::SubjectFilterTemplate::monitoredProperties() const {
     return QStringList();
 }
@@ -147,44 +137,19 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::Core::SubjectFilterTemplate::ins
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::SubjectFilterTemplate::supportedFormats() const {
     IExportable::ExportModeFlags flags = 0;
     flags |= IExportable::Binary;
+    flags |= IExportable::XML;
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-    Q_UNUSED(stream)
-
-    InstanceFactoryInfo factory_data = instanceFactoryInfo();
-    factory_data.exportBinary(stream);
-
-    return IExportable::Complete;
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SubjectFilterTemplate& stream_obj) {
+    stream_obj.exportBinary(stream);
+    return stream;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(import_list)
-    Q_UNUSED(params)
-    Q_UNUSED(stream)
-
-    return IExportable::Complete;
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SubjectFilterTemplate& stream_obj) {
+    QList<QPointer<QObject> > import_list;
+    stream_obj.importBinary(stream,import_list);
+    return stream;
 }
-
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
-    Q_UNUSED(params)
-
-    return IExportable::Incomplete;
-}
-
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectFilterTemplate::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(doc)
-    Q_UNUSED(object_node)
-    Q_UNUSED(params)
-    Q_UNUSED(import_list)
-
-    return IExportable::Incomplete;
-}
-
-
 
 

@@ -56,6 +56,16 @@ namespace Qtilities {
         \class CodeEditorProjectItemWrapper
         \brief This class wraps Qtilities::CoreGui::CodeEditorWidget as a project item.
 
+        Using CodeEditorProjectItemWrapper you can easily make any Qtilities::CoreGui::CodeEditorWidget part of a project. For example:
+
+\code
+CodeEditorWidget* code_editor = new CodeEditorWidget();
+CodeEditorProjectItemWrapper* project_item = new CodeEditorProjectItemWrapper(code_editor);
+OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Items (IProjectItem)","::"));
+\endcode
+
+        Make sure you register the project item in the global object pool before initializing the project manager.
+
         <i>This class was added in %Qtilities v0.3.</i>
           */
         class PROJECT_MANAGEMENT_SHARED_EXPORT CodeEditorProjectItemWrapper : public QObject, public IProjectItem
@@ -83,10 +93,10 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            virtual Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            virtual Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
+            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
             // IModificationNotifier Implemenation

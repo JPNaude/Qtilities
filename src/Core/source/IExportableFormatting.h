@@ -59,9 +59,9 @@ namespace Qtilities {
                 // XML Exporting
                 //----------------------------
                 //! Allows exporting of formatting information to a XML document. A reference to the QDomElement to which the object's information must be added is provided, along with a reference to the QDomDocument.
-                virtual IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node) const = 0;
+                virtual IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const = 0;
                 //! Allows importing of formatting information from a XML document. A reference to the QDomElement which contains the object's information is provided, along with a reference to the QDomDocument.
-                virtual IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node) = 0;
+                virtual IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) = 0;
             };
         }
     }

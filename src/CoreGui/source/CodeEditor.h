@@ -78,7 +78,7 @@ namespace Qtilities {
             //! Function which highlights the specified word in the document using the brush.
             void highlightWords(const QStringList& words, const QBrush& brush);
         public:
-            //! Function which removes highlighted words set using the highlightWord() function.
+            //! Function which removes highlighted words set using highlightWords().
             void removeWordHighlighting();
 
         protected:

@@ -36,9 +36,9 @@
 #include "QtilitiesApplication.h"
 #include "Command.h"
 
-#include <QtilitiesCoreConstants.h>
-#include <Observer.h>
-#include <ObserverProperty.h>
+#include <QtilitiesCoreConstants>
+#include <Observer>
+#include <QtilitiesProperty>
 
 #include <QAction>
 #include <QApplication>
@@ -73,11 +73,6 @@ Qtilities::CoreGui::ClipboardManager::ClipboardManager(QObject* parent) : IClipb
     connect(d->clipboard,SIGNAL(dataChanged()),SLOT(handleClipboardChanged()));
 
     setObjectName("Clipboard Manager");
-
-    // Give the manager an icon
-    SharedObserverProperty shared_icon_property(QVariant(QIcon(QString(qti_icon_MANAGER_16x16))),qti_prop_DECORATION);
-    shared_icon_property.setIsExportable(false);
-    Observer::setSharedProperty(this,shared_icon_property);
 }
 
 Qtilities::CoreGui::ClipboardManager::~ClipboardManager()

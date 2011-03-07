@@ -34,6 +34,7 @@
 #include "QtilitiesCoreApplication_p.h"
 #include "ObjectManager.h"
 #include "ContextManager.h"
+#include "VersionInformation.h"
 
 #include <LoggingConstants>
 #include <Qtilities.h>
@@ -73,6 +74,12 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivat
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
     d_application_session_path = QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+
+    // Version related stuff:
+    d_version_number.setVersionMajor(qti_def_VERSION_MAJOR);
+    d_version_number.setVersionMinor(qti_def_VERSION_MINOR);
+    d_version_number.setVersionRevision(qti_def_VERSION_REVISION);
+    d_application_export_version = 0;
 }
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPrivate() {
@@ -87,15 +94,19 @@ Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreAppl
     return d_contextManagerIFace;
 }
 
-QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersion() const {
+QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersionString() const {
     QString version_string;
     if (qti_def_VERSION_BETA != 0)
-        version_string = QString(QObject::tr("%1.%2.%3 Beta %4")).arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION).arg(qti_def_VERSION_BETA);
+        version_string = QString(QObject::tr("%1 Beta %2")).arg(d_version_number.toString()).arg(qti_def_VERSION_BETA);
     else if (qti_def_VERSION_ALPHA != 0)
-        version_string = QString(QObject::tr("%1.%2.%3 Alpha %4")).arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION).arg(qti_def_VERSION_ALPHA);
+        version_string = QString(QObject::tr("%1 Alpha %2")).arg(d_version_number.toString()).arg(qti_def_VERSION_ALPHA);
     else
-        version_string = QString("%1.%2.%3").arg(qti_def_VERSION_MAJOR).arg(qti_def_VERSION_MINOR).arg(qti_def_VERSION_REVISION);
+        version_string = d_version_number.toString();
     return version_string;
+}
+
+Qtilities::Core::VersionNumber Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersion() const {
+    return d_version_number;
 }
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath() const {
@@ -104,5 +115,13 @@ QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath
 
 void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationSessionPath(const QString& path) {
     d_application_session_path = path;
+}
+
+void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationExportVersion(quint32 application_export_version) {
+    d_application_export_version = application_export_version;
+}
+
+quint32 Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationExportVersion() const {
+    return d_application_export_version;
 }
 

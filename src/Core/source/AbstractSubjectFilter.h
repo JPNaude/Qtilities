@@ -72,7 +72,6 @@ namespace Qtilities {
         public:
             AbstractSubjectFilter(QObject* parent = 0) : QObject(parent) {
                 observer = 0;
-                filter_is_exportable = false;
                 filter_is_modification_state_monitored = true;
             }
             virtual ~AbstractSubjectFilter() {}
@@ -103,21 +102,6 @@ namespace Qtilities {
               */
             virtual bool isModificationStateMonitored() const {
                 return filter_is_modification_state_monitored;
-            }
-            //! Set if this subject filter must be exported.
-            /*!
-                \note By default the base class does nothing when this function is called.
-              */
-            virtual void setIsExportable(bool is_exportable) {
-                filter_is_exportable = is_exportable;
-            }
-
-            //! Indicates if this subject filter must be exported.
-            /*!
-                \returns False by default.
-              */
-            virtual bool isExportable() const {
-                return filter_is_exportable;
             }
 
             //! Evaluates the attachment of a new subject to the filter's observer context. Use this function to check how an attachment will be handled.
@@ -311,7 +295,6 @@ namespace Qtilities {
         protected:
             Observer*           observer;
             QMutex              filter_mutex;
-            bool                filter_is_exportable;
             bool                filter_is_modification_state_monitored;
         };
     }

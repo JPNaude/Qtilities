@@ -67,22 +67,52 @@ namespace Qtilities {
         - Ability to display application modes through objects implementing the Qtilities::CoreGui::Interfaces::IMode interface.
         - Provides ready to use integration with the %Qtilities logger's priority messages.
 
-        %Qtilities provides a main window architecture which allows you to create complex main windows easily. The Qtilities::CoreGui::QtilitiesMainWindow
-        class is the main class. It supports modes that can be added to it, where modes are classes implementing the Qtilities::CoreGui::Interfaces::IMode interface.
-        Each mode provide a widget and an icon identifying the mode. Modes are listed in somewhere in the main window depending on modeLayout() list view on the left hand
-        of the main window and when a mode is clicked, its widget is set as the active widget in the main window.
+        %Qtilities provides a main window architecture which allows you to create complex main windows easily.
+        Once you created your widget, it is recommended to set it as the main window on QtilitiesApplication as shown below:
 
-        The Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
-        Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
-        The side viewer wrapper also allows side viewer widgets to add custom actions to the wrapper widget.
+\code
+int main(int argc, char *argv[])
+{
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setApplicationName("Main Window Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
-        Below is an example of the main window architecture in action. This screenshot was taken form the MainWindowExample in the QtilitiesExamples project:
+    // Create a QtilitiesMainWindow to show our different modes:
+    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
+    QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
-        \image html main_window_architecture.jpg "Example Of Main Window Architecture"
+    // Lots of application code...
+}
+\endcode
+
+        Application modes are supported, where modes are classes implementing the Qtilities::CoreGui::Interfaces::IMode interface.
+        Each mode provide a widget and an icon identifying the mode. Modes are listed in the main window depending on modeLayout() setting.
+        When a mode's icon is clicked, its widget is set as the active widget in the main window.
+        It is also possible to the use the main window without modes by using the ModesNone modeLayout().
+
+        Below is an example of the main window in action:
+
+        \image html class_qtilitiesmainwindow_modes_left.jpg "Main Window With Modes On The Left"
+
+        Alternatively, we can put the modes on either the top, right or bottom. For example:
+
+\code
+// Create a QtilitiesMainWindow with modes at the top:
+QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
+\endcode
+
+        The result is:
+
+        \image html class_qtilitiesmainwindow_modes_top.jpg "Main Window With Modes At The Top"
 
         The QtilitiesMainWindow widget supports the %Qtilities Logger's priority messaging functionality and
         displays the priority messages in the status bar of the main window by default. To disable this feature
         the disablePriorityMessages() function can be called.
+
+        Futher, the Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
+        Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
+        For more information on this see the relevant class documentation.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {

@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+
 #include <LoggingConstants>
 
 #include <QtilitiesCoreApplication>
@@ -61,7 +62,7 @@ QtilitiesApplication a(argc, argv);
 QtilitiesApplication::setOrganizationName("Jaco Naude");
 QtilitiesApplication::setOrganizationDomain("Qtilities");
 QtilitiesApplication::setApplicationName("Example");
-QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 \endcode
 
          If you for some reason don't want to use the QtilitiesApplication as shown above, you must call the initialize()
@@ -74,7 +75,7 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Access to a clipboard manager through clipboardManager().
          - The ability to define and access your top level main window in your application using setMainWindow() and mainWindow().
          - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
-         - Information about %Qtilities through qtilitiesVersion() and aboutQtilities().
+         - Information about %Qtilities through qtilitiesVersionString() and aboutQtilities().
          - Access to the application's configuration page through configWidget().
 
           \sa Qtilities::Core::QtilitiesCoreApplication
@@ -111,7 +112,9 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
               */
-            static QString qtilitiesVersion();
+            static QString qtilitiesVersionString();
+            //! Returns the version number of %Qtilities.
+            VersionNumber qtilitiesVersion();
 
             //! Initializes the QtilitiesApplication object.
             /*!
@@ -123,7 +126,7 @@ QtilitiesApplication a(argc, argv);
 QtilitiesApplication::setOrganizationName("Jaco Naude");
 QtilitiesApplication::setOrganizationDomain("Qtilities");
 QtilitiesApplication::setApplicationName("Example");
-QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 \endcode
 
             If it however not possible to use QtilitiesApplication as show above it should be initialized directly after the above
@@ -134,7 +137,7 @@ QApplication a(argc, argv);
 QApplication::setOrganizationName("Jaco Naude");
 QApplication::setOrganizationDomain("Qtilities");
 QApplication::setApplicationName("Example");
-QApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+QApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 QtilitiesApplication::initialize();
 \endcode
 
@@ -175,9 +178,21 @@ QtilitiesApplication::initialize();
               \sa setApplicationSessionPath()
               */
             static QString applicationSessionPath();
-
             //! Sets the session path to be used in your application:
             static void setApplicationSessionPath(const QString& path);
+
+            //! Sets the application export format for your application.
+            /*!
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), applicationExportVersion()
+              */
+            static void setApplicationExportVersion(quint32 application_export_version);
+            //! Gets the application export format for your application.
+            /*!
+              Default is 0.
+
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), setApplicationExportVersion()
+              */
+            static quint32 applicationExportVersion();
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.

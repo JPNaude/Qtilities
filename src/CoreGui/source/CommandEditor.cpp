@@ -220,7 +220,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
 void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
     QString file_name = QFileDialog::getSaveFileName(this,tr("Export Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
-        if (!ACTION_MANAGER->exportShortcutMapping(file_name)) {
+        if (!ACTION_MANAGER->saveShortcutMapping(file_name)) {
             QMessageBox msgBox;
             msgBox.setWindowTitle("Shortcut Export Failed");
             msgBox.setText(tr("Shortcut mapping export failed. Please see the session log for details."));
@@ -232,7 +232,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
 void Qtilities::CoreGui::CommandEditor::on_btnImport_clicked() {
     QString file_name = QFileDialog::getOpenFileName(this,tr("Import Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
-        if (!ACTION_MANAGER->importShortcutMapping(file_name)) {
+        if (!ACTION_MANAGER->loadShortcutMapping(file_name)) {
             QMessageBox msgBox;
             msgBox.setWindowTitle("Shortcut Import Failed");
             msgBox.setText(tr("Shortcut mapping import failed. Please see the session log for details."));

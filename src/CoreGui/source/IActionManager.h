@@ -34,6 +34,8 @@
 #ifndef IACTIONMANAGER_H
 #define IACTIONMANAGER_H
 
+#include <ObserverData>
+
 #include "QtilitiesCoreGui_global.h"
 #include "ActionContainer.h"
 #include "Command.h"
@@ -144,9 +146,9 @@ namespace Qtilities {
                 //! Restores the default shortcut configuration.
                 virtual void restoreDefaultShortcuts() = 0;
                 //! Exports the current shortcut configuraiton.
-                virtual bool exportShortcutMapping(const QString& file_name) = 0;
+                virtual bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) = 0;
                 //! Imports a previously exported shortcut configuration.
-                virtual bool importShortcutMapping(const QString& file_name) = 0;
+                virtual bool loadShortcutMapping(const QString& file_name) = 0;
                 //! Creates the command editor/shortcut configuration page.
                 /*!
                     The command editor widget is returned by the function call.

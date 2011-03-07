@@ -74,46 +74,29 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Tr
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
-    // First export the factory data of this item:
-    InstanceFactoryInfo factory_data = instanceFactoryInfo();
-    factory_data.exportBinary(stream);
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportBinary(QDataStream& stream) const {
+    Q_UNUSED(stream)
 
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(stream)
     Q_UNUSED(import_list)
-    Q_UNUSED(params)
 
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
-    // 1. Factory attributes is added to this item's node:
-    instanceFactoryInfo().exportXML(doc,object_node);
-
-    // 2. The data of this item is added to a new data node:
-    QDomElement item_data = doc->createElement("Data");
-    IExportable::Result result = saveFormattingToXML(doc,&item_data);
-
-    if (item_data.attributes().count() > 0 || item_data.childNodes().count() > 0)
-        object_node->appendChild(item_data);
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::Result result = saveFormattingToXML(doc,object_node,exportVersion());
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
-    Q_UNUSED(params)
     Q_UNUSED(import_list)
 
-    return loadFormattingFromXML(doc,object_node);
+    return loadFormattingFromXML(doc,object_node,exportVersion());
 }
 

@@ -42,14 +42,16 @@
 #include <QApplication>
 #include <QDomNodeList>
 
-struct Qtilities::ProjectManagement::ObserverProjectItemWrapperPrivateData {
-    ObserverProjectItemWrapperPrivateData() : observer(0) {}
-
-    QPointer<Observer> observer;
-};
-
 using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
+
+struct Qtilities::ProjectManagement::ObserverProjectItemWrapperPrivateData {
+    ObserverProjectItemWrapperPrivateData() : observer(0),
+        export_flags(ObserverData::ExportData) {}
+
+    QPointer<Observer> observer;
+    ObserverData::ExportItemFlags export_flags;
+};
 
 Qtilities::ProjectManagement::ObserverProjectItemWrapper::ObserverProjectItemWrapper(Observer* observer, QObject *parent) :
     QObject(parent)
@@ -108,35 +110,33 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProje
     return InstanceFactoryInfo();
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream, QList<QVariant> params) const {
-    Q_UNUSED(params)
-
-    return OBJECT_MANAGER->exportObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
+void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setExportVersion(Qtilities::ExportVersion version) {
+    IExportable::setExportVersion(version);
+    d->observer->setExportVersion(version);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(import_list)
-    Q_UNUSED(params)
-
-    return OBJECT_MANAGER->importObserverBinary(stream,d->observer,PROJECT_MANAGER->verboseLogging());
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream) const {
+    d->observer->setExportVersion(exportVersion());
+    return d->observer->exportBinaryExt(stream,d->export_flags);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params) const {
-    Q_UNUSED(params)
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {    
+    d->observer->setExportVersion(exportVersion());
+    return d->observer->importBinary(stream,import_list);
+}
 
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     if (d->observer) {
         // Add a new node for this observer. We don't want it to add its factory data
         // to the ProjectItem node.
         QDomElement wrapper_data = doc->createElement("ObserverProjectItemWrapper");
         object_node->appendChild(wrapper_data);
-        return d->observer->exportXML(doc,&wrapper_data,params);
+        return d->observer->exportXmlExt(doc,&wrapper_data,d->export_flags);
     } else
         return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params) {
-    Q_UNUSED(params)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     if (d->observer) {
         QDomNodeList childNodes = object_node->childNodes();
         for(int i = 0; i < childNodes.count(); i++)
@@ -148,12 +148,21 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
                 continue;
 
             if (child.tagName() == "ObserverProjectItemWrapper") {
-                return d->observer->importXML(doc,&child,import_list,params);
+                d->observer->setExportVersion(exportVersion());
+                return d->observer->importXml(doc,&child,import_list);
             }
         }
     }
 
     return IExportable::Incomplete;
+}
+
+void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setExportItemFlags(ObserverData::ExportItemFlags flags) {
+    d->export_flags = flags;
+}
+
+Qtilities::Core::ObserverData::ExportItemFlags Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportItemFlags() const {
+    return d->export_flags;
 }
 
 bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::isModified() const {

@@ -54,7 +54,7 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
         ui->lblContact->setTextInteractionFlags(Qt::TextSelectableByMouse);
         ui->lblPublisher->setText(plugin->pluginPublisher());
         ui->lblState->setText(plugin->pluginStateString());
-        ui->lblVersion->setText(QString("v%1").arg(plugin->pluginVersion()));
+        ui->lblVersion->setText(QString("v%1").arg(plugin->pluginVersionInformation().version().toString()));
         ui->lblWebsite->setText(QString("<a href=\"%1\">%2</a>").arg(plugin->pluginPublisherWebsite()).arg(plugin->pluginPublisherWebsite()));
         ui->txtCopyright->setPlainText(plugin->pluginCopyright());
         ui->txtDescription->setPlainText(plugin->pluginDescription());
@@ -66,8 +66,8 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
         else
             ui->txtErrorString->setPlainText(plugin->errorString());
 
-        if (plugin->pluginCompatibilityVersions().count() > 0)
-            ui->listCompatabilityVersions->addItems(plugin->pluginCompatibilityVersions());
+        if (plugin->pluginVersionInformation().hasSupportedVersions())
+            ui->listCompatabilityVersions->addItems(plugin->pluginVersionInformation().supportedVersionString());
         else
             ui->listCompatabilityVersions->addItem(tr("This plugin does not depend on the application it is used in."));
 

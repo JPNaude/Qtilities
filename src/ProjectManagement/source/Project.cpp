@@ -35,8 +35,10 @@
 #include "ProjectManagementConstants.h"
 #include "ProjectManager.h"
 
-#include <Logger.h>
 #include <Qtilities.h>
+
+#include <Logger>
+#include <QtilitiesApplication>
 
 #include <QFileInfo>
 #include <QDomElement>
@@ -44,6 +46,7 @@
 #include <QCursor>
 
 using namespace Qtilities::ProjectManagement::Constants;
+using namespace Qtilities;
 
 struct Qtilities::ProjectManagement::ProjectPrivateData {
     ProjectPrivateData(): project_file(QString()),
@@ -88,31 +91,8 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         // Create the QDomDocument:
         QDomDocument doc("QtilitiesXMLProject");
         QDomElement root = doc.createElement("QtilitiesXMLProject");
-        root.setAttribute("DocumentVersion",qti_def_FORMAT_TREES_XML);
-        root.setAttribute("ApplicationName",QApplication::applicationName());
-        root.setAttribute("ApplicationVersion",QApplication::applicationVersion());
         doc.appendChild(root);
-
-        // Group all the project items together:
-        QDomElement itemsRoot = doc.createElement("ProjectItems");
-        root.appendChild(itemsRoot);
-
-        IExportable::Result success = IExportable::Complete;
-
-        // Create children for each project part:
-        for (int i = 0; i < d->project_items.count(); i++) {
-            QString name = d->project_items.at(i)->projectItemName();
-            QDomElement itemRoot = doc.createElement("ProjectItem");
-            itemRoot.setAttribute("Name",name);
-            itemsRoot.appendChild(itemRoot);
-            IExportable::Result item_result = d->project_items.at(i)->exportXML(&doc,&itemRoot);
-            if (item_result == IExportable::Failed) {
-                success = item_result;
-                break;
-            }
-            if (item_result == IExportable::Incomplete && success == IExportable::Complete)
-                success = item_result;
-        }
+        IExportable::Result success = exportXml(&doc,&root);
 
         // Put the complete doc in a string and save it to the file:
         QString docStr = doc.toString(2);
@@ -155,40 +135,10 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         QTemporaryFile file;
         file.open();
-        QDataStream stream(&file);   // we will serialize the data into the file
-        stream.setVersion(QDataStream::Qt_4_6);
-        stream << (quint32) qti_def_FORMAT_TREES_BINARY;
-        stream << PROJECT_MANAGER->projectFileVersion();
-        stream << MARKER_PROJECT_SECTION;
-        stream << d->project_name;
-        stream << (quint32) d->project_items.count();
-
-        QStringList item_names;
-        for (int i = 0; i < d->project_items.count(); i++) {
-            item_names << d->project_items.at(i)->projectItemName();
-        }
-        stream << item_names;
-
-        // Now stream each project part.
-        LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
-        IExportable::Result success = IExportable::Complete;
-        for (int i = 0; i < d->project_items.count(); i++) {
-            if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
-                LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-                IExportable::Result item_result = d->project_items.at(i)->exportBinary(stream);
-                if (item_result == IExportable::Failed) {
-                    success = item_result;
-                    break;
-                }
-                if (item_result == IExportable::Incomplete && success == IExportable::Complete)
-                    success = item_result;
-            } else {
-                success = IExportable::Incomplete;
-                LOG_WARNING(QString(tr("Could not save project item %1: %2. This project item does not support binary exporting.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-            }
-        }
-
-        stream << MARKER_PROJECT_SECTION;
+        QDataStream stream(&file);
+        if (exportVersion() == Qtilities::Qtilities_0_3)
+            stream.setVersion(QDataStream::Qt_4_7);
+        IExportable::Result success = exportBinary(stream);
         file.close();
 
         if (success != IExportable::Failed) {
@@ -222,7 +172,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QApplication::restoreOverrideCursor();
         return true;
     }
-    QApplication::restoreOverrideCursor();
+
     return false;
 }
 
@@ -252,86 +202,15 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
             file.close();
             QApplication::restoreOverrideCursor();
-            return IExportable::Failed;
+            return false;
         }
         file.close();
-
-        // Interpret the loaded doc:
         QDomElement root = doc.documentElement();
 
-        // Check the document version:
-        if (root.hasAttribute("DocumentVersion")) {
-            QString document_version = root.attribute("DocumentVersion");
-            if (document_version.toInt() > qti_def_FORMAT_TREES_XML) {
-                LOG_ERROR(QString(tr("The DocumentVersion of the input file is not supported by this version of your application. The document version of the input file is %1, while supported versions are versions up to %2. The document will not be parsed.")).arg(document_version.toInt()).arg(qti_def_FORMAT_TREES_XML));
-                QApplication::restoreOverrideCursor();
-                return IExportable::Failed;
-            }
-        } else {
-            LOG_ERROR(QString(tr("The DocumentVersion of the input file could not be determined. This might indicate that the input file is in the wrong format. The document will not be parsed.")));
-            QApplication::restoreOverrideCursor();
-            return IExportable::Failed;
-        }
-
-        // Now check out all the children below the root node:
-        IExportable::Result success = IExportable::Complete;
-        QList<QPointer<QObject> > internal_import_list;
-        QDomNodeList childNodes = root.childNodes();
-        for(int i = 0; i < childNodes.count(); i++) {
-            QDomNode childNode = childNodes.item(i);
-            QDomElement child = childNode.toElement();
-
-            if (child.isNull())
-                continue;
-
-            if (child.tagName() == "ProjectItems") {
-                QDomNodeList itemNodes = child.childNodes();
-                for(int i = 0; i < itemNodes.count(); i++) {
-                    QDomNode itemNode = itemNodes.item(i);
-                    QDomElement item = itemNode.toElement();
-
-                    if (item.isNull())
-                        continue;
-
-                    if (item.tagName() == "ProjectItem") {
-                        QString item_name;
-                        if (item.hasAttribute("Name"))
-                            item_name = item.attribute("Name");
-                        else {
-                            LOG_WARNING(tr("Nameless project item found in input file. This item will be skipped."));
-                            continue;
-                        }
-
-                        // Now get the project item with name item_name:
-                        IProjectItem* item_iface = 0;
-                        for (int i = 0; i < d->project_items.count(); i++) {
-                            if (d->project_items.at(i)->projectItemName() == item_name) {
-                                item_iface = d->project_items.at(i);
-                                break;
-                            }
-                        }
-
-                        if (!item_iface) {
-                            LOG_WARNING(QString(tr("Input file contains a project item \"%1\" which does not exist in your application. Import will be incomplete.")).arg(item_name));
-                            if (success != IExportable::Failed) {
-                                success = IExportable::Incomplete;
-                            }
-                            continue;
-                        } else {
-                            IExportable::Result item_result = item_iface->importXML(&doc,&item,internal_import_list);
-                            if (item_result == IExportable::Failed) {
-                                success = item_result;
-                                break;
-                            }
-                            if (item_result == IExportable::Incomplete && success == IExportable::Complete)
-                                success = item_result;
-                        }
-                        continue;
-                    }
-                }
-                continue;
-            }
-        }
+        // Interpret the loaded doc:
+        QList<QPointer<QObject> > import_list;
+        IExportable::Result success = importXml(&doc,&root,import_list);
+        QApplication::restoreOverrideCursor();
 
         if (success != IExportable::Failed) {
             // We change the project name to the selected file name
@@ -350,82 +229,21 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete)
                 LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
+            return true;
         } else {
             LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
             return false;
         }
-
-        QApplication::restoreOverrideCursor();
-
-        return true;
     } else if (file_name.endsWith(qti_def_SUFFIX_PROJECT_BINARY)) {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
         QDataStream stream(&file);
-        stream.setVersion(QDataStream::Qt_4_6);
+        if (exportVersion() == Qtilities::Qtilities_0_3)
+            stream.setVersion(QDataStream::Qt_4_7);
 
-        quint32 marker;
-        stream >> marker;
-        LOG_INFO(QString(tr("Inspecting project file format: Found binary export file format version: %1")).arg(marker));
-        if (marker != (quint32) qti_def_FORMAT_TREES_BINARY) {
-            LOG_ERROR(QString(tr("Project file format does not match the expected binary export file format (expected version: %1). Project will not be loaded.")).arg(qti_def_FORMAT_TREES_BINARY));
-            file.close();
-            return false;
-        }
-        stream >> marker;
-        LOG_INFO(QString(tr("Inspecting project file format: Application binary export file format version: %1")).arg(marker));
-        if (marker != PROJECT_MANAGER->projectFileVersion()) {
-            LOG_ERROR(QString(tr("Project file format does not match the expected application binary export file format (expected version: %1). Project will not be loaded.")).arg(PROJECT_MANAGER->projectFileVersion()));
-            file.close();
-            return false;
-        }
-        stream >> marker;
-        if (marker != MARKER_PROJECT_SECTION) {
-            LOG_ERROR(tr("Project file does not contain valid project data. Project will not be loaded. Path: ") + file_name);
-            file.close();
-            return false;
-        }
-        stream >> d->project_name;
-        quint32 project_item_count;
-        stream >> project_item_count;
-
-        QStringList item_names;
-        QStringList item_names_readback;
-
-        for (int i = 0; i < d->project_items.count(); i++) {
-            item_names << d->project_items.at(i)->projectItemName();
-        }
-        stream >> item_names_readback;
-        LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
-        if (item_names != item_names_readback) {
-            LOG_ERROR(QString(tr("Failed to load project from file %1. The number of project items does not match your current set of plugin's number of project items, or they are not loaded in the same order.")).arg(file_name));
-            file.close();
-            return false;
-        }
-
-        // Now stream each project part.
-        int int_count = project_item_count;
-        IExportable::Result success = IExportable::Complete;
         QList<QPointer<QObject> > import_list;
-        for (int i = 0; i < int_count; i++) {
-            if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
-                LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-                IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
-                if (item_result == IExportable::Failed) {
-                    success = item_result;
-                    break;
-                }
-                if (item_result == IExportable::Incomplete && success == IExportable::Complete)
-                    success = item_result;
-            } else {
-                success = IExportable::Incomplete;
-                LOG_WARNING(QString(tr("Could not load project item %1: %2. This project item does not support binary importing.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
-            }
-        }
-
-        if (success) {
-            stream >> marker;
-            if (marker != MARKER_PROJECT_SECTION)
-                success = IExportable::Failed;
-        }
+        IExportable::Result success = importBinary(stream,import_list);
+        QApplication::restoreOverrideCursor();
 
         file.close();
 
@@ -446,12 +264,13 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete)
                 LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
+            return true;
         } else {
             LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
             return false;
         }
-
-        return true;
+    } else {
+        LOG_ERROR_P(tr("Failed to load project. Unsupported project file extension found on file: ") + file_name);
     }
     return false;
 }
@@ -543,4 +362,277 @@ void Qtilities::ProjectManagement::Project::setModificationState(bool new_state,
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
     }
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectManagement::Project::supportedFormats() const {
+    IExportable::ExportModeFlags flags = 0;
+    flags |= IExportable::Binary;
+    flags |= IExportable::XML;
+
+    return flags;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::exportBinary(QDataStream& stream) const {
+    // ---------------------------------------------------
+    // Save file format information:
+    // ---------------------------------------------------
+    stream << MARKER_PROJECT_SECTION;
+    stream << (quint32) exportVersion();
+    stream << CoreGui::QtilitiesApplication::qtilitiesVersionString();
+    stream << (quint32) applicationExportVersion();
+    stream << QApplication::applicationVersion();
+    stream << MARKER_PROJECT_SECTION;
+
+    stream << d->project_name;
+    stream << (quint32) d->project_items.count();
+    QStringList item_names;
+    for (int i = 0; i < d->project_items.count(); i++) {
+        item_names << d->project_items.at(i)->projectItemName();
+    }
+    stream << item_names;
+
+    // ---------------------------------------------------
+    // Do the actual export:
+    // ---------------------------------------------------
+    LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
+    IExportable::Result success = IExportable::Complete;
+    for (int i = 0; i < d->project_items.count(); i++) {
+        if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
+            LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+            IExportable::Result item_result = d->project_items.at(i)->exportBinary(stream);
+            if (item_result == IExportable::Failed) {
+                success = item_result;
+                break;
+            }
+            if (item_result == IExportable::Incomplete && success == IExportable::Complete)
+                success = item_result;
+        } else {
+            success = IExportable::Incomplete;
+            LOG_WARNING(QString(tr("Could not save project item %1: %2. This project item does not support binary exporting.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+        }
+    }
+
+    stream << MARKER_PROJECT_SECTION;
+    return success;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    // ---------------------------------------------------
+    // Inspect file format:
+    // ---------------------------------------------------
+    quint32 marker;
+    stream >> marker;
+    if (marker != MARKER_PROJECT_SECTION) {
+        LOG_ERROR(QString(tr("Failed to load project from. Missing project marker at beginning of file.")));
+        return IExportable::Failed;
+    }
+
+    stream >> marker;
+    Qtilities::ExportVersion read_version = (Qtilities::ExportVersion) marker;
+    LOG_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(marker));
+    QString qtilities_version;
+    stream >> qtilities_version;
+    LOG_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(qtilities_version));
+
+    stream >> marker;
+    quint32 application_read_version = marker;
+    LOG_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(marker));
+    QString application_version;
+    stream >> application_version;
+    LOG_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(application_version));
+
+    stream >> marker;
+    if (marker != MARKER_PROJECT_SECTION) {
+        LOG_ERROR(QString(tr("Failed to load project from. Missing project marker at beginning of file.")));
+        return IExportable::Failed;
+    }
+
+    // ---------------------------------------------------
+    // Check if input format is supported:
+    // ---------------------------------------------------
+    bool is_supported_format = false;
+    if (read_version == Qtilities::Qtilities_0_3)
+        is_supported_format = true;
+
+    if (!is_supported_format) {
+        LOG_ERROR(QString(tr("Unsupported project file found with export version: %1. The project file will not be parsed.")).arg(read_version));
+        return IExportable::Failed;
+    }
+
+    // ---------------------------------------------------
+    // Do the actual import:
+    // ---------------------------------------------------
+    stream >> d->project_name;
+    quint32 project_item_count;
+    stream >> project_item_count;
+
+    QStringList item_names;
+    QStringList item_names_readback;
+
+    for (int i = 0; i < d->project_items.count(); i++) {
+        item_names << d->project_items.at(i)->projectItemName();
+    }
+    stream >> item_names_readback;
+    LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
+    if (item_names != item_names_readback) {
+        LOG_ERROR(QString(tr("Failed to load project from. The number of project items does not match your current set of plugin's number of project items, or they are not loaded in the same order.")));
+        return IExportable::Failed;
+    }
+
+    // Now stream each project part.
+    int int_count = project_item_count;
+    IExportable::Result success = IExportable::Complete;
+    for (int i = 0; i < int_count; i++) {
+        if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
+            LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+            d->project_items.at(i)->setExportVersion(read_version);
+            d->project_items.at(i)->setApplicationExportVersion(application_read_version);
+            IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
+            if (item_result == IExportable::Failed) {
+                success = item_result;
+                break;
+            }
+            if (item_result == IExportable::Incomplete && success == IExportable::Complete)
+                success = item_result;
+        } else {
+            success = IExportable::Incomplete;
+            LOG_WARNING(QString(tr("Could not load project item %1: %2. This project item does not support binary importing.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+        }
+    }
+
+    if (success) {
+        stream >> marker;
+        if (marker != MARKER_PROJECT_SECTION)
+            success = IExportable::Failed;
+    }
+
+    return success;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    // ---------------------------------------------------
+    // Save file format information:
+    // ---------------------------------------------------
+    object_node->setAttribute("ExportVersion",QString::number(exportVersion()));
+    object_node->setAttribute("QtilitiesVersion",CoreGui::QtilitiesApplication::qtilitiesVersionString());
+    object_node->setAttribute("ApplicationExportVersion",QString::number(applicationExportVersion()));
+    object_node->setAttribute("ApplicationVersion",QApplication::applicationVersion());
+    object_node->setAttribute("ApplicationName",QApplication::applicationName());
+
+    // ---------------------------------------------------
+    // Do the actual export:
+    // ---------------------------------------------------
+    IExportable::Result success = IExportable::Complete;
+    for (int i = 0; i < d->project_items.count(); i++) {
+        QString name = d->project_items.at(i)->projectItemName();
+        QDomElement itemRoot = doc->createElement("ProjectItem_" + QString::number(i));
+        itemRoot.setAttribute("Name",name);
+        object_node->appendChild(itemRoot);
+        IExportable::Result item_result = d->project_items.at(i)->exportXml(doc,&itemRoot);
+        if (item_result == IExportable::Failed) {
+            success = item_result;
+            break;
+        }
+        if (item_result == IExportable::Incomplete && success == IExportable::Complete)
+            success = item_result;
+    }
+    return success;
+}
+
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+    // ---------------------------------------------------
+    // Inspect file format:
+    // ---------------------------------------------------
+    Qtilities::ExportVersion read_version;
+    if (object_node->hasAttribute("ExportVersion")) {
+        read_version = (Qtilities::ExportVersion) object_node->attribute("ExportVersion").toInt();
+        LOG_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(read_version));
+    } else {
+        LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        QApplication::restoreOverrideCursor();
+        return IExportable::Failed;
+    }
+    if (object_node->hasAttribute("QtilitiesVersion"))
+        LOG_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(object_node->attribute("QtilitiesVersion")));
+    quint32 application_read_version = 0;
+    if (object_node->hasAttribute("ApplicationExportVersion")) {
+        application_read_version = object_node->attribute("ApplicationExportVersion").toInt();
+        LOG_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(application_read_version));
+    } else {
+        LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        QApplication::restoreOverrideCursor();
+        return IExportable::Failed;
+    }
+    if (object_node->hasAttribute("ApplicationVersion"))
+        LOG_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(object_node->attribute("ApplicationVersion")));
+
+    // ---------------------------------------------------
+    // Check if input format is supported:
+    // ---------------------------------------------------
+    bool is_supported_format = false;
+    if (read_version == Qtilities::Qtilities_0_3)
+        is_supported_format = true;
+
+    if (!is_supported_format) {
+        LOG_ERROR(QString(tr("Unsupported project file found with export version: %1. The project file will not be parsed.")).arg(read_version));
+        return IExportable::Failed;
+    }
+
+    bool found_project_item = false;
+
+    // ---------------------------------------------------
+    // Do the actual import:
+    // ---------------------------------------------------
+    IExportable::Result success = IExportable::Complete;
+    QDomNodeList itemNodes = object_node->childNodes();
+    for(int i = 0; i < itemNodes.count(); i++) {
+        QDomNode itemNode = itemNodes.item(i);
+        QDomElement item = itemNode.toElement();
+
+        if (item.isNull())
+            continue;
+
+        if (item.tagName().startsWith("ProjectItem_")) {
+            found_project_item = true;
+            QString item_name;
+            if (item.hasAttribute("Name")) {
+                item_name = item.attribute("Name");
+                LOG_TRACE("Found project item in import file with name: " + item_name);
+            } else {
+                LOG_WARNING(tr("Nameless project item found in input file. This item will be skipped."));
+                continue;
+            }
+
+            // Now get the project item with name item_name:
+            IProjectItem* item_iface = 0;
+            for (int i = 0; i < d->project_items.count(); i++) {
+                if (d->project_items.at(i)->projectItemName() == item_name) {
+                    item_iface = d->project_items.at(i);
+                    break;
+                }
+            }
+
+            if (!item_iface) {
+                LOG_WARNING(QString(tr("Input file contains a project item \"%1\" which does not exist in your application. Import will be incomplete.")).arg(item_name));
+                if (success != IExportable::Failed) {
+                    success = IExportable::Incomplete;
+                }
+                continue;
+            } else {
+                item_iface->setExportVersion(read_version);
+                item_iface->setApplicationExportVersion(application_read_version);
+                success = item_iface->importXml(doc,&item,import_list);
+                if (success != IExportable::Complete && success != IExportable::Incomplete) {
+                    LOG_ERROR(tr("Project item \"") + item_name + tr("\" failed during import."));
+                    break;
+                }
+            }
+            continue;
+        }
+    }
+
+    if (!found_project_item)
+        LOG_WARNING(tr("No project items found in project file."));
+
+    return success;
 }

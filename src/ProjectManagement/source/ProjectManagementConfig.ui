@@ -106,19 +106,12 @@
         <property name="text">
          <string>...</string>
         </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="checkVerboseLogging">
-     <property name="toolTip">
-      <string>This setting enables verbose logging output during project loading and saving operations. This provides detailed information about the saving and loading processes, but it comes at the cost of slower saving and loading.</string>
-     </property>
-     <property name="text">
-      <string>Verbose logging during project saving and loading of binary projects.</string>
-     </property>
     </widget>
    </item>
    <item>
@@ -145,7 +138,6 @@
   <tabstop>chkUseCustomProjectsPath</tabstop>
   <tabstop>txtCustomProjectsPath</tabstop>
   <tabstop>btnOpenProjectsPath</tabstop>
-  <tabstop>checkVerboseLogging</tabstop>
  </tabstops>
  <resources/>
  <connections>

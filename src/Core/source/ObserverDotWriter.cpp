@@ -34,20 +34,19 @@
 #include "ObserverDotWriter.h"
 #include "ObserverRelationalTable.h"
 #include "Observer.h"
-#include "ObserverProperty.h"
+#include "QtilitiesProperty.h"
 
 struct Qtilities::Core::ObserverDotWriterPrivateData {
     ObserverDotWriterPrivateData() : observer(0) {}
 
     Observer*                       observer;
-    ObserverDotWriter::GraphType     graph_type;
+    // Key = attribue, Value = value
     QHash<QString,QString>          graph_attributes;
 };
 
-Qtilities::Core::ObserverDotWriter::ObserverDotWriter(Observer* observer, GraphType graph_type) : QObject(observer) {
+Qtilities::Core::ObserverDotWriter::ObserverDotWriter(Observer* observer) : QObject(observer) {
     d = new ObserverDotWriterPrivateData;
     d->observer = observer;
-    d->graph_type = graph_type;
 }
 
 Qtilities::Core::ObserverDotWriter::~ObserverDotWriter() {
@@ -67,18 +66,9 @@ Qtilities::Core::Observer* Qtilities::Core::ObserverDotWriter::observerContext()
     return d->observer;
 }
 
-Qtilities::Core::ObserverDotWriter::GraphType Qtilities::Core::ObserverDotWriter::type() const {
-    return d->graph_type;
-}
-
-void Qtilities::Core::ObserverDotWriter::setType(GraphType type) {
-    d->graph_type = type;
-}
-
 Qtilities::Core::ObserverDotWriter::ObserverDotWriter(const ObserverDotWriter& other) : QObject(other.parent()) {
     d = new ObserverDotWriterPrivateData;
     d->observer = other.observerContext();
-    d->graph_type = other.type();
 }
 
 void Qtilities::Core::ObserverDotWriter::operator=(const ObserverDotWriter& other) {
@@ -104,9 +94,17 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
         return QString();
 
     // Create the dot string:
-    QString dotString = QString("digraph \"%1\" {\n").arg(d->observer->observerName());
+    QString dotString;
+    dotString.append(QString("digraph \"%1\" {\n").arg(d->observer->observerName()));
 
     // Add graph attributes:
+    for (int i = 0; i < d->graph_attributes.count(); i++) {
+        dotString.append("    ");
+        dotString.append(d->graph_attributes.keys().at(i));
+        dotString.append(" = \"");
+        dotString.append(d->graph_attributes.values().at(i));
+        dotString.append("\";\n");
+    }
 
     // Then do the relationships between items:
     ObserverRelationalTable table(d->observer);
@@ -114,10 +112,10 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
         RelationalTableEntry* entry = table.entryAt(i);
 
         // Label this entry:
-        QString entry_label = QString("    %1 [label=\"%2\"").arg(entry->d_visitorID).arg(entry->d_name);
+        QString entry_label = QString("    %1 [label=\"%2\"").arg(entry->visitorID()).arg(entry->name());
         // Add properties to it (node attributes):
-        if (entry->d_obj) {
-            QList<QByteArray> property_names = entry->d_obj->dynamicPropertyNames();
+        if (entry->object()) {
+            QList<QByteArray> property_names = entry->object()->dynamicPropertyNames();
             for (int p = 0; p < property_names.count(); p++) {
                 QString property_name(property_names.at(p).data());
                 if (property_name.startsWith("qti.dot.node")) {
@@ -125,7 +123,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
                     QByteArray ba = property_name.remove(0,13).toAscii();
                     const char* char_name = ba.data();
                     // Get the shared property:
-                    SharedObserverProperty shared_property = Observer::getSharedProperty(entry->d_obj,property_names.at(p).data());
+                    SharedProperty shared_property = Observer::getSharedProperty(entry->object(),property_names.at(p).data());
                     if (shared_property.isValid()) {
                         entry_label.append(" " + QString(char_name) + "=" + shared_property.value().toString());
                     }
@@ -136,11 +134,45 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
         dotString.append(entry_label);
 
         // Now fill in the relationship data:
-        for (int c = 0; c < entry->d_children.count(); c++) {
-            QString relationship_string = QString("    %1").arg(entry->d_visitorID);
+        for (int c = 0; c < entry->children().count(); c++) {
+            QString relationship_string = QString("    %1").arg(entry->visitorID());
             relationship_string.append(" -> ");
-            relationship_string.append(QString("%1").arg(table.entryWithVisitorID(entry->d_children.at(c))->d_visitorID));
+            RelationalTableEntry* child_entry = table.entryWithVisitorID(entry->children().at(c));
+            relationship_string.append(QString("%1").arg(child_entry->visitorID()));
             dotString.append(relationship_string);
+
+            QMap<QString,QString> edge_attributes;
+            // Get edge attributes for this relationship:
+            QList<QByteArray> property_names = child_entry->object()->dynamicPropertyNames();
+            for (int p = 0; p < property_names.count(); p++) {
+                QString property_name(property_names.at(p).data());
+                if (property_name.startsWith("qti.dot.edge")) {
+                    // This is a dot note attribute property:
+                    QByteArray ba = property_name.remove(0,13).toAscii();
+                    const char* char_name = ba.data();
+                    // Get the shared property:
+                    MultiContextProperty multi_context_property = Observer::getMultiContextProperty(child_entry->object(),property_names.at(p).data());
+                    if (multi_context_property.isValid()) {
+                        // Now check if this multi_context_property has a value for our context:
+                        if (multi_context_property.hasContext(entry->sessionID())) {
+                            edge_attributes[QString(char_name)] = multi_context_property.value(entry->sessionID()).toString();
+                        }
+                    }
+                }
+            }
+
+            // Now add all found attributes for this edge:
+            for (int e = 0; e < edge_attributes.count(); e++) {
+                if (e == 0)
+                    dotString.append(" [");
+                dotString.append(edge_attributes.keys().at(e) + "=" + edge_attributes.values().at(e));
+                if (edge_attributes.count() > 1 && e != edge_attributes.count()-1)
+                    dotString.append(",");
+                if (e == edge_attributes.count()-1)
+                    dotString.append("]");
+            }
+
+            // Finally add the new end line character and the new line:
             dotString.append(";\n");
         }
     }
@@ -166,7 +198,7 @@ bool Qtilities::Core::ObserverDotWriter::addNodeAttribute(QObject* node, const Q
     QString string_name = "qti.dot.node." + attribute;
     QByteArray byte_array_name = string_name.toAscii();
     const char* char_name = byte_array_name.data();
-    SharedObserverProperty shared_property(value,char_name);
+    SharedProperty shared_property(char_name,value);
     return Observer::setSharedProperty(node,shared_property);
 }
 
@@ -182,6 +214,7 @@ bool Qtilities::Core::ObserverDotWriter::removeNodeAttribute(QObject* node, cons
         return false;
 
     //return !node->setProperty("qti.dot.node." + attribute,QVariant());
+    return true;
 }
 
 QHash<QString,QString> Qtilities::Core::ObserverDotWriter::nodeAttributes(QObject* node) const {
@@ -212,13 +245,13 @@ bool Qtilities::Core::ObserverDotWriter::addEdgeAttribute(Observer* parent, QObj
     const char* char_name = byte_array_name.data();
 
     if (Observer::propertyExists(child,char_name)) {
-        ObserverProperty existing_property = Observer::getObserverProperty(child,char_name);
+        MultiContextProperty existing_property = Observer::getMultiContextProperty(child,char_name);
         existing_property.setValue(value,parent->observerID());
-        return Observer::setObserverProperty(child,existing_property);
+        return Observer::setMultiContextProperty(child,existing_property);
     } else {
-        ObserverProperty new_property(char_name);
+        MultiContextProperty new_property(char_name);
         new_property.setValue(value,parent->observerID());
-        return Observer::setObserverProperty(child,new_property);
+        return Observer::setMultiContextProperty(child,new_property);
     }
 }
 

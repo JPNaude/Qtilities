@@ -8,6 +8,7 @@
 QTILITIES += core
 include(../Qtilities.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
+
 CONFIG += qt \
     dll \
     ordered

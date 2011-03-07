@@ -730,7 +730,7 @@ void Qtilities::Logging::Logger::toggleConsoleEngine(bool toggle) {
 
 quint32 MARKER_LOGGER_CONFIG_TAG = 0xFAC0000F;
 
-bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
+bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name, Qtilities::ExportVersion version) const {
     if (file_name.isEmpty())
         file_name = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION + "/" + qti_def_PATH_LOGCONFIG_FILE;
 
@@ -747,7 +747,9 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name) const {
         return false;
     }
     QDataStream stream(&file);
-    stream << (quint32) qti_def_FORMAT_CONFIG_LOGGER;
+    stream.setVersion(QDataStream::Qt_4_7);
+    stream << MARKER_LOGGER_CONFIG_TAG;
+    stream << (quint32) version;
 
     // Stream exportable engines:
     QList<ILoggerExportable*> export_list;
@@ -812,13 +814,10 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     file.open(QIODevice::ReadOnly);
     QDataStream stream(&file);
 
+    // ---------------------------------------------------
+    // Inspect file format:
+    // ---------------------------------------------------
     quint32 ui32;
-    stream >> ui32;
-    LOG_INFO(QString(tr("Inspecting logger configuration file format: Found binary export file format version: %1")).arg(ui32));
-    if (ui32 != (quint32) qti_def_FORMAT_CONFIG_LOGGER) {
-        LOG_ERROR(QString(tr("Logger configuration file format does not match the expected binary export file format (expected version: %1). Import will fail.")).arg(qti_def_FORMAT_CONFIG_LOGGER));
-        return false;
-    }
     stream >> ui32;
     if (ui32 != MARKER_LOGGER_CONFIG_TAG) {
         file.close();
@@ -826,6 +825,32 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
         return false;
     }
 
+    stream >> ui32;
+    Qtilities::ExportVersion read_version = (Qtilities::ExportVersion) ui32;
+    Q_UNUSED(read_version);
+
+    stream >> ui32;
+    if (ui32 != MARKER_LOGGER_CONFIG_TAG) {
+        file.close();
+        LOG_INFO(tr("Logging configuration import failed from ") + file_name + tr(". The file contains invalid data or does not exist."));
+        return false;
+    }
+
+    // ---------------------------------------------------
+    // Check if input format is supported:
+    // ---------------------------------------------------
+//    bool is_supported_format = false;
+//    if (read_version == Qtilities::Qtilities_0_3)
+//        is_supported_format = true;
+
+//    if (!is_supported_format) {
+//        LOG_ERROR(QString(tr("Unsupported logger configuration file found with export version: %1. The project file will not be parsed.")).arg(read_version));
+//        return IExportable::Failed;
+//    }
+
+    // ---------------------------------------------------
+    // Do the actual import:
+    // ---------------------------------------------------
     quint32 global_log_level;
     stream >> global_log_level;
 

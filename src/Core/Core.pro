@@ -44,7 +44,6 @@ HEADERS += source/QtilitiesCore_global.h \
     source/PointerList.h \
     source/ObserverData.h \
     source/AbstractSubjectFilter.h \
-    source/ObserverProperty.h \
     source/ActivityPolicyFilter.h \
     source/ObjectManager.h \
     source/QtilitiesPropertyChangeEvent.h \
@@ -67,7 +66,13 @@ HEADERS += source/QtilitiesCore_global.h \
     ../Common/Qtilities.h \
     source/FileUtils.h \
     source/QtilitiesFileInfo.h \
-    source/ObserverDotWriter.h
+    source/ObserverDotWriter.h \
+    source/VersionInformation.h \
+    source/InstanceFactoryInfo.h \
+    source/QtilitiesProperty.h \
+    source/IIterator.h \
+    source/SubjectIterator.h \
+    source/TreeIterator.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -77,14 +82,16 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesPropertyChangeEvent.cpp \
     source/SubjectTypeFilter.cpp \
     source/ObserverData.cpp \
-    source/ObserverProperty.cpp \
     source/ObserverRelationalTable.cpp \
     source/ContextManager.cpp \
     source/ObserverHints.cpp \
     source/SubjectFilterTemplate.cpp \
     source/QtilitiesCategory.cpp \
-    source/IFactoryProvider.cpp \
     source/PointerList.cpp \
     source/FileUtils.cpp \
     source/QtilitiesFileInfo.cpp \
-    source/ObserverDotWriter.cpp
+    source/ObserverDotWriter.cpp \
+    source/VersionInformation.cpp \
+    source/InstanceFactoryInfo.cpp \
+    source/QtilitiesProperty.cpp \
+    source/IExportable.cpp

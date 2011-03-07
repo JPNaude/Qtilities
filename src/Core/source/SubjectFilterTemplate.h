@@ -80,8 +80,6 @@ namespace Qtilities {
             bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
             QString filterName() const { return "Subject Filter Template"; }
-            void setIsExportable(bool is_exportable);
-            bool isExportable() const;
             QStringList monitoredProperties() const;
             QStringList reservedProperties() const;
         protected:
@@ -98,10 +96,6 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
-            IExportable::Result exportXML(QDomDocument* doc, QDomElement* object_node, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importXML(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list, QList<QVariant> params = QList<QVariant>());
 
         private:
             SubjectFilterTemplatePrivateData* d;
@@ -109,5 +103,7 @@ namespace Qtilities {
     }
 }
 
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SubjectFilterTemplate& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SubjectFilterTemplate& stream_obj);
 
 #endif // SUBJECTFILTERTEMPLATE_H

@@ -37,6 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "ObjectManager.h"
 #include "ContextManager.h"
+#include "VersionInformation.h"
 
 #include <Logger>
 
@@ -55,10 +56,10 @@ namespace Qtilities {
          - Access to an object manager through objectManager().
          - Access to a context manager through contextManager().
          - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
-         - Information about %Qtilities through qtilitiesVersion().
+         - Information about %Qtilities through qtilitiesVersionString().
 
           \note In GUI applications, the QtilitiesCoreApplication instance will not be created. It is still possible to access
-          the objectManager(), contextManager() and qtilitiesVersion() functions. For the rest of the functionality, like the
+          the objectManager(), contextManager() and qtilitiesVersionString() functions. For the rest of the functionality, like the
           settings update request for example, you should use Qtilities::CoreGui::QtilitiesApplication.
 
           \sa Qtilities::CoreGui::QtilitiesApplication
@@ -91,7 +92,22 @@ namespace Qtilities {
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
               */
-            static QString qtilitiesVersion();
+            static QString qtilitiesVersionString();
+            //! Returns the version number of %Qtilities.
+            static VersionNumber qtilitiesVersion();
+
+            //! Sets the application export format for your application.
+            /*!
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), applicationExportVersion()
+              */
+            static void setApplicationExportVersion(quint32 application_export_version);
+            //! Gets the application export format for your application.
+            /*!
+              Default is 0.
+
+              \sa Qtilities::Core::IExportable::applicationExportVersion(), setApplicationExportVersion()
+              */
+            static quint32 applicationExportVersion();
 
             //! QCoreApplication::notify() overload. This allows exception handling in non-GUI applications.
             bool notify(QObject * object, QEvent * event);

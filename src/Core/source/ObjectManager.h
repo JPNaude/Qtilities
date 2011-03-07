@@ -69,6 +69,17 @@ namespace Qtilities {
                 d_meta_type = ref.d_meta_type;
                 d_name = ref.d_name;
             }
+            bool operator==(const SubjectTypeInfo& ref) {
+                if (d_meta_type != ref.d_meta_type)
+                    return false;
+                if (d_name != ref.d_name)
+                    return false;
+
+                return true;
+            }
+            bool operator!=(const SubjectTypeInfo& ref) {
+                return !(*this==ref);
+            }
 
             QString d_meta_type;
             QString d_name;
@@ -108,8 +119,8 @@ namespace Qtilities {
             // --------------------------------
             // IObjectManager Implemenation
             // --------------------------------
-            Observer* observerReference(int id) const;
-            Observer* objectPool();
+            Observer* observerReference(int id) const;             
+            const Observer* objectPool();
             int registerObserver(Observer* observer);
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false);
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false);
@@ -124,22 +135,13 @@ namespace Qtilities {
             QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const;
             void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type);
             void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type);
-            bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const;
-            bool importObjectProperties(QObject* new_instance, QDataStream& stream) const;
-            bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& table) const;
-            IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) const;
-            IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>());
+            bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const;
+            bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const;      
 
         private:
-            //! Function which returns all the observers in a QList<QObject*> input list.
-            QList<Observer*> observerList(QList<QPointer<QObject> >& object_list) const;
-
             ObjectManagerPrivateData* d;
         };
     }
 }
-
-QDataStream &operator<<(QDataStream &ds, Qtilities::Core::SubjectTypeInfo &s);
-QDataStream &operator>>(QDataStream &ds, Qtilities::Core::SubjectTypeInfo &s);
 
 #endif // OBJECTMANAGER_H

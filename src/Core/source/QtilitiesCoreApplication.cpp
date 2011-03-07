@@ -66,15 +66,27 @@ Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreAppl
     return QtilitiesCoreApplicationPrivate::instance()->contextManager();
 }
 
-QString Qtilities::Core::QtilitiesCoreApplication::qtilitiesVersion() {
+QString Qtilities::Core::QtilitiesCoreApplication::qtilitiesVersionString() {
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString();
+}
+
+Qtilities::Core::VersionNumber Qtilities::Core::QtilitiesCoreApplication::qtilitiesVersion() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersion();
+}
+
+void Qtilities::Core::QtilitiesCoreApplication::setApplicationExportVersion(quint32 application_export_version) {
+    QtilitiesCoreApplicationPrivate::instance()->setApplicationExportVersion(application_export_version);
+}
+
+quint32 Qtilities::Core::QtilitiesCoreApplication::applicationExportVersion() {
+    return QtilitiesCoreApplicationPrivate::instance()->applicationExportVersion();
 }
 
 bool Qtilities::Core::QtilitiesCoreApplication::notify(QObject * object, QEvent * event)
 {
     try
     {
-        return QtilitiesCoreApplication::notify(object, event);
+        return QCoreApplication::notify(object, event);
     }
     catch (...)
     {

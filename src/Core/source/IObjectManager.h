@@ -35,9 +35,8 @@
 #define IOBJECTMANAGER_H
 
 #include "QtilitiesCore_global.h"
-#include "IExportable.h"
 #include "IFactoryProvider.h"
-#include "AbstractSubjectFilter.h"
+#include "QtilitiesCategory.h"
 #include "Factory.h"
 
 #include <QList>
@@ -65,8 +64,8 @@ namespace Qtilities {
 
                 //! Possible property types.
                 enum PropertyTypes {
-                    ObserverProperties = 1,     /*!< Observer properties. \sa ObserverProperty */
-                    SharedProperties = 2,       /*!< Shared observer properties. \sa SharedObserverProperty */
+                    ObserverProperties = 1,     /*!< Observer properties. \sa MultiContextProperty */
+                    SharedProperties = 2,       /*!< Shared observer properties. \sa SharedProperty */
                     AllPropertyTypes = ObserverProperties | SharedProperties
                 };
                 Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes);
@@ -93,7 +92,7 @@ namespace Qtilities {
                   \note The global object pool is in a processing cycle by default. Thus if you want to display it, you
                   need to call endProcessingCycle() on it and refreshViewsLayout().
                   */
-                virtual Observer* objectPool() = 0;
+                virtual const Observer* objectPool() = 0;
                 //! A function which moves a list of objects from one observer to another observer.
                 /*!
                   This function will attempt to move subjects from one observer context to another. If any of the subjects
@@ -217,15 +216,9 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
                   To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
                   This is the case for all properties used in %Qtilities.
                   */
-                virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
+                virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
                 //! Streams exportable dynamic properties about the new_instance QObject from the given QDataStream.
-                virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream) const = 0;
-                //! Construct relationships between a list of objects with the relational data being passed to the function as a RelationalObserverTable.
-                virtual bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable& relational_table) const = 0;
-                //! Exports an observer along with all the information required to reconstruct and verify the observer hierarchy (relationships etc.)
-                virtual IExportable::Result exportObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) const = 0;
-                //! Imports an observer which was exported using the exportObserverBinary() function.
-                virtual IExportable::Result importObserverBinary(QDataStream& stream, Observer* obs, bool verbose_output = false, QList<QVariant> params = QList<QVariant>()) = 0;
+                virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const = 0;
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.

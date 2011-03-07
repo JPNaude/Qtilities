@@ -79,8 +79,8 @@ namespace Qtilities {
             ActionContainer *actionContainer(const QString &id) const;
             QHash<QString, Command* > commandMap();
             void restoreDefaultShortcuts();
-            bool exportShortcutMapping(const QString& file_name);
-            bool importShortcutMapping(const QString& file_name);
+            bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            bool loadShortcutMapping(const QString& file_name);
             QWidget* commandEditor();
 
         public slots:

@@ -102,8 +102,8 @@ namespace Qtilities {
 
               \note Category: The category is not part of the export. It is part of this item's item node.
               */
-            IExportable::Result saveFormattingToXML(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node);
+            IExportable::Result saveFormattingToXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
+            IExportable::Result loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);
 
         public:
             // -------------------------------
