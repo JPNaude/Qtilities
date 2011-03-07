@@ -45,12 +45,12 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Qtilities Tester");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersion());
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     QMainWindow* main_window = new QMainWindow();
     QtilitiesApplication::setMainWindow(main_window);
     LOG_INITIALIZE();
-    Log->setGlobalLogLevel(Logger::Debug);
+    Log->setGlobalLogLevel(Logger::Trace);
     Log->setIsQtMessageHandler(true);
     Log->toggleQtMsgEngine(false);
     QWidget* log_widget = LoggerGui::createLogWidget("Test Log",true);
@@ -59,13 +59,29 @@ int main(int argc, char *argv[])
     main_window->resize(900,400);
     main_window->show();
 
+    // SubjectIterator Tests:
+    TestSubjectIterator testSubjectIterator;
+    QTest::qExec(&testSubjectIterator);
+
+    // TreeIterator Tests:
+    TestTreeIterator testTreeIterator;
+    QTest::qExec(&testTreeIterator);
+
+    // Exporting Tests:
+    //TestExporting testExporting;
+    //QTest::qExec(&testExporting);
+
+    // VersionNumber Tests:
+    /*TestVersionNumber testVersionNumber;
+    QTest::qExec(&testVersionNumber);
+
     // Observer Tests:
     TestObserver testObserver;
     QTest::qExec(&testObserver);
 
     // ObserverRelationalTable Tests:
     TestObserverRelationalTable testObserverRelationalTable;
-    QTest::qExec(&testObserverRelationalTable);
+    QTest::qExec(&testObserverRelationalTable);*/
 
     return a.exec();
 }
