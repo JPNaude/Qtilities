@@ -92,7 +92,7 @@ namespace Qtilities {
                   \note The global object pool is in a processing cycle by default. Thus if you want to display it, you
                   need to call endProcessingCycle() on it and refreshViewsLayout().
                   */
-                virtual const Observer* objectPool() = 0;
+                virtual Observer* objectPool() = 0;
                 //! A function which moves a list of objects from one observer to another observer.
                 /*!
                   This function will attempt to move subjects from one observer context to another. If any of the subjects
