@@ -108,7 +108,7 @@ namespace Qtilities {
             //! Set the suffix used for a specific project type.
             /*!
               \param project_type The project type set the suffix for.
-              \param suffix The suffix to use, for example ".prj"
+              \param suffix The suffix to use, for example "prj"
 
               \sa projectTypeSuffix()
               */
@@ -149,12 +149,9 @@ namespace Qtilities {
             // ---------------------------------------
             //! Creates a new project.
             /*!
-              If no project is open when this function is called a new project will be created which does not have
-              a project file associated with it. When the new project is saved, it will automatically prompt for
-              a file to which the project must be saved.
+              If no project is open when this function is called a new project will be created which does not have a project file associated with it. When the new project is saved, it will automatically prompt for a file to which the project must be saved.
 
-              Alternatively if a project is already open when this function is called, the function will call closeProject()
-              on the current project and then create a new project as if no project was opened.
+              Alternatively if a project is already open when this function is called, the function will call closeProject() on the current project and then create a new project as if no project was opened.
               */
             bool newProject();
             //! Open a project.

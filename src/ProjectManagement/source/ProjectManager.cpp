@@ -143,9 +143,9 @@ void Qtilities::ProjectManagement::ProjectManager::setDefaultProjectType(IExport
 QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter() const {
     QStringList filter_list;
     if (d->project_types & IExportable::Binary)
-        filter_list.append(QString(tr("Binary Project File (*%1)")).arg(d->suffices[IExportable::Binary]));
+        filter_list.append(QString(tr("Binary Project File (*.%1)")).arg(d->suffices[IExportable::Binary]));
     if (d->project_types & IExportable::XML)
-        filter_list.append(QString(tr("XML Project File (*%1)")).arg(d->suffices[IExportable::XML]));
+        filter_list.append(QString(tr("XML Project File (*.%1)")).arg(d->suffices[IExportable::XML]));
 
     return filter_list.join(";;");
 }
