@@ -46,7 +46,7 @@
 namespace Qtilities {
     namespace Core {
             /*!
-            \class SubjectIterator
+            \class SubjectIterator<T>
             \brief An non-const iterator which iterates throught the subjects of an Observer.
 
             The SubjectIterator allows you to easily iterate over the subjects in an observer in the order shown below:
@@ -137,7 +137,7 @@ namespace Qtilities {
     // >> 6
     \endcode
 
-            \sa ConstSubjectIterator, TreeIterator
+            \sa ConstSubjectIterator<T>, TreeIterator<T>
 
             <i>This class was added in %Qtilities v0.3.</i>
         */
@@ -291,10 +291,10 @@ namespace Qtilities {
         // ConstSubjectIterator
         // -----------------------------------------------
         /*!
-          \class ConstSubjectIterator
+          \class ConstSubjectIterator<T>
           \brief An non-const iterator which iterates throught the subjects of an Observer.
 
-           \sa SubjectIterator, TreeIterator
+           \sa SubjectIterator<T>, TreeIterator<T>
 
            <i>This class was added in %Qtilities v0.3.</i>
          */

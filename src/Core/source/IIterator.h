@@ -38,7 +38,7 @@ namespace Qtilities {
     namespace Core {
         namespace Interfaces {
             /*!
-            \class IIterator
+            \class IIterator<T>
             \brief Abstract interface which defines standard operations for all non-const iterators in %Qtilities.
 
             <i>This class was added in %Qtilities v0.3.</i>
@@ -100,7 +100,7 @@ namespace Qtilities {
             };
 
             /*!
-            \class IConstIterator
+            \class IConstIterator<T>
             \brief Abstract interface which defines standard operations for all const iterators in %Qtilities.
 
             <i>This class was added in %Qtilities v0.3.</i>

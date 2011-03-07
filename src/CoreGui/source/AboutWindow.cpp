@@ -54,7 +54,7 @@ Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
     QFileInfo fi(QApplication::applicationFilePath());
     QString build_date = fi.created().toString();
     ui->labelBuildDate->setText(build_date);
-    ui->labelCopyright->setText(tr("Copyright ©") + " 2010, Jaco Naude");
+    ui->labelCopyright->setText(tr("Copyright ©") + " 2010-2011, Jaco Naude");
     ui->labelWebsite->setText("");
     ui->labelExtendedDescription->setVisible(false);
     ui->labelApplicationName->setText(QApplication::applicationName());

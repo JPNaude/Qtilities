@@ -750,11 +750,11 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
     MultiContextProperty observer_list = observer->getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
     if (observer_list.isValid()) {
         if (!observer_list.hasContext(observer->observerID())) {
-            LOG_WARNING(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is not currently observing this object.")).arg(observer->observerName()).arg(obj->objectName()));
+            LOG_DEBUG(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is not currently observing this object.")).arg(observer->observerName()).arg(obj->objectName()));
             return;
         }
     } else {
-        LOG_WARNING(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is not currently observing this object.")).arg(observer->observerName()).arg(obj->objectName()));
+        LOG_DEBUG(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is not currently observing this object.")).arg(observer->observerName()).arg(obj->objectName()));
         return;
     }
 
@@ -762,7 +762,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
     SharedProperty current_manager_id = observer->getSharedProperty(obj,qti_prop_NAME_MANAGER_ID);
     if (current_manager_id.isValid()) {
         if (current_manager_id.value().toInt() == observer->observerID()) {
-            LOG_WARNING(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is currently the name manager for this object.")).arg(observer->observerName()).arg(obj->objectName()));
+            LOG_DEBUG(QString(tr("Cannot make observer (%1) the name manager of object (%2). This observer is currently the name manager for this object.")).arg(observer->observerName()).arg(obj->objectName()));
             return;
         } else {
             Observer* current_manager = OBJECT_MANAGER->observerReference(current_manager_id.value().toInt());
@@ -865,7 +865,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) 
             // An alternative was not found
             obj->setProperty(qti_prop_ALIAS_MAP,QVariant());
             obj->setProperty(qti_prop_NAME_MANAGER_ID,QVariant());
-            LOG_WARNING(QString(tr("The name manager (%1) of object (%2) is not observing this object any more. An alternative name manager could not be found. This object's name won't be managed until it is attached to a new observer with a naming policy subject filter.")).arg(observer->observerName()).arg(obj->objectName()));
+            LOG_TRACE(QString(tr("The name manager (%1) of object (%2) is not observing this object any more. An alternative name manager could not be found. This object's name won't be managed until it is attached to a new observer with a naming policy subject filter.")).arg(observer->observerName()).arg(obj->objectName()));
         }
     }
 }

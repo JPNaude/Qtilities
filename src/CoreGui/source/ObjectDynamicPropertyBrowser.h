@@ -62,8 +62,11 @@ namespace Qtilities {
           \class Qtilities::CoreGui::ObjectDynamicPropertyBrowser
           \brief The ObjectDynamicPropertyBrowser class provides an interface to the Qt Property Editor solution.
 
-          To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function.
-          The properties can be displayed in different ways, defined by the BrowserType enumeration.
+          To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function. The properties can be displayed in different ways, defined by the BrowserType enumeration.
+
+          The widget embedded in the debug plugin is shown below for an example object.
+
+          \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
 
           <i>This class was added in %Qtilities v0.3.</i>
           */

@@ -211,7 +211,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
         return;
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
-        file_name.append(PROJECT_MANAGER->projectTypeSuffix(PROJECT_MANAGER->defaultProjectType()));
+        file_name.append("." + PROJECT_MANAGER->projectTypeSuffix(PROJECT_MANAGER->defaultProjectType()));
 
     PROJECT_MANAGER->openProject(file_name);
 }

@@ -82,7 +82,7 @@ quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name) {
     LOG_DEBUG(tr("Starting to save current project to file: ") + file_name);
 
-    if (file_name.endsWith(qti_def_SUFFIX_PROJECT_XML)) {
+    if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::XML))) {
         QTemporaryFile file;
         file.open();
 
@@ -130,7 +130,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         QApplication::restoreOverrideCursor();
         return true;
-    } else if (file_name.endsWith(qti_def_SUFFIX_PROJECT_BINARY)) {
+    } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         QTemporaryFile file;
@@ -171,6 +171,8 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         }
         QApplication::restoreOverrideCursor();
         return true;
+    } else {
+        LOG_ERROR_P(tr("Failed to save project. Unsupported project file suffix found on file: ") + file_name);
     }
 
     return false;
@@ -190,7 +192,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     d->project_name = QFileInfo(file_name).fileName();
     file.open(QIODevice::ReadOnly);
 
-    if (file_name.endsWith(qti_def_SUFFIX_PROJECT_XML)) {
+    if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::XML))) {
         // Load the file into doc:
         QDomDocument doc("QtilitiesXMLProject");
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -234,7 +236,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
             return false;
         }
-    } else if (file_name.endsWith(qti_def_SUFFIX_PROJECT_BINARY)) {
+    } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         QDataStream stream(&file);
@@ -270,7 +272,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             return false;
         }
     } else {
-        LOG_ERROR_P(tr("Failed to load project. Unsupported project file extension found on file: ") + file_name);
+        LOG_ERROR_P(tr("Failed to load project. Unsupported project file suffix found on file: ") + file_name);
     }
     return false;
 }
