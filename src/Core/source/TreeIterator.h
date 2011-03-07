@@ -80,9 +80,9 @@ while (itr.hasNext()) {
 // >> 7
 
 // We can also iterate backwards:
-testList << itr.current()->objectName();
+qDebug() << itr.current()->objectName();
 while (itr.hasPrevious()) {
-    testList << itr.previous()->objectName();
+    qDebug() << itr.previous()->objectName();
 }
 
 // In this case the result would be:
@@ -95,7 +95,7 @@ while (itr.hasPrevious()) {
 // >> 1
 \endcode
 
-        \sa SubjectIterator, ConstSubjectIterator
+        \sa SubjectIterator<T>, ConstSubjectIterator<T>
 
         <i>This class was added in %Qtilities v0.3.</i>
         */

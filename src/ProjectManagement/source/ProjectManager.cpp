@@ -243,7 +243,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
                 project_path = PROJECT_MANAGER->customProjectsPath();
             else
                 project_path = QCoreApplication::applicationDirPath() + "/Projects";
-            QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
+            file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
             if (file_name.isEmpty()) {
                 QApplication::restoreOverrideCursor();
                 return false;

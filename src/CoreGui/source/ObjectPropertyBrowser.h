@@ -61,13 +61,15 @@ namespace Qtilities {
           \class Qtilities::CoreGui::ObjectPropertyBrowser
           \brief The ObjectPropertyBrowser class provides an interface to the Qt Property Editor solution.
 
-          To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function.
-          It is possible to filter the inherited classes which are shown by the property browser by calling the setFilterList() function. The current filter
-          can be obtained using the filterList() function and it can be cleared using the clearFilter() function. It is also possible to create an inversed filter
-          using the setFilterListInversed() function. This is usefull when you want to display all inherited classes expect the ones in the filter list.
+          To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function. It is possible to filter the inherited classes which are shown by the property browser by calling the setFilterList() function. The current filter
+          can be obtained using the filterList() function and it can be cleared using the clearFilter() function. It is also possible to create an inversed filter using the setFilterListInversed() function. This is usefull when you want to display all inherited classes expect the ones in the filter list.
 
           The properties can be displayed in different ways, defined by the BrowserType enumeration.
-          */
+
+          The widget embedded in the debug plugin is shown below for an example object.
+
+          \image html debugging_static_properties.jpg "Static Properties Browser"
+        */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectPropertyBrowser : public QWidget
         {
             Q_OBJECT
