@@ -91,7 +91,7 @@ namespace Qtilities {
     }
 }
 
-QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::VersionDetails& stream_obj);
-QDataStream & operator>> (QDataStream& stream, Qtilities::Core::VersionDetails& stream_obj);
+QDataStream & operator<< (QDataStream& stream, const Qtilities::Examples::ExportingExample::VersionDetails& stream_obj);
+QDataStream & operator>> (QDataStream& stream, Qtilities::Examples::ExportingExample::VersionDetails& stream_obj);
 
 #endif // VERSION_DETAILS_H
