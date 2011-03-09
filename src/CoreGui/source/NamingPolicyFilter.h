@@ -335,8 +335,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         \class Qtilities::CoreGui::NamingPolicyDelegate
         \brief The NamingPolicyDelegate class provides a ready-to-use delegate to edit the names of subjects attached to an observer.
 
-        The naming policy delegate is used to allow editing of subject names in a text editor which is sensitive
-        to a context's naming policy filter. Below is an example of the delegate in action in an observer widget.
+        The naming policy delegate is used to allow editing of subject names in a text editor which is sensitive to a context's naming policy filter. Below is an example of the delegate in action in an observer widget.
 
         \image html observer_widget_naming_delegate.jpg "Observer Widget Handling Context Naming Policies"
         \image latex observer_widget_naming_delegate.eps "Observer Widget Handling Context Naming Policies" width=4in
