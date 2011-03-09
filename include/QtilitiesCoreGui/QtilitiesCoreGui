@@ -12,7 +12,7 @@
 #include "ClipboardManager.h"
 #include "Command.h"
 #include "CommandEditor.h"
-#include "CommandTableModel.h"
+#include "CommandTreeModel.h"
 #include "ConfigurationWidget.h"
 #include "DynamicSideWidgetViewer.h"
 #include "DynamicSideWidgetWrapper.h"
