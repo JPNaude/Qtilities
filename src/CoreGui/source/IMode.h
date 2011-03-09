@@ -35,6 +35,7 @@
 #define IMODE_H
 
 #include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCoreGuiConstants.h"
 
 #include <IObjectBase>
 #include <IContext>
@@ -90,17 +91,13 @@ namespace Qtilities {
                 virtual QString contextHelpId() const { return QString(); }
                 //! Returns a unique ID for this mode.
                 /*!
-                    A mode ID is an unique number which is associated with a mode in an application. This allows modes with the same name to
-                    be added if desired. From the developer's perspective you don't have to reimplement this function in your interface
-                    implementation. In that case the Qtilities::CoreGui::ModeManager class will assign an unique mode ID when the mode
-                    is added to the mode manager and a debug message will be printed with information about the newly assigned mode ID.
+                    A mode ID is an unique number which is associated with a mode in an application. This allows modes with the same name to be added if desired. From the developer's perspective you don't have to reimplement this function in your interface implementation. In that case the Qtilities::CoreGui::ModeManager class will assign an unique mode ID when the mode is added to the mode manager and a debug message will be printed with information about the newly assigned mode ID.
 
-                    It is however desired to specify your own mode ID in some cases, more specifically if you use the Qtilities::CoreGui::DynamicSideWidgetViewer
-                    widget in your application and you want dynamic side viewer widgets to appear only in specific application modes. To achieve this
+                    It is however desired to specify your own mode ID in some cases, more specifically if you use the Qtilities::CoreGui::DynamicSideWidgetViewer widget in your application and you want dynamic side viewer widgets to appear only in specific application modes. To achieve this
                     your modeID() must appear in the list of Qtilities::CoreGui::Interfaces::ISideViewerWidget::destinationModes() for a specific side viewer widget
                     implementation.
 
-                    \note Mode IDs available for user modes range from 100 - 999. The mode manager starts to assign unique mode IDs from 1000 onwards.
+                    \note Mode IDs available for user modes range from 100 - 999. The mode manager starts to auto-assign unique mode IDs from 1000 onwards for modes which does not have their own IDs.
                   */
                 virtual int modeID() const { return d_mode_id; }
                 //! Sets the mode ID for this mode.
@@ -123,6 +120,16 @@ namespace Qtilities {
                   \sa aboutToBeActivated()
                   */
                 virtual void justActivated() {}
+
+                //! A list of mode managers in which this mode must appear.
+                /*!
+                  The default implementation returns qti_def_DEFAULT_MODE_MANAGER which is used by the mode manager constructed by QtilitiesMainWindow.
+                  */
+                virtual QList<int> targetManagerIDs() const {
+                    QList<int> ids;
+                    ids << Qtilities::CoreGui::Constants::qti_def_DEFAULT_MODE_MANAGER;
+                    return ids;
+                }
 
             private:
                 int d_mode_id;

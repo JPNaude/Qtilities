@@ -60,22 +60,17 @@ namespace Qtilities {
         \class ModeManager
         \brief The ModeManager allows management of application modes.
 
-        A mode is any object implementing the Qtilities::CoreGui::Interfaces::IMode interface. Through this interface different application modes
-        can be exposed and this class is responsible to manage all of these modes. The ModeManager class is intended to be used with Qtilities::CoreGui::QtilitiesMainWindow
-        which responds to the changeCentralWidget() signal and displays the mode in the main window. The ModeManager class is a widget which will display a
-        extended QListWidget with a list containing all the registered modes. The list widget can either display the modes in a left to right, or a top to bottom
+        A mode is any object implementing the Qtilities::CoreGui::Interfaces::IMode interface. Through this interface different application modes can be exposed and this class is responsible to manage all of these modes. The ModeManager class is intended to be used with Qtilities::CoreGui::QtilitiesMainWindow
+        which responds to the changeCentralWidget() signal and displays the mode in the main window. The ModeManager class is a widget which will display a extended QListWidget with a list containing all the registered modes. The list widget can either display the modes in a left to right, or a top to bottom
         layout depending on the \p orientation parameter of the ModeManager constructor.
 
         Modes can be easily added using the addMode() or addModes() functions. To get a list of all current modes use the modes() function.
 
-        At any given time a single mode must be active where the active mode will be selected in the mode list widget. To get the ID of the active mode
-        use the activeMode() function. It is possible to change the active mode at any time through the setActiveMode() function.
+        At any given time a single mode must be active where the active mode will be selected in the mode list widget. To get the ID of the active mode use the activeMode() function. It is possible to change the active mode at any time through the setActiveMode() function.
 
-        It is possible to specify the order in which modes must appear to the user, or to change it at any time through the setPreferredModeOrder() functions.
-        In some cases it might be needed to disable one or more modes and this can be achieved through the setDisabledModes() function.
+        It is possible to specify the order in which modes must appear to the user, or to change it at any time through the setPreferredModeOrder() functions. In some cases it might be needed to disable one or more modes and this can be achieved through the setDisabledModes() function.
 
-        By default the list widget is styled to look like a set of application modes, rather than a normal list view. The default stylesheet that is applied
-        to the list is constructed as follows:
+        By default the list widget is styled to look like a set of application modes, rather than a normal list view. The default stylesheet that is applied to the list is constructed as follows:
 
 \code
 QString stylesheet = "";
@@ -100,6 +95,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 \endcode
 
         It is possible to change and customize the style of the list through the modeListWidget() access function to the list widget.
+
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ModeManager : public QObject {
             Q_OBJECT
@@ -110,7 +106,7 @@ modeListWidget()->setStyleSheet(stylesheet);
               \param orientation The orientation of the mode list widget. When \p Qt::Horizontal the list will be a top to bottom list and when
               \p Qt::Vertical the list will be a left to right list.
               */
-            ModeManager(Qt::Orientation orientation, QObject *parent = 0);
+            ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent = 0);
             ~ModeManager();
 
             // ----------------------------------
@@ -135,6 +131,8 @@ modeListWidget()->setStyleSheet(stylesheet);
               \param mode The mode to be added.
               \param initialize_mode When true, the mode will be initialized and its context will be added to the context manager if it is not empty.
               \param refresh_list When true, the mode list widget will be refreshed.
+
+              \note The mode will only be added if it specifies this manager as one of its manager IDs.
               */
             void addMode(IMode* mode, bool initialize_mode = true, bool refresh_list = true);
             //! Adds a list of modes to the main window.
@@ -143,6 +141,8 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \param modes A list of modes to be added.
               \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
+
+              \note Only modes which specify this manager as one of their manager IDs will be added.
               */
             void addModes(QList<IMode*> modes, bool initialize_modes = true);
             //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
@@ -151,6 +151,8 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \param modes A list of modes to be added.
               \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
+
+              \note Only modes which specify this manager as one of their manager IDs will be added.
               */
             void addModes(QList<QObject*> modes, bool initialize_modes = true);
             //! A list of the modes in this mode widget.
@@ -160,6 +162,22 @@ modeListWidget()->setStyleSheet(stylesheet);
             QList<IMode*> modes() const;
             //! Function which returns a string representation of the shortcut assigned to a specific mode.
             QString modeShortcut(int mode_id) const;
+            //! Returns an unique ID for this mode manager.
+            /*!
+              The Qtilities::CoreGui::Interfaces::IMode interface allows you to specify the mode manager in which the mode must be shown. This allows you to have multiple modes in your application.
+
+              The mode ID for the manager can be set using setManagerID() or in the constructor. By default the manager ID will be -1 and no modes will be assigned to it.
+
+              \note Manager IDs available for user managers range from 100 - 999. The default manager created by Qtilities::CoreGui::QtilitiesMainWindow uses the mode defined by qti_def_DEFAULT_MODE_MANAGER.
+
+              \sa setManagerID().
+              */
+            int managerID() const;
+            //! Sets the unique ID of this mode manager.
+            /*!
+              \sa managerID()
+              */
+            void setManagerID(int manager_id);
 
             // ----------------------------------
             // Functions related to mode activity

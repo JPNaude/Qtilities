@@ -56,15 +56,17 @@ struct Qtilities::CoreGui::ModeManagerPrivateData {
     Qt::Orientation         orientation;
     QList<int>              disabled_modes;
     int                     mode_id_counter;
+    int                     manager_id;
     //! ModeID & Shortcut pair
     QMap<int, QShortcut*>   mode_shortcuts;
 };
 
-Qtilities::CoreGui::ModeManager::ModeManager(Qt::Orientation orientation, QObject *parent) :
+Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent) :
     QObject(parent)
 {
     d = new ModeManagerPrivateData;
     d->orientation = orientation;
+    d->manager_id = manager_id;
 
     // Setup the mode list widget in the way we need it:
     d->mode_list_widget = new ModeListWidget(orientation);
@@ -112,7 +114,11 @@ QListWidget* Qtilities::CoreGui::ModeManager::modeListWidget() {
 
 void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode, bool refresh_list) {
     if (mode) {   
-        // First check if it has a valid widget, otherwise we don't add the mode.
+        // Check if this manager's ID is part of the target manager list of the mode:
+        if (!mode->targetManagerIDs().contains(d->manager_id))
+            return;
+
+        // Check if it has a valid widget, otherwise we don't add the mode.
         if (!mode->modeWidget())
             return;
 
@@ -143,7 +149,7 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
             QString shortcut_id = QString("ApplicationMode.%1").arg(mode->modeID());
             Command* command = ACTION_MANAGER->command(shortcut_id);
             if (!command) {
-                QShortcut* shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(mode->modeID())),QtilitiesApplication::mainWindow());
+                QShortcut* shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(d->mode_shortcuts.count()+1)),QtilitiesApplication::mainWindow());
                 d->mode_shortcuts[mode->modeID()] = shortcut;
                 shortcut->setContext(Qt::ApplicationShortcut);
                 ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->modeName(),shortcut);
@@ -192,6 +198,14 @@ QString Qtilities::CoreGui::ModeManager::modeShortcut(int mode_id) const {
         return d->mode_shortcuts[mode_id]->key().toString();
     else
         return QString();
+}
+
+int Qtilities::CoreGui::ModeManager::managerID() const {
+    return d->manager_id;
+}
+
+void Qtilities::CoreGui::ModeManager::setManagerID(int manager_id) {
+    d->manager_id = manager_id;
 }
 
 Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::ModeManager::activeModeIFace() const {
