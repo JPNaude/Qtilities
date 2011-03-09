@@ -194,6 +194,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             LOG_INFO(QString(tr("Loading plugin from file: %1")).arg(stripped_file_name));
                             QCoreApplication::processEvents();
 
+                            // Check that the plugins with the same does not exist:
+                            if (d->plugins.subjectNames().contains(pluginIFace->pluginName())) {
+                                LOG_WARNING(QString(tr("A plugin called %1 already exists. Plugin won't be loaded from file: %2")).arg(pluginIFace->pluginName()).arg(stripped_file_name));
+                                continue;
+                            }
+
                             // Set the object name of the plugin:
                             pluginIFace->objectBase()->setObjectName(pluginIFace->pluginName());
 
@@ -206,7 +212,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
 
                             // Do a plugin compatibility check here:
-                            if (!pluginIFace->pluginVersionInformation().hasSupportedVersions()) {
+                            if (pluginIFace->pluginVersionInformation().hasSupportedVersions()) {
                                 if (!pluginIFace->pluginVersionInformation().isSupportedVersion(QCoreApplication::applicationVersion())) {
                                     LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
                                     pluginIFace->setPluginState(IPlugin::CompatibilityError);

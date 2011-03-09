@@ -54,7 +54,7 @@ namespace Qtilities {
             const char * const qti_def_SUFFIX_LOGGER_CONFIG         = ".logconfig";
 
             // Default file paths (all subdirectories of the executable file)
-            const char * const qti_def_PATH_SESSION            = "/session";
+            const char * const qti_def_PATH_SESSION                 = "/session";
             const char * const qti_def_PATH_LOGCONFIG_FILE          = "last_log_config.logconfig";
         }
     }

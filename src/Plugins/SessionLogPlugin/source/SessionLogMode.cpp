@@ -58,19 +58,27 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     d->mode_icon = QIcon(qti_icon_SESSION_LOG_MODE_48x48);
 
     QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"),true);
-    connect(session_log_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
-    d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,session_log_dock);
+    if (session_log_dock) {
+        connect(session_log_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+        d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,session_log_dock);
+    }
 
     QDockWidget* warning_dock = LoggerGui::createLogDockWidget(tr("Warnings"),true,Logger::Warning);
-    connect(warning_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
-    d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
+    if (warning_dock) {
+        connect(warning_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+        d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
+    }
 
     QDockWidget* error_dock = LoggerGui::createLogDockWidget(tr("Errors"),true,Logger::Error | Logger::Fatal);
-    connect(error_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
-    d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,error_dock);
+    if (error_dock) {
+        connect(error_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+        d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,error_dock);
+    }
 
-    d->session_mode_widget->tabifyDockWidget(warning_dock,error_dock);
-    d->session_mode_widget->tabifyDockWidget(error_dock,session_log_dock);
+    if (warning_dock && error_dock)
+        d->session_mode_widget->tabifyDockWidget(warning_dock,error_dock);
+    if (error_dock && session_log_dock)
+        d->session_mode_widget->tabifyDockWidget(error_dock,session_log_dock);
 }
 
 Qtilities::Plugins::SessionLog::SessionLogMode::~SessionLogMode() {
