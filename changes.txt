@@ -28,9 +28,7 @@ Things outstanding for v0.3 release:
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Modes does not get shortcuts at startup. Only when switching. See Firmware Tool for example.
-- Do some checking for double connections using Conan.
 - ObserverWidget still uses CUT and COPY actions in wrong way.
-- Fix relational observer imports etc.
 - Examples: projects does not work...
 - Qtilities debugging action in ObserverWidget does not always show.
 
@@ -88,7 +86,11 @@ Qtilities v0.3 Implemented Changes
     - Logger will now automatically create the /session/ directory if it does not exist when trying to export the logging configuration.
     - Logger now checks that multiple engines with the same name can't be added.
     - Logger now restores logger engine specific parameters correctly from .logconfig files.
-    - WidgetLoggerFrontend::isFormattingEngineConstant() now returns true by default.
+    - WidgetLoggerEngineFrontend::isFormattingEngineConstant() now returns true by default.
+    - WidgetLoggerEngine got new functions which provides access to the QPlainTextEdit used to display messages.
+    - Improved the rich text formatting engine. The rich text is now also used by default in widget logger engines which results in colored output. Much nicer.
+    - Improved searching in WidgetLoggerEngineFrontend. The selected text is now used as the search string when pressing the Find shortcut.
+    - The logging configuration page now uses the correct font in the formatting engine preview editor.
 
     Bug Fixes:
     - Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
