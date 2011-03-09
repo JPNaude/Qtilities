@@ -124,8 +124,22 @@ namespace Qtilities {
                 virtual QtilitiesCategory pluginCategory() const = 0;
                 //! The version information of the plugin.
                 /*!
-                  If your plugin does not depend on the application it is used in, you can return an empty list of supported versions (this is the default)
-                  to let the extension system know not to check the compatibility of your plugin.
+                  If your plugin does not depend on the application it is used in, you can return an empty list of supported versions (this is the default) to let the extension system know not to check the compatibility of your plugin.
+
+                  Here is an example implementation of this function:
+
+\code
+// Create a version information object with the version of the plugin:
+VersionInformation version_info(1,0,1);
+
+// Next add a compatible application version:
+VersionNumber compatible_version(1,0,0);
+// Add it as a compatible version to our version information for this plugin:
+version_info << compatible_version;
+
+// Return the version information object:
+return version_info;
+\endcode
                   */
                 virtual VersionInformation pluginVersionInformation() const = 0;
                 //! The name of the plugin's publisher.

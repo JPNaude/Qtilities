@@ -135,8 +135,10 @@ namespace Qtilities {
                     log_dock_widget->setWidget(log_widget);
                     QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));
                     return log_dock_widget;
-                } else
+                } else {
+                    delete log_dock_widget;
                     return 0;
+                }
             }
 
             //! Return a settings widget for the logger.

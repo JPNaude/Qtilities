@@ -167,6 +167,17 @@ namespace Qtilities {
             //! Copy constructor.
             Observer(const Observer &other);
             virtual ~Observer();
+            //! Overload << operator so that we can attach subjects using the operator.
+            inline Observer& operator<<(QObject* subject)
+            {
+               attachSubject(subject);
+               return *this;
+            }
+
+            //! Event filter filters property change events on all subjects.
+            /*!
+              \sa toggleSubjectEventFiltering(), toggleQtilitiesPropertyChangeEvents()
+              */
             bool eventFilter(QObject *object, QEvent *event);
             //! This function toggles event filtering on objects.
             /*!
