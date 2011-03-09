@@ -567,6 +567,11 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             QObject* subjectReference(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
             //! Returns true if a given subject is currently observed by the observer.
             bool contains(const QObject* object) const;
+            //! Returns true if a subject with the specified name is currently observed by the observer.
+            /*!
+              \sa subjectReference()
+              */
+            bool containsSubjectWithName(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
             // --------------------------------
             // Subject filter related functions
