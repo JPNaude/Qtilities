@@ -75,50 +75,49 @@ QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
  }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
-    QString message = QTime::currentTime().toString();
-    if (message_type == Logger::Debug) {
-        message.append(QString(" <font color='grey'>[%1] ").arg("Debug",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
-    } else if (message_type == Logger::Trace) {
-        message.append(QString(" <font color='grey'>[%1] ").arg("Trace",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
-    } else if (message_type == Logger::Warning) {
-        message.append(QString(" <font color='orange'>[%1] ").arg("Warning",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
-    } else if (message_type == Logger::Error) {
-        message.append(QString(" <font color='red'>[%1] ").arg("Error",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
-    } else if (message_type == Logger::Fatal) {
-        message.append(QString(" <font color='red'>[%1] ").arg("Fatal",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
-    } else if (message_type == Logger::Info) {
-        message.append(QString(" <font color='black'>[%1] ").arg("Info",-8,QChar(QChar::Nbsp)));
-        message.append(messages.front().toString());
-        for (int i = 1; i < messages.count(); i++) {
-            message.append("<br>            %1").arg(messages.at(i).toString());
-        }
-        message.append("</font>");
+    QString message;
+
+    // Start with the correct font:
+    switch (message_type) {
+    case Logger::Info:
+        message.append("<font color='black'>");
+        break;
+
+    case Logger::Warning:
+        message.append("<font color='orange'>");
+        break;
+
+    case Logger::Error:
+        message.append("<font color='red'>");
+        break;
+
+    case Logger::Fatal:
+        message.append("<font color='purple'><b>");
+        break;
+
+    case Logger::Debug:
+        message.append("<font color='grey'>");
+        break;
+
+    case Logger::Trace:
+        message.append("<font color='lightgrey'>");
+        break;
+
+    default:
+        break;
     }
+
+    message.append(QTime::currentTime().toString());
+    message.append(QString(" [%1] ").arg(Log->logLevelToString(message_type),-8,QChar(QChar::Nbsp)));
+    message.append(messages.front().toString());
+    for (int i = 1; i < messages.count(); i++) {
+        message.append("<br>            %1").arg(messages.at(i).toString());
+    }
+    message.append("</font>");
+
+    if (message_type == Logger::Fatal)
+        message.append("</b>");
+
     return message;
 }
 

@@ -375,7 +375,7 @@ QString Qtilities::Logging::Logger::logLevelToString(Logger::MessageType log_lev
     if (log_level == None) {
         return "None";
     } else if (log_level == Info) {
-        return "Information";
+        return "Info";
     } else if (log_level == Warning) {
         return "Warning";
     } else if (log_level == Error) {
@@ -394,7 +394,7 @@ QString Qtilities::Logging::Logger::logLevelToString(Logger::MessageType log_lev
 }
 
 Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::stringToLogLevel(const QString& log_level_string) const {
-    if (log_level_string == "Information") {
+    if (log_level_string == "Info") {
         return Logger::Info;
     } else if (log_level_string == "Warning") {
         return Logger::Warning;
