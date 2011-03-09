@@ -108,3 +108,7 @@ void Qtilities::CoreGui::WidgetLoggerEngine::logMessage(const QString& message) 
         d->widget->appendMessage(message);
 }
 
+QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngine::plainTextEdit() const {
+    return d->widget->plainTextEdit();
+}
+

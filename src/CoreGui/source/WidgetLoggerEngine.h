@@ -41,6 +41,7 @@
 
 #include <QList>
 #include <QVariant>
+#include <QPlainTextEdit>
 
 class QWidget;
 
@@ -89,6 +90,8 @@ namespace Qtilities {
 
             // Make this class a factory item
             static Qtilities::CoreGui::FactoryItem<AbstractLoggerEngine, WidgetLoggerEngine> factory;
+            //! Returns the QPlainTextEdit used by this widget logger engine. Through this reference you can add your own custom syntax highligter etc.
+            QPlainTextEdit* plainTextEdit() const;
 
         public slots:
             void logMessage(const QString& message);

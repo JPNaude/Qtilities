@@ -71,41 +71,34 @@ QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
 // Rich Text Formatting Engine
 // -----------------------------------
  QString Qtilities::Logging::FormattingEngine_Rich_Text::initializeString() const {
-     return QString();
+    return QString(tr("%1 Session Log:<br>Date: %2<br>")).arg(QCoreApplication::applicationName()).arg(QDateTime::currentDateTime().toString());
  }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
-    QString message;
-    switch (message_type) {
-        case Logger::Trace:
-            message = QString("<font color='grey'>TRACE: %1</font>").arg(messages.front().toString());
-            break;
-        case Logger::Debug:
-            message = QString("<font color='black'>DEBUG: </font>%1").arg(messages.front().toString());
-            break;
-        case Logger::Warning:
-            message = QString("<font color='orange'>WARNING: </font>%1").arg(messages.front().toString());
-            break;
-        case Logger::Info:
-            message = QString("<font color='black'>INFO: </font>%1").arg(messages.front().toString());
-            break;
-        case Logger::Error:
-            message = QString("<font color='red'>ERROR: </font>%1").arg(messages.front().toString());
-            break;
-        case Logger::Fatal:
-            message = QString("<font color='red'><b>FATAL:</b> </font>%1").arg(messages.front().toString());
-            break;
-        case Logger::None:
-            return QString();
-        case Logger::AllLogLevels:
-            return QString();
-        }
+    QString message = QTime::currentTime().toString();
+    if (message_type == Logger::Debug)
+        message.append(QString(" [<font color='grey'>%1</font>] ").arg("Debug",-8,QChar(QChar::Nbsp)));
+    else if (message_type == Logger::Trace)
+        message.append(QString(" [<font color='grey'>%1</font>] ").arg("Trace",-8,QChar(QChar::Nbsp)));
+    else if (message_type == Logger::Warning)
+        message.append(QString(" [<font color='orange'>%1</font>] ").arg("Warning",-8,QChar(QChar::Nbsp)));
+    else if (message_type == Logger::Error)
+        message.append(QString(" [<font color='red'>%1</font>] ").arg("Error",-8,QChar(QChar::Nbsp)));
+    else if (message_type == Logger::Fatal)
+        message.append(QString(" [<font color='red'>%1</font>] ").arg("Fatal",-8,QChar(QChar::Nbsp)));
+    else if (message_type == Logger::Info)
+        message.append(QString(" [<font color='black'>%1</font>] ").arg("Info",-8,QChar(QChar::Nbsp)));
 
+    message.append(messages.front().toString());
+
+    for (int i = 1; i < messages.count(); i++) {
+        message.append("<br>            %1").arg(messages.at(i).toString());
+    }
     return message;
 }
 
 QString Qtilities::Logging::FormattingEngine_Rich_Text::finalizeString() const {
-    return QString();
+    return QString(tr("<br>End of session log.<br>%1")).arg(QDateTime::currentDateTime().toString());
 }
 
 // -----------------------------------
