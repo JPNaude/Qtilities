@@ -62,7 +62,7 @@ namespace Qtilities {
     node.addItem("3");
     node.addItem("4");
 
-    SubjectIterator<QtilitiesCore::CoreGui::TreeItem> itr(item1);
+    SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item1);
 
     qDebug() << itr.current()->objectName();
     while (itr.hasNext()) {
@@ -79,7 +79,7 @@ namespace Qtilities {
             It is also possible to specify the current location of your iterator:
 
     \code
-    SubjectIterator<QtilitiesCore::CoreGui::TreeItem> itr(item2);
+    SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item2);
 
     // In this case item1 will be skipped:
     qDebug() << itr.current()->objectName();
