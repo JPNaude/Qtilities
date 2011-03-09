@@ -149,8 +149,6 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
 
 bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
-
-    PROJECT_MANAGER->refreshPartList();
     return true;
 }
 

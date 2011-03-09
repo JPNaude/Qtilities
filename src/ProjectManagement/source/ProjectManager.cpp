@@ -446,6 +446,7 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
     readSettings();
 
     bool success = true;
+    refreshPartList();
 
     // Settings was already read in the constructor.
     if (d->open_last_project) {

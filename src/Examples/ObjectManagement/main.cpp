@@ -136,14 +136,11 @@ int main(int argc, char *argv[])
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     exampleMainWindow.modeManager()->initialize();
     QStringList mode_order;
-    mode_order << "Qtilities Debugging";
     mode_order << "Object Management";
     mode_order << "Session Log";
+    mode_order << "Qtilities Debugging";
     exampleMainWindow.modeManager()->setPreferredModeOrder(mode_order);
-    //mode_order.removeAt(0);
-    //mode_order.removeAt(0);
-    //exampleMainWindow.modeManager()->setDisabledModes(mode_order);
-    //exampleMainWindow.modeManager()->setActiveMode("Object Management");
+    exampleMainWindow.modeManager()->setActiveMode("Object Management");
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));

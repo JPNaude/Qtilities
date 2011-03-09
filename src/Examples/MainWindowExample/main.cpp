@@ -134,8 +134,6 @@ int main(int argc, char *argv[])
     // Create the Example before plugin loading since it registers a project items:
     ExampleMode* example_mode = new ExampleMode;
 
-    PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);
-
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     EXTENSION_SYSTEM->enablePluginActivityControl();
@@ -189,6 +187,7 @@ int main(int argc, char *argv[])
     splash->close();
 
     // Initialize the project manager:
+    // PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);
     PROJECT_MANAGER_INITIALIZE();
 
     int result = a.exec();
