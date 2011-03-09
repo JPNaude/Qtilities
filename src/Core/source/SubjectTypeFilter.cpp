@@ -289,7 +289,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SubjectTypeFil
     if (object_node->hasAttribute("GroupName"))
         d->known_objects_group_name = object_node->attribute("GroupName");
 
-    int count_readback;
+    int count_readback = 0;
     if (object_node->hasAttribute("TypeCount"))
         count_readback = object_node->attribute("TypeCount").toInt();
 

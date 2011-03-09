@@ -65,6 +65,7 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
 {
     ui->setupUi(this); 
     ui->btnApply->setVisible(applyButtonVisisble);
+    ui->txtFormattingEnginePreview->setFont(QFont("Courier New"));
     setObjectName(tr("Logger Config Widget"));
 
     d = new LoggerConfigWidgetPrivateData;

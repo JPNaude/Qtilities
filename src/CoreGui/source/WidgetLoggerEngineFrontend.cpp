@@ -193,8 +193,8 @@ QString Qtilities::CoreGui::WidgetLoggerEngineFrontend::globalMetaType() const {
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::appendMessage(const QString& message) {
-    d->txtLog.appendPlainText(message);
-    d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum()) ;
+    d->txtLog.appendHtml(message);
+    d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindPrevious() {
@@ -311,6 +311,12 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SearchShortcut() {
             d->searchBoxWidget->show();
             d->searchBoxWidget->setEditorFocus();
         }
+
+        // We check if there is a selection in the user visible cursor. If so we set that as the search string.
+        QTextCursor visible_cursor = d->txtLog.textCursor();
+        if (visible_cursor.hasSelection()) {
+            d->searchBoxWidget->setCurrentSearchString(visible_cursor.selectedText());
+        }
     }
 }
 
@@ -410,4 +416,9 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     //d->txtLog.addAction(d->actionSettings);
     d->txtLog.setContextMenuPolicy(Qt::ActionsContextMenu);
 }
+
+QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngineFrontend::plainTextEdit() const {
+    return &d->txtLog;
+}
+
 

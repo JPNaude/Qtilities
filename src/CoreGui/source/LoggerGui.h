@@ -59,8 +59,7 @@ namespace Qtilities {
 
         This class allows the creation of log widgets through static functions. These widgets includes:
         - A configuration widget for the logger.
-        - Log widget. When creating a log widget, you can specify which message types must be displayed in your widget. The function will automatically create a new widget logger engine for you and
-        the widget which is returned will be ready to use.
+        - Log widget. When creating a log widget, you can specify which message types must be displayed in your widget. The function will automatically create a new widget logger engine for you and the widget which is returned will be ready to use.
         - Log dock widget. Same as log widget, except that it returns a dock widget with the log widget already inside it.
 
         Below is an example dock log widget. Note the ready to use Qtilities::CoreGui::SearchBoxWidget at the bottom of the log window.
@@ -79,12 +78,13 @@ namespace Qtilities {
                 WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine();
 
                 // Install a formatting engine for the new logger engine
-                AbstractFormattingEngine* formatting_engine = Log->formattingEngineReference(qti_def_FORMATTING_ENGINE_DEFAULT);
+                QString formatter = qti_def_FORMATTING_ENGINE_RICH_TEXT;
+                AbstractFormattingEngine* formatting_engine = Log->formattingEngineReference(formatter);
                 if (formatting_engine) {
                     new_widget_engine->installFormattingEngine(formatting_engine);
                 } else {
                     delete new_widget_engine;
-                    LOG_ERROR(QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1")).arg(qti_def_FORMATTING_ENGINE_RICH_TEXT));
+                    LOG_ERROR(QString(QObject::tr("Failed to create log widget engine. The specified formatting engine could not be found: %1")).arg(formatter));
                     return 0;
                 }
 
@@ -99,8 +99,7 @@ namespace Qtilities {
 
             //! Creates a temporary logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
             /*!
-              Temporary log widgets are usefull when you want to given updates to the user during intensive processing. In that case you can
-              create a temp log widget using this function and when you are done with your processing you can simply hide the widget causing it to be deleted.
+              Temporary log widgets are usefull when you want to given updates to the user during intensive processing. In that case you can              create a temp log widget using this function and when you are done with your processing you can simply hide the widget causing it to be deleted.
 
               The returned widget is essentially the same as the widget created using createLogWidget(), except for the following:
               - It is active by default.

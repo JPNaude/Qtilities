@@ -99,6 +99,8 @@ namespace Qtilities {
               \sa setGlobalMetaType()
               */
             QString globalMetaType() const;
+            //! Returns the QPlainTextEdit used by this widget logger engine. Through this reference you can add your own custom syntax highligter etc.
+            QPlainTextEdit* plainTextEdit() const;
 
         public slots:
             void appendMessage(const QString& message);
