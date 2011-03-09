@@ -77,15 +77,16 @@ namespace Qtilities {
             Command* registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>());
             Command* command(const QString &id) const;
             ActionContainer *actionContainer(const QString &id) const;
-            QHash<QString, Command* > commandMap();
+
             void restoreDefaultShortcuts();
             bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
             bool loadShortcutMapping(const QString& file_name);
             QWidget* commandEditor();
+            QList<Command*> commandsWithKeySequence(QKeySequence shortcut);
+            Core::Observer* commandObserver();
 
         public slots:
             void handleContextChanged(QList<int> new_contexts);
-            void handleCommandDeleted(QObject* obj);
 
         private:
             ActionManagerPrivateData* d;

@@ -39,6 +39,7 @@
 
 #include <QWidget>
 #include <QModelIndex>
+#include <QLineEdit>
 
 namespace Ui {
     class CommandEditor;
@@ -64,11 +65,8 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
 
         public:
-            CommandEditor(bool command_table_only = false, QWidget *parent = 0);
+            CommandEditor(QWidget *parent = 0);
             ~CommandEditor();
-
-            //! Provides access to the currently selected command.
-            Command* selectedCommand() const;
 
             // --------------------------------
             // IObjectBase Implementation
@@ -90,12 +88,9 @@ namespace Qtilities {
             void changeEvent(QEvent *e);
 
         public slots:
-            void handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous);
-            void on_btnDefaults_clicked();
-            void on_btnExport_clicked();
-            void on_btnImport_clicked();
-            void handleSearchStringChanged(const QString& text);
-            void resizeCommandTableRows();
+            void restoreDefaults();
+            void exportConfiguration();
+            void importConfiguration();
 
         signals:
             void selectedCommandChanged(Command* command);

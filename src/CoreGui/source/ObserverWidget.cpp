@@ -1242,7 +1242,6 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // Expand All
     // ---------------------------
     d->actionExpandAll = new QAction(QIcon(qti_icon_MAGNIFY_PLUS_16x16),tr("Expand All"),this);
-    d->actionExpandAll->setObjectName("Expand All");
     d->actionExpandAll->setShortcut(QKeySequence("Ctrl+>"));
     connect(d->actionExpandAll,SIGNAL(triggered()),SLOT(viewExpandAll()));
     ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
@@ -1251,7 +1250,6 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     // Collapse All
     // ---------------------------
     d->actionCollapseAll = new QAction(QIcon(qti_icon_MAGNIFY_MINUS_16x16),tr("Collapse All"),this);
-    d->actionCollapseAll->setObjectName("Collapse All");
     d->actionCollapseAll->setShortcut(QKeySequence("Ctrl+<"));
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(viewCollapseAll()));
     ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);

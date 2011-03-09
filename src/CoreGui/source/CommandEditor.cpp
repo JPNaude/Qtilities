@@ -32,12 +32,13 @@
 ****************************************************************************/
 
 #include "CommandEditor.h"
-#include "CommandTableModel.h"
+#include "CommandTreeModel.h"
 #include "QtilitiesApplication.h"
 #include "ObjectPropertyBrowser.h"
 #include "ui_CommandEditor.h"
 #include "SearchBoxWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
+#include "ObserverWidget.h"
 
 #include <QGridLayout>
 #include <QTableView>
@@ -49,98 +50,61 @@
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::CommandEditorPrivateData {
-    CommandEditorPrivateData() : model(0),
-    proxy_model(0)  { }
+    CommandEditorPrivateData() { }
 
-    CommandTableModel*          model;
-    QTableView*                 table_view;
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    ObjectPropertyBrowser*      property_browser;
-    #endif
-    QSortFilterProxyModel*      proxy_model;
-    QPointer<Command>           selected_command;
+    ObserverWidget              observer_widget;
+    CommandTreeModel*           model;
+    ShortcutEditorDelegate*     shortcut_delegate;
+    QAction*                    action_restore_defaults;
+    QAction*                    action_save;
+    QAction*                    action_load;
 };
 
-Qtilities::CoreGui::CommandEditor::CommandEditor(bool command_table_only, QWidget *parent) :
+Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandEditor)
 {
     ui->setupUi(this);
-    ui->lblSearchIcon->setPixmap(QPixmap(qti_icon_FIND_16x16));
-    connect(ui->txtSearchString,SIGNAL(textChanged(const QString&)),SLOT(handleSearchStringChanged(const QString&)));
-    connect(ui->commandTable->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
-
     d = new CommandEditorPrivateData;
 
-    // Create Model & View
-    d->model = new CommandTableModel(this);
-    // Create the proxy model
-    d->proxy_model = new QSortFilterProxyModel(this);
-    d->proxy_model->setDynamicSortFilter(true);
-    d->proxy_model->setSourceModel(d->model);
-    d->proxy_model->setFilterKeyColumn(0);
-    ui->commandTable->setModel(d->proxy_model);
-    ui->commandTable->resizeRowsToContents();
-    ui->commandTable->resizeColumnsToContents();
-    ui->commandTable->horizontalHeader()->setStretchLastSection(true);
-    ui->commandTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->commandTable->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    ui->commandTable->resizeColumnsToContents();
-    ui->commandTable->setShowGrid(false);
-    ui->commandTable->setAlternatingRowColors(true);
-    QHeaderView* table_header = ui->commandTable->horizontalHeader();
-    table_header->setResizeMode(1,QHeaderView::Stretch);
+    if (ui->widgetCommandsHolder->layout())
+        delete ui->widgetCommandsHolder->layout();
 
-    // Create Property Browser
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    d->property_browser = new ObjectPropertyBrowser(ObjectPropertyBrowser::GroupBoxBrowser,0);
-    if (d->property_browser) {
-        QStringList filter_list;
-        filter_list << "QObject" << "Action" << "MultiContextAction" << "ShortcutCommand";
-        d->property_browser->setFilterList(filter_list);
-        d->property_browser->layout()->setMargin(0);
-    }
-    #endif
-
-    // Create Layout
-    QGridLayout* layout = new QGridLayout();
-    if (ui->widgetPropertyEditor->layout())
-        delete ui->widgetPropertyEditor->layout();
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
-    layout->addWidget(d->property_browser);
-    #endif
+    QHBoxLayout* layout = new QHBoxLayout(ui->widgetCommandsHolder);
     layout->setMargin(0);
-    ui->widgetPropertyEditor->setLayout(layout);
-    ui->commandTable->setSortingEnabled(true);
-    ui->commandTable->sortByColumn(0,Qt::AscendingOrder);
+    layout->addWidget(&d->observer_widget);
 
-    // Select first item
-    connect(ui->commandTable->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),SLOT(handleCurrentRowChanged(QModelIndex,QModelIndex)));
-    //if (ACTION_MANAGER->commandMap().count() > 0)
-    //    ui->commandTable->setCurrentIndex(d->proxy_model->index(0,0));
+    d->model = new CommandTreeModel(this);
+    d->observer_widget.setCustomTreeModel(d->model);
+    d->observer_widget.setObserverContext(ACTION_MANAGER->commandObserver());
 
-    if (command_table_only) {
-        ui->groupCurrentConfiguration->setVisible(false);
-        ui->widgetSearchBox->setVisible(false);
-        ui->widgetPropertyEditor->setVisible(false);
+    d->action_restore_defaults = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),"Restore Defaults",this);
+    connect(d->action_restore_defaults,SIGNAL(triggered()),SLOT(restoreDefaults()));
+    d->action_load = new QAction(QIcon(qti_icon_FILE_OPEN_16x16),"Load Previous Configuration",this);
+    connect(d->action_load,SIGNAL(triggered()),SLOT(importConfiguration()));
+    d->action_save = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),"Save Current Configuration",this);
+    connect(d->action_save,SIGNAL(triggered()),SLOT(exportConfiguration()));
+    d->observer_widget.actionProvider()->addAction(d->action_restore_defaults,QtilitiesCategory("Current Configuration"));
+    d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
+    d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
+
+    d->observer_widget.initialize();
+
+    d->shortcut_delegate = new ShortcutEditorDelegate(this);
+    if (d->observer_widget.treeView()) {
+        d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
+        d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
+        QHeaderView* table_header = d->observer_widget.treeView()->header();
+        table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
     }
+
+    d->observer_widget.show();
 }
 
 Qtilities::CoreGui::CommandEditor::~CommandEditor()
 {
     delete ui;
     delete d;
-}
-
-Qtilities::CoreGui::Command* Qtilities::CoreGui::CommandEditor::selectedCommand() const {
-    return d->selected_command;
-}
-
-void Qtilities::CoreGui::CommandEditor::resizeCommandTableRows() {
-    ui->commandTable->sortByColumn(0,Qt::AscendingOrder);
-    for (int i = 0; i < d->model->rowCount(); i++) {
-        ui->commandTable->setRowHeight(i,17);
-    }
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {
@@ -175,29 +139,7 @@ void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)
     }
 }
 
-void Qtilities::CoreGui::CommandEditor::handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous) {
-    Q_UNUSED(previous)
-
-    if (d->proxy_model) {
-        if (current.row() >= 0 && current.row() < ACTION_MANAGER->commandMap().count()) {
-            QModelIndex original_index = d->proxy_model->mapToSource(current);
-            Command* command = 0;
-            #ifndef QTILITIES_NO_PROPERTY_BROWSER
-            if (original_index.isValid() && (original_index.row() < ACTION_MANAGER->commandMap().count())) {
-                command = ACTION_MANAGER->commandMap().values().at(original_index.row());
-                d->property_browser->setObject(command);
-            }
-            #endif
-
-            if (command) {
-                d->selected_command = command;
-                emit selectedCommandChanged(command);
-            }
-        }
-    }
-}
-
-void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
+void Qtilities::CoreGui::CommandEditor::restoreDefaults() {
     QMessageBox msgBox;
     msgBox.setText(tr("Restore Default Shortcuts"));
     msgBox.setInformativeText(tr("This will overwrite your current shortcut configuration.\n\nDo you want to continue?"));
@@ -217,7 +159,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnDefaults_clicked() {
     }
 }
 
-void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
+void Qtilities::CoreGui::CommandEditor::exportConfiguration() {
     QString file_name = QFileDialog::getSaveFileName(this,tr("Export Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
         if (!ACTION_MANAGER->saveShortcutMapping(file_name)) {
@@ -229,7 +171,7 @@ void Qtilities::CoreGui::CommandEditor::on_btnExport_clicked() {
     }
 }
 
-void Qtilities::CoreGui::CommandEditor::on_btnImport_clicked() {
+void Qtilities::CoreGui::CommandEditor::importConfiguration() {
     QString file_name = QFileDialog::getOpenFileName(this,tr("Import Shortcut Mapping"), QDir::currentPath(), tr("Shortcut Mapping File (*.smf)"));
     if (!file_name.isEmpty()) {
         if (!ACTION_MANAGER->loadShortcutMapping(file_name)) {
@@ -237,15 +179,10 @@ void Qtilities::CoreGui::CommandEditor::on_btnImport_clicked() {
             msgBox.setWindowTitle("Shortcut Import Failed");
             msgBox.setText(tr("Shortcut mapping import failed. Please see the session log for details."));
             msgBox.exec();
-        } else
-            d->model->refreshModel();
+        } else {
+            d->observer_widget.refresh();
+            if (d->observer_widget.treeView())
+                d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
+        }
     }
-}
-
-void Qtilities::CoreGui::CommandEditor::handleSearchStringChanged(const QString& text) {
-    QRegExp::PatternSyntax syntax = QRegExp::PatternSyntax(QRegExp::FixedString);
-    Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive;;
-    QRegExp regExp(text, caseSensitivity, syntax);
-    d->proxy_model->setFilterRegExp(regExp);
-    ui->commandTable->resizeRowsToContents();
 }

@@ -39,6 +39,7 @@
 #include <QShortcut>
 #include <QAction>
 #include <QPointer>
+#include <QtilitiesCategory>
 
 #include "QtilitiesCoreGui_global.h"
 
@@ -82,7 +83,7 @@ namespace Qtilities {
             Q_PROPERTY(QKeySequence KeySequence READ keySequence WRITE setKeySequence)
 
         public:
-            Command(QObject* parent = 0);
+            Command(int category_context, QObject* parent = 0);
             ~Command();
 
             //! Sets the default key sequence.
@@ -109,10 +110,16 @@ namespace Qtilities {
             //! Call to set change the curent context of a command.
             virtual bool setCurrentContext(QList<int> context_ids) = 0;
 
+            //! Sets the command's category.
+            void setCategory(Qtilities::Core::QtilitiesCategory category);
+            //! Gets the command's category.
+            Qtilities::Core::QtilitiesCategory category() const;
+
         signals:
             void keySequenceChanged();
 
         protected:
+            static int d_category_context;
             CommandPrivateData* c;
         };
 		
@@ -139,7 +146,7 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            MultiContextAction(QAction* user_visible_action, QObject* parent = 0);
+            MultiContextAction(QAction* user_visible_action, int category_context, QObject* parent = 0);
             virtual ~MultiContextAction();
 
             // --------------------------------
@@ -183,7 +190,7 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, QObject* parent = 0);
+            ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, int category_context, QObject* parent = 0);
             virtual ~ShortcutCommand();
 
             // --------------------------------
