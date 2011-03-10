@@ -21,11 +21,8 @@ In no particular order:
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Action manager:
-    - Fix action manager not assigning backend action shortcut in tooltip and does not work. See codeeditorwidget for example in Firmware Manager.
-- Linux problems:
-    - Sort out Linux dll versioning
-    - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
+- Fix action manager not assigning backend action shortcut in tooltip and does not work. See CodeEditorWidget for example in Firmware Manager.
+- Sort out Linux dll versioning
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Modes does not get shortcuts at startup. Only when switching. See Firmware Tool for example.
 - ObserverWidget still uses CUT and COPY actions in wrong way.
@@ -34,6 +31,7 @@ Things outstanding for v0.3 release:
 - Session dir creation wrong... See action manager for example.
 
 - Docs & finalization stuff:
+    - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
     - Properly document new StringListWidget
     - Unit tests not part of documentation
     - Qtilities::CoreGui::Actions not defined anymore.
@@ -236,6 +234,12 @@ Qtilities v0.3 Implemented Changes
         - NamingPolicyFilter: made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
         - NamingPolicyFilter::evaluateName() got a new parameter which contains a reference to the current object whose name is being evaluated in the contexts. In some cases during subclassing NamingPolicyFilter this is usefull, in others the default parameter can just be used.
+    - Action Management
+        - The action manager was improved. It now detects if registered actions are deleted and removes them accoringly.
+        - Commands can now be assigned categories in which they will be displayed in the command editor.
+        - The command editor got an overhaul and is much more compact now, giving more screen space to the actual command list.
+        - Commands with ambigious shortcuts now have their shortcuts highlighted in red in the command editor.
+        - The command editor now longer depends on the Qt Property Browser solution in order to let users change shortcuts.
     - General
         - When CONTEXT_MANAGER->registerContext() is called with a context which already exists, the ID of the context is returned, not -1 as in previous versions.
         - QtilitiesApplication::initialize() important doc update and QtilitiesApplication::aboutQtilities() changed so that it returns the constructed about window.
