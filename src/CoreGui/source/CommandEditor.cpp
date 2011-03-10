@@ -93,6 +93,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     d->shortcut_delegate = new ShortcutEditorDelegate(this);
     if (d->observer_widget.treeView()) {
         d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
+        d->observer_widget.treeView()->setAlternatingRowColors(true);
         d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
         QHeaderView* table_header = d->observer_widget.treeView()->header();
         table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
@@ -105,6 +106,10 @@ Qtilities::CoreGui::CommandEditor::~CommandEditor()
 {
     delete ui;
     delete d;
+}
+
+Qtilities::CoreGui::ObserverWidget* Qtilities::CoreGui::CommandEditor::commandWidget() const {
+    return &d->observer_widget;
 }
 
 QIcon Qtilities::CoreGui::CommandEditor::configPageIcon() const {

@@ -374,10 +374,11 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     // Add Context
     // ---------------------------
     d->actionAddContext = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
-    //d->action_provider->addAction(d->actionAddContext);
-    d->actionAddContext->setEnabled(false);
-    connect(d->actionAddContext,SIGNAL(triggered()),SLOT(handle_actionAddContext_triggered()));
-    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_ADD,d->actionAddContext,context);
+//    d->action_provider->addAction(d->actionAddContext);
+//    d->actionAddContext->setEnabled(false);
+//    connect(d->actionAddContext,SIGNAL(triggered()),SLOT(handle_actionAddContext_triggered()));
+//    Command* command = ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_ADD,d->actionAddContext,context);
+//    command->setCategory(QtilitiesCategory("Item Scope"));
     // ---------------------------
     // Remove Context
     // ---------------------------
@@ -385,7 +386,8 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     d->action_provider->addAction(d->actionRemoveContext);
     d->actionRemoveContext->setEnabled(false);
     connect(d->actionRemoveContext,SIGNAL(triggered()),SLOT(handle_actionRemoveContext_triggered()));
-    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_SELECTED,d->actionRemoveContext,context);
+    Command* command = ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_SELECTED,d->actionRemoveContext,context);
+    command->setCategory(QtilitiesCategory("Item Scope"));
     // ---------------------------
     // Detach In Selected Context (Creates copy in selected context which is detached from the rest of the contexts)
     // ---------------------------
@@ -394,6 +396,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     d->actionDetachToSelection->setEnabled(false);
     connect(d->actionDetachToSelection,SIGNAL(triggered()),SLOT(handle_actionDetachToSelection_triggered()));
     ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_OTHERS,d->actionDetachToSelection,context);
+    command->setCategory(QtilitiesCategory("Item Scope"));
     // ---------------------------
     // Duplicate In Selected Context
     // ---------------------------
@@ -402,6 +405,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     d->actionDuplicateInScope->setEnabled(false);
     connect(d->actionDuplicateInScope,SIGNAL(triggered()),SLOT(handle_actionDuplicateInScope_triggered()));
     ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_DUPLICATE,d->actionDuplicateInScope,context);
+    command->setCategory(QtilitiesCategory("Item Scope"));
 
     //ui->observerTable->addAction(d->actionAddContext);
     QAction* sep1 = new QAction(0);

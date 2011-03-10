@@ -90,20 +90,27 @@ int main(int argc, char *argv[])
 
     // Edit Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CLEAR,QObject::tr("Clear"));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));

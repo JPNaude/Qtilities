@@ -334,14 +334,16 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     d->actionSave = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),tr("Save"),this);
     d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("Log")));
     connect(d->actionSave,SIGNAL(triggered()),SLOT(handle_Save()));
-    ACTION_MANAGER->registerAction(qti_action_FILE_SAVE,d->actionSave,context);
+    Command* command = ACTION_MANAGER->registerAction(qti_action_FILE_SAVE,d->actionSave,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Copy
     // ---------------------------
     d->actionCopy = new QAction(QIcon(qti_icon_EDIT_COPY_16x16),tr("Copy"),this);
     d->action_provider->addAction(d->actionCopy,QtilitiesCategory(tr("Log")));
     connect(d->actionCopy,SIGNAL(triggered()),SLOT(handle_Copy()));
-    ACTION_MANAGER->registerAction(qti_action_EDIT_COPY,d->actionCopy,context);
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_COPY,d->actionCopy,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Select All
     // ---------------------------
@@ -349,14 +351,16 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     d->actionSelectAll->setEnabled(true);
     d->action_provider->addAction(d->actionSelectAll,QtilitiesCategory(tr("Log")));
     connect(d->actionSelectAll,SIGNAL(triggered()),SLOT(handle_SelectAll()));
-    ACTION_MANAGER->registerAction(qti_action_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_SELECT_ALL,d->actionSelectAll,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Clear
     // ---------------------------
     d->actionClear = new QAction(QIcon(qti_icon_EDIT_CLEAR_16x16),tr("Clear"),this);
     d->action_provider->addAction(d->actionClear,QtilitiesCategory(tr("Log")));
     connect(d->actionClear,SIGNAL(triggered()),SLOT(handle_Clear()));
-    ACTION_MANAGER->registerAction(qti_action_EDIT_CLEAR,d->actionClear,context);
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_CLEAR,d->actionClear,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Find
     // ---------------------------
@@ -364,28 +368,31 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     //d->actionFind->setShortcut(QKeySequence(QKeySequence::Find));
     d->action_provider->addAction(d->actionFind,QtilitiesCategory(tr("Log")));
     connect(d->actionFind,SIGNAL(triggered()),SLOT(handle_SearchShortcut()));
-    ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFind,context);
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFind,context);
     // ---------------------------
     // Print
     // ---------------------------
     d->actionPrint = new QAction(QIcon(qti_icon_PRINT_16x16),tr("Print"),this);
     d->action_provider->addAction(d->actionPrint,QtilitiesCategory(tr("Print")));
     connect(d->actionPrint,SIGNAL(triggered()),SLOT(handle_Print()));
-    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT,d->actionPrint,context);
+    command = ACTION_MANAGER->registerAction(qti_action_FILE_PRINT,d->actionPrint,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Print PDF
     // ---------------------------
     d->actionPrintPDF = new QAction(QIcon(qti_icon_PRINT_PDF_16x16),tr("Print PDF"),this);
     d->action_provider->addAction(d->actionPrintPDF,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPDF,SIGNAL(triggered()),SLOT(handle_PrintPDF()));
-    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PDF,d->actionPrintPDF,context);
+    command = ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PDF,d->actionPrintPDF,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Print Preview
     // ---------------------------
     d->actionPrintPreview = new QAction(QIcon(qti_icon_PRINT_PREVIEW_16x16),tr("Print Preview"),this);
     d->action_provider->addAction(d->actionPrintPreview,QtilitiesCategory(tr("Print")));
     connect(d->actionPrintPreview,SIGNAL(triggered()),SLOT(handle_PrintPreview()));
-    ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    command = ACTION_MANAGER->registerAction(qti_action_FILE_PRINT_PREVIEW,d->actionPrintPreview,context);
+    command->setCategory(QtilitiesCategory("Editing"));
     // ---------------------------
     // Logger Settings
     // ---------------------------

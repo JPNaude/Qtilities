@@ -120,7 +120,7 @@ p, li { white-space: pre-wrap; }
     <item row="3" column="0" colspan="2">
      <widget class="QTabWidget" name="tabWidgetDebug">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabObjectPool">
        <attribute name="title">
@@ -312,15 +312,15 @@ p, li { white-space: pre-wrap; }
         <item row="0" column="1">
          <widget class="QToolBox" name="toolBox">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="pageModes">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>278</height>
+             <width>1013</width>
+             <height>608</height>
             </rect>
            </property>
            <attribute name="label">
@@ -517,8 +517,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>350</width>
-             <height>174</height>
+             <width>1013</width>
+             <height>608</height>
             </rect>
            </property>
            <attribute name="label">

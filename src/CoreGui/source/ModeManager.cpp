@@ -152,7 +152,8 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
                 QShortcut* shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(d->mode_shortcuts.count()+1)),QtilitiesApplication::mainWindow());
                 d->mode_shortcuts[mode->modeID()] = shortcut;
                 shortcut->setContext(Qt::ApplicationShortcut);
-                ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->modeName(),shortcut);
+                Command* command = ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->modeName(),shortcut);
+                command->setCategory(QtilitiesCategory("Application Modes"));
                 connect(shortcut,SIGNAL(activated()),SLOT(handleModeShortcutActivated()));
             }
 

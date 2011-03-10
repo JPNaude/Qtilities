@@ -36,6 +36,7 @@
 
 #include "QtilitiesCoreGui_global.h"
 #include "IConfigPage.h"
+#include "ObserverWidget.h"
 
 #include <QWidget>
 #include <QModelIndex>
@@ -68,6 +69,12 @@ namespace Qtilities {
             CommandEditor(QWidget *parent = 0);
             ~CommandEditor();
 
+            //! Returns the observer widget used to display commands.
+            /*!
+              Through the observer widget you can get access to the selected objects and be notified when the selection changes.
+              */
+            ObserverWidget* commandWidget() const;
+
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -91,9 +98,6 @@ namespace Qtilities {
             void restoreDefaults();
             void exportConfiguration();
             void importConfiguration();
-
-        signals:
-            void selectedCommandChanged(Command* command);
 
         private:
             Ui::CommandEditor *ui;

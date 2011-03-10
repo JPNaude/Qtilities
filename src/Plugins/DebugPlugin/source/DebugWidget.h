@@ -116,8 +116,7 @@ namespace Qtilities {
                 void on_btnContextSetActive_clicked();
                 void on_btnContextsClear_clicked();
                 void on_btnContextsBroadcast_clicked();
-                //! Refreshes the command info table with information about the given command.
-                void refreshCommandInformation(Command* command);
+                void refreshCommandInformation();
                 void handle_objectPoolSelectionChanged(QList<QObject*> objects);
                 void on_btnExplorePluginCurrentConfigSetPath_clicked();
                 void on_btnEditPluginCurrentConfigSet_clicked();

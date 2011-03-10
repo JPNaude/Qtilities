@@ -49,8 +49,7 @@ using namespace QtilitiesProjectManagement;
 
 struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
     DebugWidgetPrivateData() : object_pool_widget(0),
-        plugin_edit_set_loaded(false),
-        command_editor(true) {}
+        plugin_edit_set_loaded(false) {}
 
     ObserverWidget*     object_pool_widget;
     QPointer<QObject>   current_object;
@@ -103,7 +102,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     d = new DebugWidgetPrivateData;
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoIcon, SLOT(hide()));
     connect(&d->plugin_msg_timer,SIGNAL(timeout()), ui->lblPluginInfoMessage, SLOT(clear()));
-    connect(&d->command_editor,SIGNAL(selectedCommandChanged(Command*)),SLOT(refreshCommandInformation(Command*)));
+    connect(d->command_editor.commandWidget(),SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(refreshCommandInformation()));
 
     setObjectName(tr("Qtilities Debug Mode"));
 
@@ -362,10 +361,7 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnRefreshViews_clicked() {
     // ===============================
     // Action Management:
     // ===============================
-    if (d->current_command)
-        refreshCommandInformation(d->current_command);
-    else
-        refreshCommandInformation(d->command_editor.selectedCommand());
+    refreshCommandInformation();
 
     // ===============================
     // Refresh Factories:
@@ -568,18 +564,14 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnContextSetActive_clicked()
         CONTEXT_MANAGER->appendContext(selected_items.at(i)->text());
     }
     refreshContexts();
-    if (d->current_command) {
-        refreshCommandInformation(d->current_command);
-    }
+    refreshCommandInformation();
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextsClear_clicked()
 {
     CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD);
     refreshContexts();
-    if (d->current_command) {
-        refreshCommandInformation(d->current_command);
-    }
+    refreshCommandInformation();
 }
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnContextsBroadcast_clicked()
@@ -695,18 +687,27 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshContexts() {
     ui->tableContextsActive->sortItems(1);
 }
 
-void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* command) {
-    if (!command) {
+void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation() {
+    QList<QObject*> commands = d->command_editor.commandWidget()->selectedObjects();
+    if (commands.isEmpty()) {
         ui->tableSelectedActionOverview->clear();
         ui->lblCommandType->setText("No command selected.");
         ui->tableSelectedActionOverview->setEnabled(false);
         return;
     }
 
-    d->current_command = command;
+    // Get the front command:
+    d->current_command = qobject_cast<Command*> (commands.front());
+
+    if (!d->current_command) {
+        ui->tableSelectedActionOverview->clear();
+        ui->lblCommandType->setText("No command selected.");
+        ui->tableSelectedActionOverview->setEnabled(false);
+        return;
+    }
 
     // Check what type of command it is:
-    MultiContextAction* multi_action = qobject_cast<MultiContextAction*> (command);
+    MultiContextAction* multi_action = qobject_cast<MultiContextAction*> (d->current_command);
     if (multi_action) {
         ui->lblCommandType->setText("Command Type: Multi Context Action");
 
@@ -759,7 +760,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
             newItem = new QTableWidgetItem(current_command->shortcut().toString());
             ui->tableSelectedActionOverview->setItem(i, 6, newItem);
             // Default Shortcut:
-            newItem = new QTableWidgetItem(command->defaultKeySequence().toString());
+            newItem = new QTableWidgetItem(d->current_command->defaultKeySequence().toString());
             ui->tableSelectedActionOverview->setItem(i, 7, newItem);
             // Icon:
             newItem = new QTableWidgetItem(current_command->icon(),"");
@@ -771,7 +772,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation(Command* 
         }
     }
 
-    ShortcutCommand* shortcut = qobject_cast<ShortcutCommand*> (command);
+    ShortcutCommand* shortcut = qobject_cast<ShortcutCommand*> (d->current_command);
     if (shortcut) {
         ui->lblCommandType->setText("Command Type: Shortcut");
         ui->tableSelectedActionOverview->clear();

@@ -374,6 +374,9 @@ categorized_widget->show();
               */
             bool confirmDeletes() const;
             //! Provides a list of QObject pointers to all the selected objects.
+            /*!
+              \sa selectedObjectsChanged()
+              */
             QList<QObject*> selectedObjects() const;
             //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
             Observer* selectionParent() const;
@@ -426,6 +429,8 @@ categorized_widget->show();
               \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
+
+              \sa selectedObjectsChanged()
               */
             void selectObjects(QList<QObject*> objects);
             //! Selects the specified objects in a smart pointer list in the active item view.
@@ -433,6 +438,8 @@ categorized_widget->show();
               \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
+
+              \sa selectedObjectsChanged()
               */
             void selectObjects(QList<QPointer<QObject> > objects);
             //! Slot which resizes the rows in table view mode.
