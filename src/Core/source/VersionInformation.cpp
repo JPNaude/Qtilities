@@ -69,13 +69,7 @@ Qtilities::Core::VersionNumber::VersionNumber(int major, int minor, int revision
 Qtilities::Core::VersionNumber::VersionNumber(const QString& version, const QString& seperator) {
     d = new VersionNumberPrivateData;
 
-    QStringList list = version.split(seperator);
-    if (list.count() >= 1)
-        d->version_major = list.at(0).toInt();
-    if (list.count() >= 2)
-        d->version_minor = list.at(1).toInt();
-    if (list.count() >= 3)
-        d->version_revision = list.at(2).toInt();
+    fromString(version, seperator);
 }
 
 Qtilities::Core::VersionNumber::VersionNumber(const VersionNumber& ref)  {
@@ -242,19 +236,30 @@ QString Qtilities::Core::VersionNumber::toString(const QString& seperator) const
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor) + seperator + QString("%1").arg(d->version_revision);
         else if (d->field_width_minor == -1 && !d->field_width_revision == -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor) + seperator + QString("%1").arg(d->version_revision,d->field_width_revision,10,QChar('0'));
-        else if (!d->field_width_minor == -1 && d->field_width_revision == -1)
+        else if (d->field_width_minor != -1 && d->field_width_revision == -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor,d->field_width_minor,10,QChar('0')) + seperator + QString("%1").arg(d->version_revision);
-        else if (!d->field_width_minor == -1 && !d->field_width_revision == -1)
+        else if (d->field_width_minor != -1 && d->field_width_revision != -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor,d->field_width_minor,10,QChar('0')) + seperator + QString("%1").arg(d->version_revision,d->field_width_revision,10,QChar('0'));
     } else if (d->is_version_minor_used && !d->is_version_revision_used) {
         if (d->field_width_minor == -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor);
-        else if (!d->field_width_minor == -1)
+        else if (d->field_width_minor != -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor,d->field_width_minor,10,QChar('0'));
     } else if (!d->is_version_minor_used && !d->is_version_revision_used)
         version = QString::number(d->version_major);
 
     return version;
+}
+
+void Qtilities::Core::VersionNumber::fromString(const QString& version, const QString& seperator)
+{
+    QStringList list = version.split(seperator);
+    if (list.count() >= 1)
+        d->version_major = list.at(0).toInt();
+    if (list.count() >= 2)
+        d->version_minor = list.at(1).toInt();
+    if (list.count() >= 3)
+        d->version_revision = list.at(2).toInt();
 }
 
 // ------------------------------------

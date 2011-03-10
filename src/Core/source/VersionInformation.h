@@ -128,6 +128,8 @@ namespace Qtilities {
               */
             QString toString(const QString& seperator = ".") const;
 
+            void fromString(const QString& version, const QString& seperator = ".");
+
         private:
             VersionNumberPrivateData* d;
         };
