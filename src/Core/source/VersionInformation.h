@@ -65,6 +65,7 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT VersionNumber
         {
         public:
+            VersionNumber();
             VersionNumber(int major = 0, int minor = 0, int revision = 0);
             VersionNumber(const QString& version, const QString& seperator = ".");
             VersionNumber(const VersionNumber& ref);
@@ -126,9 +127,15 @@ namespace Qtilities {
             /*!
               \param seperator By default this is a point, thus ".". In some cases it is desirable to use a custom field seperator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
               */
-            QString toString(const QString& seperator = ".") const;
+            virtual QString toString(const QString& seperator = ".") const;
+            //! Gets the version information from a string represenation, thus the major, minor and revision parts of the version.
+            /*!
+              \param version The version string.
+              \param seperator By default this is a point, thus ".". In some cases it is desirable to use a custom field seperator. For example as an underscore "_" can be desirable when the version information must be appended to a file name.
 
-            void fromString(const QString& version, const QString& seperator = ".");
+              This function keeps the used parts of the version, thus it does not change that.
+              */
+            virtual void fromString(const QString& version, const QString& seperator = ".");
 
         private:
             VersionNumberPrivateData* d;

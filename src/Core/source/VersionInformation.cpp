@@ -59,6 +59,13 @@ struct Qtilities::Core::VersionNumberPrivateData {
 
 };
 
+Qtilities::Core::VersionNumber::VersionNumber() {
+    d = new VersionNumberPrivateData;
+    d->version_major = 0;
+    d->version_minor = 0;
+    d->version_revision = 0;
+}
+
 Qtilities::Core::VersionNumber::VersionNumber(int major, int minor, int revision) {
     d = new VersionNumberPrivateData;
     d->version_major = major;
