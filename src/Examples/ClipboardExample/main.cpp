@@ -77,10 +77,13 @@ int main(int argc, char *argv[])
     edit_menu->addSeperator();
     // Register action placeholders for the copy, cut and paste actions:
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
 
     // Important: The Log widget must be created before the above action place holders were added since it registers some actions

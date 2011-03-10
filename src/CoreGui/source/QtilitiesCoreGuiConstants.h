@@ -60,6 +60,8 @@ namespace Qtilities {
             const char * const qti_def_FACTORY_TAG_TREE_FILE_ITEM    = "qti.def.FactoryTag.TreeFileItem";
             //! The default file name used to save session shortcut mappings by the Qtilities::CoreGui::ActionManager class.
             const char * const qti_def_PATH_SHORTCUTS_FILE           = "shortcut_mapping.smf";
+            //! The mode manager ID of the default mode manager constructed in QtilitiesMainWindow.
+            const int qti_def_DEFAULT_MODE_MANAGER                   = 1;
         }
 
         //! Namespace containing available icons which forms part of the CoreGui Module.

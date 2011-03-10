@@ -80,7 +80,10 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
     // Start with the correct font:
     switch (message_type) {
     case Logger::Info:
-        message.append("<font color='black'>");
+        if (messages.front().toString().startsWith(QObject::tr("Successfully")))
+            message.append("<font color='green'>");
+        else
+            message.append("<font color='black'>");
         break;
 
     case Logger::Warning:

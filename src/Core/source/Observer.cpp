@@ -1589,6 +1589,13 @@ bool Qtilities::Core::Observer::contains(const QObject* object) const {
     return false;
 }
 
+bool Qtilities::Core::Observer::containsSubjectWithName(const QString& subject_name, Qt::CaseSensitivity cs) const {
+    if (subjectReference(subject_name,cs))
+        return true;
+    else
+        return false;
+}
+
 bool Qtilities::Core::Observer::installSubjectFilter(AbstractSubjectFilter* subject_filter) {
     if (!subject_filter)
         return false;

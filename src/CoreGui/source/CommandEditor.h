@@ -36,9 +36,11 @@
 
 #include "QtilitiesCoreGui_global.h"
 #include "IConfigPage.h"
+#include "ObserverWidget.h"
 
 #include <QWidget>
 #include <QModelIndex>
+#include <QLineEdit>
 
 namespace Ui {
     class CommandEditor;
@@ -64,11 +66,14 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
 
         public:
-            CommandEditor(bool command_table_only = false, QWidget *parent = 0);
+            CommandEditor(QWidget *parent = 0);
             ~CommandEditor();
 
-            //! Provides access to the currently selected command.
-            Command* selectedCommand() const;
+            //! Returns the observer widget used to display commands.
+            /*!
+              Through the observer widget you can get access to the selected objects and be notified when the selection changes.
+              */
+            ObserverWidget* commandWidget() const;
 
             // --------------------------------
             // IObjectBase Implementation
@@ -90,15 +95,9 @@ namespace Qtilities {
             void changeEvent(QEvent *e);
 
         public slots:
-            void handleCurrentRowChanged(const QModelIndex& current, const QModelIndex& previous);
-            void on_btnDefaults_clicked();
-            void on_btnExport_clicked();
-            void on_btnImport_clicked();
-            void handleSearchStringChanged(const QString& text);
-            void resizeCommandTableRows();
-
-        signals:
-            void selectedCommandChanged(Command* command);
+            void restoreDefaults();
+            void exportConfiguration();
+            void importConfiguration();
 
         private:
             Ui::CommandEditor *ui;

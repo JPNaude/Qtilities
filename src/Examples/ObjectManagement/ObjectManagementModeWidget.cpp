@@ -95,11 +95,13 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     d->actionAddExampleObjects = new QAction("Add Example Objects To Selection",this);
     connect(d->actionAddExampleObjects,SIGNAL(triggered()),SLOT(addExampleObjects()));
     Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
 
     d->dot_file_action = new QAction("Create Dot Graph",this);
     connect(d->dot_file_action,SIGNAL(triggered()),SLOT(createDotFile()));
     command = ACTION_MANAGER->registerAction("Example.CreateDotFile",d->dot_file_action,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
     file_menu->addSeperator(qti_action_FILE_EXIT);
 

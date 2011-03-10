@@ -90,20 +90,27 @@ int main(int argc, char *argv[])
 
     // Edit Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_REDO,QObject::tr("Redo"),QKeySequence(QKeySequence::Redo));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_SELECT_ALL,QObject::tr("Select All"),QKeySequence(QKeySequence::SelectAll));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CLEAR,QObject::tr("Clear"));
+    command->setCategory(QtilitiesCategory("Editing"));
     edit_menu->addAction(command);
     edit_menu->addSeperator();
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_FIND,QObject::tr("Find"),QKeySequence(QKeySequence::Find));
@@ -136,14 +143,11 @@ int main(int argc, char *argv[])
     // Now that all the modes have been loaded from the plugins, add them to the main window:
     exampleMainWindow.modeManager()->initialize();
     QStringList mode_order;
-    mode_order << "Qtilities Debugging";
     mode_order << "Object Management";
     mode_order << "Session Log";
+    mode_order << "Qtilities Debugging";
     exampleMainWindow.modeManager()->setPreferredModeOrder(mode_order);
-    //mode_order.removeAt(0);
-    //mode_order.removeAt(0);
-    //exampleMainWindow.modeManager()->setDisabledModes(mode_order);
-    //exampleMainWindow.modeManager()->setActiveMode("Object Management");
+    exampleMainWindow.modeManager()->setActiveMode("Object Management");
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));

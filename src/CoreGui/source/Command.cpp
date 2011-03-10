@@ -35,18 +35,24 @@
 #include "QtilitiesApplication.h"
 #include "QtilitiesCoreGuiConstants.h"
 
-#include <Logger.h>
+#include <Logger>
+#include <QtilitiesProperty>
 
 #include <QPointer>
 
 using namespace Qtilities::CoreGui::Constants;
+using namespace Qtilities::Core;
+
+int Qtilities::CoreGui::Command::d_category_context;
 
 // --------------------------------
 // Command Implemenation
 // --------------------------------
-Qtilities::CoreGui::Command::Command(QObject* parent) : QObject(parent)
+Qtilities::CoreGui::Command::Command(int category_context, QObject* parent) : QObject(parent)
 {
     c = new CommandPrivateData;
+    d_category_context = category_context;
+    setCategory(QtilitiesCategory("General"));
 }
 
 Qtilities::CoreGui::Command::~Command() {
@@ -83,6 +89,30 @@ QString Qtilities::CoreGui::Command::defaultText() const {
     return c->default_text;
 }
 
+void Qtilities::CoreGui::Command::setCategory(Qtilities::Core::QtilitiesCategory category) {
+    // Ok it changed, thus set it again:
+    if (Observer::propertyExists(this,qti_prop_CATEGORY_MAP)) {
+        MultiContextProperty category_property = Observer::getMultiContextProperty(this,qti_prop_CATEGORY_MAP);
+        category_property.setValue(qVariantFromValue(category),d_category_context);
+        Observer::setMultiContextProperty(this,category_property);
+    } else {
+        MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+        category_property.setValue(qVariantFromValue(category),d_category_context);
+        Observer::setMultiContextProperty(this,category_property);
+    }
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const {
+    Observer* obs = OBJECT_MANAGER->observerReference(d_category_context);
+    if (obs) {
+        QVariant category_variant = obs->getQtilitiesPropertyValue(this,qti_prop_CATEGORY_MAP);
+        if (category_variant.isValid()) {
+            return category_variant.value<QtilitiesCategory>();
+        }
+    }
+    return QtilitiesCategory();
+}
+
 // --------------------------------
 // MultiContextAction Implemenation
 // --------------------------------
@@ -101,7 +131,7 @@ struct Qtilities::CoreGui::MultiContextActionPrivateData {
     QHash<int, QPointer<QAction> > id_action_map;
 };
 
-Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, QObject* parent) : Command(parent) {
+Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, int category_context, QObject* parent) : Command(category_context, parent) {
     d = new MultiContextActionPrivateData;
 
     d->frontend_action = user_visible_action;
@@ -189,7 +219,6 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
     for (int i = 0; i < d->active_contexts.size(); ++i) {
         if (QAction *a = d->id_action_map.value(d->active_contexts.at(i), 0)) {
             d->active_backend_action = a;
-            setObjectName(a->text());
             d->active_backend_action->setObjectName(a->text());
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
@@ -347,8 +376,9 @@ struct Qtilities::CoreGui::ShortcutCommandPrivateData {
     QList<int>      active_contexts;
 };
 
-Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, QObject* parent) : Command(parent) {
+Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, int category_context, QObject* parent) : Command(category_context, parent) {
     d = new ShortcutCommandPrivateData;
+    Q_ASSERT(shortcut);
 
     d->user_text = user_text;
     d->shortcut = shortcut;

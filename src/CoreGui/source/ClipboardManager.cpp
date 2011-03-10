@@ -101,7 +101,8 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
     d->actionPaste = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),tr("Paste"),this);
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
-    ACTION_MANAGER->registerAction(qti_action_EDIT_PASTE,d->actionPaste,context);
+    Command* command = ACTION_MANAGER->registerAction(qti_action_EDIT_PASTE,d->actionPaste,context);
+    command->setCategory(QtilitiesCategory("Editing"));
 
     d->initialized = true;
 }

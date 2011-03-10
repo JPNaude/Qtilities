@@ -56,7 +56,7 @@ over disabling and enabling these three actions in %Qtilities applications. For 
 should only be enabled if something exists in the the clipboard. Also, when you perform a paste operation,
 the paste action must become disabled again. The clipboard manager provides this functionality.
 
-To use the %Qtilities clipboard in your applications, you must register the copy, cut and paste actions in your main
+To use the %Qtilities clipboard in your applications, you must register the copy and cut actions in your main
 function and then initialize the clipboard as shown below:
 
 \code
@@ -74,8 +74,6 @@ std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_COPY,QObject::tr("Copy"),QKeySequence(QKeySequence::Copy));
 edit_menu->addAction(command);
 command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_CUT,QObject::tr("Cut"),QKeySequence(QKeySequence::Cut));
-edit_menu->addAction(command);
-command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_PASTE,QObject::tr("Paste"),QKeySequence(QKeySequence::Paste));
 edit_menu->addAction(command);
 
 // We want to use paste operations in this application, thus initialize the clipboard.

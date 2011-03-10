@@ -39,6 +39,7 @@
 #include <QSettings>
 #include <QLabel>
 
+using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
@@ -156,7 +157,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
 
     if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
         if (!d->mode_manager) {
-            d->mode_manager = new ModeManager(Qt::Vertical,this);
+            d->mode_manager = new ModeManager(qti_def_DEFAULT_MODE_MANAGER,Qt::Vertical,this);
             connect(d->mode_manager,SIGNAL(changeCentralWidget(QWidget*)),SLOT(changeCurrentWidget(QWidget*)));
         }
 
@@ -179,7 +180,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
         d->central_widget->show();
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
         if (!d->mode_manager) {
-            d->mode_manager = new ModeManager(Qt::Horizontal,this);
+            d->mode_manager = new ModeManager(qti_def_DEFAULT_MODE_MANAGER,Qt::Horizontal,this);
             connect(d->mode_manager,SIGNAL(changeCentralWidget(QWidget*)),SLOT(changeCurrentWidget(QWidget*)));
         }
 

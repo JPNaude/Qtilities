@@ -319,8 +319,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>98</width>
-             <height>278</height>
+             <width>1013</width>
+             <height>608</height>
             </rect>
            </property>
            <attribute name="label">
@@ -517,35 +517,54 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>350</width>
-             <height>174</height>
+             <width>1013</width>
+             <height>608</height>
             </rect>
            </property>
            <attribute name="label">
             <string>Action Management</string>
            </attribute>
-           <layout class="QGridLayout" name="gridLayout_14">
-            <property name="margin">
-             <number>3</number>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="topMargin">
+             <number>9</number>
             </property>
-            <item row="0" column="0">
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
+            <item>
              <widget class="QLabel" name="label_7">
               <property name="text">
                <string>This page provides an overview of the action manager's current state:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0" colspan="2">
+            <item>
              <widget class="Line" name="line_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="2">
-             <widget class="QWidget" name="commandEditorHolder" native="true"/>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QWidget" name="commandEditorHolder" native="true"/>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBox_22">
+                <property name="title">
+                 <string>Action Containers:</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_14">
+                 <item row="0" column="0">
+                  <widget class="QWidget" name="actionContainersHolder" native="true"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
             </item>
-            <item row="3" column="0" colspan="2">
+            <item>
              <widget class="QGroupBox" name="groupBox_7">
               <property name="title">
                <string>Selected Command Overview:</string>
@@ -769,8 +788,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>298</height>
+             <width>1013</width>
+             <height>689</height>
             </rect>
            </property>
            <attribute name="label">

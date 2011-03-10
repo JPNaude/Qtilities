@@ -176,9 +176,10 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->config_pages_widget.setDisplayMode(d->display_mode);
         d->config_pages_widget.setObserverContext(&d->config_pages);
         d->config_pages_widget.initialize();
-        d->config_pages_widget.toggleSearchBox();
-        if (d->config_pages_widget.searchBoxWidget())
+        if (!d->config_pages_widget.searchBoxWidget()) {
+            d->config_pages_widget.toggleSearchBox();
             d->config_pages_widget.searchBoxWidget()->setButtonFlags(SearchBoxWidget::NoButtons);
+        }
     }
 
     d->config_pages_widget.resizeTableViewRows(22);

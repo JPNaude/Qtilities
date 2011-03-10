@@ -987,9 +987,7 @@ struct Qtilities::CoreGui::NamingPolicyDelegateData {
     QObject* obj;
 };
 
-Qtilities::CoreGui::NamingPolicyDelegate::NamingPolicyDelegate(QObject *parent) {
-    Q_UNUSED(parent)
-
+Qtilities::CoreGui::NamingPolicyDelegate::NamingPolicyDelegate(QObject *parent) : QItemDelegate(parent) {
     d = new NamingPolicyDelegateData;
     d->observer = 0;
     d->naming_filter = 0;

@@ -48,6 +48,9 @@ class QAction;
 class QShortcut;
 
 namespace Qtilities {
+    namespace Core {
+        class Observer;
+    }
     namespace CoreGui {
         //! Namespace containing available interfaces which forms part of the CoreGui Module.
         namespace Interfaces {
@@ -141,8 +144,6 @@ namespace Qtilities {
                 //! Access function for menus and menu bars.
                 virtual ActionContainer *actionContainer(const QString &id) const = 0;
 
-                //! Returns a list with all commands.
-                virtual QHash<QString, Command* > commandMap() = 0;
                 //! Restores the default shortcut configuration.
                 virtual void restoreDefaultShortcuts() = 0;
                 //! Exports the current shortcut configuraiton.
@@ -156,6 +157,12 @@ namespace Qtilities {
                     \sa Qtilities::CoreGui::CommandEditor
                     */
                 virtual QWidget* commandEditor() = 0;
+                //! Returns commands that uses a specific shortcut mapping.
+                virtual QList<Command*> commandsWithKeySequence(QKeySequence key_sequence) = 0;
+                //! Returns the observer managing commands.
+                virtual Core::Observer* commandObserver() = 0;
+                //! Returns the observer managing action containers.
+                virtual Core::Observer* actionContainerObserver() = 0;
 
             public slots:
                 virtual void handleContextChanged(QList<int> new_contexts) = 0;

@@ -241,7 +241,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                                     SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
                                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
                                 } else {
-                                    LOG_DEBUG(tr("Plugin (") + stripped_file_name + tr(") initialized successfully."));
+                                    LOG_INFO(tr("Successfully initialized plugin \"") + stripped_file_name + tr("\"."));
                                 }
                             }
                         } else {
@@ -276,12 +276,13 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 QString error_string;
                 emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
                 QCoreApplication::processEvents();
-                if (!pluginIFace->initializeDependancies(&error_string)) {
-                    LOG_ERROR(error_string);
+                if (!pluginIFace->initializeDependancies(&error_string)) {               
                     pluginIFace->setPluginState(IPlugin::DependancyError);
                     pluginIFace->setErrorString(error_string);
                     SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
                     Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+
+                    LOG_ERROR(tr("Plugin (") + pluginIFace->pluginName() + tr(") failed during dependency initialization with error: ") + error_string);
                 } else {
                     // Set the default state of the plugin:
                     pluginIFace->setPluginState(IPlugin::Functional);
@@ -293,6 +294,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
                     // Add it to the active list:
                     d->current_active_plugins << pluginIFace->pluginName();
+
+                    LOG_INFO(tr("Successfully initialized dependencies in plugin \"") + pluginIFace->pluginName() + tr("\"."));
                 }
 
                 // Set the foreground color of core plugins:

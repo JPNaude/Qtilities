@@ -103,6 +103,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectNew->setShortcut(QKeySequence(QKeySequence::New));
     connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
     Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_NEW,d->actionProjectNew,context);
+    command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Open Project
@@ -111,6 +112,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectOpen->setShortcut(QKeySequence(QKeySequence::Open));
     connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_OPEN,d->actionProjectOpen,context);
+    command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Close Project
@@ -119,6 +121,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectClose->setEnabled(false);
     connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_CLOSE,d->actionProjectClose,context);
+    command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Save Project
@@ -128,6 +131,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSave->setShortcut(QKeySequence(QKeySequence::Save));
     connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE,d->actionProjectSave,context);
+    command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     // ---------------------------
     // Save Project As
@@ -137,6 +141,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     d->actionProjectSaveAs->setShortcut(QKeySequence(QKeySequence::SaveAs));
     connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
+    command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     file_menu->addSeperator(qti_action_FILE_SETTINGS);
 
@@ -149,8 +154,6 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
 
 bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
     Q_UNUSED(errorString)
-
-    PROJECT_MANAGER->refreshPartList();
     return true;
 }
 

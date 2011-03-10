@@ -108,6 +108,7 @@ Qtilities::Examples::MainWindow::ExampleMode::ExampleMode(QWidget *parent) :
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerAction("ExampleMode.DynamicDockWidget",d->actionShowDock,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     bool existed;
     ActionContainer* view_menu = ACTION_MANAGER->createMenu(qti_action_VIEW,existed);
     view_menu->addAction(command);

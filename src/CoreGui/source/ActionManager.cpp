@@ -36,13 +36,13 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "CommandEditor.h"
 #include "QtilitiesApplication.h"
+#include "TreeNode.h"
 
-#include <QtilitiesProperty.h>
-#include <QtilitiesCoreConstants.h>
+#include <QtilitiesProperty>
+#include <QtilitiesCoreConstants>
 #include <QtilitiesLogging>
-#include <Logger.h>
-#include <Observer.h>
 #include <Qtilities.h>
+#include <SubjectIterator>
 
 #include <QMainWindow>
 #include <QList>
@@ -64,11 +64,12 @@ using namespace Qtilities::Logging::Constants;
 bool Qtilities::CoreGui::ActionManager::showed_warning;
 
 struct Qtilities::CoreGui::ActionManagerPrivateData {
-    ActionManagerPrivateData() { }
+    ActionManagerPrivateData() : observer_commands("Registered Commands"),
+      observer_action_container("Registered Action Containers") { }
 
     QPointer<CommandEditor> command_editor;
-    QHash<QString, Command*> id_command_map;
-    QHash<QString, ActionContainer*> id_container_map;
+    TreeNode observer_commands;
+    TreeNode observer_action_container;
 };
 
 Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManager(parent)
@@ -83,6 +84,11 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
         sessionDir.cdUp();
         sessionDir.mkdir(qti_def_PATH_SESSION);
     }
+
+    // Set up the observers:
+    d->observer_commands.enableCategorizedDisplay();
+    d->observer_commands.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+    d->observer_commands.displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
 }
 
 Qtilities::CoreGui::ActionManager::~ActionManager()
@@ -91,32 +97,35 @@ Qtilities::CoreGui::ActionManager::~ActionManager()
 }
 
 Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMenu(const QString &id, bool& existed) {
-    if (d->id_container_map.keys().contains(id)) {
+    if (d->observer_action_container.containsSubjectWithName(id)) {
         existed = true;
-        return d->id_container_map[id];
+        QObject* obj = d->observer_action_container.subjectReference(id);
+        return qobject_cast<ActionContainer*> (obj);
     }
 
     existed = false;
     MenuContainer* new_container = new MenuContainer(id,this);
-
     if (new_container) {
-        d->id_container_map[id] = new_container;
+        new_container->setObjectName(id);
+        d->observer_action_container << new_container;
         return new_container;
     } else
         return 0;
 }
 
 Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::menu(const QString &id) {
-    if (d->id_container_map.keys().contains(id))
-        return d->id_container_map[id];
-    else
+    if (d->observer_action_container.containsSubjectWithName(id)) {
+        QObject* obj = d->observer_action_container.subjectReference(id);
+        return qobject_cast<ActionContainer*> (obj);
+    } else
         return 0;
 }
 
 Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMenuBar(const QString &id, bool& existed) {
-    if (d->id_container_map.keys().contains(id)) {
+    if (d->observer_action_container.containsSubjectWithName(id)) {
         existed = true;
-        return d->id_container_map[id];
+        QObject* obj = d->observer_action_container.subjectReference(id);
+        return qobject_cast<ActionContainer*> (obj);
     }
 
     existed = false;
@@ -124,17 +133,24 @@ Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMe
     MenuBarContainer* new_container = new MenuBarContainer(this);
 
     if (new_container) {
-        d->id_container_map[id] = new_container;
+        new_container->setObjectName(id);
+        d->observer_action_container << new_container;
         return new_container;
     } else
         return 0;
 }
 
 Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::menuBar(const QString &id) {
-    if (d->id_container_map.keys().contains(id))
-        return d->id_container_map[id];
-    else
+    if (d->observer_action_container.containsSubjectWithName(id)) {
+        QObject* obj = d->observer_action_container.subjectReference(id);
+        return qobject_cast<ActionContainer*> (obj);
+    } else
         return 0;
+}
+
+Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::actionContainer(const QString &id) const {
+    QObject* obj = d->observer_action_container.subjectReference(id);
+    return qobject_cast<ActionContainer*> (obj);
 }
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(const QString &id, QAction *action, const QList<int> &context) {
@@ -143,9 +159,10 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 
     // Check if there is already a front end action for this action id:
     Command* command = 0;
-    if (d->id_command_map.keys().contains(id))
-        command = d->id_command_map[id];
-    else
+    if (d->observer_commands.containsSubjectWithName(id)) {
+        QObject* obj = d->observer_commands.subjectReference(id);
+        command = qobject_cast<Command*> (obj);
+    } else
         command = registerActionPlaceHolder(id,action->text());
 
     if (command) {
@@ -193,7 +210,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 
 Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
     // First check if an action with the specified id already exist:
-    if (d->id_command_map.keys().contains(id)) {
+    if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register action place holder for a command which already exist with ID: ") + id);
         return 0;
     }
@@ -220,7 +237,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
-    MultiContextAction* new_action = new MultiContextAction(frontend_action);
+    MultiContextAction* new_action = new MultiContextAction(frontend_action,d->observer_commands.observerID());
     if (new_action) {
         new_action->setObjectName(id);
         new_action->setDefaultText(id);
@@ -230,7 +247,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
             new_action->addAction(holder_backend_action,context);
         }
         new_action->setCurrentContext(CONTEXT_MANAGER->activeContexts());
-        d->id_command_map[id] = new_action;
+        d->observer_commands << new_action;
 
         new_action->setKeySequence(key_sequence);
         new_action->setDefaultKeySequence(key_sequence);
@@ -248,7 +265,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
         return 0;
 
     // First check if a command with the specified id already exist:
-    if (d->id_command_map.keys().contains(id)) {
+    if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register a shortcut for a command which already exist with ID: ") + id);
         return 0;
     }
@@ -260,14 +277,15 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
     }
 
     // Create new shortcut:
-    ShortcutCommand* new_shortcut = new ShortcutCommand(user_text,shortcut,contexts,QtilitiesApplication::mainWindow());
+    ShortcutCommand* new_shortcut = new ShortcutCommand(user_text,shortcut,contexts,d->observer_commands.observerID(),QtilitiesApplication::mainWindow());
     if (new_shortcut) {
+        new_shortcut->setObjectName(id);
         new_shortcut->setDefaultText(id);
         new_shortcut->setCurrentContext(CONTEXT_MANAGER->activeContexts());
-        d->id_command_map[id] = new_shortcut;
+        d->observer_commands << new_shortcut;
 
-        new_shortcut->setKeySequence(shortcut->key());
         new_shortcut->setDefaultKeySequence(shortcut->key());
+        new_shortcut->setKeySequence(shortcut->key());
         emit numberOfCommandsChanged();
         return new_shortcut;
     }
@@ -276,33 +294,41 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
 }
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::command(const QString &id) const {
-    if (d->id_command_map.keys().contains(id))
-        return d->id_command_map.value(id);
-    else
+    if (d->observer_commands.containsSubjectWithName(id)) {
+        QObject* obj = d->observer_commands.subjectReference(id);
+        return qobject_cast<Command*> (obj);
+    } else
         return 0;
 }
 
-Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::actionContainer(const QString &id) const {
-    return d->id_container_map.value(id);
-}
-
 void Qtilities::CoreGui::ActionManager::handleContextChanged(QList<int> new_contexts) {
-    for (int i = 0; i < d->id_command_map.count(); i++) {
-        if (d->id_command_map.values().at(i))
-            d->id_command_map.values().at(i)->setCurrentContext(new_contexts);
+    if (d->observer_commands.subjectCount() == 0)
+        return;
+
+    Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+
+    if (command_itr.current())
+        command_itr.current()->setCurrentContext(new_contexts);
+
+    while (command_itr.hasNext()) {
+        command_itr.next()->setCurrentContext(new_contexts);
     }
 }
 
-QHash<QString, Qtilities::CoreGui::Command* > Qtilities::CoreGui::ActionManager::commandMap() {
-    return d->id_command_map;
-}
-
 void Qtilities::CoreGui::ActionManager::restoreDefaultShortcuts() {
-    for (int i = 0; i < d->id_command_map.count(); i++) {
-        Command* command = d->id_command_map.values().at(i);
-        if (command) {
-            command->setKeySequence(command->defaultKeySequence());
-        }
+    if (d->observer_commands.subjectCount() == 0)
+        return;
+
+    Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+
+    if (command_itr.current())
+        command_itr.current()->setKeySequence(command_itr.current()->defaultKeySequence());
+
+    while (command_itr.hasNext()) {
+        Command* cmd = command_itr.next();
+        cmd->setKeySequence(cmd->defaultKeySequence());
     }
 }
 
@@ -318,10 +344,23 @@ bool Qtilities::CoreGui::ActionManager::saveShortcutMapping(const QString& file_
     // All shortcuts:
     QDomElement shortcuts = doc.createElement("Shortcuts");
     root.appendChild(shortcuts);
-    for (int i = 0; i < d->id_command_map.count(); i++) {
-        QDomElement tag = doc.createElement("Shortcut_" + QString::number(i));
-        tag.setAttribute("CommandID",d->id_command_map.keys().at(i));
-        tag.setAttribute("KeySequence",d->id_command_map.values().at(i)->keySequence().toString());
+
+    Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+
+    if (command_itr.current()) {
+        QDomElement tag = doc.createElement("Shortcut_0");
+        tag.setAttribute("CommandID",command_itr.current()->defaultText());
+        tag.setAttribute("KeySequence",command_itr.current()->keySequence().toString());
+        shortcuts.appendChild(tag);
+    }
+
+    int count = 1;
+    while (command_itr.next()) {
+        ++count;
+        QDomElement tag = doc.createElement("Shortcut_" + QString::number(count));
+        tag.setAttribute("CommandID",command_itr.current()->defaultText());
+        tag.setAttribute("KeySequence",command_itr.current()->keySequence().toString());
         shortcuts.appendChild(tag);
     }
 
@@ -404,8 +443,8 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
                 if (shortcut.tagName().startsWith("Shortcut_")) {
                     QString commandID = shortcut.attribute("CommandID");
                     QString key_sequence = shortcut.attribute("KeySequence");
-                    if (d->id_command_map.contains(commandID)) {
-                        Command* command = d->id_command_map[commandID];
+                    if (d->observer_commands.containsSubjectWithName(commandID)) {
+                        Command* command = qobject_cast<Command*> (d->observer_commands.subjectReference(commandID));
                         if (command) {
                             command->setKeySequence(QKeySequence(key_sequence));
                             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
@@ -434,8 +473,40 @@ QWidget* Qtilities::CoreGui::ActionManager::commandEditor() {
     return d->command_editor;
 }
 
-void Qtilities::CoreGui::ActionManager::handleCommandDeleted(QObject* obj) {
-    Q_UNUSED(obj)
-    // We need to remove obj for our lists:
+QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeySequence key_sequence) {
+    QList<Command*> commands;
 
+    if (d->observer_commands.subjectCount() == 0)
+        return commands;
+
+    Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+
+    if (command_itr.current()) {
+        foreach (QString search_string, key_sequence.toString().split(",")) {
+            if (command_itr.current()->keySequence().toString().split(",").contains(search_string)) {
+                commands << command_itr.current();
+                break;
+            }
+        }
+    }
+
+    while (command_itr.next()) {
+        foreach (QString search_string, key_sequence.toString().split(",")) {
+            if (command_itr.current()->keySequence().toString().split(",").contains(search_string)) {
+                commands << command_itr.current();
+                break;
+            }
+        }
+    }
+
+    return commands;
+}
+
+Qtilities::Core::Observer* Qtilities::CoreGui::ActionManager::commandObserver() {
+    return &d->observer_commands;
+}
+
+Qtilities::Core::Observer* Qtilities::CoreGui::ActionManager::actionContainerObserver() {
+    return &d->observer_action_container;
 }

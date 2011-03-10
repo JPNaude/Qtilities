@@ -1154,108 +1154,121 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->actionNewItem = new QAction(QIcon(qti_icon_NEW_16x16),tr("New Item"),this);
     d->actionNewItem->setShortcut(QKeySequence("+"));
     connect(d->actionNewItem,SIGNAL(triggered()),SLOT(handle_actionNewItem_triggered()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_NEW_ITEM,d->actionNewItem,context);
+    Command* command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_NEW_ITEM,d->actionNewItem,context);
     d->action_provider->addAction(d->actionNewItem,QtilitiesCategory(tr("Items")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Remove Item
     // ---------------------------
     d->actionRemoveItem = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),tr("Detach Selection"),this);
     connect(d->actionRemoveItem,SIGNAL(triggered()),SLOT(selectionDetach()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ITEM,d->actionRemoveItem,context);
     d->action_provider->addAction(d->actionRemoveItem,QtilitiesCategory(tr("Items")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Delete Item
     // ---------------------------
     d->actionDeleteItem = new QAction(QIcon(qti_icon_DELETE_ONE_16x16),tr("Delete Selection"),this);
     d->actionDeleteItem->setShortcut(QKeySequence(QKeySequence::Delete));
     connect(d->actionDeleteItem,SIGNAL(triggered()),SLOT(selectionDelete()));
-    ACTION_MANAGER->registerAction(qti_action_SELECTION_DELETE,d->actionDeleteItem,context);
+    command = ACTION_MANAGER->registerAction(qti_action_SELECTION_DELETE,d->actionDeleteItem,context);
     d->action_provider->addAction(d->actionDeleteItem,QtilitiesCategory(tr("Items")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Remove All
     // ---------------------------    
     d->actionRemoveAll = new QAction(QIcon(qti_icon_REMOVE_ALL_16x16),tr("Deatch All Children"),this);
     connect(d->actionRemoveAll,SIGNAL(triggered()),SLOT(selectionDetachAll()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REMOVE_ALL,d->actionRemoveAll,context);
     d->action_provider->addAction(d->actionRemoveAll,QtilitiesCategory(tr("Items")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Delete All
     // ---------------------------
     d->actionDeleteAll = new QAction(QIcon(qti_icon_DELETE_ALL_16x16),tr("Delete All Children"),this);
     connect(d->actionDeleteAll,SIGNAL(triggered()),SLOT(selectionDeleteAll()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_DELETE_ALL,d->actionDeleteAll,context);
     d->action_provider->addAction(d->actionDeleteAll,QtilitiesCategory(tr("Items")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Switch View
     // ---------------------------
     d->actionSwitchView = new QAction(QIcon(),tr("Switch View"),this);
     d->actionSwitchView->setShortcut(QKeySequence("F4"));
     connect(d->actionSwitchView,SIGNAL(triggered()),SLOT(toggleDisplayMode()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_SWITCH_VIEW,d->actionSwitchView,context);
     d->action_provider->addAction(d->actionSwitchView,QtilitiesCategory(tr("View")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Refresh View
     // ---------------------------
     d->actionRefreshView = new QAction(QIcon(qti_icon_REFRESH_16x16),tr("Refresh View"),this);
+    d->actionSwitchView->setShortcut(QKeySequence(QKeySequence::Refresh));
     connect(d->actionRefreshView,SIGNAL(triggered()),SLOT(refresh()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_REFRESH_VIEW,d->actionRefreshView,context);
     d->action_provider->addAction(d->actionRefreshView,QtilitiesCategory(tr("View")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Find Item
     // ---------------------------
     d->actionFindItem = new QAction(QIcon(qti_icon_FIND_16x16),tr("Find"),this);
     d->actionFindItem->setShortcut(QKeySequence(QKeySequence::Find));
     connect(d->actionFindItem,SIGNAL(triggered()),SLOT(toggleSearchBox()));
-    ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFindItem,context);
+    command = ACTION_MANAGER->registerAction(qti_action_EDIT_FIND,d->actionFindItem,context);
     d->action_provider->addAction(d->actionFindItem,QtilitiesCategory(tr("View")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Go To Parent
     // ---------------------------
     d->actionPushUp = new QAction(QIcon(qti_icon_PUSH_UP_CURRENT_16x16),tr("Go To Parent"),this);
     d->actionPushUp->setShortcut(QKeySequence("Left"));
     connect(d->actionPushUp,SIGNAL(triggered()),SLOT(selectionPushUp()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP,d->actionPushUp,context);
     d->action_provider->addAction(d->actionPushUp,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Go To Parent In New Window
     // ---------------------------
     d->actionPushUpNew = new QAction(QIcon(qti_icon_PUSH_UP_NEW_16x16),tr("Go To Parent (New Window)"),this);
     connect(d->actionPushUpNew,SIGNAL(triggered()),SLOT(selectionPushUpNew()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_UP_NEW,d->actionPushUpNew,context);
     d->action_provider->addAction(d->actionPushUpNew,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Push Down
     // ---------------------------
     d->actionPushDown = new QAction(QIcon(qti_icon_PUSH_DOWN_CURRENT_16x16),tr("Push Down"),this);
     d->actionPushDown->setShortcut(QKeySequence("Right"));
     connect(d->actionPushDown,SIGNAL(triggered()),SLOT(selectionPushDown()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN,d->actionPushDown,context);
     d->action_provider->addAction(d->actionPushDown,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Push Down In New Window
     // ---------------------------
     d->actionPushDownNew = new QAction(QIcon(qti_icon_PUSH_DOWN_NEW_16x16),tr("Push Down (New Window)"),this);
     connect(d->actionPushDownNew,SIGNAL(triggered()),SLOT(selectionPushDownNew()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_DOWN_NEW,d->actionPushDownNew,context);
     d->action_provider->addAction(d->actionPushDownNew,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Expand All
     // ---------------------------
     d->actionExpandAll = new QAction(QIcon(qti_icon_MAGNIFY_PLUS_16x16),tr("Expand All"),this);
-    d->actionExpandAll->setObjectName("Expand All");
     d->actionExpandAll->setShortcut(QKeySequence("Ctrl+>"));
     connect(d->actionExpandAll,SIGNAL(triggered()),SLOT(viewExpandAll()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_EXPAND,d->actionExpandAll,context);
     d->action_provider->addAction(d->actionExpandAll,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
     // ---------------------------
     // Collapse All
     // ---------------------------
     d->actionCollapseAll = new QAction(QIcon(qti_icon_MAGNIFY_MINUS_16x16),tr("Collapse All"),this);
-    d->actionCollapseAll->setObjectName("Collapse All");
     d->actionCollapseAll->setShortcut(QKeySequence("Ctrl+<"));
     connect(d->actionCollapseAll,SIGNAL(triggered()),SLOT(viewCollapseAll()));
-    ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
+    command = ACTION_MANAGER->registerAction(qti_action_CONTEXT_HIERARCHY_COLLAPSE,d->actionCollapseAll,context);
     d->action_provider->addAction(d->actionCollapseAll,QtilitiesCategory(tr("Hierarchy")));
+    command->setCategory(QtilitiesCategory("Item Views"));
 
     #ifndef QT_NO_DEBUG
     // ---------------------------

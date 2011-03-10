@@ -76,7 +76,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ActionManager.h \
     source/ClipboardManager.h \
     source/CommandEditor.h \
-    source/CommandTableModel.h \
     source/IActionManager.h \
     source/IClipboard.h \
     source/LoggerGui.h \
@@ -105,7 +104,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTableModel.h \
     source/ObserverTreeModel.h \
     source/ObjectDynamicPropertyBrowser.h \
-    source/StringListWidget.h
+    source/StringListWidget.h \
+    source/CommandTreeModel.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -128,7 +128,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ActionManager.cpp \
     source/ClipboardManager.cpp \
     source/CommandEditor.cpp \
-    source/CommandTableModel.cpp \
     source/LoggerEnginesTableModel.cpp \
     source/ConfigurationWidget.cpp \
     source/AboutWindow.cpp \
@@ -151,7 +150,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTableModel.cpp \
     source/ObserverTreeModel.cpp \
     source/ObjectDynamicPropertyBrowser.cpp \
-    source/StringListWidget.cpp
+    source/StringListWidget.cpp \
+    source/CommandTreeModel.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
