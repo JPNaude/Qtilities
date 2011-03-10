@@ -227,6 +227,8 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
         delete ui->actionContainersHolder->layout();
     QHBoxLayout* action_container_layout = new QHBoxLayout(ui->actionContainersHolder);
     d->action_container_widget = new ObserverWidget(ACTION_MANAGER->actionContainerObserver());
+    if (d->action_container_widget->treeView())
+        d->action_container_widget->treeView()->setAlternatingRowColors(true);
     action_container_layout->addWidget(d->action_container_widget);
     action_container_layout->setMargin(0);
 

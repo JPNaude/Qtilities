@@ -526,10 +526,10 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <property name="topMargin">
-             <number>0</number>
+             <number>9</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>9</number>
             </property>
             <item>
              <widget class="QLabel" name="label_7">
@@ -553,7 +553,7 @@ p, li { white-space: pre-wrap; }
               <item>
                <widget class="QGroupBox" name="groupBox_22">
                 <property name="title">
-                 <string>Action Containers</string>
+                 <string>Action Containers:</string>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_14">
                  <item row="0" column="0">
