@@ -21,10 +21,8 @@ In no particular order:
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Fix action manager not assigning backend action shortcut in tooltip and does not work. See CodeEditorWidget for example in Firmware Manager.
 - Sort out Linux dll versioning
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
-- Modes does not get shortcuts at startup. Only when switching. See Firmware Tool for example.
 - ObserverWidget still uses CUT and COPY actions in wrong way.
 - Object Management Example: Binary project does not work.
 - Qtilities debugging action in ObserverWidget does not always show.
