@@ -65,7 +65,7 @@ bool Qtilities::CoreGui::ActionManager::showed_warning;
 
 struct Qtilities::CoreGui::ActionManagerPrivateData {
     ActionManagerPrivateData() : observer_commands("Registered Commands"),
-      observer_action_container("Manages Action Containers") { }
+      observer_action_container("Registered Action Containers") { }
 
     QPointer<CommandEditor> command_editor;
     TreeNode observer_commands;
@@ -105,8 +105,8 @@ Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMe
 
     existed = false;
     MenuContainer* new_container = new MenuContainer(id,this);
-
     if (new_container) {
+        new_container->setObjectName(id);
         d->observer_action_container << new_container;
         return new_container;
     } else
@@ -133,6 +133,7 @@ Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::createMe
     MenuBarContainer* new_container = new MenuBarContainer(this);
 
     if (new_container) {
+        new_container->setObjectName(id);
         d->observer_action_container << new_container;
         return new_container;
     } else
@@ -502,6 +503,10 @@ QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeyS
     return commands;
 }
 
-Qtilities::CoreGui::Observer* Qtilities::CoreGui::ActionManager::commandObserver() {
+Qtilities::Core::Observer* Qtilities::CoreGui::ActionManager::commandObserver() {
     return &d->observer_commands;
+}
+
+Qtilities::Core::Observer* Qtilities::CoreGui::ActionManager::actionContainerObserver() {
+    return &d->observer_action_container;
 }

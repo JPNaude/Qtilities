@@ -161,6 +161,8 @@ namespace Qtilities {
                 virtual QList<Command*> commandsWithKeySequence(QKeySequence key_sequence) = 0;
                 //! Returns the observer managing commands.
                 virtual Core::Observer* commandObserver() = 0;
+                //! Returns the observer managing action containers.
+                virtual Core::Observer* actionContainerObserver() = 0;
 
             public slots:
                 virtual void handleContextChanged(QList<int> new_contexts) = 0;

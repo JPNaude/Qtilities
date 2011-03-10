@@ -52,6 +52,7 @@ struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
         plugin_edit_set_loaded(false) {}
 
     ObserverWidget*     object_pool_widget;
+    ObserverWidget*     action_container_widget;
     QPointer<QObject>   current_object;
     ObjectScopeWidget   object_scope_widget;
 
@@ -212,6 +213,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     d->contexts_main_window.addDockWidget(Qt::TopDockWidgetArea,&d->contexts_dock_window);
 
     // Action Management:
+    // Command Editor:
     if (ui->commandEditorHolder->layout())
         delete ui->commandEditorHolder->layout();
     QHBoxLayout* command_editor_layout = new QHBoxLayout(ui->commandEditorHolder);
@@ -219,6 +221,14 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     command_editor_layout->setMargin(0);
     if (d->command_editor.layout())
         d->command_editor.layout()->setMargin(0);
+
+    // Action Container Editor:
+    if (ui->actionContainersHolder->layout())
+        delete ui->actionContainersHolder->layout();
+    QHBoxLayout* action_container_layout = new QHBoxLayout(ui->actionContainersHolder);
+    d->action_container_widget = new ObserverWidget(ACTION_MANAGER->actionContainerObserver());
+    action_container_layout->addWidget(d->action_container_widget);
+    action_container_layout->setMargin(0);
 
     // Plugins:
     if (ui->listPluginsFilteredHolder->layout())

@@ -84,6 +84,7 @@ namespace Qtilities {
             QWidget* commandEditor();
             QList<Command*> commandsWithKeySequence(QKeySequence shortcut);
             Core::Observer* commandObserver();
+            Core::Observer* actionContainerObserver();
 
         public slots:
             void handleContextChanged(QList<int> new_contexts);
