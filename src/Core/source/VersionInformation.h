@@ -66,7 +66,7 @@ namespace Qtilities {
         {
         public:
             VersionNumber();
-            VersionNumber(int major = 0, int minor = 0, int revision = 0);
+            VersionNumber(int major, int minor = 0, int revision = 0);
             VersionNumber(const QString& version, const QString& seperator = ".");
             VersionNumber(const VersionNumber& ref);
             virtual ~VersionNumber();
