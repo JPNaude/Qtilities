@@ -1033,7 +1033,7 @@ void Qtilities::Core::Observer::deleteAll() {
         QVariant category_variant = getQtilitiesPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
-            delete observerData->subject_list.at(0);
+            observerData->subject_list.at(0)->deleteLater();
         }
     }
 
