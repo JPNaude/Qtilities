@@ -123,6 +123,7 @@ Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::enableNami
             displayHints()->setNamingControlHint(naming_control);
         } else {
             delete nodeData->naming_policy_filter;
+            nodeData->naming_policy_filter = 0;
         }
     }
 
@@ -172,6 +173,7 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActiv
         displayHints()->setActivityDisplayHint(activity_display);
     } else {
         delete nodeData->activity_policy_filter;
+        nodeData->activity_policy_filter = 0;
     }
 
     return nodeData->activity_policy_filter;
@@ -205,8 +207,10 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPol
 Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::setChildType(const QString& child_group_name) {
     nodeData->subject_type_filter = new SubjectTypeFilter(child_group_name);
     nodeData->subject_type_filter->enableInverseFiltering(true);
-    if (!installSubjectFilter(nodeData->subject_type_filter))
+    if (!installSubjectFilter(nodeData->subject_type_filter)) {
         delete nodeData->subject_type_filter;
+        nodeData->subject_type_filter = 0;
+    }
 
     return nodeData->subject_type_filter;
 }
