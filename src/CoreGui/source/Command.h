@@ -75,7 +75,7 @@ namespace Qtilities {
         sequence will be the sequence that triggers that shortcut. If the command is an action, the key sequence will
         trigger the action.
 
-        The command class is an abstract base class and is reimplemented by the MultiContextAction and Shortcut classes.
+        The command class is an abstract base class and is reimplemented by the ProxyAction and Shortcut classes.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT Command : public QObject
         {
@@ -124,30 +124,30 @@ namespace Qtilities {
         };
 		
         /*!
-        \struct MultiContextActionPrivateData
-        \brief A structure storing private data in the MultiContextAction class.
+        \struct ProxyActionPrivateData
+        \brief A structure storing private data in the ProxyAction class.
           */
-        struct MultiContextActionPrivateData;
+        struct ProxyActionPrivateData;
 
         /*!
-        \class MultiContextAction
-        \brief A class which represents a multi context action which triggers different actions for different contexts.
+        \class ProxyAction
+        \brief A class which represents a proxy actionn which triggers different actions for different contexts.
         
-        The MultiContextAction class represents an action which has a frontend action which is triggered 
-        when the shortcut of the MultiContextAction is used, and any number of backend actions which each
+        The ProxyAction class represents an action which has a frontend action which is triggered 
+        when the shortcut of the ProxyAction is used, and any number of backend actions which each
         represent a different context. When context changes happen in the application, the multi context 
         action will make the correct backend action for the set of active contexts active. Thus, when the 
         frontend action trigger, the active backend action will also trigger.
 
         When the active backend action changes, the frontend action inherts the properties of the backend action.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT MultiContextAction : public Command
+        class QTILITIES_CORE_GUI_SHARED_EXPORT ProxyAction : public Command
         {
             Q_OBJECT
 
         public:
-            MultiContextAction(QAction* user_visible_action, int category_context, QObject* parent = 0);
-            virtual ~MultiContextAction();
+            ProxyAction(QAction* user_visible_action, int category_context, QObject* parent = 0);
+            virtual ~ProxyAction();
 
             // --------------------------------
             // Command Implemenation
@@ -163,7 +163,7 @@ namespace Qtilities {
             bool isActive();
             //! Let this action know what contexts are currently active.
             bool setCurrentContext(QList<int> context_ids);
-            //! Provides a list of all the backend actions for this MultiContextAction.
+            //! Provides a list of all the backend actions for this ProxyAction.
             QHash<int, QPointer<QAction> > contextIDActionMap() const;
             //! Provides the active backend action
             QPointer<QAction> activeBackendAction() const;
@@ -172,7 +172,7 @@ namespace Qtilities {
             void updateFrontendAction();
 
         private:
-            MultiContextActionPrivateData* d;
+            ProxyActionPrivateData* d;
         };
 
         /*!

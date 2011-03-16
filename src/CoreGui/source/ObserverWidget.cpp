@@ -2523,7 +2523,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             // ---------------------------
             // Copy
             // ---------------------------
-            // The copy action is not a multi context action. It's enabled/disabled depending on the state of the application
+            // The copy action is not a proxy action. It's enabled/disabled depending on the state of the application
             // clipboard. Thus we just connect to the paste action here and check the observer flag in the paste slot.
             Command* command = ACTION_MANAGER->command(qti_action_EDIT_COPY);
             if (command) {
@@ -2538,7 +2538,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             // ---------------------------
             // Cut
             // ---------------------------
-            // The cut action is not a multi context action. It's enabled/disabled depending on the state of the application
+            // The cut action is not a proxy action. It's enabled/disabled depending on the state of the application
             // clipboard. Thus we just connect to the paste action here and check the observer flag in the paste slot.
             Command* command = ACTION_MANAGER->command(qti_action_EDIT_CUT);
             if (command) {

@@ -114,10 +114,10 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const
 }
 
 // --------------------------------
-// MultiContextAction Implemenation
+// ProxyAction Implemenation
 // --------------------------------
-struct Qtilities::CoreGui::MultiContextActionPrivateData {
-    MultiContextActionPrivateData() : frontend_action(0),
+struct Qtilities::CoreGui::ProxyActionPrivateData {
+    ProxyActionPrivateData() : frontend_action(0),
     initialized(false),
     is_active(false) { }
 
@@ -131,8 +131,8 @@ struct Qtilities::CoreGui::MultiContextActionPrivateData {
     QHash<int, QPointer<QAction> > id_action_map;
 };
 
-Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible_action, int category_context, QObject* parent) : Command(category_context, parent) {
-    d = new MultiContextActionPrivateData;
+Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action, int category_context, QObject* parent) : Command(category_context, parent) {
+    d = new ProxyActionPrivateData;
 
     d->frontend_action = user_visible_action;
     if (d->frontend_action) {
@@ -142,19 +142,19 @@ Qtilities::CoreGui::MultiContextAction::MultiContextAction(QAction* user_visible
     }
 }
 
-Qtilities::CoreGui::MultiContextAction::~MultiContextAction() {
+Qtilities::CoreGui::ProxyAction::~ProxyAction() {
     delete d;
 }
 
-QAction* Qtilities::CoreGui::MultiContextAction::action() const {
+QAction* Qtilities::CoreGui::ProxyAction::action() const {
     return d->frontend_action;
 }
 
-QShortcut* Qtilities::CoreGui::MultiContextAction::shortcut() const {
+QShortcut* Qtilities::CoreGui::ProxyAction::shortcut() const {
     return 0;
 }
 
-QString Qtilities::CoreGui::MultiContextAction::text() const
+QString Qtilities::CoreGui::ProxyAction::text() const
 {
     if (!d->frontend_action)
         return QString();
@@ -162,7 +162,7 @@ QString Qtilities::CoreGui::MultiContextAction::text() const
     return d->frontend_action->text();
 }
 
-void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<int> context_ids) {
+void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> context_ids) {
     if (!action)
         return;
 
@@ -180,7 +180,7 @@ void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<in
             // Check if there is already an action for this context
             if (d->id_action_map.keys().contains(context_ids.at(i))) {
                 if (d->id_action_map[context_ids.at(i)] != 0) {
-                    LOG_WARNING(tr("Attempting to register a backend action for a multi context action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
+                    LOG_WARNING(tr("Attempting to register a backend action for a proxy action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
                     return;
                 } else {
                     d->id_action_map[context_ids.at(i)] = action;
@@ -200,13 +200,13 @@ void Qtilities::CoreGui::MultiContextAction::addAction(QAction* action, QList<in
     updateFrontendAction();
 }
 
-bool Qtilities::CoreGui::MultiContextAction::isActive() {
+bool Qtilities::CoreGui::ProxyAction::isActive() {
     return d->is_active;
 }
 
-bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> context_ids) {
+bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) {
     #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-    LOG_TRACE("Context update request on command (multi context action): " + defaultText());
+    LOG_TRACE("Context update request on command (proxy action): " + defaultText());
     #endif
 
     // If this is just a place holder without any backend action we do nothing in here.
@@ -222,7 +222,7 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
             d->active_backend_action->setObjectName(a->text());
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-            LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", MultiContextAction shortcut: " + d->frontend_action->shortcut().toString());
+            LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", ProxyAction shortcut: " + d->frontend_action->shortcut().toString());
             #endif
 
             // This break will ensure that the first context is used for the case where multiple contexts are active at once.
@@ -281,7 +281,7 @@ bool Qtilities::CoreGui::MultiContextAction::setCurrentContext(QList<int> contex
     return false;
 }
 
-void Qtilities::CoreGui::MultiContextAction::updateFrontendAction() {
+void Qtilities::CoreGui::ProxyAction::updateFrontendAction() {
     // If this is just a place holder without any backend action we do nothing in here
     if (d->id_action_map.count() == 0)
         return;
@@ -309,7 +309,7 @@ void Qtilities::CoreGui::MultiContextAction::updateFrontendAction() {
     d->frontend_action->blockSignals(previous_block_value);
 }
 
-void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeySequence& old_key) {
+void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence& old_key) {
     // Check if the old key is part of the backend actions' tooltips:
     QString old_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(old_key.toString(QKeySequence::NativeText));
     QAction* backend_action;
@@ -354,11 +354,11 @@ void Qtilities::CoreGui::MultiContextAction::handleKeySequenceChange(const QKeyS
     }
 }
 
-QHash<int, QPointer<QAction> > Qtilities::CoreGui::MultiContextAction::contextIDActionMap() const {
+QHash<int, QPointer<QAction> > Qtilities::CoreGui::ProxyAction::contextIDActionMap() const {
     return d->id_action_map;
 }
 
-QPointer<QAction> Qtilities::CoreGui::MultiContextAction::activeBackendAction() const {
+QPointer<QAction> Qtilities::CoreGui::ProxyAction::activeBackendAction() const {
     return d->active_backend_action;
 }
 

@@ -96,32 +96,23 @@ namespace Qtilities {
                 virtual ActionContainer *menuBar(const QString &id) = 0;
                 //! Registers an action with the action manager.
                 /*!
-                  This function can be used to register an action with the action manager. If an action placeholder already exists
-                  with the given id, this action will be added as a backend for the current multi context action under the given contexts.
-
-                  Note that this function will set the shortcut of the backend action to QKeySequence() to avoid ambigious action triggers
-                  when the frontend action and the backend action are both active. If the frontend action does not have an shortcut associated with it
-                  yet, it will inherit the shortcut of \p action. If the frontend already contains an action which is different than
-                  the shortcut provided by \p action, an error message will be printed and the original shortcut will be used.
+                  This function can be used to register an action with the action manager. If an action placeholder already exists with the given id, this action will be added as a backend for the current proxy action under the given contexts.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the action manager.
                   \param action The backend action associated with the id & context pairing.
                   \param context The context for which this action should be registered. The action manager is linked with the context manager and when the context changes, all the actions will be updated for the new context. When an action does not have a backend action specified for a given context, it will be disabled. Leaving the context the default QList<int>() will register it in the standard application context (always active).
                   \return The command created for the given id.
+
+                  \note This function will set the shortcut of the backend action to QKeySequence() to avoid ambigious action triggers when the frontend action and the backend action are both active. If the frontend action does not have an shortcut associated with it yet, it will inherit the shortcut of \p action. If the frontend already contains an action which is different than the shortcut provided by \p action, an error message will be printed and the original shortcut will be used.
+
+                  \note The user_text of the command will be taken from the action's text() function.
                   */
                 virtual Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>()) = 0;
                 //! Registers an action placeholder with the action manager.
                 /*!
-                  This function is used to create a placeholder for future action types in the system. This is usefull in cases where the actual backend action is not registered at application startup. An example
-                  of this would be actions contained in an object produced by a factory. For these scenarios you must
-                  register an place holder for the action at startup (to allow the action to be visible in the command editor, and to
-                  allow the action to be set according to a previous shortcut mapping scheme at application startup. If you want to
-                  use the registerActionPlaceHolder function in this way, leave the context as default. This will create the action place holder
-                  and you can register backend actions at a later time using the registerAction() call.
+                  This function is used to create a placeholder for future action types in the system. This is usefull in cases where the actual backend action is not registered at application startup. An example of this would be actions contained in an object produced by a factory. For these scenarios you must register an place holder for the action at startup (to allow the action to be visible in the command editor, and to allow the action to be set according to a previous shortcut mapping scheme at application startup. If you want to use the registerActionPlaceHolder function in this way, leave the context as default. This will create the action place holder and you can register backend actions at a later time using the registerAction() call.
 
-                  You can also use this function if you want to create a command which is not a multibacked a command. In that
-                  case you connect directly to the command->action() triggered() signal to access the action. If you want to use
-                  the registerActionPlaceHolder function in this way you must provide an context for the action.
+                  You can also use this function if you want to create a command which is not a multi-backed a command. In that case you connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder function in this way you must provide an context for the action.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the command editor.
                   \param user_text The user visible text that will be used for this command.

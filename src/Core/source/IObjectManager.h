@@ -68,8 +68,8 @@ namespace Qtilities {
                     SharedProperties = 2,       /*!< Shared observer properties. \sa SharedProperty */
                     AllPropertyTypes = ObserverProperties | SharedProperties
                 };
-                Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes);
-                Q_FLAGS(PropertyTypeFlags);
+                Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes)
+                Q_FLAGS(PropertyTypeFlags)
 
                 // ---------------------------------
                 // Global Object Pool Functionality

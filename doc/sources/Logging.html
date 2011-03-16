@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     QtilitiesCoreApplication::setApplicationName("Console Logging Example");
     QtilitiesCoreApplication::setApplicationVersion("0.1");
 
-    // The action manager needs QtilitiesApplication::mainWindow() for the front-end actions of multi context actions.
+    // The action manager needs QtilitiesApplication::mainWindow() proxy actions.
     // It must be done before we initialize the logger since the initialization might construct widget logger front-ends which will attempt to register actions:
     QtilitiesMainWindow* exampleMainWindow = new QtilitiesMainWindow();
     QtilitiesApplication::setMainWindow(exampleMainWindow);

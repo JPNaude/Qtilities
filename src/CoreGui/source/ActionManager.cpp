@@ -170,7 +170,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         if (action->text().isEmpty())
             action->setText(command->text());
 
-        MultiContextAction* multi = qobject_cast<MultiContextAction*> (command);
+        ProxyAction* multi = qobject_cast<ProxyAction*> (command);
         if (multi) {           
             multi->setObjectName(id);
             multi->addAction(action,context);
@@ -230,14 +230,14 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
         if (!showed_warning) {
             QMessageBox msgBox;
             msgBox.setWindowTitle("Action Manager");
-            msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Multi context actions will not work as intended.");
+            msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended.");
             msgBox.exec();
             showed_warning = true;
         }
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 
-    MultiContextAction* new_action = new MultiContextAction(frontend_action,d->observer_commands.observerID());
+    ProxyAction* new_action = new ProxyAction(frontend_action,d->observer_commands.observerID());
     if (new_action) {
         new_action->setObjectName(id);
         new_action->setDefaultText(id);

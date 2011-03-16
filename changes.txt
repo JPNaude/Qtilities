@@ -27,6 +27,8 @@ Things outstanding for v0.3 release:
 - Object Management Example: Binary project does not work.
 - Qtilities debugging action in ObserverWidget does not always show.
 - Session dir creation wrong... See action manager for example.
+- Get latest conan when released.
+- ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
 
 - Docs & finalization stuff:
     - Update getting started doc to show how to install git on windows, and to add /bin to path in linux

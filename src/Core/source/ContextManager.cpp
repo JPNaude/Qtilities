@@ -181,7 +181,7 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
 
 void Qtilities::Core::ContextManager::removeContext(int context, bool notify) {
     // Make sure the standard context is never removed
-    if (context == 0)
+    if (context == qti_def_CONTEXT_STANDARD)
         return;
 
     for (int i = 0; i < d->active_contexts.count(); i++) {

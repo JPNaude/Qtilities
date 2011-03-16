@@ -719,9 +719,9 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshCommandInformation() {
     }
 
     // Check what type of command it is:
-    MultiContextAction* multi_action = qobject_cast<MultiContextAction*> (d->current_command);
+    ProxyAction* multi_action = qobject_cast<ProxyAction*> (d->current_command);
     if (multi_action) {
-        ui->lblCommandType->setText("Command Type: Multi Context Action");
+        ui->lblCommandType->setText("Command Type: Proxy Action");
 
         // ===============================
         // Refresh Table:
