@@ -110,10 +110,10 @@ namespace Qtilities {
     // If we want to iterate through the subjects in nodeA:
     SubjectIterator<QObject> itrA(nodeA,SubjectIterator<QObject>::IterateChildren);
 
-    // In this case item1 will be skipped:
-    qDebug() << itrA.current()->objectName();
+    // In this case item1 will be skipped (approach 1):
     while (itrA.hasNext()) {
-        qDebug() << itrA.next()->objectName();
+        qDebug() << itrA.current()->objectName();
+        itrA.next();
     }
 
     // In this case the result would be:
@@ -124,7 +124,7 @@ namespace Qtilities {
     // If we want to iterate through the subjects in nodeB:
     SubjectIterator<QObject> itrB(nodeB,SubjectIterator<QObject>::IterateChildren);
 
-    // In this case item1 will be skipped:
+    // In this case item1 will be skipped (approach 2):
     qDebug() << itrB.current()->objectName();
     while (itrB.hasNext()) {
         qDebug() << itrB.next()->objectName();
@@ -205,9 +205,14 @@ namespace Qtilities {
                 return d_current;
             }
 
-            T* current()
+            T* current() const
             {
                 return d_current;
+            }
+
+            void setCurrent(T* current)
+            {
+                d_current = current;
             }
 
             T* next()
@@ -363,9 +368,14 @@ namespace Qtilities {
                 return d_current;
             }
 
-            const T* current()
+            const T* current() const
             {
                 return d_current;
+            }
+
+            void setCurrent(const T* current)
+            {
+                d_current = current;
             }
 
             const T* next()

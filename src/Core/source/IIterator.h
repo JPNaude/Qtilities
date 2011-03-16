@@ -51,27 +51,35 @@ namespace Qtilities {
                 virtual T* first() = 0;
                 //! The last item in the context iterated through.
                 virtual T* last() = 0;
-                //! The current item in the context iterated through.
-                virtual T* current() = 0;
+                //! Gets the current item in the context iterated through.
+                virtual T* current() const = 0;
+                //! Sets the current item in the context iterated through.
+                virtual void setCurrent(T* current) = 0;
                 //! The next item in the context iterated through.
                 virtual T* next() = 0;
                 //! The previous item in the context iterated through.
                 virtual T* previous() = 0;
                 //! Indicates if a next item exists.
                 virtual bool hasNext() {
+                    T* current_T = current();
                     if (next()) {
-                        previous();
+                        setCurrent(current_T);
                         return true;
-                    } else
+                    } else {
+                        setCurrent(current_T);
                         return false;
+                    }
                 }
                 //! Indicates if a previous item exists.
                 virtual bool hasPrevious() {
+                    T* current_T = current();
                     if (previous()) {
-                        next();
+                        setCurrent(current_T);
                         return true;
-                    } else
+                    } else {
+                        setCurrent(current_T);
                         return false;
+                    }
                 }
                 //! Prefix increment.
                 virtual T* operator++() {
@@ -114,26 +122,34 @@ namespace Qtilities {
                 //! The last item in the context iterated through.
                 virtual const T* last() = 0;
                 //! The current item in the context iterated through.
-                virtual const T* current() = 0;
+                virtual const T* current() const = 0;
+                //! Sets the current item in the context iterated through.
+                virtual void setCurrent(const T* current) = 0;
                 //! The next item in the context iterated through.
                 virtual const T* next() = 0;
                 //! The previous item in the context iterated through.
                 virtual const T* previous() = 0;
                 //! Indicates if a next item exists.
                 virtual bool hasNext() {
+                    T* current_T = current();
                     if (next()) {
-                        previous();
+                        setCurrent(current_T);
                         return true;
-                    } else
+                    } else {
+                        setCurrent(current_T);
                         return false;
+                    }
                 }
                 //! Indicates if a previous item exists.
                 virtual bool hasPrevious() {
+                    T* current_T = current();
                     if (previous()) {
-                        next();
+                        setCurrent(current_T);
                         return true;
-                    } else
+                    } else {
+                        setCurrent(current_T);
                         return false;
+                    }
                 }
                 //! Prefix increment.
                 virtual const T* operator++() {

@@ -120,9 +120,14 @@ while (itr.hasPrevious()) {
                 return d_current;
             }
 
-            QObject* current()
+            QObject* current() const
             {
                 return d_current;
+            }
+
+            void setCurrent(QObject* current)
+            {
+                d_current = current;
             }
 
             QObject* next()
