@@ -159,38 +159,20 @@ namespace Qtilities {
                   data_ifaces.remove(tag);
               }
               //! Returns a list of registered tags for a given context. By default all contexts are returned.
-              QStringList tags(const QString& context = QString()) const {
-                if (!context.isEmpty()) {
-                    QStringList tags;
-                    for (int i = 0; i < data_ifaces.count(); i++) {
-                        if (data_ifaces.values().at(i).contexts.contains(context))
-                            tags << data_ifaces.values().at(i).tag;
-                    }
-                    return tags;
-                } else {
-                    QStringList tags;
-                    for (int i = 0; i < data_ifaces.count(); i++) {
-                        tags << data_ifaces.values().at(i).tag;
-                    }
-                    return tags;
+              QStringList tags() const {
+                QStringList tags;
+                for (int i = 0; i < data_ifaces.count(); i++) {
+                    tags << data_ifaces.values().at(i).tag;
                 }
+                return tags;
               }             
               //! Returns a tag-category map of registered tags for a given context. By default all contexts are returned.
-              QMap<QString, QtilitiesCategory> tagCategoryMap(const QString& context = QString()) const {
-                  if (!context.isEmpty()) {
-                        QMap<QString, QtilitiesCategory> tag_category_map;
-                        for (int i = 0; i < data_ifaces.count(); i++) {
-                            if (data_ifaces.values().at(i).contexts.contains(context))
-                                tag_category_map[data_ifaces.values().at(i).tag] = data_ifaces.values().at(i).category;
-                        }
-                        return tag_category_map;
-                    } else {
-                        QMap<QString, QtilitiesCategory> tag_category_map;
-                        for (int i = 0; i < data_ifaces.count(); i++) {
-                            tag_category_map[data_ifaces.values().at(i).tag] = data_ifaces.values().at(i).category;
-                        }
-                        return tag_category_map;
+              QMap<QString, QtilitiesCategory> tagCategoryMap() const {
+                    QMap<QString, QtilitiesCategory> tag_category_map;
+                    for (int i = 0; i < data_ifaces.count(); i++) {
+                        tag_category_map[data_ifaces.values().at(i).tag] = data_ifaces.values().at(i).category;
                     }
+                    return tag_category_map;
               }
               //! Function which verifies the validity of a new tag. If the tag is already present, false is returend.
               inline bool isTagValid(const QString& tag) const {
