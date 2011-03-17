@@ -166,11 +166,14 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
 
         if (notify)
             emit contextChanged(activeContexts());
-        qDebug() << "Context appended, the following contexts are currently active:";
+
+        #ifndef QT_NO_DEBUG
+        LOG_TRACE("Context appended, the following contexts are currently active:");
         for (int i = 0; i < activeContexts().size(); i++) {
             QString debug_string = QString("%1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
-            qDebug() << debug_string;
+            LOG_TRACE(debug_string);
         }
+        #endif
 
         if (notify)
             emit finishedAppendContext(context);
@@ -181,18 +184,21 @@ void Qtilities::Core::ContextManager::appendContext(int context, bool notify) {
 
 void Qtilities::Core::ContextManager::removeContext(int context, bool notify) {
     // Make sure the standard context is never removed
-    if (context == qti_def_CONTEXT_STANDARD)
+    if (context == contextID(qti_def_CONTEXT_STANDARD));
         return;
 
     for (int i = 0; i < d->active_contexts.count(); i++) {
         if (d->active_contexts.at(i) == context) {
             emit aboutToRemoveContext(context);
             d->active_contexts.removeAt(i);
+
+            #ifndef QT_NO_DEBUG
             LOG_TRACE("Context removed, the following contexts are currently active:");
             for (int i = 0; i < activeContexts().size(); i++) {
                 QString debug_string = QString("- %1 - ID: %2, Name: %3").arg(i).arg(activeContexts().at(i)).arg(contextName(activeContexts().at(i)));
                 LOG_TRACE(debug_string);
             }
+            #endif
 
             if (notify) {
                 emit finishedRemoveContext(context);
