@@ -1,23 +1,4 @@
 ================================
-Things planned for the far future...
-In no particular order:
-================================
-- Make core classes thread-safe.
-- Improve CodeEditorWidget.
-- ObserverSceneGraph.
-- Task management classes.
-- Unit tests on all applicable classes.
-- Port some scientific classes (Matrices, Models etc.) to a new Qtilities lib.
-- Some new plugins
-    - Help
-    - Code Editor
-- Observer tree models should remember what was expanded and what not, the new export format in v0.3 is the first step towards this
-
-- Action manager must check for duplicate shortcut assignments.
-- Observer properties: What can we learn from QMetaProperty.
-- ConfigurationWidget: Improve to allow easier categorizing. For example allow multiple pages to be grouped under the same category in table view mode.
-
-================================
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
@@ -52,8 +33,6 @@ Things outstanding for v0.3 release:
     - Better VersionNumber docs.
     - Add new widgets to Widgets page.
     - Add exporting example to examples page.
-    - Add debugging pics to property browser classes.
-    - Action manager article update needed.
     - Extension System article does not use VersionInformation.
 
 ================================
