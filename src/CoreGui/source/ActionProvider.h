@@ -53,6 +53,8 @@ namespace Qtilities {
         /*!
         \class ActionProvider
         \brief A ready to use implementation of the IActionProvider interface.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionProvider : public QObject, public IActionProvider {
             Q_OBJECT

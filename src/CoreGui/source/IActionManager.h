@@ -58,7 +58,7 @@ namespace Qtilities {
             \class IActionManager
             \brief Interface used to communicate with the action manager.
 
-            See the \ref page_action_management article for more information about the action manager.
+            For more information see the \ref page_action_management article.
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT IActionManager : public QObject
             {

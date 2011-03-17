@@ -59,7 +59,13 @@ namespace Qtilities {
 
         /*!
         \class CommandEditor
-        \brief A widget which allows the user to edit command shortcuts for actions registered in the ActionManager class.
+        \brief A widget which allows the user to edit command shortcuts for actions registered in the action manager class.
+
+        The command editor widget gives a overview of all the commands registered in the application and their shortcuts. It allows shortcuts to be edited and allows you to save, load and restore default configurations.
+
+        \image html command_editor.jpg "Command Editor"
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CommandEditor : public QWidget, public IConfigPage {
             Q_OBJECT

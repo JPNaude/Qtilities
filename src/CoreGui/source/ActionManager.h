@@ -48,13 +48,15 @@ namespace Qtilities {
 
         /*!
         \struct ActionManagerPrivateData
-        \brief A structure storing private data in action managers.
+        \brief A structure storing private data in the ActionManager class.
           */
         struct ActionManagerPrivateData;
 
         /*!
         \class ActionManager
         \brief A class which represents an action manager.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionManager : public IActionManager
         {

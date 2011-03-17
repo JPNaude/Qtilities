@@ -117,11 +117,11 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const
 // ProxyAction Implemenation
 // --------------------------------
 struct Qtilities::CoreGui::ProxyActionPrivateData {
-    ProxyActionPrivateData() : frontend_action(0),
+    ProxyActionPrivateData() : proxy_action(0),
     initialized(false),
     is_active(false) { }
 
-    QAction* frontend_action;
+    QAction* proxy_action;
     QString original_tooltip;
     bool initialized;
     bool is_active;
@@ -134,11 +134,11 @@ struct Qtilities::CoreGui::ProxyActionPrivateData {
 Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action, int category_context, QObject* parent) : Command(category_context, parent) {
     d = new ProxyActionPrivateData;
 
-    d->frontend_action = user_visible_action;
-    if (d->frontend_action) {
-        d->frontend_action->setEnabled(false);
-        d->frontend_action->setParent(this);
-        d->original_tooltip = d->frontend_action->toolTip();
+    d->proxy_action = user_visible_action;
+    if (d->proxy_action) {
+        d->proxy_action->setEnabled(false);
+        d->proxy_action->setParent(this);
+        d->original_tooltip = d->proxy_action->toolTip();
     }
 }
 
@@ -147,7 +147,7 @@ Qtilities::CoreGui::ProxyAction::~ProxyAction() {
 }
 
 QAction* Qtilities::CoreGui::ProxyAction::action() const {
-    return d->frontend_action;
+    return d->proxy_action;
 }
 
 QShortcut* Qtilities::CoreGui::ProxyAction::shortcut() const {
@@ -156,10 +156,10 @@ QShortcut* Qtilities::CoreGui::ProxyAction::shortcut() const {
 
 QString Qtilities::CoreGui::ProxyAction::text() const
 {
-    if (!d->frontend_action)
+    if (!d->proxy_action)
         return QString();
 
-    return d->frontend_action->text();
+    return d->proxy_action->text();
 }
 
 void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> context_ids) {
@@ -222,7 +222,7 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
             d->active_backend_action->setObjectName(a->text());
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
-            LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", ProxyAction shortcut: " + d->frontend_action->shortcut().toString());
+            LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", ProxyAction shortcut: " + d->proxy_action->shortcut().toString());
             #endif
 
             // This break will ensure that the first context is used for the case where multiple contexts are active at once.
@@ -240,8 +240,8 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
     // Disconnect signals from old action
     if (old_action) {
         disconnect(old_action, SIGNAL(changed()), this, SLOT(updateFrontendAction()));
-        disconnect(d->frontend_action, SIGNAL(triggered(bool)), old_action, SIGNAL(triggered(bool)));
-        disconnect(d->frontend_action, SIGNAL(toggled(bool)), old_action, SLOT(setChecked(bool)));
+        disconnect(d->proxy_action, SIGNAL(triggered(bool)), old_action, SIGNAL(triggered(bool)));
+        disconnect(d->proxy_action, SIGNAL(toggled(bool)), old_action, SLOT(setChecked(bool)));
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
         QObject* parent = old_action->parent();
         QString parent_name = "Unspecified parent";
@@ -255,8 +255,8 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
     // Connect signals for new action
     if (d->active_backend_action) {
         connect(d->active_backend_action, SIGNAL(changed()), this, SLOT(updateFrontendAction()));
-        connect(d->frontend_action, SIGNAL(triggered(bool)), d->active_backend_action, SIGNAL(triggered(bool)));
-        connect(d->frontend_action, SIGNAL(toggled(bool)), d->active_backend_action, SLOT(setChecked(bool)));
+        connect(d->proxy_action, SIGNAL(triggered(bool)), d->active_backend_action, SIGNAL(triggered(bool)));
+        connect(d->proxy_action, SIGNAL(toggled(bool)), d->active_backend_action, SLOT(setChecked(bool)));
         updateFrontendAction();
         d->is_active = true;
         d->initialized = true;
@@ -266,7 +266,7 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
         if (parent) {
              parent_name = parent->objectName();
         }
-        LOG_TRACE("Base action connected: " + d->active_backend_action->text() + ", Base shortcut: " + d->frontend_action->shortcut().toString() + ", Parent: " + parent_name);
+        LOG_TRACE("Base action connected: " + d->active_backend_action->text() + ", Base shortcut: " + d->proxy_action->shortcut().toString() + ", Parent: " + parent_name);
         #endif
         return true;
     } else {
@@ -275,8 +275,8 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
         #endif
     }
     // We can hide the action here if needed
-    // d->frontend_action->setVisible(false);
-    d->frontend_action->setEnabled(false);
+    // d->proxy_action->setVisible(false);
+    d->proxy_action->setEnabled(false);
     d->is_active = false;
     return false;
 }
@@ -286,27 +286,27 @@ void Qtilities::CoreGui::ProxyAction::updateFrontendAction() {
     if (d->id_action_map.count() == 0)
         return;
 
-    if (!d->active_backend_action || !d->frontend_action)
+    if (!d->active_backend_action || !d->proxy_action)
         return;
 
     // Update the icon
     // Only use the backend action icon if it has one:
     if (!d->active_backend_action->icon().isNull())
-        d->frontend_action->setIcon(d->active_backend_action->icon());
-    d->frontend_action->setIconText(d->active_backend_action->iconText());
+        d->proxy_action->setIcon(d->active_backend_action->icon());
+    d->proxy_action->setIconText(d->active_backend_action->iconText());
 
     // Update the text
-    d->frontend_action->setText(d->active_backend_action->text());
-    d->frontend_action->setStatusTip(d->active_backend_action->statusTip());
-    d->frontend_action->setWhatsThis(d->active_backend_action->whatsThis());
+    d->proxy_action->setText(d->active_backend_action->text());
+    d->proxy_action->setStatusTip(d->active_backend_action->statusTip());
+    d->proxy_action->setWhatsThis(d->active_backend_action->whatsThis());
 
-    d->frontend_action->setCheckable(d->active_backend_action->isCheckable());
-    d->frontend_action->setEnabled(d->active_backend_action->isEnabled());
-    d->frontend_action->setVisible(d->active_backend_action->isVisible());
+    d->proxy_action->setCheckable(d->active_backend_action->isCheckable());
+    d->proxy_action->setEnabled(d->active_backend_action->isEnabled());
+    d->proxy_action->setVisible(d->active_backend_action->isVisible());
 
-    bool previous_block_value = d->frontend_action->blockSignals(true);
-    d->frontend_action->setChecked(d->active_backend_action->isChecked());
-    d->frontend_action->blockSignals(previous_block_value);
+    bool previous_block_value = d->proxy_action->blockSignals(true);
+    d->proxy_action->setChecked(d->active_backend_action->isChecked());
+    d->proxy_action->blockSignals(previous_block_value);
 }
 
 void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence& old_key) {
@@ -330,20 +330,20 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
     }
 
     // Change the shortcut of the frontend action:
-    d->frontend_action->setShortcut(c->current_key_sequence);
+    d->proxy_action->setShortcut(c->current_key_sequence);
 
     // Add new key sequence to frontend action and all backend actions (backend actions only if there is a shortcut):
     QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(keySequence().toString(QKeySequence::NativeText));
-    if (d->frontend_action->shortcut().isEmpty()) {
+    if (d->proxy_action->shortcut().isEmpty()) {
         if (d->active_backend_action)
-            d->frontend_action->setToolTip(d->active_backend_action->toolTip());
+            d->proxy_action->setToolTip(d->active_backend_action->toolTip());
         else
-            d->frontend_action->setToolTip(d->original_tooltip);
+            d->proxy_action->setToolTip(d->original_tooltip);
     } else {
         if (d->active_backend_action)
-            d->frontend_action->setToolTip(d->active_backend_action->toolTip().trimmed() + " " + new_key_tooltip);
+            d->proxy_action->setToolTip(d->active_backend_action->toolTip().trimmed() + " " + new_key_tooltip);
         else
-            d->frontend_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
+            d->proxy_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
 
         // Add the new tooltip to all the backend actions' tooltips:
         for (int i = 0; i < d->id_action_map.count(); i++) {

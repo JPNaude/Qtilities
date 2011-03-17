@@ -61,7 +61,7 @@ namespace Qtilities {
 
         A command is a class which is a wrapper for either of the following:
         - An application wide shortcut
-        - A QAction
+        - A proxy action
 
         By registering all the shortcuts and actions in the application in one place, it is easier to manage
         and control them. The command class is also aware of the current context of the application and
@@ -76,6 +76,8 @@ namespace Qtilities {
         trigger the action.
 
         The command class is an abstract base class and is reimplemented by the ProxyAction and Shortcut classes.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT Command : public QObject
         {
@@ -133,20 +135,18 @@ namespace Qtilities {
         \class ProxyAction
         \brief A class which represents a proxy actionn which triggers different actions for different contexts.
         
-        The ProxyAction class represents an action which has a frontend action which is triggered 
-        when the shortcut of the ProxyAction is used, and any number of backend actions which each
-        represent a different context. When context changes happen in the application, the multi context 
-        action will make the correct backend action for the set of active contexts active. Thus, when the 
-        frontend action trigger, the active backend action will also trigger.
+        The ProxyAction class represents an action which has a proxy action which is triggered when the shortcut of the ProxyAction is used, and any number of backend actions which each represent a different context. When context changes happen in the application, the multi context action will make the correct backend action for the set of active contexts active. Thus, when the frontend action trigger, the active backend action will also trigger.
 
-        When the active backend action changes, the frontend action inherts the properties of the backend action.
+        When the active backend action changes, the proxy action inherts the properties of the backend action.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ProxyAction : public Command
         {
             Q_OBJECT
 
         public:
-            ProxyAction(QAction* user_visible_action, int category_context, QObject* parent = 0);
+            ProxyAction(QAction* proxy_action, int category_context, QObject* parent = 0);
             virtual ~ProxyAction();
 
             // --------------------------------
@@ -184,6 +184,8 @@ namespace Qtilities {
         /*!
         \class ShortcutCommand
         \brief A class which represents a shortcut which is enabled depending on the active context(s).
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ShortcutCommand : public Command
         {

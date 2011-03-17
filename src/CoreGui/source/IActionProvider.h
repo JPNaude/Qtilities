@@ -53,6 +53,8 @@ namespace Qtilities {
             \brief An interface through which objects can provide actions to other objects.
 
             \sa ActionProvider
+
+            For more information see the \ref page_action_management article.
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT IActionProvider {
             public:
@@ -66,7 +68,7 @@ namespace Qtilities {
                 enum ActionFilter {
                     NoFilter = 0,           /*!< No filter. All actions in the action provider will be returned. */
                     FilterDisabled = 1,     /*!< Filter disabled actions, thus only enabled actions will be returned. */
-                    FilterHidden = 2,       /*!< Filter hidden actions, thus only visible actions will be returned. */
+                    FilterHidden = 2        /*!< Filter hidden actions, thus only visible actions will be returned. */
                 };
                 Q_DECLARE_FLAGS(ActionFilterFlags, ActionFilter);
                 Q_FLAGS(ActionFilterFlags);

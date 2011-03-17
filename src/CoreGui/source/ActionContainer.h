@@ -46,6 +46,8 @@ namespace Qtilities {
         /*!
         \class ActionContainer
         \brief A class which represents an action container.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionContainer : public QObject
         {
@@ -100,6 +102,8 @@ namespace Qtilities {
         /*!
         \class MenuContainer
         \brief A class which represents an implementation of ActionContainer in the form of a menu.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT MenuContainer : public ActionContainer
         {
@@ -134,6 +138,8 @@ namespace Qtilities {
         /*!
         \class MenuBarContainer
         \brief A class which represents an implementation of ActionContainer in the form of a menubar.
+
+        For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT MenuBarContainer : public ActionContainer
         {
