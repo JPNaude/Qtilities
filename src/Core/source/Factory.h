@@ -95,39 +95,30 @@ namespace Qtilities {
             //! Creates a new factory data object.
             /*!
               \param iface_tag The tag which can be used to produce a new instance of the interface using the Factory::newInstance() method.
-              \param iface_category The category to which this interface belongs. Categories can be used to display the available interfaces registered in a factory in a categorized manner.
-              \param iface_contexts A list of contexts which must be associated with this interface.
+              \param iface_category The category to which this interface belongs. Categories can be used to order the available interfaces registered in a factory in a categorized manner.
               */
-            FactoryItemID(const QString& iface_tag, const QtilitiesCategory& iface_category = QtilitiesCategory(), const QStringList& iface_contexts = QStringList()) {
+            FactoryItemID(const QString& iface_tag, const QtilitiesCategory& iface_category = QtilitiesCategory()) {
                 tag = iface_tag;
-                contexts = iface_contexts;
                 category = iface_category;
             }
             //! FactoryItemID copy constructor.
             FactoryItemID(const FactoryItemID& ref) {
                 tag = ref.tag;
-                contexts = ref.contexts;
                 category = ref.category;
             }
             //! Overload of the = operator.
             void operator=(const FactoryItemID& ref) {
                 tag = ref.tag;
-                contexts = ref.contexts;
                 category = ref.category;
             }
 
             QString             tag;
-            QStringList         contexts;
             QtilitiesCategory   category;
         };
 
         //! A factory class which can produce class instances through registered factory interfaces.
         /*!
-          The Qtilities::Core::Factory class is a template based Qt implementation of the factory
-          programming pattern. The class allows you to register factory interfaces, defined by the
-          Qtilities::Core::FactoryInterface class. New instances of factory items (defined by
-          Qtilities::Core::FactoryItem) can then be created by only providing the factory with the needed
-          interface ID defined by Qtilities::Core::FactoryItemID.
+          The Qtilities::Core::Factory class is a template based Qt implementation of the factory programming pattern. The class allows you to register factory interfaces, defined by the Qtilities::Core::FactoryInterface class. New instances of factory items (defined by Qtilities::Core::FactoryItem) can then be created by only providing the factory with the needed interface ID defined by Qtilities::Core::FactoryItemID.
 
           For more information see the \ref page_factories article.
 
