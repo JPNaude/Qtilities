@@ -35,6 +35,7 @@
 
 #include <QSyntaxHighlighter>
 #include <QPainter>
+#include <QtDebug>
 
 struct Qtilities::CoreGui::CodeEditorPrivateData {
     CodeEditorPrivateData() : lineNumberArea(0),
@@ -43,12 +44,6 @@ struct Qtilities::CoreGui::CodeEditorPrivateData {
     QWidget *lineNumberArea;
     QSyntaxHighlighter* syntaxHighlighter;
 
-    //! A QTextCursor which handles highlighting of words in the document.
-    QTextCursor cursor_word_highlighter;
-    //! A QTextCursor which handles finding of words.
-    QTextCursor cursor_find;
-    //! A QTextCursor which handles replacing of words.
-    QTextCursor cursor_replace;
     //! Previous set of highlighted words.
     QStringList previous_highlight_words;
 };
@@ -66,11 +61,6 @@ Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(par
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
-
-    // Create the text cursors:
-    d->cursor_word_highlighter = textCursor();
-    d->cursor_find = textCursor();
-    d->cursor_replace = textCursor();
 }
 
 Qtilities::CoreGui::CodeEditor::~CodeEditor() {
@@ -160,29 +150,25 @@ void Qtilities::CoreGui::CodeEditor::resizeEvent(QResizeEvent *e) {
 }
 
 void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, const QBrush& brush) {
-    // Iterate over all words in the document and check if they must be highlighted.
-    d->cursor_word_highlighter.movePosition(QTextCursor::Start);
+    QTextCursor cursor = textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    setTextCursor(cursor);
 
-    d->cursor_word_highlighter.movePosition(QTextCursor::StartOfWord);
-    d->cursor_word_highlighter.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    while (!d->cursor_word_highlighter.atEnd()) {
-        if (d->cursor_word_highlighter.hasSelection()) {
-            if (words.contains(d->cursor_word_highlighter.selectedText())) {
-                QTextCharFormat format(d->cursor_word_highlighter.charFormat());
-                format.setBackground(brush);
-                d->cursor_word_highlighter.setCharFormat(format);
-            } else {
-                QTextCharFormat format(d->cursor_word_highlighter.charFormat());
-                QBrush default_brush(Qt::white);
-                format.setBackground(default_brush);
-                d->cursor_word_highlighter.setCharFormat(format);
-            }
+    foreach (QString current_string, words) {
+        while (find(current_string)) {
+            QTextCursor find_cursor = document()->find(current_string,cursor);
+            QTextCharFormat format(find_cursor.charFormat());
+            format.setBackground(brush);
+            find_cursor.mergeCharFormat(format);
+
+            d->previous_highlight_words << words;
         }
-        d->cursor_word_highlighter.movePosition(QTextCursor::NextWord);
-        d->cursor_word_highlighter.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::Start);
+        setTextCursor(cursor);
     }
 
-    d->previous_highlight_words << words;
+    cursor.movePosition(QTextCursor::Start);
+    setTextCursor(cursor);
 }
 
 void Qtilities::CoreGui::CodeEditor::removeWordHighlighting() {
