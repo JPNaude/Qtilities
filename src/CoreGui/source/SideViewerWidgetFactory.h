@@ -56,6 +56,24 @@ namespace Qtilities {
         /*!
         \class SideViewerWidgetFactory
         \brief The SideViewerWidgetFactory class is intended to act as a factory for side viewer widgets.
+
+        The SideViewerWidgetFactory class allows you to add any widget which implements Qtilities::Core::Interfaces::IFactoryInterface to a Qtilities::CoreGui::DynamicSideWidgetViewer without needing to implement Qtilities::Core::ISideViewerWidget yourself.
+
+        Every time the dyanmic side widget viewer request a new widget of your type, the factory will produce such a widget and manage its lifetime for you. For example:
+
+\code
+DynamicSideWidgetViewer* sideWidget = new DynamicSideWidgetViewer(101);
+
+SideViewerWidgetFactory* fac1 = new SideViewerWidgetFactory(&SideWidgetFileSystem::factory, "File System", QList<int>()<<101, QList<int>()<<101);
+SideViewerWidgetFactory* fac2 = new SideViewerWidgetFactory(&ObjectScopeWidget::factory, "Object Scope", QList<int>()<<101, QList<int>()<<101);
+
+QMap<QString, ISideViewerWidget*> map;
+map[fac1->widgetLabel()] = fac1;
+map[fac2->widgetLabel()] = fac2;
+
+sideWidget->setIFaceMap(map, true);
+\endcode
+
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SideViewerWidgetFactory : public QObject, public ISideViewerWidget {
             Q_OBJECT
