@@ -293,8 +293,10 @@ namespace Qtilities {
             void propertyChangeFiltered(const char* property_name, QList<QObject*> objects = QList<QObject*>());
 
         protected:
+            //! The observer context to which the subject filter is attached.
             Observer*           observer;
             QMutex              filter_mutex;
+            //! Indicates if the modification state of the filter is monitored by it's observer context.
             bool                filter_is_modification_state_monitored;
         };
     }
