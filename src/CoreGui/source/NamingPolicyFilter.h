@@ -100,6 +100,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         - getEvaluationName() : Returns the name to be evaluated for a given object.
         - generateValidName() : Generates valid names when AutoRename is used as the ResolutionPolicy and when the standard NamingPolicyInputDialog is used the auto-rename button is clicked. Reimplement this function in order to customize the generation of valid names.
         - validateNamePropertyChange() : Defines the behaviour when name properties change on objects.
+        - constructUserDialog() : Constructs the dialog presented ot the user when using PromptUser resolution policies. To present your own widget, overload this function and construct your own widget.
 
         \sa NamingPolicyInputDialog
         */
@@ -142,7 +143,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               */
             enum ResolutionPolicy {
                 AutoRename = 0,             /*!< Automatically rename new names. \sa generateValidName() */
-                PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. */
+                PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. <b>Important:</b> When this NamingPolicyFilter is installed on an Observer which does not live in the main GUI thread, this resolution policy should not be used. If it is used it will attempt to construct a widget in a non-GUI thread and it will crash.*/
                 Replace = 2,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
                 Reject = 3                  /*!< Reject unacceptable names. */
             };
@@ -262,6 +263,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
             //! Function which makes this naming policy filter the object name manager of the given object.
             void makeNameManager(QObject* obj);
+
+            //! Constructs the input dialog presented to the user when using PromptUser policies.
+            virtual QWidget* constructUserDialog() const;
 
             //! Function which starts a new naming validation cycle.
             /*!

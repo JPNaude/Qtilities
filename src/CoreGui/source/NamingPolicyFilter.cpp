@@ -74,8 +74,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : Ab
     const QRegExp default_expression(".{1,255}",Qt::CaseInsensitive);
     QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
     d->validator = default_validator;
-    d->name_dialog = new NamingPolicyInputDialog();
-    d->name_dialog->setNamingPolicyFilter(this);
+    d->name_dialog = 0;
 
     d->validation_cycle_active = false;
 }
@@ -607,6 +606,8 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
     // Invalid names must be handled first:
     if (validity_result & Invalid) {
         if (d->validity_resolution_policy == PromptUser) {
+            if (!d->name_dialog)
+                d->name_dialog = constructUserDialog();
             if (d->validation_cycle_active && d->name_dialog->useCycleResolution()) {
                 if (d->name_dialog->selectedResolution() == Reject)
                     return_value = false;
@@ -643,6 +644,8 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
     // Next handle duplicate names:
     } else if ((validity_result & Duplicate) && (d->uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(evaluation_name) != obj)) {
         if (d->uniqueness_resolution_policy == PromptUser) {
+            if (!d->name_dialog)
+                d->name_dialog = constructUserDialog();
             if (d->validation_cycle_active && d->name_dialog->useCycleResolution()) {
                 if (d->name_dialog->selectedResolution() == Reject)
                     return_value = false;
@@ -814,7 +817,11 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
     }
 
     observer->setQtilitiesPropertyValue(obj,qti_prop_NAME_MANAGER_ID,observer->observerID());
-    //emit notifyDirtyProperty(qti_prop_NAME);
+}
+
+QWidget* Qtilities::CoreGui::NamingPolicyFilter::constructUserDialog() const {
+    d->name_dialog = new NamingPolicyInputDialog;
+    d->name_dialog->setNamingPolicyFilter(this);
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::startValidationCycle() {
