@@ -214,10 +214,7 @@ while (itr.hasPrevious()) {
               */
             QObject* findParentNext(QObject* obj) {
                 QList<Observer*> parents = Observer::parentReferences(obj);
-                if (parents.count() > 1) {
-                    // Handle this in some way...
-                    return 0;
-                } else {
+                if (parents.count() == 1) {
                     if (parents.front() == d_top_node)
                         return 0;
                     else {
@@ -228,6 +225,9 @@ while (itr.hasPrevious()) {
                             return findParentNext(parents.front());
                         }
                     }
+                } else {
+                    // Handle this in some way...
+                    return 0;
                 }
             }
             //! Finds the previous parent of an object.
