@@ -105,7 +105,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModel.h \
     source/ObjectDynamicPropertyBrowser.h \
     source/StringListWidget.h \
-    source/CommandTreeModel.h
+    source/CommandTreeModel.h \
+    source/INamingPolicyDialog.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
