@@ -53,6 +53,11 @@ namespace Qtilities {
         class NamingPolicyInputDialog;
         struct NamingPolicyFilterData;
 
+        namespace Interfaces {
+            class INamingPolicyDialog;
+        }
+        using namespace Qtilities::CoreGui::Interfaces;
+
         /*!
         \class Qtilities::CoreGui::NamingPolicyFilter
         \brief The NamingPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over naming of objects within the context of an Observer.
@@ -238,8 +243,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             //! Evaluates a name in the observer context in which this subject filter is installed.
             /*!
               \param name The name to validate in observerContext().
+              \param object The current object. When null (by default) the context is checked for name and if it exists, Duplicate is returned. If object is not null, the context is checked for instances of the name except for the current object.
               */
-            virtual NamingPolicyFilter::NameValidity evaluateName(const QString& name) const;
+            virtual NamingPolicyFilter::NameValidity evaluateName(const QString& name, QObject* object = 0) const;
             //! Gets the name to be used during evaluateName() for a specific object.
             /*!
               By default an empty QString is returned and NamingPolicyFilter gets the correct name depending where this function is called.
@@ -265,7 +271,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             void makeNameManager(QObject* obj);
 
             //! Constructs the input dialog presented to the user when using PromptUser policies.
-            virtual QWidget* constructUserDialog() const;
+            virtual INamingPolicyDialog* constructUserDialog() const;
 
             //! Function which starts a new naming validation cycle.
             /*!
@@ -314,7 +320,19 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
               \return A valid QString value. If QString is returned empty the function could not succeed in generating a valid name.
               */
-            virtual QString generateValidName(QString input_name = QString(), bool force_change = false);
+            virtual QString generateValidName(QString input_name = QString(), bool force_change = false);   
+            //! Function which sets the name of the object.
+            /*!
+              This function checks if the subject filter is the name manager of the object, in that case
+              it sets qti_prop_NAME. If not, it sets qti_prop_ALIAS_MAP with the subject filter's observer context ID.
+              */
+            void setName(QObject* object, const QString& new_name);
+            //! Function which gets the name of the object.
+            /*!
+              This function checks if the subject filter is the name manager of the object, in that case
+              it uses qti_prop_NAME. If not, it uses qti_prop_ALIAS_MAP with the subject filter's observer context ID.
+              */
+            QString getName(QObject* object);
 
         protected:
             //! Attempt to assign a new name manager to the object, other than this filter.
@@ -338,7 +356,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
             bool is_modified;
             QValidator* validator;
-            QPointer<NamingPolicyInputDialog> name_dialog;
+            INamingPolicyDialog* name_dialog;
 
             QString rollback_name;
             QPointer<QObject> conflicting_object;
