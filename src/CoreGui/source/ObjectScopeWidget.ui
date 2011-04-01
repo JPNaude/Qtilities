@@ -174,7 +174,6 @@
   </layout>
   <zorder>observerTable</zorder>
   <zorder>widgetName</zorder>
-  <zorder></zorder>
  </widget>
  <resources/>
  <connections/>
