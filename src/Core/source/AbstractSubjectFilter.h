@@ -267,6 +267,11 @@ namespace Qtilities {
                 return true;
             }
 
+            //! Returns the observer context that this subject filter is attached to.
+            Observer* observerContext() const {
+                return observer;
+            }
+
         signals:
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
             /*!
