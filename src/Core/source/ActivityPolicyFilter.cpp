@@ -597,8 +597,13 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
     // 3. Emit the activeSubjectsChanged() signal:
     emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
-    // 4. Change the modification state of the filter:
+    // 4. Change the modification state of the filter and object:
     setModificationState(true);
+    if (isModificationStateMonitored()) {
+        IModificationNotifier* mod_notify = qobject_cast<IModificationNotifier*> (obj);
+        if (mod_notify)
+            mod_notify->setModificationState(true);
+    }
 
     // 5. Emit the dataChanged() signal on the observer context:
     observer->refreshViewsData();
