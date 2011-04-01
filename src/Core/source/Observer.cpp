@@ -51,6 +51,7 @@
 #include <QMutableListIterator>
 #include <QDomElement>
 #include <QDomDocument>
+#include <QCoreApplication>
 
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
@@ -119,25 +120,33 @@ Qtilities::Core::Observer::~Observer() {
                 // Subjects with SpecificObserverOwnership must be deleted as soon as this observer is deleted if this observer is their parent.
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) is owned by this observer, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                if (!i.hasNext()) {
-                   obj->deleteLater();
+                   deleteObject(obj);
+                   QCoreApplication::processEvents();
                    break;
                } else {
-                   obj->deleteLater();
+                   deleteObject(obj);
+                   QCoreApplication::processEvents();
                }
             } else if ((subject_ownership_variant.toInt() == ObserverScopeOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with ObserverScopeOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
-                    obj->deleteLater();
+                    deleteObject(obj);
+                    QCoreApplication::processEvents();
                     break;
-                } else
-                    obj->deleteLater();
+                } else {
+                    deleteObject(obj);
+                    QCoreApplication::processEvents();
+                }
            } else if ((subject_ownership_variant.toInt() == OwnedBySubjectOwnership) && (parentCount(obj) == 1)) {
                 LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) with OwnedBySubjectOwnership went out of scope, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
                 if (!i.hasNext()) {
-                    obj->deleteLater();
+                    deleteObject(obj);
+                    QCoreApplication::processEvents();
                     break;
-                } else
-                    obj->deleteLater();
+                } else {
+                    deleteObject(obj);
+                    QCoreApplication::processEvents();
+                }
             } else {
                 detachSubject(obj);
             }
@@ -883,7 +892,8 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == ObserverScopeOwnership)) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
-                obj->deleteLater();
+                deleteObject(obj);
+                QCoreApplication::processEvents();
                 lost_scope = true;
             } else {
                 removeQtilitiesProperties(obj);
@@ -892,7 +902,8 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         } else if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == SpecificObserverOwnership)) {
             QVariant observer_parent = getQtilitiesPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
-                obj->deleteLater();
+                deleteObject(obj);
+                QCoreApplication::processEvents();
                 lost_scope = true;
             } else {
                 removeQtilitiesProperties(obj);
@@ -1033,9 +1044,10 @@ void Qtilities::Core::Observer::deleteAll() {
         QVariant category_variant = getQtilitiesPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
-            observerData->subject_list.at(0)->deleteLater();
+            deleteObject(observerData->subject_list.at(0));
         }
     }
+    QCoreApplication::processEvents();
 
     if (has_active_processing_cycle) {
         setModificationState(true);
@@ -1994,4 +2006,14 @@ bool Qtilities::Core::Observer::isSupportedType(const QString& meta_type, Observ
     }
 
     return false;
+}
+
+void Qtilities::Core::Observer::deleteObject(QObject* object) {
+    if (!object)
+        return;
+
+    object->disconnect(this);
+    object->removeEventFilter(this);
+    observerData->subject_list.removeOne(object);
+    object->deleteLater();
 }

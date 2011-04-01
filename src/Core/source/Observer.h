@@ -753,6 +753,10 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               */
             void dataChanged(Observer* observer = 0);
 
+        private:
+            //! Peforms a delete on an object in a thread-safe way.
+            void deleteObject(QObject* object);
+
         protected:
             QSharedDataPointer<ObserverData> observerData;
         };
