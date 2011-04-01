@@ -35,6 +35,7 @@
 #define ICONTEXTMANAGER_H
 
 #include "QtilitiesCore_global.h"
+#include "IObjectBase.h"
 
 #include <QObject>
 #include <QList>
@@ -50,13 +51,19 @@ namespace Qtilities {
 
             See the \ref page_action_management article for more information about the context manager.
               */
-            class QTILIITES_CORE_SHARED_EXPORT IContextManager : public QObject
+            class QTILIITES_CORE_SHARED_EXPORT IContextManager : public QObject, public IObjectBase
             {
                 Q_OBJECT
 
             public:
                 IContextManager(QObject* parent = 0) : QObject(parent) {}
                 virtual ~IContextManager() {}
+
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+                const QObject* objectBase() const { return this; }
 
                 //! Registers a new context.
                 /*!

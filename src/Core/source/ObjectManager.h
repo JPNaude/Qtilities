@@ -138,6 +138,12 @@ namespace Qtilities {
             bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const;
             bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const;      
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
         private:
             ObjectManagerPrivateData* d;
         };

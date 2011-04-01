@@ -60,12 +60,12 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate* Qtilities::Core::QtilitiesCore
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivate() {
     // Object Manager
-    d_objectManager = new ObjectManager();
+    d_objectManager = new ObjectManager;
     QObject* objectManagerQ = qobject_cast<QObject*> (d_objectManager);
     d_objectManagerIFace = qobject_cast<IObjectManager*> (objectManagerQ);
 
     // Context Manager
-    d_contextManager = new ContextManager();
+    d_contextManager = new ContextManager;
     QObject* contextManagerQ = qobject_cast<QObject*> (d_contextManager);
     d_contextManagerIFace = qobject_cast<IContextManager*> (contextManagerQ);
     QObject::connect(d_objectManager,SIGNAL(newObjectAdded(QObject*)),d_contextManager,SLOT(addContexts(QObject*)));

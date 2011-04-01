@@ -37,6 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "PointerList.h"
 #include "InstanceFactoryInfo.h"
+#include "IObjectBase.h"
 
 #include <Logger>
 
@@ -50,6 +51,7 @@ class QDomElement;
 namespace Qtilities {
     namespace Core {
         using namespace Qtilities::Logging;
+        using namespace Interfaces;
 
         namespace Interfaces {
             /*!
@@ -62,7 +64,7 @@ namespace Qtilities {
 
             For more information see the \ref page_factories article.
             */
-            class QTILIITES_CORE_SHARED_EXPORT IFactoryProvider {
+            class QTILIITES_CORE_SHARED_EXPORT IFactoryProvider : virtual public IObjectBase {
             public:
                 IFactoryProvider() {}
                 virtual ~IFactoryProvider() {}
