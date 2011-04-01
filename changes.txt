@@ -34,6 +34,7 @@ Things outstanding for v0.3 release:
     - Add new widgets to Widgets page.
     - Add exporting example to examples page.
     - Extension System article does not use VersionInformation.
+    - SubjectIterator 2nd way of doing it is wrong...
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -148,6 +149,7 @@ Qtilities v0.3 Implemented Changes
     - Fixed bug where Observer never removed the event filter it installs on subjects when they are detached.
     - Fixed bug in Observer destructor where it did not cleanup object properly.
     - Fixed bug in QtilitiesCoreApplication::notify().
+    - Fixed bug in ActivityPolicyFilter where it did not set the modification state on objects to true when their activity changed.
 
     ============================
     QtilitiesCoreGui:
