@@ -58,6 +58,7 @@
 #include "SideWidgetFileSystem.h"
 #include "ObjectDynamicPropertyBrowser.h"
 #include "StringListWidget.h"
+#include "INamingPolicyDialog.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
