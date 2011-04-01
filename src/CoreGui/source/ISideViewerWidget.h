@@ -50,7 +50,7 @@ namespace Qtilities {
             \class ISideViewerWidget
             \brief Used by the DynamicSideViewerWidget to communicate with child widgets.
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT ISideViewerWidget
+            class QTILITIES_CORE_GUI_SHARED_EXPORT ISideViewerWidget : virtual public IObjectBase
             {
             public:
                 ISideViewerWidget() {}

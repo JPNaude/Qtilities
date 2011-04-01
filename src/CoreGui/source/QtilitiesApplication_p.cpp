@@ -61,13 +61,13 @@ Qtilities::CoreGui::QtilitiesApplicationPrivate* Qtilities::CoreGui::QtilitiesAp
 
 Qtilities::CoreGui::QtilitiesApplicationPrivate::QtilitiesApplicationPrivate() {
     // Action Manager
-    d_actionManager = new ActionManager();
+    d_actionManager = new ActionManager;
     QObject* actionManagerQ = qobject_cast<QObject*> (d_actionManager);
     d_actionManagerIFace = qobject_cast<IActionManager*> (actionManagerQ);
     QObject::connect(QtilitiesCoreApplicationPrivate::instance()->contextManager(),SIGNAL(contextChanged(QList<int>)),d_actionManager,SLOT(handleContextChanged(QList<int>)));
 
     // Clipboard Manager
-    d_clipboardManager = new ClipboardManager();
+    d_clipboardManager = new ClipboardManager;
     QObject* clipboardManagerQ = qobject_cast<QObject*> (d_clipboardManager);
     d_clipboardManagerIFace = qobject_cast<IClipboard*> (clipboardManagerQ);
 }

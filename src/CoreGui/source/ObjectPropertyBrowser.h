@@ -98,7 +98,7 @@ namespace Qtilities {
             // --------------------------------
             // Factory Interface Implemenation
             // --------------------------------
-            static FactoryItem<QWidget, ObjectPropertyBrowser> factory;
+            static FactoryItem<QWidget, ObjectPropertyBrowser> factory;    
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;
@@ -120,6 +120,7 @@ namespace Qtilities {
             //! Toggle if read only properties should be disabled in the property editor. If not they will be editable, but changes won't be written back to the object.
             void toggleReadOnlyPropertiesDisabled(bool toggle);
 
+            //! Override size hint in order to resize it according to the number of properties displayed.
             QSize sizeHint() const;
 
         public slots:
@@ -157,7 +158,7 @@ namespace Qtilities {
               \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
                 interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */
-            void setObject(QList<QPointer<QObject> > objects, bool monitor_changes = true);
+            void setObject(QList<QPointer<QObject> > objects, bool monitor_changes = true);          
 
         private slots:
             void handle_property_changed(QtProperty *, const QVariant &);

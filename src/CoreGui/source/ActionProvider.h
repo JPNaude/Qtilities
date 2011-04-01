@@ -64,6 +64,9 @@ namespace Qtilities {
             ActionProvider(QObject* parent = 0);
             virtual ~ActionProvider();
 
+            // --------------------------------
+            // IActionProvider Implementation
+            // --------------------------------
             QList<QAction*> actions(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
             QMap<QAction*, QtilitiesCategory> actionMap(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
             /*!
@@ -81,6 +84,12 @@ namespace Qtilities {
             void enableAllActions();
             QAction* findActionByText(const QString& action_text);
             QAction* findActionByObjectName(const QString& object_name);
+
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
 
         private:
             ActionProviderPrivateData* d;

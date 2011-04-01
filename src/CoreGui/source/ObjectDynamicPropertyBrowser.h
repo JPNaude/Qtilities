@@ -99,7 +99,7 @@ namespace Qtilities {
             // --------------------------------
             // Factory Interface Implemenation
             // --------------------------------
-            static FactoryItem<QWidget, ObjectDynamicPropertyBrowser> factory;
+            static FactoryItem<QWidget, ObjectDynamicPropertyBrowser> factory;       
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;

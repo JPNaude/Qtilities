@@ -101,6 +101,12 @@ sideWidget->setIFaceMap(map, true);
             QList<int> startupModes() const;
             bool isExclusive() const;
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
         private slots:
             //! Slot which detects when a widget was deleted.
             void handleWidgetDestroyed(QObject* object);

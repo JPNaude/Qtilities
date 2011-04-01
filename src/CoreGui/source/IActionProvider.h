@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 
 #include <QtilitiesCategory>
+#include <IObjectBase>
 
 #include <QActionGroup>
 #include <QList>
@@ -47,6 +48,7 @@ using namespace Qtilities::Core;
 namespace Qtilities {
     namespace CoreGui {
         namespace Interfaces {
+            using namespace Qtilities::Core::Interfaces;
 
             /*!
             \class IActionProvider
@@ -56,7 +58,7 @@ namespace Qtilities {
 
             For more information see the \ref page_action_management article.
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IActionProvider {
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IActionProvider : virtual public IObjectBase {
             public:
                 IActionProvider() {}
                 virtual ~IActionProvider() {}

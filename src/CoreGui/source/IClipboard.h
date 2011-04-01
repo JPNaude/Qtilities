@@ -36,6 +36,8 @@
 
 #include "QtilitiesCoreGui_global.h"
 
+#include <IObjectBase>
+
 #include <QObject>
 #include <QMimeData>
 
@@ -43,6 +45,7 @@ namespace Qtilities {
     namespace CoreGui {
         class ActionContainer;
         class Command;
+        using namespace Qtilities::Core::Interfaces;
 
         namespace Interfaces {
 /*!
@@ -123,7 +126,7 @@ if (observer_mime_data) {
 }
 \endcode
 */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IClipboard : public QObject
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IClipboard : public QObject, virtual public IObjectBase
             {
                 Q_OBJECT
                 Q_ENUMS(ClipboardOrigin)

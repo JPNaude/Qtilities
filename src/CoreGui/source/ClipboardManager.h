@@ -77,6 +77,12 @@ namespace Qtilities {
             QMimeData* mimeData() const;
             void clearMimeData();
 
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
         public slots:
             void handleClipboardChanged();
 
