@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
     QTest::qExec(&testTreeIterator);
 
     // Exporting Tests:
-    //TestExporting testExporting;
-    //QTest::qExec(&testExporting);
+    TestExporting testExporting;
+    QTest::qExec(&testExporting);
 
     // VersionNumber Tests:
-    /*TestVersionNumber testVersionNumber;
+    TestVersionNumber testVersionNumber;
     QTest::qExec(&testVersionNumber);
 
     // Observer Tests:
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 
     // ObserverRelationalTable Tests:
     TestObserverRelationalTable testObserverRelationalTable;
-    QTest::qExec(&testObserverRelationalTable);*/
+    QTest::qExec(&testObserverRelationalTable);
 
     return a.exec();
 }
