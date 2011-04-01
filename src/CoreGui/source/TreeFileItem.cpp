@@ -168,6 +168,9 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const Q
     if (file_name != filePath() || (relative_to_path != relativeToPath() && !relative_to_path.isEmpty()))
         modified = true;
 
+    if (!modified)
+        return;
+
     treeFileItemBase->file_info.setFile(file_name);
     if (!relative_to_path.isEmpty())
         treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
