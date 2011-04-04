@@ -51,7 +51,6 @@
 #include <QMutableListIterator>
 #include <QDomElement>
 #include <QDomDocument>
-#include <QCoreApplication>
 
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
