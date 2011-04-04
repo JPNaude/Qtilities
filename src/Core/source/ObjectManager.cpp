@@ -202,14 +202,16 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > obje
 
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCategory category) {
     if (category.isValid()) {
-        if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
-            MultiContextProperty category_property = Observer::getMultiContextProperty(obj,qti_prop_CATEGORY_MAP);
-            category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
-            Observer::setMultiContextProperty(obj,category_property);
-        } else {
-            MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-            category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
-            Observer::setMultiContextProperty(obj,category_property);
+        if (obj->thread() == thread()) {
+            if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+                MultiContextProperty category_property = Observer::getMultiContextProperty(obj,qti_prop_CATEGORY_MAP);
+                category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
+                Observer::setMultiContextProperty(obj,category_property);
+            } else {
+                MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+                category_property.setValue(qVariantFromValue(category),d->object_pool.observerID());
+                Observer::setMultiContextProperty(obj,category_property);
+            }
         }
     }
     if (d->object_pool.attachSubject(obj))
