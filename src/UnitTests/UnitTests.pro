@@ -45,11 +45,13 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestVersionNumber.h \
         source/TestExporting.h \
         source/TestSubjectIterator.h \
-        source/TestTreeIterator.h
+        source/TestTreeIterator.h \
+        source/BenchmarkTests.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
         source/TestVersionNumber.cpp \
         source/TestExporting.cpp \
         source/TestSubjectIterator.cpp \
-        source/TestTreeIterator.cpp
+        source/TestTreeIterator.cpp \
+        source/BenchmarkTests.cpp

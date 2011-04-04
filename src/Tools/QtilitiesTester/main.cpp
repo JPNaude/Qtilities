@@ -59,29 +59,42 @@ int main(int argc, char *argv[])
     main_window->resize(900,400);
     main_window->show();
 
-    // SubjectIterator Tests:
-    TestSubjectIterator testSubjectIterator;
-    QTest::qExec(&testSubjectIterator);
+//    // SubjectIterator Tests:
+//    TestSubjectIterator testSubjectIterator;
+//    QTest::qExec(&testSubjectIterator,argc,argv);
 
-    // TreeIterator Tests:
-    TestTreeIterator testTreeIterator;
-    QTest::qExec(&testTreeIterator);
+//    // TreeIterator Tests:
+//    TestTreeIterator testTreeIterator;
+//    QTest::qExec(&testTreeIterator,argc,argv);
 
-    // Exporting Tests:
-    TestExporting testExporting;
-    QTest::qExec(&testExporting);
+//    // Exporting Tests:
+//    TestExporting testExporting;
+//    QTest::qExec(&testExporting,argc,argv);
 
-    // VersionNumber Tests:
-    TestVersionNumber testVersionNumber;
-    QTest::qExec(&testVersionNumber);
+//    // VersionNumber Tests:
+//    TestVersionNumber testVersionNumber;
+//    QTest::qExec(&testVersionNumber,argc,argv);
 
-    // Observer Tests:
-    TestObserver testObserver;
-    QTest::qExec(&testObserver);
+//    // Observer Tests:
+//    TestObserver testObserver;
+//    QTest::qExec(&testObserver,argc,argv);
 
-    // ObserverRelationalTable Tests:
-    TestObserverRelationalTable testObserverRelationalTable;
-    QTest::qExec(&testObserverRelationalTable);
+//    // ObserverRelationalTable Tests:
+//    TestObserverRelationalTable testObserverRelationalTable;
+//    QTest::qExec(&testObserverRelationalTable,argc,argv);
+
+    // Delete the log window before doing benchmarks, we don't want the log widget to influence the benchmarks.
+    log_widget->close();
+    main_window->hide();
+
+    // Run Some Benchmarks:
+    BenchmarkTests benchmarkTests;
+    QTest::qExec(&benchmarkTests,argc,argv);
+
+    // Next we show the results:
+    CodeEditorWidget results_view;
+    results_view.loadFile(QApplication::applicationDirPath() + "/results.xml");
+    results_view.show();
 
     return a.exec();
 }

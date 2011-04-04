@@ -10,6 +10,7 @@ include(../../Qtilities.pri)
 
 QT       += core
 QT       += gui
+QT       += xml
 CONFIG += qtestlib
 
 TARGET    = QtilitiesTester

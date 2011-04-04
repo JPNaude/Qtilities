@@ -60,14 +60,18 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
         QDataStream stream_out(&file);
         stream_out.setVersion(data_stream_write_version);
         obj_source->setExportVersion(write_version);
-        obj_source->exportBinary(stream_out);
+        QBENCHMARK {
+            obj_source->exportBinary(stream_out);
+        }
         file.close();
 
         file.open(QIODevice::ReadOnly);
         QDataStream stream_in(&file);
         stream_in.setVersion(data_stream_read_version);
         obj_import_binary->setExportVersion(read_version);
-        obj_import_binary->importBinary(stream_in,import_list);
+        QBENCHMARK {
+            obj_import_binary->importBinary(stream_in,import_list);
+        }
 
         QFile file1(file_name + "_readback.binary");
         file1.open(QIODevice::WriteOnly);
@@ -89,13 +93,17 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
         QDomElement rootItem = doc.createElement("object_node");
         root.appendChild(rootItem);
 
-        QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
+        QBENCHMARK {
+            QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
+        }
         QString docStr = doc.toString(2);
         file.write(docStr.toAscii());
         file.close();
 
         obj_import_xml->setExportVersion(read_version);
-        QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
+        QBENCHMARK {
+            QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
+        }
 
         QFile file2(file_name + "_readback.xml");
         file2.open(QIODevice::WriteOnly);
@@ -869,6 +877,10 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
         LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended XML end:");
     }
+
+    // ---------------------------------------------------
+    // Do a proper export on :
+    // ---------------------------------------------------
 }
 
 void Qtilities::UnitTests::TestExporting::testProject_0_3_0_3() {
