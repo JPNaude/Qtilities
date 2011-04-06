@@ -37,9 +37,11 @@
 
 #include <QPointer>
 #include <QAction>
+#include <QMessageBox>
 
 #ifndef QTILITIES_NO_CONAN
 #include <Conan.h>
+using namespace conan;
 #endif
 
 #include <QtilitiesExtensionSystem>
@@ -74,6 +76,7 @@ struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
     #ifndef QTILITIES_NO_CONAN
     QPointer<ConanWidget>   object_analysis_widget;
     QPointer<ConanWidget>   command_analysis_widget;
+    QPointer<AboutDialog>   conan_about_dialog;
     #endif
 
     #ifndef QTILITIES_NO_PROPERTY_BROWSER
@@ -932,10 +935,15 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked(
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
 {
     #ifndef QTILITIES_NO_CONAN
-    if (!d->object_analysis_widget)
-        d->object_analysis_widget = new ConanWidget;
+    //if (!d->conan_about_dialog)
+    //    d->conan_about_dialog = new AboutDialog(this);
 
-    //d->object_analysis_widget->SlotAbout();
+    //d->conan_about_dialog->show();
+    #else
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Conan Not Found")
+    msgBox.setText("Qtilities was build without Conan support.");
+    msgBox.exec();
     #endif
 }
 
