@@ -12,9 +12,8 @@
 
 #****************************************************************************
 # Project paths
-# Note: Don't use folders with spaces.
 #****************************************************************************
-QTILITIES_BASE          = d:/work/Software/Qt/Qtilities/trunk
+QTILITIES_BASE          = $$PWD/../
 QTILITIES_SOURCE        = $$QTILITIES_BASE/src
 QTILITIES_INCLUDE       = $$QTILITIES_BASE/include
 QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
