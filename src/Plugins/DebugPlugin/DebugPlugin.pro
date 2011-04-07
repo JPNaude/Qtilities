@@ -34,11 +34,11 @@ CONFIG += plugin
 
     CONFIG(debug, debug|release) {
         win32:LIBS += $$CONAN_BASE/lib/libConand1.a
-        unix::LIBS += -L$$CONAN_BASE/lib -lConand1
+        unix::LIBS += -L$$CONAN_BASE/lib -lConand
     }
     else {
         win32:LIBS += $$CONAN_BASE/lib/libConan1.a
-        unix::LIBS += -L$$CONAN_BASE/lib -lConan1
+        unix::LIBS += -L$$CONAN_BASE/lib -lConan
     }
 }
 
