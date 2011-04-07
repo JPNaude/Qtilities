@@ -22,35 +22,6 @@ TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ------------------------------
 # Temp Output Paths
 # ------------------------------
