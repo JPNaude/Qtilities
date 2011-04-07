@@ -15,7 +15,7 @@ Things outstanding for v0.3 release:
     - Properly document new StringListWidget
     - Unit tests not part of documentation
     - Qtilities::CoreGui::Actions not defined anymore.
-    - QTILITIES_NO_PROPERTY_BROWSER now exlcudes ObjectDynamicPropertyBrowser as well.
+    - Update getting started page.
     - License header for GPL only files...
     - Getting started article should show more: QtilitiesMainWindow.
     - Must update images in ObjectManagement and MainWindow examples.
@@ -41,7 +41,6 @@ Qtilities v0.3 Implemented Changes
     General:
     ============================
     - Documentation
-        - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
         - Documentation now uses Doxygen's COLORSTYLE parameters to style the docs properly.
         - Getting Started article improved and updated, especially the Linux information.
         - The Basics article now uses a more usefull example. The previous one did not compile either.
@@ -53,6 +52,8 @@ Qtilities v0.3 Implemented Changes
     - Added this changes.txt file.
     - Added needed Q_UNUSED on unused variables throughout the libraries.
     - All constants defined by Qtilities now starts with "qti_".
+    - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
+	- All dependency build configuration options are now defined in Dependencies.pri.
 
     ============================
     QtilitiesLogging:
