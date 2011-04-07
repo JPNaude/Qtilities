@@ -2,7 +2,7 @@ Qtilities is available under the dual license shown below:
 
     /****************************************************************************
     **
-    ** Copyright (c) 2009-2010, Jaco Naude
+    ** Copyright (c) 2009-2011, Jaco Naude
     **
     ** This file is part of Qtilities which is released under the following
     ** licensing options.
@@ -37,9 +37,12 @@ Software Licenses:
     1) Qtilities uses Qt 4.7.0, linked against dynamicly under the LGPL 2.1. No modifications to the source were made. 
         The Qt binaries are available here:
           http://get.qt.nokia.com/qt/source/qt-win-opensource-4.7.0-mingw.exe.
-    2) Qtilities uses the Qt Property Browser Solution 2.5, linked against dynamicly under the LGPL 2.1. No modifications to the source were made. 
+    2) Qtilities uses the Qt Property Browser Solution, linked against dynamicly under the LGPL 2.1. No modifications to the source were made. 
         Linking against this solution can be turned of using the QTILITIES_NO_PROPERTY_BROWSER define when building Qtilities.
         The source code of this solution is available here:
           http://get.qt.nokia.com/qt/solutions/lgpl/qtpropertybrowser-2.5_1-opensource.zip
         And more information about the solution is available here:
           http://qt.nokia.com/products/appdev/add-on-products/catalog/4/Widgets/qtpropertybrowser/
+    3) Qtilities uses Conan, linked against dynamicly under GPL. No modifications to the source were made. 
+        The source code is avilable here:
+          http://sourceforge.net/projects/conanforqt/          
