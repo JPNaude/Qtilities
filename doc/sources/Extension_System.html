@@ -109,8 +109,7 @@ public:
     void finalize() {}
     QString pluginName() const { return "Example Plugin"; }
     QtilitiesCategory pluginCategory() const { return QtilitiesCategory("General"); }
-    double pluginVersion() const { return 1; }
-    QStringList pluginCompatibilityVersions() const;
+    VersionInformation pluginVersionInformation() const;
     QString pluginPublisher() const;
     QString pluginPublisherWebsite() const;
     QString pluginPublisherContact() const;
@@ -139,11 +138,9 @@ bool PluginTemplate::initializeDependancies(QString *errorString) {
     return true;
 }
 
-QStringList PluginTemplate::pluginCompatibilityVersions() const {
-    // Returning an empty QStringList() indicates that the plugin can be used in any application, thus
-    // it is not dependent on the application it is used. Examples are the Session Log and Project
-    // Management plugins that comes with %Qtilities.
-    return QStringList();
+Qtilities::Core::VersionInformation PluginTemplate::pluginVersionInformation() const {
+    VersionInformation version_info(1,0,0);
+    return version_info;
 }
 
 QString PluginTemplate::pluginPublisher() const {
@@ -236,7 +233,7 @@ int main(int argc, char *argv[])
 
 \endcode
 
-The above example registers the Qtilities::ExtensionSystem::ExtensionSystemConfig widget in the global object pool which is discussed in the \ref plugin_information section.
+The above example registers the Qtilities::ExtensionSystem::PluginInfoWidget widget in the global object pool which is discussed in the \ref plugin_information section.
 
 \subsection init_and_finalization_sequence Plugin initialization and finalization
 
@@ -320,7 +317,7 @@ Creating configuration sets is easy and flexible. The important thing to remembe
 - Manually calling the functions that grounp plugins into different categories, like Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins() for example.
 - Loading the configuration from a XML file (ending with \p .pconfig by default). The configuration setup can be saved to a XML file at any stage. The debug plugin allows you to create custom sets, for more information see \ref debugging_plugins_custom.
 
-Below is an example plugin configuration set file:
+Below is an example plugin configuration set %file:
 
 \code
 <!DOCTYPE QtilitiesPluginConfiguration>
@@ -343,7 +340,12 @@ Below is an example plugin configuration set file:
 The developer will have a specific way in mind that he or she wants to manage configuration sets their of application. To accomodate different scenarios the way that sets are handled can be customized through the \p ExtensionSystemCore class. It is for example possible to define some core plugins and then let the user decide which plugins they want to be active and incative.
 
 The plugin details widget can either show the current active and inactive plugins without allowing the user to change it, or it can give full control to the user.
-To show the activity of plugins the Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityDisplay() function can be called and to allow the users to control the activity the Qtilities::ExtensionSystem::ExtensionSystemCore::enablePluginActivityControl() function can be called.
+To show the activity of plugins and to allow the users to control the activity of plugins, use the following functions on the extension system:
+
+\code
+EXTENSION_SYSTEM->enablePluginActivityDisplay();
+EXTENSION_SYSTEM->enablePluginActivityControl();
+\endcode
 
 Below is an example of the plugin configuration widget with the above two activity options enabled and with the "Session Log Plugin" specified to be a core plugin (thus it is greyed out to indicate this and a proper message is displayed when an attempt is made to deactivate it). The image shows the state of the widget just after the user disabled the "Project Management Plugin".
 

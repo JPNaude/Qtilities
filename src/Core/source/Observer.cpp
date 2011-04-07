@@ -40,7 +40,7 @@
 #include "ObserverHints.h"
 #include "IExportableFormatting.h"
 
-#include <Logger.h>
+#include <Logger>
 
 #include <QMap>
 #include <QVariant>

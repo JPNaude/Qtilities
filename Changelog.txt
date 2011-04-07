@@ -8,7 +8,6 @@ Things outstanding for v0.3 release:
 - Object Management Example: Binary project does not work.
 - Qtilities debugging action in ObserverWidget does not always show.
 - Session dir creation wrong... See action manager for example.
-- Get latest conan when released.
 - ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
 
 - Docs & finalization stuff:
@@ -18,10 +17,8 @@ Things outstanding for v0.3 release:
     - Qtilities::CoreGui::Actions not defined anymore.
     - QTILITIES_NO_PROPERTY_BROWSER now exlcudes ObjectDynamicPropertyBrowser as well.
     - License header for GPL only files...
-    - Add notes on threading to Observer: Subject's threads as well as thread safety.
-    - Add tree and subject function descriptions to Observer docs. And add some actual docs to Observer.
     - Getting started article should show more: QtilitiesMainWindow.
-    - Must update images in ObjectManagement and MainWindow examples, as well as bottom of Factory article.
+    - Must update images in ObjectManagement and MainWindow examples.
     - In tree structure page, first image uses FileTreeItem, instead of TreeFileItem.
     - Use seperate release and debug folders.
     - Update Qtilities::Core::Properties namespace docs + add removability to each property.
@@ -29,12 +26,14 @@ Things outstanding for v0.3 release:
     - Document AbstractLoggerEngineData.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
     - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
-    - Update QtilitiesApplication and QtilitiesCoreApplication to include version number and export version information.
     - Better VersionNumber docs.
     - Add new widgets to Widgets page.
     - Add exporting example to examples page.
-    - Extension System article does not use VersionInformation.
     - SubjectIterator 2nd way of doing it is wrong...
+    - Logging article still use old pics without colored messsages.
+    - Add test lib to module page.
+    - Object management page uses old object pool view. Make sure you delete the old pic!
+    - Make working with projects an example rather than lots of long class function references.
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -42,6 +41,7 @@ Qtilities v0.3 Implemented Changes
     General:
     ============================
     - Documentation
+        - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
         - Documentation now uses Doxygen's COLORSTYLE parameters to style the docs properly.
         - Getting Started article improved and updated, especially the Linux information.
         - The Basics article now uses a more usefull example. The previous one did not compile either.

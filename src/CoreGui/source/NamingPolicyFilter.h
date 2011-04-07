@@ -148,7 +148,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
               */
             enum ResolutionPolicy {
                 AutoRename = 0,             /*!< Automatically rename new names. \sa generateValidName() */
-                PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. <b>Important:</b> When this NamingPolicyFilter is installed on an Observer which does not live in the main GUI thread, this resolution policy should not be used. If it is used it will attempt to construct a widget in a non-GUI thread and it will crash.*/
+                PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. \note <b>Important:</b> When this NamingPolicyFilter is installed on an Observer which does not live in the main GUI thread, this resolution policy should not be used. If it is used it will attempt to construct a widget in a non-GUI thread and it will crash.*/
                 Replace = 2,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
                 Reject = 3                  /*!< Reject unacceptable names. */
             };

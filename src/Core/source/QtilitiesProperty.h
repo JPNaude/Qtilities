@@ -50,6 +50,8 @@ namespace Qtilities {
             /*!
             \class Qtilities::Core::QtilitiesProperty
             \brief The base class of all the different %Qtilities property types.
+
+            For information about how QtilitiesProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
             */
             class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : virtual public IExportable
             {
@@ -133,22 +135,62 @@ namespace Qtilities {
                 bool                    supports_change_notifications;
             };
 
-/*!
-\class Qtilities::Core::MultiContextProperty
-\brief A MultiContextProperty provides a property which has different values in different contexts.
+        /*!
+        \class Qtilities::Core::MultiContextProperty
+        \brief A MultiContextProperty provides a property which has different values in different contexts.
 
-A complete map of the property's contexts and their respective QVariant() values can be obtained using contextMap(). To get the last observer context
-for which the property changed use lastChangedContext(). You can check if an MultiContextProperty is valid using the isValid() call.
+        A complete map of the property's contexts and their respective QVariant() values can be obtained using contextMap(). To get the last observer context
+        for which the property changed use lastChangedContext(). You can check if an MultiContextProperty is valid using the isValid() call. Convenience functions for working with different contexts include hasContext(), addContext(),removeContext() and value().
 
-Convenience functions for working with different contexts include hasContext(), addContext() and removeContext().
+        \subsection MultiContextProperty_changing_properties Getting and setting multi context properties properties
 
-Next an example is provided which will show how to create an observer property and add it to an object. Unless you want to create new subject filters,
-it should probably not be neccesary to ever create properties yourself. One exception is object properties which guides observers during subject
-attachment. A list of properties which are evaluated by observers during attachment are provided in the Observer class documentation. In most cases
-it will only be neccesary to set or get the values of properties added to an object by observers and their installed subject filters.
+        Getting and setting shared properties are done by the Qtilities::Core::Observer class which provides easy to use functions to set and get properties and their values. For multi context properties we need to know the context to get a value since the value is different for different contexts.
 
-See the \ref observer_properties section of the \ref page_observers article for an example of how to work with MultiContextProperty objects.
-*/
+        The following example shows how to construct and work with Qtilities::Core::MultiContextProperty.
+\code
+QObject* obj = new QObject();
+Observer* observerA = new Observer("My Observer A","Example observer description");
+int observerA_ID = observerA->observerID();
+Observer* observerB = new Observer("My Observer B","Example observer description");
+int observerB_ID = observerB->observerID();
+
+// Create observer property
+QString property_name = "Example Property Name";
+MultiContextProperty observer_property(property_name);
+observer_property.setIsExportable(false);
+
+// Attach object to observers
+observerA->attachSubject(obj);
+observerB->attachSubject(obj);
+
+// Now we can add values to our property for each context
+observer_property.addContext(QVariant(true),observerA->observerID());
+observer_property.addContext(QVariant(false),observerB->observerID());
+
+// Now set the observer property on the object
+Observer::setMultiContextProperty(obj,observer_property);
+
+// Now we can get the value of the property for each observer using the observer references
+bool value_contextA = observerA->getQtilitiesPropertyValue(obj,property_name).toBool();
+bool value_contextB = observerB->getQtilitiesPropertyValue(obj,property_name).toBool();
+
+// Or get the value of the property without an observer reference: Option 1
+MultiContextProperty observer_property1 = Observer::getMultiContextProperty(property_name);
+if (observer_property1.isValid()) {
+  bool value_contextA_1 = observer_property1->value(observerA_ID).toBool();
+}
+
+// Or get the value of the property without an observer reference: Option 2
+QVariant prop = obj->property(property_name);
+if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
+  bool value_contextA_2 = (prop.value<MultiContextProperty>()).value(observerA_ID).toBool();
+}
+\endcode
+
+        For information about how MultiContextProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
+
+        \sa Qtilities::Core::SharedProperty
+        */
         class QTILIITES_CORE_SHARED_EXPORT MultiContextProperty : public QtilitiesProperty
         {
         public:
@@ -215,7 +257,46 @@ See the \ref observer_properties section of the \ref page_observers article for 
 
         A SharedProperty is a basic implementation of QtilitiesProperty which stored a single QVariant value set with setValue() and can be obtained using value().
 
-        See the \ref observer_properties section of the \ref page_observers article for an example of how to work with SharedProperty objects.
+        \subsection SharedProperty_changing_properties Getting and setting shared properties
+
+        Getting and setting shared properties are done by the Qtilities::Core::Observer class which provides easy to use functions to set and get properties and their values. For shared properties it is easy to get and set the value of the property because we do not need to know the context since the value is the same for all contexts.     
+        
+        The following example shows how to construct and work with Qtilities::Core::SharedProperty.
+\code
+QObject* obj = new QObject();
+Observer* obs = new Observer("My Observer","Example observer description");
+
+// Create shared property
+QString property_name = "Example Property Name";
+SharedProperty string_property("Example text",property_name);
+// For this example we don't need to make the property exportable. By default all properties are exportable.
+string_property.setIsExportable(false);
+
+// Set the property using the static convenience function provided by the observer class
+Observer::setSharedProperty(obj,string_property);
+
+// Attach the object to the observer
+obs->attachSubject(obj);
+
+// Now we can get the value of the property using the observer reference
+QString text = obs->getQtilitiesPropertyValue(obj,property_name).toString();
+
+// Or get the value of the property without the observer reference: Option 1
+SharedProperty shared_property1 = Observer::getSharedProperty(property_name);
+if (shared_property1.isValid()) {
+	QString text1 = shared_property1->value().toString();
+}
+
+// Or get the value of the property without the observer reference: Option 2
+QVariant prop = obj->property(property_name);
+if (prop.isValid() && prop.canConvert<SharedProperty>()) {
+	QString text2 = (prop.value<SharedProperty>()).value().toString();
+}
+\endcode
+
+        For information about how SharedProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
+
+        \sa Qtilities::Core::MultiContextProperty
         */
         class QTILIITES_CORE_SHARED_EXPORT SharedProperty : public QtilitiesProperty
         {

@@ -7,6 +7,7 @@
 # ***************************************************************************
 QTILITIES += core
 include(../Qtilities.pri)
+include(../Dependencies.pri)
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
 
 CONFIG += qt \
@@ -24,27 +25,13 @@ RCC_DIR = $$QTILITIES_TEMP/CoreGui
 UI_DIR = $$QTILITIES_TEMP/CoreGui
 
 # --------------------------
-# Propery Editor Stuff
+# Files only included when Qt Property Browser solution is present
 # --------------------------
 !contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
-    DEFINES += QT_QTPROPERTYBROWSER_IMPORT
-    LIBRARIES_PATH = $$QTILITIES_DEPENDENCIES
-    PROPERTY_EDITOR_BASE = $$LIBRARIES_PATH/qtpropertybrowser-2.5-opensource
-    DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
-    INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
-    CONFIG(debug, debug|release) {
-        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5d.a
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-2.5d
-    }
-    else {
-        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-2.5.a
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-2.5
-    }
-
-    HEADERS += source/ObjectPropertyBrowser.h
-    SOURCES += source/ObjectPropertyBrowser.cpp
+    HEADERS += source/ObjectPropertyBrowser.h \
+               source/ObjectDynamicPropertyBrowser.h
+    SOURCES += source/ObjectPropertyBrowser.cpp \
+               source/ObjectDynamicPropertyBrowser.cpp
 }
 
 # --------------------------
@@ -103,7 +90,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ModeListWidget.h \
     source/ObserverTableModel.h \
     source/ObserverTreeModel.h \
-    source/ObjectDynamicPropertyBrowser.h \
     source/StringListWidget.h \
     source/CommandTreeModel.h \
     source/INamingPolicyDialog.h
@@ -150,7 +136,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ModeListWidget.cpp \
     source/ObserverTableModel.cpp \
     source/ObserverTreeModel.cpp \
-    source/ObjectDynamicPropertyBrowser.cpp \
     source/StringListWidget.cpp \
     source/CommandTreeModel.cpp
 

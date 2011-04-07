@@ -83,7 +83,7 @@ git clone git://gitorious.org/qtilities/qtilities.git qtilities
 cd qtilities
 \endcode
 
-The master branch host the current development snapshot and might not even build at all time, thus it is recommended to use a stable branch for your development. You can also get an archive of any development branch by browsing the source tree on Gitorious and selecting the archive download link. All development happens in the \p master branch and stable versions have their own branches. Alternatively, you can download stable release archives from the <a href="http:\\code.google.com\p\qtilities\downloads\list">Qtilities download page</a>.
+The master branch host the current development snapshot and might not even build all time, thus it is recommended to use a stable branch for your development. You can also get an archive of any development branch by browsing the source tree on Gitorious and selecting the archive download link. All development happens in the \p master branch and stable versions have their own branches. Alternatively, you can download stable release archives from the <a href="http:\\code.google.com\p\qtilities\downloads\list">Qtilities download page</a>.
 
 \section tested_environments Tested environments
 
@@ -98,7 +98,9 @@ Although %Qtilities have only been tested with Qt 4.6 and the Qt 4.7, it should 
 
 This section will guide you through the process of building %Qtilities. 
 
-\subsection getting_started_library_dependencies Dependencies
+\subsection getting_started_library_dependencies Dependencies (Optional)
+
+By default Qtilities does not depend on any libraries apart from Qt itself. It is however possible to enable dependencies.
 
 For an overview of the library dependencies on each other, see \ref section_dependencies first. The %Qtilities CoreGui module depends on the Qt Property Browser Solution which is part of the <a href="http://qt.gitorious.org/qt-solutions">Qt-Solutions repository</a>. It is possible to disable this dependency by uncommenting the \p QTILITIES_NO_PROPERTY_BROWSER define in \p src/Qtilities.pri. Disabling this dependency will introduce the following limitations:
 - The Qtilities::CoreGui::ObjectPropertyBrowser class won't be available to use.

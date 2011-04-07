@@ -11,7 +11,7 @@
 <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
 <h1 style="margin:0px; padding:0px">Overview</h1>
 
-The Qtilities::Core::Observer class provides a powerful implementation of the subject - observer programming pattern. The observer class is the observer in this implementation (as the name suggests) and any QObject based class can be a subject. One way to think about an observer is to think of it as a context in your application to which certain subjects can be attached or detached. An example of such a context is the observer which manages plugins in the %Qtilities extension system. When plugins are loaded they are attached to this context and become visible in the list of loaded plugins. Another example would be different instances of a scripting engine. When new objects are created inside the scripting engine they exist in that context. It can then for example be possible to have multiple scripting engines within the same application, where different objects belongs to different script engines or are shared between the engines. 
+The Qtilities::Core::Observer class provides a powerful implementation of the subject - observer programming pattern. The observer class is the observer in this implementation (as the name suggests) and any QObject based class can be a subject. One way to think about an observer is to think of it as a context in your application to which certain subjects can be attached or detached. An example of such a context is the observer which manages plugins in the %Qtilities extension system. When plugins are loaded they are attached to this context and become visible in the list of loaded plugins. Another example would be different instances of a scripting engine. When new objects are created inside the scripting engine they exist in that context. It can then for example be possible to have multiple scripting engines within the same application, where different objects belongs to different script engines or are shared between the engines using Observers.
 
 The %Qtilities implementation of this pattern is a very powerful addition to any Qt programmer's toolbox and this article will explain the many different features of the implementation. 
 
@@ -25,10 +25,8 @@ Table of contents:
         .
 - \ref observer_properties
 	- \ref different_properties
-	- \ref changing_properties
 	- \ref important_properties
 	- \ref monitoring_property_changes
-	- \ref property_exporting
 	.
 - \ref subject_filters
 	- \ref subject_filter_attachment_involvement
@@ -159,203 +157,9 @@ For examples of how observer widgets visualize categories, see the \ref hierarch
 
 \subsection object_lifetimes Object lifetimes: Managing object lifetimes using observers
 
-When attaching objects to observers, it is possible to specify the way the object should be managed by the observer context. The possible management options are defined in the Qtilities::Core::Observer::ObjectOwnership enumeration. The ownership of any object observed by one or more observers is stored using the Qtilities::Core::Properties::OWNERSHIP property.
+When attaching objects to observers, it is possible to specify the way the object should be managed by the observer context. The possible management options are defined in the Qtilities::Core::Observer::ObjectOwnership enumeration. The ownership of any object observed by one or more observers is stored using the Qtilities::Core::Properties::qti_prop_OWNERSHIP property.
 
-Next we modify our example to manage object lifetimes in different ways using the possible ownership options.
-
-\subsubsection observer_manual_ownership Manual Ownership
-
-Manual ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted.
-
-\code
-// Create the observer
-Observer* observerA = new Observer("Observer A","My first observer");
-
-// Create the objects
-QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
-QPointer<QObject> object2 = new QObject();
-object2->setObjectName("Object 2");
-
-// Attach objects to observers
-observerA->attachSubject(object1,Observer::ManualOwnership);
-observerA->attachSubject(object2,Observer::ManualOwnership);
-
-// Now delete observers
-delete observerA;
-
-// Check the validity of the objects
-if (object1) {
-	// We get here in this example.
-} else {
-	
-}
-if (object2) {
-	// We get here in this example.
-} else {
-	
-}
-\endcode
-
-After deleting the two observers in the example above, \p object1 and \p object2 will still be valid, thus they will not be deleted. Note that subjects are attached to observers using manual ownership by default.
-
-\subsubsection observer_auto_ownership Auto Ownership
-
-Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so \p ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using \p ObserverScopeOwnership.
-
-\code
-// Create the observer
-Observer* observerA = new Observer("Observer A","My first observer");
-
-// Create the objects
-QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
-QPointer<QObject> object2 = new QObject();
-object2->setObjectName("Object 2");
-QPointer<QObject> parentObject = new QObject();
-object2->setParent(parentObject);
-
-// Attach objects to observers
-observerA->attachSubject(object1,Observer::AutoOwnership);
-observerA->attachSubject(object2,Observer::AutoOwnership);
-
-// Now delete observers
-delete observerA;
-
-// Check the validity of the objects
-if (object1) {
-
-} else {
-	// We get here in this example.
-}
-if (object2) {
-	// We get here in this example.
-} else {
-	
-}
-\endcode
-
-Since \p object2 has a parent, it will be attached using \p ManualOwnership and \p ObserverScopeOwnership will be used for \p object1. Therefore after deleting the observers, \p object1 will be null (see \ref observer_scope_ownership) and \p object2 will still be valid.
-
-\subsubsection observer_specific_ownership Specific Observer Ownership 
-
-The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted.
-
-\code
-// Create the observer
-Observer* observerA = new Observer("Observer A","My first observer");
-
-// Create the objects
-QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
-QPointer<QObject> object2 = new QObject();
-object2->setObjectName("Object 2");
-
-// Attach objects to observers
-observerA->attachSubject(object1,Observer::SpecificObserverOwnership);
-observerA->attachSubject(object2,Observer::SpecificObserverOwnership);
-
-// Now delete observer
-delete observerA;
-
-// Check the validity of the objects
-if (object1) {
-
-} else {
-	// We get here in this example.	
-}
-if (object2) {
-
-} else {
-	// We get here in this example.	
-}
-\endcode
-
-Both objects will become null after the observers are deleted since \p observerA becomes the specific parent of both objects.
-
-\subsubsection observer_scope_ownership Observer Scope Ownership  
-
-The object must have at least on Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
-
-\code
-// Create the observer
-Observer* observerA = new Observer("Observer A","My first observer");
-Observer* observerB = new Observer("Observer B","My second observer");
-
-// Create the objects
-QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
-QPointer<QObject> object2 = new QObject();
-object2->setObjectName("Object 2");
-
-// Attach objects to observers
-observerA->attachSubject(object1,Observer::ObserverScopeOwnership);
-observerA->attachSubject(object2,Observer::ObserverScopeOwnership);
-observerB->attachSubject(object1,Observer::ObserverScopeOwnership);
-observerB->attachSubject(object2,Observer::ObserverScopeOwnership);
-
-// Now delete observer A
-delete observerA;
-
-// Check the validity of the objects
-if (object1) {
-	// We get here in this example.
-} else {
-	
-}
-if (object2) {
-	// We get here in this example.
-} else {
-	
-}
-
-// Now delete observer B
-delete observerB;
-
-// Check the validity of the objects
-if (object1) {
-	
-} else {
-	// We get here in this example.
-}
-if (object2) {
-	
-} else {
-	// We get here in this example.
-}
-\endcode
-
-Both objects will still be valid after deleting \p observerA since it they are still visible in the scope of \p observerB. After \p observerB is deleted both objects will be null.
-
-\subsubsection observer_owned_by_subject_ownership Owned By Subject Ownership  
-
-The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When the current ownership of a subject is \p OwnedBySubjectOwnership and it is attached to more contexts, the new ownership is ignored during attachment to the new contexts. Thus when a subject was attached to a context using \p OwnedBySubjectOwnership it is attached to all other contexts after that using \p OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using \p OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal.
-
-\code
-// Create the observer
-QPointer<Observer> observerA = new Observer("Observer A","My first observer");
-
-// Create the objects
-QPointer<QObject> object1 = new QObject();
-object1->setObjectName("Object 1");
-
-// Attach objects to observers
-observerA->attachSubject(object1,Observer::OwnedBySubjectOwnership);
-
-// Now delete the object
-delete object1;
-
-// Check the validity of the observer
-if (observerA) {
-
-} else {
-	// We get here in this example.
-}
-\endcode
-
-In this example \p observerA will be deleted as soon as \p object1 is deleted.
-
-\section observer_properties Observer properties
+\section observer_properties Dynamic properties used and managed by Observers
 
 %Observer classes use the dynamic property features of QObject classes extensively to manage objects in contexts. This section will explain how to use these properties, which properties exists and how property changes can be monitored. The sections to follow will explain the different properties which is used in %Qtilities, however new custom properties can easily be created and added to objects since the observer property classes are basically wrappers around QVariant. 
 
@@ -367,83 +171,7 @@ At present, two types of properties are used:
 - Qtilities::Core::MultiContextProperty : Used to store properties which are different between different contexts.
 - Qtilities::Core::SharedProperty : Used to store properties which remain the same between different contexts.
 
-\subsection changing_properties Getting and setting observer properties
-
-Getting and setting of properties are done by the Qtilities::Core::Observer class which provides easy to use functions to set and get properties and their values. For shared properties it is easy to get and set the value of the property because we do not need to know the context since the value is the same for all contexts. For normal observer properties we need to know the context since the value is different for different contexts.
-
-The following example shows how to construct and work with Qtilities::Core::SharedProperty.
-\code
-QObject* obj = new QObject();
-Observer* obs = new Observer("My Observer","Example observer description");
-
-// Create shared property
-QString property_name = "Example Property Name";
-SharedProperty string_property("Example text",property_name);
-// For this example we don't need to make the property exportable. By default all properties are exportable.
-string_property.setIsExportable(false);
-
-// Set the property using the static convenience function provided by the observer class
-Observer::setSharedProperty(obj,string_property);
-
-// Attach the object to the observer
-obs->attachSubject(obj);
-
-// Now we can get the value of the property using the observer reference
-QString text = obs->getQtilitiesPropertyValue(obj,property_name).toString();
-
-// Or get the value of the property without the observer reference: Option 1
-SharedProperty shared_property1 = Observer::getSharedProperty(property_name);
-if (shared_property1.isValid()) {
-	QString text1 = shared_property1->value().toString();
-}
-
-// Or get the value of the property without the observer reference: Option 2
-QVariant prop = obj->property(property_name);
-if (prop.isValid() && prop.canConvert<SharedProperty>()) {
-	QString text2 = (prop.value<SharedProperty>()).value().toString();
-}
-\endcode
-
-The following example shows how to construct and work with Qtilities::Core::MultiContextProperty.
-\code
-QObject* obj = new QObject();
-Observer* observerA = new Observer("My Observer A","Example observer description");
-int observerA_ID = observerA->observerID();
-Observer* observerB = new Observer("My Observer B","Example observer description");
-int observerB_ID = observerB->observerID();
-
-// Create observer property
-QString property_name = "Example Property Name";
-MultiContextProperty observer_property(property_name);
-observer_property.setIsExportable(false);
-
-// Attach object to observers
-observerA->attachSubject(obj);
-observerB->attachSubject(obj);
-
-// Now we can add values to our property for each context
-observer_property.addContext(QVariant(true),observerA->observerID());
-observer_property.addContext(QVariant(false),observerB->observerID());
-
-// Now set the observer property on the object
-Observer::setMultiContextProperty(obj,observer_property);
-
-// Now we can get the value of the property for each observer using the observer references
-bool value_contextA = observerA->getQtilitiesPropertyValue(obj,property_name).toBool();
-bool value_contextB = observerB->getQtilitiesPropertyValue(obj,property_name).toBool();
-
-// Or get the value of the property without an observer reference: Option 1
-MultiContextProperty observer_property1 = Observer::getMultiContextProperty(property_name);
-if (observer_property1.isValid()) {
-	bool value_contextA_1 = observer_property1->value(observerA_ID).toBool();
-}
-
-// Or get the value of the property without an observer reference: Option 2
-QVariant prop = obj->property(property_name);
-if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
-	bool value_contextA_2 = (prop.value<MultiContextProperty>()).value(observerA_ID).toBool();
-}
-\endcode
+Getting and setting of properties are done by the Qtilities::Core::Observer class which provides easy to use functions to set and get properties and their values. For shared properties it is easy to get and set the value of the property because we do not need to know the context since the value is the same for all contexts. For normal observer properties we need to know the context since the value is different for different contexts. See the respective property class documentation for more information about setting and getting different properties.
 
 \subsection important_properties Important properties and how they are interpreted
 
@@ -497,24 +225,6 @@ bool MyObject::eventFilter(QObject *object, QEvent *event) {
     return false;
 }
 \endcode
-
-\subsection property_exporting Exporting and importing of properties
-
-It is possible to export observer properties on an object to a QDataStream. Thus when adding your properties to objects using the 
-available observer properties classes, you can easily export these properties.
-
-The example below shows how this can be done:
-\code
-QObject* obj = new QObject();
-Observer* obs = new Observer("My Observer","Example observer description");
-obs->attachSubject(obj);
-
-// We can export properties
-QDataStream stream();
-OBJECT_MANAGER->exportObjectProperties(obj,stream);
-\endcode
-
-When importing properties care should be taken. If importing happens in the same session it is easy and can be done using the Qtilities::Core::ObjectManager::importObjectProperties() function. However when you are importing properties in a different session (meaning the application was closed), the observer IDs between the sessions would have changed and observer properties will have invalid observer IDs as their context references. In that case the observer IDs must be corrected for the new session. There is not an easy way to do this for a single object at present. When exporting and importing an observer using the Qtilities::Core::ObjectManager::exportObserverBinary() and Qtilities::Core::ObjectManager::importObserverBinary() functions, the correction of the observer IDs automatically happens through the Qtilities::Core::ObjectManager::constructRelationships() function. Thus it is recommended to attach objects to an observer and then do a complete import and export exercise if the importing will not happen in the same session as the exporting.
 
 \section subject_filters Subject filters
 

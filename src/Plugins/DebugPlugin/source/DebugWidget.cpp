@@ -939,11 +939,6 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
     //    d->conan_about_dialog = new AboutDialog(this);
 
     //d->conan_about_dialog->show();
-    #else
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Conan Not Found")
-    msgBox.setText("Qtilities was build without Conan support.");
-    msgBox.exec();
     #endif
 }
 

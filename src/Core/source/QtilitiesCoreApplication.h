@@ -57,6 +57,7 @@ namespace Qtilities {
          - Access to a context manager through contextManager().
          - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
          - Information about %Qtilities through qtilitiesVersionString().
+         - Export version informatin for both %Qtilities as well as application specific versioning information. For more information see Qtilities::Core::Interfaces::IExportable.
 
           \note In GUI applications, the QtilitiesCoreApplication instance will not be created. It is still possible to access
           the objectManager(), contextManager() and qtilitiesVersionString() functions. For the rest of the functionality, like the

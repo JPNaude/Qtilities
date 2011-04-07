@@ -40,7 +40,10 @@ OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_0_3.html
 OTHER_FILES += ../doc/sources/Whats_New.html
 OTHER_FILES += ../doc/sources/Debugging_Qtilities_Applications.html
-OTHER_FILES += ../changes.txt
+OTHER_FILES += ../Read Me First.txt
+OTHER_FILES += ../Changelog.txt
+OTHER_FILES += ../Building On Linux.txt
+OTHER_FILES += ../Building On Windows.txt
 OTHER_FILES += ../doc/doxyfile_packages.txt
 OTHER_FILES += ../doc/doxyfile_website.txt
 

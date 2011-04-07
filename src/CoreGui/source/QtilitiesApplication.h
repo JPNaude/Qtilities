@@ -77,6 +77,7 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Settings update requests using newSettingsUpdateRequest() and settingsUpdateRequest().
          - Information about %Qtilities through qtilitiesVersionString() and aboutQtilities().
          - Access to the application's configuration page through configWidget().
+         - Export version informatin for both %Qtilities as well as application specific versioning information. For more information see Qtilities::Core::Interfaces::IExportable.
 
           \sa Qtilities::Core::QtilitiesCoreApplication
          */

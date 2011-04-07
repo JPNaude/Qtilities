@@ -26,13 +26,7 @@ QTILITIES_FILE_VER      = -0.3
 #   *************************************************************************
 #   Dependencies:
 #   *************************************************************************
-#   Builds Qtilities without the ObjectPropertyBrowser class, thus you
-#   don't need the Qt Property Browser Solution.
-#   DEFINES += QTILITIES_NO_PROPERTY_BROWSER
-#   Builds Qtilities without Conan library integrated into the debug plugin.
-#   Note that this integration was only tested in Qt 4.7 on Windows XP 32bit.
-#   See https://sourceforge.net/projects/conanforqt/ for more information.
-DEFINES += QTILITIES_NO_CONAN
+#   See Dependencies.pri for dependency configuration.
 #
 #   *************************************************************************
 #   General:

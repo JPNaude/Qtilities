@@ -65,13 +65,76 @@ namespace Qtilities {
         \class Observer
         \brief The observer class is an extended implementation of an observer in the subject-observer pattern.
 
+        The observer class provides a powerful implementation of the subject - observer programming pattern. The observer class is the observer in this implementation (as the name suggests) and any QObject based class can be a subject. One way to think about an observer is to think of it as a context in your application to which certain subjects can be attached or detached. An example of such a context is the observer which manages plugins in the %Qtilities extension system. When plugins are loaded they are attached to this context and become visible in the list of loaded plugins. Another example would be different instances of a scripting engine. When new objects are created inside the scripting engine they exist in that context. It can then for example be possible to have multiple scripting engines within the same application, where different objects belongs to different script engines or are shared between the engines using Observers.
+        
+        The example below shows how to create your first observer class and attach objects to it.
 
+\code
+// Create the observer:
+Observer* observerA = new Observer;
 
-        \section Observer Tree Classification
+// Create the objects:
+QPointer<QObject> object1 = new QObject();
+QPointer<QObject> object2 = new QObject();
+
+// Attach objects to observers:
+observerA->attachSubject(object1);
+observerA->attachSubject(object2);
+\endcode
+
+        \section observer_displaying Displaying the context of an Observer
+
+        One of the original goals of the observer implementation was to make it easy, in fact very easy to display the contents of any Observer context. For this purpose the Qtilities::CoreGui::ObserverWidget class was created which allows you to display the contents of an observer context using only a couple lines of code.
+
+        For example:
+\code
+// Create the observer:
+Observer* observerA = new Observer;
+
+// Create the objects:
+QPointer<QObject> object1 = new QObject();
+QPointer<QObject> object2 = new QObject();
+
+// Attach objects to observers:
+observerA->attachSubject(object1);
+observerA->attachSubject(object2);
+
+// Display the observer context:
+ObserverWidget observerWidget(observerA);
+observerWidget.show();
+\endcode
+
+        %Observer widgets are very powerfull and observers can specify display hints to views that display their contents using the Qtilities::Core::ObserverHints class. This interaction is a topic on its own and the \ref page_observer_widgets page discusses this in detail. Observer widgets supports both Table and Tree views and the Qtilities::CoreGui::TreeNode class is a subclass of observer that makes building of trees using observer easier. The next section describes such trees in more detail.
+
+        \section observer_trees Observer Trees
+
+        Since an observer is able to manage any QObject based class, it is also capable of observing other observers. This feature allows us to build complex hierarhcical tree data structures very easily with the only requirements that leaf nodes in our trees must inherit QObject. Using observer widgets you can easily display and tree data structure that you have created and you can even make dot graphs of your tree structures using ObserverDotWriter.
+
+        Lets look at a simple observer tree structure and the functions provided by observer:
 
         \image html observer_tree_classification.jpg "Observer Trees"
 
-        See the \ref page_observers article for more information.
+        In the above tree \p Root, \p A and \p B are all observers with \p 1-4 being any QObject based classes. On the \p Root observer it is possible to access its subjects using functions on observer that start with \p subject. For example: subjectCount(), subjectLimit(), subjectAt() etc. Thus these functions allow you to access the objects directly underneath an observer. On the other hand, function starting with \p tree allow you to operate on the complete tree underneath an observer. For example: treeCount(), treeAt() etc.
+
+        %Qtilities provides the SubjectIterator and TreeIterator iterators which allows you to iterator over different parts of the tree structure underneath an observer.
+
+        A common request by Qt developers is the ability to easily create and display data based on arbitrary tree structures to users, and to easily interact with users through these trees. It is of course do able using Qt's QAbstractItemModel but its not a trivial tasks and can take time to get right. %Qtilities attempts to provide a easy solution to this request in the form of ready to use classes which allows you to build trees easily. The \ref page_tree_structures page provides a detailed overview of this solution.
+
+        \section observer_subject_filters Subject filters
+
+    Subject filters are a feature of the observer architecture which allows control over object attachment and detachment, as well as monitoring of properties introduced by the subject filter. For more information on this see the \ref subject_filters section of the \ref page_observer page.
+
+        \section observer_threads Observers and threads
+
+        Since observers manage objects which can live in different threads it is important to take care when using observers outside of the GUI thread. The following considerations must be taken into account when using observers in threads outside of the GUI thread and attaching objects to observers that live in different threads:
+        - Observers monitor QDynamicPropertyChange events on objects that it manages, and send QtilitiesPropertyChangeEvents on specific internal %Qtilities properties to objects that it manages. Since properties cannot be posted to objects living in other threads, and events cannot be filtered on objects in a different thread, this functionality of observers cannot be used when using threads as specified above. Event filtering is enabled by default, thus if you intend to use observers which manage objects in different threads, disable this using toggleSubjectEventFiltering().
+        - When using observer's with naming policy filters installed outside of the GUI thread, make sure you don't use the Qtilities::CoreGui::NamingPolicyFilter::PromptUser resolution policy since it will attempt to construct a QWidget under specific circumstances and you application will crash.
+
+        Observer by itself is not thread-safe.
+
+        \section observer_under_the_hoold Under The Hood: How observers work behind the scenes.
+
+        From a user perspective the observer API attempts to hide the complexities of how object management is done. Behind the scenes there is a lot that is happening and lots of complex features that allows you to customize the way you use observers. The \ref page_observers article is a good place to start exploring these details.
         */
         class QTILIITES_CORE_SHARED_EXPORT Observer : public QObject, public IExportable, public IModificationNotifier
         {
@@ -121,11 +184,194 @@ namespace Qtilities {
               See the \ref object_lifetimes section of the \ref page_observers article for a detailed discussion.
               */
             enum ObjectOwnership {
-                ManualOwnership,            /*!< Manaul ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted. */
-                AutoOwnership,              /*!< Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a \p parent(), if so Observer::ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using Observer::ObserverScopeOwnership. */
-                SpecificObserverOwnership,  /*!< The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted. In this case, the normal QObject::parent() function on the subject will be set to this observer. */
-                ObserverScopeOwnership,     /*!< The subject is deleted as soon as it is detached from the last observer managing it. */
-                OwnedBySubjectOwnership     /*!< The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When Observer::OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a context using Observer::OwnedBySubjectOwnership it is attached to all other contexts after that using Observer::OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using Observer::OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal. */
+                ManualOwnership,            /*!<                
+Manual ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted.
+
+\code
+// Create the observer
+Observer* observerA = new Observer("Observer A","My first observer");
+
+// Create the objects
+QPointer<QObject> object1 = new QObject();
+object1->setObjectName("Object 1");
+QPointer<QObject> object2 = new QObject();
+object2->setObjectName("Object 2");
+
+// Attach objects to observers
+observerA->attachSubject(object1,Observer::ManualOwnership);
+observerA->attachSubject(object2,Observer::ManualOwnership);
+
+// Now delete observers
+delete observerA;
+
+// Check the validity of the objects
+if (object1) {
+	// We get here in this example.
+} else {
+	
+}
+if (object2) {
+	// We get here in this example.
+} else {
+	
+}
+\endcode
+
+After deleting the two observers in the example above, \p object1 and \p object2 will still be valid, thus they will not be deleted. Note that subjects are attached to observers using manual ownership by default. 
+                */
+                AutoOwnership,              /*!< 
+Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so \p ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using \p ObserverScopeOwnership.
+
+\code
+// Create the observer
+Observer* observerA = new Observer("Observer A","My first observer");
+
+// Create the objects
+QPointer<QObject> object1 = new QObject();
+object1->setObjectName("Object 1");
+QPointer<QObject> object2 = new QObject();
+object2->setObjectName("Object 2");
+QPointer<QObject> parentObject = new QObject();
+object2->setParent(parentObject);
+
+// Attach objects to observers
+observerA->attachSubject(object1,Observer::AutoOwnership);
+observerA->attachSubject(object2,Observer::AutoOwnership);
+
+// Now delete observers
+delete observerA;
+
+// Check the validity of the objects
+if (object1) {
+
+} else {
+	// We get here in this example.
+}
+if (object2) {
+	// We get here in this example.
+} else {
+	
+}
+\endcode
+
+Since \p object2 has a parent, it will be attached using \p ManualOwnership and \p ObserverScopeOwnership will be used for \p object1. Therefore after deleting the observers, \p object1 will be null (see \ref observer_scope_ownership) and \p object2 will still be valid.
+
+                */
+                SpecificObserverOwnership,  /*!< 
+The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted.
+
+\code
+// Create the observer
+Observer* observerA = new Observer("Observer A","My first observer");
+
+// Create the objects
+QPointer<QObject> object1 = new QObject();
+object1->setObjectName("Object 1");
+QPointer<QObject> object2 = new QObject();
+object2->setObjectName("Object 2");
+
+// Attach objects to observers
+observerA->attachSubject(object1,Observer::SpecificObserverOwnership);
+observerA->attachSubject(object2,Observer::SpecificObserverOwnership);
+
+// Now delete observer
+delete observerA;
+
+// Check the validity of the objects
+if (object1) {
+
+} else {
+	// We get here in this example.	
+}
+if (object2) {
+
+} else {
+	// We get here in this example.	
+}
+\endcode
+
+Both objects will become null after the observers are deleted since \p observerA becomes the specific parent of both objects.
+                */
+                ObserverScopeOwnership,     /*!< 
+The object must have at least on Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
+
+\code
+// Create the observer
+Observer* observerA = new Observer("Observer A","My first observer");
+Observer* observerB = new Observer("Observer B","My second observer");
+
+// Create the objects
+QPointer<QObject> object1 = new QObject();
+object1->setObjectName("Object 1");
+QPointer<QObject> object2 = new QObject();
+object2->setObjectName("Object 2");
+
+// Attach objects to observers
+observerA->attachSubject(object1,Observer::ObserverScopeOwnership);
+observerA->attachSubject(object2,Observer::ObserverScopeOwnership);
+observerB->attachSubject(object1,Observer::ObserverScopeOwnership);
+observerB->attachSubject(object2,Observer::ObserverScopeOwnership);
+
+// Now delete observer A
+delete observerA;
+
+// Check the validity of the objects
+if (object1) {
+	// We get here in this example.
+} else {
+	
+}
+if (object2) {
+	// We get here in this example.
+} else {
+	
+}
+
+// Now delete observer B
+delete observerB;
+
+// Check the validity of the objects
+if (object1) {
+	
+} else {
+	// We get here in this example.
+}
+if (object2) {
+	
+} else {
+	// We get here in this example.
+}
+\endcode
+
+Both objects will still be valid after deleting \p observerA since it they are still visible in the scope of \p observerB. After \p observerB is deleted both objects will be null.
+                */
+                OwnedBySubjectOwnership     /*!< 
+The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When the current ownership of a subject is \p OwnedBySubjectOwnership and it is attached to more contexts, the new ownership is ignored during attachment to the new contexts. Thus when a subject was attached to a context using \p OwnedBySubjectOwnership it is attached to all other contexts after that using \p OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using \p OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal.
+
+\code
+// Create the observer
+QPointer<Observer> observerA = new Observer("Observer A","My first observer");
+
+// Create the objects
+QPointer<QObject> object1 = new QObject();
+object1->setObjectName("Object 1");
+
+// Attach objects to observers
+observerA->attachSubject(object1,Observer::OwnedBySubjectOwnership);
+
+// Now delete the object
+delete object1;
+
+// Check the validity of the observer
+if (observerA) {
+
+} else {
+	// We get here in this example.
+}
+\endcode
+
+In this example \p observerA will be deleted as soon as \p object1 is deleted.
+                */
             };
             //! Function which returns a string associated with a specific ObjectOwnership.
             static QString objectOwnershipToString(ObjectOwnership ownership);
@@ -428,6 +674,9 @@ namespace Qtilities {
             //! Function which returns all the observers in a QList<QObject*> input list.
             static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);
             //! Convenience function which will get the specified MultiContextProperty of the specified object.
+            /*!
+              \sa setMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
+              */
             static MultiContextProperty getMultiContextProperty(const QObject* obj, const char* property_name);
             //! Convenience function which will set the specified MultiContextProperty on the specified object.
             /*!
@@ -450,15 +699,29 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
     Observer::setMultiContextProperty(iface->objectBase(),category_property);
 }
 \endcode
+
+                \sa getMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
               */
             static bool setMultiContextProperty(QObject* obj, MultiContextProperty observer_property);
             //! Convenience function which will get the specified SharedProperty of the specified object.
+            /*!
+              \sa setMultiContextProperty(), setSharedProperty(), getMultiContextProperty(), propertyExists()
+              */
             static SharedProperty getSharedProperty(const QObject* obj, const char* property_name);
             //! Convenience function which will set the specified SharedProperty on the specified object.
+            /*!
+              \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
+              */
             static bool setSharedProperty(QObject* obj, SharedProperty shared_property);
             //! Convenience function to get the number of observers observing the specified object. Thus the number of parents of this object.
+            /*!
+              \sa parentReferences()
+              */
             static int parentCount(const QObject* obj);
             //! Convenience function to get the a list of parent observers for this object.
+            /*!
+              \sa parentCount()
+              */
             static QList<Observer*> parentReferences(const QObject* obj);
             //! Convenience function to check if a dynamic property exists on a object.
             static bool propertyExists(const QObject* obj, const char* property_name);

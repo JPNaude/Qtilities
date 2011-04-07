@@ -205,50 +205,7 @@ rootNode->loadFromFile(fileName);
 rootNode->addNodeFromFile(fileName);
 \endcode
 
-The XML files to construct the two trees discussed so far looks is shown next. First the tree with categorized nodes:
-\code
-<!DOCTYPE QtilitiesTreeDoc>
-<QtilitiesTree DocumentVersion="1">
-  <Root InstanceFactoryInfo="Tree Node" Name="Root">
-    <Data>
-      <ObserverHints HierarchicalDisplay="CategorizedHierarchy"/>
-    </Data>
-    <Children>
-      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 1"/>
-      <TreeItem Category="Category 1" InstanceFactoryInfo="Tree Item" Name="Child 2"/>
-      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 3"/>
-      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 4"/>
-      <TreeItem Category="Category 2" InstanceFactoryInfo="Tree Item" Name="Child 5"/>
-    </Children>
-  </Root>
-</QtilitiesTree>
-\endcode
-
-Next the tree without categorized nodes:
-\code
-<!DOCTYPE QtilitiesTreeDoc>
-<QtilitiesTree DocumentVersion="1">
-  <Root InstanceFactoryInfo="Tree Node" Name="Root">
-    <Children>
-      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">
-        <Children>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2"/>
-        </Children>
-      </TreeItem>
-      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">
-        <Children>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>
-        </Children>
-      </TreeItem>
-    </Children>
-  </Root>
-</QtilitiesTree>
-\endcode
-
-Note that these are some the most basic trees you can build. A more advanced XML tree is shown later in this document.
+The format of the output tree is defined by Qtilities::ExportVersion and a detailed overview of the output format can be found on the \ref page_serializing_overview page.
 
 \subsection tree_formatted Formatted tree which combines categorized and uncategorized nodes
 
@@ -315,46 +272,6 @@ parentNode1->addItem("Child 2");
 parentNode2->addItem("Child 3");
 parentNode2->addItem("Child 4");
 parentNode2->addItem("Child 5");
-\endcode
-
-The XML file of this tree looks like this:
-
-\code
-<!DOCTYPE QtilitiesTreeDoc>
-<QtilitiesTree DocumentVersion="1">
-  <Root InstanceFactoryInfo="Tree Node" Name="Root">
-    <Data>
-      <ObserverHints/>
-    </Data>
-    <Children>
-      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 1">
-        <Data>
-          <ObserverHints ActivityControl="CheckboxTriggered" ActivityDisplay="CheckboxActivityDisplay"/>
-          <SubjectFilter InstanceFactoryInfo="Activity Policy Filter">
-            <Data NewSubjectActivityPolicy="SetNewActive" MinimumActivityPolicy="ProhibitNoneActive" ActivityPolicy="UniqueActivity"/>
-          </SubjectFilter>
-        </Data>
-        <Children>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 1" Activity="Inactive"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 2" Activity="Active"/>
-        </Children>
-      </TreeItem>
-      <TreeItem InstanceFactoryInfo="Tree Node" Name="Parent 2">
-        <Data>
-          <ObserverHints NamingControl="EditableNames"/>
-          <SubjectFilter InstanceFactoryInfo="Naming Policy Filter">
-            <Data ValidityResolutionPolicy="PromptUser" UniquenessPolicy="ProhibitDuplicateNames" UniquenessResolutionPolicy="PromptUser"/>
-          </SubjectFilter>
-        </Data>
-        <Children>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 3"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 4"/>
-          <TreeItem InstanceFactoryInfo="Tree Item" Name="Child 5"/>
-        </Children>
-      </TreeItem>
-    </Children>
-  </Root>
-</QtilitiesTree>
 \endcode
 
 For the above code we see that it is possible to easily define how activity and naming control must be handled for items under a tree node. This example is only the tip of the iceberg and only shows the solution to one required tree. The activity control provides many options to the user. We can for example tell \p parentNode1 that only one child can be active at one time, or that the activity must follow the user's selection when items underneath \p parentNode1 are selected. It is also possible to define custom policies for a tree node or policies can be combined. The goal of this article is not to explore these features in depth. If you are interested in all the features available to developers, the following are good places to start:

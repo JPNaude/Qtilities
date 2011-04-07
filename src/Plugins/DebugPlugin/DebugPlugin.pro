@@ -9,6 +9,7 @@
 QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
+include(../../Dependencies.pri)
 
 CONFIG(debug, debug|release) {
     TARGET = DebugPlugind
@@ -20,27 +21,6 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin
-
-# --------------------------
-# Conan Stuff
-# Integrates the Conan Library into the debug widget:
-# https://sourceforge.net/projects/conanforqt/
-#
-# Requires at least, and tested with Conan v1.0.2.
-# --------------------------
-!contains(DEFINES, QTILITIES_NO_CONAN) {
-    CONAN_BASE = $$QTILITIES_DEPENDENCIES/conanforqt/Conan
-    INCLUDEPATH += $$CONAN_BASE/include
-
-    CONFIG(debug, debug|release) {
-        win32:LIBS += $$CONAN_BASE/lib/libConand1.a
-        unix::LIBS += -L$$CONAN_BASE/lib -lConand1
-    }
-    else {
-        win32:LIBS += $$CONAN_BASE/lib/libConan1.a
-        unix::LIBS += -L$$CONAN_BASE/lib -lConan1
-    }
-}
 
 # ------------------------------
 # Temp Output Paths
