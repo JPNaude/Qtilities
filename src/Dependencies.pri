@@ -14,8 +14,10 @@
 # Set up dependencies paths:
 #
 # By default Qtilities assumes that you have a folder where all your
-# libraries are placed, including Qtilities. Thus all dependencies are
-# expected one level up from the Qtilities base directory.
+# libraries are placed, including Qtilities. It assumes you have a folder
+# for Qtilities with a trunk or specific version which you attempt to build.
+# Thus all dependencies are expected two levels up from the Qtilities
+# build directory.
 #****************************************************************************
 QTILITIES_DEPENDENCIES  = $$PWD/../../../
 
@@ -28,7 +30,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Builds Qtilities without the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
 # don't need the Property Browser Solution.
-# DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+DEFINES += QTILITIES_NO_PROPERTY_BROWSER
 # --------------------------
 !contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
@@ -58,7 +60,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # --------------------------
 # Builds Qtilities without Conan library integrated into the debug plugin.
 # Note that this integration was only tested in Qt 4.7.x on Windows XP 32bit.
-# DEFINES += QTILITIES_NO_CONAN
+DEFINES += QTILITIES_NO_CONAN
 # --------------------------
 
 !contains(DEFINES, QTILITIES_NO_CONAN) {
