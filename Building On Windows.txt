@@ -1,8 +1,8 @@
 INSTALL (Linux)
 ===============
-This guide is to build the latest development branch of Qtilities on Linux (used Ubuntu 10.10).
+This guide is to build the latest development branch of Qtilities on Windows (used Windows 7 & XP).
 
-To install Qtilities create a folder that will contain all the libraries used. Open a Terminal and navigate to that folder inside the Terminal. This location will be reffered to as [YOUR_LIB_PATH]. It is assumed that the Qt SDK is installed as well as git (see Required Software).
+To install Qtilities create a folder that will contain all the libraries used. This location will be reffered to as [YOUR_LIB_PATH]. It is assumed that the Qt SDK is insalled as well as git (see Required Software).
 
 Required Software:
 ==================
@@ -15,32 +15,42 @@ git (optional)
 -----------------
 git is a fast version management system for distributed development. This installation uses git to get the required source files. 
 1. Download git from http://git-scm.com/download
+   Download the msysGit binary for windows
 2. Install git
-3. Make sure git is in your path. run the following command in a terminal window to make sure it is set up correctly
-   "git --version"
+   Install the "Git Bash Only" option
+
+GIT Terminal
+============
+This is the steps needed to set up the git environment
+1. Open git bash
+2. In the terminal change directory to [YOUR_LIB_PATH]
+3. It is also possible to change the start folder in your git bash shortcut in order to open in the right location by default.
 
 Set up dependencies (Optional)
 ===================
-Qt can be build against a few other libraries to extend the Qtilities framework. The following lists the dependencies as well as describe how to get them installed.
+Qt can be build against a few other libraries to extend the Qtilities framework. The following will list the dependencies as well as describe how to get them installed.
 
 Qt Property Browser
 -------------------
 1. Get the qt-solutions Qt Addons from http://qt.gitorious.org/qt-solutions. 
    Run the following command: git clone git://gitorious.org/qt-solutions/qt-solutions.git qt-solutions
 2. Build qtpropertybrowser, located inside the newly checked out qt-solutions folder.
+   Open the project file located inside the "buildlib" folder of the qtpropertybrowser.
+   It is advised to disable the "Shadow build" option in creator. 
    Lib files created should be in the "qtpropertybrowser/lib" folder.
 
-Connection Analyzer for Qt
+Connection analyzer for Qt
 --------------------------
 1. Download the conan for qt from http://sourceforge.net/projects/conanforqt/
    To make things a bit easier later on place the conan code in "[YOUR_LIB_PATH]/conanforqt/Conan/". 
-2. Build Conan.
+2. Build conan.
    It is advised to disable the "Shadow build" option in creator. The lib files should be in the "Conan/lib" folder after a successfull build.
    Build Debug and Release
+(note for Conan v1.0.2) When building against latest SDK it can complain that it does not find the qobject_p.h file. Locate the file in your Qt installtion and put absolute path in to get it to build.
 
 Build Qtilities
 ===============
-1. Get the source code from gitorious
+1. Get the source code from gitorious/
    Run the following command: git clone git://gitorious.org/qtilities/qtilities.git qtilities
 2. Open the Qtilities.pro file in QtCreator located in the src folder.
 3. Check your project paths:
@@ -59,19 +69,17 @@ Build Qtilities
    4. Make sure that "Qtilities" is checked in the Dependencies window.
    5. Do the same for the Examples but both "Qtilities" and "QtilitiesPlugins" must be checked in the dependencies window.
 6. Qtilities should be able to build now
-   I have not tested this in a clean environment (yet) but if there are problems it is most likely due to directory paths or library names.
 
 LIBRARIES
 =========
-Qtilities will not be able to run if the following steps are not followed. The libraries created by the dependencies as well as Qtilities must be in your library path. The best way to do this is to 
-1. Create new file in /etc/ld.so.conf.d/ for example Qtilities.conf. One can be made for all of the shared libraries grouped together or one can be made for each shared library.
-2. Edit the *.conf file and add all paths to shared libraries to the file, including the dependencies. The following should be added:
+Qtilities will not be able to run if the following steps are not followed. The libraries created by the dependencies as well as Qtilities must be in your Windows PATH. 
+1. Add the library locations to your WINDOWS PATH variable
+   The following must be added
    [YOUR_LIB_PATH]/Qtilities/bin
    [YOUR_LIB_PATH]/Qtilities/bin/plugins
    [YOUR_LIB_PATH]/conanforqt/Conan/
    [YOUR_LIB_PATH]/qt-solutions/qtpropertybrowser/lib
-3. Update the libraries path
-   Run the following command: sudo ldconfig
+3. Close Qt Creator and re-open it to make the changes to the PATH variable take effect.
 
 Final Word
 ==========
