@@ -62,11 +62,22 @@ Qtilities::CoreGui::WidgetLoggerEngine::~WidgetLoggerEngine()
     delete d;
 }
 
+void Qtilities::CoreGui::WidgetLoggerEngine::setWindowTitle(const QString& window_title) {
+    if (d->widget)
+        d->widget->setWindowTitle(window_title);
+}
+
+QString Qtilities::CoreGui::WidgetLoggerEngine::windowTitle() const {
+    if (d->widget)
+        return d->widget->windowTitle();
+    else
+        return QString();
+}
+
 bool Qtilities::CoreGui::WidgetLoggerEngine::initialize() {
     // During initialization we build a map with possible widgets
     abstractLoggerEngineData->is_initialized = true;
     d->widget = new WidgetLoggerEngineFrontend();
-    d->widget->setWindowTitle(objectName());
     connect(d->widget,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 
     if (d->widget) {

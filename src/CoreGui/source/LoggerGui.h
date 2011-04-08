@@ -73,9 +73,17 @@ namespace Qtilities {
             virtual ~LoggerGui() {}
 
             //! Creates a new logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
-            static QWidget* createLogWidget(const QString& window_title, bool is_active, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+            /*!
+                \param engine_name The name of the engine.
+                \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
+                \param is_active Indicates if the engine must be active after it was created.
+                \param message_types The message types
+
+                \sa createTempLogWidget(), createLogDockWidget()
+              */
+            static QWidget* createLogWidget(const QString& engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
                 // Create a new logger widget engine and add it to the logger.
-                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine();
+                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine;
 
                 // Install a formatting engine for the new logger engine
                 QString formatter = qti_def_FORMATTING_ENGINE_RICH_TEXT;
@@ -88,10 +96,14 @@ namespace Qtilities {
                     return 0;
                 }
 
-                new_widget_engine->setName(window_title);
+                new_widget_engine->setName(engine_name);
                 if (Log->attachLoggerEngine(new_widget_engine)) {
                     new_widget_engine->setActive(is_active);
                     new_widget_engine->setEnabledMessageTypes(message_types);
+                    if (window_title.isEmpty())
+                        new_widget_engine->setWindowTitle(engine_name);
+                    else
+                        new_widget_engine->setWindowTitle(window_title);
                     return new_widget_engine->getWidget();
                 } else
                     return 0;
@@ -99,17 +111,24 @@ namespace Qtilities {
 
             //! Creates a temporary logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
             /*!
-              Temporary log widgets are usefull when you want to given updates to the user during intensive processing. In that case you can              create a temp log widget using this function and when you are done with your processing you can simply hide the widget causing it to be deleted.
+                Temporary log widgets are usefull when you want to given updates to the user during intensive processing. In that case you can create a temp log widget using this function and when you are done with your processing you can simply hide the widget causing it to be deleted.
 
-              The returned widget is essentially the same as the widget created using createLogWidget(), except for the following:
-              - It is active by default.
-              - It has a parameter which you can specify its size explicity, the default is 1000x600
-              - The widget is positioned in the middle of the screen.
-              - The widget has its Qt::WA_QuitOnClose attribute set to false, thus if the temporary widget is still opened when the application is closed it will be destructed and the application will close. Note that this depends on the way widgets are managed in your application, by default the mentioned behavior will happen.
-              - The widget is shown automatically.
+                The returned widget is essentially the same as the widget created using createLogWidget(), except for the following:
+                - It is active by default.
+                - It has a parameter which you can specify its size explicity, the default is 1000x600
+                - The widget is positioned in the middle of the screen.
+                - The widget has its Qt::WA_QuitOnClose attribute set to false, thus if the temporary widget is still opened when the application is closed it will be destructed and the application will close. Note that this depends on the way widgets are managed in your application, by default the mentioned behavior will happen.
+                - The widget is shown automatically.
+
+                \param engine_name The name of the engine.
+                \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
+                \param is_active Indicates if the engine must be active after it was created.
+                \param message_types The message types
+
+              \sa createLogWidget(), createLogDockWidget()
               */
-            static QWidget* createTempLogWidget(const QString& window_title, const QSize& size = QSize(1000,600), Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
-                QWidget* new_widget = createLogWidget(window_title,true,message_types);
+            static QWidget* createTempLogWidget(const QString& engine_name, const QString& window_title = QString(), Logger::MessageTypeFlags message_types = Logger::AllLogLevels, const QSize& size = QSize(1000,600)) {
+                QWidget* new_widget = createLogWidget(engine_name,window_title,true,message_types);
                 if (new_widget) {
                     // Resize:
                     new_widget->resize(size);
@@ -127,10 +146,20 @@ namespace Qtilities {
                 return new_widget;
             }
 
-            //! Creates a new logger dock widget which logs messages of the specified verbosity. This function is similar to createLogWidget() but it wraps the widget produced by createLogWidget() with a QDockWidget(). The user must manage the widget instance.
-            static QDockWidget* createLogDockWidget(const QString& window_title, bool is_active, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+            //! Creates a new logger dock widget which logs messages of the specified verbosity.
+            /*!
+                This function is similar to createLogWidget() but it wraps the widget produced by createLogWidget() with a QDockWidget(). The user must manage the widget instance.
+
+                \param engine_name The name of the engine.
+                \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
+                \param is_active Indicates if the engine must be active after it was created.
+                \param message_types The message types
+
+              \sa createLogWidget(), createTempLogWidget()
+              */
+            static QDockWidget* createLogDockWidget(const QString& engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
                 QDockWidget* log_dock_widget = new QDockWidget(window_title);
-                QWidget* log_widget = createLogWidget(window_title,is_active,message_types);
+                QWidget* log_widget = createLogWidget(engine_name,window_title,is_active,message_types);
                 if (log_widget) {
                     log_dock_widget->setWidget(log_widget);
                     QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));

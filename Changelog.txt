@@ -11,11 +11,8 @@ Things outstanding for v0.3 release:
 - ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
 
 - Docs & finalization stuff:
-    - Update getting started doc to show how to install git on windows, and to add /bin to path in linux
     - Properly document new StringListWidget
-    - Unit tests not part of documentation
     - Qtilities::CoreGui::Actions not defined anymore.
-    - Update getting started page.
     - License header for GPL only files...
     - Getting started article should show more: QtilitiesMainWindow.
     - Must update images in ObjectManagement and MainWindow examples.
@@ -63,6 +60,7 @@ Qtilities v0.3 Implemented Changes
 
     Improvements and Notable Changes:
     - LoggerGui got a new createTempLogWidget() function which provides an easy to use temporary log widgets to display log messages during extensive processing operations.
+    - LoggerGui now allows creation of log widget with different name and window titles.
     - Logger will now automatically create the /session/ directory if it does not exist when trying to export the logging configuration.
     - Logger now checks that multiple engines with the same name can't be added.
     - Logger now restores logger engine specific parameters correctly from .logconfig files.

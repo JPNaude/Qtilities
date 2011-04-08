@@ -75,6 +75,17 @@ namespace Qtilities {
             WidgetLoggerEngine();
             ~WidgetLoggerEngine();
 
+            //! Sets the window title used for this logger engine.
+            /*!
+              \note This function only does something usefull after the engine has been initialized.
+              */
+            void setWindowTitle(const QString& window_title);
+            //! Gets the window title used for this logger engine.
+            /*!
+              \note This function only does something usefull after the engine has been initialized.
+              */
+            QString windowTitle() const;
+
             // AbstractLoggerEngine implementation
             bool initialize();
             void finalize();
