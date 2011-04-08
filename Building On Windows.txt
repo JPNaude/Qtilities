@@ -1,4 +1,4 @@
-INSTALL (Linux)
+INSTALL (Windows)
 ===============
 This guide is to build the latest development branch of Qtilities on Windows (used Windows 7 & XP).
 

@@ -87,14 +87,5 @@ int main(int argc, char *argv[])
     // ---------------------------------------------
     testFrontend.show();
 
-    // Run Some Benchmarks:
-//    if (do_benchmarks) {
-//        // Delete the log window before doing benchmarks, we don't want the log widget to influence the benchmarks.
-//        log_widget->close();
-//        log_widget->hide();
-//        BenchmarkTests benchmarkTests;
-//        QTest::qExec(&benchmarkTests,argc,argv);
-//    }
-
     return a.exec();
 }
