@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     edit_menu->addAction(command);
 
     // Important: The Log widget must be created before the above action place holders were added since it registers some actions
-    QDockWidget* log_dock_widget = LoggerGui::createLogDockWidget("Clipboard Example Log",true);
+    QDockWidget* log_dock_widget = LoggerGui::createLogDockWidget("Clipboard Example Log");
     log_dock_widget->show();
 
     // We want to use paste operations in this application, thus initialize the clipboard.
