@@ -78,6 +78,7 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Information about %Qtilities through qtilitiesVersionString() and aboutQtilities().
          - Access to the application's configuration page through configWidget().
          - Export version informatin for both %Qtilities as well as application specific versioning information. For more information see Qtilities::Core::Interfaces::IExportable.
+         - Allows setting of a session path for application information, see applicationSessionPath().
 
           \sa Qtilities::Core::QtilitiesCoreApplication
          */

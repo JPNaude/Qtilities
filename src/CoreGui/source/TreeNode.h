@@ -43,6 +43,7 @@
 #include <ObserverHints>
 #include <ActivityPolicyFilter>
 #include <IExportableFormatting>
+#include <QtilitiesCore>
 
 namespace Qtilities {
     namespace CoreGui {

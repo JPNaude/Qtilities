@@ -78,13 +78,6 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
     setObjectName(tr("Action Manager"));
     showed_warning = false;
 
-    // Make sure App_Path/plugins always exists:
-    QDir sessionDir = QtilitiesApplication::applicationSessionPath();
-    if (!sessionDir.exists()) {
-        sessionDir.cdUp();
-        sessionDir.mkdir(qti_def_PATH_SESSION);
-    }
-
     // Set up the observers:
     d->observer_commands.enableCategorizedDisplay();
     d->observer_commands.displayHints()->setActionHints(ObserverHints::ActionFindItem);

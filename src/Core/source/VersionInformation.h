@@ -53,12 +53,43 @@ namespace Qtilities {
         \class VersionNumber
         \brief VersionNumber represents a single version number.
 
-        VersionNumber represents a version on three levels:
+        The VersionNumber class represents a version on three levels:
         - Major
         - Minor
         - Revision
 
+        For example, to construct a version number for v1.0.3 you would do something like this:
+
+\code
+VersionNumber number(1,0,3);
+
+// We can now print it like this: 1.0.3
+number.toString();
+
+// Or we can print it like this: 1.0.003
+number.setFieldWidthRevision(3);
+number.toString();
+
+// If we want to use the version number in a file name, it might be usefull to print it like: 1_0_003
+number.toString("_");
+\endcode
+
         For Minor and Revision numbers you can specify the fieldWidth using setFieldWidthMinor() and setFieldWidthRevision() respectively.
+
+        VersionNumber provides a range of functions to compare version numbers with each other. For example:
+\code
+VersionNumber ver0(4,4,4);
+VersionNumber ver1(5,5,5);
+
+bool is_bigger_or_equal = (ver0 >= ver1); // False
+bool is_bigger = (ver0 > ver1); // False
+bool is_equal = (ver0 == ver1); // False
+bool is_not_equal = (ver0 != ver1); // True
+bool is_smaller_and_equal = (ver0 <= ver1); // True
+bool is_smaller = (ver0 < ver1); // True
+\endcode
+
+        \sa VersionInformation
 
         <i>This class was added in %Qtilities v0.3.</i>
           */
@@ -154,7 +185,21 @@ namespace Qtilities {
         \class VersionInformation
         \brief VersionInformation provides version information about a specific instance, for example a plugin.
 
-        The goal of VersionInformation is to design a lightweigth class which can be used to make specifying version related information easier.
+        The goal of VersionInformation is to design a lightweigth class which can be used to specify version related information easier.
+
+        For example we can create information about a specific version, say v1.0.3 like this:
+
+\code
+VersionInformation version_info(1,0,3);
+
+// We can now add versions that this version depend on. For exmaple if you have
+// a plugin that depends on a specific version of an application, say v2.0.0, its specified like this:
+version_info << VersionNumber(2,0,0);
+\endcode
+
+        A range of functions are provided to work with supported versions: hasSupportedVersion(), addSupportedVersion(), isSupportedVersion() etc. The Qtilities::ExtensionSystem::Intefaces::IPlugin interface is a practical example where VersionInformation is used in the way shown above.
+
+        \sa VersionNumber
 
         <i>This class was added in %Qtilities v0.3.</i>
           */
