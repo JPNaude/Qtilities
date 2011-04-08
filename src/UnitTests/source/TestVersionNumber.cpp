@@ -36,6 +36,10 @@
 #include <QtilitiesCore>
 using namespace QtilitiesCore;
 
+int Qtilities::UnitTests::TestVersionNumber::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestVersionNumber::testOperatorEqual() {
     VersionNumber ver1(5,5,5);
     VersionNumber ver2(5,5,5);

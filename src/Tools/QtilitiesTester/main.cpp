@@ -47,54 +47,52 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Qtilities Tester");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
-    QMainWindow* main_window = new QMainWindow();
-    QtilitiesApplication::setMainWindow(main_window);
+    TestFrontend testFrontend(argc,argv);
+    QMainWindow mainWindow;
+    QtilitiesApplication::setMainWindow(&mainWindow);
     LOG_INITIALIZE();
     Log->setGlobalLogLevel(Logger::Trace);
-    Log->setIsQtMessageHandler(true);
+    Log->setIsQtMessageHandler(false);
     Log->toggleQtMsgEngine(false);
-    QWidget* log_widget = LoggerGui::createLogWidget("Test Log",true);
-    main_window->setCentralWidget(log_widget);
-    log_widget->show();
-    main_window->resize(900,400);
-    main_window->show();
+    Log->toggleConsoleEngine(false);
 
-//    // SubjectIterator Tests:
-//    TestSubjectIterator testSubjectIterator;
-//    QTest::qExec(&testSubjectIterator,argc,argv);
+    // ---------------------------------------------
+    // Create all the tests that we want to use:
+    // ---------------------------------------------
+    TestVersionNumber* testVersionNumber = new TestVersionNumber;
+    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
-//    // TreeIterator Tests:
-//    TestTreeIterator testTreeIterator;
-//    QTest::qExec(&testTreeIterator,argc,argv);
+    TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
+    testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-//    // Exporting Tests:
-//    TestExporting testExporting;
-//    QTest::qExec(&testExporting,argc,argv);
+    TestTreeIterator* testTreeIterator = new TestTreeIterator;
+    testFrontend.addTest(testTreeIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-//    // VersionNumber Tests:
-//    TestVersionNumber testVersionNumber;
-//    QTest::qExec(&testVersionNumber,argc,argv);
+    TestObserver* testObserver = new TestObserver;
+    testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
 
-//    // Observer Tests:
-//    TestObserver testObserver;
-//    QTest::qExec(&testObserver,argc,argv);
+    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
+    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
 
-//    // ObserverRelationalTable Tests:
-//    TestObserverRelationalTable testObserverRelationalTable;
-//    QTest::qExec(&testObserverRelationalTable,argc,argv);
+    TestExporting* testExporting = new TestExporting;
+    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
-    // Delete the log window before doing benchmarks, we don't want the log widget to influence the benchmarks.
-    log_widget->close();
-    main_window->hide();
+    BenchmarkTests* benchmarkTests = new BenchmarkTests;
+    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
+
+    // ---------------------------------------------
+    // Create the testing frontend:
+    // ---------------------------------------------
+    testFrontend.show();
 
     // Run Some Benchmarks:
-    BenchmarkTests benchmarkTests;
-    QTest::qExec(&benchmarkTests,argc,argv);
-
-    // Next we show the results:
-    CodeEditorWidget results_view;
-    results_view.loadFile(QApplication::applicationDirPath() + "/results.xml");
-    results_view.show();
+//    if (do_benchmarks) {
+//        // Delete the log window before doing benchmarks, we don't want the log widget to influence the benchmarks.
+//        log_widget->close();
+//        log_widget->hide();
+//        BenchmarkTests benchmarkTests;
+//        QTest::qExec(&benchmarkTests,argc,argv);
+//    }
 
     return a.exec();
 }

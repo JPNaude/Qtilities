@@ -36,6 +36,10 @@
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 
+int Qtilities::UnitTests::TestObserver::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestObserver::testRecursiveAttachment() {
     // Example tree using tree node classes to simplify test:
     TreeNode* rootNode = new TreeNode("Root");

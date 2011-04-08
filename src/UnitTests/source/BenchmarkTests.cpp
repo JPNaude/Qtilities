@@ -38,6 +38,10 @@ using namespace QtilitiesCoreGui;
 
 #include <QDomDocument>
 
+int Qtilities::UnitTests::BenchmarkTests::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3_data() {
     QTest::addColumn<int>("TreeDepth");
     QTest::newRow("small tree") << 5;

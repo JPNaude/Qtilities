@@ -36,6 +36,10 @@
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 
+int Qtilities::UnitTests::TestObserverRelationalTable::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestObserverRelationalTable::testVisitorIDs() {
     QList<QObject*> children;
     TreeNode* rootNode = new TreeNode("Root");

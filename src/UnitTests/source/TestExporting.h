@@ -37,16 +37,34 @@
 #include "UnitTests_global.h"
 #include <IExportable>
 
+#include "ITestable.h"
+
 #include <QtTest/QtTest>
 
 namespace Qtilities {
     namespace UnitTests {
+        using namespace Interfaces;
         using namespace Qtilities::Core::Interfaces;
 
         //! Allows testing of the exporting capabilities of %Qtilities classes.
-        class UNIT_TESTS_SHARED_EXPORT TestExporting: public QObject
+        class UNIT_TESTS_SHARED_EXPORT TestExporting: public QObject, public ITestable
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::UnitTests::Interfaces::ITestable)
+
+        public:
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
+            // ITestable Implementation
+            // --------------------------------
+            int execTest(int argc = 0, char ** argv = 0);
+             QString testName() const { return tr("Exporting of all exportable classes"); }
+
         private slots:
             // --------------------------------------------------------------------
             // Test Qtilities_0_3 against Qtilities_0_3

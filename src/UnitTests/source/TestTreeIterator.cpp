@@ -38,6 +38,10 @@ using namespace QtilitiesCoreGui;
 
 #include <TreeIterator>
 
+int Qtilities::UnitTests::TestTreeIterator::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestTreeIterator::testIterationForwardSimple() {
     TreeNode* rootNode = new TreeNode("1");
     TreeNode* nodeA = rootNode->addNode("2");

@@ -32,3 +32,4 @@ UI_DIR          = $$QTILITIES_TEMP/QtilitiesTester
 # --------------------------
 SOURCES += main.cpp
 RC_FILE = rc_file.rc
+

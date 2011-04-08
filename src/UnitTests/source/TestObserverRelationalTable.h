@@ -36,14 +36,33 @@
 
 #include "UnitTests_global.h"
 
+#include "ITestable.h"
+
 #include <QtTest/QtTest>
 
 namespace Qtilities {
     namespace UnitTests {
+        using namespace Interfaces;
+
         //! Allows testing of Qtilities::Core::TestObserverRelationalTable.
-        class UNIT_TESTS_SHARED_EXPORT TestObserverRelationalTable: public QObject
+        class UNIT_TESTS_SHARED_EXPORT TestObserverRelationalTable: public QObject, public ITestable
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::UnitTests::Interfaces::ITestable)
+
+        public:
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
+            // ITestable Implementation
+            // --------------------------------
+            int execTest(int argc = 0, char ** argv = 0);
+             QString testName() const { return tr("ObserverRelationalTable"); }
+
         private slots:
             // -----------------------------
             // Attachment/Detachment related tests

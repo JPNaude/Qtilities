@@ -46,7 +46,9 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestExporting.h \
         source/TestSubjectIterator.h \
         source/TestTreeIterator.h \
-        source/BenchmarkTests.h
+        source/BenchmarkTests.h \
+        source/ITestable.h \
+        source/TestFrontend.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -54,4 +56,8 @@ SOURCES += source/TestObserver.cpp \
         source/TestExporting.cpp \
         source/TestSubjectIterator.cpp \
         source/TestTreeIterator.cpp \
-        source/BenchmarkTests.cpp
+        source/BenchmarkTests.cpp \
+        source/TestFrontend.cpp
+
+FORMS += source/TestFrontend.ui
+

@@ -40,6 +40,10 @@ using namespace QtilitiesCoreGui;
 
 #include <QString>
 
+int Qtilities::UnitTests::TestSubjectIterator::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestSubjectIterator::testIterationSimpleFromStart() {
     TreeNode node;
     TreeItem* item1 = node.addItem("1");

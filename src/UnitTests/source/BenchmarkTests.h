@@ -36,15 +36,32 @@
 
 #include "UnitTests_global.h"
 
+#include "ITestable.h"
+
 #include <QtTest/QtTest>
 
 namespace Qtilities {
     namespace UnitTests {
-        //! Basis of some benchmarking tests in %Qtilities.
-        class UNIT_TESTS_SHARED_EXPORT BenchmarkTests : public QObject
+        using namespace Interfaces;
+
+        //! Allows testing of Qtilities::Core::TestTreeIterator.
+        class UNIT_TESTS_SHARED_EXPORT BenchmarkTests: public QObject, public ITestable
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::UnitTests::Interfaces::ITestable)
 
+        public:
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
+            // ITestable Implementation
+            // --------------------------------
+            int execTest(int argc = 0, char ** argv = 0);
+             QString testName() const { return tr("Some expriments with benchmarking"); }
         private slots:
             void benchmarkObserverExport_0_3_0_3_data();
             //! Do a benchmark on a big observer export

@@ -42,6 +42,10 @@ using namespace QtilitiesExtensionSystem;
 #include <QDomDocument>
 #include <QDomElement>
 
+int Qtilities::UnitTests::TestExporting::execTest(int argc, char ** argv) {
+    return QTest::qExec(this,argc,argv);
+}
+
 void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, IExportable* obj_import_binary, IExportable* obj_import_xml, Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name) {
     QDataStream::Version data_stream_write_version;
     if (write_version == Qtilities::Qtilities_0_3)
@@ -60,18 +64,14 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
         QDataStream stream_out(&file);
         stream_out.setVersion(data_stream_write_version);
         obj_source->setExportVersion(write_version);
-        QBENCHMARK {
-            obj_source->exportBinary(stream_out);
-        }
+        obj_source->exportBinary(stream_out);
         file.close();
 
         file.open(QIODevice::ReadOnly);
         QDataStream stream_in(&file);
         stream_in.setVersion(data_stream_read_version);
         obj_import_binary->setExportVersion(read_version);
-        QBENCHMARK {
-            obj_import_binary->importBinary(stream_in,import_list);
-        }
+        obj_import_binary->importBinary(stream_in,import_list);
 
         QFile file1(file_name + "_readback.binary");
         file1.open(QIODevice::WriteOnly);
@@ -93,17 +93,13 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
         QDomElement rootItem = doc.createElement("object_node");
         root.appendChild(rootItem);
 
-        QBENCHMARK {
-            QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
-        }
+        QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
         QString docStr = doc.toString(2);
         file.write(docStr.toAscii());
         file.close();
 
         obj_import_xml->setExportVersion(read_version);
-        QBENCHMARK {
-            QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
-        }
+        QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
 
         QFile file2(file_name + "_readback.xml");
         file2.open(QIODevice::WriteOnly);
@@ -877,10 +873,6 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
         LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended XML end:");
     }
-
-    // ---------------------------------------------------
-    // Do a proper export on :
-    // ---------------------------------------------------
 }
 
 void Qtilities::UnitTests::TestExporting::testProject_0_3_0_3() {
