@@ -149,7 +149,7 @@ the object to any observers and cannot be changed afterwards.
 Below is an example of how to add the qti_prop_OBSERVER_LIMIT property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty observer_limit_property(QVariant(1),qti_prop_OBSERVER_LIMIT);
+SharedProperty observer_limit_property(qti_prop_OBSERVER_LIMIT,QVariant(1));
 Observer::setSharedProperty(obj, observer_limit_property);
 \endcode
 */
@@ -197,7 +197,7 @@ displayed.
 Below is an example of how to add the qti_prop_ACCESS_MODE property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty access_property(QVariant((int) Observer::ReadOnlyAccess),qti_prop_ACCESS_MODE);
+SharedProperty access_property(qti_prop_ACCESS_MODE,QVariant((int) Observer::ReadOnlyAccess));
 Observer::setSharedProperty(obj, access_property);
 \endcode
 */
@@ -249,7 +249,7 @@ Below is an example of how you can create a new name for an object. An alternati
 is to get the property, change it and add it again to the object. Both approaches yields the
 same result.
 \code
-SharedProperty new_subject_name_property(QVariant(new_name),qti_prop_NAME);
+SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(new_name));
 new_subject_name_property.setIsExportable(false);
 Observer::setSharedProperty(obj,new_subject_name_property);
 \endcode
@@ -313,7 +313,7 @@ const char * const qti_prop_ACTIVITY_MAP        = "qti.filters.ActivityMap";
 Below is an example of how to add the OBJECT_TOOLTIP property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property("Tooltip Text",qti_prop_TOOLTIP);
+SharedProperty property(qti_prop_TOOLTIP,"Tooltip Text");
 Observer::setSharedProperty(obj,property);
 \endcode
 */
@@ -332,7 +332,7 @@ const char * const qti_prop_TOOLTIP            = "qti.role.Tooltip";
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(QVariant(QIcon(QString(":/icon_name.png"))),qti_prop_DECORATION);
+SharedProperty property(qti_prop_DECORATION,QVariant(QIcon(QString(":/icon_name.png"))));
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -352,7 +352,7 @@ for the Qt::WhatsThisRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property("Whats This Text",qti_prop_WHATS_THIS);
+SharedProperty property(qti_prop_WHATS_THIS,"Whats This Text");
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -372,7 +372,7 @@ for the Qt::StatusTipRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property("Whats This Text",qti_prop_STATUSTIP);
+SharedProperty property(qti_prop_STATUSTIP,"Whats This Text");
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -392,7 +392,7 @@ for the Qt::SizeHintRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(QSize(10,10),qti_prop_SIZE_HINT);
+SharedProperty property(qti_prop_SIZE_HINT,QSize(10,10));
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -412,7 +412,7 @@ for the Qt::FontRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(QFont("Arial"),qti_prop_FONT);
+SharedProperty property(qti_prop_FONT,QFont("Arial"));
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -432,7 +432,7 @@ for the Qt::TextAlignmentRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property((int) Qt::AlignLeft,qti_prop_TEXT_ALIGNMENT);
+SharedProperty property(qti_prop_TEXT_ALIGNMENT,(int) Qt::AlignLeft);
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -452,7 +452,7 @@ for the Qt::BackgroundRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(QBrush(Qt::NoBrush),qti_prop_BACKGROUND);
+SharedProperty property(qti_prop_BACKGROUND,QBrush(Qt::NoBrush));
 Observer::setSharedProperty(obj, property);
 \endcode
 */
@@ -472,7 +472,7 @@ for the Qt::ForegroundRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(QBrush(Qt::NoBrush),qti_prop_FOREGROUND);
+SharedProperty property(qti_prop_FOREGROUNDQBrush(Qt::NoBrush));
 Observer::setSharedProperty(obj, property);
 \endcode
 */
