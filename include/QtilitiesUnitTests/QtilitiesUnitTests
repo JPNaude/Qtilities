@@ -8,11 +8,14 @@
 #include "TestSubjectIterator.h"
 #include "TestTreeIterator.h"
 #include "BenchmarkTests.h"
+#include "ITestable.h"
+#include "TestFrontend.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesUnitTests { 
     using namespace Qtilities;
     using namespace Qtilities::UnitTests;
+    using namespace Qtilities::UnitTests::Interfaces;
 } 
 
 #endif
