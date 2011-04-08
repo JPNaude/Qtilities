@@ -158,7 +158,10 @@ namespace Qtilities {
               \sa createLogWidget(), createTempLogWidget()
               */
             static QDockWidget* createLogDockWidget(const QString& engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
-                QDockWidget* log_dock_widget = new QDockWidget(window_title);
+                QString dock_name = window_title;
+                if (window_title.isEmpty())
+                    dock_name = engine_name;
+                QDockWidget* log_dock_widget = new QDockWidget(dock_name);
                 QWidget* log_widget = createLogWidget(engine_name,window_title,is_active,message_types);
                 if (log_widget) {
                     log_dock_widget->setWidget(log_widget);
