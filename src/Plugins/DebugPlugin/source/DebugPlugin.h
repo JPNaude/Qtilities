@@ -55,6 +55,8 @@ namespace Qtilities {
             /*!
               \class DebugPlugin
               \brief A debug plugin which helps to debug %Qtilities applications.
+
+              For more information see the \ref page_debugging article.
              */
             class DEBUG_PLUGIN_SHARED_EXPORT DebugPlugin : public QObject, public IPlugin
             {

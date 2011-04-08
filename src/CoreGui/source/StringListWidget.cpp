@@ -132,3 +132,11 @@ void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
         d->model.setStringList(new_list);
     }
 }
+
+QListView* Qtilities::CoreGui::StringListWidget::listView() {
+    return ui->listView;
+}
+
+QStringListModel* Qtilities::CoreGui::StringListWidget::stringListModel() {
+    return &d->model;
+}

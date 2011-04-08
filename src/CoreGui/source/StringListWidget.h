@@ -46,6 +46,7 @@ namespace Ui
 {
     class StringListWidget;
 }
+class QStringListModel;
 
 namespace Qtilities {
     namespace CoreGui {
@@ -61,6 +62,14 @@ namespace Qtilities {
         /*!
         \class StringListWidget
         \brief A widget which allows easy editing of a QStringList.
+
+        The StringListWidget class is a simple widget which can be used to display a QStringList. You can give your string list a type using setStringType() and the list of strings to be displayed is set using setStringList().
+
+        The widget is a QMainWindow with a toolbar at the top containing actions to remove and add strings. To customize the operation of the widget the string list model can be accessed using stringListModel() and the view can be accessed through listView().
+
+        Below is an image of the list view in action:
+
+        \image html class_stringlistwidget_screenshot.jpg "The String List Widget"
 
         <i>This class was added in %Qtilities v0.3.</i>
           */
@@ -81,6 +90,11 @@ namespace Qtilities {
             QString stringType() const;
             //! Sets the string type.
             void setStringType(const QString& string_type);
+
+            //! Returns the list view used to display the strings.
+            QListView* listView();
+            //! Returns the QStringListModel used as the model in the list view.
+            QStringListModel* stringListModel();
 
         signals:
             //! Signal emitted as soon as the list of string changed.

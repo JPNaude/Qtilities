@@ -97,6 +97,7 @@ INPUT                  = sources \
                       ../src/ExtensionSystem/source \
                       ../src/Logging/source \ 
                       ../src/ProjectManagement/source \
+                      ../src/UnitTests/source \
                       ../include/QtilitiesLogging \
                       ../include/QtilitiesCore \
                       ../include/QtilitiesCoreGui \

@@ -17,9 +17,6 @@ Table of contents:
 - \ref getting_sources
 - \ref tested_environments
 - \ref building_qtilities
-  - \ref getting_started_library_dependencies
-  - \ref build_windows
-  - \ref build_linux
   - \ref output_file_names
   .
 - \ref whats_next
@@ -76,61 +73,33 @@ Table of contents:
 
 The project sources are hosted using the Git version control system on http://www.gitorious.org and can be accessed directly at http://gitorious.org/qtilities
 
-If you want to get the version controlled sources but you are not familiar with Git, see the <a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">Git User Manual</a> first. To clone the repository you can use the command below. Note that it is not neccesarry to have a Gitorious account in order to clone the repository. It is however recommended to create an account and then close the repository on the Gitorious website.
+If you want to get the version controlled sources but you are not familiar with Git, see the <a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">Git User Manual</a> first. To clone the repository you can use the command below or see the \ref building_qtilities section for detailed instructions.
 
 \code
 git clone git://gitorious.org/qtilities/qtilities.git qtilities
 cd qtilities
 \endcode
 
+Note that it is not neccesarry to have a Gitorious account in order to clone the repository. It is however recommended to create an account and then clone the repository on the Gitorious website.
+
 The master branch host the current development snapshot and might not even build all time, thus it is recommended to use a stable branch for your development. You can also get an archive of any development branch by browsing the source tree on Gitorious and selecting the archive download link. All development happens in the \p master branch and stable versions have their own branches. Alternatively, you can download stable release archives from the <a href="http:\\code.google.com\p\qtilities\downloads\list">Qtilities download page</a>.
 
 \section tested_environments Tested environments
 
 At present the libraries have been tested on the following setups:
-- Qt 4.6.2 + Qt 4.7 / Windows XP / Mingw32
-- Qt 4.6.2 + Qt 4.7 / Linux (Ubuntu 10.04 LTS x64) / g++
+- Qt 4.6.2 <-> Qt 4.7.2 / Windows XP / Mingw32
+- Qt 4.6.2 <-> Qt 4.7.2 / Windows 7 / Mingw32
+- Qt 4.6.2 <-> Qt 4.7.2 / Linux (Ubuntu 10.04 x64) / g++
+- Qt 4.6.2 <-> Qt 4.7.2 / Linux (Ubuntu 10.10 x32) / g++
 - Qt 4.6.2 / Windows 7 / MS Visual Studio 2008. Some testing was done but everything was not tested. Some problems related to template classes (factories etc.) were experienced after the build was done and the headers were included in a different project.
 
 Although %Qtilities have only been tested with Qt 4.6 and the Qt 4.7, it should work with Qt 4.x.
 
 \section building_qtilities Building Qtilities
 
-This section will guide you through the process of building %Qtilities. 
-
-\subsection getting_started_library_dependencies Dependencies (Optional)
-
-By default Qtilities does not depend on any libraries apart from Qt itself. It is however possible to enable dependencies.
-
-For an overview of the library dependencies on each other, see \ref section_dependencies first. The %Qtilities CoreGui module depends on the Qt Property Browser Solution which is part of the <a href="http://qt.gitorious.org/qt-solutions">Qt-Solutions repository</a>. It is possible to disable this dependency by uncommenting the \p QTILITIES_NO_PROPERTY_BROWSER define in \p src/Qtilities.pri. Disabling this dependency will introduce the following limitations:
-- The Qtilities::CoreGui::ObjectPropertyBrowser class won't be available to use.
-- The Qtilities::CoreGui::CommandEditor will not have a text box to change the shortcut bindings for commands. This will be resolved in a future version of the libraries.
-
-If you decide to build %Qtilities without disabling this dependency, you need to build the solution first. The \p Qtilities.pri file defines the \p QTILITIES_DEPENDENCIES variable which must point to the directory in which you extract the property browser solution. The exact libraries path that is expected under this folder is defined in the project file of the CoreGui module, and is \p qtpropertybrowser-2.5-opensource/lib by default. The \p qtpropertybrowser-2.5-opensource/src folder is added to the include path by default.
-
-For Windows users, a ready to use archive containing the dependency can be downloaded <a href="http://code.google.com/p/qtilities/downloads/detail?name=qtpropertybrowser-2.5-opensource.zip&can=2&q=">here</a>. To use the package, create a \p /dependency directory in your %Qtilities root path and extract the archive directly into this folder. The build was done using Qt 4.6.2 / Windows XP / Mingw32.
-
-\subsection build_windows Building on Windows
-
-To build %Qtilities on Windows, follow these steps:
-- Get and build the required dependencies.
-- Get the sources, either by cloning the Git repository, or by downloading them directly. See \ref getting_sources for more information.
-- Open the \p src/Qtilities.pro project in your IDE. You will see the %Qtilities project with the list of modules underneath it.
-- If you want to build the examples and plugins as well, open the \p src/Examples/QtilitiesExamples.pro and \p src/Plugins/QtilitiesPlugins.pro projects as well. \p QtilitiesPlugins depends on %Qtilities, and \p QtilitiesExamples depends on both %Qtilities and \p QtilitiesPlugins.
-- Open the \p src/Qtilities.pri file and change the \p QTILITIES_BASE variable to match the base directory where you checked out or extracted the sources. This is the directory which contains \p src, \p dependencies, \p lib, \p include etc. For example: C:\Projects\Qt\Qtilities
-- You are now ready to build the modules. The output files are placed under the \p bin folder. See the \ref output_file_names section for more details on the output file name format.
-- When the modules are built you are ready to use %Qtilities. Make sure you set your \p PATH environment variable to include the \p /bin, \p /bin/plugins and \p /dependencies/qtpropertybrowser-2.5-opensource/lib folders. If they are not included, you will get errors when you run any %Qtilities application.
-
-\subsection build_linux Building on Linux
-
-To build %Qtilities on Linux, follow these steps:
-- Get and build the required dependencies.
-- Get the sources, either by cloning the Git repository, or by downloading them directly. See \ref gettings_sources for more information.
-- Open the \p src/Qtilities.pro project in your IDE. You will see the %Qtilities project with the list of modules underneath it.
-- If you want to build the examples and plugins as well, open the \p src/Examples/QtilitiesExamples.pro and \p src/Plugins/QtilitiesPlugins.pro projects as well. \p QtilitiesPlugins depends on %Qtilities, and \p QtilitiesExamples depends on both %Qtilities and \p QtilitiesPlugins. 
-- Open the \p src/Qtilities.pri file and change the \p QTILITIES_BASE variable to match the base directory where you checked out or extracted the sources. This is the directory which contains \p src, \p dependencies, \p lib, \p include etc. For example: /home/MyUserName/Projects/Qt/Qtilities
-- You are now ready to build the modules. The output files are placed under the \p bin folder. See the \ref output_file_names section for more details on the output file name format.
-- When the modules are built you are ready to use %Qtilities. Make sure the libraries can be found by any applications. The simplest way to do this is to copy all the output .so files (all in \p /bin, \p /bin/plugins and \p /dependencies/qtpropertybrowser-2.5-opensource/lib) to the \p /user/lib directory.
+Detailed information on how to build information is provided in text files accompanying the source archive. Alternatively you can view the latest build instructions from the Gitorious repository:
+- <a href="http://gitorious.org/qtilities/qtilities/blobs/master/Building%20On%20Windows.txt">Building on Windows</a>
+- <a href="http://gitorious.org/qtilities/qtilities/blobs/master/Building%20On%20Linux.txt">Building on Linux</a>
 
 \subsection output_file_names Output file names
 

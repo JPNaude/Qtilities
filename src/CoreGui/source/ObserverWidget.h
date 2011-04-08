@@ -184,8 +184,7 @@ categorized_widget->show();
             bool setCustomTableProxyModel(QAbstractProxyModel* proxy_model);
             //! Function which sets a custom tree proxy model to be used in this widget when its in TreeView mode.
             /*!
-              By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModelProxyFilter as the proxy model for the tree view.
-              It is possible to use custom proxy models which allows you to extend the default proxy model.
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTreeModelProxyFilter as the proxy model for the tree view. It is possible to use custom proxy models which allows you to extend the default proxy model.
 
               The observer widget will manage the lifetime of the custom model.
 
@@ -273,7 +272,7 @@ categorized_widget->show();
             /*!
               Saves settings about this ObserverWidget instance using QSettings. The following parameters are saved:
               - The main window state of the observer widget (ObserverWidget inherits QMainWindow).
-              - The grid style. \sa toggleGrid()
+              - The grid style.
               - The default table view row size (Only in TableView mode). \sa defaultRowHeight()
               - The display mode. \sa DisplayMode
               - If delete operations must be confirmed. \sa confirmDeletes()

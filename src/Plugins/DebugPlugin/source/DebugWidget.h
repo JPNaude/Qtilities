@@ -60,6 +60,8 @@ namespace Qtilities {
             /*!
               \class DebugWidget
               \brief A widget providing debug information about a Qtilities application.
+
+              For more information see the \ref page_debugging article.
              */
             class DebugWidget : public QMainWindow, public IMode
             {
