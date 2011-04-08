@@ -684,7 +684,8 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newFileEng
     }
 
     FileLoggerEngine* file_engine;
-    AbstractLoggerEngine* new_engine = d->logger_engine_factory.createInstance("File");
+    AbstractLoggerEngine* new_engine = d->logger_engine_factory.createInstance(qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE);
+    Q_ASSERT(new_engine);
     new_engine->setName(engine_name);
 
     file_engine = qobject_cast<FileLoggerEngine*> (new_engine);
