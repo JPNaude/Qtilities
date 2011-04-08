@@ -2,14 +2,12 @@
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Sort out Linux dll versioning
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
-- ObserverWidget still uses CUT and COPY actions in wrong way.
 - Object Management Example: Binary project does not work.
-- Qtilities debugging action in ObserverWidget does not always show.
-- Session dir creation wrong... See action manager for example.
 - ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
-- Console Log Example crashes...
+- Tree relationship construction is broken in binary, must implement for XML.
+- Pass all unit tests, and maybe add more instead of new features for a while
+
 
 - Docs & finalization stuff:
     - License header for GPL only files...
@@ -19,15 +17,12 @@ Things outstanding for v0.3 release:
     - Document AbstractLoggerEngineData.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
     - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
-    - Better VersionNumber docs.
     - Add new widgets to Widgets page.
-    - Add exporting example to examples page.
     - SubjectIterator 2nd way of doing it is wrong...
     - Logging article still use old pics without colored messsages.
-    - Add test lib to module page.
-    - Object management page uses old object pool view. Make sure you delete the old pic!
     - Make working with projects an example rather than lots of long class function references.
     - Projects article still describes old way of handling project file extensions.
+    - Logger config widget outdated.
 
 ================================
 Qtilities v0.3 Implemented Changes
@@ -281,6 +276,13 @@ Qtilities v0.3 Implemented Changes
 
     Bug Fixes:
     - Fixed memory leak in ProjectManager.
+
+    ============================
+    UnitTests:
+    ============================
+	New library
+	- Contains unit tests for numerous Qtilities classes.
+	- Contains classes to simplify unit testing of custom classes.
 
     ============================
     Plugins and Examples:

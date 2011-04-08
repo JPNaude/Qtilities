@@ -225,6 +225,37 @@ using namespace QtilitiesExtensionSystem;
 </table>
 </td>
 </tr>
+
+<tr>
+<td style="vertical-align: text-top;width:30%">
+<a class="el" href="namespace_qtilities_1_1_extension_system.html">Unit Tests Module:</a>
+</td>
+<td style="vertical-align: text-top;width:80%">
+Provides a set of unit tests to test classes in the other %Qtilities modules.
+
+<table style="table-layout:auto;
+        margin: auto;
+        border-style:none" CELLPADDING=5 CELLSPACING=1>
+<tr>
+<td style="vertical-align: text-top;width:50%">
+To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
+\code
+QTILITIES += unit_tests;
+include(Qtilities_Path/src/Qtilities.pri)
+\endcode
+</td>
+<td style="vertical-align: text-top;width:50%">
+To include all files in this module:
+\code
+#include <QtilitiesUnitTests>
+using namespace QtilitiesUnitTests;
+\endcode
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
 </table>
 </div>
 

@@ -57,8 +57,9 @@ int main(int argc, char *argv[])
     Log->toggleConsoleEngine(false);
 
     // ---------------------------------------------
-    // Create all the tests that we want to use:
+    // Create and register the tests that we want to use:
     // ---------------------------------------------
+    #ifndef QTILITIES_NO_UNIT_TESTS
     TestVersionNumber* testVersionNumber = new TestVersionNumber;
     testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
@@ -79,9 +80,10 @@ int main(int argc, char *argv[])
 
     BenchmarkTests* benchmarkTests = new BenchmarkTests;
     testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
+    #endif
 
     // ---------------------------------------------
-    // Create the testing frontend:
+    // Show the testing frontend:
     // ---------------------------------------------
     testFrontend.show();
 

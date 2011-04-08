@@ -1,14 +1,30 @@
 /**
 \page page_whats_new What's New In %Qtilities v0.3
 
-\section whats_new_classes New Classes
+This page highlights new features and improvements in the v0.3 release, in no particular order.
+
+Table of contents:
+- \ref whats_new_v0_3_classes
+- \ref whats_new_v0_3_exporting_architecture
+- \ref whats_new_v0_3_logging
+- \ref whats_new_v0_3_unit_testing
+- \ref whats_new_v0_3_extension_system
+- \ref whats_new_v0_3_documentation
+- \ref whats_new_v0_3_properties
+- \ref whats_new_v0_3_definitions
+- \ref whats_new_v0_3_debug
+- \ref whats_new_v0_3_mode_management
+- \ref whats_new_v0_3_improved_project_structure
+- \ref whats_new_v0_3_bugs
+
+\section whats_new_v0_3_classes New Classes
 
 %Qtilities v0.3 provides the following new classes which extends the previous functionality of the libaries as well as some completely new classed:
 
-- Qtilities::Core::IIterator<T>
-- Qtilities::Core::IConstIterator<T>
-- Qtilities::Core::SubjectIterator<T>
-- Qtilities::Core::ConstSubjectIterator<T>
+- Qtilities::Core::IIterator
+- Qtilities::Core::IConstIterator
+- Qtilities::Core::SubjectIterator
+- Qtilities::Core::ConstSubjectIterator
 - Qtilities::Core::TreeIterator
 - Qtilities::Core::FileUtils
 - Qtilities::Core::ObserverDotWriter
@@ -18,11 +34,12 @@
 - Qtilities::CoreGui::ObjectDynamicPropertyBrowser
 - Qtilities::CoreGui::StringListWidget
 - Qtilities::CoreGui::CodeEditorWidget (Was part of v0.2 in testing phase)
+- Qtilities::CoreGui::Interfaces::INamingPolicyDialog
 - Qtilities::ProjectManagement::CodeEditorProjectItemWrapper
+- Qtilities::UnitTests::TestFrontend
+- Qtilities::UnitTests::Interfaces::ITestable
 
-A new unit testing library was added which contains tests for numerous classes as well as new \p QtilitiesTester application was added which runs all available unit tests.
-
-\section whats_new_exporting_architecture Revamped Exporting Architecture
+\section whats_new_v0_3_exporting_architecture Revamped Exporting Architecture
 
 The exporting architecture was revamped and improved significantly.
 - The Qtilities::Core::Interfaces::IExportable interface was improved and is now much easier to implement. The interface's documentation was also rewritten and much improved.
@@ -36,28 +53,39 @@ they were all fixed.
 - A new example called \p ExportingExample was added to the \p QtilitiesExamples project which clearly shows how to implement \p IExportable for your own classes.
 - All classes that supports binary exports now has their stream operators overloaded as well.
 
-\section whats_new_logging Improved Logging
+\section whats_new_v0_3_logging Improved Logging
 
 - The logging library was improved and now provides a new concept of message contexts. A message context defines the origin of a message (for
 example you can have a priority message, engine specific message etc.) and engines can now specify which contexts they are interested in.
 - The \p LoggerGui class now has the ability to create temporary log widgets which can be used to display the status of a intermediate
 process.
 
-\section whats_new_extension_system Improved Extension System
+\section whats_new_v0_3_unit_testing New Unit Testing Library
 
-The extension system was now supports the concept of plugin configuration sets which allows you to deploy custom configuration sets. The
-\ref page_extension_system article has a new section on this topic. The debug plugin now also has nice configuration set management
+A new library called UnitTests was added. The libraries has two goals:
+- It provides two new classes which can be used by developers to simplify their unit testing.
+- It provides a set of tests to test classes in the different %Qtilities modules.
+
+The new \p QTILITIES_NO_UNIT_TESTS define in \p Qtilities.pri allows you to build the UnitTests module without any of the %Qtilities test classes in it, allowing you to use it in your own applications.
+
+The Qtilities::UnitTests::TestFrontend class allows you to run any tests implementing Qtilities::UnitTests::Interfaces::ITestable. Below is an example of the test frontent with a number of %Qtilities tests registered in it:
+
+\image html class_testfrontend_screenshot.jpg "Test Frontend With Some Tests"
+
+\section whats_new_v0_3_extension_system Improved Extension System
+
+The extension system was now supports the concept of plugin configuration sets which allows you to deploy custom configuration sets. The \ref page_extension_system article has a new section on this topic. The debug plugin now also has nice configuration set management
 features.
 
-\section whats_new_documentation Improved Documentation
+\section whats_new_v0_3_documentation Improved Documentation
 
 The %Qtilities documentation was again improved and an effort was made to improve the documentation on a class level. Many classes have been properly documented now and overall many small fixes and improvements were made.
 
-\section whats_new_properties Improved Property Management
+\section whats_new_v0_3_properties Improved Property Management
 
 Since %Qtilities uses dynamic properties in many places, this is process was improved significantly and the classes used were changed and improved as well. See Qtilities::Core::QtilitiesProperty for more information.
 
-\section whats_new_definitions All Constants Now Defined In A Constant Way
+\section whats_new_v0_3_definitions All Constants Now Defined In A Constant Way
 
 In previous versions all constant definitions made throughout %Qtilities was done in a random way. Everything is now done in a unified way where all reserved %Qtilities defines starts with \p qti_
 
@@ -67,8 +95,7 @@ The defines are also grouped into proper categories now by the way they start:
 - \p qti_action_* defines all actions defined in %Qtilities.
 - \p qti_icon_* defines all icons defined in %Qtilities.
 
-
-\section whats_new_debug Improved Debug Plugin
+\section whats_new_v0_3_debug Much Improved Debug Plugin
 
 The debug plugin was improved significantly and is now really usefull. A new article was added to the documentation which provides a detailed overview of the plugin: \ref page_debugging. Lastly, the <a href="http://sourceforge.net/projects/conanforqt/">Conan for Qt</a> libary is now fully integrated with the debug plugin, thus it allows you to analyze signal and slot connections directly in the plugin.
 
@@ -76,7 +103,7 @@ Below is a screenshot of the new plugin in action:
 
 \image html debugging_object_pool_tab.jpg "Improved Debug Plugin"
 
-\section whats_new_mode_management Improved Mode Management
+\section whats_new_v0_3_mode_management Improved Mode Management
 
 Mode management was much improved and also looks a lot nicer. For example:
 
@@ -86,7 +113,7 @@ Mode management was much improved and also looks a lot nicer. For example:
 
 The project structure has been improved and all dependency configuration now happens in Dependencies.pri. Detailed build instructions have been added due to contributions by Carel Combrink.
 
-\section whats_new_bugs Bug Fixes, And More Bug Fixes
+\section whats_new_v0_3_bugs Bug Fixes, And More Bug Fixes
 
 %Qtlities v0.3 has fixed tons of bugs which were everywhere across the library. Alongside this more than 100 crashes have been fixed.
 

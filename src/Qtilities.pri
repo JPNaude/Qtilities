@@ -33,6 +33,8 @@ QTILITIES_FILE_VER      = -0.3
 #   *************************************************************************
 #   Enables verbose action management messages.
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
+#   Makes the Qtilities unit tests part of the UnitTests library.
+#   DEFINES += QTILITIES_NO_UNIT_TESTS
 #****************************************************************************
 
 #****************************************************************************

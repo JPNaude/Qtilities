@@ -36,8 +36,9 @@ RCC_DIR = $$QTILITIES_TEMP/UnitTests
 UI_DIR = $$QTILITIES_TEMP/UnitTests
 
 # --------------------------
-# Extension Library Files
+# Files only included when Qtilities unit tests must be part of the library
 # --------------------------
+!contains(DEFINES, QTILITIES_NO_UNIT_TESTS) {
 HEADERS += source/UnitTestsConstants.h \
         source/UnitTests_global.h \
         source/TestObserver.h \
@@ -47,8 +48,6 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestSubjectIterator.h \
         source/TestTreeIterator.h \
         source/BenchmarkTests.h \
-        source/ITestable.h \
-        source/TestFrontend.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -57,7 +56,17 @@ SOURCES += source/TestObserver.cpp \
         source/TestSubjectIterator.cpp \
         source/TestTreeIterator.cpp \
         source/BenchmarkTests.cpp \
-        source/TestFrontend.cpp
+}
+
+# --------------------------
+# Extension Library Files
+# --------------------------
+HEADERS += source/UnitTestsConstants.h \
+        source/UnitTests_global.h \
+        source/ITestable.h \
+        source/TestFrontend.h
+
+SOURCES += source/TestFrontend.cpp
 
 FORMS += source/TestFrontend.ui
 
