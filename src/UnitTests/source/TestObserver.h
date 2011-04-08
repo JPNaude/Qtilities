@@ -40,6 +40,7 @@
 
 namespace Qtilities {
     namespace UnitTests {
+        //! Allows testing of Qtilities::Core::TestObserver.
         class UNIT_TESTS_SHARED_EXPORT TestObserver: public QObject
         {
             Q_OBJECT

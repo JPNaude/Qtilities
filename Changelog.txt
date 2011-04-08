@@ -9,17 +9,13 @@ Things outstanding for v0.3 release:
 - Qtilities debugging action in ObserverWidget does not always show.
 - Session dir creation wrong... See action manager for example.
 - ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
+- Console Log Example crashes...
 
 - Docs & finalization stuff:
-    - Properly document new StringListWidget
-    - Qtilities::CoreGui::Actions not defined anymore.
     - License header for GPL only files...
     - Getting started article should show more: QtilitiesMainWindow.
     - Must update images in ObjectManagement and MainWindow examples.
-    - In tree structure page, first image uses FileTreeItem, instead of TreeFileItem.
-    - Use seperate release and debug folders.
     - Update Qtilities::Core::Properties namespace docs + add removability to each property.
-    - ObjectHierarhcyNavigator references invalid image.
     - Document AbstractLoggerEngineData.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
     - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
@@ -31,6 +27,7 @@ Things outstanding for v0.3 release:
     - Add test lib to module page.
     - Object management page uses old object pool view. Make sure you delete the old pic!
     - Make working with projects an example rather than lots of long class function references.
+    - Projects article still describes old way of handling project file extensions.
 
 ================================
 Qtilities v0.3 Implemented Changes

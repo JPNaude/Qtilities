@@ -54,7 +54,7 @@ struct Qtilities::CoreGui::CommandEditorPrivateData {
 
     ObserverWidget              observer_widget;
     CommandTreeModel*           model;
-    ShortcutEditorDelegate*     shortcut_delegate;
+    qti_private_ShortcutEditorDelegate*     shortcut_delegate;
     QAction*                    action_restore_defaults;
     QAction*                    action_save;
     QAction*                    action_load;
@@ -90,7 +90,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
 
     d->observer_widget.initialize();
 
-    d->shortcut_delegate = new ShortcutEditorDelegate(this);
+    d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
     if (d->observer_widget.treeView()) {
         d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
         d->observer_widget.treeView()->setAlternatingRowColors(true);

@@ -130,46 +130,46 @@ int Qtilities::CoreGui::CommandTreeModel::columnCount(const QModelIndex &parent)
 }
 
 // -----------------------------------------------
-// ShortcutEditorDelegate
+// qti_private_ShortcutEditorDelegate
 // -----------------------------------------------
 
-Qtilities::CoreGui::ShortcutEditorDelegate::ShortcutEditorDelegate(QObject *parent) : QItemDelegate(parent) {
+Qtilities::CoreGui::qti_private_ShortcutEditorDelegate::qti_private_ShortcutEditorDelegate(QObject *parent) : QItemDelegate(parent) {
 
 }
 
-QWidget *Qtilities::CoreGui::ShortcutEditorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+QWidget *Qtilities::CoreGui::qti_private_ShortcutEditorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     Q_UNUSED(option)
     Q_UNUSED(index)
 
-    QtKeySequenceEdit *editor = new QtKeySequenceEdit(parent);
+    qti_private_QtKeySequenceEdit *editor = new qti_private_QtKeySequenceEdit(parent);
     return editor;
 }
 
-void Qtilities::CoreGui::ShortcutEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
+void Qtilities::CoreGui::qti_private_ShortcutEditorDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const {
     QString value = index.model()->data(index, Qt::DisplayRole).toString();
-    QtKeySequenceEdit *shortcut_editor = static_cast<QtKeySequenceEdit*>(editor);
+    qti_private_QtKeySequenceEdit *shortcut_editor = static_cast<qti_private_QtKeySequenceEdit*>(editor);
     shortcut_editor->setKeySequence(QKeySequence(value));
 }
 
-void Qtilities::CoreGui::ShortcutEditorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
-    QtKeySequenceEdit *shortcut_editor = static_cast<QtKeySequenceEdit*>(editor);
+void Qtilities::CoreGui::qti_private_ShortcutEditorDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
+    qti_private_QtKeySequenceEdit *shortcut_editor = static_cast<qti_private_QtKeySequenceEdit*>(editor);
     QString value = shortcut_editor->keySequence().toString();
     model->setData(index, value, Qt::EditRole);
 }
 
-void Qtilities::CoreGui::ShortcutEditorDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+void Qtilities::CoreGui::qti_private_ShortcutEditorDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const {
     Q_UNUSED(index)
     editor->setGeometry(option.rect);
 }
 
 // -----------------------------------------------
-// QtKeySequenceEdit
+// qti_private_QtKeySequenceEdit
 // -----------------------------------------------
 // This class is unmodified from the Qt Property
 // Browser solution.
 // -----------------------------------------------
 
-Qtilities::CoreGui::QtKeySequenceEdit::QtKeySequenceEdit(QWidget *parent)
+Qtilities::CoreGui::qti_private_QtKeySequenceEdit::qti_private_QtKeySequenceEdit(QWidget *parent)
     : QWidget(parent), m_num(0), m_lineEdit(new QLineEdit(this))
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -182,7 +182,7 @@ Qtilities::CoreGui::QtKeySequenceEdit::QtKeySequenceEdit(QWidget *parent)
     setAttribute(Qt::WA_InputMethodEnabled);
 }
 
-bool Qtilities::CoreGui::QtKeySequenceEdit::eventFilter(QObject *o, QEvent *e)
+bool Qtilities::CoreGui::qti_private_QtKeySequenceEdit::eventFilter(QObject *o, QEvent *e)
 {
     if (o == m_lineEdit && e->type() == QEvent::ContextMenu) {
         QContextMenuEvent *c = static_cast<QContextMenuEvent *>(e);
@@ -215,7 +215,7 @@ bool Qtilities::CoreGui::QtKeySequenceEdit::eventFilter(QObject *o, QEvent *e)
     return QWidget::eventFilter(o, e);
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::slotClearShortcut()
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::slotClearShortcut()
 {
     if (m_keySequence.isEmpty())
         return;
@@ -223,7 +223,7 @@ void Qtilities::CoreGui::QtKeySequenceEdit::slotClearShortcut()
     emit keySequenceChanged(m_keySequence);
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
 {
     int nextKey = e->key();
     if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift ||
@@ -252,7 +252,7 @@ void Qtilities::CoreGui::QtKeySequenceEdit::handleKeyEvent(QKeyEvent *e)
     emit keySequenceChanged(m_keySequence);
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::setKeySequence(const QKeySequence &sequence)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::setKeySequence(const QKeySequence &sequence)
 {
     if (sequence == m_keySequence)
         return;
@@ -261,12 +261,12 @@ void Qtilities::CoreGui::QtKeySequenceEdit::setKeySequence(const QKeySequence &s
     m_lineEdit->setText(m_keySequence.toString(QKeySequence::NativeText));
 }
 
-QKeySequence Qtilities::CoreGui::QtKeySequenceEdit::keySequence() const
+QKeySequence Qtilities::CoreGui::qti_private_QtKeySequenceEdit::keySequence() const
 {
     return m_keySequence;
 }
 
-int Qtilities::CoreGui::QtKeySequenceEdit::translateModifiers(Qt::KeyboardModifiers state, const QString &text) const
+int Qtilities::CoreGui::qti_private_QtKeySequenceEdit::translateModifiers(Qt::KeyboardModifiers state, const QString &text) const
 {
     int result = 0;
     if ((state & Qt::ShiftModifier) && (text.size() == 0 || !text.at(0).isPrint() || text.at(0).isLetter() || text.at(0).isSpace()))
@@ -280,32 +280,32 @@ int Qtilities::CoreGui::QtKeySequenceEdit::translateModifiers(Qt::KeyboardModifi
     return result;
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::focusInEvent(QFocusEvent *e)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::focusInEvent(QFocusEvent *e)
 {
     m_lineEdit->event(e);
     m_lineEdit->selectAll();
     QWidget::focusInEvent(e);
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::focusOutEvent(QFocusEvent *e)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::focusOutEvent(QFocusEvent *e)
 {
     m_num = 0;
     m_lineEdit->event(e);
     QWidget::focusOutEvent(e);
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::keyPressEvent(QKeyEvent *e)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::keyPressEvent(QKeyEvent *e)
 {
     handleKeyEvent(e);
     e->accept();
 }
 
-void Qtilities::CoreGui::QtKeySequenceEdit::keyReleaseEvent(QKeyEvent *e)
+void Qtilities::CoreGui::qti_private_QtKeySequenceEdit::keyReleaseEvent(QKeyEvent *e)
 {
     m_lineEdit->event(e);
 }
 
-bool Qtilities::CoreGui::QtKeySequenceEdit::event(QEvent *e)
+bool Qtilities::CoreGui::qti_private_QtKeySequenceEdit::event(QEvent *e)
 {
     if (e->type() == QEvent::Shortcut ||
             e->type() == QEvent::ShortcutOverride  ||

@@ -53,8 +53,7 @@ namespace Qtilities {
 
         Below is an example where the widget is added to the top of an observer widget.
 
-        \image html observer_widget_table_with_actions.jpg "Observer Widget With Action Toolbar"
-        \image latex observer_widget_table_with_actions.eps "Observer Widget With Action Toolbar" width=3in
+        \image html observer_widget_doc_table_view_categorized.jpg "Observer Widget Using The Object Hierarhcy Navigator"
         */
         class ObjectHierarchyNavigator : public QWidget {
             Q_OBJECT

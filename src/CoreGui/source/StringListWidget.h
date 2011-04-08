@@ -67,7 +67,7 @@ namespace Qtilities {
 
         The widget is a QMainWindow with a toolbar at the top containing actions to remove and add strings. To customize the operation of the widget the string list model can be accessed using stringListModel() and the view can be accessed through listView().
 
-        Below is an image of the list view in action:
+        Below is an image of the string list widget with the string type set to "Architecture".
 
         \image html class_stringlistwidget_screenshot.jpg "The String List Widget"
 

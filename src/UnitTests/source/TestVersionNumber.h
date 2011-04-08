@@ -40,6 +40,7 @@
 
 namespace Qtilities {
     namespace UnitTests {
+        //! Allows testing of Qtilities::Core::TestVersionNumber.
         class UNIT_TESTS_SHARED_EXPORT TestVersionNumber: public QObject
         {
             Q_OBJECT

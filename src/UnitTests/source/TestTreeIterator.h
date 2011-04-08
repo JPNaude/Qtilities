@@ -40,7 +40,7 @@
 
 namespace Qtilities {
     namespace UnitTests {
-        //! Allows testing of Qtilities::Core::SubjectIterator.
+        //! Allows testing of Qtilities::Core::TestTreeIterator.
         class UNIT_TESTS_SHARED_EXPORT TestTreeIterator: public QObject
         {
             Q_OBJECT

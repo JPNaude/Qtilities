@@ -40,6 +40,7 @@
 
 namespace Qtilities {
     namespace UnitTests {
+        //! Basis of some benchmarking tests in %Qtilities.
         class UNIT_TESTS_SHARED_EXPORT BenchmarkTests : public QObject
         {
             Q_OBJECT

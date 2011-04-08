@@ -66,13 +66,13 @@ namespace Qtilities {
         };
 
         // -----------------------------------------------
-        // ShortcutEditorDelegate
+        // qti_private_ShortcutEditorDelegate
         // -----------------------------------------------
-        class ShortcutEditorDelegate : public QItemDelegate
+        class qti_private_ShortcutEditorDelegate : public QItemDelegate
         {
             Q_OBJECT
         public:
-            ShortcutEditorDelegate(QObject *parent = 0);
+            qti_private_ShortcutEditorDelegate(QObject *parent = 0);
 
             QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
             void setEditorData(QWidget *editor, const QModelIndex &index) const;
@@ -81,16 +81,16 @@ namespace Qtilities {
         };
 
         // -----------------------------------------------
-        // QtKeySequenceEdit
+        // qti_private_QtKeySequenceEdit
         // -----------------------------------------------
         // This class is unmodified from the Qt Property
         // Browser solution.
         // -----------------------------------------------
-        class QtKeySequenceEdit : public QWidget
+        class qti_private_QtKeySequenceEdit : public QWidget
         {
             Q_OBJECT
         public:
-            QtKeySequenceEdit(QWidget *parent = 0);
+            qti_private_QtKeySequenceEdit(QWidget *parent = 0);
 
             QKeySequence keySequence() const;
             bool eventFilter(QObject *o, QEvent *e);

@@ -40,6 +40,7 @@
 
 namespace Qtilities {
     namespace UnitTests {
+        //! Allows testing of Qtilities::Core::TestObserverRelationalTable.
         class UNIT_TESTS_SHARED_EXPORT TestObserverRelationalTable: public QObject
         {
             Q_OBJECT
