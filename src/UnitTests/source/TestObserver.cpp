@@ -131,6 +131,7 @@ void Qtilities::UnitTests::TestObserver::testOwnershipAuto() {
 
     // Now delete observers
     delete observerA;
+    QApplication::processEvents();
 
     // Check the validity of the objects:
     QVERIFY(object1 == 0);
@@ -159,6 +160,7 @@ void Qtilities::UnitTests::TestObserver::testOwnershipSpecificObserver() {
 
     // Now delete observer
     delete observerA;
+    QApplication::processEvents();
 
     // Check the validity of the objects:
     QVERIFY(object1 == 0);
@@ -188,6 +190,7 @@ void Qtilities::UnitTests::TestObserver::testOwnershipObserverScope() {
 
     // Now delete observer A
     delete observerA;
+    QApplication::processEvents();
 
     // Check the validity of the objects:
     QVERIFY(object1 != 0);
@@ -195,6 +198,7 @@ void Qtilities::UnitTests::TestObserver::testOwnershipObserverScope() {
 
     // Now delete observer B
     delete observerB;
+    QApplication::processEvents();
 
     // Check the validity of the objects:
     QVERIFY(object1 == 0);
@@ -218,9 +222,10 @@ void Qtilities::UnitTests::TestObserver::testOwnershipOwnedByParent() {
 
     // Now delete the object
     delete object1;
+    QApplication::processEvents();
 
     // Check the validity of the observer:
-    QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to delete the object yet.", Continue);
+    //QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to delete the object yet.", Continue);
     QVERIFY(observerA == 0);
 
     LOG_INFO("TestObserver::testOwnershipOwnedByParent() end.");

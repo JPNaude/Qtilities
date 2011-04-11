@@ -40,8 +40,8 @@ namespace Qtilities {
       \note Versioning was introducted in %Qtilities v0.3, therefore versions before v0.3 are not supported any more. All future versions will be backward compatible.
       */
     enum ExportVersion {
-        Qtilities_0_3           = 0,     /*!< %Qtilities version 0.3. See \ref page_serializing_overview_0_3 for an detailed overview. */
-        Qtilities_Latest        = Qtilities_0_3
+        Qtilities_0_3           = 0,            /*!< %Qtilities version 0.3. See \ref page_serializing_overview_0_3 for an detailed overview. */
+        Qtilities_Latest        = Qtilities_0_3 /*!< The latest export version in the current version of %Qtilities. */
     };
 
     //! The %Qtilities major version number.
