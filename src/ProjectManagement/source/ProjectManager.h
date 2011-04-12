@@ -280,12 +280,16 @@ namespace Qtilities {
             void modificationStateChanged(bool is_modified) const;
 
             //! A signal which is emitted when a project loading/opening process starts.
-            void projectLoadingStarted();
+            /*!
+              \param project_file The project file from which loading is done.
+              */
+            void projectLoadingStarted(const QString& project_file);
             //! A signal which is emitted when a project loading/opening process completes.
             /*!
+              \param project_file The project file from which loading was done.
               \param success If the project was successfully loaded, success will be true. False otherwise.
               */
-            void projectLoadingFinished(bool success);
+            void projectLoadingFinished(const QString& project_file, bool success);
 
         private:
             //! Add a project to the recent project list.

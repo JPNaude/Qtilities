@@ -206,7 +206,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         delete d->current_project;
     }
 
-    emit projectLoadingStarted();
+    emit projectLoadingStarted(file_name);
     d->current_project = new Project(this);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -215,7 +215,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     if (!d->current_project->loadProject(file_name,false)) {
         delete d->current_project;
         QApplication::restoreOverrideCursor();
-        emit projectLoadingFinished(false);
+        emit projectLoadingFinished(file_name,false);
         return false;
     }
 
@@ -226,7 +226,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     notify_targets |= IModificationNotifier::NotifySubjects;
     setModificationState(false,notify_targets);
     QApplication::restoreOverrideCursor();
-    emit projectLoadingFinished(true);
+    emit projectLoadingFinished(file_name,true);
     return true;
 }
 
