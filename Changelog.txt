@@ -6,8 +6,7 @@ Things outstanding for v0.3 release:
 - Object Management Example: Binary project does not work.
 - ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
 - Tree relationship construction is broken in binary, must implement for XML.
-- Pass all unit tests, and maybe add more instead of new features for a while
-
+- Pass all unit tests, and maybe add more instead of new features for a while.
 
 - Docs & finalization stuff:
     - License header for GPL only files...
@@ -76,6 +75,7 @@ Qtilities v0.3 Implemented Changes
 
     Improvements and Notable Changes:
     - Observers
+        - New processingCycleStarted() and processingCycleEnded() signals which are emitted when processing cycles starts and ends on the observer.
         - The << stream operator is now overloaded and can be used to attach subjects to Observers.
         - Observer::specificObserverOwnership attachment now makes the observer to which is attached the QObject parent() of the subject.
         - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your refreshed views.
