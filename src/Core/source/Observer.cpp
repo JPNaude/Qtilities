@@ -354,6 +354,7 @@ void Qtilities::Core::Observer::startProcessingCycle() {
         return;
 
     observerData->process_cycle_active = true;
+    emit processingCycleStarted();
 }
 
 void Qtilities::Core::Observer::endProcessingCycle() {
@@ -361,6 +362,7 @@ void Qtilities::Core::Observer::endProcessingCycle() {
         return;
 
     observerData->process_cycle_active = false;
+    emit processingCycleEnded();
 }
 
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {

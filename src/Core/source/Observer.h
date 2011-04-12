@@ -546,7 +546,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               your processing cycle is completed. The function you must call will depend on what you changed during the
               processing cycle.
 
-              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive()
+              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
               */
             virtual void startProcessingCycle();
             //! Ends a processing cycle.
@@ -557,7 +557,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               Note that you must manually call the needed update signals refreshViewsData() or refreshViewsLayout()
               after ending a processing cycle.
 
-              \sa startProcessingCycle(), isProcessingCycleActive()
+              \sa startProcessingCycle(), isProcessingCycleActive(), processingCycleEnded();
               */
             virtual void endProcessingCycle();
             //! Indicates if a processing cycle is active.
@@ -1015,6 +1015,10 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \note When creating models for observers, this signal should be connected to the dataChanged() signal of your model.
               */
             void dataChanged(Observer* observer = 0);
+            //! Signal which is emitted when this observer enters a processing cycle.
+            void processingCycleStarted();
+            //! Signal which is emitted when this observer exists a processing cycle.
+            void processingCycleEnded();
 
         private:
             //! Peforms a delete on an object in a thread-safe way.
