@@ -10,6 +10,10 @@
 #include "BenchmarkTests.h"
 #include "ITestable.h"
 #include "TestFrontend.h"
+#include "TestNamingPolicyFilter.h"
+#include "TestActivityPolicyFilter.h"
+#include "TestSubjectTypeFilter.h"
+#include "FunctionCallAnalyzer.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesUnitTests { 

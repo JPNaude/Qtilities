@@ -181,6 +181,7 @@ Qtilities v0.3 Implemented Changes
         - ObserverWidget does not allow selections with categories to be deleted anymore. This cause unpredictable results in previous versions.
         - ObserverWidget::selectObjects() now clears the current selection when getting an empty list.
         - ObserverWidget got new setCustomTableProxyModel() and setCustomTreeProxyModel() functions allowing custom proxy models to be used.
+        - ObserverWidget got a new selectObject() function.
         - ObserverTreeModelProxyFilter and ObserverTableModelCategoryFilter can now be subclassed.
         - Fixed problem with custom hints (thus not using observer hints) which did not work always.
         - Removed the non-const activeHints() functions from ObserverWidget and AbstractObserverItemModel.
@@ -203,9 +204,10 @@ Qtilities v0.3 Implemented Changes
     - Interafaces
         - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
     - Naming Policy Subject Filter
-        - NamingPolicyFilter: made generateValidName() and setConflictingObject() public.
+        - Made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
         - NamingPolicyFilter::evaluateName() got a new parameter which contains a reference to the current object whose name is being evaluated in the contexts. In some cases during subclassing NamingPolicyFilter this is usefull, in others the default parameter can just be used.
+        - NamingPolicyFilter::processingCycleValdiationChecks() added in order to improve speeds when importing big observers with subject names that are known to be correct.
     - Action Management
         - The action manager was improved. It now detects if registered actions are deleted and removes them accoringly.
         - Commands can now be assigned categories in which they will be displayed in the command editor.
@@ -273,6 +275,7 @@ Qtilities v0.3 Implemented Changes
     - ProjectManager::initialize() improved.
     - A new checkbox to allow verbose debug information during project loading and saving (only Binary projects at present) was added to the project management configuraiton page.
     - The project manager now supports custom project suffices.
+    - Project now prints log message with the number of seconds it took to load and save projects (only when building in debug mode).
 
     Bug Fixes:
     - Fixed memory leak in ProjectManager.

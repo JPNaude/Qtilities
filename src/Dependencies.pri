@@ -60,7 +60,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # --------------------------
 # Builds Qtilities without Conan library integrated into the debug plugin.
 # Note that this integration was only tested in Qt 4.7.x on Windows XP 32bit.
-# DEFINES += QTILITIES_NO_CONAN
+DEFINES += QTILITIES_NO_CONAN
 # --------------------------
 
 !contains(DEFINES, QTILITIES_NO_CONAN) {

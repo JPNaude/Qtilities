@@ -87,6 +87,7 @@ Qtilities::CoreGui::NamingPolicyFilter
 - The uniqueness policy (quint32)
 - The uniqueness resolution policy (quint32)
 - The validity resolution policy (quint32)
+- The processing cycle validation check flags (quint32)
 </td>
 </tr>
 
@@ -378,7 +379,8 @@ Qtilities::CoreGui::NamingPolicyFilter
 @code
 <object_node ValidityResolutionPolicy="Reject"&#xD
   UniquenessPolicy="ProhibitDuplicateNames"&#xD
-  UniquenessResolutionPolicy="Reject"/>
+  UniquenessResolutionPolicy="Reject"&#xD
+  ProcessingCycleValidationCheckFlags="AllChecks"/>
 @endcode
 </td>
 </tr>
@@ -431,7 +433,8 @@ The resulting export looks like this (Just using \p ExportData):
     <SubjectFilter ValidityResolutionPolicy="PromptUser"&#xD
                    UniquenessPolicy="ProhibitDuplicateNames"&#xD
                    InstanceFactoryInfo="qti.def.FactoryTag.NamingFilter"&#xD
-                   UniquenessResolutionPolicy="PromptUser"/>
+                   UniquenessResolutionPolicy="PromptUser"&#xD
+                   ProcessingCycleValidationCheckFlags="AllChecks"/>
     <SubjectFilter GroupName="Example child type"&#xD
                    InversedFiltering="True"&#xD
                    InstanceFactoryInfo="qti.def.FactoryTag.SubjectTypeFilter"&#xD
@@ -540,7 +543,8 @@ The result looks like this:
     <SubjectFilter ValidityResolutionPolicy="PromptUser"&#xD
                    UniquenessPolicy="ProhibitDuplicateNames"&#xD
                    InstanceFactoryInfo="qti.def.FactoryTag.NamingFilter"&#xD
-                   UniquenessResolutionPolicy="PromptUser"/>
+                   UniquenessResolutionPolicy="PromptUser"&#xD
+                   ProcessingCycleValidationCheckFlags="AllChecks"/>
     <SubjectFilter GroupName="Example child type"&#xD
                    InversedFiltering="True"&#xD
                    InstanceFactoryInfo="qti.def.FactoryTag.SubjectTypeFilter"&#xD
