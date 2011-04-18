@@ -47,6 +47,9 @@
 #include <QFileInfo>
 #include <QDomDocument>
 
+#include <stdio.h>
+#include <time.h>
+
 using namespace QtilitiesCoreGui;
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::ExtensionSystem::Constants;
@@ -146,6 +149,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     if (!d->customPluginPaths.contains(d->pluginsDir.path()))
         d->customPluginPaths << d->pluginsDir.path();
 
+    #ifndef QT_NO_DEBUG
+    time_t start,end;
+    time(&start);
+    #endif
+
     foreach (QString path, d->customPluginPaths) {
         emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(path));
         LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(path));
@@ -225,6 +233,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
                             if (!is_inactive_plugin) {
                                 QString error_string;
+                                #ifdef QTILITIES_BENCHMARKING
+                                time_t start_init,end_init;
+                                time(&start_init);
+                                #endif
                                 if (!pluginIFace->initialize(QStringList(), &error_string)) {
                                     LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
                                     pluginIFace->setPluginState(IPlugin::InitializationError);
@@ -234,6 +246,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                                 } else {
                                     LOG_INFO(tr("Successfully initialized plugin \"") + stripped_file_name + tr("\"."));
                                 }
+                                #ifdef QTILITIES_BENCHMARKING
+                                time(&end_init);
+                                double diff_init = difftime(end_init,start_init);
+                                qDebug() << QString("Initializing plugin " + pluginIFace->pluginName() + " took " + QString::number(diff_init) + " seconds.");
+                                #endif
                             }
                         } else {
                             LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
@@ -267,6 +284,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 QString error_string;
                 emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
                 QCoreApplication::processEvents();
+                #ifdef QTILITIES_BENCHMARKING
+                time_t start_init_dep,end_init_dep;
+                time(&start_init_dep);
+                #endif
                 if (!pluginIFace->initializeDependancies(&error_string)) {               
                     pluginIFace->setPluginState(IPlugin::DependancyError);
                     pluginIFace->setErrorString(error_string);
@@ -288,6 +309,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
                     LOG_INFO(tr("Successfully initialized dependencies in plugin \"") + pluginIFace->pluginName() + tr("\"."));
                 }
+                #ifdef QTILITIES_BENCHMARKING
+                time(&end_init_dep);
+                double diff_init_dep = difftime(end_init_dep,start_init_dep);
+                qDebug() << QString("Initializing dependencies in plugin " + pluginIFace->pluginName() + " took " + QString::number(diff_init_dep) + " seconds.");
+                #endif
 
                 // Set the foreground color of core plugins:
                 if (d->core_plugins.contains(pluginIFace->pluginName())) {
@@ -315,6 +341,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i),QtilitiesCategory("Core::Plugins (IPlugin)","::"));
         }
     }
+
+    #ifndef QT_NO_DEBUG
+    time(&end);
+    double diff = difftime(end,start);
+    qDebug() << QString("Extension system took " + QString::number(diff) + " seconds to load " + QString::number(d->plugins.subjectCount()) + " plugins. They were initialized according to your active configuration set.");
+    #endif
 
     // Only connect here since the signal will be emitted in above code:
     connect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
