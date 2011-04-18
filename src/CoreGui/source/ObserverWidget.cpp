@@ -2697,6 +2697,12 @@ void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectC
     }
 }
 
+void Qtilities::CoreGui::ObserverWidget::selectObject(QObject* object) {
+    QList<QObject*> objects;
+    objects << object;
+    selectObjects(objects);
+}
+
 void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> > objects) {
     if (!d->update_selection_activity)
         return;

@@ -432,6 +432,15 @@ categorized_widget->show();
               \sa selectedObjectsChanged()
               */
             void selectObjects(QList<QObject*> objects);
+            //! Selects the specified object in the active item view.
+            /*!
+              \param object The object that must be selected. If the objects is not present in the view, it will be ignored.
+
+              \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
+
+              \sa selectedObjectsChanged()
+              */
+            void selectObject(QObject* object);
             //! Selects the specified objects in a smart pointer list in the active item view.
             /*!
               \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
