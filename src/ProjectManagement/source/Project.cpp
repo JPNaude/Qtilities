@@ -45,6 +45,9 @@
 #include <QApplication>
 #include <QCursor>
 
+#include <stdio.h>
+#include <time.h>
+
 using namespace Qtilities::ProjectManagement::Constants;
 using namespace Qtilities;
 
@@ -55,6 +58,7 @@ struct Qtilities::ProjectManagement::ProjectPrivateData {
     QList<IProjectItem*>    project_items;
     QString                 project_file;
     QString                 project_name;
+    QMutex                  modification_mutex;
 };
 
 Qtilities::ProjectManagement::Project::Project(QObject* parent) : QObject(parent), IProject() {
@@ -92,7 +96,17 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QDomDocument doc("QtilitiesXMLProject");
         QDomElement root = doc.createElement("QtilitiesXMLProject");
         doc.appendChild(root);
+
+        #ifdef QTILITIES_BENCHMARKING
+        time_t start,end;
+        time(&start);
+        #endif
         IExportable::Result success = exportXml(&doc,&root);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Project XML export completed in " + QString::number(diff) + " seconds.");
+        #endif
 
         // Put the complete doc in a string and save it to the file:
         QString docStr = doc.toString(2);
@@ -138,7 +152,18 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QDataStream stream(&file);
         if (exportVersion() == Qtilities::Qtilities_0_3)
             stream.setVersion(QDataStream::Qt_4_7);
+
+        #ifdef QTILITIES_BENCHMARKING
+        time_t start,end;
+        time(&start);
+        #endif
         IExportable::Result success = exportBinary(stream);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Project binary export completed in " + QString::number(diff) + " seconds.");
+        #endif
+
         file.close();
 
         if (success != IExportable::Failed) {
@@ -211,7 +236,18 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
         // Interpret the loaded doc:
         QList<QPointer<QObject> > import_list;
+
+        #ifdef QTILITIES_BENCHMARKING
+        time_t start,end;
+        time(&start);
+        #endif
         IExportable::Result success = importXml(&doc,&root,import_list);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Project XML import completed in " + QString::number(diff) + " seconds.");
+        #endif
+
         QApplication::restoreOverrideCursor();
 
         if (success != IExportable::Failed) {
@@ -244,7 +280,18 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             stream.setVersion(QDataStream::Qt_4_7);
 
         QList<QPointer<QObject> > import_list;
+
+        #ifdef QTILITIES_BENCHMARKING
+        time_t start,end;
+        time(&start);
+        #endif
         IExportable::Result success = importBinary(stream,import_list);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Project binary import completed in " + QString::number(diff) + " seconds.");
+        #endif
+
         QApplication::restoreOverrideCursor();
 
         file.close();
@@ -278,10 +325,12 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 }
 
 bool Qtilities::ProjectManagement::Project::closeProject() {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     LOG_INFO_P(tr("Closing project: ") + d->project_file);
     for (int i = 0; i < d->project_items.count(); i++) {
         d->project_items.at(i)->closeProjectItem();
     }
+    QApplication::restoreOverrideCursor();
 
     setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     return true;
@@ -357,6 +406,8 @@ bool Qtilities::ProjectManagement::Project::isModified() const {
 }
 
 void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+    if (!d->modification_mutex.tryLock())
+        return;
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         for (int i = 0; i < d->project_items.count(); i++)
             d->project_items.at(i)->setModificationState(new_state,notification_targets);
@@ -364,6 +415,7 @@ void Qtilities::ProjectManagement::Project::setModificationState(bool new_state,
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
     }
+    d->modification_mutex.unlock();
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectManagement::Project::supportedFormats() const {
