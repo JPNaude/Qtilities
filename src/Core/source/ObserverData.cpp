@@ -37,6 +37,9 @@
 #include "ActivityPolicyFilter.h"
 #include "ObserverRelationalTable.h"
 
+#include <stdio.h>
+#include <time.h>
+
 #include <QDomElement>
 
 using namespace Qtilities::Core::Interfaces;
@@ -70,9 +73,20 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
-        return exportBinaryExt_0_3(stream,ExportData);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    #ifdef QTILITIES_BENCHMARKING
+    time_t start,end;
+    time(&start);
+    #endif
+
+    if (exportVersion() == Qtilities::Qtilities_0_3) {
+        IExportable::Result result = exportBinaryExt_0_3(stream,ExportData);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (Binary -> Qtilities_0_3).");
+        #endif
+        return result;
+    } else if (exportVersion() < Qtilities::Qtilities_0_3)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_0_3)
         return IExportable::FailedTooNew;
@@ -81,9 +95,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
-        return importBinaryExt_0_3(stream,import_list);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    #ifdef QTILITIES_BENCHMARKING
+    time_t start,end;
+    time(&start);
+    #endif
+
+    if (exportVersion() == Qtilities::Qtilities_0_3) {
+        IExportable::Result result = importBinaryExt_0_3(stream,import_list);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (Binary -> Qtilities_0_3).");
+        #endif
+        return result;
+    } else if (exportVersion() < Qtilities::Qtilities_0_3)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_0_3)
         return IExportable::FailedTooNew;
@@ -92,9 +117,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXml(QDomDocument* doc, QDomElement* object_node) const {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
-        return exportXmlExt_0_3(doc,object_node,ExportData);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    #ifdef QTILITIES_BENCHMARKING
+    time_t start,end;
+    time(&start);
+    #endif
+
+    if (exportVersion() == Qtilities::Qtilities_0_3) {
+        IExportable::Result result = exportXmlExt_0_3(doc,object_node,ExportData);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (XML -> Qtilities_0_3).");
+        #endif
+        return result;
+    } else if (exportVersion() < Qtilities::Qtilities_0_3)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_0_3)
         return IExportable::FailedTooNew;
@@ -103,9 +139,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
-        return importXmlExt_0_3(doc,object_node,import_list);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    #ifdef QTILITIES_BENCHMARKING
+    time_t start,end;
+    time(&start);
+    #endif
+
+    if (exportVersion() == Qtilities::Qtilities_0_3) {
+        IExportable::Result result = importXmlExt_0_3(doc,object_node,import_list);
+        #ifdef QTILITIES_BENCHMARKING
+        time(&end);
+        double diff = difftime(end,start);
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (XML -> Qtilities_0_3).");
+        #endif
+        return result;
+    } else if (exportVersion() < Qtilities::Qtilities_0_3)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_0_3)
         return IExportable::FailedTooNew;

@@ -112,7 +112,7 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     }
 
     bool is_known_type = false;
-    // If inversed and there is no known types is_known_type must be true:
+    // If inversed and there are no known types is_known_type must be true:
     if (d->inversed_filtering && d->known_subject_types.count() == 0)
         is_known_type = true;
 
@@ -133,9 +133,20 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     }
 
     if (!is_known_type) {
+        QString msg = QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\". It is not an allowed type in this context.")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName());
+        #ifndef QT_NO_DEBUG
+        for (int t = 0; t < d->known_subject_types.count(); t++)
+            LOG_TRACE("Allowed types: Meta type: " + d->known_subject_types.at(t).d_meta_type + ", Type description: " + d->known_subject_types.at(t).d_name);
+        LOG_TRACE("Attachment type: " + QString(obj->metaObject()->className()));
+        if (d->inversed_filtering)
+            LOG_TRACE("Inversed filtering status: Enabled");
+        else
+            LOG_TRACE("Inversed filtering status: Disabled");
+        #endif
+
         if (rejectMsg)
-            *rejectMsg = QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\". It is not an allowed type in this context.")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName());
-        LOG_WARNING(QString(tr("Subject filter \"%1\" rejected attachment of object \"%2\" to observer \"%3\". It is not an allowed type in this context.")).arg(filterName()).arg(obj->objectName()).arg(observer->observerName()));
+            *rejectMsg = msg;
+        LOG_WARNING(msg);
     }
 
     return is_known_type;

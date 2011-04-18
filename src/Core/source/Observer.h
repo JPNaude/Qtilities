@@ -557,6 +557,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               Note that you must manually call the needed update signals refreshViewsData() or refreshViewsLayout()
               after ending a processing cycle.
 
+              If the observer's modification state is true after the processing cycle ended, the modificationStateChanged() signal will automatically be called.
+
               \sa startProcessingCycle(), isProcessingCycleActive(), processingCycleEnded();
               */
             virtual void endProcessingCycle();

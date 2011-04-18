@@ -320,7 +320,7 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
             if (mod_iface) {
-                mod_iface->setModificationState(new_state,notification_targets);
+                mod_iface->setModificationState(new_state,IModificationNotifier::NotifyListeners);
             }
         }
         // Also notify observer hints.
@@ -331,12 +331,12 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
 
     // For observers we only notify targets if the actual state changed:
     if (observerData->is_modified != new_state) {
+        observerData->is_modified = new_state;
         if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
             emit modificationStateChanged(new_state);
         }
     }
 
-    observerData->is_modified = new_state;
 }
 
 void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection) {
@@ -363,6 +363,9 @@ void Qtilities::Core::Observer::endProcessingCycle() {
 
     observerData->process_cycle_active = false;
     emit processingCycleEnded();
+
+    if (isModified())
+        emit modificationStateChanged(true);
 }
 
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {
@@ -594,10 +597,12 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         }
 
         #ifndef QT_NO_DEBUG
+        if (!observerData->process_cycle_active) {
             if (has_mod_iface)
                 LOG_DEBUG(QString("Observer (%1): Now observing object \"%2\" with management policy: %3. This object's modification state is now monitored by this observer.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
             else
                 LOG_DEBUG(QString("Observer (%1): Now observing object \"%2\" with management policy: %3.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
+        }
         #endif
     } else {
         // If it is the global object manager it will get here.

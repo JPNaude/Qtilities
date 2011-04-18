@@ -36,7 +36,7 @@
 #include <QDir>
 
 struct Qtilities::Core::QtilitiesFileInfoPrivateData {
-    QtilitiesFileInfoPrivateData() {}
+    QtilitiesFileInfoPrivateData() : relative_to_path(QString()) {}
 
     //! The relative to path of this file.
     QString relative_to_path;

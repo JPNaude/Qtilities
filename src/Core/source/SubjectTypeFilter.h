@@ -58,6 +58,8 @@ namespace Qtilities {
 
         The SubjectTypeFilter allows control over the types of objects which can be attached to an observer context. The filter only allows known subject types to be attached. A subject type is defined by the SubjectTypeInfo struct and each filter only knows about subject types added to it using the addSubjectType() function. You can inverse the known filter types by calling the enableInverseFiltering() function. In this scenario the filter will only allow attachment of unknown filter type and it will filter all known types.
 
+        Checking if an object to be attached matches any of the known types is done through the QObject::inherits() function. Thus if you add QObject as a known type, any object inheriting QObject will be allowed while non QObject based objects will be filtered.
+
         Another usefull feature of the SubjectTypeFilter class is that it provides a name for the group of subjects that is known to it which is accessable through groupName(). The group name is set in the constructor of the filter.
 
         \note You need to set up your filter before attaching any subjects to its observer context.
@@ -121,18 +123,46 @@ namespace Qtilities {
             // SubjectTypeFilter Implemenation
             // --------------------------------
             //! Gets the name describing the known subject grouping.
+            /*!
+              \sa setGroupName()
+              */
             QString groupName() const;
             //! Sets the name describing the known subject grouping.
+            /*!
+              \sa groupName()
+              */
             void setGroupName(const QString& group_name);
-            //! Sets the filter list.
+            //! Adds a known subject type .
+            /*!
+              \note Known subject types can only be added when no subjects are attached to the filter's observer context.
+
+              \sa isKnownType(), knownSubjectTypes()
+              */
             void addSubjectType(SubjectTypeInfo subject_type_info);
-            //! Returns true if the specified type if a known type in this filter. This call takes the inverse filtering setting into account. Note that the name of the SubjectTypeInfo struct is not checked but rather the d_meta_type field.
+            //! Returns true if the specified type if a known type in this filter.
+            /*!
+              This call takes the inverse filtering setting into account. Note that the name of the SubjectTypeInfo struct is not checked but rather the d_meta_type field.
+
+              \sa knownSubjectTypes(), addSubjectType()
+              */
             bool isKnownType(const QString& meta_type) const;
             //! Provides a list of all the subject types known to this subject type filter.
+            /*!
+              \sa isKnownType(), addSubjectType()
+              */
             QList<SubjectTypeInfo> knownSubjectTypes() const;
             //! Inverse the list of known subject types. Thus all unknown types are allowed and known types are filtered, rather than the defualt filtering of all unkown types.
+            /*!
+              \note Inversed filtering can only changed when no subjects are attached to the filter's observer context.
+              \note When constructing a SubjectTypeFilter using the Qtilities::CoreGui::TreeNode class's setChildType() function, inversed filtering is enabled by default.
+
+              \sa inverseFilteringEnabled()
+              */
             void enableInverseFiltering(bool enabled);
             //! Returns true if inverse filtering is enabled. The default is false, thus the filter will filter all object types unless you add known types.
+            /*!
+              \sa enableInverseFiltering()
+              */
             bool inverseFilteringEnabled() const;
 
         private:

@@ -280,6 +280,8 @@ names see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 <b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> Yes<br>
+
+\note This property is only created for naming policy filters that use \p ProhibitDuplicateNames uniqueness policy.
 */
 const char * const qti_prop_ALIAS_MAP         = "qti.filters.AliasMap";
 
