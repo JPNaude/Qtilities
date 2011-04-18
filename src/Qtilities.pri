@@ -31,10 +31,14 @@ QTILITIES_FILE_VER      = -0.3
 #   *************************************************************************
 #   General:
 #   *************************************************************************
-#   Enables verbose action management messages.
+#   When uncommented, verbose action management messages are printed.
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-#   Makes the Qtilities unit tests part of the UnitTests library.
+#   When uncommented, the UnitTests library does not have any of the Qtilities
+#   unit tests in it.
 #   DEFINES += QTILITIES_NO_UNIT_TESTS
+#   When uncommented, basic benchmarking of potentially long operations in
+#   Qtilities is done by logging execution times as warning messages.
+#   DEFINES += QTILITIES_BENCHMARKING
 #****************************************************************************
 
 #****************************************************************************

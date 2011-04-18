@@ -48,6 +48,10 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestSubjectIterator.h \
         source/TestTreeIterator.h \
         source/BenchmarkTests.h \
+        source/TestNamingPolicyFilter.h \
+        source/TestActivityPolicyFilter.h \
+        source/TestSubjectTypeFilter.h \
+        source/FunctionCallAnalyzer.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -56,6 +60,10 @@ SOURCES += source/TestObserver.cpp \
         source/TestSubjectIterator.cpp \
         source/TestTreeIterator.cpp \
         source/BenchmarkTests.cpp \
+        source/TestNamingPolicyFilter.cpp \
+        source/TestActivityPolicyFilter.cpp \
+        source/TestSubjectTypeFilter.cpp \
+        source/FunctionCallAnalyzer.cpp
 }
 
 # --------------------------

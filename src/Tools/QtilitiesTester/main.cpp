@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     QMainWindow mainWindow;
     QtilitiesApplication::setMainWindow(&mainWindow);
     LOG_INITIALIZE();
-    Log->setGlobalLogLevel(Logger::Trace);
+    Log->setGlobalLogLevel(Logger::Fatal);
     Log->setIsQtMessageHandler(false);
     Log->toggleQtMsgEngine(false);
     Log->toggleConsoleEngine(false);
@@ -80,6 +80,15 @@ int main(int argc, char *argv[])
 
     BenchmarkTests* benchmarkTests = new BenchmarkTests;
     testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
+
+    TestNamingPolicyFilter* testNamingPolicyFilter = new TestNamingPolicyFilter;
+    testFrontend.addTest(testNamingPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+
+    TestActivityPolicyFilter* testActivityPolicyFilter = new TestActivityPolicyFilter;
+    testFrontend.addTest(testActivityPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+
+    TestSubjectTypeFilter* testSubjectTypeFilter = new TestSubjectTypeFilter;
+    testFrontend.addTest(testSubjectTypeFilter,QtilitiesCategory("Qtilities::Core","::"));
     #endif
 
     // ---------------------------------------------

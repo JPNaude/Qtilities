@@ -396,3 +396,47 @@ void Qtilities::UnitTests::TestObserver::testTreeChildrenContainment() {
     foreach (QObject* obj, children)
         QVERIFY(children_verify.contains(obj) == true);
 }
+
+void Qtilities::UnitTests::TestObserver::testCountModificationStateChanges() {
+    TreeNode node("testCountModificationStateChangesNode");
+    QSignalSpy spy(&node, SIGNAL(modificationStateChanged(bool)));
+
+    node.addItem("1");
+    node.setModificationState(false);
+    node.addItem("2");
+    node.addItem("3");
+    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+    QCOMPARE(spy.count(), 3);
+
+    spy.clear();
+
+    node.startProcessingCycle();
+    node.addItem("4");
+    node.addItem("5");
+    node.addItem("6");
+    TreeNode* nodeA = node.addNode("A");
+    nodeA->addItem("7");
+    TreeNode* nodeB = node.addNode("B");
+    nodeB->addItem("8");
+
+    node.endProcessingCycle();
+    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+    QCOMPARE(spy.count(), 1);
+
+    node.saveToFile("testCountModificationStateChanges.xml");
+    node.deleteAll();
+    spy.clear();
+    node.loadFromFile("testCountModificationStateChanges.xml");
+    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+    QCOMPARE(spy.count(), 1);
+    spy.clear();
+
+    node.deleteAll();
+    spy.clear();
+    //node.startProcessingCycle();
+    node.loadFromFile("testCountModificationStateChanges.xml");
+    //node.endProcessingCycle();
+    //LOG_INFO("testCountModificationStateChanges: Signal Spy: modificationStateChanged(bool) -> count: " + QString::number(spy.count()));
+    QCOMPARE(spy.count(), 1);
+    spy.clear();
+}

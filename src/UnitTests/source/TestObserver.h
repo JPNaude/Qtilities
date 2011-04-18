@@ -35,8 +35,8 @@
 #define TEST_OBSERVER_H
 
 #include "UnitTests_global.h"
-
 #include "ITestable.h"
+#include "FunctionCallAnalyzer.h"
 
 #include <QtTest/QtTest>
 
@@ -51,6 +51,9 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::UnitTests::Interfaces::ITestable)
 
         public:
+            explicit TestObserver() {}
+            ~TestObserver() {}
+
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -61,7 +64,7 @@ namespace Qtilities {
             // ITestable Implementation
             // --------------------------------
             int execTest(int argc = 0, char ** argv = 0);
-             QString testName() const { return tr("Observer"); }
+            QString testName() const { return tr("Observer"); }
 
         private slots:
             // -----------------------------
@@ -110,6 +113,11 @@ namespace Qtilities {
             //! A test which tests treeChildren() function where the tree was constructed using the containment approach.
             void testTreeChildrenContainment();
 
+            // -----------------------------
+            // Modification state tests.
+            // -----------------------------
+            //! A test which counts the number of modification state changed signal emissions for a specific test case..
+            void testCountModificationStateChanges();
         };
     }
 }

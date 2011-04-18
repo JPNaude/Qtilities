@@ -31,8 +31,8 @@
 **
 ****************************************************************************/
 
-#ifndef TEST_TREE_ITERATOR_H
-#define TEST_TREE_ITERATOR_H
+#ifndef TEST_SUBJECT_TYPE_FILTER_H
+#define TEST_SUBJECT_TYPE_FILTER_H
 
 #include "UnitTests_global.h"
 
@@ -44,8 +44,8 @@ namespace Qtilities {
     namespace UnitTests {
         using namespace Interfaces;
 
-        //! Allows testing of Qtilities::Core::TreeIterator.
-        class UNIT_TESTS_SHARED_EXPORT TestTreeIterator: public QObject, public ITestable
+        //! Allows testing of Qtilities::Core::SubjectTypeFilter.
+        class UNIT_TESTS_SHARED_EXPORT TestSubjectTypeFilter: public QObject, public ITestable
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::UnitTests::Interfaces::ITestable)
@@ -61,20 +61,13 @@ namespace Qtilities {
             // ITestable Implementation
             // --------------------------------
             int execTest(int argc = 0, char ** argv = 0);
-             QString testName() const { return tr("TreeIterator"); }
+             QString testName() const { return tr("SubjectTypeFilter"); }
 
         private slots:
-            //! Tests forward interation through a simple tree.
-            void testIterationForwardSimple();
-            //! Tests forward interation through a more complex tree.
-            void testIterationForwardComplex();
-            //! Tests backward interation through a simple tree.
-            void testIterationBackwardSimple();
-            //! Tests backward interation through a more complex tree.
-            void testIterationBackwardComplex();
-
+             //! Tests the basic functionality of the subject type filter class.
+             void testSubjectTypeFiltering();
         };
     }
 }
 
-#endif // TEST_TREE_ITERATOR_H
+#endif // TEST_SUBJECT_TYPE_FILTER_H
