@@ -44,7 +44,7 @@ namespace Qtilities {
     namespace UnitTests {
         using namespace Interfaces;
 
-        //! Allows testing of Qtilities::Core::TestTreeIterator.
+        //! Contains some bencmarking code to benchmark parts of %Qtilities.
         class UNIT_TESTS_SHARED_EXPORT BenchmarkTests: public QObject, public ITestable
         {
             Q_OBJECT

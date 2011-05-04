@@ -44,7 +44,7 @@ namespace Qtilities {
     namespace UnitTests {
         using namespace Interfaces;
 
-        //! Allows testing of Qtilities::Core::TestObserver.
+        //! Allows testing of Qtilities::Core::Observer.
         class UNIT_TESTS_SHARED_EXPORT TestObserver: public QObject, public ITestable
         {
             Q_OBJECT

@@ -44,7 +44,7 @@ namespace Qtilities {
     namespace UnitTests {
         using namespace Interfaces;
 
-        //! Allows testing of Qtilities::Core::NamingPolicyFilter.
+        //! Allows testing of Qtilities::CoreGui::NamingPolicyFilter.
         class UNIT_TESTS_SHARED_EXPORT TestNamingPolicyFilter: public QObject, public ITestable
         {
             Q_OBJECT
