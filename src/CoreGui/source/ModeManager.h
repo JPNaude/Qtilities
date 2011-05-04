@@ -219,8 +219,7 @@ modeListWidget()->setStyleSheet(stylesheet);
               If a mode exists which does not appear in the order list, it will be placed after all modes which appear in the list. In the same way,
               if a mode name is specified in the preferred list which does not appear in the list of modes it will be placed after all modes which appear in the list.
 
-              <b>Important:</b> The modes listed in \p preferred_order must be registered in the mode manager for this function to work. If the modes are not there yet,
-              you must use the QList<int> parameter alternative of this function.
+              <b>Important:</b> The modes listed in \p preferred_order must be registered in the mode manager for this function to work. If the modes are not there yet, you must use the QList<int> parameter alternative of this function.
 
               \note This function will automatically refresh the view if modes are already present at the time the function is called.
               */
@@ -240,8 +239,7 @@ modeListWidget()->setStyleSheet(stylesheet);
               If a mode exists which does not appear in the order list, it will be placed after all modes which appear in the list. In the same way,
               if a mode name is specified in the preferred list which does not appear in the list of modes it will be placed after all modes which appear in the list.
 
-              <b>Important:</b> The modes listed in \p preferred_order must be registered in the mode manager for this function to work. If the modes are not there yet,
-              you must use the QList<int> parameter alternative of this function.
+              <b>Important:</b> The modes listed in \p preferred_order must be registered in the mode manager for this function to work. If the modes are not there yet, you must use the QList<int> parameter alternative of this function.
 
               \note This function will automatically refresh the view if modes are already present at the time the function is called.
               */

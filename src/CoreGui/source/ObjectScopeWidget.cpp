@@ -258,7 +258,10 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
     for (int i = 0; i < observer_count; i++) {
         int id = context_map_prop.contextMap().keys().at(i);
         Observer* observer = OBJECT_MANAGER->observerReference(id);
-        Q_ASSERT(observer);
+        if (!observer)  {
+            LOG_ERROR("Object scope widget: Found invalid observer ID on object: " + d->obj->objectName());
+            continue;
+        }
 
         // Observer Name
         QTableWidgetItem *nameItem = new QTableWidgetItem(observer->observerName(), id);
