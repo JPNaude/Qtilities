@@ -95,7 +95,7 @@ while (itr.hasPrevious()) {
 // >> 1
 \endcode
 
-        \sa SubjectIterator<T>, ConstSubjectIterator<T>
+        \sa SubjectIterator, ConstSubjectIterator
 
         <i>This class was added in %Qtilities v0.3.</i>
         */

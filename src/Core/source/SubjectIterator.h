@@ -46,7 +46,7 @@
 namespace Qtilities {
     namespace Core {
             /*!
-            \class SubjectIterator<T>
+            \class SubjectIterator
             \brief An non-const iterator which iterates throught the subjects of an Observer.
 
             The SubjectIterator allows you to easily iterate over the subjects in an observer in the order shown below:
@@ -55,89 +55,89 @@ namespace Qtilities {
 
             Lets build this example tree:
 
-    \code
-    TreeNode node;
-    TreeItem* item1 = node.addItem("1");
-    TreeItem* item2 = node.addItem("2");
-    node.addItem("3");
-    node.addItem("4");
+\code
+TreeNode node;
+TreeItem* item1 = node.addItem("1");
+TreeItem* item2 = node.addItem("2");
+node.addItem("3");
+node.addItem("4");
 
-    SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item1);
+SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item1);
 
-    qDebug() << itr.current()->objectName();
-    while (itr.hasNext()) {
-        qDebug() << itr.next()->objectName();
-    }
+qDebug() << itr.current()->objectName();
+while (itr.hasNext()) {
+    qDebug() << itr.next()->objectName();
+}
 
-    // In this case the result would be:
-    // >> 1
-    // >> 2
-    // >> 3
-    // >> 4
-    \endcode
+// In this case the result would be:
+// >> 1
+// >> 2
+// >> 3
+// >> 4
+\endcode
 
             It is also possible to specify the current location of your iterator:
 
-    \code
-    SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item2);
+\code
+SubjectIterator<Qtilities::CoreGui::TreeItem> itr(item2);
 
-    // In this case item1 will be skipped:
-    qDebug() << itr.current()->objectName();
-    while (itr.hasNext()) {
-        qDebug() << itr.next()->objectName();
-    }
+// In this case item1 will be skipped:
+qDebug() << itr.current()->objectName();
+while (itr.hasNext()) {
+    qDebug() << itr.next()->objectName();
+}
 
-    // In this case the result would be:
-    // >> 2
-    // >> 3
-    // >> 4
-    \endcode
+// In this case the result would be:
+// >> 2
+// >> 3
+// >> 4
+\endcode
 
             In this simple examples above we didn't need to worry about cases where tree items can have multiple parents. If they do have multiple parents, we must specify the Observer that we are interested in:
 
-    \code
-    TreeNode node;
-    TreeNode* nodeA = node.addNode("A");
-    TreeNode* nodeB = node.addNode("B");
-    nodeA->addItem("1");
-    TreeItem* shared_item = nodeA->addItem("2");
-    nodeA->addItem("3");
-    nodeB->addItem("4");
-    nodeB->addItem("5");
-    nodeB->attachSubject(shared_item);
-    nodeB->addItem("6");
+\code
+TreeNode node;
+TreeNode* nodeA = node.addNode("A");
+TreeNode* nodeB = node.addNode("B");
+nodeA->addItem("1");
+TreeItem* shared_item = nodeA->addItem("2");
+nodeA->addItem("3");
+nodeB->addItem("4");
+nodeB->addItem("5");
+nodeB->attachSubject(shared_item);
+nodeB->addItem("6");
 
-    // If we want to iterate through the subjects in nodeA:
-    SubjectIterator<QObject> itrA(nodeA,SubjectIterator<QObject>::IterateChildren);
+// If we want to iterate through the subjects in nodeA:
+SubjectIterator<QObject> itrA(nodeA,SubjectIterator<QObject>::IterateChildren);
 
-    // In this case item1 will be skipped (approach 1):
-    while (itrA.hasNext()) {
-        qDebug() << itrA.current()->objectName();
-        itrA.next();
-    }
+// In this case item1 will be skipped (approach 1):
+while (itrA.hasNext()) {
+    qDebug() << itrA.current()->objectName();
+    itrA.next();
+}
 
-    // In this case the result would be:
-    // >> 1
-    // >> 2
-    // >> 3
+// In this case the result would be:
+// >> 1
+// >> 2
+// >> 3
 
-    // If we want to iterate through the subjects in nodeB:
-    SubjectIterator<QObject> itrB(nodeB,SubjectIterator<QObject>::IterateChildren);
+// If we want to iterate through the subjects in nodeB:
+SubjectIterator<QObject> itrB(nodeB,SubjectIterator<QObject>::IterateChildren);
 
-    // In this case item1 will be skipped (approach 2):
-    qDebug() << itrB.current()->objectName();
-    while (itrB.hasNext()) {
-        qDebug() << itrB.next()->objectName();
-    }
+// In this case item1 will be skipped (approach 2):
+qDebug() << itrB.current()->objectName();
+while (itrB.hasNext()) {
+    qDebug() << itrB.next()->objectName();
+}
 
-    // In this case the result would be:
-    // >> 4
-    // >> 5
-    // >> 2
-    // >> 6
-    \endcode
+// In this case the result would be:
+// >> 4
+// >> 5
+// >> 2
+// >> 6
+\endcode
 
-            \sa ConstSubjectIterator<T>, TreeIterator<T>
+            \sa ConstSubjectIterator, TreeIterator
 
             <i>This class was added in %Qtilities v0.3.</i>
         */
@@ -296,10 +296,10 @@ namespace Qtilities {
         // ConstSubjectIterator
         // -----------------------------------------------
         /*!
-          \class ConstSubjectIterator<T>
+          \class ConstSubjectIterator
           \brief An non-const iterator which iterates throught the subjects of an Observer.
 
-           \sa SubjectIterator<T>, TreeIterator<T>
+           \sa SubjectIterator, TreeIterator
 
            <i>This class was added in %Qtilities v0.3.</i>
          */

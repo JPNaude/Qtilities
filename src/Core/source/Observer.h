@@ -118,7 +118,7 @@ observerWidget.show();
 
         %Qtilities provides the SubjectIterator and TreeIterator iterators which allows you to iterator over different parts of the tree structure underneath an observer.
 
-        A common request by Qt developers is the ability to easily create and display data based on arbitrary tree structures to users, and to easily interact with users through these trees. It is of course do able using Qt's QAbstractItemModel but its not a trivial tasks and can take time to get right. %Qtilities attempts to provide a easy solution to this request in the form of ready to use classes which allows you to build trees easily. The \ref page_tree_structures page provides a detailed overview of this solution.
+        A common request by Qt developers is the ability to easily create and display data based on arbitrary tree structures to users, and to easily interact with users through these trees. It is of course doable using Qt's QAbstractItemModel but its not a trivial tasks and can take time to get right. %Qtilities attempts to provide an easy solution to this request in the form of ready to use classes which allows you to build trees easily. The \ref page_tree_structures page provides a detailed overview of this solution.
 
         \section observer_subject_filters Subject filters
 
