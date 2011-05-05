@@ -1070,7 +1070,7 @@ void Qtilities::Core::Observer::deleteAll() {
 QVariant Qtilities::Core::Observer::getQtilitiesPropertyValue(const QObject* obj, const char* property_name) const {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to get property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to get property \"" << property_name << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
@@ -1098,7 +1098,7 @@ QVariant Qtilities::Core::Observer::getQtilitiesPropertyValue(const QObject* obj
 bool Qtilities::Core::Observer::setQtilitiesPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to set property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to set property \"" << property_name  << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
@@ -1912,7 +1912,7 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::observerList(QList<
 Qtilities::Core::MultiContextProperty Qtilities::Core::Observer::getMultiContextProperty(const QObject* obj, const char* property_name) {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to get multi-context property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to get multi-context property \"" << property_name  << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
@@ -1930,16 +1930,16 @@ Qtilities::Core::MultiContextProperty Qtilities::Core::Observer::getMultiContext
 bool Qtilities::Core::Observer::setMultiContextProperty(QObject* obj, MultiContextProperty observer_property) {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to set multi context property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to set multi context property \"" << observer_property.propertyName() << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
         if (!obj)
-            return MultiContextProperty();
+            return false;
     #endif
 
     if (!observer_property.isValid()) {
-        qDebug() << "Failed to set multi context property \"" + property_name  + "\" on object, the property is invalid.";
+        qDebug() << "Failed to set multi context property \"" << observer_property.propertyName() << "\" on object, the property is invalid.";
         Q_ASSERT(observer_property.isValid());
         return false;
     }
@@ -1951,7 +1951,7 @@ bool Qtilities::Core::Observer::setMultiContextProperty(QObject* obj, MultiConte
 Qtilities::Core::SharedProperty Qtilities::Core::Observer::getSharedProperty(const QObject* obj, const char* property_name) {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to get shared property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to get shared property \"" << property_name << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
@@ -1969,16 +1969,16 @@ Qtilities::Core::SharedProperty Qtilities::Core::Observer::getSharedProperty(con
 bool Qtilities::Core::Observer::setSharedProperty(QObject* obj, SharedProperty shared_property) {
     #ifndef QT_NO_DEBUG
         if (!obj)
-            qDebug() << "Failed to set shared property \"" + property_name  + "\" on null object";
+            qDebug() << "Failed to set shared property \"" << shared_property.propertyName() << "\" on null object";
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
         if (!obj)
-            return SharedProperty();
+            return false;
     #endif
 
     if (!shared_property.isValid()) {
-        qDebug() << "Failed to set shared property \"" + property_name  + "\" on object, the property is invalid.";
+        qDebug() << "Failed to set shared property \"" << shared_property.propertyName() << "\" on object, the property is invalid.";
         Q_ASSERT(shared_property.isValid());
         return false;
     }
