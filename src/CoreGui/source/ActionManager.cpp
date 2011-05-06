@@ -205,7 +205,7 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     // First check if an action with the specified id already exist:
     if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register action place holder for a command which already exist with ID: ") + id);
-        return 0;
+        return command(id);
     }
 
     // We create a default action. The user can connect to the trigger produced by Command->action() or add backend actions at a later stage:
@@ -260,7 +260,7 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
     // First check if a command with the specified id already exist:
     if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register a shortcut for a command which already exist with ID: ") + id);
-        return 0;
+        return command(id);
     }
 
     QList<int> contexts = active_contexts;
