@@ -146,7 +146,7 @@ properties and it is nicely displayed for each class that your object inherits.
 
 \image html debugging_static_properties.jpg "Static Properties"
 
-Note that %Qtilities must be build without the \p QTILITIES_NO_PROPERTY_BROWSER define for the properties to be show.
+Note that %Qtilities must be build with the \p QTILITIES_PROPERTY_BROWSER define for the properties to be show.
 
 \subsection debugging_object_dynamic_properties Dynamic Properties
 
@@ -158,7 +158,7 @@ the objects in the example application already have some dynamic properties as s
 
 It is also possible to add, edit and remove dynamic properties on your objects.
 
-Note that %Qtilities must be build without the \p QTILITIES_NO_PROPERTY_BROWSER define for the properties to be show.
+Note that %Qtilities must be build with the \p QTILITIES_PROPERTY_BROWSER define for the properties to be show.
 
 \subsection debugging_object_scope Object Scope
 
@@ -196,7 +196,7 @@ When the \p destroyed(QObject*) signal is emitted a notification will be printed
 "Qtilities::ExtensionSystem::ExtensionSystemConfig :: Plugins , destroyed(QObject*) ,  {QObject*}"
 @endcode
 
-Note that %Qtilities must be build without the \p QTILITIES_NO_CONAN define for the analysis to work. If you built it with this define, the buttons will just be grayed out. Also note that Conan supports very specific versions of Qt, thus see the project's page to make sure your version is supported.
+Note that %Qtilities must be build with the \p QTILITIES_CONAN define for the analysis to work. If you built it with this define, the buttons will just be grayed out. Also note that Conan supports very specific versions of Qt, thus see the project's page to make sure your version is supported.
 
 \section debugging_global_application_state_view The Application State Tab
 

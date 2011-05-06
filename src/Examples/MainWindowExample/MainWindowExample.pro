@@ -7,6 +7,7 @@
 QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
+include(../../Dependencies.pri)
 
 QT       += core
 QT       += gui

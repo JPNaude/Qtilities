@@ -257,6 +257,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTabl
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTableEntry::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    Q_UNUSED(doc)
+
     if (!object_node)
         return IExportable::Failed;
 

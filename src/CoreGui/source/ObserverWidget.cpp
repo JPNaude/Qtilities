@@ -169,7 +169,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     //! Used to identify the top level observer. d_observer is current selection parent observer.
     QPointer<Observer> top_level_observer;
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     QPointer<QDockWidget> property_browser_dock;
     QPointer<ObjectPropertyBrowser> property_browser_widget;
     Qt::DockWidgetArea property_editor_dock_area;
@@ -235,7 +235,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     d->property_browser_dock = 0;
     d->property_browser_widget = 0;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
@@ -275,7 +275,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     d->property_browser_dock = 0;
     d->property_browser_widget = 0;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
@@ -782,7 +782,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     d->initialized = true;
     if (!hints_only) {
         // Construct the property browser if neccesarry:
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        #ifdef QTILITIES_PROPERTY_BROWSER
         refreshPropertyBrowser();
         #endif
         installEventFilter(this);
@@ -1101,7 +1101,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSettingsUpdateRequest(const QStri
         readSettings();
 }
 
-#ifndef QTILITIES_NO_PROPERTY_BROWSER
+#ifdef QTILITIES_PROPERTY_BROWSER
 Qtilities::CoreGui::ObjectPropertyBrowser* Qtilities::CoreGui::ObserverWidget::propertyBrowser() {
     return d->property_browser_widget;
 }
@@ -1649,7 +1649,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
     }
 
     d->tree_name_column_delegate->setObserverContext(observer);
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     refreshPropertyBrowser();
     #endif
 }
@@ -2508,12 +2508,12 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         CONTEXT_MANAGER->broadcastState();
 
     // Update the global object list
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     if (!d->property_browser_widget) {
         refreshPropertyBrowser();
     #endif
         updateGlobalActiveSubjects();
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     }
     #endif
 
@@ -2556,7 +2556,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     // the setTreeSelectionParent slot.
     Observer* selection_parent = 0;
     if (d->display_mode == TableView) {
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        #ifdef QTILITIES_PROPERTY_BROWSER
         refreshPropertyBrowser();
         #endif
         selection_parent = d_observer;
@@ -2771,7 +2771,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         d->update_selection_activity = true;
 
         // Update the property browser:
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        #ifdef QTILITIES_PROPERTY_BROWSER
             refreshPropertyBrowser();
         #endif
     } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
@@ -2804,7 +2804,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         d->update_selection_activity = true;
 
         // Update the property browser:
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        #ifdef QTILITIES_PROPERTY_BROWSER
             refreshPropertyBrowser();
         #endif
     }
@@ -2833,7 +2833,7 @@ void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
     handleSearchStringChanged("");
 }
 
-#ifndef QTILITIES_NO_PROPERTY_BROWSER
+#ifdef QTILITIES_PROPERTY_BROWSER
 void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
     // Update the property editor visibility and object
     if (activeHints()->displayFlagsHint() & ObserverHints::PropertyBrowser) {

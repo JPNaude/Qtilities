@@ -39,7 +39,7 @@
 #include <QAction>
 #include <QMessageBox>
 
-#ifndef QTILITIES_NO_CONAN
+#ifdef QTILITIES_CONAN
 #include <Conan.h>
 using namespace conan;
 #endif
@@ -73,13 +73,13 @@ struct Qtilities::Plugins::Debug::DebugWidgetPrivateData {
     CommandEditor       command_editor;
     QPointer<Command>   current_command;
 
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
     QPointer<ConanWidget>   object_analysis_widget;
     QPointer<ConanWidget>   command_analysis_widget;
     QPointer<AboutDialog>   conan_about_dialog;
     #endif
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     QPointer<ObjectPropertyBrowser>         object_property_browser;
     QPointer<ObjectDynamicPropertyBrowser>  object_dynamic_property_browser;
     #else
@@ -146,7 +146,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     connect(d->object_pool_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
 
     // Conan Widgets:
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
         ui->btnAnalyzeCurrentObject->setEnabled(true);
         ui->btnAboutConan->setEnabled(true);
         ui->btnAnalyzeAction->setEnabled(true);
@@ -157,7 +157,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     #endif
 
     // Object Property Browser:
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
         // Object Property Browser:
         d->object_property_browser = new ObjectPropertyBrowser;
 
@@ -270,7 +270,7 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
 
 Qtilities::Plugins::Debug::DebugWidget::~DebugWidget()
 {
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
     if (d->object_analysis_widget)
         delete d->object_analysis_widget;
     if (d->command_analysis_widget)
@@ -325,7 +325,7 @@ void Qtilities::Plugins::Debug::DebugWidget::handle_objectPoolSelectionChanged(Q
         d->current_object = obj;
         d->object_scope_widget.setObject(obj);
 
-        #ifndef QTILITIES_NO_PROPERTY_BROWSER
+        #ifdef QTILITIES_PROPERTY_BROWSER
         if (ui->chkRefreshProperties->isChecked()) {
             d->object_property_browser->setObject(obj);
             d->object_dynamic_property_browser->setObject(obj);
@@ -918,7 +918,7 @@ void Qtilities::Plugins::Debug::DebugWidget::refreshFactories() {
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked()
 {
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
     if (d->current_object) {
         if (!d->object_analysis_widget) {
             d->object_analysis_widget = new ConanWidget();
@@ -934,7 +934,7 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked(
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
 {
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
     //if (!d->conan_about_dialog)
     //    d->conan_about_dialog = new AboutDialog(this);
 
@@ -944,7 +944,7 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
 
 void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
 {
-    #ifndef QTILITIES_NO_CONAN
+    #ifdef QTILITIES_CONAN
     if (d->current_command) {
         if (!d->command_analysis_widget) {
             d->command_analysis_widget = new ConanWidget;
@@ -960,7 +960,9 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeAction_clicked()
 
 void Qtilities::Plugins::Debug::DebugWidget::on_chkRefreshProperties_toggled(bool checked)
 {
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    Q_UNUSED(checked)
+
+    #ifdef QTILITIES_PROPERTY_BROWSER
     if (ui->chkRefreshProperties->isChecked()) {
         d->object_property_browser->setObject(d->current_object);
         d->object_dynamic_property_browser->setObject(d->current_object);

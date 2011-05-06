@@ -38,7 +38,7 @@ UI_DIR = $$QTILITIES_TEMP/UnitTests
 # --------------------------
 # Files only included when Qtilities unit tests must be part of the library
 # --------------------------
-!contains(DEFINES, QTILITIES_NO_UNIT_TESTS) {
+contains(DEFINES, QTILITIES_UNIT_TESTS) {
 HEADERS += source/UnitTestsConstants.h \
         source/UnitTests_global.h \
         source/TestObserver.h \

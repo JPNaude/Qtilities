@@ -27,7 +27,7 @@ UI_DIR = $$QTILITIES_TEMP/CoreGui
 # --------------------------
 # Files only included when Qt Property Browser solution is present
 # --------------------------
-!contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
+contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     HEADERS += source/ObjectPropertyBrowser.h \
                source/ObjectDynamicPropertyBrowser.h
     SOURCES += source/ObjectPropertyBrowser.cpp \

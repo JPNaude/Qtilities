@@ -53,6 +53,8 @@ bool Qtilities::Core::InstanceFactoryInfo::isValid() {
 quint32 MARKER_IFI_CLASS_SECTION = 0xBAADF00D;
 
 bool Qtilities::Core::InstanceFactoryInfo::exportBinary(QDataStream& stream, Qtilities::ExportVersion version) const {
+    Q_UNUSED(version)
+
     stream << MARKER_IFI_CLASS_SECTION;
     stream << d_factory_tag;
     stream << d_instance_tag;
@@ -62,6 +64,8 @@ bool Qtilities::Core::InstanceFactoryInfo::exportBinary(QDataStream& stream, Qti
 }
 
 bool Qtilities::Core::InstanceFactoryInfo::importBinary(QDataStream& stream, Qtilities::ExportVersion version) {
+    Q_UNUSED(version)
+
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_IFI_CLASS_SECTION) {
@@ -80,6 +84,7 @@ bool Qtilities::Core::InstanceFactoryInfo::importBinary(QDataStream& stream, Qti
 }
 
 bool Qtilities::Core::InstanceFactoryInfo::exportXml(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
+    Q_UNUSED(version)
     Q_UNUSED(doc)
 
     if (d_factory_tag != QString(qti_def_FACTORY_QTILITIES))
@@ -92,6 +97,7 @@ bool Qtilities::Core::InstanceFactoryInfo::exportXml(QDomDocument* doc, QDomElem
 }
 
 bool Qtilities::Core::InstanceFactoryInfo::importXml(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
+    Q_UNUSED(version)
     Q_UNUSED(doc)
 
     if (object_node->hasAttribute("FactoryTag"))

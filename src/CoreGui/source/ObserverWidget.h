@@ -478,7 +478,7 @@ categorized_widget->show();
             // Item Widgets Related Functions
             // --------------------------------
         public:
-            #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            #ifdef QTILITIES_PROPERTY_BROWSER
             //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
             /*!
               \sa propertyBrowserDock()
@@ -497,7 +497,7 @@ categorized_widget->show();
             SearchBoxWidget* searchBoxWidget();
 
         public slots:
-            #ifndef QTILITIES_NO_PROPERTY_BROWSER
+            #ifdef QTILITIES_PROPERTY_BROWSER
             //! Sets the desired area of the property editor (if it is used by the observer context).
             /*!
               This area will be used to position the property editor dock widget when the widget is first shown during a session. Afterwards the widget will remember where the dock widget is.

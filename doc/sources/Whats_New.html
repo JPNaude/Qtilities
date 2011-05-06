@@ -66,7 +66,7 @@ A new library called UnitTests was added. The libraries has two goals:
 - It provides two new classes which can be used by developers to simplify their unit testing.
 - It provides a set of tests to test classes in the different %Qtilities modules.
 
-The new \p QTILITIES_NO_UNIT_TESTS define in \p Qtilities.pri allows you to build the UnitTests module without any of the %Qtilities test classes in it, allowing you to use it in your own applications.
+The new \p QTILITIES_UNIT_TESTS define in \p Qtilities.pri allows you to build the UnitTests module with the %Qtilities test classes in it, thus without it you can use the library for your own custom tests.
 
 The Qtilities::UnitTests::TestFrontend class allows you to run any tests implementing Qtilities::UnitTests::Interfaces::ITestable. Below is an example of the test frontent with a number of %Qtilities tests registered in it:
 

@@ -123,6 +123,8 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
 }
 
 IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
+    Q_UNUSED(version)
+
     QDomElement formatting_data = doc->createElement("Formatting");
 
     //if (hasAlignment())
@@ -169,6 +171,8 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QD
 
 IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
     Q_UNUSED(doc)
+    Q_UNUSED(version)
+
     QDomNodeList dataNodes = object_node->childNodes();
     for(int i = 0; i < dataNodes.count(); i++) {
         QDomNode dataNode = dataNodes.item(i);

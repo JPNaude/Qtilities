@@ -6,6 +6,7 @@
 # ***************************************************************************
 QTILITIES += coregui
 include(../../Qtilities.pri)
+include(../../Dependencies.pri)
 
 QT       += core
 QT       += gui

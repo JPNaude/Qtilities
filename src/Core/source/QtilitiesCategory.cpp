@@ -60,6 +60,8 @@ Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importBinar
 }
 
 Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    Q_UNUSED(doc)
+
     object_node->setAttribute("Name",d_name);
     return IExportable::Complete;
 }

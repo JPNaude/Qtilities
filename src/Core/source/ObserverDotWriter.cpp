@@ -203,6 +203,8 @@ bool Qtilities::Core::ObserverDotWriter::addNodeAttribute(QObject* node, const Q
 }
 
 bool Qtilities::Core::ObserverDotWriter::removeNodeAttribute(QObject* node, const QString& attribute) {
+    Q_UNUSED(attribute)
+
     if (!d->observer)
         return false;
 
@@ -218,6 +220,8 @@ bool Qtilities::Core::ObserverDotWriter::removeNodeAttribute(QObject* node, cons
 }
 
 QHash<QString,QString> Qtilities::Core::ObserverDotWriter::nodeAttributes(QObject* node) const {
+    Q_UNUSED(node)
+
     if (!d->observer)
         return QHash<QString,QString>();
 
@@ -256,6 +260,8 @@ bool Qtilities::Core::ObserverDotWriter::addEdgeAttribute(Observer* parent, QObj
 }
 
 bool Qtilities::Core::ObserverDotWriter::removeEdgeAttribute(Observer* parent, QObject* child, const QString& attribute) {
+    Q_UNUSED(attribute)
+
     if (!d->observer)
         return false;
 
@@ -276,6 +282,9 @@ bool Qtilities::Core::ObserverDotWriter::removeEdgeAttribute(Observer* parent, Q
 }
 
 QHash<QString,QString> Qtilities::Core::ObserverDotWriter::edgeAttributes(Observer* parent, QObject* child) const {
+    Q_UNUSED(parent)
+    Q_UNUSED(child)
+
     if (!d->observer)
         return QHash<QString,QString>();
 

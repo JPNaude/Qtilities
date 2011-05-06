@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     observer_widget->setObserverContext(rootNode);
     observer_widget->initialize();
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     // Filter QObject in the property browser:
     if (observer_widget->propertyBrowser()) {
       QStringList filter_list;
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-//#ifndef QTILITIES_NO_PROPERTY_BROWSER
+//#ifdef QTILITIES_PROPERTY_BROWSER
 // Before the observer widget initialization we can specify where the editor should be, and of what type the editor must be:
 /*observer_widget->setPreferredPropertyEditorDockArea(Qt::RightDockWidgetArea);
 observer_widget->setPreferredPropertyEditorType(ObjectPropertyBrowser::TreeBrowser);
@@ -132,7 +132,7 @@ nodeB->displayHints()->setActionHints(action_hints);*/
 //observerC->displayHints()->setActionHints(action_hints);
 
 // After the observer widget was initialized we can access the property editor and call functions on it:
-/*#ifndef QTILITIES_NO_PROPERTY_BROWSER
+/*#ifdef QTILITIES_PROPERTY_BROWSER
 if (observer_widget->propertyBrowser()) {
         QStringList filter_list;
         filter_list << "QObject";

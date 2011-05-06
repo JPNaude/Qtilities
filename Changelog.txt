@@ -4,7 +4,7 @@ Things outstanding for v0.3 release:
 - Property editor must refresh when properties change (see how dynamic one does it and test).
 - Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Object Management Example: Binary project does not work.
-- ObserverDotWriter::removeNodeAttribute() not correctly implemented yet.
+- ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
 - Tree relationship construction is broken in binary, must implement for XML.
 - Pass all unit tests, and maybe add more instead of new features for a while.
 
@@ -296,7 +296,7 @@ Qtilities v0.3 Implemented Changes
         - New application state tab that gives runtime information about Application Modes, Contexts, Action, Factories, Projects etc.
         - The global object pool view was improved and now has different information about the selected object next to the pool view.
         - A new "Plugin Management" tab which allows you to view, manage and create new plugin configuration sets.
-        - The Conan library (http://sourceforge.net/projects/conanforqt/) is now nicely integrated in the Debug plugin and can be controlled through the QTILITIES_NO_CONAN define in Qtilities.pri. This results in the Debug plugin being release only under GPL and not under the Qtilities Dual License.
+        - The Conan library (http://sourceforge.net/projects/conanforqt/) is now nicely integrated in the Debug plugin and can be controlled through the QTILITIES_CONAN define in Dependencies.pri. This results in the Debug plugin being release only under GPL and not under the Qtilities Dual License.
     - Changed project management plugin's default shortcuts to use the standard ones defined in QKeySequence.
     - Main Window Example:
         - The configuration widget is now correctly set using QtilitiesApplication::setConfigWidget().

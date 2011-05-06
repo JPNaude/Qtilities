@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
     QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),scope_widget,SLOT(setObject(QList<QPointer<QObject> >)));
     main_window->addDockWidget(Qt::LeftDockWidgetArea,object_scope_dock);
 
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     QDockWidget* property_browser_dock = new QDockWidget("Object Properties");
     ObjectPropertyBrowser* property_browser = new ObjectPropertyBrowser();
     property_browser_dock->setWidget(property_browser);

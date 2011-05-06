@@ -22,7 +22,7 @@
 
 #include "ObjectPropertyBrowser.h"
 
-#ifndef QTILITIES_NO_PROPERTY_BROWSER
+#ifdef QTILITIES_PROPERTY_BROWSER
 #include <QtilitiesCoreConstants>
 #include <IModificationNotifier>
 

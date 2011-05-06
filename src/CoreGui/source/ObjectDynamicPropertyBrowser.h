@@ -31,7 +31,7 @@
 **
 ****************************************************************************/
 
-#ifndef QTILITIES_NO_PROPERTY_BROWSER
+#ifdef QTILITIES_PROPERTY_BROWSER
 
 #ifndef ObjectDynamicPropertyBrowser_H
 #define ObjectDynamicPropertyBrowser_H

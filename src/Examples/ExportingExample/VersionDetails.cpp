@@ -114,8 +114,8 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::Examples::ExportingExample::Vers
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingExample::VersionDetails::exportXml(QDomDocument* doc, QDomElement* object_node) const {
-    if (applicationExportVersion() < 0)
-        return IExportable::FailedTooOld;
+    //if (applicationExportVersion() < 0)
+    //    return IExportable::FailedTooOld;
     if (applicationExportVersion() > 2)
         return IExportable::FailedTooNew;
 
@@ -140,8 +140,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingE
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    if (applicationExportVersion() < 0)
-        return IExportable::FailedTooOld;
+    //if (applicationExportVersion() < 0)
+    //    return IExportable::FailedTooOld;
     if (applicationExportVersion() > 2)
         return IExportable::FailedTooNew;
 

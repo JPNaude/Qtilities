@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
     QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
     SideViewerWidgetFactory* object_scope_side_widget_helper = new SideViewerWidgetFactory(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
     OBJECT_MANAGER->registerObject(object_scope_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
-    #ifndef QTILITIES_NO_PROPERTY_BROWSER
+    #ifdef QTILITIES_PROPERTY_BROWSER
     SideViewerWidgetFactory* property_editor_side_widget_helper = new SideViewerWidgetFactory(&ObjectPropertyBrowser::factory,"Property Browser",modes,modes);
     OBJECT_MANAGER->registerObject(property_editor_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #endif

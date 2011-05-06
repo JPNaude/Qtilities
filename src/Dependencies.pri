@@ -27,12 +27,12 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # http://qt.gitorious.org/qt-solutions
 # Tested with v2.6.
 # --------------------------
-# Builds Qtilities without the ObjectPropertyBrowser and
+# Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
-# don't need the Property Browser Solution.
-# DEFINES += QTILITIES_NO_PROPERTY_BROWSER
+# need the Qt Property Browser Solution.
+# DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
-!contains(DEFINES, QTILITIES_NO_PROPERTY_BROWSER) {
+contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
     QT_SOLUTIONS_PATH = $$QTILITIES_DEPENDENCIES/qt-solutions
     PROPERTY_EDITOR_BASE = $$QT_SOLUTIONS_PATH/qtpropertybrowser
@@ -58,12 +58,12 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 #
 # Integrates the Conan Library into the debug widget:
 # --------------------------
-# Builds Qtilities without Conan library integrated into the debug plugin.
+# Builds Qtilities with the Conan library integrated into the debug plugin.
 # Note that this integration was only tested in Qt 4.7.x on Windows XP 32bit.
-DEFINES += QTILITIES_NO_CONAN
+# DEFINES += QTILITIES_CONAN
 # --------------------------
 
-!contains(DEFINES, QTILITIES_NO_CONAN) {
+contains(DEFINES, QTILITIES_CONAN) {
     CONAN_BASE = $$QTILITIES_DEPENDENCIES/conanforqt/Conan
     INCLUDEPATH += $$CONAN_BASE/include
 
