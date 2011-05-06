@@ -1,0 +1,87 @@
+# ***************************************************************************
+# Copyright (c) 2009-2011, Jaco Naude
+#
+# See http://www.qtilities.org/licensing.html for licensing details.
+#
+# ***************************************************************************
+
+This file provides some tips on how to set up your Gitorious integration. It
+might be common knowledge for some, but if you don't know how to do it, it 
+can take ages to figure out. Thus this file provides some lessons 
+learned and howtos.
+
+# ***************************************************************************
+#  1. Creating a personal clone of Qtilities.
+# ***************************************************************************
+This is needed if you want to contribute to Qtilities. This is usefull in
+cases where you find bugs or improve code in Qtilities and you want to c
+reate merge requests for your code to be merged into Qtilities.
+
+Steps:
+1) Create an account on http://www.gitorious.org/ by clicking on "Register" 
+   at the top of the page.
+2) Once you are logged into your account, go to 
+   https://gitorious.org/qtilities and select "Clone repository"
+3) Enter a name for your clone and then create it.
+4) Your personal clone will now be created and accessable from the 
+   main Qtilities page at https://gitorious.org/qtilities.
+
+In order to commit to your clone, see the section that follows.
+
+# ***************************************************************************
+#  2. Committing to your own clone of Qtilities.
+# ***************************************************************************
+Once you've created your own repository clone, you can commit changes to it.
+To this you need set up SSH authentication by creating a pair of private and
+public keys. You will register the public key in your account at Gitorious 
+and when you commit the private key on your machine will be used for
+authentication.
+
+Steps Linux (Tested on Ubuntu 11.04):
+1) Make sure you have SSH installed properly.
+2) Next open a terminal window and type the following to generate a pair of
+   keys:
+   
+   >> ssh-keygen -t dsa
+   
+   The following will appear:
+   --------------------------------------------------------------------------
+   >> Generating public/private dsa key pair.
+   >> Enter file in which to save the key (/home/username/.ssh/id_dsa):
+   --------------------------------------------------------------------------
+
+   The easiest thing to do is to just press enter, which will store the files
+   in the default .ssh location on your machine. Next you will be asked for
+   a passphrase. This is used every time you load the key. For the example 
+   output below and empty passphrase was used.
+   
+   --------------------------------------------------------------------------
+   >> Enter passphrase (empty for no passphrase): 
+   >> Enter same passphrase again:
+   --------------------------------------------------------------------------   
+   
+   Finaly the following will be printed giving you the information on where 
+   your key pair was placed.
+
+   --------------------------------------------------------------------------
+   >> Your identification has been saved in /home/username/.ssh/id_dsa.
+   >> Your public key has been saved in /home/username/.ssh/id_dsa.pub.
+   >> The key fingerprint is:
+   >> 5b:ab:73:32:9e:b8:8c:4b:29:dc:2a:2b:8c:2f:4e:45 username@ubuntu   
+   --------------------------------------------------------------------------   
+   
+   You can now view the two keys by going to your .ssh/ directory like this:
+   >> cd .ssh/
+
+3) To register your public key on Gitorious go to your dashboard page on 
+   Gitorious and click on "Manage SSH keys".
+4) Next click on "Add SSH key" on the right side of the page.
+5) In the input box provided for your public key details, paste the exact
+   contents of the .pub file that was created.
+6) Save the key and now you are ready to go. You can commit to your
+   clone repository using the following command:
+   
+   >> git push git@gitorious.org:my_qtilities_clone/my_qtilities_clone.git
+   
+   You can verify the push url on your clone repository page on Gitorious.
+   
