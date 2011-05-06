@@ -1939,7 +1939,7 @@ bool Qtilities::Core::Observer::setMultiContextProperty(QObject* obj, MultiConte
     #endif
 
     if (!observer_property.isValid()) {
-        qDebug() << "Failed to set multi context property \"" << observer_property.propertyName() << "\" on object, the property is invalid.";
+        qDebug() << "Failed to set multi context property on object, the property is invalid.";
         Q_ASSERT(observer_property.isValid());
         return false;
     }
@@ -1978,7 +1978,7 @@ bool Qtilities::Core::Observer::setSharedProperty(QObject* obj, SharedProperty s
     #endif
 
     if (!shared_property.isValid()) {
-        qDebug() << "Failed to set shared property \"" << shared_property.propertyName() << "\" on object, the property is invalid.";
+        qDebug() << "Failed to set shared property on object, the property is invalid.";
         Q_ASSERT(shared_property.isValid());
         return false;
     }
