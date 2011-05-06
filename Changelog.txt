@@ -2,11 +2,11 @@
 Things outstanding for v0.3 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Probleem met QtilitiesCore. Om te sien verander TreeNode.h om QtilitiesCore te include.
 - Object Management Example: Binary project does not work.
 - ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
 - Tree relationship construction is broken in binary, must implement for XML.
 - Pass all unit tests, and maybe add more instead of new features for a while.
+- NamingPolicyFilter should get a function to set the valdiation checks done, even when not in a processing cycle.
 
 - Docs & finalization stuff:
     - License header for GPL only files...
@@ -38,10 +38,9 @@ Qtilities v0.3 Implemented Changes
     - Got rid of all the "warning: type qualifiers ignored on function return type" & unused parameter warnings when building with gcc.
     - Ubuntu: Fixed icon display & resource loading problems.
     - Added this changes.txt file.
-    - Added needed Q_UNUSED on unused variables throughout the libraries.
     - All constants defined by Qtilities now starts with "qti_".
     - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
-	- All dependency build configuration options are now defined in Dependencies.pri.
+    - All dependency build configuration options are now defined in Dependencies.pri.
 
     ============================
     QtilitiesLogging:
@@ -64,7 +63,7 @@ Qtilities v0.3 Implemented Changes
     Bug Fixes:
     - Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
     - Fixed crash in FileLoggerEngine::finalize() if it had no formatting engine.
-    - Fixed bug where Logger::enableEngine() and Logger::disableEngine() was switched around, thus they did the opposite of what they had to do.
+    - Fixed bug where Logger::enableEngine() and Logger::disableEngine() were switched around, thus they did the opposite of what they had to do.
 
     ============================
     QtilitiesCore:
@@ -209,7 +208,7 @@ Qtilities v0.3 Implemented Changes
         - NamingPolicyFilter::evaluateName() got a new parameter which contains a reference to the current object whose name is being evaluated in the contexts. In some cases during subclassing NamingPolicyFilter this is usefull, in others the default parameter can just be used.
         - NamingPolicyFilter::processingCycleValdiationChecks() added in order to improve speeds when importing big observers with subject names that are known to be correct.
     - Action Management
-        - The action manager was improved. It now detects if registered actions are deleted and removes them accoringly.
+        - The action manager was improved. It now detects if registered actions are deleted and removes them accordingly.
         - Commands can now be assigned categories in which they will be displayed in the command editor.
         - The command editor got an overhaul and is much more compact now, giving more screen space to the actual command list.
         - Commands with ambigious shortcuts now have their shortcuts highlighted in red in the command editor.
@@ -279,6 +278,7 @@ Qtilities v0.3 Implemented Changes
 
     Bug Fixes:
     - Fixed memory leak in ProjectManager.
+    - Fixed bug where ObserverProjectItemWrapper could be modified without the project showing that it was modified.
 
     ============================
     UnitTests:
