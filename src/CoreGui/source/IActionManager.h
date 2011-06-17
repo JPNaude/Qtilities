@@ -101,7 +101,7 @@ namespace Qtilities {
                   \param id The internal id used to represent the action. This is the name used to display the action in the action manager.
                   \param action The backend action associated with the id & context pairing.
                   \param context The context for which this action should be registered. The action manager is linked with the context manager and when the context changes, all the actions will be updated for the new context. When an action does not have a backend action specified for a given context, it will be disabled. Leaving the context the default QList<int>() will register it in the standard application context (always active).
-                  \return The command created for the given id.
+                  \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
 
                   \note This function will set the shortcut of the backend action to QKeySequence() to avoid ambigious action triggers when the frontend action and the backend action are both active. If the frontend action does not have an shortcut associated with it yet, it will inherit the shortcut of \p action. If the frontend already contains an action which is different than the shortcut provided by \p action, an error message will be printed and the original shortcut will be used.
 
@@ -118,7 +118,7 @@ namespace Qtilities {
                   \param user_text The user visible text that will be used for this command.
                   \param shortcut A shortcut to be associated with the command.
                   \param context Pass an empty QList<int>() if you do want to use the action as an mutli backed action, pass the needed context otherwise.
-                  \return The command created for the given id.
+                  \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
                   */
                 virtual Command *registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence = QKeySequence(), const QList<int> &context = QList<int>()) = 0;
                 //! Function to register a shortcut in the action manager.
@@ -127,7 +127,7 @@ namespace Qtilities {
                   \param user_text The user visible text that will be used for this command.
                   \param shortcut A reference to the shortcut to be registered. If this reference is invalid, this function does nothing.
                   \param active_contexts Pass an empty QList<int>() if you do want to use the shortcut to be always active.
-                  \return The command created for the given id.
+                  \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
                   */
                 virtual Command *registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>()) = 0;
                 //! Access function for actions and shortcuts.
