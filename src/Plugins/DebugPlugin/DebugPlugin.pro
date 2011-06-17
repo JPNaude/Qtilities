@@ -9,7 +9,6 @@
 QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
-include(../../Dependencies.pri)
 
 CONFIG(debug, debug|release) {
     TARGET = DebugPlugind

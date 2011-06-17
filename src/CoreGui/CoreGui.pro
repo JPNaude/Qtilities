@@ -7,7 +7,7 @@
 # ***************************************************************************
 QTILITIES += core
 include(../Qtilities.pri)
-include(../Dependencies.pri)
+
 INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
 
 CONFIG += qt \

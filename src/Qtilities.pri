@@ -27,6 +27,7 @@ QTILITIES_FILE_VER      = -0.3
 #   Dependencies:
 #   *************************************************************************
 #   See Dependencies.pri for dependency configuration.
+include(Dependencies.pri)
 #
 #   *************************************************************************
 #   General:
