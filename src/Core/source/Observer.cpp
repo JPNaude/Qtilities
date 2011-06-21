@@ -68,6 +68,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     observerData->observer_description = observer_description;
     observerData->access_mode_scope = GlobalScope;
     observerData->access_mode = FullAccess;
+    observerData->object_deletion_policy = DeleteImmediately;
     observerData->filter_subject_events_enabled = true;
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
 
@@ -1308,6 +1309,15 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(Qtil
     return Observer::InvalidAccess;
 }
 
+void Qtilities::Core::Observer::setObjectDeletionPolicy(ObjectDeletionPolicy object_deletion_policy) {
+    observerData->object_deletion_policy = (int) object_deletion_policy;
+}
+
+
+Qtilities::Core::Observer::ObjectDeletionPolicy Qtilities::Core::Observer::objectDeletionPolicy() const {
+    return (ObjectDeletionPolicy) observerData->object_deletion_policy;
+}
+
 void Qtilities::Core::Observer::setAccessModeScope(AccessModeScope access_mode_scope) {
     if (observerData->access_mode_scope == access_mode_scope)
         return;
@@ -1867,6 +1877,26 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::stringToAccessM
     return InvalidAccess;
 }
 
+QString Qtilities::Core::Observer::objectDeletionPolicyToString(ObjectDeletionPolicy object_deletion_policy) {
+    if (object_deletion_policy == DeleteImmediately) {
+        return "DeleteImmediately";
+    } else if (object_deletion_policy == DeleteLater) {
+        return "DeleteLater";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::Observer::ObjectDeletionPolicy Qtilities::Core::Observer::stringToObjectDeletionPolicy(const QString& object_deletion_policy_string) {
+    if (object_deletion_policy_string == "DeleteImmediately") {
+        return DeleteImmediately;
+    } else if (object_deletion_policy_string == "DeleteLater") {
+        return DeleteLater;
+    }
+    Q_ASSERT(0);
+    return DeleteLater;
+}
+
 QString Qtilities::Core::Observer::accessModeScopeToString(AccessModeScope access_mode_scope) {
     if (access_mode_scope == GlobalScope) {
         return "GlobalScope";
@@ -2048,6 +2078,12 @@ void Qtilities::Core::Observer::deleteObject(QObject* object) {
 
     object->disconnect(this);
     object->removeEventFilter(this);
-    observerData->subject_list.removeOne(object);
-    object->deleteLater();
+
+    if ((ObjectDeletionPolicy) observerData->object_deletion_policy == DeleteLater) {
+        observerData->subject_list.removeOne(object);
+        object->deleteLater();
+    } else if ((ObjectDeletionPolicy) observerData->object_deletion_policy == DeleteImmediately) {
+        // The destroyed() signal on the object will cause it to be removed from the subject_list immediately.
+        delete object;
+    }
 }

@@ -89,7 +89,8 @@ namespace Qtilities {
                 factory_data(InstanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_OBSERVER,QString())),
                 process_cycle_active(false),
                 is_modified(false),
-                observer(obs)
+                observer(obs),
+                object_deletion_policy(0)
             {
                 subject_list.setObjectName(observer_name);
             }
@@ -108,7 +109,8 @@ namespace Qtilities {
                 factory_data(other.factory_data),
                 process_cycle_active(other.process_cycle_active),
                 is_modified(other.is_modified),
-                observer(other.observer) {}
+                observer(other.observer),
+                object_deletion_policy(other.object_deletion_policy) {}
 
             // --------------------------------
             // IObjectBase Implementation
@@ -174,6 +176,7 @@ namespace Qtilities {
             bool is_modified;
             // Keeps track of its parent observer:
             Observer* observer;
+            int object_deletion_policy;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

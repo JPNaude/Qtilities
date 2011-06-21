@@ -391,6 +391,20 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             static QString accessModeToString(AccessMode access_mode);
             //! Function which returns the AccessMode associated with a string.
             static AccessMode stringToAccessMode(const QString& access_mode_string);
+            //! The possible deletion methods that Observer can use when deleting objects attached to it.
+            /*!
+              By default DeleteLater is used, thus it is safe when deleting objects living in threads other than the observer itself. One drawback of using DeleteLater is that the ObserverWidgets viewing your Observer will only be updated when your object is actually deleted. This can cause your views to take a while to be updated. If you are sure that your objects live in the same thread as the observer you should use DeleteImmediately to avoid this behavior.
+
+              \sa setObjectDeletionPolicy(), objectDeletionPolicy()
+              */
+            enum ObjectDeletionPolicy {
+                DeleteImmediately = 0,     /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
+                DeleteLater = 1            /*!< The observer is read only to the user. */
+            };
+            //! Function which returns a string associated with a specific ObjectDeletionPolicy.
+            static QString objectDeletionPolicyToString(ObjectDeletionPolicy object_deletion_policy);
+            //! Function which returns the ObjectDeletionPolicy associated with a string.
+            static ObjectDeletionPolicy stringToObjectDeletionPolicy(const QString& object_deletion_policy_string);
             //! The access mode scope of the observer.
             /*! When using categories in an observer, access modes can be set for each individual category.
               Categories which does not have access modes set will use the global access mode.
@@ -763,6 +777,18 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \return The global access mode when category an empty category is used for \p category. Otherwise the access mode for a specific category. The global access mode is FullAccess by default. When an invalid category (does not exist in this context) is sent Observer::InvalidAccess is returned and an error message is printed.
               */
             AccessMode accessMode(QtilitiesCategory category = QtilitiesCategory()) const;
+            //! Function to set the observer's object deletion policy.
+            /*!
+              \sa objectDeletionPolicy()
+              */
+            void setObjectDeletionPolicy(ObjectDeletionPolicy object_deletion_policy);
+            //! Function to get the observer's object deletion policy.
+            /*!
+              Default is DeleteLater.
+
+              \sa setObjectDeletionPolicy()
+              */
+            ObjectDeletionPolicy objectDeletionPolicy() const;
             //! Function to set the observer's access mode scope.
             void setAccessModeScope(AccessModeScope access_mode_scope);
             //! Function to return the access mode scope of the observer.

@@ -63,7 +63,7 @@ namespace Qtilities {
             // ITestable Implementation
             // --------------------------------
             int execTest(int argc = 0, char ** argv = 0);
-             QString testName() const { return tr("Exporting of all exportable classes"); }
+            QString testName() const { return tr("Exporting of all exportable classes"); }
 
         private slots:
             // --------------------------------------------------------------------

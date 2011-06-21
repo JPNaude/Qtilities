@@ -74,6 +74,7 @@ Qtilities v0.3 Implemented Changes
 
     Improvements and Notable Changes:
     - Observers
+        - New ObjectDeletionPolicy which allows control of how Observers delete objects attached to them. Thread safe deletes are now possible.
         - New processingCycleStarted() and processingCycleEnded() signals which are emitted when processing cycles starts and ends on the observer.
         - The << stream operator is now overloaded and can be used to attach subjects to Observers.
         - Observer::specificObserverOwnership attachment now makes the observer to which is attached the QObject parent() of the subject.

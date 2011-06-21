@@ -204,10 +204,11 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
         // Observer Data
         // -----------------------------------
         stream << MARKER_OBS_DATA_SECTION;
-        stream << (qint32) subject_limit;
+        stream << (quint32) subject_limit;
         stream << observer_description;
-        stream << (qint32) access_mode;
-        stream << (qint32) access_mode_scope;
+        stream << (quint32) access_mode;
+        stream << (quint32) access_mode_scope;
+        stream << (quint32) object_deletion_policy;
 
         // Stream categories
         stream << (quint32) categories.count();
@@ -422,6 +423,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         access_mode = ui32;
         stream >> ui32;
         access_mode_scope = ui32;
+        stream >> ui32;
+        object_deletion_policy = ui32;
 
         // Stream categories
         stream >> ui32;
@@ -639,6 +642,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
             observer_data.setAttribute("AccessMode",Observer::accessModeToString((Observer::AccessMode) access_mode));
         if (access_mode != Observer::GlobalScope)
             observer_data.setAttribute("AccessModeScope",Observer::accessModeScopeToString((Observer::AccessModeScope) access_mode_scope));
+        if (object_deletion_policy != Observer::DeleteImmediately)
+            observer_data.setAttribute("ObjectDeletionPolicy",Observer::objectDeletionPolicyToString((Observer::ObjectDeletionPolicy) object_deletion_policy));
 
         // Visitor ID (only when needed)
         if (export_flags & ExportVisitorIDs) {
@@ -860,6 +865,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                         access_mode = Observer::stringToAccessMode(dataChild.attribute("AccessMode"));
                     if (dataChild.hasAttribute("AccessModeScope"))
                         access_mode_scope = Observer::stringToAccessModeScope(dataChild.attribute("AccessModeScope"));
+                    if (dataChild.hasAttribute("ObjectDeletionPolicy"))
+                        object_deletion_policy = Observer::stringToObjectDeletionPolicy(dataChild.attribute("ObjectDeletionPolicy"));
 
                     // Category stuff:
                     QDomNodeList childNodes = dataChild.childNodes();
