@@ -45,7 +45,7 @@ namespace Qtilities {
         \class qti_private_FunctionCallAnalyzer
         \brief Tests can inherit from this base class in order to get access to function call analysis functions.
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class UNIT_TESTS_SHARED_EXPORT qti_private_FunctionCallAnalyzer
         {

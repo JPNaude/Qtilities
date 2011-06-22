@@ -34,57 +34,29 @@
 #ifndef ABOUTWINDOW_H
 #define ABOUTWINDOW_H
 
-#include "QtilitiesCoreGui_global.h"
-
 #include <QWidget>
 
 namespace Ui {
-    class AboutWindow;
+    class qti_private_AboutWindow;
 }
 
 namespace Qtilities {
     namespace CoreGui {
         /*!
-        \class AboutWindow
-        \brief About widget which displays information about the application.
-
-        Below is an example of the about window displayed when calling the Qtilities::CoreGui::QtilitiesCoreGui::aboutQtilities() slot.
-
-        \image html about_window.jpg "About Window"
-        \image latex about_window.eps "About Window" width=5in
+        \class qti_private_AboutWindow
+        \brief About %Qtilities window.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT AboutWindow : public QWidget {
+        class qti_private_AboutWindow : public QWidget {
             Q_OBJECT
         public:
-            AboutWindow(QWidget *parent = 0);
-            ~AboutWindow();
-
-            //! Sets the copyright string to be displayed.
-            void setCopyright(const QString& copyright);
-            //! Sets the logo to be displayed.
-            void setLogo(const QPixmap& pixmap);
-            //! Sets the string to be displayed in the version label.
-            void setVersionString(const QString& version_string);
-            //! Sets the string to be displayed as an extended description. When an empty string is set, the extended description label will not be visible.
-            void setExtendedDescription(const QString& extended_description);
-            //! Sets the website address to be displayed. If no displayed name is specified, the url will be used.
-            void setWebsite(const QString& url, const QString& displayed_name = QString());
-            //! Indicates if the logo must be shown. If not, the application name will be shown in place of the logo.
-            /*!
-              \sa setLogoVisible()
-              */
-            bool logoVisible() const;
-            //! Sets the visibility of the logo.
-            /*!
-              \sa logoVisible()
-              */
-            void setLogoVisible(bool is_visible);
+            qti_private_AboutWindow(QWidget *parent = 0);
+            ~qti_private_AboutWindow();
 
         protected:
             void changeEvent(QEvent *e);
 
         private:
-            Ui::AboutWindow *ui;
+            Ui::qti_private_AboutWindow *ui;
         };
     }
 }

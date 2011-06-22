@@ -48,10 +48,10 @@ int Qtilities::UnitTests::TestExporting::execTest(int argc, char ** argv) {
 
 void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, IExportable* obj_import_binary, IExportable* obj_import_xml, Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name) {
     QDataStream::Version data_stream_write_version;
-    if (write_version == Qtilities::Qtilities_0_3)
+    if (write_version == Qtilities::Qtilities_1_0)
         data_stream_write_version =  QDataStream::Qt_4_7;
     QDataStream::Version data_stream_read_version;
-    if (read_version == Qtilities::Qtilities_0_3)
+    if (read_version == Qtilities::Qtilities_1_0)
         data_stream_read_version =  QDataStream::Qt_4_7;
 
     QList<QPointer<QObject> > import_list;
@@ -116,13 +116,13 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
 }
 
 // --------------------------------------------------------------------
-// Test Qtilities_0_3 against Qtilities_0_3
-// That is, exported with Qtilities_0_3 and imported with Qtilities_0_3
+// Test Qtilities_1_0 against Qtilities_1_0
+// That is, exported with Qtilities_1_0 and imported with Qtilities_1_0
 // --------------------------------------------------------------------
 
-void Qtilities::UnitTests::TestExporting::testInstanceFactoryInfo_0_3_0_3() {
-    Qtilities::ExportVersion write_version = Qtilities::Qtilities_0_3;
-    Qtilities::ExportVersion read_version = Qtilities::Qtilities_0_3;
+void Qtilities::UnitTests::TestExporting::testInstanceFactoryInfo_1_0_1_0() {
+    Qtilities::ExportVersion write_version = Qtilities::Qtilities_1_0;
+    Qtilities::ExportVersion read_version = Qtilities::Qtilities_1_0;
 
     InstanceFactoryInfo obj_source;
     obj_source.d_factory_tag = "TestFactoryTag";
@@ -164,7 +164,7 @@ void Qtilities::UnitTests::TestExporting::testInstanceFactoryInfo_0_3_0_3() {
     QVERIFY(obj_source == obj_import_xml);
 }
 
-void Qtilities::UnitTests::TestExporting::testActivityPolicyFilter_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testActivityPolicyFilter_1_0_1_0() {
     ActivityPolicyFilter* obj_source = new ActivityPolicyFilter;
     ActivityPolicyFilter* obj_import_binary = new ActivityPolicyFilter;
     ActivityPolicyFilter* obj_import_xml = new ActivityPolicyFilter;
@@ -180,7 +180,7 @@ void Qtilities::UnitTests::TestExporting::testActivityPolicyFilter_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testActivityPolicyFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testActivityPolicyFilter_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -201,7 +201,7 @@ void Qtilities::UnitTests::TestExporting::testActivityPolicyFilter_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testCategoryLevel_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testCategoryLevel_1_0_1_0() {
     CategoryLevel* obj_source = new CategoryLevel;
     CategoryLevel* obj_import_binary = new CategoryLevel;
     CategoryLevel* obj_import_xml = new CategoryLevel;
@@ -212,7 +212,7 @@ void Qtilities::UnitTests::TestExporting::testCategoryLevel_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testCategoryLevel_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCategoryLevel_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -233,7 +233,7 @@ void Qtilities::UnitTests::TestExporting::testCategoryLevel_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testNamingPolicyFilter_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testNamingPolicyFilter_1_0_1_0() {
     NamingPolicyFilter* obj_source = new NamingPolicyFilter;
     NamingPolicyFilter* obj_import_binary = new NamingPolicyFilter;
     NamingPolicyFilter* obj_import_xml = new NamingPolicyFilter;
@@ -246,7 +246,7 @@ void Qtilities::UnitTests::TestExporting::testNamingPolicyFilter_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testNamingPolicyFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testNamingPolicyFilter_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -267,7 +267,7 @@ void Qtilities::UnitTests::TestExporting::testNamingPolicyFilter_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testQtilitiesCategory_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testQtilitiesCategory_1_0_1_0() {
     QtilitiesCategory* obj_source = new QtilitiesCategory;
     QtilitiesCategory* obj_import_binary = new QtilitiesCategory;
     QtilitiesCategory* obj_import_xml = new QtilitiesCategory;
@@ -279,7 +279,7 @@ void Qtilities::UnitTests::TestExporting::testQtilitiesCategory_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testQtilitiesCategory_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testQtilitiesCategory_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -300,7 +300,7 @@ void Qtilities::UnitTests::TestExporting::testQtilitiesCategory_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testObserverHints_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testObserverHints_1_0_1_0() {
     ObserverHints* obj_source = new ObserverHints;
     ObserverHints* obj_import_binary = new ObserverHints;
     ObserverHints* obj_import_xml = new ObserverHints;
@@ -330,7 +330,7 @@ void Qtilities::UnitTests::TestExporting::testObserverHints_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverHints_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverHints_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -351,7 +351,7 @@ void Qtilities::UnitTests::TestExporting::testObserverHints_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testMultiContextProperty_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testMultiContextProperty_1_0_1_0() {
     MultiContextProperty* obj_source = new MultiContextProperty("TestProperty");
     MultiContextProperty* obj_import_binary = new MultiContextProperty;
     MultiContextProperty* obj_import_xml = new MultiContextProperty;
@@ -366,7 +366,7 @@ void Qtilities::UnitTests::TestExporting::testMultiContextProperty_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testMultiContextProperty_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testMultiContextProperty_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -386,7 +386,7 @@ void Qtilities::UnitTests::TestExporting::testMultiContextProperty_0_3_0_3() {
     delete obj_import_binary;
 }
 
-void Qtilities::UnitTests::TestExporting::testRelationalTableEntry_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testRelationalTableEntry_1_0_1_0() {
     RelationalTableEntry* obj_source = new RelationalTableEntry;
     RelationalTableEntry* obj_import_binary = new RelationalTableEntry;
     RelationalTableEntry* obj_import_xml = new RelationalTableEntry;
@@ -407,7 +407,7 @@ void Qtilities::UnitTests::TestExporting::testRelationalTableEntry_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testRelationalTableEntry_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testRelationalTableEntry_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -428,7 +428,7 @@ void Qtilities::UnitTests::TestExporting::testRelationalTableEntry_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testObserverRelationalTable_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testObserverRelationalTable_1_0_1_0() {
     TreeNode* rootNode = new TreeNode("Root");
     TreeNode* parentNode1 = rootNode->addNode("Parent 1");
     TreeNode* parentNode2 = rootNode->addNode("Parent 2");
@@ -446,7 +446,7 @@ void Qtilities::UnitTests::TestExporting::testObserverRelationalTable_0_3_0_3() 
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverRelationalTable_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverRelationalTable_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -467,7 +467,7 @@ void Qtilities::UnitTests::TestExporting::testObserverRelationalTable_0_3_0_3() 
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testSharedProperty_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testSharedProperty_1_0_1_0() {
     SharedProperty* obj_source = new SharedProperty("SharedProperty");
     SharedProperty* obj_import_binary = new SharedProperty;
     SharedProperty* obj_import_xml = new SharedProperty;
@@ -478,7 +478,7 @@ void Qtilities::UnitTests::TestExporting::testSharedProperty_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testSharedProperty_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSharedProperty_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -498,7 +498,7 @@ void Qtilities::UnitTests::TestExporting::testSharedProperty_0_3_0_3() {
     delete obj_import_binary;
 }
 
-void Qtilities::UnitTests::TestExporting::testSubjectTypeFilter_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testSubjectTypeFilter_1_0_1_0() {
     SubjectTypeFilter* obj_source = new SubjectTypeFilter;
     SubjectTypeFilter* obj_import_binary = new SubjectTypeFilter;
     SubjectTypeFilter* obj_import_xml = new SubjectTypeFilter;
@@ -514,7 +514,7 @@ void Qtilities::UnitTests::TestExporting::testSubjectTypeFilter_0_3_0_3() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testSubjectTypeFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSubjectTypeFilter_0_3_0_3");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -535,7 +535,7 @@ void Qtilities::UnitTests::TestExporting::testSubjectTypeFilter_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testTreeFileItem_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testTreeFileItem_1_0_1_0() {
     TreeFileItem* obj_source = new TreeFileItem;
     TreeFileItem* obj_import_binary = new TreeFileItem;
     TreeFileItem* obj_import_xml = new TreeFileItem;
@@ -550,7 +550,7 @@ void Qtilities::UnitTests::TestExporting::testTreeFileItem_0_3_0_3() {
     obj_source->setToolTip("Example Tool Tip");
     obj_source->setWhatsThis("Example Whats This");
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testTreeFileItem_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeFileItem_0_3_0_3");
 
     // Compare output files:
     QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_0_3_0_3");
@@ -567,7 +567,7 @@ void Qtilities::UnitTests::TestExporting::testTreeFileItem_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testTreeItem_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testTreeItem_1_0_1_0() {
     TreeItem* obj_source = new TreeItem;
     TreeItem* obj_import_binary = new TreeItem;
     TreeItem* obj_import_xml = new TreeItem;
@@ -581,7 +581,7 @@ void Qtilities::UnitTests::TestExporting::testTreeItem_0_3_0_3() {
     obj_source->setToolTip("Example Tool Tip");
     obj_source->setWhatsThis("Example Whats This");
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testTreeItem_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeItem_0_3_0_3");
 
     // Compare output files:
     QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeItem_0_3_0_3");
@@ -598,7 +598,7 @@ void Qtilities::UnitTests::TestExporting::testTreeItem_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testCodeEditorProjectItemWrapper_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testCodeEditorProjectItemWrapper_1_0_1_0() {
     CodeEditorWidget code_editor_widget_source;
     CodeEditorProjectItemWrapper* obj_source = new CodeEditorProjectItemWrapper(&code_editor_widget_source);
     CodeEditorWidget code_editor_widget_binary;
@@ -610,7 +610,7 @@ void Qtilities::UnitTests::TestExporting::testCodeEditorProjectItemWrapper_0_3_0
 
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() != code_editor_widget_binary.codeEditor()->toPlainText());
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() != code_editor_widget_xml.codeEditor()->toPlainText());
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testCodeEditorProjectItemWrapper_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCodeEditorProjectItemWrapper_0_3_0_3");
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() == code_editor_widget_binary.codeEditor()->toPlainText());
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() == code_editor_widget_xml.codeEditor()->toPlainText());
 
@@ -629,15 +629,15 @@ void Qtilities::UnitTests::TestExporting::testCodeEditorProjectItemWrapper_0_3_0
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
-    Qtilities::ExportVersion write_version = Qtilities::Qtilities_0_3;
-    Qtilities::ExportVersion read_version = Qtilities::Qtilities_0_3;
+void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
+    Qtilities::ExportVersion write_version = Qtilities::Qtilities_1_0;
+    Qtilities::ExportVersion read_version = Qtilities::Qtilities_1_0;
 
     // ---------------------------------------------------
     // Test ExportData only export:
     // ---------------------------------------------------
     {
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() ExportData only start:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() ExportData only start:");
         TreeNode* obj_source = new TreeNode("Root Node");
         TreeNode* obj_import_binary = new TreeNode;
         TreeNode* obj_import_xml = new TreeNode;
@@ -656,7 +656,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         child_node->addItem("TestChild2");
         child_node->addItem("TestChild3");
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverDataOnly_0_3_0_3");
+        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnly_0_3_0_3");
 
         // Compare output files:
         QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_0_3_0_3");
@@ -671,13 +671,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         delete obj_source;
         delete obj_import_binary;
         delete obj_import_xml;
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() ExportData only end:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() ExportData only end:");
     }
     // ---------------------------------------------------
     // Test ExportData only with categories:
     // ---------------------------------------------------
     {
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() ExportData only with categories start:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() ExportData only with categories start:");
         TreeNode* obj_source = new TreeNode("Root Node");
         TreeNode* obj_import_binary = new TreeNode;
         TreeNode* obj_import_xml = new TreeNode;
@@ -694,7 +694,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         child_node->addItem("TestChild2");
         child_node->addItem("TestChild3");
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverDataOnlyWithCategories_0_3_0_3");
+        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnlyWithCategories_0_3_0_3");
 
         // Compare output files:
         QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_0_3_0_3");
@@ -709,13 +709,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         delete obj_source;
         delete obj_import_binary;
         delete obj_import_xml;
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() ExportData only with categories end:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() ExportData only with categories end:");
     }
     // ---------------------------------------------------
     // Test containment tree:
     // ---------------------------------------------------
     {
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Containment start:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment start:");
         TreeNode* obj_source = new TreeNode("Root Node");
         TreeNode* obj_import_binary = new TreeNode;
         TreeNode* obj_import_xml = new TreeNode;
@@ -737,7 +737,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         child_node->addItem("TestChild3");
         child_node->setParent(obj);
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverContainment_0_3_0_3");
+        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverContainment_0_3_0_3");
 
         int original_xml = FileUtils::textFileHashCode(QString("%1.xml").arg("testObserverContainment_0_3_0_3"));
         int readback_xml = FileUtils::textFileHashCode(QString("%1_readback.xml").arg("testObserverContainment_0_3_0_3"));
@@ -749,13 +749,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         //delete obj_source;
         delete obj_import_binary;
         //delete obj_import_xml;
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Containment end:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment end:");
     }
     // ---------------------------------------------------
     // Test extended binary: (Properties and relational data)
     // ---------------------------------------------------
     {
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended Binary start:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended Binary start:");
         TreeNode* obj_source = new TreeNode("Root Node");
         // Give it the same name since we don't construct it using a factory:
         TreeNode* obj_import_binary = new TreeNode("Root Node");
@@ -809,13 +809,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
 
         delete obj_source;
         delete obj_import_binary;
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended Binary end:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended Binary end:");
     }
     // ---------------------------------------------------
     // Test extended xml: (Relational data)
     // ---------------------------------------------------
     {
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended XML start:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended XML start:");
         TreeNode* obj_source = new TreeNode("Root Node");
         // Give it the same name since we don't construct it using a factory:
         TreeNode* obj_import_xml = new TreeNode("Root Node");
@@ -871,11 +871,11 @@ void Qtilities::UnitTests::TestExporting::testObserver_0_3_0_3() {
         QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_0_3_0_3");
         QEXPECT_FAIL("", "Will fix", Continue);
         QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
-        LOG_INFO("TestExporting::testObserver_0_3_0_3() Extended XML end:");
+        LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended XML end:");
     }
 }
 
-void Qtilities::UnitTests::TestExporting::testProject_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testProject_1_0_1_0() {
     CodeEditorWidget code_editor_widget_source;
     code_editor_widget_source.setObjectName("Code Editor");
     CodeEditorProjectItemWrapper* wrapper_source = new CodeEditorProjectItemWrapper(&code_editor_widget_source);
@@ -914,7 +914,7 @@ void Qtilities::UnitTests::TestExporting::testProject_0_3_0_3() {
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testObserverProjectItemWrapper_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testObserverProjectItemWrapper_1_0_1_0() {
     TreeNode* rootNode = new TreeNode("Root Node");
     TreeNode* binaryNode = new TreeNode("Root Node");
     TreeNode* xmlNode = new TreeNode("Root Node");
@@ -930,7 +930,7 @@ void Qtilities::UnitTests::TestExporting::testObserverProjectItemWrapper_0_3_0_3
     ObserverProjectItemWrapper* obj_import_binary = new ObserverProjectItemWrapper(binaryNode);
     ObserverProjectItemWrapper* obj_import_xml = new ObserverProjectItemWrapper(xmlNode);
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_0_3,Qtilities::Qtilities_0_3,"testObserverProjectItemWrapper_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverProjectItemWrapper_0_3_0_3");
 
     // Compare output files:
     QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
@@ -947,7 +947,7 @@ void Qtilities::UnitTests::TestExporting::testObserverProjectItemWrapper_0_3_0_3
     delete obj_import_xml;
 }
 
-void Qtilities::UnitTests::TestExporting::testExtensionSystemConfigurationFiles_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testExtensionSystemConfigurationFiles_1_0_1_0() {
     QStringList inactive_plugins;
     inactive_plugins << "Test Plugin 1";
     inactive_plugins << "Test Plugin 2";
@@ -956,10 +956,10 @@ void Qtilities::UnitTests::TestExporting::testExtensionSystemConfigurationFiles_
     filtered_plugins << "Filter1*";
     filtered_plugins << "Filter2*";
     filtered_plugins << "Filter3*";
-    QVERIFY(EXTENSION_SYSTEM->savePluginConfiguration("testExtensionSystemConfigurationFiles_0_3_0_3.xml",&inactive_plugins,&filtered_plugins,Qtilities::Qtilities_0_3));
+    QVERIFY(EXTENSION_SYSTEM->savePluginConfiguration("testExtensionSystemConfigurationFiles_0_3_0_3.xml",&inactive_plugins,&filtered_plugins,Qtilities::Qtilities_1_0));
 }
 
-void Qtilities::UnitTests::TestExporting::testShortcutMappingFiles_0_3_0_3() {
+void Qtilities::UnitTests::TestExporting::testShortcutMappingFiles_1_0_1_0() {
     QVERIFY(ACTION_MANAGER->saveShortcutMapping("testShortcutMappingFiles_0_3_0_3.xml"));
 }
 

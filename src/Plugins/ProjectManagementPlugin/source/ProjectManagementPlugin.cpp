@@ -208,7 +208,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     if (PROJECT_MANAGER->useCustomProjectsPath())
         project_path = PROJECT_MANAGER->customProjectsPath();
     else
-        project_path = QCoreApplication::applicationDirPath() + "/Projects";
+        project_path = QCoreApplication::applicationDirPath() + tr("/Projects");
     QString file_name = QFileDialog::getOpenFileName(0, tr("Open Existing Project"), project_path, filter);
     if (file_name.isEmpty())
         return;

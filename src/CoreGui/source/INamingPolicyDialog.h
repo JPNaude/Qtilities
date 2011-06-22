@@ -51,7 +51,7 @@ namespace Qtilities {
             \class INamingPolicyDialog
             \brief NamingPolicyFilter classes uses implementations of this interface in order to prompt users for actions during naming conflicts.
 
-            <i>This class was added in %Qtilities v0.3.</i>
+            <i>This class was added in %Qtilities v1.0.</i>
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT INamingPolicyDialog: public QDialog, virtual public IObjectBase
             {

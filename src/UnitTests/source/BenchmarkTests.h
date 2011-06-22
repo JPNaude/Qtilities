@@ -65,9 +65,9 @@ namespace Qtilities {
         private slots:
             void benchmarkObserverExport_0_3_0_3_data();
             //! Do a benchmark on a big observer export
-            void benchmarkObserverExport_0_3_0_3();
+            void benchmarkObserverExport_1_0_1_0();
             //! Do a benchmark on a big observer export
-            void benchmarkObserverImport_0_3_0_3();
+            void benchmarkObserverImport_1_0_1_0();
         };
     }
 }

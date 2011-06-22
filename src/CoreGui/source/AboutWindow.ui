@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AboutWindow</class>
- <widget class="QWidget" name="AboutWindow">
+ <class>qti_private_AboutWindow</class>
+ <widget class="QWidget" name="qti_private_AboutWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>467</height>
+    <width>327</width>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../resources/resources.qrc">:/images/blueontrans_300x300.png</pixmap>
+      <pixmap resource="../resources/CoreGui.qrc">:/images/blueontrans_300x300.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -28,31 +28,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="labelApplicationName">
+    <widget class="QLabel" name="lblVersion">
      <property name="font">
       <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Application Name</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelApplicationVersion">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Application Version</string>
+      <string>Application Name</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -108,11 +93,23 @@
    </item>
    <item>
     <widget class="QLabel" name="labelExtendedDescription">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
-      <string>Extended Description</string>
+      <string>This application uses the Qtilities libraries.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -128,7 +125,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Website</string>
+        <string>http://www.qtilities.org</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -163,13 +160,13 @@
   </layout>
  </widget>
  <resources>
-  <include location="../resources/resources.qrc"/>
+  <include location="../resources/CoreGui.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>AboutWindow</receiver>
+   <receiver>qti_private_AboutWindow</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -66,7 +66,7 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
 
         Make sure you register the project item in the global object pool before initializing the project manager.
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class PROJECT_MANAGEMENT_SHARED_EXPORT CodeEditorProjectItemWrapper : public QObject, public IProjectItem
         {

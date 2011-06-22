@@ -139,7 +139,7 @@ while (itrB.hasNext()) {
 
             \sa ConstSubjectIterator, TreeIterator
 
-            <i>This class was added in %Qtilities v0.3.</i>
+            <i>This class was added in %Qtilities v1.0.</i>
         */
         template <class T>
         class SubjectIterator : public Interfaces::IIterator<T>
@@ -301,7 +301,7 @@ while (itrB.hasNext()) {
 
            \sa SubjectIterator, TreeIterator
 
-           <i>This class was added in %Qtilities v0.3.</i>
+           <i>This class was added in %Qtilities v1.0.</i>
          */
         template <class T>
         class ConstSubjectIterator : public Interfaces::IConstIterator<T>

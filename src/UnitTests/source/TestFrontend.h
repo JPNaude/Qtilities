@@ -104,7 +104,7 @@ testFrontend.show();
 
         \image html class_testfrontend_screenshot.jpg "Test Frontend With Some Tests"
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class UNIT_TESTS_SHARED_EXPORT TestFrontend : public QWidget
         {

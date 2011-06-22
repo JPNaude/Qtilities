@@ -71,7 +71,7 @@ namespace Qtilities {
 
         \image html class_stringlistwidget_screenshot.jpg "The String List Widget"
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT StringListWidget : public QMainWindow
         {

@@ -97,7 +97,7 @@ while (itr.hasPrevious()) {
 
         \sa SubjectIterator, ConstSubjectIterator
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
         */
         class TreeIterator : public Interfaces::IIterator<QObject>
         {

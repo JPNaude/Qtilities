@@ -57,7 +57,7 @@ namespace Qtilities {
 
             For an example of how to implement ITestable, see Qtilities::UnitTests::TestVersionNumber.
 
-            <i>This class was added in %Qtilities v0.3.</i>
+            <i>This class was added in %Qtilities v1.0.</i>
               */
             class UNIT_TESTS_SHARED_EXPORT ITestable : virtual public IObjectBase {
             public:

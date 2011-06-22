@@ -91,7 +91,7 @@ bool is_smaller = (ver0 < ver1); // True
 
         \sa VersionInformation
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT VersionNumber
         {
@@ -201,7 +201,7 @@ version_info << VersionNumber(2,0,0);
 
         \sa VersionNumber
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT VersionInformation
         {

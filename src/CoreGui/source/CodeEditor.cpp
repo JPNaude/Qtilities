@@ -43,9 +43,6 @@ struct Qtilities::CoreGui::CodeEditorPrivateData {
 
     QWidget *lineNumberArea;
     QSyntaxHighlighter* syntaxHighlighter;
-
-    //! Previous set of highlighted words.
-    QStringList previous_highlight_words;
 };
 
 Qtilities::CoreGui::CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent) {
@@ -160,8 +157,6 @@ void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, co
             QTextCharFormat format(find_cursor.charFormat());
             format.setBackground(brush);
             find_cursor.mergeCharFormat(format);
-
-            d->previous_highlight_words << words;
         }
         cursor.movePosition(QTextCursor::Start);
         setTextCursor(cursor);
@@ -172,6 +167,8 @@ void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, co
 }
 
 void Qtilities::CoreGui::CodeEditor::removeWordHighlighting() {
-    highlightWords(d->previous_highlight_words,QBrush());
+    QString tmp = document()->toPlainText();
+    document()->clear();
+    document()->setPlainText(tmp);
 }
 

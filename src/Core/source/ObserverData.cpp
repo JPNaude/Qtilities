@@ -78,17 +78,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     time(&start);
     #endif
 
-    if (exportVersion() == Qtilities::Qtilities_0_3) {
+    if (exportVersion() == Qtilities::Qtilities_1_0) {
         IExportable::Result result = exportBinaryExt_0_3(stream,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (Binary -> Qtilities_0_3).");
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (Binary -> Qtilities_1_0).");
         #endif
         return result;
-    } else if (exportVersion() < Qtilities::Qtilities_0_3)
+    } else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
@@ -100,17 +100,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     time(&start);
     #endif
 
-    if (exportVersion() == Qtilities::Qtilities_0_3) {
+    if (exportVersion() == Qtilities::Qtilities_1_0) {
         IExportable::Result result = importBinaryExt_0_3(stream,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (Binary -> Qtilities_0_3).");
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (Binary -> Qtilities_1_0).");
         #endif
         return result;
-    } else if (exportVersion() < Qtilities::Qtilities_0_3)
+    } else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
@@ -122,17 +122,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     time(&start);
     #endif
 
-    if (exportVersion() == Qtilities::Qtilities_0_3) {
+    if (exportVersion() == Qtilities::Qtilities_1_0) {
         IExportable::Result result = exportXmlExt_0_3(doc,object_node,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (XML -> Qtilities_0_3).");
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to export (XML -> Qtilities_1_0).");
         #endif
         return result;
-    } else if (exportVersion() < Qtilities::Qtilities_0_3)
+    } else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
@@ -144,39 +144,39 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     time(&start);
     #endif
 
-    if (exportVersion() == Qtilities::Qtilities_0_3) {
+    if (exportVersion() == Qtilities::Qtilities_1_0) {
         IExportable::Result result = importXmlExt_0_3(doc,object_node,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (XML -> Qtilities_0_3).");
+        LOG_WARNING("Observer (" + observer->observerName() + ") took " + QString::number(diff) + " seconds to import (XML -> Qtilities_1_0).");
         #endif
         return result;
-    } else if (exportVersion() < Qtilities::Qtilities_0_3)
+    } else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
 }
 
 IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
+    if (exportVersion() == Qtilities::Qtilities_1_0)
         return exportBinaryExt_0_3(stream,export_flags);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
 }
 
 IExportable::Result Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
-    if (exportVersion() == Qtilities::Qtilities_0_3)
+    if (exportVersion() == Qtilities::Qtilities_1_0)
         return exportXmlExt_0_3(doc,object_node,export_flags);
-    else if (exportVersion() < Qtilities::Qtilities_0_3)
+    else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
-    else if (exportVersion() > Qtilities::Qtilities_0_3)
+    else if (exportVersion() > Qtilities::Qtilities_1_0)
         return IExportable::FailedTooNew;
 
     return IExportable::Incomplete;
@@ -194,7 +194,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
     if (export_flags & ExportRelationalData) {
         // Export relational data about the observer:
         ObserverRelationalTable table(observer,true);
-        table.setExportVersion(Qtilities::Qtilities_0_3);
+        table.setExportVersion(Qtilities::Qtilities_1_0);
         if (table.exportBinary(stream) != IExportable::Complete)
             return IExportable::Failed;
     }
@@ -618,7 +618,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         object_node->appendChild(relational_data);
         // Export relational data about the observer:
         relational_table = new ObserverRelationalTable(observer,true);
-        relational_table->setExportVersion(Qtilities::Qtilities_0_3);
+        relational_table->setExportVersion(Qtilities::Qtilities_1_0);
         if (relational_table->exportXml(doc,&relational_data) != IExportable::Complete) {
             if (relational_table)
                 delete relational_table;

@@ -262,7 +262,7 @@ digraph "Root Node" {
 
         \image html observer_dot_graph_example_attributes_dot.jpg "Example Graph With Attributes (Dot Layout Engine)"
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT ObserverDotWriter : public QObject
         {

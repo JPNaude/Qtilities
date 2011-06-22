@@ -67,28 +67,28 @@ namespace Qtilities {
 
         private slots:
             // --------------------------------------------------------------------
-            // Test Qtilities_0_3 against Qtilities_0_3
-            // That is, exported with Qtilities_0_3 and imported with Qtilities_0_3
+            // Test Qtilities_1_0 against Qtilities_1_0
+            // That is, exported with Qtilities_1_0 and imported with Qtilities_1_0
             // --------------------------------------------------------------------
-            void testInstanceFactoryInfo_0_3_0_3();
-            void testActivityPolicyFilter_0_3_0_3();
-            void testCategoryLevel_0_3_0_3();
-            void testNamingPolicyFilter_0_3_0_3();
-            void testQtilitiesCategory_0_3_0_3();
-            void testObserverHints_0_3_0_3();
-            void testMultiContextProperty_0_3_0_3();
-            void testRelationalTableEntry_0_3_0_3();
-            void testObserverRelationalTable_0_3_0_3();
-            void testSharedProperty_0_3_0_3();
-            void testSubjectTypeFilter_0_3_0_3();
-            void testTreeFileItem_0_3_0_3();
-            void testTreeItem_0_3_0_3();
-            void testCodeEditorProjectItemWrapper_0_3_0_3();
-            void testObserver_0_3_0_3();
-            void testProject_0_3_0_3();
-            void testObserverProjectItemWrapper_0_3_0_3();
-            void testExtensionSystemConfigurationFiles_0_3_0_3();
-            void testShortcutMappingFiles_0_3_0_3();
+            void testInstanceFactoryInfo_1_0_1_0();
+            void testActivityPolicyFilter_1_0_1_0();
+            void testCategoryLevel_1_0_1_0();
+            void testNamingPolicyFilter_1_0_1_0();
+            void testQtilitiesCategory_1_0_1_0();
+            void testObserverHints_1_0_1_0();
+            void testMultiContextProperty_1_0_1_0();
+            void testRelationalTableEntry_1_0_1_0();
+            void testObserverRelationalTable_1_0_1_0();
+            void testSharedProperty_1_0_1_0();
+            void testSubjectTypeFilter_1_0_1_0();
+            void testTreeFileItem_1_0_1_0();
+            void testTreeItem_1_0_1_0();
+            void testCodeEditorProjectItemWrapper_1_0_1_0();
+            void testObserver_1_0_1_0();
+            void testProject_1_0_1_0();
+            void testObserverProjectItemWrapper_1_0_1_0();
+            void testExtensionSystemConfigurationFiles_1_0_1_0();
+            void testShortcutMappingFiles_1_0_1_0();
 
         private:
             void genericTest(IExportable* obj_source,IExportable* obj_import_binary,IExportable* obj_import_xml,Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name);

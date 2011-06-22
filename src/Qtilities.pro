@@ -19,7 +19,8 @@ SUBDIRS    += ExtensionSystem
 SUBDIRS    += ProjectManagement
 SUBDIRS    += UnitTests
 
-OTHER_FILES += ../doc/sources/Action_Management.html
+OTHER_FILES += ../doc/sources/Action_Management.html \
+    ../doc/sources/Serializing_Types_1_0.html
 OTHER_FILES += ../doc/sources/Documentation_Overview.html
 OTHER_FILES += ../doc/sources/Examples_And_Plugins.html
 OTHER_FILES += ../doc/sources/Extension_System.html
@@ -37,7 +38,7 @@ OTHER_FILES += ../doc/sources/The_Basics.html
 OTHER_FILES += ../doc/sources/Tree_Structures.html
 OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
-OTHER_FILES += ../doc/sources/Serializing_Types_0_3.html
+OTHER_FILES +=
 OTHER_FILES += ../doc/sources/Whats_New.html
 OTHER_FILES += ../doc/sources/Debugging_Qtilities_Applications.html
 OTHER_FILES += ../Read Me First.txt
@@ -46,4 +47,3 @@ OTHER_FILES += ../Building On Linux.txt
 OTHER_FILES += ../Building On Windows.txt
 OTHER_FILES += ../doc/doxyfile_packages.txt
 OTHER_FILES += ../doc/doxyfile_website.txt
-

@@ -74,6 +74,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NamingPolicyFilter(QObject* parent) : Ab
     d->uniqueness_resolution_policy = NamingPolicyFilter::PromptUser;
     d->validity_resolution_policy = NamingPolicyFilter::PromptUser;
     d->processing_cycle_validation_check_flags = NamingPolicyFilter::AllChecks;
+    d->validation_check_flags = NamingPolicyFilter::AllChecks;
     const QRegExp default_expression(".{1,255}",Qt::CaseInsensitive);
     QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
     d->validator = default_validator;
@@ -98,7 +99,8 @@ void Qtilities::CoreGui::NamingPolicyFilter::operator=(const NamingPolicyFilter&
     d->uniqueness_policy = ref.uniquenessNamingPolicy();
     d->uniqueness_resolution_policy = ref.uniquenessResolutionPolicy();
     d->validity_resolution_policy = ref.validityResolutionPolicy();
-    d->processing_cycle_validation_check_flags = ref.processingCycleValdiationChecks();
+    d->processing_cycle_validation_check_flags = ref.processingCycleValidationChecks();
+    d->validation_check_flags = ref.validationChecks();
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::operator==(const NamingPolicyFilter& ref) const {
@@ -108,7 +110,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::operator==(const NamingPolicyFilter
         return false;
     if (d->validity_resolution_policy != ref.validityResolutionPolicy())
         return false;
-    if (d->processing_cycle_validation_check_flags != ref.processingCycleValdiationChecks())
+    if (d->processing_cycle_validation_check_flags != ref.processingCycleValidationChecks())
+        return false;
+    if (d->validation_check_flags != ref.validationChecks())
         return false;
 
     return true;
@@ -193,12 +197,20 @@ Qtilities::CoreGui::NamingPolicyFilter::ValidationCheckFlags Qtilities::CoreGui:
     return NoChecks;
 }
 
-void Qtilities::CoreGui::NamingPolicyFilter::setProcessingCycleValdiationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks) {
+void Qtilities::CoreGui::NamingPolicyFilter::setProcessingCycleValidationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks) {
     d->processing_cycle_validation_check_flags = validation_checks;
 }
 
-Qtilities::CoreGui::NamingPolicyFilter::ValidationCheckFlags Qtilities::CoreGui::NamingPolicyFilter::processingCycleValdiationChecks() const {
+Qtilities::CoreGui::NamingPolicyFilter::ValidationCheckFlags Qtilities::CoreGui::NamingPolicyFilter::processingCycleValidationChecks() const {
     return d->processing_cycle_validation_check_flags;
+}
+
+void Qtilities::CoreGui::NamingPolicyFilter::setValidationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks) {
+    d->validation_check_flags = validation_checks;
+}
+
+Qtilities::CoreGui::NamingPolicyFilter::ValidationCheckFlags Qtilities::CoreGui::NamingPolicyFilter::validationChecks() const {
+    return d->validation_check_flags;
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::setUniquenessPolicy(NamingPolicyFilter::UniquenessPolicy uniqueness_policy) {
@@ -242,6 +254,8 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
     bool do_uniqueness_test = true;
     if (observer->isProcessingCycleActive() && !(d->processing_cycle_validation_check_flags & Uniqueness))
         do_uniqueness_test = false;
+    else if (!observer->isProcessingCycleActive() && !(d->validation_check_flags & Uniqueness))
+        do_uniqueness_test = false;
 
     if (do_uniqueness_test) {
         if (!object) {
@@ -271,6 +285,8 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
 
     bool do_validation_test = true;
     if (observer->isProcessingCycleActive() && !(d->processing_cycle_validation_check_flags & Validity))
+        do_validation_test = false;
+    else if (!observer->isProcessingCycleActive() && !(d->validation_check_flags & Validity))
         do_validation_test = false;
 
     Q_ASSERT(d->validator);
@@ -622,6 +638,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     stream << (quint32) d->uniqueness_resolution_policy;
     stream << (quint32) d->validity_resolution_policy;
     stream << (quint32) d->processing_cycle_validation_check_flags;
+    stream << (quint32) d->validation_check_flags;
 
     return IExportable::Complete;
 }
@@ -638,6 +655,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     d->validity_resolution_policy = (ResolutionPolicy) ui32;
     stream >> ui32;
     d->processing_cycle_validation_check_flags = (ValidationCheckFlags) ui32;
+    stream >> ui32;
+    d->validation_check_flags = (ValidationCheckFlags) ui32;
 
     return IExportable::Complete;
 }
@@ -649,6 +668,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     object_node->setAttribute("ValidityResolutionPolicy",resolutionPolicyToString(d->validity_resolution_policy));
     object_node->setAttribute("UniquenessResolutionPolicy",resolutionPolicyToString(d->uniqueness_resolution_policy));
     object_node->setAttribute("ProcessingCycleValidationCheckFlags",validationCheckFlagsToString(d->processing_cycle_validation_check_flags));
+    object_node->setAttribute("ValidationCheckFlags",validationCheckFlagsToString(d->validation_check_flags));
     return IExportable::Complete;
 }
 
@@ -665,6 +685,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
         d->uniqueness_resolution_policy = stringToResolutionPolicy(object_node->attribute("UniquenessResolutionPolicy"));
     if (object_node->hasAttribute("ProcessingCycleValidationCheckFlags"))
         d->processing_cycle_validation_check_flags = stringToValidationCheckFlags(object_node->attribute("ProcessingCycleValidationCheckFlags"));
+    if (object_node->hasAttribute("ValidationCheckFlags"))
+        d->validation_check_flags = stringToValidationCheckFlags(object_node->attribute("ValidationCheckFlags"));
+
 
     return IExportable::Complete;
 }

@@ -37,17 +37,17 @@
 namespace Qtilities {
     //! The possible versions supported by Qtilities::Core::Intefaces::IExportable.
     /*!
-      \note Versioning was introducted in %Qtilities v0.3, therefore versions before v0.3 are not supported any more. All future versions will be backward compatible.
+      \note Versioning was introducted in %Qtilities v1.0, therefore versions before v1.0 are not supported any more. All future versions will be backward compatible.
       */
     enum ExportVersion {
-        Qtilities_0_3           = 0,            /*!< %Qtilities version 0.3. See \ref page_serializing_overview_0_3 for an detailed overview. */
-        Qtilities_Latest        = Qtilities_0_3 /*!< The latest export version in the current version of %Qtilities. */
+        Qtilities_1_0           = 0,            /*!< %Qtilities version 0.3. See \ref page_serializing_overview_1_0 for an detailed overview. */
+        Qtilities_Latest        = Qtilities_1_0 /*!< The latest export version in the current version of %Qtilities. */
     };
 
     //! The %Qtilities major version number.
-    #define qti_def_VERSION_MAJOR 0
+    #define qti_def_VERSION_MAJOR 1
     //! The %Qtilities minor version number.
-    #define qti_def_VERSION_MINOR 3
+    #define qti_def_VERSION_MINOR 0
     //! The %Qtilities revision version number.
     #define qti_def_VERSION_REVISION 0
     //! The %Qtilities beta number.

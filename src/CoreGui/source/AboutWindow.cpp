@@ -33,89 +33,41 @@
 
 #include "AboutWindow.h"
 #include "ui_AboutWindow.h"
+#include "QtilitiesApplication.h"
+
+#include <QtilitiesCoreApplication_p>
 
 #include <QApplication>
 #include <QDateTime>
 #include <QDesktopWidget>
 #include <QFileInfo>
 
-Qtilities::CoreGui::AboutWindow::AboutWindow(QWidget *parent) :
+Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::AboutWindow)
+    ui(new Ui::qti_private_AboutWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(QString(tr("About %1")).arg(QApplication::applicationName()));
-
-    // Set labels
-    if (QApplication::applicationVersion().isEmpty())
-        ui->labelApplicationVersion->setVisible(false);
-    else
-        ui->labelApplicationVersion->setText("v" + QApplication::applicationVersion());
+    setWindowTitle(tr("About") + "Qtilities");
+    ui->lblVersion->setText(QString(tr("v%1")).arg(QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString()));
     QFileInfo fi(QApplication::applicationFilePath());
     QString build_date = fi.created().toString();
     ui->labelBuildDate->setText(build_date);
     ui->labelCopyright->setText(tr("Copyright ©") + " 2010-2011, Jaco Naude");
-    ui->labelWebsite->setText("");
-    ui->labelExtendedDescription->setVisible(false);
-    ui->labelApplicationName->setText(QApplication::applicationName());
 
     // Put the widget in the center of the screen
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
 
     setAttribute(Qt::WA_QuitOnClose,false);
-
-    // By default the logo is visible:
-    setLogoVisible(true);
+    setAttribute(Qt::WA_DeleteOnClose);
 }
 
-Qtilities::CoreGui::AboutWindow::~AboutWindow()
+Qtilities::CoreGui::qti_private_AboutWindow::~qti_private_AboutWindow()
 {
     delete ui;
 }
 
-void Qtilities::CoreGui::AboutWindow::setCopyright(const QString& copyright) {
-    ui->labelCopyright->setText(copyright);
-}
-
-void Qtilities::CoreGui::AboutWindow::setLogo(const QPixmap& pixmap) {
-    ui->labelImage->setPixmap(pixmap);
-}
-
-void Qtilities::CoreGui::AboutWindow::setVersionString(const QString& version_string) {
-    ui->labelApplicationVersion->setText(version_string);
-}
-
-void Qtilities::CoreGui::AboutWindow::setWebsite(const QString& website, const QString& displayed_name) {
-    if (displayed_name.isEmpty())
-        ui->labelWebsite->setText(QString("<a href=\"%1\">%2</a>").arg(website).arg(website));
-    else
-        ui->labelWebsite->setText(QString("<a href=\"%1\">%2</a>").arg(website).arg(displayed_name));
-}
-
-void Qtilities::CoreGui::AboutWindow::setExtendedDescription(const QString& extended_description) {
-    if (extended_description.isEmpty()) {
-        ui->labelExtendedDescription->setVisible(false);
-    } else{
-        ui->labelExtendedDescription->setVisible(true);
-        ui->labelExtendedDescription->setText(extended_description);
-    }
-}
-
-bool Qtilities::CoreGui::AboutWindow::logoVisible() const {
-    return ui->labelImage->isVisible();
-}
-
-void Qtilities::CoreGui::AboutWindow::setLogoVisible(bool is_visible) {
-    ui->labelImage->setVisible(is_visible);
-    ui->labelApplicationName->setVisible(!is_visible);
-    if (is_visible)
-        resize(475,400);
-    else
-        resize(475,150);
-}
-
-void Qtilities::CoreGui::AboutWindow::changeEvent(QEvent *e)
+void Qtilities::CoreGui::qti_private_AboutWindow::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {

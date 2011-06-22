@@ -51,11 +51,17 @@ namespace Qtilities {
         struct AbstractLoggerEngineData {
             AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts) {}
 
+            //! The enabled message types for this logger engine.
             Logger::MessageTypeFlags        enabled_message_types;
+            //! The formatting engine used by this logger engine.
             AbstractFormattingEngine*       formatting_engine;
+            //! Indicates if this logger engine is enabled.
             bool                            is_enabled;
+            //! Indicates if this logger engine is initialized.
             bool                            is_initialized;
+            //! The message contexts processed by this logger engine.
             Logger::MessageContextFlags     message_contexts;
+            //! The name of this logger engine.
             QString                         engine_name;
         };
 

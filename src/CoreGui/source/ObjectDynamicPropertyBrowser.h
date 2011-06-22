@@ -68,7 +68,7 @@ namespace Qtilities {
 
           \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
 
-          <i>This class was added in %Qtilities v0.3.</i>
+          <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectDynamicPropertyBrowser : public QMainWindow
         {

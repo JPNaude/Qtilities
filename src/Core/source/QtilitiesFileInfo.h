@@ -164,7 +164,7 @@ completeSuffix:  "tar.gz"
 
         In the same way that QFileInfo handles Unix file names, the above example will always begin with the root, '/', directory.
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT QtilitiesFileInfo : public QFileInfo
         {

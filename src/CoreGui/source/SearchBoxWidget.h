@@ -76,10 +76,30 @@ namespace Qtilities {
           be used on a QPlainTextEdit by calling the setPlainTextEditor() functions. When calling both these functions, the one that was
           called last will be used and at any time you can check what the widget target is using widgetTarget().
 
+          For example, if you want to use the search box widget to search and/or replace the contents of a QPlainTextEdit, you can do the following:
+
+\code
+QPlainTextEdit* myTextEdit = new QPlainTextEdit;
+
+SearchBoxWidget::SearchOptions search_options = 0;
+search_options |= SearchBoxWidget::CaseSensitive;
+search_options |= SearchBoxWidget::WholeWordsOnly;
+
+SearchBoxWidget::ButtonFlags button_flags = 0;
+button_flags |= SearchBoxWidget::HideButtonDown;
+button_flags |= SearchBoxWidget::NextButtons;
+button_flags |= SearchBoxWidget::PreviousButtons;
+
+SearchBoxWidget* searchBoxWidget = new SearchBoxWidget(search_options,SearchBoxWidget::SearchAndReplace,button_flags);
+searchBoxWidget->setPlainTextEditor(myTextEdit);
+\endcode
+
           When using the search box widget with text edit and plain text edit targets, the buttons (except the HideButton) will not trigger
           their signals and the search string related signals will not trigger either. The widget will handle these buttons directly on the
           specified text edit. The behavior of the replace buttons will also change. They will only be enabled when text is selected in the text
-          editor.
+          editor. The Qtilities::CoreGui::CodeEditorWidget uses the SearchBoxWidget class in this way.
+
+          The drop down menu provided next to the Search string text box can be extended with custom actions by modifying the QMenu reference provided by searchOptionsMenu().
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SearchBoxWidget : public QWidget {
             Q_OBJECT

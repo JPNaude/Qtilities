@@ -158,7 +158,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             static ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string);
             //! Policy to control how naming evaulation must be done during processing cycles.
             /*!
-              setProccesingCycleValidationChecks(), processingCycleValidationChecks()
+              setProccesingCycleValidationChecks(), processingCycleValidationChecks(), setValidationChecks(), validationChecks()
               */
             enum ValidationCheck {
                 NoChecks = 0,             /*!< Automatically rename new names. \sa generateValidName() */
@@ -232,13 +232,20 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             // --------------------------------
             // NamingPolicyFilter Implemenation
             // --------------------------------
+            //! Sets the naming checks that must be done when this filter's observer context is not busy with a processing cycle.
+            void setValidationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks);
+            //! Gets the naming checks that must be done when this filter's observer context is not busy with a processing cycle.
+            /*!
+              The default is AllChecks.
+              */
+            NamingPolicyFilter::ValidationCheckFlags validationChecks() const;
             //! Sets the naming checks that must be done when this filter's observer context is busy with a processing cycle.
-            void setProcessingCycleValdiationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks);
+            void setProcessingCycleValidationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks);
             //! Gets the naming checks that must be done when this filter's observer context is busy with a processing cycle.
             /*!
               The default is AllChecks.
               */
-            NamingPolicyFilter::ValidationCheckFlags processingCycleValdiationChecks() const;
+            NamingPolicyFilter::ValidationCheckFlags processingCycleValidationChecks() const;
 
             //! Sets the naming uniqueness policy of this subject filter.
             /*!
@@ -391,7 +398,10 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
             NamingPolicyFilter::UniquenessPolicy uniqueness_policy;
             NamingPolicyFilter::ResolutionPolicy uniqueness_resolution_policy;
             NamingPolicyFilter::ResolutionPolicy validity_resolution_policy;
+            //! Validation checks done while the observer context is busy with a processing cycle.
             NamingPolicyFilter::ValidationCheckFlags processing_cycle_validation_check_flags;
+            //! Validation checks done while the observer context is NOT busy with a processing cycle.
+            NamingPolicyFilter::ValidationCheckFlags validation_check_flags;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(NamingPolicyFilter::NameValidity)

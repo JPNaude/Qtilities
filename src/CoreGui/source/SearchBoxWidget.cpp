@@ -276,19 +276,6 @@ void Qtilities::CoreGui::SearchBoxWidget::setPlainTextEditor(QPlainTextEdit* pla
 
     if (d->plainTextEdit) {
         d->widget_target = SearchBoxWidget::PlainTextEdit;
-
-        // Enable/Disable the replace buttons:
-        /*if (d->plainTextEdit->textCursor().hasSelection()) {
-            ui->btnReplaceNext->setEnabled(true);
-            ui->btnReplacePrevious->setEnabled(true);
-        } else {
-            ui->btnReplaceNext->setEnabled(false);
-            ui->btnReplacePrevious->setEnabled(false);
-        }
-
-        // Make sure the replace buttons becomes active at the right time:
-        connect(d->plainTextEdit,SIGNAL(copyAvailable(bool)),ui->btnReplaceNext,SLOT(setEnabled(bool)));
-        connect(d->plainTextEdit,SIGNAL(copyAvailable(bool)),ui->btnReplacePrevious,SLOT(setEnabled(bool)));*/
     }
 }
 

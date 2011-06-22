@@ -172,13 +172,7 @@ bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent *
 }
 
 QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
-    AboutWindow* about_window = new AboutWindow();
-    about_window->setWebsite("http://www.qtilities.org");
-    about_window->setAttribute(Qt::WA_DeleteOnClose);
-    about_window->setExtendedDescription(tr("This application uses the Qtilities libraries. For more information see the link below."));
-    about_window->setVersionString("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString());
-
-    about_window->setWindowTitle(tr("About Qtilities"));
+    qti_private_AboutWindow* about_window = new qti_private_AboutWindow();
     if (show)
         about_window->show();
     return about_window;

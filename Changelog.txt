@@ -1,30 +1,30 @@
 ================================
-Things outstanding for v0.3 release:
+Things outstanding for v1.0 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
 - Object Management Example: Binary project does not work.
 - ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
-- Tree relationship construction is broken in binary, must implement for XML.
-- Pass all unit tests, and maybe add more instead of new features for a while.
-- NamingPolicyFilter should get a function to set the valdiation checks done, even when not in a processing cycle.
+- Tree relationship construction must work in XML, remove in binary.
+- Pass all unit tests.
+- Improve about Qtilities widget.
 
 - Docs & finalization stuff:
-    - License header for GPL only files...
     - Getting started article should show more: QtilitiesMainWindow.
     - Must update images in ObjectManagement and MainWindow examples.
     - Update Qtilities::Core::Properties namespace docs + add removability to each property.
-    - Document AbstractLoggerEngineData.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
     - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
-    - Add new widgets to Widgets page.
-    - SubjectIterator 2nd way of doing it is wrong...
+    - Code Editor widget is still old.
     - Logging article still use old pics without colored messsages.
-    - Make working with projects an example rather than lots of long class function references.
-    - Projects article still describes old way of handling project file extensions.
     - Logger config widget outdated.
+    - Project config widget still shows verbose checkbox.
+    - SearchBoxWidget: Show how to attach to a text doc.
+
+- Make video for new website.
+- Create new website.
 
 ================================
-Qtilities v0.3 Implemented Changes
+Qtilities v1.0 Implemented Changes
 ================================
     General:
     ============================
@@ -147,6 +147,7 @@ Qtilities v0.3 Implemented Changes
     ============================
     Improvements and Notable Changes:
     - The dependency on the Qt Solutions Property Browser is now off by default.
+    - The AboutWindow class was removed.
     - QShortcut's can now be registered in and managed by the Action Manager.
     - QtilitiesMainWindow and Mode Management
         - QtilitiesMainWindow: Handles priority message timeouts better. Previously if multiple priority messages were logged directly after one another the timeout of the first message that was logged would hide & clear the priority message in the statusbar. Now the last message will do this.
@@ -207,7 +208,8 @@ Qtilities v0.3 Implemented Changes
         - Made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
         - NamingPolicyFilter::evaluateName() got a new parameter which contains a reference to the current object whose name is being evaluated in the contexts. In some cases during subclassing NamingPolicyFilter this is usefull, in others the default parameter can just be used.
-        - NamingPolicyFilter::processingCycleValdiationChecks() added in order to improve speeds when importing big observers with subject names that are known to be correct.
+        - NamingPolicyFilter::ValidationCheckFlags added in order to improve speeds when importing big observers with subject names that are known to be correct. The types of validation that is done can be set for both cases where processing cycles are active and where processing cycles are not active.
+
     - Action Management
         - The action manager was improved. It now detects if registered actions are deleted and removes them accordingly.
         - Commands can now be assigned categories in which they will be displayed in the command editor.

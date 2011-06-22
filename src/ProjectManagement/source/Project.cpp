@@ -150,7 +150,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QTemporaryFile file;
         file.open();
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_0_3)
+        if (exportVersion() == Qtilities::Qtilities_1_0)
             stream.setVersion(QDataStream::Qt_4_7);
 
         #ifdef QTILITIES_BENCHMARKING
@@ -276,7 +276,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_0_3)
+        if (exportVersion() == Qtilities::Qtilities_1_0)
             stream.setVersion(QDataStream::Qt_4_7);
 
         QList<QPointer<QObject> > import_list;
@@ -505,7 +505,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_0_3)
+    if (read_version == Qtilities::Qtilities_1_0)
         is_supported_format = true;
 
     if (!is_supported_format) {
@@ -624,7 +624,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_0_3)
+    if (read_version == Qtilities::Qtilities_1_0)
         is_supported_format = true;
 
     if (!is_supported_format) {

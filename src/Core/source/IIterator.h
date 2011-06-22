@@ -41,7 +41,7 @@ namespace Qtilities {
             \class IIterator<T>
             \brief Abstract interface which defines standard operations for all non-const iterators in %Qtilities.
 
-            <i>This class was added in %Qtilities v0.3.</i>
+            <i>This class was added in %Qtilities v1.0.</i>
             */
             template <class T>
             class IIterator
@@ -111,7 +111,7 @@ namespace Qtilities {
             \class IConstIterator<T>
             \brief Abstract interface which defines standard operations for all const iterators in %Qtilities.
 
-            <i>This class was added in %Qtilities v0.3.</i>
+            <i>This class was added in %Qtilities v1.0.</i>
             */
             template <class T>
             class IConstIterator

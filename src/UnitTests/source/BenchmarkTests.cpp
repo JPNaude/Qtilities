@@ -48,7 +48,7 @@ void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3_data(
     QTest::newRow("big tree") << 50;
 }
 
-void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3() {
+void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_1_0_1_0() {
     QFETCH(int, TreeDepth);
 
     // ---------------------------------------------------
@@ -72,7 +72,7 @@ void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3() {
     doc.appendChild(root);
     QDomElement rootItem = doc.createElement("object_node");
     root.appendChild(rootItem);
-    obj_source->setExportVersion(Qtilities::Qtilities_0_3);
+    obj_source->setExportVersion(Qtilities::Qtilities_1_0);
 
     QBENCHMARK {
         QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
@@ -86,7 +86,7 @@ void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3() {
     // delete obj_source;
 }
 
-void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverImport_0_3_0_3() {
+void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverImport_1_0_1_0() {
     // ---------------------------------------------------
     // Test export only with categories:
     // ---------------------------------------------------
@@ -101,7 +101,7 @@ void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverImport_0_3_0_3() {
     root.appendChild(rootItem);
 
     // Do the import:
-    obj_import_xml->setExportVersion(Qtilities::Qtilities_0_3);
+    obj_import_xml->setExportVersion(Qtilities::Qtilities_1_0);
     QList<QPointer<QObject> > import_list;
 
     QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);

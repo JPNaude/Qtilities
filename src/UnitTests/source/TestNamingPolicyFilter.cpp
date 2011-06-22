@@ -150,7 +150,7 @@ void Qtilities::UnitTests::TestNamingPolicyFilter::testRejectValidityResolutionP
 void Qtilities::UnitTests::TestNamingPolicyFilter::testProcessingCycleValidationChecks() {
     TreeNode node;
     NamingPolicyFilter* filter = node.enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::Reject,NamingPolicyFilter::Reject);
-    filter->setProcessingCycleValdiationChecks(NamingPolicyFilter::NoChecks);
+    filter->setProcessingCycleValidationChecks(NamingPolicyFilter::NoChecks);
 
     node.startProcessingCycle();
     QVERIFY(node.subjectCount() == 0);
@@ -163,13 +163,13 @@ void Qtilities::UnitTests::TestNamingPolicyFilter::testProcessingCycleValidation
     node.detachSubject(item);
     QVERIFY(node.subjectCount() == 2);
 
-    filter->setProcessingCycleValdiationChecks(NamingPolicyFilter::Validity);
+    filter->setProcessingCycleValidationChecks(NamingPolicyFilter::Validity);
     node.addItem("");
     QVERIFY(node.subjectCount() == 2);
     node.addItem("A");
     QVERIFY(node.subjectCount() == 3);
 
-    filter->setProcessingCycleValdiationChecks(NamingPolicyFilter::Uniqueness);
+    filter->setProcessingCycleValidationChecks(NamingPolicyFilter::Uniqueness);
 
     node.addItem("");
     QVERIFY(node.subjectCount() == 4);

@@ -42,7 +42,7 @@ namespace Qtilities {
         \class FileUtils
         \brief The FileUtils class provides commonly used file related functionality.
 
-        <i>This class was added in %Qtilities v0.3.</i>
+        <i>This class was added in %Qtilities v1.0.</i>
           */
         class QTILIITES_CORE_SHARED_EXPORT FileUtils
         {

@@ -900,6 +900,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
                 deleteObject(obj);
+                obj = 0;
                 QCoreApplication::processEvents();
                 lost_scope = true;
             } else {
@@ -910,6 +911,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
             QVariant observer_parent = getQtilitiesPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
                 deleteObject(obj);
+                obj = 0;
                 QCoreApplication::processEvents();
                 lost_scope = true;
             } else {

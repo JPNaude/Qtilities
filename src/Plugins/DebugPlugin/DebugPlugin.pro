@@ -1,7 +1,7 @@
 # ***************************************************************************
 # Copyright (c) 2009-2011, Jaco Naude
 #
-# See http://www.qtilities.org/licensing.html for licensing details.
+# See Dependencies.pri for the licensing requirements of the Debug plugin.
 #
 # ***************************************************************************
 # Qtilities Debug Plugin Library
