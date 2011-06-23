@@ -6,7 +6,7 @@ Things outstanding for v1.0 release:
 - ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
 - Tree relationship construction must work in XML, remove in binary.
 - Pass all unit tests.
-- Improve about Qtilities widget.
+- AboutWindow qtilities.org link does not work...
 
 - Docs & finalization stuff:
     - Getting started article should show more: QtilitiesMainWindow.
@@ -19,6 +19,7 @@ Things outstanding for v1.0 release:
     - Logger config widget outdated.
     - Project config widget still shows verbose checkbox.
     - SearchBoxWidget: Show how to attach to a text doc.
+    - Make sure links are correct to new website...
 
 - Make video for new website.
 - Create new website.

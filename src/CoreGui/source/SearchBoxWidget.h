@@ -61,7 +61,7 @@ namespace Qtilities {
 
           The search box widget is a generic, parameterizable search box widget. It is usually embedded into other widgets
           and connected to those widgets. It supports both a search only mode and a search and replace mode set using the setWidgetMode()
-          function. The buttons shown are set using setButtonFlags() and the search options available to the user is set using
+          function. The buttons shown are set using setButtonFlags() and the search options available to the user are set using
           setSearchOptions().
 
           The widget in search and replace mode with all buttons enabled is shown below:
