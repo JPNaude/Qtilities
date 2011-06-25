@@ -77,8 +77,12 @@ code_editor.loadFile(QApplication::applicationDirPath() + "/changes.txt");
 code_editor.codeEditor()->setReadOnly(true);
 \endcode
 
+        The screenshot below shows the CodeEditorWidget in the \p MainWindowExample in the \p QtilitiesExamples project.
+
+        \image html example_main_window.jpg "Example Of Main Window Architecture"
+
         The CodeEditorWidget contains a search & replace box as well as a range of actions which is registered in the action manager
-        and available through the IActionProvider interface. For example we can provide the user with an toolbar actions to save a file
+        and available through the Qtilities::Core::Interfaces::IActionProvider interface. For example we can provide the user with toolbar actions to save a file
         and to load a file like this:
 
 \code
@@ -87,15 +91,15 @@ code_editor.loadFile(QApplication::applicationDirPath() + "/changes.txt");
 code_editor.codeEditor()->setReadOnly(true);
 \endcode
 
-        A list of available actions is defined in ActionFlag and the widget can further be customized using DisplayFlag.
+        A list of available actions are defined in ActionFlag and the widget can further be customized using DisplayFlag. Since the \p IActionProvider interface is implemented you can easily add new actions to the toolbars. See \ref action_providers for more information.
 
-        The CodeEditorWidget has a file loading interface. Through this interface you can load a file into the
+        The CodeEditorWidget provides a file loading interface. Through this interface you can load a file into the
         editor using the loadFile() function. The contents of the editor can be saved to a file using the
         saveFile() function. When the contents in the editor was loaded from a file through the loadFile() method,
         you can call saveFile() without any parameters to save the content to the file from which it was loaded.
         The fileName() function returns the name of this file if it was set.
 
-        Any CodeEditorWdgiet can easily be made part of projects using Qtilities::ProjectManagement::CodeEditorProjectItemWrapper.
+        Any CodeEditorWidget can easily be made part of a project using Qtilities::ProjectManagement::CodeEditorProjectItemWrapper.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditorWidget : public QMainWindow, public IContext, public IModificationNotifier
         {

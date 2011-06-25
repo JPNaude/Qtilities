@@ -126,11 +126,13 @@ To build this tree using %Qtilities is done like this:
 \code
 // Create tree structure:
 TreeNode* node = new TreeNode("Root Node");
+
 TreeNode* nodeA = node->addNode("Node A");
-TreeNode* nodeB = node->addNode("Node B");
 nodeA->addItem("Item 1");
 nodeA->addItem("Item 2");
 TreeItem* sharedItem = nodeA->addItem("Shared Item");
+
+TreeNode* nodeB = node->addNode("Node B");
 nodeB->attachSubject(sharedItem);
 nodeB->addItem("Item 3");
 nodeB->addItem("Item 4");

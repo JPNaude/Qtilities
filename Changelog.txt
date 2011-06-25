@@ -2,24 +2,19 @@
 Things outstanding for v1.0 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Object Management Example: Binary project does not work.
+- Object Management Example: Binary project does not work and the whole example crashes...
 - ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
 - Tree relationship construction must work in XML, remove in binary.
 - Pass all unit tests.
 - AboutWindow qtilities.org link does not work...
+- Add Observer::setSubjectNameInContext as enhancement request to bug tracker.
+- The basics article example: Push down actions does not show immediately when switching to table mode. Fix this.
 
 - Docs & finalization stuff:
-    - Getting started article should show more: QtilitiesMainWindow.
-    - Must update images in ObjectManagement and MainWindow examples.
-    - Update Qtilities::Core::Properties namespace docs + add removability to each property.
+    - Must update images in ObjectManagement example.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
-    - AbstractFormattingEngine's functions appear under Qtilities:: namespace in docs.
-    - Code Editor widget is still old.
-    - Logging article still use old pics without colored messsages.
-    - Logger config widget outdated.
-    - Project config widget still shows verbose checkbox.
-    - SearchBoxWidget: Show how to attach to a text doc.
     - Make sure links are correct to new website...
+    - Add Gitorious tips to doc page.
 
 - Make video for new website.
 - Create new website.
@@ -118,7 +113,7 @@ Qtilities v1.0 Implemented Changes
     - General
         - New ObserverRelationalTable::refresh() method which can be used to refresh the table data after an observer changed.
         - New ObserverRelationalTable::parentsToObserverIDs() methods to convert parents() of an entry to a list of observer IDs.
-        - qti_def_FORMAT_TREES_BINARY stepped to 3 for this version. See it's documentation for list of changes.
+        - New way of defining displayed names in observer tree models through the new qti_prop_DISPLAYED_ALIAS_MAP property.
 
     Bug Fixes:
     - Fixed bug in SubjectTypeFilter::evaluateAttachment() in cases where inversed filtering was enabled and no known types were added.
@@ -142,6 +137,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed bug in Observer destructor where it did not cleanup object properly.
     - Fixed bug in QtilitiesCoreApplication::notify().
     - Fixed bug in ActivityPolicyFilter where it did not set the modification state on objects to true when their activity changed.
+    - Fixed possible crash in Observer::detach().
 
     ============================
     QtilitiesCoreGui:

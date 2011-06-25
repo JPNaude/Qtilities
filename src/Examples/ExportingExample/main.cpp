@@ -42,41 +42,111 @@ using namespace Qtilities::Examples::ExportingExample;
 
 int main(int argc, char *argv[])
 {
+//    QtilitiesApplication a(argc, argv);
+//    QtilitiesApplication::setOrganizationName("YourOrganization");
+//    QtilitiesApplication::setOrganizationDomain("YourDomain");
+//    QtilitiesApplication::setApplicationName("My Application");
+//    QtilitiesApplication::setApplicationVersion("1.0");
+
+//    // Set the application export version:
+//    QtilitiesApplication::setApplicationExportVersion(0);
+
+//    // Register our VersionDetails class in the Qtilities factory:
+//    FactoryItemID version_info_id("Version Details");
+//    OBJECT_MANAGER->registerFactoryInterface(&VersionDetails::factory,version_info_id);
+
+//    // Next create a TreeNode with a couple of our classes attached to it:
+//    TreeNode* node = new TreeNode("TestNode");
+//    VersionDetails* ver1 = new VersionDetails;
+//    ver1->setDescriptionBrief("Version 1 Brief");
+//    ver1->setDescriptionDetailed("Version 1 Brief");
+//    ver1->setVersionMajor(0);
+//    ver1->setVersionMinor(0);
+//    VersionDetails* ver2 = new VersionDetails;
+//    ver2->setDescriptionBrief("Version 2 Brief");
+//    ver2->setDescriptionDetailed("Version 2 Brief");
+//    ver2->setVersionMajor(1);
+//    ver2->setVersionMinor(2);
+//    node->attachSubject(ver1);
+//    node->attachSubject(ver2);
+//    node->addNode("NewNode");
+
+//    // Next export the node to a file:
+//    node->saveToFile("Output_Version_0.xml");
+//    node->setApplicationExportVersion(1);
+//    node->saveToFile("Output_Version_1.xml");
+
+//    ObserverWidget* view = new ObserverWidget(node);
+//    view->show();
+//    return a.exec();
+
     QtilitiesApplication a(argc, argv);
-    QtilitiesApplication::setOrganizationName("YourOrganization");
-    QtilitiesApplication::setOrganizationDomain("YourDomain");
-    QtilitiesApplication::setApplicationName("My Application");
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Simple Example");
     QtilitiesApplication::setApplicationVersion("1.0");
 
-    // Set the application export version:
-    QtilitiesApplication::setApplicationExportVersion(0);
+    // Create a main window for our application:
+    QMainWindow* main_window = new QMainWindow;
+    QtilitiesApplication::setMainWindow(main_window);
 
-    // Register our VersionDetails class in the Qtilities factory:
-    FactoryItemID version_info_id("Version Details");
-    OBJECT_MANAGER->registerFactoryInterface(&VersionDetails::factory,version_info_id);
+    // Create a settings window for our application:
+    ConfigurationWidget* config_widget = new ConfigurationWidget;
+    QtilitiesApplication::setConfigWidget(config_widget);
 
-    // Next create a TreeNode with a couple of our classes attached to it:
-    TreeNode* node = new TreeNode("TestNode");
-    VersionDetails* ver1 = new VersionDetails;
-    ver1->setDescriptionBrief("Version 1 Brief");
-    ver1->setDescriptionDetailed("Version 1 Brief");
-    ver1->setVersionMajor(0);
-    ver1->setVersionMinor(0);
-    VersionDetails* ver2 = new VersionDetails;
-    ver2->setDescriptionBrief("Version 2 Brief");
-    ver2->setDescriptionDetailed("Version 2 Brief");
-    ver2->setVersionMajor(1);
-    ver2->setVersionMinor(2);
-    node->attachSubject(ver1);
-    node->attachSubject(ver2);
-    node->addNode("NewNode");
+    // Initialize the logger:
+    LOG_INITIALIZE();
 
-    // Next export the node to a file:
-    node->saveToFile("Output_Version_0.xml");
-    node->setApplicationExportVersion(1);
-    node->saveToFile("Output_Version_1.xml");
+    // Add a menu bar to our main window with a File menu:
+    bool existed;
+    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
+    main_window->setMenuBar(menu_bar->menuBar());
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
+    menu_bar->addMenu(file_menu);
 
-    ObserverWidget* view = new ObserverWidget(node);
-    view->show();
+    // Our menu items will need to be associated with a context.
+    // A good idea is to use the standard context which is always active:
+    QList<int> std_context;
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
+
+    // Create File->Settings and File->Exit menu items:
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
+    file_menu->addAction(command);
+    file_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
+    file_menu->addAction(command);
+
+    // Lets add a page to our setting page which handles shortcuts in our application:
+    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    // Initializing the configuration widget will search the global object pool for objects implementing IConfigPage, and automatically add them:
+    config_widget->initialize();
+
+    // Now build an example tree which will tell all views to provide some actions for the tree items:
+    TreeNode* node = new TreeNode("Root Node");
+    node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+
+    TreeNode* nodeA = node->addNode("Node A");
+    nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeA->addItem("Item 1");
+    nodeA->addItem("Item 2");
+    TreeItem* sharedItem = nodeA->addItem("Shared Item");
+
+    TreeNode* nodeB = node->addNode("Node B");
+    nodeB->attachSubject(sharedItem);
+    nodeB->addItem("Item 3");
+    nodeB->addItem("Item 4");
+    // Notice we did not set any display hints on Node B, it will behave different.
+
+    // We show the tree using an ObserverWidget:
+    ObserverWidget* tree_widget = new ObserverWidget(node);
+    tree_widget->show();
+
+    // Finally, set the ObserverWidget as the main window's central widget and show it:
+    main_window->setCentralWidget(tree_widget);
+    main_window->show();
     return a.exec();
 }

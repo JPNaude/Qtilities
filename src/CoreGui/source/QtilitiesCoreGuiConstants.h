@@ -279,7 +279,6 @@ namespace Qtilities {
             const char * const qti_action_SELECTION_SCOPE_ADD             = "Selection.Scope.Add";
             const char * const qti_action_SELECTION_SCOPE_REMOVE_SELECTED = "Selection.Scope.RemoveFromCurrentScope";
             const char * const qti_action_SELECTION_SCOPE_REMOVE_OTHERS   = "Selection.Scope.RemoveOthers";
-            const char * const qti_action_SELECTION_SCOPE_DUPLICATE       = "Selection.Scope.Duplicate";
 
             // Edit menu and actions
             const char * const qti_action_EDIT                            = "Edit";

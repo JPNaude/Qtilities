@@ -2109,7 +2109,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
 
         // Set up widget to use new observer
         d->navigation_stack.push(d_observer->observerID());
-        connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QObject*>)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
+        connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
         setObserverContext(observer);
         initialize();
     } /*else if (d->display_mode == TreeView) {

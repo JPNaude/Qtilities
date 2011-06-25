@@ -126,8 +126,9 @@ namespace Qtilities {
               \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
               category and therefore will not be changed.
 
-              \note If this tree item is not attached to any tree node, this function does nothing and
-              returns false.
+              \note If this tree item is not attached to any tree node, this function does nothing.
+
+              \sa removeCategory(), getCategory()
               */
             virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
             //! Gets the category of the tree item in the specified tree node.
@@ -162,6 +163,13 @@ namespace Qtilities {
               return false.
               */
             virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
+            //! Removes the current category of this tree item for the specified observer context.
+            /*!
+              If no context is specified, the complete multi context category property is removed.
+
+              \sa setCategory(), getCategory()
+              */
+            virtual void removeCategory(int observer_id = -1);
             //! Checks if the item has a category.
             virtual bool hasCategory() const;
             //! Sets the tool tip of the tree item.

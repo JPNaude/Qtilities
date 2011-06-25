@@ -125,10 +125,6 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
 
 \code
 QtilitiesApplication a(argc, argv);
-QtilitiesApplication::setOrganizationName("Jaco Naude");
-QtilitiesApplication::setOrganizationDomain("Qtilities");
-QtilitiesApplication::setApplicationName("Example");
-QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 \endcode
 
             If it however not possible to use QtilitiesApplication as show above it should be initialized directly after the above
@@ -136,10 +132,6 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
 
 \code
 QApplication a(argc, argv);
-QApplication::setOrganizationName("Jaco Naude");
-QApplication::setOrganizationDomain("Qtilities");
-QApplication::setApplicationName("Example");
-QApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 QtilitiesApplication::initialize();
 \endcode
 

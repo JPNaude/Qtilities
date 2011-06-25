@@ -107,3 +107,59 @@ QString Qtilities::Core::QtilitiesFileInfo::actualFilePath() const {
 
     return filePath();
 }
+
+#ifdef Q_OS_WIN
+bool Qtilities::Core::QtilitiesFileInfo::isValidFileName(const QString file_name) {
+    bool valid = !file_name.isEmpty();
+    valid = !file_name.contains(":");
+
+    if (valid)
+        valid = !file_name.contains("*");
+
+    if (valid)
+        valid = !file_name.contains("?");
+
+    if (valid)
+        valid = !file_name.contains("\"");
+
+    if (valid)
+        valid = !file_name.contains("/");
+
+    if (valid)
+        valid = !file_name.contains("\\");
+
+    if (valid)
+        valid = !file_name.contains("<");
+
+    if (valid)
+        valid = !file_name.contains(">");
+
+    if (valid)
+        valid = !file_name.contains("|");
+
+    return valid;
+}
+
+bool Qtilities::Core::QtilitiesFileInfo::isValidFilePath(const QString file_path) {   
+    bool valid = !file_path.isEmpty();
+
+    valid = !file_path.contains("*");
+
+    if (valid)
+        valid = !file_path.contains("?");
+
+    if (valid)
+        valid = !file_path.contains("\"");
+
+    if (valid)
+        valid = !file_path.contains("<");
+
+    if (valid)
+        valid = !file_path.contains(">");
+
+    if (valid)
+        valid = !file_path.contains("|");
+
+    return valid;
+}
+#endif

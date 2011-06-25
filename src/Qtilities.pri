@@ -51,7 +51,7 @@ CONFIG              += ordered qt
 #****************************************************************************
 # Build mode:
 #****************************************************************************
-CONFIG              += release
+CONFIG              += debug
 
 #****************************************************************************
 # Library includes
@@ -92,7 +92,6 @@ contains( QTILITIES, coregui ) {
     message( "Using Qtilities Core Gui module..." )
     message( "CoreGui Dependency: Using Qtilities Logging module..." )
     message( "CoreGui Dependency: Using Qtilities Core module..." )
-    message( "CoreGui Dependency: Make sure the Qt Property Editor Solution libraries are in your path..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
@@ -119,7 +118,6 @@ contains( QTILITIES, extension_system ) {
     message( "Extension System Dependency: Using Qtilities Logging module..." )
     message( "Extension System Dependency: Using Qtilities Core module..." )
     message( "Extension System Dependency: Using Qtilities CoreGui module..." )
-    message( "CoreGui Dependency: Make sure the Qt Property Editor Solution libraries are in your path..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
@@ -148,10 +146,9 @@ contains( QTILITIES, extension_system ) {
 
 contains( QTILITIES, project_management ) {
     message( "Using Qtilities Project Management module..." )
-    message( "Extension System Dependency: Using Qtilities Logging module..." )
-    message( "Extension System Dependency: Using Qtilities Core module..." )
-    message( "Extension System Dependency: Using Qtilities CoreGui module..." )
-    message( "CoreGui Dependency: Make sure the Qt Property Editor Solution libraries are in your path..." )
+    message( "Project Management Dependency: Using Qtilities Logging module..." )
+    message( "Project Management Dependency: Using Qtilities Core module..." )
+    message( "Project Management Dependency: Using Qtilities CoreGui module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui

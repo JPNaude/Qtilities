@@ -56,6 +56,7 @@ namespace Qtilities {
 
         Additional extended functions include:
         - The ability to set the file name part only using setFileName().
+        - The ability to check if a file name or path is valid.
 
         The following example shows how the class works and you will notice that it is very close to QFileInfo, except for the additional functionality:
 
@@ -232,6 +233,29 @@ completeSuffix:  "tar.gz"
               \sa actualPath()
               */
             QString actualFilePath() const;
+
+#ifdef Q_OS_WIN
+            //! Indicates if a file name is valid.
+            /*!
+              Checks if the file name is valid. Thus checks that it does not contain any of the following characters:
+\code
+\ / : * ? " < > |
+\endcode
+
+              Only available on system for which Qt has Q_OS_WIN defined.
+              */
+            static bool isValidFileName(const QString file_name);
+            //! Indicates if a file path is valid.
+            /*!
+              Checks if the file name is valid. Thus checks that it does not contain any of the following characters:
+\code
+: * ? " < > |
+\endcode
+
+              Only available on system for which Qt has Q_OS_WIN defined.
+              */
+            static bool isValidFilePath(const QString file_path);
+#endif
 
         private:
             QtilitiesFileInfoPrivateData* d;

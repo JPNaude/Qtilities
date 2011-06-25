@@ -73,7 +73,7 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         // Register QList<QPointer<QObject> > in Meta Object System.
         qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
-        QCoreApplication::instance()->installEventFilter(this);
+        //QCoreApplication::instance()->installEventFilter(this);
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }

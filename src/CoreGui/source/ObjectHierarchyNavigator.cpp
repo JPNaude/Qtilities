@@ -116,9 +116,9 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
             }
             observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(d_navigation_stack.count()-1));
             if (read_only)
-                label_text.append(QString("<font color = 'red'>%1</color>").arg(observer->subjectNameInContext(d_current_obj)));
+                label_text.append(QString("<font color = 'red'>%1</color>").arg(observer->subjectDisplayedNameInContext(d_current_obj)));
             else
-                label_text.append(QString("%1").arg(observer->subjectNameInContext(d_current_obj)));
+                label_text.append(QString("%1").arg(observer->subjectDisplayedNameInContext(d_current_obj)));
         } else {
             observer = qobject_cast<Observer*> (d_current_obj);
             if (observer) {

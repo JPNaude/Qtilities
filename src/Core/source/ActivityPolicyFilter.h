@@ -55,6 +55,19 @@ namespace Qtilities {
             \brief The ActivityPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over activity of objects within the context of an Observer.
 
             It is usefull when you need to control the activity of subjects within the context of an observer.
+
+            To install a ActivityPolicyFilter on an Observer is easy:
+\code
+Observer* obs = new Observer;
+ActivityPolicyFilter* activity_filter = new ActivityPolicyFilter;
+obs->installSubjectFilter(activity_filter);
+\endcode
+
+        When you use Qtilities::CoreGui::TreeNode instead, its even easier:
+\code
+TreeNode* tree_node = new TreeNode;
+ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
+\endcode
         */
         class QTILIITES_CORE_SHARED_EXPORT ActivityPolicyFilter : public AbstractSubjectFilter, public IModificationNotifier
         {

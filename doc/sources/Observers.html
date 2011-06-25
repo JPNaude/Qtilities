@@ -184,7 +184,7 @@ Other properties can be set by the developer before attachment to observers to p
 
 \subsection monitoring_property_changes Monitoring property changes and changing properties
 
-A powerful feature of the observer and observer property combination is that changes to properties are detected by observers and handled accordingly. A list of the monitored properties for a specific context can be obtained using the Qtilities::Core::Observer::monitoredProperties() function. This function also takes into account any monitored properties of all subject filters installed in the context.
+A powerful feature of the observer and observer property combination is that changes to properties are detected by observers and handled accordingly. A list of the monitored properties for a specific context can be obtained using the Qtilities::Core::Observer::monitoredProperties() function. This function also takes into account the monitored properties of all subject filters installed in the context.
 
 To change a property is easy, but care should be taken when changing properties which are different between contexts:
 \code

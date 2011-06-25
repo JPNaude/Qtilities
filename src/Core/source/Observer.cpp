@@ -1163,13 +1163,13 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
     foreach (QString property_name, added_properties) {
         MultiContextProperty prop = getMultiContextProperty(obj, property_name.toStdString().data());
         if (prop.isValid()) {
-            // If it exists, we remove this observer context
+            // If it exists, we remove this observer context:
             prop.removeContext(observerData->observer_id);
             setMultiContextProperty(obj, prop);
         }
     }
 
-    // If the count is zero after removing the contexts, remove all properties
+    // If the count is zero after removing the contexts, remove all properties:
     if (parentCount(obj) == 0) {
         foreach (QString property_name, added_properties) {
             if (property_name != QString(qti_prop_NAME))
@@ -1362,6 +1362,29 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     return QString();
 }
 
+QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* obj) const {
+    if (!obj)
+        return QString();
+
+    // Check if the object is in this context:
+    if (contains(obj) || contains(obj->parent())) {
+        // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+        QVariant instance_name = getQtilitiesPropertyValue(obj,qti_prop_DISPLAYED_ALIAS_MAP);
+        if (instance_name.isValid())
+            return instance_name.toString();
+        else {
+            // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+            QVariant instance_name = getQtilitiesPropertyValue(obj,qti_prop_ALIAS_MAP);
+            if (instance_name.isValid())
+                return instance_name.toString();
+            else
+                return obj->objectName();
+        }
+    }
+
+    return QString();
+}
+
 Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwnershipInContext(const QObject* obj) const {
     if (!obj)
         return ManualOwnership;
@@ -1440,6 +1463,28 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
                 subject_names << instance_name.toString();
             else
                 subject_names << observerData->subject_list.at(i)->objectName();
+        }
+    }
+    return subject_names;
+}
+
+QStringList Qtilities::Core::Observer::subjectDisplayedNames(const QString& iface) const {
+    QStringList subject_names;
+
+    for (int i = 0; i < observerData->subject_list.count(); i++) {
+        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
+            // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
+            QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_DISPLAYED_ALIAS_MAP);
+            if (instance_name.isValid())
+                subject_names << instance_name.toString();
+            else {
+                // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
+                QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                if (instance_name.isValid())
+                    subject_names << instance_name.toString();
+                else
+                    subject_names << observerData->subject_list.at(i)->objectName();
+            }
         }
     }
     return subject_names;

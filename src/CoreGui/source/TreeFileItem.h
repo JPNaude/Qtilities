@@ -197,11 +197,14 @@ namespace Qtilities {
 
         private:
             //! Internal function to get the displayed name according to the PathDisplay type.
-            QString displayName();
-            //! Internal function to set the displayed name according to the PathDisplay type.
-            void setDisplayName(const QString& new_display_name);
+            /*!
+                \param file_path By default (thus by passing a QString()) this function will return the display name of the current file. When file_path contains a path, this function will return the display name based on this object's PathDisplay configuration.
+              */
+            QString displayName(const QString& file_path = QString());
 
             PathDisplay d_path_display;
+            QString d_queued_file_path;
+            QString d_queued_relative_to_path;
         };
     }
 }

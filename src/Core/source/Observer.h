@@ -745,7 +745,7 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
               */
-            static bool isSupportedType(const QString& meta_type, Observer* observer);
+            static bool isSupportedType(const QString& meta_type, Observer* observer);           
 
         private:
             //! This function will remove this observer from all the properties which it might have added to an obj.
@@ -800,8 +800,10 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             void setObserverDescription(const QString& description) { observerData->observer_description = description; }
             //! Returns the observer's name within a context. If a context is not specified, the objectName() of the observer is returned.
             QString observerName(int parent_id = -1) const;
-            //! Returns the name used for the specified object in this context. QString() is returned if the object is not valid.
+            //! Returns the name used for the specified object in this context. QString() is returned if the object is not valid or not attached to this observer.
             QString subjectNameInContext(const QObject* obj) const;
+            //! Returns the displayed name used for the specified object in this context. QString() is returned if the object is not valid or not attached to this observer.
+            QString subjectDisplayedNameInContext(const QObject* obj) const;
             //! Returns the ownership used for the specified object in this context.
             /*!
                 If \p obj is not valid or contained in this context, ManualOwnership is returned. Thus you should
@@ -836,8 +838,10 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
               */
             QList<QObject*> treeChildren(const Observer* observer = 0) const;
-            //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subject names are returned.
+            //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subjects' names are returned.
             QStringList subjectNames(const QString& iface = QString()) const;
+            //! Returns a list with the displayed names of all the current observed subjects which implements a specific interface. By default all subjects' displayed names are returned.
+            QStringList subjectDisplayedNames(const QString& iface = QString()) const;
             //! Returns the subject reference at a given position.
             QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.

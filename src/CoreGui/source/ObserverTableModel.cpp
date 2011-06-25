@@ -202,7 +202,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                     is_modified = mod_iface->isModified();
             }
 
-            QString return_string = d_observer->subjectNames().at(index.row());
+            QString return_string = d_observer->subjectDisplayedNames().at(index.row());
             if (is_modified)
                 return return_string + "*";
             else

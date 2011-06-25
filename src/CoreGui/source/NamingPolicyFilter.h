@@ -62,41 +62,78 @@ namespace Qtilities {
         \class Qtilities::CoreGui::NamingPolicyFilter
         \brief The NamingPolicyFilter class is an implementation of AbstractSubjectFilter which allows control over naming of objects within the context of an Observer.
 
-        The NamingPolicyFilter class is usefull when you need to control the names of subjects within the context of an Observer. Currently NamingPolicyFilter allows control over the validity and uniqueness of a names within the context of an Observer, set using setObserverContext().
+        The NamingPolicyFilter class is usefull when you need to control the names of subjects within the context of an Observer. Currently NamingPolicyFilter allows control over the validity and uniqueness of a names within the context of an Observer set using setObserverContext().
 
         Names are checked against the following criteria:
         - Validity of the name, defined through a QValidator set through setValidator().
         - Uniqueness of names, controlled through setUniquenessPolicy().
 
-        -subsection naming_policy_filter_validity Validity Of Names
+        To install a NamingPolicyFilter on an Observer is easy:
+\code
+Observer* obs = new Observer;
+NamingPolicyFilter* naming_filter = new NamingPolicyFilter;
+naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
+naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::Reject);
+naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::Reject);
+obs->installSubjectFilter(naming_filter);
+\endcode
 
-        The validity of a name is determined by a QValdiator which is set using setValidator(). To get the current validator use getValidator() which returns a QValidator pointer which can be installed on QTextEdit controls directly. Valid names are those which return QValidator::Acceptable when validated using the validator. By default the NamingPolicySubject filter validates names using a QRegExpValidator constructed as follows:
+        When you use Qtilities::CoreGui::TreeNode instead, its even easier:
+\code
+TreeNode* tree_node = new TreeNode;
+NamingPolicyFilter* naming_filter = tree_node->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
+\endcode
+
+        \section naming_policy_filter_validity Validity Of Names
+
+        The validity of a name is determined by a QValdiator which is set using setValidator(). To get the current validator use getValidator(). Valid names are those which return QValidator::Acceptable when validated using the validator. By default the NamingPolicySubject filter validates names using a QRegExpValidator constructed as follows:
 
 \code
 const QRegExp default_expression("\\.{1,200}",Qt::CaseInsensitive);
 QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0);
 \endcode
 
-        -subsection naming_policy_filter_uniqueness Uniqueness Of Names
+        \section naming_policy_filter_uniqueness Uniqueness Of Names
 
-        The uniqueness of names are determined by comparing the names of subjects using QString's compare (overloaded ==) functionality, thus comparisons are case sensitive. The uniquenessof names are controlled by the UniquenessPolicy of the subject filter. This can be accessed using setUniquenessPolicy() and uniquenessPolicy().
+        The uniqueness of names are determined by comparing the names of subjects using QString's compare (overloaded ==) functionality, thus comparisons are case sensitive. The uniqueness of names are controlled by the UniquenessPolicy of the subject filter. This can be accessed using setUniquenessPolicy() and uniquenessPolicy().
 
-        It is important to note that the UniquenessPolicy and the subject's filter's validator can only be set while no subjects are attached within the subject filter's observer context.
+        Once the NamingPolicyFilter is set up the way you need it, it will add a single shared property (see Qtilities::Core::SharedProperty) to subjects attached to it's observer context. The name of this property is defined in code using the Qtilities::Core::Properties::qti_prop_NAME constant.
 
-        Once the NamingPolicyFilter is set up the way you need it, it will add a single shared property (see SharedProperty) to subjects attached to it's observer context. The name of this property is defined in code using the Qtilities::Core::Properties::qti_prop_NAME constant.
-
-        This dynamic property will be sync'ed with objectName() at all times. Since there is no way to know when setObjectName() is called on a QObject, a dynamic property needed to be added to manage the subject's name. Whenever you update this shared property it will be evaluated by the subject filter which will make sure the new name follows the validity of the filter's validator as well as the UniquenessPolicy of the filter.
+        This dynamic property will be sync'ed with objectName() at all times. Since there is no way to know when setObjectName() is called on a QObject, a dynamic property needed to be added to manage the subject's name. Whenever you update this shared property it will be evaluated by the subject filter which will make sure the new name follows the validity of the filter's validator as well as the UniquenessPolicy of the filter. When a subject is attached to multiple contexts in which names are managed by NamingPolicyFilter objects, the first context to which it was attached will become its name manager. The name manager context will use the \p qti_prop_NAME property and all contexts (with naming policy filters) to which the subject is attached after being attached to the name manager will use Qtilities::Core::Properties::qti_prop_ALIAS_MAP to store aliases for the object in those contexts. The name of a subject in a context can be found using the Qtilities::Core::Observer::subjectNameInContext() function.
 
         The diagram below shows a QObject which is observed by a number of observers with different, or no naming policy filters installed.
 
         \image html naming_policy_filter_overview.jpg "Naming Policy Filter Overview"
         \image latex naming_policy_filter_overview.eps "Naming Policy Filter Overview" width=\textwidth
 
-        Subject names are evaulated during attachment to the filter's observer context and when changing the above dynamic property. Evaluation is done using the evaluateName() function which returns the validity of the name using a value defined by ValidityCheckResult. You can control how problematic names are handled by setting the the uniqueness resolution policy and the validity resolution policy of the subject filter. Access functions for these policies are setUniquenessResolutionPolicy(), uniquenessResolutionPolicy() setValidityResolutionPolicy() and validityResolutionPolicy(). Possible values for these policies are defined using ResolutionPolicy.
+        Subject names are evaulated during attachment to the filter's observer context and when changing the name properties discussed above. Evaluation is done using the evaluateName() function which returns the validity of the name using a value defined by ValidityCheckResult. You can control how conflicting names are handled by setting the uniqueness resolution policy and the validity resolution policy of the subject filter. Access functions for these policies are setUniquenessResolutionPolicy(), uniquenessResolutionPolicy() setValidityResolutionPolicy() and validityResolutionPolicy(). Possible values for these policies are defined using ResolutionPolicy.
 
-        Note: When streaming naming policy filter objects, custom validators will not be streamed at present. Thus the default validator will be used when constructing a naming policy filter from a binary stream.
+        When isExportable() is true the parameters of the filter will be exported with its Observer context when the observer is exported. Note that when streaming naming policy filter objects, custom validators will not be streamed at present. Thus the default validator will be used when constructing the naming policy filter again in the future.
 
-        -subsection naming_policy_filter_subclassing Subclassing NamingPolicyFilter
+        \section naming_policy_filter_displayed_names Displayed Names
+
+        By default Observer models display the names of subjects provided by \p qti_prop_NAME or \p qti_prop_ALIAS_MAP depending on who the name manager is. This name is also used during validation and uniqueness checking. In some cases it is required to display a different name to the user and for those cases the Qtilities::Core::Properties::qti_prop_DISPLAYED_ALIAS_MAP property can be used. An example where this is usefull is Qtilities::CoreGui::TreeFileItem which allows you to show different parts of a file path to the user. However in the background the qti_prop_NAME still reffers to the full path, even though only the name is displayed for example, and the naming policy filters will still use the qti_prop_NAME to check for duplicates etc.
+
+        \section naming_policy_filter_changing_names Changing Subject Names
+
+        It is important to understand how to change the name of an object when using NamingPolicyFilter. An example of how to change the name on an object is shown below:
+
+\code
+// We need to check if qti_prop_NAME exists first:
+if (Observer::propertyExists(obj,qti_prop_NAME)) {
+    SharedProperty new_subject_name_property(qti_prop_NAME,QVariant("New Name"));
+    Observer::setSharedProperty(obj,new_subject_name_property);
+} else {
+    // Handle cases where there is no naming policy filter:
+    setObjectName("New Name");
+
+\endcode
+
+        In most cases its not neccessarry to know if the name was actually set or not (thus not rejected by the NamingPolicyFilter). In other cases you might want to know if the property was set successfully and this can be done through a event filter on the object for which the name must be changed.  If the property change in rejected by the NamingPolicyFilter the QDynamicPropertyChangeEvent event will be filtered by the observer context. Thus you can see if the event was filtered or not.
+
+        Another way is to listen for QtilitiesPropertyChangeEvent events on the object (this is not enabled by default on observers). Whenever a property was successfully changed the observer context will post a QtilitiesPropertyChangeEvent event to the object. Thus if you get the event the name was changed successfully. For more information on how this see \ref monitoring_property_changes.
+
+        \section naming_policy_filter_subclassing Subclassing NamingPolicyFilter
 
         It is possible to customize naming policy filters by subclassing NamingPolicyFilter. The needed functions are virtual and allows you to customize the behaviour. Thus you can for example provide a custom naming policy filter dialog which is presented to the user if you decide to use that resolution policy.
 
@@ -150,7 +187,7 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
                 AutoRename = 0,             /*!< Automatically rename new names. \sa generateValidName() */
                 PromptUser = 1,             /*!< Bring up a Qtilities::CoreGui::NamingPolicyInputDialog widget from which the user can decide what to do. \note <b>Important:</b> When this NamingPolicyFilter is installed on an Observer which does not live in the main GUI thread, this resolution policy should not be used. If it is used it will attempt to construct a widget in a non-GUI thread and it will crash.*/
                 Replace = 2,                /*!< Replace the conflicting object with the current object. This option will only work when the conflicting object is only observed in the context to which the naming policy filter is attached. If this is the case, the replacement operation will delete the conflicting object and attach the new object to the observer. \note The Replace policy is only usable when duplicate names are encountered, not invalid names. For invalid names Reject will be used. */
-                Reject = 3                  /*!< Reject unacceptable names. */
+                Reject = 3                  /*!< Reject unacceptable names.*/
             };
             //! Function which returns a string associated with a specific ResolutionPolicy.
             static QString resolutionPolicyToString(ResolutionPolicy resolution_policy);

@@ -62,6 +62,24 @@ namespace Qtilities {
 
         Another usefull feature of the SubjectTypeFilter class is that it provides a name for the group of subjects that is known to it which is accessable through groupName(). The group name is set in the constructor of the filter.
 
+        To install a SubjectTypeFilter on an Observer is easy:
+\code
+Observer* obs = new Observer;
+SubjectTypeFilter* subject_type_filter = new SubjectTypeFilter;
+subject_type_filter->addSubjectType(SubjectTypeInfo("TestMetaType1","TestTypeName1"));
+subject_type_filter->setGroupName("TestGroupName");
+subject_type_filter->enableInverseFiltering(true);
+obs->installSubjectFilter(subject_type_filter);
+\endcode
+
+        When you use Qtilities::CoreGui::TreeNode instead, its even easier:
+\code
+TreeNode* tree_node = new TreeNode;
+SubjectTypeFilter* subject_type_filter = tree_node->setChildType("TestGroupName");
+subject_type_filter->addSubjectType(SubjectTypeInfo("TestMetaType1","TestTypeName1"));
+subject_type_filter->enableInverseFiltering(true);
+\endcode
+
         \note You need to set up your filter before attaching any subjects to its observer context.
 
         \sa Observer, AbstractSubjectFilter, ActivityPolicyFilter, NamingPolicyFilter

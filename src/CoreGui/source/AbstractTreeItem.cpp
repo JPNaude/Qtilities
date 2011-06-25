@@ -278,6 +278,21 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategoryString(const QString& cate
     return setCategory(QtilitiesCategory(category_string,sep));
 }
 
+void Qtilities::CoreGui::AbstractTreeItem::removeCategory(int observer_id) {
+    if (observer_id == -1) {
+        objectBase()->setProperty(qti_prop_CATEGORY_MAP,QVariant());
+        return;
+    }
+
+    // Remove all the contexts first.
+    MultiContextProperty prop = Observer::getMultiContextProperty(objectBase(), qti_prop_CATEGORY_MAP);
+    if (prop.isValid()) {
+        // If it exists, we remove this observer context:
+        prop.removeContext(observer_id);
+        Observer::setMultiContextProperty(objectBase(), prop);
+    }
+}
+
 bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
     if (!category.isValid())
         return false;
@@ -286,7 +301,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     if (observer_id == -1) {
         // Check the parent count:
         if (Observer::parentCount(objectBase()) != 1) {
-            LOG_DEBUG(QString(QObject::tr("setCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+            LOG_DEBUG(QString(QObject::tr("setCategory(category,-1) on AbstractTreeItem %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
             return false;
         } else {
             MultiContextProperty prop = Observer::getMultiContextProperty(objectBase(),qti_prop_OBSERVER_MAP);

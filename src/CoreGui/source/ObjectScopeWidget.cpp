@@ -64,14 +64,12 @@ namespace Qtilities {
 struct Qtilities::CoreGui::ObjectScopeWidgetPrivateData {
     ObjectScopeWidgetPrivateData() : actionAddContext(0),
         actionDetachToSelection(0),
-        actionDuplicateInScope(0),
         actionRemoveContext(0),
         obj(0),
         action_provider(0) {}
 
     QAction* actionAddContext;
     QAction* actionDetachToSelection;
-    QAction* actionDuplicateInScope;
     QAction* actionRemoveContext;
     QPointer<QObject> obj;
     ActionProvider* action_provider;
@@ -400,15 +398,6 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     connect(d->actionDetachToSelection,SIGNAL(triggered()),SLOT(handle_actionDetachToSelection_triggered()));
     ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_OTHERS,d->actionDetachToSelection,context);
     command->setCategory(QtilitiesCategory("Item Scope"));
-    // ---------------------------
-    // Duplicate In Selected Context
-    // ---------------------------
-    d->actionDuplicateInScope = new QAction(QIcon(qti_icon_SPLIT_16x16),"Duplicate",this);
-    //d->action_provider->addAction(d->actionDuplicateInScope);
-    d->actionDuplicateInScope->setEnabled(false);
-    connect(d->actionDuplicateInScope,SIGNAL(triggered()),SLOT(handle_actionDuplicateInScope_triggered()));
-    ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_DUPLICATE,d->actionDuplicateInScope,context);
-    command->setCategory(QtilitiesCategory("Item Scope"));
 
     //ui->observerTable->addAction(d->actionAddContext);
     QAction* sep1 = new QAction(0);
@@ -419,7 +408,6 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     QAction* sep2 = new QAction(0);
     sep2->setSeparator(true);
     ui->observerTable->addAction(sep2);
-    //ui->observerTable->addAction(d->actionDuplicateInScope);
     ui->observerTable->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
@@ -434,11 +422,6 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
                 else
                     d->actionDetachToSelection->setEnabled(false);
 
-                if (observer->displayHints()->actionHints() & ObserverHints::ActionScopeDuplicate)
-                    d->actionDuplicateInScope->setEnabled(true);
-                else
-                    d->actionDuplicateInScope->setEnabled(false);
-
                 if (observer->displayHints()->actionHints() & ObserverHints::ActionRemoveItem)
                     d->actionRemoveContext->setEnabled(true);
                 else
@@ -446,12 +429,10 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
             }
         } else {
             d->actionDetachToSelection->setEnabled(false);
-            d->actionDuplicateInScope->setEnabled(false);
             d->actionRemoveContext->setEnabled(false);
         }
     } else {
         d->actionDetachToSelection->setEnabled(false);
-        d->actionDuplicateInScope->setEnabled(false);
         d->actionRemoveContext->setEnabled(false);
     }
 
@@ -472,16 +453,9 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
         d->actionAddContext->setEnabled(true);
     } else {
         d->actionDetachToSelection->setEnabled(false);
-        d->actionDuplicateInScope->setEnabled(false);
         d->actionRemoveContext->setEnabled(false);
         d->actionAddContext->setEnabled(false);
     }
-}
-
-void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDuplicateInScope_triggered() {
-    QMessageBox msgBox;
-    msgBox.setText(tr("This feature is not currenlty implemented and will become available in a future release."));
-    msgBox.exec();
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionAddContext_triggered() {

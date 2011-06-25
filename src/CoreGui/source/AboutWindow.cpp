@@ -47,7 +47,7 @@ Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *pa
     ui(new Ui::qti_private_AboutWindow)
 {
     ui->setupUi(this);
-    setWindowTitle(tr("About") + "Qtilities");
+    setWindowTitle(tr("About ") + "Qtilities");
     ui->lblVersion->setText(QString(tr("v%1")).arg(QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString()));
     QFileInfo fi(QApplication::applicationFilePath());
     QString build_date = fi.created().toString();

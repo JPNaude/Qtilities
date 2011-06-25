@@ -61,9 +61,102 @@ The goal of this article is to introduce %Qtilities to someone who has never use
 </tr>
 </table>
 
-\section simple_example A simple example application
+\section basics_constructing_application_objecte Constructing your QApplication object
 
-Lets start of with a very simple application and look at it in detail. The application will do nothing useful, it will just run, make calls to some managers and then show a main window.
+A %Qtilities application is just a normal Qt application with one small difference. The recommended way to construct your QApplication object is to use Qtilities::CoreGui::QtilitiesApplication which initializes some internal %Qtilities features, and extends QApplication. Thus it would look something like this:
+
+\code
+QtilitiesApplication a(argc, argv);
+
+// If you use a different class that inherits from QApplication and it isnot possible to use QtilitiesApplication as shown above, it should be initialized directly after QApplication construction, as follows:
+QApplication a(argc, argv);
+QtilitiesApplication::initialize();
+\endcode
+
+This is the only difference between a %Qtilities application and a normal Qt application. If you don't use any GUI related classes, you can keep using QCoreApplication without needed to do anything different.
+
+\section basics_managers Macros made available to you
+
+When using %Qtilities you have access to a set of macros. The table below provides an overview of the most important ones:
+
+<div align="center">
+<table CELLPADDING=0 style="width:800px;
+  table-layout:auto;
+        margin:0px 0px 0px 0px;
+        border-width:0px 0px 0px 0px;
+        border-color:#7F7F7F;">
+<tr>
+<td style="width:100%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+        margin:0px 0px 0px 0px;
+  width: 100%;
+        border-width:0px 0px 0px 0px;
+  background-color: #d1d3d4;
+        border-color:#7F7F7F;">
+<tr>
+<td style="width:25%; background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Object Manager</h2>
+</td>
+<td style="width:25%; background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Context Manager</h2>
+</td>
+<td style="width:25%; background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Action Manager</h2>
+</td>
+<td style="width:25%; background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Logging</h2>
+</td>
+</tr>
+<tr>
+<td style="vertical-align:top">
+The OBJECT_MANAGER macro provides object management functionality in your application. The most important feature is the global object pool in which objects can be registered either by the main application, or by plugins. For more information about the object manager see the the \ref page_object_management article.
+</td>
+<td style="vertical-align:top">
+The CONTEXT_MANAGER macro allows management of contexts in an application. For more information about the context manager see the \ref context_manager section of the \ref page_action_management article.
+</td>
+<td style="vertical-align:top">
+The ACTION_MANAGER macro allows management of actions, shortcuts and menu related items in an application. For more information about the action manager see the \ref action_manager section of the \ref page_action_management article.
+</td>
+<td style="vertical-align:top">
+A set of logging macros are available, for more information see \ref page_logging.
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</div>
+
+\section basics_includes_and_namespaces Includes and namespaces
+
+In your .pro file you need to define the %Qtilities module you would like to use in your application. This will include all the needed header files and link your application to the correct libraries. The exact details to use for the different modules are provided in the \ref page_modules_overview article. Note that all dependent %Qtilities modules will be added automatically for you and details about the used dependencies are printed as output during compilation.
+
+\code
+// In your .pro file:
+QTILITIES += coregui
+QTILITIES_BASE  = your_path/qtilities/trunk
+include($$QTILITIES_BASE/src/Qtilities.pri)
+\endcode
+
+For the above example we set the \p QTILITIES variable to \p coregui indicating that we are using the CoreGui module, and the following will be printed during compilation:
+
+\code
+Project MESSAGE: Using Qtilities CoreGui module...
+Project MESSAGE: CoreGui Dependency: Using Qtilities Logging module...
+Project MESSAGE: CoreGui Dependency: Using Qtilities Core module...
+\endcode
+
+In the source files where you want to use %Qtilities you need to include the name of the module and then specify the namespaces we want to use. All the required namespaces of all the dependent modules will be made available through automatically. For example:
+
+\code
+// In your .cpp file:
+#include <QtilitiesCoreGui>
+using namespace QtilitiesCoreGui;
+\endcode
+
+\section basics_simple_app A basic example application
+
+Next we will look at a basic example which you can build and play around with. The example will not do a lot but it introduces many of the features provided by %Qtilities.
 
 \code
 #include <QtGui>
@@ -72,121 +165,81 @@ using namespace QtilitiesCoreGui;
 
 int main(int argc, char *argv[])
 {
-  QtilitiesApplication a(argc, argv);
-  QtilitiesApplication::setOrganizationName("Jaco Naude");
-  QtilitiesApplication::setOrganizationDomain("Qtilities");
-  QtilitiesApplication::setApplicationName("Simple Example");
-  QtilitiesApplication::setApplicationVersion("0.1");
-  
-  // Create a main window for our application
-  QMainWindow* mainWindow = new QMainWindow();
-  QtilitiesApplication::setMainWindow(mainWindow);
-  
-  // Create an object and register it in the global object pool
-  QObject obj;
-  OBJECT_MANAGER->registerObject(&obj);
-  
-  // Create an example context and register it in the context manager
-  QString my_context = "My Context";
-  int my_context_id = CONTEXT_MANAGER->registerContext(my_context);
-  QList<int> context_list;
-  context_list << my_context_id;
-  
-  // Create an action and register it in the action manager under our context
-  QAction* my_action = new QAction(QIcon(),"My Action",0);
-  my_action->setEnabled(false);
-  ACTION_MANAGER->registerAction("Actions.myAction",my_action,context_list);
-  
-  // Now lets set our context active. This will enable my_action
-  CONTEXT_MANAGER->setNewContext(my_context);
-  
-  mainWindow->show();
-  return a.exec(); 
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Simple Example");
+    QtilitiesApplication::setApplicationVersion("1.0");
+
+    // Create a main window for our application:
+    QMainWindow* main_window = new QMainWindow;
+    QtilitiesApplication::setMainWindow(main_window);
+
+    // Create a settings window for our application:
+    ConfigurationWidget* config_widget = new ConfigurationWidget;
+    QtilitiesApplication::setConfigWidget(config_widget);
+
+    // Initialize the logger:
+    LOG_INITIALIZE();
+
+    // Add a menu bar to our main window with a File menu:
+    bool existed;
+    ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
+    main_window->setMenuBar(menu_bar->menuBar());
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
+    menu_bar->addMenu(file_menu);
+
+    // Our menu items will need to be associated with a context.
+    // A good idea is to use the standard context which is always active:
+    QList<int> std_context;
+    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
+
+    // Create File->Settings and File->Exit menu items:
+    Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),config_widget,SLOT(show()));
+    file_menu->addAction(command);
+    file_menu->addSeperator();
+    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
+    QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
+    file_menu->addAction(command);
+
+    // Lets add a page to our setting page which handles shortcuts in our application:
+    OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    // Initializing the configuration widget will search the global object pool for objects implementing IConfigPage, and automatically add them:
+    config_widget->initialize();
+
+    // Now build an example tree which will tell all views to provide some actions for the tree items:
+    TreeNode* node = new TreeNode("Root Node");
+    node->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    node->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+
+    TreeNode* nodeA = node->addNode("Node A");
+    nodeA->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    nodeA->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
+    nodeA->addItem("Item 1");
+    nodeA->addItem("Item 2");
+    TreeItem* sharedItem = nodeA->addItem("Shared Item");
+
+    TreeNode* nodeB = node->addNode("Node B");
+    nodeB->attachSubject(sharedItem);
+    nodeB->addItem("Item 3");
+    nodeB->addItem("Item 4");
+    // Notice we did not set any display hints on Node B, it will behave different.
+
+    // We show the tree using an ObserverWidget:
+    ObserverWidget* tree_widget = new ObserverWidget(node);
+    tree_widget->show();
+
+    // Finally, set the ObserverWidget as the main window's central widget and show it:
+    main_window->setCentralWidget(tree_widget);
+    main_window->show();
+    return a.exec();
 }
 \endcode
 
-Lets look at the way \p includes and \p namespaces work in %Qtilities:
-
-\code
-// In your .pro file
-QTILITIES += coregui
-include(../../Qtilities.pri)
-
-// In your .cpp file as shown in this example
-#include <QtilitiesCoreGui>
-using namespace QtilitiesCoreGui;
-\endcode
-
-In your .pro file you need to define the %Qtilities module you would like to use in your application. This will include all the needed header files and link your application to the correct libraries. The exact details to use for the different modules are provided in the \ref page_modules_overview article. Note that all dependent %Qtilities modules will be added automatically for you and details about the used dependencies are printed as output during compilation. For the example we gave here we set the \p QTILITIES variable to \p coregui indicating that we are using the CoreGui module, and the following will be printed during compilation.
-\code
-Project MESSAGE: Using Qtilities CoreGui module...
-Project MESSAGE: Extension System Dependency: Using Qtilities Logging module...
-Project MESSAGE: Extension System Dependency: Using Qtilities Core module...
-\endcode
-
-In the implementation (.cpp) file we need to include the name of the module and then specify the namespaces we want to use. The inclusion again include all dependent libraries. The same holds for the namespaces, thus all the required namespaces of all dependent modules will be used.
-
-The next thing to note about the above application is that we use Qtilities::CoreGui::QtilitiesApplication, rather than the normal QApplication class. In console applications (non-gui) you should use Qtilities::Core::QtilitiesCoreApplication. Qtilities::CoreGui::QtilitiesApplication inherits QApplcation and adds extra functionality to it. The most important additions are references to the different managers in %Qtilities. Lets look at these managers briefly before examining the rest of the example.
-
-\subsection the_basics_object_manager The Object Manager
-
-The object manager provides object management functionality to your application. It can be accessed through the OBJECT_MANAGER macro which is basically a shortcut to QtilitiesCoreApplication::objectManager(). The most important feature is the global object pool in which objects can be registered either by the main application, or by plugins. The global object pool is especially useful in cases where plugins need to make objects available to other plugins or the main application. The object manager allows inspection of registered objects by providing a query function which returns all objects which implements a specific interface. For more information about the object manager see the the \ref page_object_management article.
-
-\subsection the_basics_context_manager The Context Manager
-
-The context manager allows management of contexts in an application. It can be accessed through the CONTEXT_MANAGER macro which is basically a shortcut to QtilitiesCoreApplication::contextManager(). A context can be anything that can be presented by a string. For example, if you assign two different contexts to two widgets and you show each widget, the active context will be determined by the active widget. This exact approach is used for action management which is described in more detail in the next section. For more information about the context manager see the \ref context_manager section of the \ref page_action_management article.
-
-\subsection the_basics_action_manager The Action Manager
-
-The action manager allows management of actions, shortcuts and menu related items in an application. It can be accessed through the ACTION_MANAGER macro which is basically a shortcut to QtilitiesApplication::actionManager(). For more information about the action manager see the \ref action_manager section of the \ref page_action_management article.
-
-\subsection the_basics_clipboard_manager The Clipboard Manager
-
-The clipboard manager simplifies the use of the Qt Clipboard. It can be accessed through the CLIPBOARD_MANAGER macro which is basically a shortcut to QtilitiesApplication::clipboardManager(). For more information about the clipboard manager see the \ref clipboard_manager section of the \ref page_action_management article.
-
-Now that the managers have been discussed, lets look at the rest of the example in detail.
-
-\code
-QtilitiesApplication a(argc, argv);
-QtilitiesApplication::setOrganizationName("Jaco Naude");
-QtilitiesApplication::setOrganizationDomain("Qtilities");
-QtilitiesApplication::setApplicationName("Simple Example");
-QtilitiesApplication::setApplicationVersion("0.1");
-
-// Create a main window for our application
-QMainWindow* mainWindow = new QMainWindow();
-QtilitiesApplication::setMainWindow(mainWindow);
-\endcode
-
-As mentioned already, the Qtilities::CoreGui::QtilitiesApplication provides an extension of QApplication. We set up the normal parameters in QApplication in the first few lines. %Qtilities uses QSettings in multiple places and therefore it is needed to provide these details to QApplication in the beginning of your main function. Next we create a main window and set it as our application's main window using the QtilitiesApplication::setMainWindow() function. This is an important line since the action manager needs a main window to add front-end actions of Qtilities::CoreGui::ProxyAction objects. If you don't provide a main window reference, proxy actions will not work as intended since shortcuts won't trigger them. The action manager will notify you about this through a message box when the application starts.
-It is not necessary to use the QtilitiesApplication object as shown in this example. For more information see the Qtilities::CoreGui::QtilitiesApplication::initialize().
-
-\code
-// Create an object and register it in the global object pool
-QObject obj;
-OBJECT_MANAGER->registerObject(&obj);
-\endcode
-
-In the next part of our example we register a QObject reference in the global object pool. The object will now be visible throughout the application even though we don't use it again in this example.
-
-\code
-// Create an example context and register it in the context manager
-QString my_context = "My Context";
-int my_context_id = CONTEXT_MANAGER->register(my_context);
-
-// Create an action and register it in the action manager under our context
-QAction* my_action = new QAction(QIcon(),"My Action");
-my_action->setShortcut(QKeySequence(QKeySequence::HelpContents));
-my_action->setEnabled(false);
-ACTION_MANAGER->registerAction("Actions.myAction",my_action,my_context_id);  
-
-// Now lets set our context active. This will enable my_action
-CONTEXT_MANAGER->setNewContext(my_context);
-\endcode
-
-In the last section of the example we create a simple context and add register it in the context manager. Next we create an action and register it in the action manager with our context. The last thing we do is to set our context as active. The \p setNewContext() function will broadcast the state of the context manager and our action will become the active back-end action for the \p Actions.myAction action in the action manager. Pressing \p F1 will trigger our action when the back-end action is active.
-
-This example introduced some of the core concepts in %Qtilities and most of the other features uses these concepts in one way or another. For example some widgets automatically add their actions to the action manager and registers corresponding contexts in the context manager. Therefore it is important to understand the concepts presented here while exploring the rest of the features found in %Qtilities. 
+This example introduced some of the core concepts in %Qtilities and most of the other features uses these concepts in one way or another. For example, the Qtilities::CoreGui::ObserverWidget object in the above example automatically adds its actions to the action manager and registers their its own contexts in the context manager for these actions.
 
 Now that the basics are covered check out the \ref page_examples_and_plugins and take a look at some of the articles which provides in depth overviews of feature areas found in %Qtilities at the <a href="#top" title="Back to top">top</a> of this page.
+
+If you run into something that does not make sense, post a question on the <a href="http://groups.google.com/group/qtilities?hl=en?hl=en/">mailing list</a>.
  */

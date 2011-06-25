@@ -130,12 +130,21 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
             if (propertyChangeEvent) {
                 QString property_name = QString(propertyChangeEvent->propertyName().data());
                 if (property_name == QString(qti_prop_NAME)) {
-                    QString new_name = Observer::getSharedProperty(this,qti_prop_NAME).value().toString();
-                    QString display_name = displayName();
-                    if (display_name != new_name) {
-                        setDisplayName(new_name);
-                        emit filePathChanged(display_name);
-                    }
+                    // Finish off what was started in setFile():
+                    treeFileItemBase->file_info.setFile(d_queued_file_path);
+                    if (!d_queued_relative_to_path.isEmpty())
+                        treeFileItemBase->file_info.setRelativeToPath(d_queued_relative_to_path);
+
+                     setModificationState(true,IModificationNotifier::NotifyListeners);
+
+                    // Check if the displayed name matches the new name:
+                    // We need to create the property and add it to the object.
+                    // The displayed name is the same in all displayed contexts.
+                    QList<Observer*> parents = Observer::parentReferences(this);
+                    MultiContextProperty new_instance_names_property(qti_prop_DISPLAYED_ALIAS_MAP);
+                    for (int i = 0; i < parents.count(); i++)
+                        new_instance_names_property.addContext(QVariant(displayName()),parents.at(i)->observerID());
+                    Observer::setMultiContextProperty(this,new_instance_names_property);
                 }
             }
         }
@@ -143,51 +152,62 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
     return false;
 }
 
-QString Qtilities::CoreGui::TreeFileItem::displayName() {
-    if (d_path_display == DisplayFileName) {
-        return treeFileItemBase->file_info.fileName();
-    } else if (d_path_display == DisplayFilePath) {
-        return treeFileItemBase->file_info.filePath();
-    } else if (d_path_display == DisplayActualFilePath) {
-        return treeFileItemBase->file_info.actualFilePath();
-    }
-
-    return QString(tr("Invalid display name type. See Qtilities::CoreGui::TreeFileItem::displayName()"));
-}
-
-void Qtilities::CoreGui::TreeFileItem::setDisplayName(const QString& new_display_name) {
-    if (d_path_display == DisplayFileName) {
-        setFileName(new_display_name);
-    } else if (d_path_display == DisplayFilePath) {
-        treeFileItemBase->file_info.setFile(new_display_name);
-    }
-}
-
-void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_name, const QString& relative_to_path,  bool broadcast) {
+void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const QString& relative_to_path, bool broadcast) {
     bool modified = false;
-    if (file_name != filePath() || (relative_to_path != relativeToPath() && !relative_to_path.isEmpty()))
+    if (file_path != filePath() || (relative_to_path != relativeToPath() && !relative_to_path.isEmpty()))
         modified = true;
 
     if (!modified)
         return;
 
-    treeFileItemBase->file_info.setFile(file_name);
-    if (!relative_to_path.isEmpty())
-        treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+    QtilitiesFileInfo fi(file_path,relative_to_path);
 
-    // We need to check if an object name exists
+    // We need to check if an object name exists first:
     if (Observer::propertyExists(this,qti_prop_NAME)) {
-        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(displayName()));
+        // The rest of the things that need to happen is done in eventFilter(), only when the name property was set correctly.
+        // We just set paths to be used in the event filter here:
+        d_queued_file_path = file_path;
+        d_queued_relative_to_path = relative_to_path;
+
+        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
         Observer::setSharedProperty(this,new_subject_name_property);
     } else {
-        setObjectName(displayName());
+        // Handle cases where there is no naming policy filter:
+        setObjectName(fi.actualFilePath());
+
+        // In this case we do not need to check in eventFilter() since the object name was correctly updated:
+        treeFileItemBase->file_info.setFile(file_path);
+        if (!relative_to_path.isEmpty())
+            treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+
+         setModificationState(true,IModificationNotifier::NotifyListeners);
     }
 
     if (broadcast)
-        emit filePathChanged(path());
+        emit filePathChanged(fi.actualFilePath());
+}
 
-    if (modified)
-        setModificationState(true,IModificationNotifier::NotifyListeners);
+QString Qtilities::CoreGui::TreeFileItem::displayName(const QString& file_path) {
+    if (file_path.isEmpty()) {
+        if (d_path_display == DisplayFileName) {
+            return treeFileItemBase->file_info.fileName();
+        } else if (d_path_display == DisplayFilePath) {
+            return treeFileItemBase->file_info.filePath();
+        } else if (d_path_display == DisplayActualFilePath) {
+            return treeFileItemBase->file_info.actualFilePath();
+        }
+    } else {
+        QtilitiesFileInfo fi(file_path);
+        if (d_path_display == DisplayFileName) {
+            return fi.fileName();
+        } else if (d_path_display == DisplayFilePath) {
+            return fi.filePath();
+        } else if (d_path_display == DisplayActualFilePath) {
+            return fi.actualFilePath();
+        }
+    }
+
+    return QString(tr("Invalid display name type. See Qtilities::CoreGui::TreeFileItem::displayName()"));
 }
 
 bool Qtilities::CoreGui::TreeFileItem::isRelative() const {

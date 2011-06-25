@@ -274,7 +274,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     QString return_string;
                     // If observer is valid, we get the name, otherwise we just use object name.
                     if (obs) {
-                        return_string = obs->subjectNameInContext(obj);
+                        return_string = obs->subjectDisplayedNameInContext(obj);
                     } else
                         return_string =  obj->objectName();
 
@@ -903,7 +903,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
             if (!local_selection_parent)
                 return false;
 
-            // Check if the object has an qti_prop_NAME property, if not we set the name using setObjectName()
+            // Check if the object has a qti_prop_NAME property, if not we set the name using setObjectName()
             if (obj) {
                 if (local_selection_parent->getSharedProperty(obj, qti_prop_NAME).isValid()) {
                     // Now check if this observer uses an instance name

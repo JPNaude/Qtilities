@@ -67,6 +67,8 @@ bool Qtilities::Core::QtilitiesProperty::propertyIsExportable(const char* proper
         return false;
     if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
         return true;
+    if (!qstrcmp(property_name,qti_prop_DISPLAYED_ALIAS_MAP))
+        return false;
 
     return true;
 }
@@ -96,6 +98,8 @@ bool Qtilities::Core::QtilitiesProperty::propertyIsReserved(const char* property
         return true;
     if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
         return true;
+    if (!qstrcmp(property_name,qti_prop_DISPLAYED_ALIAS_MAP))
+        return false;
 
     return false;
 }
@@ -125,6 +129,8 @@ bool Qtilities::Core::QtilitiesProperty::propertyIsRemovable(const char* propert
         return false;
     if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
         return false;
+    if (!qstrcmp(property_name,qti_prop_DISPLAYED_ALIAS_MAP))
+        return true;
 
     return true;
 }
@@ -153,6 +159,8 @@ bool Qtilities::Core::QtilitiesProperty::propertySupportsChangeNotifications(con
     if (!qstrcmp(property_name,qti_prop_OBSERVER_MAP))
         return false;
     if (!qstrcmp(property_name,qti_prop_VISITOR_ID))
+        return false;
+    if (!qstrcmp(property_name,qti_prop_DISPLAYED_ALIAS_MAP))
         return false;
 
     return true;

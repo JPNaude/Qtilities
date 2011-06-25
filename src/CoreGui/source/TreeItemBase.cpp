@@ -98,3 +98,8 @@ bool Qtilities::CoreGui::TreeItemBase::setCategoryString(const QString& category
 bool Qtilities::CoreGui::TreeItemBase::hasCategory() const {
     return AbstractTreeItem::hasCategory();
 }
+
+void Qtilities::CoreGui::TreeItemBase::removeCategory(int observer_id) {
+    AbstractTreeItem::removeCategory(observer_id);
+    setModificationState(true);
+}
