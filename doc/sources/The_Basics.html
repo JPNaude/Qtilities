@@ -11,7 +11,13 @@
 <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
 <h1 style="margin:0px; padding:0px">Overview</h1>
 
-The goal of this article is to introduce %Qtilities to someone who has never used it before. We will cover basic principles and give an overview of some of the features found in the libraries. This article is not intended to give an overview of the different libraries, for that see \ref page_modules_overview.
+The goal of this article is to introduce %Qtilities to someone who has never used it before. Basic principles will be covered and a basic example is presented which demonstrates many features and concepts. This article is not intended to give an overview of the different modules, for that see \ref page_modules_overview.
+
+Table of contents:
+- \ref basics_constructing_application_object
+- \ref basics_macros
+- \ref basics_includes_and_namespaces
+- \ref basics_simple_app
 
 </td>
 
@@ -61,7 +67,7 @@ The goal of this article is to introduce %Qtilities to someone who has never use
 </tr>
 </table>
 
-\section basics_constructing_application_objecte Constructing your QApplication object
+\section basics_constructing_application_object Constructing your QApplication object
 
 A %Qtilities application is just a normal Qt application with one small difference. The recommended way to construct your QApplication object is to use Qtilities::CoreGui::QtilitiesApplication which initializes some internal %Qtilities features, and extends QApplication. Thus it would look something like this:
 
@@ -75,7 +81,7 @@ QtilitiesApplication::initialize();
 
 This is the only difference between a %Qtilities application and a normal Qt application. If you don't use any GUI related classes, you can keep using QCoreApplication without needed to do anything different.
 
-\section basics_managers Macros made available to you
+\section basics_macros Macros made available to you
 
 When using %Qtilities you have access to a set of macros. The table below provides an overview of the most important ones:
 
@@ -129,7 +135,7 @@ A set of logging macros are available, for more information see \ref page_loggin
 
 \section basics_includes_and_namespaces Includes and namespaces
 
-In your .pro file you need to define the %Qtilities module you would like to use in your application. This will include all the needed header files and link your application to the correct libraries. The exact details to use for the different modules are provided in the \ref page_modules_overview article. Note that all dependent %Qtilities modules will be added automatically for you and details about the used dependencies are printed as output during compilation.
+In your \p .pro file you need to define the %Qtilities module you would like to use in your application. This will include all the needed header files and link your application to the correct libraries. The exact details to use for the different modules are provided in the \ref page_modules_overview article. Note that all dependent %Qtilities modules will be added automatically for you and details about the used dependencies are printed as output during compilation.
 
 \code
 // In your .pro file:
@@ -149,14 +155,14 @@ Project MESSAGE: CoreGui Dependency: Using Qtilities Core module...
 In the source files where you want to use %Qtilities you need to include the name of the module and then specify the namespaces we want to use. All the required namespaces of all the dependent modules will be made available through automatically. For example:
 
 \code
-// In your .cpp file:
+// In your source files:
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 \endcode
 
 \section basics_simple_app A basic example application
 
-Next we will look at a basic example which you can build and play around with. The example will not do a lot but it introduces many of the features provided by %Qtilities.
+Next we will look at a basic example which you can build and play around with. The example will not do a lot but it introduces many features and concepts.
 
 \code
 #include <QtGui>
