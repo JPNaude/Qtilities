@@ -437,7 +437,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     stream << QApplication::applicationVersion();
     stream << MARKER_PROJECT_SECTION;
 
-    stream << d->project_name;
     stream << (quint32) d->project_items.count();
     QStringList item_names;
     for (int i = 0; i < d->project_items.count(); i++) {
@@ -516,7 +515,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // ---------------------------------------------------
     // Do the actual import:
     // ---------------------------------------------------
-    stream >> d->project_name;
     quint32 project_item_count;
     stream >> project_item_count;
 
@@ -529,7 +527,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     stream >> item_names_readback;
     LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(item_names_readback.count()));
     if (item_names != item_names_readback) {
-        LOG_ERROR(QString(tr("Failed to load project from. The number of project items does not match your current set of plugin's number of project items, or they are not loaded in the same order.")));
+        LOG_ERROR(QString(tr("Failed to load project. The number of project items does not match your current set of plugin's number of project items, or they are not loaded in the same order.")));
         return IExportable::Failed;
     }
 

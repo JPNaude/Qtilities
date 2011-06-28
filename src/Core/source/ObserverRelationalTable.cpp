@@ -389,7 +389,7 @@ bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable o
 
     // Check for the same amount of items first.
     if (d->entries.count() != other.count()) {
-        LOG_ERROR(QString(QObject::tr("ObserverRelationalTable::compare() failed. Number of entries in table (%1) does not match the number of entries in the table to check (%2).")).arg(d->entries.count()).arg(other.count()));
+        LOG_TRACE(QString(QObject::tr("ObserverRelationalTable::compare() failed. Number of entries in table (%1) does not match the number of entries in the table to check (%2).")).arg(d->entries.count()).arg(other.count()));
         LOG_TRACE("Items in table:");
         for (int i = 0; i < d->entries.count(); i++) {
             if (d->entries.values().at(i))

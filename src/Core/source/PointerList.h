@@ -121,6 +121,7 @@ test_list: Delete object test2 during destruction of test_list. Deleting it will
             void removeOne(QObject* obj);
             QObject* at(int i) const;
             QMutableListIterator<QObject*> iterator();
+            QList<QObject*> toQList() const;
 
         protected:
             virtual void removeThisObject(QObject * object);

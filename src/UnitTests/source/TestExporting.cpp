@@ -180,17 +180,17 @@ void Qtilities::UnitTests::TestExporting::testActivityPolicyFilter_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testActivityPolicyFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testActivityPolicyFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testActivityPolicyFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -212,17 +212,17 @@ void Qtilities::UnitTests::TestExporting::testCategoryLevel_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCategoryLevel_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCategoryLevel_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCategoryLevel_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -246,17 +246,17 @@ void Qtilities::UnitTests::TestExporting::testNamingPolicyFilter_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testNamingPolicyFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testNamingPolicyFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testNamingPolicyFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -279,17 +279,17 @@ void Qtilities::UnitTests::TestExporting::testQtilitiesCategory_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testQtilitiesCategory_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testQtilitiesCategory_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testQtilitiesCategory_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -330,17 +330,17 @@ void Qtilities::UnitTests::TestExporting::testObserverHints_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverHints_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverHints_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverHints_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverHints_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverHints_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverHints_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverHints_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverHints_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverHints_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverHints_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -366,17 +366,17 @@ void Qtilities::UnitTests::TestExporting::testMultiContextProperty_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testMultiContextProperty_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testMultiContextProperty_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testMultiContextProperty_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -407,17 +407,17 @@ void Qtilities::UnitTests::TestExporting::testRelationalTableEntry_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testRelationalTableEntry_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testRelationalTableEntry_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testRelationalTableEntry_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -446,17 +446,17 @@ void Qtilities::UnitTests::TestExporting::testObserverRelationalTable_1_0_1_0() 
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverRelationalTable_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverRelationalTable_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverRelationalTable_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -478,17 +478,17 @@ void Qtilities::UnitTests::TestExporting::testSharedProperty_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSharedProperty_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSharedProperty_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testSharedProperty_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testSharedProperty_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testSharedProperty_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testSharedProperty_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testSharedProperty_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testSharedProperty_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testSharedProperty_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testSharedProperty_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -514,17 +514,17 @@ void Qtilities::UnitTests::TestExporting::testSubjectTypeFilter_1_0_1_0() {
         QVERIFY(*obj_source != *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSubjectTypeFilter_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testSubjectTypeFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source == *obj_import_binary);
     if (obj_source->supportedFormats() & IExportable::XML)
         QVERIFY(*obj_source == *obj_import_xml);
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testSubjectTypeFilter_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -550,13 +550,13 @@ void Qtilities::UnitTests::TestExporting::testTreeFileItem_1_0_1_0() {
     obj_source->setToolTip("Example Tool Tip");
     obj_source->setWhatsThis("Example Whats This");
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeFileItem_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeFileItem_1_0_1_0");
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testTreeFileItem_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -581,13 +581,13 @@ void Qtilities::UnitTests::TestExporting::testTreeItem_1_0_1_0() {
     obj_source->setToolTip("Example Tool Tip");
     obj_source->setWhatsThis("Example Whats This");
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeItem_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testTreeItem_1_0_1_0");
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeItem_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testTreeItem_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testTreeItem_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testTreeItem_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testTreeItem_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testTreeItem_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testTreeItem_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testTreeItem_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -610,15 +610,15 @@ void Qtilities::UnitTests::TestExporting::testCodeEditorProjectItemWrapper_1_0_1
 
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() != code_editor_widget_binary.codeEditor()->toPlainText());
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() != code_editor_widget_xml.codeEditor()->toPlainText());
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCodeEditorProjectItemWrapper_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testCodeEditorProjectItemWrapper_1_0_1_0");
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() == code_editor_widget_binary.codeEditor()->toPlainText());
     QVERIFY(code_editor_widget_source.codeEditor()->toPlainText() == code_editor_widget_xml.codeEditor()->toPlainText());
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -656,13 +656,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         child_node->addItem("TestChild2");
         child_node->addItem("TestChild3");
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnly_0_3_0_3");
+        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnly_1_0_1_0");
 
         // Compare output files:
-        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_0_3_0_3");
-        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_0_3_0_3");
-        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_0_3_0_3");
-        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_0_3_0_3");
+        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_1_0_1_0");
+        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_1_0_1_0");
+        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_1_0_1_0");
+        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnly_1_0_1_0");
         if (obj_source->supportedFormats() & IExportable::Binary)
             QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
         if (obj_source->supportedFormats() & IExportable::XML)
@@ -694,13 +694,13 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         child_node->addItem("TestChild2");
         child_node->addItem("TestChild3");
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnlyWithCategories_0_3_0_3");
+        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverDataOnlyWithCategories_1_0_1_0");
 
         // Compare output files:
-        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_0_3_0_3");
-        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_0_3_0_3");
-        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_0_3_0_3");
-        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_0_3_0_3");
+        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_1_0_1_0");
+        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_1_0_1_0");
+        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_1_0_1_0");
+        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverDataOnlyWithCategories_1_0_1_0");
         if (obj_source->supportedFormats() & IExportable::Binary)
             QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
         if (obj_source->supportedFormats() & IExportable::XML)
@@ -712,47 +712,50 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         LOG_INFO("TestExporting::testObserver_1_0_1_0() ExportData only with categories end:");
     }
     // ---------------------------------------------------
-    // Test containment tree:
+    // Test ExportData only containment tree building approach:
+    // When doing containment, the containment class should reconstruct the contained observer: Otherwise
+    // reconstruction will just skip the containment class and attach the contained observer directly
+    // to the parent of the containment class.
     // ---------------------------------------------------
-    {
-        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment start:");
-        TreeNode* obj_source = new TreeNode("Root Node");
-        TreeNode* obj_import_binary = new TreeNode;
-        TreeNode* obj_import_xml = new TreeNode;
+    //    {
+    //        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment start:");
+    //        TreeNode* obj_source = new TreeNode("Root Node");
+    //        TreeNode* obj_import_binary = new TreeNode;
+    //        TreeNode* obj_import_xml = new TreeNode;
 
-        // Add all known filters:
-        obj_source->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
-        obj_source->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
-        obj_source->setChildType("Example child type");
+    //        // Add all known filters:
+    //        obj_source->enableActivityControl(ObserverHints::CheckboxActivityDisplay);
+    //        obj_source->enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    //        obj_source->setChildType("Example child type");
 
-        // Build a tree:
-        obj_source->addItem("Item 1");
-        obj_source->addItem("Item 2");
-        QObject* obj = new QObject;
-        obj->setObjectName("ContainedParent");
-        obj_source->attachSubject(obj);
-        TreeNode* child_node = new TreeNode("ContainedNode");
-        child_node->addItem("TestChild1");
-        child_node->addItem("TestChild2");
-        child_node->addItem("TestChild3");
-        child_node->setParent(obj);
+    //        // Build a tree:
+    //        obj_source->addItem("Item 1");
+    //        obj_source->addItem("Item 2");
+    //        QObject* obj = new QObject;
+    //        obj->setObjectName("ContainedParent");
+    //        obj_source->attachSubject(obj);
+    //        TreeNode* child_node = new TreeNode("ContainedNode");
+    //        child_node->addItem("TestChild1");
+    //        child_node->addItem("TestChild2");
+    //        child_node->addItem("TestChild3");
+    //        child_node->setParent(obj);
 
-        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverContainment_0_3_0_3");
+    //        genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverContainment_1_0_1_0");
 
-        int original_xml = FileUtils::textFileHashCode(QString("%1.xml").arg("testObserverContainment_0_3_0_3"));
-        int readback_xml = FileUtils::textFileHashCode(QString("%1_readback.xml").arg("testObserverContainment_0_3_0_3"));
-        // We expect a fail here since containment works, but it should not really be used like this in exports.
-        // The parent class must implement IExportable and manually export/import on the contained object.
-        QEXPECT_FAIL("","Testing containment in a way that it should not really be used.",Continue);
-        QVERIFY(original_xml == readback_xml);
+    //        int original_xml = FileUtils::textFileHashCode(QString("%1.xml").arg("testObserverContainment_1_0_1_0"));
+    //        int readback_xml = FileUtils::textFileHashCode(QString("%1_readback.xml").arg("testObserverContainment_1_0_1_0"));
+    //        // We expect a fail here since containment works, but it should not really be used like this in exports.
+    //        // The parent class must implement IExportable and manually export/import on the contained object.
+    //        QEXPECT_FAIL("","Testing containment in a way that it should not really be used.",Continue);
+    //        QVERIFY(original_xml == readback_xml);
 
-        //delete obj_source;
-        delete obj_import_binary;
-        //delete obj_import_xml;
-        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment end:");
-    }
+    //        //delete obj_source;
+    //        delete obj_import_binary;
+    //        //delete obj_import_xml;
+    //        LOG_INFO("TestExporting::testObserver_1_0_1_0() Containment end:");
+    //    }
     // ---------------------------------------------------
-    // Test extended binary: (Properties and relational data)
+    // Test ExportRelationalData binary:
     // ---------------------------------------------------
     {
         LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended Binary start:");
@@ -779,7 +782,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         child_nodeB->addItem("TestChild3");
         child_nodeB->addItem(shared_item);
 
-        QFile file("testObserverExtendedAll_0_3_0_3.binary");
+        QFile file("testObserverExtendedAll_1_0_1_0.binary");
         file.open(QIODevice::WriteOnly);
         QDataStream stream_out(&file);
         stream_out.setVersion(QDataStream::Qt_4_7);
@@ -794,17 +797,17 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         obj_import_binary->setExportVersion(read_version);
         QVERIFY(obj_import_binary->importBinary(stream_in,import_list) == IExportable::Complete);
 
-        QFile file1("testObserverExtendedAll_0_3_0_3_readback.binary");
+        QFile file1("testObserverExtendedAll_1_0_1_0_readback.binary");
         file1.open(QIODevice::WriteOnly);
         QDataStream stream_out1(&file1);
         stream_out1.setVersion(read_version);
-        QVERIFY(obj_import_binary->exportBinary(stream_out1) == IExportable::Complete);
+        QVERIFY(obj_import_binary->exportBinaryExt(stream_out1,ObserverData::ExportAllItems) == IExportable::Complete);
         file1.close();
 
         // Compare output files:
-        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_0_3_0_3");
-        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_0_3_0_3");
-        QEXPECT_FAIL("", "Will fix", Continue);
+        QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_1_0_1_0");
+        QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_1_0_1_0");
+        QEXPECT_FAIL("", "Session IDs for observers are different, therefore the output files won't match exactly.", Continue);
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
 
         delete obj_source;
@@ -812,7 +815,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended Binary end:");
     }
     // ---------------------------------------------------
-    // Test extended xml: (Relational data)
+    // Test ExportRelationalData xml:
     // ---------------------------------------------------
     {
         LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended XML start:");
@@ -839,7 +842,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         child_nodeB->addItem("TestChild3");
         child_nodeB->addItem(shared_item);
 
-        QFile file("testObserverExtendedAll_0_3_0_3.xml");
+        QFile file("testObserverExtendedAll_1_0_1_0.xml");
         file.open(QIODevice::WriteOnly);
         QDomDocument doc("QtilitiesTesting");
         QDomElement root = doc.createElement("QtilitiesTesting");
@@ -855,7 +858,7 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         QList<QPointer<QObject> > import_list;
         QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
 
-        QFile file2("testObserverExtendedAll_0_3_0_3_readback.xml");
+        QFile file2("testObserverExtendedAll_1_0_1_0_readback.xml");
         file2.open(QIODevice::WriteOnly);
         QDomDocument doc2("QtilitiesTesting");
         QDomElement root2 = doc2.createElement("QtilitiesTesting");
@@ -867,9 +870,9 @@ void Qtilities::UnitTests::TestExporting::testObserver_1_0_1_0() {
         file2.write(docStr2.toAscii());
         file2.close();
 
-        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_0_3_0_3");
-        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_0_3_0_3");
-        QEXPECT_FAIL("", "Will fix", Continue);
+        QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_1_0_1_0");
+        QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testObserverExtendedAll_1_0_1_0");
+        QEXPECT_FAIL("", "Session IDs for observers are different, therefore the output files won't match exactly.", Continue);
         QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
         LOG_INFO("TestExporting::testObserver_1_0_1_0() Extended XML end:");
     }
@@ -894,18 +897,18 @@ void Qtilities::UnitTests::TestExporting::testProject_1_0_1_0() {
 
     code_editor_widget_source.codeEditor()->setPlainText("Testing Plain Text... Hooray!");
 
-    obj_source->saveProject("testProject_0_3_0_3.prj");
-    obj_source->saveProject("testProject_0_3_0_3.xml");
-    obj_import_binary->loadProject("testProject_0_3_0_3.prj");
-    obj_import_xml->loadProject("testProject_0_3_0_3.xml");
-    obj_import_binary->saveProject("testProject_0_3_0_3_readback.prj");
-    obj_import_xml->saveProject("testProject_0_3_0_3_readback.xml");
+    obj_source->saveProject("testProject_1_0_1_0.prj");
+    obj_source->saveProject("testProject_1_0_1_0.xml");
+    obj_import_binary->loadProject("testProject_1_0_1_0.prj");
+    obj_import_xml->loadProject("testProject_1_0_1_0.xml");
+    obj_import_binary->saveProject("testProject_1_0_1_0_readback.prj");
+    obj_import_xml->saveProject("testProject_1_0_1_0_readback.xml");
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.prj").arg(QApplication::applicationDirPath()).arg("testProject_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.prj").arg(QApplication::applicationDirPath()).arg("testProject_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testProject_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testProject_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.prj").arg(QApplication::applicationDirPath()).arg("testProject_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.prj").arg(QApplication::applicationDirPath()).arg("testProject_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testProject_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testProject_1_0_1_0");
     QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
 
@@ -930,13 +933,13 @@ void Qtilities::UnitTests::TestExporting::testObserverProjectItemWrapper_1_0_1_0
     ObserverProjectItemWrapper* obj_import_binary = new ObserverProjectItemWrapper(binaryNode);
     ObserverProjectItemWrapper* obj_import_xml = new ObserverProjectItemWrapper(xmlNode);
 
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverProjectItemWrapper_0_3_0_3");
+    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_0,"testObserverProjectItemWrapper_1_0_1_0");
 
     // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_0_3_0_3");
+    QString file_original_binary = QString("%1/%2.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_original_xml = QString("%1/%2.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
+    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QApplication::applicationDirPath()).arg("testCodeEditorProjectItemWrapper_1_0_1_0");
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
     if (obj_source->supportedFormats() & IExportable::XML)
@@ -956,11 +959,11 @@ void Qtilities::UnitTests::TestExporting::testExtensionSystemConfigurationFiles_
     filtered_plugins << "Filter1*";
     filtered_plugins << "Filter2*";
     filtered_plugins << "Filter3*";
-    QVERIFY(EXTENSION_SYSTEM->savePluginConfiguration("testExtensionSystemConfigurationFiles_0_3_0_3.xml",&inactive_plugins,&filtered_plugins,Qtilities::Qtilities_1_0));
+    QVERIFY(EXTENSION_SYSTEM->savePluginConfiguration("testExtensionSystemConfigurationFiles_1_0_1_0.xml",&inactive_plugins,&filtered_plugins,Qtilities::Qtilities_1_0));
 }
 
 void Qtilities::UnitTests::TestExporting::testShortcutMappingFiles_1_0_1_0() {
-    QVERIFY(ACTION_MANAGER->saveShortcutMapping("testShortcutMappingFiles_0_3_0_3.xml"));
+    QVERIFY(ACTION_MANAGER->saveShortcutMapping("testShortcutMappingFiles_1_0_1_0.xml"));
 }
 
 // --------------------------------------------------------------------

@@ -2,22 +2,20 @@
 Things outstanding for v1.0 release:
 ================================
 - Property editor must refresh when properties change (see how dynamic one does it and test).
-- Object Management Example: Binary project does not work and the whole example crashes...
 - ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
-- Tree relationship construction must work in XML, remove in binary.
-- Pass all unit tests.
 - AboutWindow qtilities.org link does not work...
-- Add Observer::setSubjectNameInContext as enhancement request to bug tracker.
 - The basics article example: Push down actions does not show immediately when switching to table mode. Fix this.
 
 - Docs & finalization stuff:
-    - Must update images in ObjectManagement example.
+    - Make table wider in "The Basics" article.
     - Hints and observer widget docs are outdated with regard to useObserverHints().
-    - Make sure links are correct to new website...
-    - Add Gitorious tips to doc page.
+    - Config and main window: show how to add to QtilitiesMainWindow.
 
-- Make video for new website.
-- Create new website.
+- For new website:
+    - Make sure links are correct to new website.
+    - Add Gitorious tips to doc page.
+    - Make video for new website.Enter one-line summary
+    - Create new website.
 
 ================================
 Qtilities v1.0 Implemented Changes
@@ -47,7 +45,6 @@ Qtilities v1.0 Implemented Changes
     Improvements and Notable Changes:
     - LoggerGui got a new createTempLogWidget() function which provides an easy to use temporary log widgets to display log messages during extensive processing operations.
     - LoggerGui now allows creation of log widget with different name and window titles.
-    - Logger will now automatically create the /session/ directory if it does not exist when trying to export the logging configuration.
     - Logger now checks that multiple engines with the same name can't be added.
     - Logger now restores logger engine specific parameters correctly from .logconfig files.
     - WidgetLoggerEngineFrontend::isFormattingEngineConstant() now returns true by default.
@@ -114,6 +111,7 @@ Qtilities v1.0 Implemented Changes
         - New ObserverRelationalTable::refresh() method which can be used to refresh the table data after an observer changed.
         - New ObserverRelationalTable::parentsToObserverIDs() methods to convert parents() of an entry to a list of observer IDs.
         - New way of defining displayed names in observer tree models through the new qti_prop_DISPLAYED_ALIAS_MAP property.
+        - ObjectManager::exportObjectProperties() and importObjectProperties() were removed.
 
     Bug Fixes:
     - Fixed bug in SubjectTypeFilter::evaluateAttachment() in cases where inversed filtering was enabled and no known types were added.

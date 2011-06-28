@@ -79,7 +79,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     #endif
 
     if (exportVersion() == Qtilities::Qtilities_1_0) {
-        IExportable::Result result = exportBinaryExt_0_3(stream,ExportData);
+        IExportable::Result result = exportBinaryExt_1_0(stream,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -101,7 +101,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     #endif
 
     if (exportVersion() == Qtilities::Qtilities_1_0) {
-        IExportable::Result result = importBinaryExt_0_3(stream,import_list);
+        IExportable::Result result = importBinaryExt_1_0(stream,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -123,7 +123,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     #endif
 
     if (exportVersion() == Qtilities::Qtilities_1_0) {
-        IExportable::Result result = exportXmlExt_0_3(doc,object_node,ExportData);
+        IExportable::Result result = exportXmlExt_1_0(doc,object_node,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -145,7 +145,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     #endif
 
     if (exportVersion() == Qtilities::Qtilities_1_0) {
-        IExportable::Result result = importXmlExt_0_3(doc,object_node,import_list);
+        IExportable::Result result = importXmlExt_1_0(doc,object_node,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -162,7 +162,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
 IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const {
     if (exportVersion() == Qtilities::Qtilities_1_0)
-        return exportBinaryExt_0_3(stream,export_flags);
+        return exportBinaryExt_1_0(stream,export_flags);
     else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_1_0)
@@ -173,7 +173,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& 
 
 IExportable::Result Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
     if (exportVersion() == Qtilities::Qtilities_1_0)
-        return exportXmlExt_0_3(doc,object_node,export_flags);
+        return exportXmlExt_1_0(doc,object_node,export_flags);
     else if (exportVersion() < Qtilities::Qtilities_1_0)
         return IExportable::FailedTooOld;
     else if (exportVersion() > Qtilities::Qtilities_1_0)
@@ -182,7 +182,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* do
     return IExportable::Incomplete;
 }
 
-IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStream& stream, ExportItemFlags export_flags) const {
+IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const {
     stream << MARKER_OBS_DATA_SECTION;
     // Export the flags used:
     stream << (quint32) export_flags;
@@ -191,12 +191,16 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
     bool success = true;
     bool complete = true;
 
+    ObserverRelationalTable* relational_table = 0;
     if (export_flags & ExportRelationalData) {
         // Export relational data about the observer:
-        ObserverRelationalTable table(observer,true);
-        table.setExportVersion(Qtilities::Qtilities_1_0);
-        if (table.exportBinary(stream) != IExportable::Complete)
+        relational_table = new ObserverRelationalTable(observer,true);
+        relational_table->setExportVersion(Qtilities::Qtilities_1_0);
+        if (relational_table->exportBinary(stream) != IExportable::Complete) {
+            if (relational_table)
+                delete relational_table;
             return IExportable::Failed;
+        }
     }
 
     if (export_flags & ExportData) {
@@ -210,6 +214,21 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
         stream << (quint32) access_mode_scope;
         stream << (quint32) object_deletion_policy;
 
+        // Visitor ID (only when needed)
+        if (export_flags & ExportVisitorIDs) {
+            int visitor_id = -1;
+            if (Observer::propertyExists(observer,qti_prop_VISITOR_ID)) {
+                QVariant prop_variant = observer->property(qti_prop_VISITOR_ID);
+                if (prop_variant.isValid() && prop_variant.canConvert<SharedProperty>()) {
+                    SharedProperty prop = prop_variant.value<SharedProperty>();
+                    if (prop.isValid()) {
+                         visitor_id = prop.value().toInt();
+                    }
+                }
+            }
+            stream << (qint32) visitor_id;
+        }
+
         // Stream categories
         stream << (quint32) categories.count();
         for (int i = 0; i < categories.count(); i++) {
@@ -222,8 +241,11 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
             // Indicates that this observer has hints.
             if (display_hints->isExportable()) {
                 stream << (bool) true;
-                if (display_hints->exportBinary(stream) != IExportable::Complete)
+                if (display_hints->exportBinary(stream) != IExportable::Complete) {
+                    if (relational_table)
+                        delete relational_table;
                     return IExportable::Failed;
+                }
             } else {
                 stream << (bool) false;
             }
@@ -246,10 +268,16 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
         for (int i = 0; i < subject_filters.count(); i++) {
             if (subject_filters.at(i)->isExportable()) {
                 subject_filters.at(i)->setExportVersion(exportVersion());
-                if (!subject_filters.at(i)->instanceFactoryInfo().exportBinary(stream,exportVersion()))
+                if (!subject_filters.at(i)->instanceFactoryInfo().exportBinary(stream,exportVersion())) {
+                    if (relational_table)
+                        delete relational_table;
                     return IExportable::Failed;
-                if (subject_filters.at(i)->exportBinary(stream) != IExportable::Complete)
+                }
+                if (subject_filters.at(i)->exportBinary(stream) != IExportable::Complete) {
+                    if (relational_table)
+                        delete relational_table;
                     return IExportable::Failed;
+                }
                 LOG_TRACE(QString("%1/%2: Exporting subject filter \"%3\"...").arg(i+1).arg(subject_filters.count()).arg(subject_filters.at(i)->filterName()));
             }
         }
@@ -259,47 +287,24 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
         // Make List Of Exportable Subjects
         // -----------------------------------
         QList<IExportable*> exportable_list;
-        qint32 iface_count = 0;
-        for (int i = 0; i < subject_list.count(); i++) {
-            QObject* obj = subject_list.at(i);
-            IExportable* iface = qobject_cast<IExportable*> (obj);
-            if (!iface) {
-                foreach (QObject* child, obj->children()) {
-                    Observer* obs = qobject_cast<Observer*> (child);
-                    if (obs) {
-                        iface = obs;
-                        break;
-                    }
-                }
-            }
-
-            if (iface) {
-                if (iface->supportedFormats() & IExportable::Binary && iface->instanceFactoryInfo().isValid()) {
-                    // Handle limited export object, thus they should only be exported once.
-                    bool ok = false;
-                    int export_count = observer->getQtilitiesPropertyValue(obj,qti_prop_LIMITED_EXPORTS).toInt(&ok);
-                    if (export_count == 0) {
-                        if (ok)
-                            observer->setQtilitiesPropertyValue(obj,qti_prop_LIMITED_EXPORTS,export_count+1);
-
-                        exportable_list << iface;
-                        ++iface_count;
-                    } else {
-                        LOG_TRACE(QString("%1/%2: Limited export object \"%3\" excluded in this context...").arg(i).arg(iface_count).arg(observer->subjectNameInContext(obj)));
-                    }
-                } else {
-                    LOG_WARNING(QObject::tr("Binary export found an interface (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not support binary exporting. Binary export will be incomplete."));
-                    complete = false;
-                }
-            } else {
-                LOG_WARNING(QObject::tr("Binary export found an object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not implement an exportable interface. Binary export will be incomplete."));
-                complete = false;
+        bool list_complete = true;
+        if (export_flags & ExportVisitorIDs)
+            exportable_list = getLimitedExportsList(subject_list.toQList(),IExportable::Binary,&list_complete);
+        else {
+            for (int l = 0; l < subject_list.count(); l++) {
+                IExportable* iface = qobject_cast<IExportable*> (subject_list.at(l));
+                if (iface)
+                    exportable_list << iface;
             }
         }
+
+        if (!list_complete)
+            complete = false;
 
         // -----------------------------------
         // Export List Of Exportable Subjects
         // -----------------------------------
+        qint32 iface_count = exportable_list.count();
         stream << iface_count;
         LOG_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy.")).arg(iface_count));
 
@@ -309,11 +314,29 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
             IExportable* iface = exportable_list.at(i);
             QObject* obj = iface->objectBase();
             LOG_TRACE(QString("%1/%2: Exporting \"%3\"...").arg(i).arg(iface_count).arg(observer->subjectNameInContext(obj)));
-            if (!iface->instanceFactoryInfo().exportBinary(stream,exportVersion()))
+            if (!iface->instanceFactoryInfo().exportBinary(stream,exportVersion())) {
+                if (relational_table)
+                    delete relational_table;
                 return IExportable::Failed;
+            }
 
             iface->setExportVersion(exportVersion());
             iface->setApplicationExportVersion(applicationExportVersion());
+
+            // Visitor ID (only when needed)
+            if (export_flags & ExportVisitorIDs) {
+                int visitor_id = -1;
+                if (Observer::propertyExists(iface->objectBase(),qti_prop_VISITOR_ID)) {
+                    QVariant prop_variant = iface->objectBase()->property(qti_prop_VISITOR_ID);
+                    if (prop_variant.isValid() && prop_variant.canConvert<SharedProperty>()) {
+                        SharedProperty prop = prop_variant.value<SharedProperty>();
+                        if (prop.isValid()) {
+                             visitor_id = prop.value().toInt();
+                        }
+                    }
+                }
+                stream << (qint32) visitor_id;
+            }
 
             // Check if it is an observer:
             IExportable::Result result;
@@ -325,24 +348,16 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
             } else
                  result = iface->exportBinary(stream);
 
-            // Now export the needed properties about this subject
-            if (result == IExportable::Complete) {
-                if (export_flags & ExportQtilitiesProperties)
-                    OBJECT_MANAGER->exportObjectProperties(obj,stream,exportVersion());
-            } else if (result == IExportable::Incomplete) {
-                if (export_flags & ExportQtilitiesProperties)
-                    OBJECT_MANAGER->exportObjectProperties(obj,stream,exportVersion());
+            // Now export the needed properties about this subject:
+            if (result == IExportable::Incomplete || result == IExportable::Failed)
                 complete = false;
-            } else if (result == IExportable::Failed)
-                success = false;
         }
 
         stream << MARKER_OBS_DATA_SECTION;
-
-        // Now export the properties on the observer itself:
-        if (export_flags & ExportQtilitiesProperties)
-            OBJECT_MANAGER->exportObjectProperties(observer,stream,exportVersion());
     }
+
+    if (relational_table)
+        delete relational_table;
 
     if (success) {
         if (complete) {
@@ -358,7 +373,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_0_3(QDataStre
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinaryExt_0_3(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     bool has_active_processing_cycle = process_cycle_active;
     observer->startProcessingCycle();
 
@@ -378,30 +393,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     bool success = true;
     bool complete = true;
 
+    // Create a custom internal import list which will only store this observer and all its children:
+    QList<QPointer<QObject> > internal_import_list;
+
+    // Check if relational data was exported:
     ObserverRelationalTable readback_table;
     if (export_flags & ExportRelationalData) {
         // First stream the relational table
-        if (!readback_table.importBinary(stream,import_list))
+        if (readback_table.importBinary(stream,import_list) == IExportable::Failed)
             return IExportable::Failed;
-
-        /*
-        // Once everything is done we look at result to see if it was succesfull.
-        if (result == IExportable::Incomplete) {
-            LOG_WARNING(tr("Observer (") + obs->observerName() + tr(") was partially reconstructed. Reconstructed context will be incomplete."));
-        } else if (result == IExportable::Failed) {
-            // Handle deletion of internal_import_list;
-            // Delete the first item in the list (the top item) and the rest should be deleted.
-            // For the subjects with manual ownership we delete the remaining items in the list manually.
-            while (internal_import_list.count() > 0) {
-                if (internal_import_list.at(0) != 0) {
-                    delete internal_import_list.at(0);
-                    internal_import_list.removeAt(0);
-                } else{
-                    internal_import_list.removeAt(0);
-                }
-            }
-        }
-        return result;        */
     }
 
     if (export_flags & ExportData) {
@@ -426,6 +426,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         stream >> ui32;
         object_deletion_policy = ui32;
 
+        if (export_flags & ExportVisitorIDs) {
+            qint32 visitor_id;
+            stream >> visitor_id;
+            SharedProperty visitor_id_prop(qti_prop_VISITOR_ID,visitor_id);
+            Observer::setSharedProperty(observer,visitor_id_prop);
+        }
+
         // Stream categories
         stream >> ui32;
         int category_count = ui32;
@@ -442,7 +449,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
             if (!display_hints)
                 display_hints = new ObserverHints();
             display_hints->setExportVersion(exportVersion());
-            if (display_hints->importBinary(stream,import_list))
+            if (display_hints->importBinary(stream,import_list) == IExportable::Failed)
                 return IExportable::Failed;
         }
 
@@ -521,14 +528,27 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                         if (export_iface) {
                             export_iface->setExportVersion(exportVersion());
                             export_iface->setApplicationExportVersion(applicationExportVersion());
-                            IExportable::Result result = export_iface->importBinary(stream, import_list);
+                            internal_import_list << export_iface->objectBase();
+
+                            // Get VisitorID if needed:
+                            if (export_flags & ExportVisitorIDs) {
+                                qint32 visitor_id;
+                                stream >> visitor_id;
+                                SharedProperty visitor_id_prop(qti_prop_VISITOR_ID,visitor_id);
+                                Observer::setSharedProperty(export_iface->objectBase(),visitor_id_prop);
+                            }
+
+                            // Check if it is an observer: if so we must use internal_import_list, not import_list:
+                            Observer* obs = qobject_cast<Observer*> (export_iface->objectBase());
+                            IExportable::Result result;
+                            if (obs)
+                                result = obs->importBinary(stream,internal_import_list);
+                            else
+                                result = export_iface->importBinary(stream,import_list);
+
                             if (result == IExportable::Complete) {
-                                if (export_flags & ExportQtilitiesProperties)
-                                    OBJECT_MANAGER->importObjectProperties(new_instance,stream,exportVersion());
                                 success = observer->attachSubject(new_instance,Observer::ObserverScopeOwnership,0,true);
                             } else if (result == IExportable::Incomplete) {
-                                if (export_flags & ExportQtilitiesProperties)
-                                    OBJECT_MANAGER->importObjectProperties(new_instance,stream,exportVersion());
                                 success = observer->attachSubject(new_instance,Observer::ObserverScopeOwnership,0,true);
                                 complete = false;
                             } else if (result == IExportable::Failed) {
@@ -558,14 +578,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                 observer->endProcessingCycle();
             return IExportable::Failed;
         }
-
-        if (export_flags & ExportQtilitiesProperties)
-            OBJECT_MANAGER->importObjectProperties(observer,stream,exportVersion());
     }
 
     if (export_flags & ExportRelationalData) {
-        QList<QPointer<QObject> > internal_import_list;
-        internal_import_list << import_list;
         internal_import_list << observer;
 
         // Construct relationships:
@@ -574,10 +589,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
         // Cross-check the constructed table:
         ObserverRelationalTable constructed_table(observer,true);
-        /*if (verbose_output) {
-            LOG_INFO(QString(tr("Relational verification completed on observer: %1. Here is the contents of the reconstructed table.")).arg(obs->observerName()));
-            constructed_table.dumpTableInfo();
-        }*/
         if (!constructed_table.compare(readback_table)) {
             LOG_WARNING(QString(QObject::tr("Relational verification failed on observer: %1")).arg(observer->observerName()));
             complete = false;
@@ -589,9 +600,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         ObserverRelationalTable::removeRelationalProperties(observer);
     }
 
+    if (!has_active_processing_cycle)
+        observer->endProcessingCycle();
+    observer->refreshViewsLayout();
+
     if (success) {
-        if (!has_active_processing_cycle)
-            observer->endProcessingCycle();
+
         if (complete) {
             LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was successfull (complete)."));
             return IExportable::Complete;
@@ -601,13 +615,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         }
     } else {
         LOG_WARNING(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section failed."));
-        if (!has_active_processing_cycle)
-            observer->endProcessingCycle();
         return IExportable::Failed;
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXmlExt_0_3(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
     object_node->setAttribute("ExportFlags",QString::number(export_flags));
 
     IExportable::Result result = IExportable::Complete;
@@ -648,8 +660,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         // Visitor ID (only when needed)
         if (export_flags & ExportVisitorIDs) {
             int visitor_id = -1;
-            if (Observer::propertyExists(this->objectBase(),qti_prop_VISITOR_ID)) {
-                QVariant prop_variant = this->objectBase()->property(qti_prop_VISITOR_ID);
+            if (Observer::propertyExists(observer,qti_prop_VISITOR_ID)) {
+                QVariant prop_variant = observer->property(qti_prop_VISITOR_ID);
                 if (prop_variant.isValid() && prop_variant.canConvert<SharedProperty>()) {
                     SharedProperty prop = prop_variant.value<SharedProperty>();
                     if (prop.isValid()) {
@@ -679,8 +691,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                 QDomElement hints_data = doc->createElement("ObserverHints");
                 subject_data.appendChild(hints_data);
                 display_hints->setExportVersion(exportVersion());
-                if (display_hints->exportXml(doc,&hints_data) == IExportable::Failed)
+                if (display_hints->exportXml(doc,&hints_data) == IExportable::Failed) {
+                    if (relational_table)
+                        delete relational_table;
                     return IExportable::Failed;
+                }
             }
         }
 
@@ -715,23 +730,28 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
         IExportable::Result result = IExportable::Complete;
 
-        // All the children of this item is exported:
+        // Make List Of Exportable Subjects
+        QList<IExportable*> exportable_list;
+        bool complete = true;
+        if (export_flags & ExportVisitorIDs)
+            exportable_list = getLimitedExportsList(subject_list.toQList(),IExportable::XML,&complete);
+        else {
+            for (int l = 0; l < subject_list.count(); l++) {
+                IExportable* iface = qobject_cast<IExportable*> (subject_list.at(l));
+                if (iface)
+                    exportable_list << iface;
+            }
+        }
+
+        if (!complete)
+            result = Incomplete;
+
+        // Export exportable subjects:
         QDomElement subject_children = doc->createElement("Children");
         object_node->appendChild(subject_children);
-        for (int i = 0; i < subject_list.count(); i++) {
-            Observer* obs = qobject_cast<Observer*> (subject_list.at(i));
-            IExportable* export_iface = qobject_cast<IExportable*> (subject_list.at(i));
-            if (!export_iface) {
-                QObject* obj = subject_list.at(i);
-                foreach (QObject* child, obj->children()) {
-                    obs = qobject_cast<Observer*> (child);
-                    if (obs) {
-                        export_iface = obs;
-                        break;
-                    }
-                }
-            }
-
+        for (int i = 0; i < exportable_list.count(); i++) {
+            Observer* obs = qobject_cast<Observer*> (exportable_list.at(i)->objectBase());
+            IExportable* export_iface = exportable_list.at(i);
             if (export_iface) {
                 if (export_iface->supportedFormats() & IExportable::XML) {
                     // Create a data item with its factory data as attributes for i:
@@ -815,17 +835,33 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         }
     }
 
+    if (relational_table)
+        delete relational_table;
+
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXmlExt_0_3(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(doc)
-    Q_UNUSED(import_list)
-
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     QList<QPointer<QObject> > active_subjects;
     bool has_active_processing_cycle = process_cycle_active;
     observer->startProcessingCycle();
     IExportable::Result result = IExportable::Complete;
+
+    ObserverRelationalTable* readback_table = 0;
+
+    // Create a custom internal import list which will only store this observer and all its children:
+    QList<QPointer<QObject> > internal_import_list;
+
+    ExportItemFlags export_flags = ExportData;
+    if (object_node->hasAttribute("ExportFlags"))
+        export_flags = (ExportItemFlags) object_node->attribute("ExportFlags").toInt();
+
+    if (export_flags & ExportVisitorIDs) {
+        if (object_node->hasAttribute("VisitorID")) {
+            SharedProperty visitor_id_prop(qti_prop_VISITOR_ID,object_node->attribute("VisitorID").toInt());
+            Observer::setSharedProperty(observer,visitor_id_prop);
+        }
+    }
 
     // All children underneath the root element gets constructed in here:
     QList<QObject*> constructed_list;
@@ -838,208 +874,259 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "Data") {
-            QDomNodeList dataNodes = child.childNodes();
-            for(int i = 0; i < dataNodes.count(); i++)
-            {
-                QDomNode dataChildNode = dataNodes.item(i);
-                QDomElement dataChild = dataChildNode.toElement();
-
-                if (dataChild.isNull())
-                    continue;
-
-                if (dataChild.tagName() == "ObserverHints") {
-                    observer->useDisplayHints();
-                    display_hints->setExportVersion(exportVersion());
-                    if (display_hints->importXml(doc,&dataChild,import_list) == IExportable::Failed)
-                        return IExportable::Failed;
-                    continue;
-                }
-
-                if (dataChild.tagName() == "ObserverData") {
-                    if (dataChild.hasAttribute("SubjectLimit"))
-                        subject_limit = dataChild.attribute("SubjectLimit").toInt();
-                    if (dataChild.hasAttribute("Description"))
-                        observer_description = dataChild.attribute("Description");
-                    if (dataChild.hasAttribute("AccessMode"))
-                        access_mode = Observer::stringToAccessMode(dataChild.attribute("AccessMode"));
-                    if (dataChild.hasAttribute("AccessModeScope"))
-                        access_mode_scope = Observer::stringToAccessModeScope(dataChild.attribute("AccessModeScope"));
-                    if (dataChild.hasAttribute("ObjectDeletionPolicy"))
-                        object_deletion_policy = Observer::stringToObjectDeletionPolicy(dataChild.attribute("ObjectDeletionPolicy"));
-
-                    // Category stuff:
-                    QDomNodeList childNodes = dataChild.childNodes();
-                    for(int i = 0; i < childNodes.count(); i++)
-                    {
-                        QDomNode childNode = childNodes.item(i);
-                        QDomElement child = childNode.toElement();
-
-                        if (child.isNull())
-                            continue;
-
-                        if (child.tagName() == "Categories") {
-                            QDomNodeList categoryNodes = child.childNodes();
-                            for(int i = 0; i < categoryNodes.count(); i++)
-                            {
-                                QDomNode categoryNode = categoryNodes.item(i);
-                                QDomElement category = categoryNode.toElement();
-
-                                if (category.isNull())
-                                    continue;
-
-                                if (category.tagName() == "Categories") {
-                                    QtilitiesCategory new_category;
-                                    new_category.setExportVersion(exportVersion());
-                                    new_category.importXml(doc,&category,import_list);
-                                    if (new_category.isValid())
-                                        categories << new_category;
-                                    continue;
-                                }
-                            }
-                            continue;
-                        }
-                    }
-                    continue;
-                }
-
-                if (dataChild.tagName() == "SubjectFilter") {
-                    // Construct and init the subject filter:
-                    InstanceFactoryInfo instanceFactoryInfo(doc,&dataChild,exportVersion());
-                    if (instanceFactoryInfo.isValid()) {
-                        LOG_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
-
-                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
-                        if (ifactory) {
-                            QObject* obj = ifactory->createInstance(instanceFactoryInfo);
-                            if (obj) {
-                                obj->setObjectName(instanceFactoryInfo.d_instance_name);
-                                AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
-                                if (abstract_filter) {
-                                    abstract_filter->setExportVersion(exportVersion());
-                                    if (abstract_filter->importXml(doc,&dataChild,import_list) == IExportable::Failed) {
-                                        LOG_ERROR(QString(QObject::tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()));
-                                        delete abstract_filter;
-                                        result = IExportable::Failed;
-                                    }
-                                    if (!observer->installSubjectFilter(abstract_filter)) {
-                                        LOG_DEBUG(QString(QObject::tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()));
-                                        delete abstract_filter;
-                                    }
-                                }
-                            }
-                        }
-                    } else
-                        LOG_WARNING(QString(QObject::tr("Found invalid factory data for subject filter on tree node: %1")).arg(observer->observerName()));
-                    continue;
-                }
-
-                if (dataChild.tagName() == "Formatting") {
-                    IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (observer->objectBase());
-                    if (formatting_iface) {
-                        if (formatting_iface->importFormattingXML(doc,&dataChild,exportVersion()) != IExportable::Complete) {
-                            LOG_WARNING(QString(QObject::tr("Failed to import formatting for tree node: \"%1\"")).arg(observer->observerName()));
-                            result = IExportable::Incomplete;
-                        }
-                    }
-                    continue;
-                }
+        if (export_flags & ExportRelationalData) {
+            if (child.tagName() == "RelationalData") {
+                readback_table = new ObserverRelationalTable;
+                QList<QPointer<QObject> > tmp_import_list;
+                readback_table->importXml(doc,&child,tmp_import_list);
             }
-            continue;
         }
 
-        if (child.tagName() == "Children") {
-            QDomNodeList childrenNodes = child.childNodes();
-            for(int i = 0; i < childrenNodes.count(); i++)
-            {
-                QDomNode childrenChildNode = childrenNodes.item(i);
-                QDomElement childrenChild = childrenChildNode.toElement();
+        if (export_flags & ExportData) {
+            if (child.tagName() == "Data") {
+                QDomNodeList dataNodes = child.childNodes();
+                for(int i = 0; i < dataNodes.count(); i++)
+                {
+                    QDomNode dataChildNode = dataNodes.item(i);
+                    QDomElement dataChild = dataChildNode.toElement();
 
-                if (childrenChild.isNull())
-                    continue;
+                    if (dataChild.isNull())
+                        continue;
 
-                if (childrenChild.tagName() == "TreeItem") {
-                    // Construct and init the child:
-                    InstanceFactoryInfo instanceFactoryInfo(doc,&childrenChild,exportVersion());
-                    if (instanceFactoryInfo.isValid()) {
-                        LOG_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
+                    if (dataChild.tagName() == "ObserverHints") {
+                        observer->useDisplayHints();
+                        display_hints->setExportVersion(exportVersion());
+                        if (display_hints->importXml(doc,&dataChild,import_list) == IExportable::Failed)
+                            return IExportable::Failed;
+                        continue;
+                    }
 
-                        IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
-                        if (ifactory) {
-                            QObject* obj = ifactory->createInstance(instanceFactoryInfo);
-                            if (obj) {
-                                obj->setObjectName(instanceFactoryInfo.d_instance_name);
-                                IExportable* iface = qobject_cast<IExportable*> (obj);
-                                if (iface) {
-                                    // Attach first before doing import on object:
-                                    constructed_list << iface->objectBase();
-                                    // Check if we must restore the ownership is active:
-                                    Observer::ObjectOwnership ownership = Observer::ObserverScopeOwnership;
-                                    if (childrenChild.hasAttribute("Ownership")) {
-                                        ownership = Observer::stringToObjectOwnership(childrenChild.attribute("Ownership"));
-                                    }
-                                    if (observer->attachSubject(iface->objectBase(),ownership))
-                                        import_list << obj;
-                                    else {
-                                        LOG_WARNING(QString(QObject::tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
-                                        delete obj;
-                                        result = IExportable::Incomplete;
+                    if (dataChild.tagName() == "ObserverData") {
+                        if (dataChild.hasAttribute("SubjectLimit"))
+                            subject_limit = dataChild.attribute("SubjectLimit").toInt();
+                        if (dataChild.hasAttribute("Description"))
+                            observer_description = dataChild.attribute("Description");
+                        if (dataChild.hasAttribute("AccessMode"))
+                            access_mode = Observer::stringToAccessMode(dataChild.attribute("AccessMode"));
+                        if (dataChild.hasAttribute("AccessModeScope"))
+                            access_mode_scope = Observer::stringToAccessModeScope(dataChild.attribute("AccessModeScope"));
+                        if (dataChild.hasAttribute("ObjectDeletionPolicy"))
+                            object_deletion_policy = Observer::stringToObjectDeletionPolicy(dataChild.attribute("ObjectDeletionPolicy"));
+
+                        // Category stuff:
+                        QDomNodeList childNodes = dataChild.childNodes();
+                        for(int i = 0; i < childNodes.count(); i++)
+                        {
+                            QDomNode childNode = childNodes.item(i);
+                            QDomElement child = childNode.toElement();
+
+                            if (child.isNull())
+                                continue;
+
+                            if (child.tagName() == "Categories") {
+                                QDomNodeList categoryNodes = child.childNodes();
+                                for(int i = 0; i < categoryNodes.count(); i++)
+                                {
+                                    QDomNode categoryNode = categoryNodes.item(i);
+                                    QDomElement category = categoryNode.toElement();
+
+                                    if (category.isNull())
+                                        continue;
+
+                                    if (category.tagName() == "Categories") {
+                                        QtilitiesCategory new_category;
+                                        new_category.setExportVersion(exportVersion());
+                                        new_category.importXml(doc,&category,import_list);
+                                        if (new_category.isValid())
+                                            categories << new_category;
                                         continue;
                                     }
+                                }
+                                continue;
+                            }
+                        }
+                        continue;
+                    }
 
-                                    QDomNodeList subjectChildNodes = childrenChild.childNodes();
-                                    for(int i = 0; i < subjectChildNodes.count(); i++)
-                                    {
-                                        QDomNode subjectChildNode = subjectChildNodes.item(i);
-                                        QDomElement subjectChild = subjectChildNode.toElement();
+                    if (dataChild.tagName() == "SubjectFilter") {
+                        // Construct and init the subject filter:
+                        InstanceFactoryInfo instanceFactoryInfo(doc,&dataChild,exportVersion());
+                        if (instanceFactoryInfo.isValid()) {
+                            LOG_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
 
-                                        if (subjectChild.isNull())
-                                            continue;
-
-                                        if (subjectChild.tagName() == "Category") {
-                                            // We just created this object, it will not have a category property yet so no need to check if it needs one:
-                                            QtilitiesCategory category;
-                                            category.setExportVersion(exportVersion());
-                                            category.importXml(doc,&subjectChild,import_list);
-                                            MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-                                            category_property.setValue(qVariantFromValue(category),observer->observerID());
-                                            if (!Observer::setMultiContextProperty(iface->objectBase(),category_property))
-                                                result = IExportable::Incomplete;
+                            IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
+                            if (ifactory) {
+                                QObject* obj = ifactory->createInstance(instanceFactoryInfo);
+                                if (obj) {
+                                    obj->setObjectName(instanceFactoryInfo.d_instance_name);
+                                    AbstractSubjectFilter* abstract_filter = qobject_cast<AbstractSubjectFilter*> (obj);
+                                    if (abstract_filter) {
+                                        abstract_filter->setExportVersion(exportVersion());
+                                        if (abstract_filter->importXml(doc,&dataChild,import_list) == IExportable::Failed) {
+                                            LOG_ERROR(QString(QObject::tr("Failed to import subject filter \"%1\" for tree node: \"%2\". Importing will not continue.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()));
+                                            delete abstract_filter;
+                                            result = IExportable::Failed;
+                                        }
+                                        if (!observer->installSubjectFilter(abstract_filter)) {
+                                            LOG_DEBUG(QString(QObject::tr("Failed to install subject filter \"%1\" for tree node: \"%2\". If this filter already existed this is not a problem.")).arg(instanceFactoryInfo.d_instance_tag).arg(observer->observerName()));
+                                            delete abstract_filter;
                                         }
                                     }
-
-                                    // Now that we created the item, init its data and children:
-                                    iface->setExportVersion(exportVersion());
-                                    iface->setApplicationExportVersion(applicationExportVersion());
-                                    IExportable::Result intermediate_result = iface->importXml(doc,&childrenChild,import_list);
-                                    if (intermediate_result != IExportable::Complete) {
-                                        LOG_WARNING(QString(QObject::tr("Failed to reconstruct object in tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
-                                        result = IExportable::Incomplete;
-                                    }
-
-                                    // Check if it is active:
-                                    if (childrenChild.hasAttribute("Activity")) {
-                                        if (childrenChild.attribute("Activity") == QString("Active"))
-                                            active_subjects << iface->objectBase();
-                                    }
-                                } else {
-                                    LOG_WARNING(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()));
-                                    if (!has_active_processing_cycle)
-                                        observer->endProcessingCycle();
-                                    return IExportable::Failed;
                                 }
                             }
-                        } else {
-                            LOG_ERROR(QString(QObject::tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_factory_tag));
-                            result = IExportable::Incomplete;
+                        } else
+                            LOG_WARNING(QString(QObject::tr("Found invalid factory data for subject filter on tree node: %1")).arg(observer->observerName()));
+                        continue;
+                    }
+
+                    if (dataChild.tagName() == "Formatting") {
+                        IExportableFormatting* formatting_iface = qobject_cast<IExportableFormatting*> (observer->objectBase());
+                        if (formatting_iface) {
+                            if (formatting_iface->importFormattingXML(doc,&dataChild,exportVersion()) != IExportable::Complete) {
+                                LOG_WARNING(QString(QObject::tr("Failed to import formatting for tree node: \"%1\"")).arg(observer->observerName()));
+                                result = IExportable::Incomplete;
+                            }
                         }
-                    } else
-                        LOG_WARNING(QString(QObject::tr("Found invalid factory data for child on tree node: %1")).arg(observer->observerName()));
-                    continue;
+                        continue;
+                    }
                 }
+                continue;
             }
-            continue;
+
+            if (child.tagName() == "Children") {
+                QDomNodeList childrenNodes = child.childNodes();
+                for(int i = 0; i < childrenNodes.count(); i++)
+                {
+                    QDomNode childrenChildNode = childrenNodes.item(i);
+                    QDomElement childrenChild = childrenChildNode.toElement();
+
+                    if (childrenChild.isNull())
+                        continue;
+
+                    if (childrenChild.tagName() == "TreeItem") {
+                        // Construct and init the child:
+                        InstanceFactoryInfo instanceFactoryInfo(doc,&childrenChild,exportVersion());
+                        if (instanceFactoryInfo.isValid()) {
+                            LOG_TRACE(QString(QObject::tr("Importing subject type \"%1\" in factory \"%2\"...")).arg(instanceFactoryInfo.d_instance_tag).arg(instanceFactoryInfo.d_factory_tag));
+
+                            IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(instanceFactoryInfo.d_factory_tag);
+                            if (ifactory) {
+                                QObject* obj = ifactory->createInstance(instanceFactoryInfo);
+                                if (obj) {
+                                    obj->setObjectName(instanceFactoryInfo.d_instance_name);
+                                    internal_import_list << obj;
+                                    IExportable* iface = qobject_cast<IExportable*> (obj);
+                                    if (iface) {
+                                        // Attach first before doing import on object:
+                                        constructed_list << iface->objectBase();
+                                        // Check if we must restore the ownership is active:
+                                        Observer::ObjectOwnership ownership = Observer::ObserverScopeOwnership;
+                                        if (childrenChild.hasAttribute("Ownership")) {
+                                            ownership = Observer::stringToObjectOwnership(childrenChild.attribute("Ownership"));
+                                        }
+                                        if (observer->attachSubject(iface->objectBase(),ownership))
+                                            import_list << obj;
+                                        else {
+                                            LOG_WARNING(QString(QObject::tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
+                                            delete obj;
+                                            result = IExportable::Incomplete;
+                                            continue;
+                                        }
+
+                                        QDomNodeList subjectChildNodes = childrenChild.childNodes();
+                                        for(int i = 0; i < subjectChildNodes.count(); i++)
+                                        {
+                                            QDomNode subjectChildNode = subjectChildNodes.item(i);
+                                            QDomElement subjectChild = subjectChildNode.toElement();
+
+                                            if (subjectChild.isNull())
+                                                continue;
+
+                                            if (subjectChild.tagName() == "Category") {
+                                                // We just created this object, it will not have a category property yet so no need to check if it needs one:
+                                                QtilitiesCategory category;
+                                                category.setExportVersion(exportVersion());
+                                                category.importXml(doc,&subjectChild,import_list);
+                                                MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+                                                category_property.setValue(qVariantFromValue(category),observer->observerID());
+                                                if (!Observer::setMultiContextProperty(iface->objectBase(),category_property))
+                                                    result = IExportable::Incomplete;
+                                            }
+                                        }
+
+                                        // Now that we created the item, init its data and children:
+                                        iface->setExportVersion(exportVersion());
+                                        iface->setApplicationExportVersion(applicationExportVersion());
+
+                                        // Check if it is an observer: if so we must use internal_import_list, not import_list:
+                                        Observer* obs = qobject_cast<Observer*> (iface->objectBase());
+                                        IExportable::Result intermediate_result;
+                                        if (obs)
+                                            intermediate_result = iface->importXml(doc,&childrenChild,internal_import_list);
+                                        else
+                                            intermediate_result = iface->importXml(doc,&childrenChild,import_list);
+
+                                        if (intermediate_result != IExportable::Complete) {
+                                            LOG_WARNING(QString(QObject::tr("Failed to reconstruct object in tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
+                                            result = IExportable::Incomplete;
+                                        }
+
+                                        // Check if it is active:
+                                        if (childrenChild.hasAttribute("Activity")) {
+                                            if (childrenChild.attribute("Activity") == QString("Active"))
+                                                active_subjects << iface->objectBase();
+                                        }
+
+                                        // Get VisitorID if needed:
+                                        if (export_flags & ExportVisitorIDs) {
+                                            if (childrenChild.hasAttribute("VisitorID")) {
+                                                SharedProperty visitor_id_prop(qti_prop_VISITOR_ID,childrenChild.attribute("VisitorID").toInt());
+                                                Observer::setSharedProperty(iface->objectBase(),visitor_id_prop);
+                                            }
+                                        }
+                                    } else {
+                                        LOG_WARNING(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()));
+                                        if (!has_active_processing_cycle)
+                                            observer->endProcessingCycle();
+                                        return IExportable::Failed;
+                                    }
+                                }
+                            } else {
+                                LOG_ERROR(QString(QObject::tr("Factory with name %1 does not exist in the object manager. This item will be skipped and the import will be incomplete.")).arg(instanceFactoryInfo.d_factory_tag));
+                                result = IExportable::Incomplete;
+                            }
+                        } else
+                            LOG_WARNING(QString(QObject::tr("Found invalid factory data for child on tree node: %1")).arg(observer->observerName()));
+                        continue;
+                    }
+                }
+                continue;
+            }
         }
+    }
+
+    if (export_flags & ExportRelationalData) {
+        internal_import_list << observer;
+
+        // Construct relationships:
+        if (!constructRelationships(internal_import_list,readback_table))
+            result = IExportable::Incomplete;
+
+        // Cross-check the constructed table:
+        ObserverRelationalTable constructed_table(observer,true);
+        /*if (verbose_output) {
+            LOG_INFO(QString(tr("Relational verification completed on observer: %1. Here is the contents of the reconstructed table.")).arg(obs->observerName()));
+            constructed_table.dumpTableInfo();
+        }*/
+        if (!constructed_table.compare(*readback_table)) {
+            LOG_WARNING(QString(QObject::tr("Relational verification failed on observer: %1")).arg(observer->observerName()));
+            result = IExportable::Incomplete;
+        } else {
+            LOG_INFO(QString(QObject::tr("Relational verification successful on observer: %1")).arg(observer->observerName()));
+        }
+
+        // Remove all relational properties used.
+        ObserverRelationalTable::removeRelationalProperties(observer);
     }
 
     if (!has_active_processing_cycle)
@@ -1065,7 +1152,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
     if (!table)
         return false;
 
-    // First check if all the objects in the pointer list are present in the table.
+    // First check if all the objects in the pointer list are present in the table:
     if (!table->compareObjects(objects)) {
         LOG_ERROR(QString(QObject::tr("Relational table comparison failed. Relationship construction aborted.")));
         return false;
@@ -1073,10 +1160,11 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
         LOG_TRACE("Table comparison successfull.");
 
     QList<Observer*> observer_list = Observer::observerList(objects);
+
     // Disable subject event filtering on all observers in list:
-    for (int i = 0; i < observer_list.count(); i++) {
-        observer_list.at(i)->toggleSubjectEventFiltering(false);
-    }
+//    for (int i = 0; i < observer_list.count(); i++) {
+//        observer_list.at(i)->toggleSubjectEventFiltering(false);
+//    }
 
     // Fill in all the session ID fields with the current session information
     // and populate the previous session ID field.
@@ -1108,55 +1196,55 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
     // Binary exports of observer properties (not shared) stream the complete observer map of the property.
     // Here we need to correct the observer IDs (session IDs) for the current session and remove
     // contexts which was not part of the export.
-    LOG_TRACE("Correcting observer property observer ID fields.");
-    for (int i = 0; i < objects.count(); i++) {
-        // Loop through all dynamic properties and get all the exportable observer properties.
-        int multi_context_property_count = 0;
-        QList<MultiContextProperty> multi_context_property_list;
-        QObject* obj = objects.at(i);
-        for (int p = 0; p < obj->dynamicPropertyNames().count(); p++) {
-            MultiContextProperty multi_context_property = Observer::getMultiContextProperty(obj,obj->dynamicPropertyNames().at(p));
-            // Only exportable properties must be modified here:
-            if (multi_context_property.isValid() && multi_context_property.isExportable()) {
-                ++multi_context_property_count;
-                multi_context_property_list << multi_context_property;
-            }
-        }
+//    LOG_TRACE("Correcting multi context properties' observer ID fields.");
+//    for (int i = 0; i < objects.count(); i++) {
+//        // Loop through all dynamic properties and get all the exportable observer properties:
+//        int multi_context_property_count = 0;
+//        QList<MultiContextProperty> multi_context_property_list;
+//        QObject* obj = objects.at(i);
+//        for (int p = 0; p < obj->dynamicPropertyNames().count(); p++) {
+//            MultiContextProperty multi_context_property = Observer::getMultiContextProperty(obj,obj->dynamicPropertyNames().at(p));
+//            // Only exportable properties must be modified here:
+//            if (multi_context_property.isValid() && multi_context_property.isExportable()) {
+//                ++multi_context_property_count;
+//                multi_context_property_list << multi_context_property;
+//            }
+//        }
 
-        // We need to map each observer ID in the observer map to the current session ID for that observer.
-        // We do this using the following steps:
-        // -) Loop through all properties.
-        // -) For each property, get each observer ID (previous session ID) in the observer map.
-        // -) Find the object with the previous session ID in the table.
-        // -) Get its current observer ID by casting it to an observer.
-        // -) Create a new property with current observer ID and values from current property.
-        // -) Lastly replace the property with the new property.
-        for (int p = 0; p < multi_context_property_count; p++) {
-            MultiContextProperty current_property = multi_context_property_list.at(p);
-            MultiContextProperty new_property(current_property.propertyName());
-            QMap<quint32, QVariant> local_map = current_property.contextMap();
-            for (int m = 0; m < local_map.count(); m++) {
-                int prev_session_id = (int) local_map.keys().at(m);
-                RelationalTableEntry* entry = table->entryWithPreviousSessionID(prev_session_id);
-                if (!entry) {
-                    LOG_ERROR(QString(QObject::tr("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1")).arg(prev_session_id));
-                    // If you get here on custom properties added by subject filters, make sure you handle the
-                    // import_cycle parameter correctly when initializing and finalizing attachments. What normally
-                    // happens is that the filter adds the property again with the current session ID. This check
-                    // will notice this because it looks at the new property, not the old correct property.
-                    for (int i = 0; i < observer_list.count(); i++) {
-                        observer_list.at(i)->toggleSubjectEventFiltering(true);
-                    }
-                    return false;
-                }
+//        // We need to map each observer ID in the observer map to the current session ID for that observer.
+//        // We do this using the following steps:
+//        // -) Loop through all properties.
+//        // -) For each property, get each observer ID (previous session ID) in the observer map.
+//        // -) Find the object with the previous session ID in the table.
+//        // -) Get its current observer ID by casting it to an observer.
+//        // -) Create a new property with current observer ID and values from current property.
+//        // -) Lastly replace the property with the new property.
+//        for (int p = 0; p < multi_context_property_count; p++) {
+//            MultiContextProperty current_property = multi_context_property_list.at(p);
+//            MultiContextProperty new_property(current_property.propertyName());
+//            QMap<quint32, QVariant> local_map = current_property.contextMap();
+//            for (int m = 0; m < local_map.count(); m++) {
+//                int prev_session_id = (int) local_map.keys().at(m);
+//                RelationalTableEntry* entry = table->entryWithPreviousSessionID(prev_session_id);
+//                if (!entry) {
+//                    LOG_ERROR(QString(QObject::tr("ObjectManager::constructRelationships() failed during observer property reconstruction. Failed to find relational table entry for previous session id: %1")).arg(prev_session_id));
+//                    // If you get here on custom properties added by subject filters, make sure you handle the
+//                    // import_cycle parameter correctly when initializing and finalizing attachments. What normally
+//                    // happens is that the filter adds the property again with the current session ID. This check
+//                    // will notice this because it looks at the new property, not the old correct property.
+////                    for (int i = 0; i < observer_list.count(); i++) {
+////                        observer_list.at(i)->toggleSubjectEventFiltering(true);
+////                    }
+//                    return false;
+//                }
 
-                int current_session_id = entry->sessionID();
-                new_property.addContext(current_property.value(prev_session_id),current_session_id);
-            }
-            obj->setProperty(current_property.propertyName(),QVariant());
-            Observer::setMultiContextProperty(obj,new_property);
-        }
-    }
+//                int current_session_id = entry->sessionID();
+//                new_property.addContext(current_property.value(prev_session_id),current_session_id);
+//            }
+//            obj->setProperty(current_property.propertyName(),QVariant());
+//            Observer::setMultiContextProperty(obj,new_property);
+//        }
+//    }
 
     // Now construct the relationships.
     // We do this by taking the following steps:
@@ -1290,8 +1378,60 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
             // Only one observer has to indicate that it's layout changed:
             observer_list.at(0)->refreshViewsLayout();
         }
-        observer_list.at(i)->toggleSubjectEventFiltering(true);
+        //observer_list.at(i)->toggleSubjectEventFiltering(true);
     }
 
     return success;
+}
+
+QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<QObject*> objects, IExportable::ExportMode export_mode, bool * incomplete) const {
+    QList<IExportable*> exportable_list;
+    qint32 iface_count = 0;
+    if (incomplete)
+        *incomplete = true;
+    for (int i = 0; i < objects.count(); i++) {
+        QObject* obj = objects.at(i);
+        IExportable* iface = qobject_cast<IExportable*> (obj);
+        // When doing containment, the containment class should reconstruct the contained observer: Otherwise
+        // reconstruction will just skip the containment class and attach the contained observer directly
+        // to the parent of the containment class.
+        //
+        // if (!iface) {
+        //     foreach (QObject* child, obj->children()) {
+        //     Observer* obs = qobject_cast<Observer*> (child);
+        //     if (obs) {
+        //         iface = obs;
+        //         break;
+        //     }
+        // }
+
+        if (iface) {
+            if (!(iface->supportedFormats() & export_mode)) {
+                LOG_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not support this export type. Export will be incomplete."));
+                if (incomplete)
+                    *incomplete = false;
+            } else if (!iface->instanceFactoryInfo().isValid()) {
+                LOG_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") with invalid instanceFactoryInfo(). Export will be incomplete."));
+                if (incomplete)
+                    *incomplete = false;
+            } else {
+                // Handle limited export object, thus they should only be exported once.
+                int count = Observer::getSharedProperty(obj,qti_prop_LIMITED_EXPORTS).value().toInt();
+                if (count == 0) {
+                    SharedProperty limited_exports_prop(qti_prop_LIMITED_EXPORTS,count+1);
+                    Observer::setSharedProperty(obj,limited_exports_prop);
+                    exportable_list << iface;
+                    ++iface_count;
+                } else {
+                    LOG_TRACE(QString("%1/%2: Limited export object \"%3\" excluded in this context...").arg(i).arg(iface_count).arg(observer->subjectNameInContext(obj)));
+                }
+            }
+        } else {
+            LOG_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not implement an exportable interface. Export will be incomplete."));
+            if (incomplete)
+                *incomplete = false;
+        }
+    }
+    //qDebug() << "getLimitedExportsList() on " + observer->observerName() + ": input list count = " + QString::number(objects.count()) + ", exportable list count = " + QString::number(exportable_list.count());
+    return exportable_list;
 }

@@ -51,3 +51,7 @@ QMutableListIterator<QObject*> Qtilities::Core::PointerList::iterator() {
     QMutableListIterator<QObject*> itr(list);
     return itr;
 }
+
+QList<QObject*> Qtilities::Core::PointerList::toQList() const {
+    return list;
+}

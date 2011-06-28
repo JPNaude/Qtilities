@@ -179,10 +179,8 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addObjec
                     if (observer->displayHints()) {
                         if (observer->displayHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                             subject_category = QInputDialog::getText(this, tr("Object category:"), QString("Provide a category for the new object, or leave it blank if you want to leave it uncategorized:"), QLineEdit::Normal, "Sample Category",&ok);
-                            MultiContextProperty object_category(qti_prop_CATEGORY_MAP);
-                            object_category.setValue(QVariant(subject_category),observer->observerID());
-                            QVariant object_category_variant = qVariantFromValue(object_category);
-                            new_item->setProperty(object_category.propertyName(),object_category_variant);
+                            if (ok)
+                                new_item->setCategory(QtilitiesCategory(subject_category),observer->observerID());
                         }
                     }
                     QStringList management_options;

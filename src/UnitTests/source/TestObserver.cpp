@@ -225,7 +225,7 @@ void Qtilities::UnitTests::TestObserver::testOwnershipOwnedByParent() {
     QApplication::processEvents();
 
     // Check the validity of the observer:
-    //QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to delete the object yet.", Continue);
+    QEXPECT_FAIL("", "Event loop is not running, thus deleteLater() will not be called to delete the object yet.", Continue);
     QVERIFY(observerA == 0);
 
     LOG_INFO("TestObserver::testOwnershipOwnedByParent() end.");

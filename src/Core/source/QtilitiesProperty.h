@@ -268,7 +268,7 @@ Observer* obs = new Observer("My Observer","Example observer description");
 
 // Create shared property
 QString property_name = "Example Property Name";
-SharedProperty string_property("Example text",property_name);
+SharedProperty string_property(property_name,"Example text");
 // For this example we don't need to make the property exportable. By default all properties are exportable.
 string_property.setIsExportable(false);
 

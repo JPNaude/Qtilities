@@ -135,8 +135,6 @@ namespace Qtilities {
             QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const;
             void setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type);
             void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type);
-            bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const;
-            bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const;      
 
             // --------------------------------
             // IObjectBase Implementation

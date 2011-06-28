@@ -118,8 +118,9 @@ int main(int argc, char *argv[])
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);
 
-    // Lets add a page to our setting page which handles shortcuts in our application:
+    // Lets add a couple of pages to our setting page which handles shortcuts and logging in our application:
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+    OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
     // Initializing the configuration widget will search the global object pool for objects implementing IConfigPage, and automatically add them:
     config_widget->initialize();
 
@@ -136,10 +137,12 @@ int main(int argc, char *argv[])
     TreeItem* sharedItem = nodeA->addItem("Shared Item");
 
     TreeNode* nodeB = node->addNode("Node B");
+    nodeB->displayHints()->setActionHints(ObserverHints::ActionPushUp | ObserverHints::ActionSwitchView);
+    nodeB->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
     nodeB->attachSubject(sharedItem);
     nodeB->addItem("Item 3");
     nodeB->addItem("Item 4");
-    // Notice we did not set any display hints on Node B, it will behave different.
+    // Notice we added different display hints on Node B, it will behave different.
 
     // We show the tree using an ObserverWidget:
     ObserverWidget* tree_widget = new ObserverWidget(node);

@@ -67,15 +67,15 @@ namespace Qtilities {
         public:
             //! The possible export flags used during extended observer exports.
             /*!
-              \sa exportBinaryExt(), exportBinaryXML()
+              \sa exportBinaryExt(), exportXMLExt()
               */
             enum ExportItem {
                 ExportData                  = 1, /*!< Exports all observer data, subjects and their children. */
                 ExportVisitorIDs            = 2, /*!< XML Only: Indicates that VisitorIDs must be added to subject nodes. This is needed when ExportRelationalData is used, and therefore it is automatically enabled in that case.  */
-                ExportQtilitiesProperties   = 4, /*!< Binary Only: Exports all %Qtilities properties found on the objects which implements << and >> stream operators. This is needed when ExportRelationalData is used, and therefore it is automatically enabled in that case.*/
-                ExportRelationalData        = 8, /*!< Indicates that an ObserverRelationalTable must be constructed for the observer and it must be exported with the observer data. During extended imports the relational structure of the tree under your observer will be reconstructed. */
+                ExportRelationalData        = 4, /*!< Indicates that an ObserverRelationalTable must be constructed for the observer and it must be exported with the observer data. During extended imports the relational structure of the tree under your observer will be reconstructed. */
+//                ExportQtilitiesProperties   = 8, /*!< Binary Only: Exports all %Qtilities properties found on the objects which implements << and >> stream operators. This is needed when ExportRelationalData is used, and therefore it is automatically enabled in that case.*/
 
-                ExportAllItems             = ExportData | ExportVisitorIDs | ExportQtilitiesProperties | ExportRelationalData
+                ExportAllItems             = ExportData | ExportVisitorIDs | ExportRelationalData
             };
             Q_DECLARE_FLAGS(ExportItemFlags, ExportItem);
             Q_FLAGS(ExportItemFlags);
@@ -137,20 +137,27 @@ namespace Qtilities {
             // --------------------------------
             // Extended Access Call Functions From Observer
             // --------------------------------
+            //! Extended binary export function.
             IExportable::Result exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const;
+            //! Extended XML export function.
             IExportable::Result exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
 
             // --------------------------------
             // Export Implementations For Different Qtilities Versions
             // --------------------------------
         private:
-            IExportable::Result exportBinaryExt_0_3(QDataStream& stream, ExportItemFlags export_flags) const;
-            IExportable::Result importBinaryExt_0_3(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXmlExt_0_3(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
-            IExportable::Result importXmlExt_0_3(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const;
+            IExportable::Result importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::Result exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
+            IExportable::Result importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             //! Construct relationships between a list of objects with the relational data being passed to the function as a RelationalObserverTable.
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable* table) const;
+            //! Creates a list of exportable subjects for cases where ExportRelationalData is enabled.
+            /*!
+              In this case, we need to make sure objects appearing multiple times in the tree is not exported more than once. This is done using qti_prop_LIMITED_EXPORTS.
+              */
+            QList<IExportable*> getLimitedExportsList(QList<QObject*> objects, IExportable::ExportMode export_mode, bool * incomplete = 0) const;
 
             // --------------------------------
             // All Data Stored For An Observer

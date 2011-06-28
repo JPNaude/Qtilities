@@ -211,14 +211,14 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
                 // ---------------------------------
                 // Exporting & Importing Functionality
                 // ---------------------------------
-                //! Streams exportable dynamic properties about the object to the given QDataStream.
-                /*!
-                  To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
-                  This is the case for all properties used in %Qtilities.
-                  */
-                virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
-                //! Streams exportable dynamic properties about the new_instance QObject from the given QDataStream.
-                virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const = 0;
+//                //! Streams exportable dynamic properties about the object to the given QDataStream.
+//                /*!
+//                  To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
+//                  This is the case for all properties used in %Qtilities.
+//                  */
+//                virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
+//                //! Streams exportable dynamic properties about the new_instance QObject from the given QDataStream.
+//                virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const = 0;
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.

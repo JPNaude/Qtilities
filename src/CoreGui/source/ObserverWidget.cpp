@@ -2318,8 +2318,8 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
                 }
             } else {
                 QMessageBox msgBox;
-                msgBox.setText("Paste Operation Failed.");
-                msgBox.setInformativeText(QString(tr("The paste operation could not be completed. The destination observer could not accept all the objects in your selection.\n\nDo you want to keep the data in the clipboard for later usage?")));
+                msgBox.setText(tr("Paste Operation Failed."));
+                msgBox.setInformativeText(tr("The paste operation could not be completed. The destination observer could not accept all the objects in your selection.\n\nDo you want to keep the data in the clipboard for later usage?"));
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 msgBox.setDefaultButton(QMessageBox::No);
                 int ret = msgBox.exec();
@@ -2336,8 +2336,8 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
             }
         } else {
             QMessageBox msgBox;
-            msgBox.setText("Paste Operation Failed.");
-            msgBox.setInformativeText("The paste operation could not be completed. Unsupported data type for this context.\n\nDo you want to keep the data in the clipboard for later usage?");
+            msgBox.setText(tr("Paste Operation Failed."));
+            msgBox.setInformativeText(tr("The paste operation could not be completed. Unsupported data type for this context.\n\nDo you want to keep the data in the clipboard for later usage?"));
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::No);
             int ret = msgBox.exec();
@@ -2354,8 +2354,8 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
         }
     } else {
         QMessageBox msgBox;
-        msgBox.setText("Paste Operation Failed.");
-        msgBox.setInformativeText("The destination context cannot accept paste operations.\n\nDo you want to keep the data in the clipboard for later usage?");
+        msgBox.setText(tr("Paste Operation Failed."));
+        msgBox.setInformativeText(tr("The destination context cannot accept paste operations.\n\nDo you want to keep the data in the clipboard for later usage?"));
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
         int ret = msgBox.exec();

@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Qtilities Tester");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
-    TestFrontend testFrontend(argc,argv);
     QMainWindow mainWindow;
     QtilitiesApplication::setMainWindow(&mainWindow);
+    TestFrontend testFrontend(argc,argv);
     LOG_INITIALIZE();
-    Log->setGlobalLogLevel(Logger::Fatal);
+    Log->setGlobalLogLevel(Logger::Trace);
     Log->setIsQtMessageHandler(false);
     Log->toggleQtMsgEngine(false);
     Log->toggleConsoleEngine(false);

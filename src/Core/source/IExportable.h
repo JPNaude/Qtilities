@@ -89,9 +89,8 @@ namespace Qtilities {
             <b>Binary Exports</b><br>
             Advantages:
             - Allows you to stream binary data which won't always be allowed in a XML document format.
-            - Very usefull when you need to serialize complex data structures which is not viewed by a user, such as network or interprocess communications.
-            - When exporting %Qtilities tree structures such as Observer trees or projects, binary exports includes all your Qtilities::Core::MultiContextProperty and Qtilities::Core::SharedProperty properties which was added on your objects.
-            - Also, when streaming tree structures you the complete relational table (see Qtilities::Core::ObserverRelationalTable) of your tree is streamed and constructed during an import.
+            - Very usefull when you need to serialize complex data structures which is not viewed by a user.
+            - When streaming tree structures to binary it is possible to add the complete relational table (see Qtilities::Core::ObserverRelationalTable) of your tree to the output and it can be reconstructed during an import.
 
             Disadvantages:
             - Difficult to debug.
@@ -100,17 +99,13 @@ namespace Qtilities {
 
             <b>XML Exports</b><br>
             Advantages:
+            - User friendly.
             - Easy to debug and maintain.
             - Backward compatibility is easy to do and stepping of export format versions happens way less frequently than in binray exports.
-            - User friendly.
             - Perfect for simple data, and for more advanced data CDATA elements are available.
+            - When streaming tree structures to XML it is possible to add the complete relational table (see Qtilities::Core::ObserverRelationalTable) of your tree to the output and it can be reconstructed during an import.
 
-            <br>
-            Disadvantages:
-            - At present, %Qtilities tree structures does not export observer and shared observer properties.
-            - Not possible to store advanced relational table information of %Qtilities trees at present. Note that simple trees work fine but as soon as a tree element exist that has multiple parents in the tree, it will be reconstructed as two seperate instances during reconstruction.
-
-            Clearly there are advantages in both export methods, and if more usefull standards arive the the future the interface can be expanded and your objects can easily adopt to new standard (JSON to think of one...)
+            Clearly there are advantages in both export methods, and if more usefull standards arive in the future the interface can be expanded and your objects can easily adopt to new standards (JSON for example).
 
             \section iexportable_versioning Versioning
 
@@ -396,6 +391,14 @@ int main(int argc, char *argv[])
                     See \ref page_serializing_overview for more information about the expected output format.
                   */
                 virtual Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
+                //----------------------------
+                // Enum <-> String Functions
+                //----------------------------
+                //! Function which returns a string associated with a specific ExportMode.
+                static QString exportModeToString(ExportMode export_mode);
+                //! Function which returns the ExportMode associated with a string.
+                static ExportMode stringToExportMode(const QString& export_mode_string);
 
             private:
                 Qtilities::ExportVersion d_export_version;

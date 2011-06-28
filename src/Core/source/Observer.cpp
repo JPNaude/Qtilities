@@ -1127,7 +1127,9 @@ bool Qtilities::Core::Observer::setQtilitiesPropertyValue(QObject* obj, const ch
         setMultiContextProperty(obj,observer_property);
         return true;
     } else {
-        LOG_FATAL(QString(tr("Observer (%1): Setting the value of property (%2) failed. This property is not yet set as an MultiContextProperty type class.")).arg(objectName()).arg(property_name));
+        QString error_str = QString(tr("Observer (%1): Setting the value of property (%2) failed. This property is not yet set as an MultiContextProperty type class.")).arg(objectName()).arg(property_name);
+        LOG_FATAL(error_str);
+        qDebug() << error_str;
         // Assert here, otherwise you will think that the property is being set and you won't understand why something else does not work.
         // If you get here, you need to create the property you need, and then set it using the setMultiContextProperty() or setSharedProperty() calls.
         // This function is not the correct one to use in your situation.

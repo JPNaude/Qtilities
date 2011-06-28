@@ -86,3 +86,28 @@ quint32 Qtilities::Core::Interfaces::IExportable::applicationExportVersion() con
     else
         return d_export_application_version;
 }
+
+QString Qtilities::Core::Interfaces::IExportable::exportModeToString(ExportMode export_mode) {
+    if (export_mode == None) {
+        return "None";
+    } else if (export_mode == Binary) {
+        return "Binary";
+    } else if (export_mode == XML) {
+        return "XML";
+    }
+
+    return QString();
+}
+
+Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::Core::Interfaces::IExportable::stringToExportMode(const QString& export_mode_string) {
+    if (export_mode_string == "None") {
+        return None;
+    } else if (export_mode_string == "Binary") {
+        return Binary;
+    } else if (export_mode_string == "XML") {
+        return XML;
+    }
+
+    Q_ASSERT(0);
+    return None;
+}

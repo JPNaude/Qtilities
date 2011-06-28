@@ -104,7 +104,6 @@ See Qtilities::Core::ObserverData.
 <td>
 Qtilities::Core::ObserverData<br>
 MARKER_OBS_CLASS_SECTION =(quint32) 0xDEADBEEF<br>
-MARKER_OBJECT_PROPERTY_SECTION = (quint32) 0xA0B0C0D0
 </td>
 <td>
 The contents of the observer export depends on the export flags used. By default (using the default \p exportBinary() function) the export just contains the observer's data along with its children. When other flags are also active and you call \p exportBinaryExt() on observer, the export will look different. See Qtilities::Core::ObserverData::ExportItem for more details.
@@ -121,6 +120,8 @@ If \p ExportData is enabled:
   - Access mode (quint32)
   - Access mode scope (quint32)
   - Object deletion policy (quint32)
+  - If \p ExportVisitorIDs is enabled:
+    - The visitor ID of this observer.
   - Number of categories for which access modes are defined (quint32)
   - The categories (Qtilities::Core::QtilitiesCategory)
   - Indication if observer hints are used in the observer (bool)
@@ -130,16 +131,13 @@ If \p ExportData is enabled:
     - The factory info of the filter (Qtilities::Core::InstanceFactoryInfo)
     - The subject filter's data (Implementation of Qtilities::Core::IExportable)
   - MARKER_OBS_CLASS_SECTION
-  - Number of subjects implementing Qtilities::Core::Interfaces::IExportable.
-    - The exportBinary() implementation of the export interface.
-    - If \p ExportQtilitiesProperties is enabled:
-      - The observer properties on the object exported using Qtilities::Core::ObjectManager::exportObjectProperties():
-        - MARKER_OBJECT_PROPERTY_SECTION
-        - Number of shared properties exported (quint32)
-        - Shared property items (Qtilities::Core::SharedProperty)
-        - Number of observer properties exported (quint32)
-        - Observer property items (Qtilities::Core::MultiContextProperty)    
-        - MARKER_OBJECT_PROPERTY_SECTION<br>
+  - If \p ExportVisitorIDs is enabled subjects appearing more than once in the tree will only be exported once, otherwise all subjects in the tree are exported:
+      - Number of subjects implementing Qtilities::Core::Interfaces::IExportable (with above condition taken into account).
+      - For each subject the following is now exported:
+        - If \p ExportVisitorIDs is enabled:
+            - The visitor ID of this subject.
+            - The exportBinary() implementation of the subject's export interface.
+        -
   - MARKER_OBS_CLASS_SECTION<br>
 </td>
 </tr>
@@ -402,7 +400,7 @@ Qtilities::Core::ObserverData
 <td>
 The contents of the observer export depends on the export flags used. By default (using the default \p exportXml() function) the export just contains the observer's data along with its children. When other flags are also active and you call \p exportXmlExt() on observer, the export will look different. See Qtilities::Core::ObserverData::ExportItem for more details.
 
-Lets look at the default output format of Observer for simple tree constructed like this:
+Lets look at the default output format of Observer for a simple tree constructed like this:
 @code
 // Set up the root node:
 TreeNode* rootNode = new TreeNode("Root Node");
@@ -420,7 +418,7 @@ child_node->addItem("TestChild2");
 child_node->addItem("TestChild3");
 @endcode
 
-The resulting export looks like this (Just using \p ExportData):
+The resulting export looks like this (Just using \p Qtilities::Core::ObserverData::ExportData):
 @code
 <object_node ExportFlags="1">
   <Data>
@@ -492,7 +490,7 @@ rootNode->setChildType("Example child type");
 // Build a tree with an \p shared_item having multiple parents.
 rootNode->addItem("Item 1");
 rootNode->addItem("Item 2");
-TreeItem* shared_item = rootNode->addItem("Item 3");
+TreeItem* shared_item = rootNode->addItem("Shared Item");
 TreeNode* child_nodeA = rootNode->addNode("TestNodeA");
 child_nodeA->addItem("TestChild1");
 child_nodeA->addItem("TestChild2");
@@ -555,19 +553,49 @@ The result looks like this:
     <TreeItem Ownership="SpecificObserverOwnership"&#xD
               InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
               Name="Item 1"&#xD
+              VisitorID="1"&#xD
               Activity="Inactive"/>
     <TreeItem Ownership="SpecificObserverOwnership"&#xD
               InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
               Name="Item 2"&#xD
+              VisitorID="2"&#xD
               Activity="Inactive"/>
     <TreeItem Ownership="SpecificObserverOwnership"&#xD
               InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
               Name="Item 3"&#xD
+              VisitorID="3"&#xD
+              Activity="Inactive"/>
+    <TreeItem InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+              VisitorID="8"&#xD
+              Name="Shared Item&#xD
               Activity="Inactive"/>
     <TreeItem Ownership="SpecificObserverOwnership"&#xD
               ExportFlags="1"&#xD
+              VisitorID="4"&#xD
               InstanceFactoryInfo="qti.def.FactoryTag.TreeNode"&#xD
               Name="TestNode1"&#xD
+              Activity="Inactive"/>
+      <Data>
+        <ObserverHints/>
+      </Data>
+      <Children>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  VisitorID="5"&#xD
+                  Name="TestChild1"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  VisitorID="6"&#xD
+                  Name="TestChild2"/>
+        <TreeItem Ownership="SpecificObserverOwnership"&#xD
+                  InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
+                  VisitorID="7"&#xD
+                  Name="TestChild3"/>
+      </Children>
+    </TreeItem>
+    <TreeItem Ownership="SpecificObserverOwnership"&#xD
+              ExportFlags="3" InstanceFactoryInfo="qti.def.FactoryTag.TreeNode"&#xD
+              Name="TestNodeB" VisitorID="8"&#xD
               Activity="Inactive">
       <Data>
         <ObserverHints/>
@@ -575,16 +603,16 @@ The result looks like this:
       <Children>
         <TreeItem Ownership="SpecificObserverOwnership"&#xD
                   InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
-                  Name="TestChild1"/>
+                  Name="TestChild1"&#xD
+                  VisitorID="9"/>
         <TreeItem Ownership="SpecificObserverOwnership"&#xD
                   InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
-                  Name="TestChild2"/>
+                  Name="TestChild2"&#xD
+                  VisitorID="10"/>
         <TreeItem Ownership="SpecificObserverOwnership"&#xD
                   InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
-                  Name="TestChild3"/>
-        <TreeItem InstanceFactoryInfo="qti.def.FactoryTag.TreeItem"&#xD
-                  Name="Shared Item&#xD
-                  Activity="Inactive"/>
+                  Name="TestChild3"&#xD
+                  VisitorID="11"/>
       </Children>
     </TreeItem>
   </Children>

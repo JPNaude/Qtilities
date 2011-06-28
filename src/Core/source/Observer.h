@@ -145,7 +145,6 @@ observerWidget.show();
             Q_ENUMS(ObjectOwnership);            
             Q_ENUMS(EvaluationResult)
             Q_ENUMS(AccessMode)
-            Q_ENUMS(ExtendedExportItem)
 
             Q_PROPERTY(QString Name READ observerName);
             Q_PROPERTY(QString Description READ observerDescription);

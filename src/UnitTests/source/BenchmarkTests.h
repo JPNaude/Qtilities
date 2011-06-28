@@ -63,7 +63,7 @@ namespace Qtilities {
             int execTest(int argc = 0, char ** argv = 0);
              QString testName() const { return tr("Some expriments with benchmarking"); }
         private slots:
-            void benchmarkObserverExport_0_3_0_3_data();
+            void benchmarkObserverExport_1_0_1_0_data();
             //! Do a benchmark on a big observer export
             void benchmarkObserverExport_1_0_1_0();
             //! Do a benchmark on a big observer export

@@ -42,7 +42,7 @@ int Qtilities::UnitTests::BenchmarkTests::execTest(int argc, char ** argv) {
     return QTest::qExec(this,argc,argv);
 }
 
-void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_0_3_0_3_data() {
+void Qtilities::UnitTests::BenchmarkTests::benchmarkObserverExport_1_0_1_0_data() {
     QTest::addColumn<int>("TreeDepth");
     QTest::newRow("small tree") << 5;
     QTest::newRow("big tree") << 50;
