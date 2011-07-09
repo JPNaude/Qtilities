@@ -76,10 +76,9 @@ int main(int argc, char *argv[])
     QtilitiesApplication a(argc, argv);
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setApplicationName("Main Window Example");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create a QtilitiesMainWindow to show our different modes:
-    QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
+    QtilitiesMainWindow* example_main_window = new QtilitiesMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Lots of application code...
@@ -97,9 +96,20 @@ int main(int argc, char *argv[])
 
         Alternatively, we can put the modes on either the top, right or bottom. For example:
 
+        To create your widget, add something like the following to your \p main.cpp code:
+
 \code
-// Create a QtilitiesMainWindow with modes at the top:
-QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
+int main(int argc, char *argv[])
+{
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setApplicationName("Main Window Example");
+
+    // Create a QtilitiesMainWindow with modes at the top:
+    QtilitiesMainWindow* example_main_window = new QtilitiesMainWindow(QtilitiesMainWindow::ModesTop);
+    QtilitiesApplication::setMainWindow(example_main_window);
+
+    // Lots of application code...
 \endcode
 
         The result is:

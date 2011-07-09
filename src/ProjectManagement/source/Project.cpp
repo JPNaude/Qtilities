@@ -405,7 +405,9 @@ bool Qtilities::ProjectManagement::Project::isModified() const {
     return false;
 }
 
-void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::ProjectManagement::Project::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     if (!d->modification_mutex.tryLock())
         return;
     if (notification_targets & IModificationNotifier::NotifySubjects) {

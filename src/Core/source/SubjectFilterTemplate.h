@@ -35,10 +35,13 @@
 #define SUBJECTFILTERTEMPLATE_H
 
 #include "AbstractSubjectFilter.h"
+#include "IModificationNotifier.h"
 #include "Factory.h"
 
 namespace Qtilities {
     namespace Core {
+        using namespace Qtilities::Core::Interfaces;
+
         /*!
           \struct SubjectFilterTemplatePrivateData
           \brief The SubjectFilterTemplatePrivateData class stores private data used by the SubjectFilterTemplate class.
@@ -56,9 +59,10 @@ namespace Qtilities {
         abstract functions in order to work. The source code of the subject filters which comes as part of
         %Qtilities is a good place to start when looking for examples of filter implementations.
           */	
-        class QTILIITES_CORE_SHARED_EXPORT SubjectFilterTemplate : public AbstractSubjectFilter
+        class QTILIITES_CORE_SHARED_EXPORT SubjectFilterTemplate : public AbstractSubjectFilter, public IModificationNotifier
         {
             Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
             SubjectFilterTemplate(QObject* parent = 0);
@@ -96,6 +100,15 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
+
+            // --------------------------------
+            // IModificationNotifier Implemenation
+            // --------------------------------
+            bool isModified() const;
+        public slots:
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
+        signals:
+            void modificationStateChanged(bool is_modified) const;
 
         private:
             SubjectFilterTemplatePrivateData* d;

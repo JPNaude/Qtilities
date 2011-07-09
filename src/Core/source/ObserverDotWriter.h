@@ -317,14 +317,14 @@ digraph "Root Node" {
               \param node A pointer to the node.
               \param attribute The name of the attribute to be removed.
 
-              \returns True if successfull, false otherwise.
+              \returns True if successfull, false otherwise (also when the property did not exist).
               */
             bool removeNodeAttribute(QObject* node, const QString& attribute);
             //! Returns a list of all attributes on a node in the graph.
             /*!
               \returns A QHash with attribute names a keys and their corresponding values as values.
               */
-            QHash<QString,QString> nodeAttributes(QObject* node) const;
+            QHash<QByteArray,QString> nodeAttributes(QObject* node) const;
 
             //! Adds an edge attribute between two nodes in the graph.
             /*!
@@ -343,14 +343,14 @@ digraph "Root Node" {
               \param node A pointer to the node.
               \param attribute The name of the attribute to be removed.
 
-              \returns True if successfull, false otherwise.
+              \returns True if successfull, false otherwise (also when the property did not exist).
               */
             bool removeEdgeAttribute(Observer* parent, QObject* child, const QString& attribute);
             //! Returns a list of all attributes on a node in the graph.
             /*!
               \returns A QHash with attribute names a keys and their corresponding values as values.
               */
-            QHash<QString,QString> edgeAttributes(Observer* parent, QObject* child) const;
+            QHash<QByteArray,QString> edgeAttributes(Observer* parent, QObject* child) const;
 
             //! Adds a node attribute to a node in the graph.
             /*!

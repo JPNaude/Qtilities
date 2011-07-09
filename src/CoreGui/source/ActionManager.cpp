@@ -219,14 +219,18 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     frontend_action->setShortcutContext(Qt::ApplicationShortcut);
 
     if (!QtilitiesApplication::mainWindow()) {
+        #ifndef QT_NO_DEBUG
         // Show a message box since action manager will always be used in QtGui application.
         if (!showed_warning) {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Action Manager");
-            msgBox.setText("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended.");
+            msgBox.setWindowTitle(tr("Action Manager"));
+            msgBox.setText(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
             msgBox.exec();
             showed_warning = true;
         }
+        #else
+            LOG_FATAL(tr("QtilitiesApplication::mainWindow() is required when registering actions in the action manager.<br><br>Proxy actions will not work as intended."));
+        #endif
     } else
         QtilitiesApplication::mainWindow()->addAction(frontend_action);
 

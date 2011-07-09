@@ -42,7 +42,9 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::SubjectFilterTemplatePrivateData {
-    SubjectFilterTemplatePrivateData()  {}
+    SubjectFilterTemplatePrivateData() : is_modified(false) {}
+
+    bool is_modified;
 };
 
 Qtilities::Core::SubjectFilterTemplate::SubjectFilterTemplate(QObject* parent) : AbstractSubjectFilter(parent) {
@@ -139,6 +141,19 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Subje
     flags |= IExportable::Binary;
     flags |= IExportable::XML;
     return flags;
+}
+
+bool Qtilities::Core::SubjectFilterTemplate::isModified() const {
+    return d->is_modified;
+}
+
+void Qtilities::Core::SubjectFilterTemplate::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
+    d->is_modified = new_state;
+    if (notification_targets & IModificationNotifier::NotifyListeners) {
+        emit modificationStateChanged(new_state);
+    }
 }
 
 QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SubjectFilterTemplate& stream_obj) {

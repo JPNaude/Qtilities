@@ -25,6 +25,8 @@
 #ifdef QTILITIES_PROPERTY_BROWSER
 #include <QtilitiesCoreConstants>
 #include <IModificationNotifier>
+#include <QtilitiesPropertyChangeEvent>
+#include <QtilitiesProperty>
 
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -129,6 +131,22 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::refresh(bool has_changes) {
     }
 }
 
+bool Qtilities::CoreGui::ObjectPropertyBrowser::eventFilter(QObject *object, QEvent *event) {
+    if (object == d->obj) {
+        if (event->type() == QEvent::DynamicPropertyChange) {
+            QDynamicPropertyChangeEvent* property_change_event = static_cast<QDynamicPropertyChangeEvent*> (event);
+            if (property_change_event) {
+                //qDebug() << "Dynamic change event update in ObjectPropertyBrowser: " << property_change_event->propertyName();
+                d->ignore_property_changes = true;
+                refresh(true);
+                d->ignore_property_changes = false;
+            }
+        }
+    }
+
+    return false;
+}
+
 void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
     if (d->obj == object)
         return;
@@ -148,6 +166,10 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
             connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+
+        // Install an event filter on the object.
+        // This will catch property change events as well.
+        d->obj->installEventFilter(this);
     }
 
     if (!d->obj)

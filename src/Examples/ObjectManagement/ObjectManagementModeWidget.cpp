@@ -53,6 +53,9 @@ struct Qtilities::Examples::ObjectManagement::ObjectManagementModeWidgetData {
 
     QAction *actionAddExampleObjects;
     QAction *dot_file_action;
+    QAction *dot_add_properties;
+    QAction *dot_remove_properties;
+    QAction *dot_query_properties;
     QAction *exitAct;
 
     // Example toolbar and actions to control widgets in the tree
@@ -97,12 +100,32 @@ Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::ObjectManagem
     Command* command = ACTION_MANAGER->registerAction("Example.PopulateObserver",d->actionAddExampleObjects,context);
     command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
+    file_menu->addSeperator(qti_action_FILE_EXIT);
 
     d->dot_file_action = new QAction("Create Dot Graph",this);
     connect(d->dot_file_action,SIGNAL(triggered()),SLOT(createDotFile()));
     command = ACTION_MANAGER->registerAction("Example.CreateDotFile",d->dot_file_action,context);
     command->setCategory(QtilitiesCategory(QApplication::applicationName()));
     file_menu->addAction(command,qti_action_FILE_EXIT);
+
+    d->dot_add_properties = new QAction("Add Example Dot Properties",this);
+    connect(d->dot_add_properties,SIGNAL(triggered()),SLOT(addDotProperties()));
+    command = ACTION_MANAGER->registerAction("Example.AddDotProperties",d->dot_add_properties,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
+    file_menu->addAction(command,qti_action_FILE_EXIT);
+
+    d->dot_remove_properties = new QAction("Remove Example Dot Properties",this);
+    connect(d->dot_remove_properties,SIGNAL(triggered()),SLOT(removeDotProperties()));
+    command = ACTION_MANAGER->registerAction("Example.RemoveDotProperties",d->dot_remove_properties,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
+    file_menu->addAction(command,qti_action_FILE_EXIT);
+
+    d->dot_query_properties = new QAction("Query Example Dot Properties",this);
+    connect(d->dot_query_properties,SIGNAL(triggered()),SLOT(queryDotProperties()));
+    command = ACTION_MANAGER->registerAction("Example.QueryDotProperties",d->dot_query_properties,context);
+    command->setCategory(QtilitiesCategory(QApplication::applicationName()));
+    file_menu->addAction(command,qti_action_FILE_EXIT);
+
     file_menu->addSeperator(qti_action_FILE_EXIT);
 
     // ---------------------------
@@ -359,11 +382,6 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::handle_s
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDotFile() {
     ObserverDotWriter dotGraph(d->top_level_node);
-    dotGraph.addNodeAttribute(d->top_level_node->treeChildren().front(),"color","red");
-    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label","\"My label\"");
-    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"style","bold");
-    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().at(1),"color","red");
-    dotGraph.addGraphAttribute("label","Graph Title");
     dotGraph.generateDotScript();
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QApplication::applicationDirPath(),tr("Dot Input Files (*.gv)"));
@@ -376,5 +394,52 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDo
         editor_widget->loadFile(fileName);
         editor_widget->show();
     }
+}
+
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addDotProperties() {
+    ObserverDotWriter dotGraph(d->top_level_node);
+    dotGraph.addNodeAttribute(d->top_level_node->treeChildren().front(),"color","red");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label","\"My label\"");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"style","bold");
+    dotGraph.addEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().at(1),"color","red");
+    dotGraph.addGraphAttribute("label","Graph Title");
+}
+
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::removeDotProperties() {
+    ObserverDotWriter dotGraph(d->top_level_node);
+
+    // Remove node attributes on d->top_level_node->treeChildren().front():
+    dotGraph.removeNodeAttribute(d->top_level_node->treeChildren().front(),"color");
+
+    // Remove edge attributes on d->top_level_node->treeChildren().front():
+    dotGraph.removeEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"label");
+    dotGraph.removeEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().front(),"style");
+
+    // Remove edge attributes on d->top_level_node->treeChildren().at(1):
+    dotGraph.removeEdgeAttribute(d->top_level_node,d->top_level_node->treeChildren().at(1),"color");
+
+    // Remove the graph attribute:
+    dotGraph.removeGraphAttribute("label");
+}
+
+void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::queryDotProperties() {
+    ObserverDotWriter dotGraph(d->top_level_node);
+
+    QHash<QByteArray,QString> properties;
+    properties = dotGraph.nodeAttributes(d->top_level_node->treeChildren().front());
+    LOG_INFO("Dot Node Properties On Node A:");
+    QStringList prop_names;
+    for (int i = 0; i < properties.count(); i++)
+        prop_names << properties.keys().at(i).data();
+    LOG_INFO(prop_names.join(","));
+
+    properties.clear();
+    prop_names.clear();
+
+    properties = dotGraph.edgeAttributes(d->top_level_node,d->top_level_node->treeChildren().front());
+    LOG_INFO("Dot Edge Properties On Node A:");
+    for (int i = 0; i < properties.count(); i++)
+        prop_names << properties.keys().at(i).data();
+    LOG_INFO(prop_names.join(","));
 }
 

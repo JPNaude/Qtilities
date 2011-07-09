@@ -57,15 +57,18 @@ namespace Qtilities {
         \class LoggerGui
         \brief A class providing static member functions to acccess and create GUIs related to the %Qtilities Logging library.
 
-        This class allows the creation of log widgets through static functions. These widgets includes:
-        - A configuration widget for the logger.
-        - Log widget. When creating a log widget, you can specify which message types must be displayed in your widget. The function will automatically create a new widget logger engine for you and the widget which is returned will be ready to use.
-        - Log dock widget. Same as log widget, except that it returns a dock widget with the log widget already inside it.
+        This class allows the creation of log widgets through static functions.
 
-        Below is an example dock log widget. Note the ready to use Qtilities::CoreGui::SearchBoxWidget at the bottom of the log window.
+        For example:
+
+\code
+QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"));
+session_log_dock->show();
+\endcode
+
+        The \p QDockWidget produced by the above code is shown below. Note the ready to use Qtilities::CoreGui::SearchBoxWidget at the bottom of the log window.
 
         \image html log_dock_widget.jpg "Log Dock Widget"
-        \image latex log_dock_widget.eps "Log Dock Widget" width=\textwidth
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT LoggerGui {
         public:

@@ -52,7 +52,9 @@ bool Qtilities::CoreGui::TreeItemBase::isModified() const {
     return itemBaseData->is_modified;
 }
 
-void Qtilities::CoreGui::TreeItemBase::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::CoreGui::TreeItemBase::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     itemBaseData->is_modified = new_state;
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);

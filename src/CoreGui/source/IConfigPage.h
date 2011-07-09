@@ -51,6 +51,8 @@ namespace Qtilities {
             /*!
             \class IConfigPage
             \brief An interface through which widgets can be added to the ConfigurationWidget class.
+
+            The IConfigPage interface allows objects to expose configuration (settings) pages to the ConfigurationWidget. For more information see the ConfigurationWidget documentation.
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT IConfigPage : virtual public IObjectBase
             {
@@ -64,6 +66,9 @@ namespace Qtilities {
                 //! Gets widget used in the configuration page area.
                 virtual QWidget* configPageWidget() = 0;
                 //! Gets the category of the config page.
+                /*!
+                  \note This category is only shown in the configuration widget when it is shown in Qtilities::TreeView display mode.
+                  */
                 virtual QtilitiesCategory configPageCategory() const = 0;
                 //! Gets the title of the config page.
                 virtual QString configPageTitle() const = 0;

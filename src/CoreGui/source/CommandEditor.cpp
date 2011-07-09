@@ -53,7 +53,7 @@ struct Qtilities::CoreGui::CommandEditorPrivateData {
     CommandEditorPrivateData() { }
 
     ObserverWidget              observer_widget;
-    CommandTreeModel*           model;
+    qti_private_CommandTreeModel*           model;
     qti_private_ShortcutEditorDelegate*     shortcut_delegate;
     QAction*                    action_restore_defaults;
     QAction*                    action_save;
@@ -74,7 +74,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     layout->setMargin(0);
     layout->addWidget(&d->observer_widget);
 
-    d->model = new CommandTreeModel(this);
+    d->model = new qti_private_CommandTreeModel(this);
     d->observer_widget.setCustomTreeModel(d->model);
     d->observer_widget.setObserverContext(ACTION_MANAGER->commandObserver());
 

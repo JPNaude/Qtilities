@@ -94,6 +94,7 @@ namespace Qtilities {
 
             ObjectPropertyBrowser(BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
             ~ObjectPropertyBrowser();
+            bool eventFilter(QObject *object, QEvent *event);
 
             // --------------------------------
             // Factory Interface Implemenation

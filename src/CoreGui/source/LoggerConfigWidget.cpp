@@ -55,7 +55,7 @@ using namespace Qtilities::Logging::Constants;
 struct Qtilities::CoreGui::LoggerConfigWidgetPrivateData {
     LoggerConfigWidgetPrivateData() : active_engine(0) {}
 
-    LoggerEnginesTableModel logger_engine_model;
+    qti_private_LoggerEnginesTableModel logger_engine_model;
     AbstractLoggerEngine* active_engine;
 };
 
@@ -291,10 +291,12 @@ void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
     // Store settings using QSettings only if it was initialized
     QSettings settings;
-    settings.beginGroup("Session Log");
+    settings.beginGroup("Qtilities");
+    settings.beginGroup("Logging");
     settings.beginGroup("General");
     settings.setValue("global_log_level", QVariant(Log->globalLogLevel()));
     settings.setValue("remember_session_config", QVariant(Log->rememberSessionConfig()));
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 }
@@ -305,7 +307,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::readSettings() {
 
     // Load logging paramaters using QSettings()
     QSettings settings;
-    settings.beginGroup("Session Log");
+    settings.beginGroup("Qtilities");
+    settings.beginGroup("Logging");
     settings.beginGroup("General");
     QVariant log_level =  settings.value("global_log_level", Logger::Fatal);
     Logger::MessageType global_type = (Logger::MessageType) log_level.toInt();
@@ -315,6 +318,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::readSettings() {
     else
         ui->checkBoxRememberSession->setChecked(false);
 
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 }

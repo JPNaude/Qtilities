@@ -301,7 +301,7 @@ bool Qtilities::Core::Observer::isModified() const {
     return false;
 }
 
-void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
     if (observerData->display_hints) {
         if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
             if (observerData->is_modified != new_state)
@@ -331,7 +331,7 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
     }
 
     // For observers we only notify targets if the actual state changed:
-    if (observerData->is_modified != new_state) {
+    if (observerData->is_modified != new_state || force_notifications) {
         observerData->is_modified = new_state;
         if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
             emit modificationStateChanged(new_state);

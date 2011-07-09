@@ -44,6 +44,10 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Building Tree Structures Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
+    // We need to set a QWidget as the application's main window in order for proxy actions to work:
+    QWidget* proxy_widget = new QWidget;
+    QtilitiesApplication::setMainWindow(proxy_widget);
+
     // Create the tree nodes:
     /*TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
@@ -113,8 +117,9 @@ int main(int argc, char *argv[])
     rootNode->addItem("Child 2",QtilitiesCategory("Category 1"));
     rootNode->addItem("Child 3");
     rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
-    rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
+    TreeItem* modified_item = rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
     rootNode->displayHints()->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
+    modified_item->setModificationState(true);
 
     // ----------------------------------
     // Uncategorized Tree

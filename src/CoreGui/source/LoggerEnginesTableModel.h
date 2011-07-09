@@ -31,29 +31,28 @@
 **
 ****************************************************************************/
 
-#ifndef LoggerEnginesTableModel_H
-#define LoggerEnginesTableModel_H
+#ifndef qti_private_LoggerEnginesTableModel_H
+#define qti_private_LoggerEnginesTableModel_H
 
 #include <QMutex>
 #include <QAbstractTableModel>
 
-#include <Logger.h>
-#include <AbstractLoggerEngine.h>
+#include <Logger>
+#include <AbstractLoggerEngine>
 
-#include "QtilitiesCoreGui_global.h"
 
 using namespace Qtilities::Logging;
 
 namespace Qtilities {
     namespace CoreGui {
-        class QTILITIES_CORE_GUI_SHARED_EXPORT LoggerEnginesTableModel : public QAbstractTableModel
+        class qti_private_LoggerEnginesTableModel : public QAbstractTableModel
         {
             Q_OBJECT
             Q_ENUMS(ColumnIDs)
 
         public:
-            LoggerEnginesTableModel(QObject* parent = 0);
-            virtual ~LoggerEnginesTableModel() {}
+            qti_private_LoggerEnginesTableModel(QObject* parent = 0);
+            virtual ~qti_private_LoggerEnginesTableModel() {}
 
             enum ColumnIDs {
                 NameColumn = 0
@@ -73,4 +72,4 @@ namespace Qtilities {
     }
 }
 
-#endif // LoggerEnginesTableModel_H
+#endif // qti_private_LoggerEnginesTableModel_H

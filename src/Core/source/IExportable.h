@@ -96,6 +96,7 @@ namespace Qtilities {
             - Difficult to debug.
             - Not user friendly. If you for example use projects in your application, users would much rather prefer an XML file that they can edit than a stream of binary data.
             - Backward compatibility of exported files becomes difficult to maintain and changing classes requires frequency export format version steps.
+            - All object's properties are not exported.
 
             <b>XML Exports</b><br>
             Advantages:
@@ -104,6 +105,9 @@ namespace Qtilities {
             - Backward compatibility is easy to do and stepping of export format versions happens way less frequently than in binray exports.
             - Perfect for simple data, and for more advanced data CDATA elements are available.
             - When streaming tree structures to XML it is possible to add the complete relational table (see Qtilities::Core::ObserverRelationalTable) of your tree to the output and it can be reconstructed during an import.
+
+            Disadvantages:
+            - All object's properties are not exported.
 
             Clearly there are advantages in both export methods, and if more usefull standards arive in the future the interface can be expanded and your objects can easily adopt to new standards (JSON for example).
 

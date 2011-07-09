@@ -35,8 +35,6 @@ namespace Qtilities {
         /*!
         \class CodeEditorWidgetConfig
         \brief A config page for text editors.
-
-        \note This class is still under development and is not yet ready for production usage.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CodeEditorWidgetConfig : public QWidget, public IConfigPage
         {
@@ -56,6 +54,8 @@ namespace Qtilities {
             QString configPageTitle() const;
             /*!
               This function calls QtilitiesApplication::newSettingsUpdateRequest("AllCodeEditors") which will refresh all code editors.
+
+              For more information see \ref configuration_widget_storage_layout.
               */
             void configPageApply();
             bool supportsApply() const { return true; }

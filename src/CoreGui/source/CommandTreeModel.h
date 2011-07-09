@@ -34,7 +34,6 @@
 #ifndef COMMAND_TREE_MODEL_H
 #define COMMAND_TREE_MODEL_H
 
-#include "QtilitiesCoreGui_global.h"
 #include "ObserverTreeModel.h"
 
 #include <QMutex>
@@ -46,13 +45,13 @@ namespace Qtilities {
         // -----------------------------------------------
         // CommandTableModel
         // -----------------------------------------------
-        class QTILITIES_CORE_GUI_SHARED_EXPORT CommandTreeModel : public ObserverTreeModel
+        class qti_private_CommandTreeModel : public ObserverTreeModel
         {
             Q_OBJECT
 
         public:
-            CommandTreeModel(QObject* parent = 0);
-            virtual ~CommandTreeModel() {}
+            qti_private_CommandTreeModel(QObject* parent = 0);
+            virtual ~qti_private_CommandTreeModel() {}
 
             // --------------------------------
             // ObserverTableModel Implementation

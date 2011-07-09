@@ -173,7 +173,7 @@ code_editor.codeEditor()->setReadOnly(true);
             // --------------------------------
             bool isModified() const;
         public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners);
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
         signals:
             void modificationStateChanged(bool is_modified) const;
 

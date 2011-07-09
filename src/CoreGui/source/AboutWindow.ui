@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="lblVersion">
+    <widget class="QLabel" name="labelVersion">
      <property name="font">
       <font>
        <pointsize>11</pointsize>
@@ -37,7 +37,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Application Name</string>
+      <string>Version</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -125,7 +125,7 @@
         </font>
        </property>
        <property name="text">
-        <string>http://www.qtilities.org</string>
+        <string>Website</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

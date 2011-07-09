@@ -260,7 +260,7 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             // --------------------------------
             bool isModified() const;
         public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
         signals:
             void modificationStateChanged(bool is_modified) const;
 

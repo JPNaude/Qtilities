@@ -163,7 +163,7 @@ bool Qtilities::Core::QtilitiesProperty::propertySupportsChangeNotifications(con
     if (!qstrcmp(property_name,qti_prop_DISPLAYED_ALIAS_MAP))
         return false;
 
-    return true;
+    return false;
 }
 
 // ------------------------------------------

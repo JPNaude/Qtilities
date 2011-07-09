@@ -562,11 +562,13 @@ Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::globalLogLev
 void Qtilities::Logging::Logger::writeSettings() const {
     // Store settings using QSettings only if it was initialized
     QSettings settings;
-    settings.beginGroup("Session Log");
+    settings.beginGroup("Qtilities");
+    settings.beginGroup("Logging");
     settings.beginGroup("General");
     settings.setValue("global_log_level", QVariant(d->global_log_level));
     settings.setValue("is_qt_message_handler", d->is_qt_message_handler);
     settings.setValue("remember_session_config", d->remember_session_config);
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 }
@@ -577,7 +579,8 @@ void Qtilities::Logging::Logger::readSettings() {
 
     // Load logging paramaters using QSettings()
     QSettings settings;
-    settings.beginGroup("Session Log");
+        settings.beginGroup("Qtilities");
+    settings.beginGroup("Logging");
     settings.beginGroup("General");
     QVariant log_level =  settings.value("global_log_level", Fatal);
     d->global_log_level = (MessageType) log_level.toInt();
@@ -587,6 +590,7 @@ void Qtilities::Logging::Logger::readSettings() {
         d->remember_session_config = true;
     else
         d->remember_session_config = false;
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 }

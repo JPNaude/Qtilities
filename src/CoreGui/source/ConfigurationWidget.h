@@ -59,11 +59,94 @@ namespace Qtilities {
         \class ConfigurationWidget
         \brief Configuration widget which displays config pages from widgets implementing the Qtilities::CoreGui::Interfaces::IConfigPage interface.
 
+        The configuration widget is a simple widget which can be used to display user settings in your applications. There are many such widgets available to Qt developers, and it is not very difficult to create a simple widget yourself. However, to do it properly takes time and doing it properly normally introduces bugs. Thus, the %Qtilities configuration widget provides a ready to use, tested, extendable and configurable configuration widget solution.
+
+        ConfigurationWidget shows configuration pages that implements Qtilities::CoreGui::Interfaces::IConfigPage. To show pages in the configuration widget, register them in the global object pool and call initialize() on the configuration widget. The widget will find all configuration pages in the object pool. Parts of %Qtilities provides ready to use configuration pages to use in your application. For example:
+
+\code
+// The shortcuts editor for commands in your application:
+OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+
+// Logging configuration page:
+OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
+
+// Extension system configuration page:
+OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
+
+// The project manager configuration page:
+OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
+\endcode
+
+        To create your widget, add something like the following to your \p main.cpp code:
+
+\code
+int main(int argc, char *argv[])
+{
+    QtilitiesApplication a(argc, argv);
+
+    // Create a settings window for our application:
+    ConfigurationWidget* config_widget = new ConfigurationWidget;
+    QtilitiesApplication::setConfigWidget(config_widget);
+
+    // ... Lots of application code ...
+    // Initialize the widget as soon as all your pages are registered in the global object pool:
+    config_widget->initialize();
+
+\endcode
+
+        It is now possible to access the configuration widget from anywhere in your application and perform actions on it:
+\code
+if (QtilitiesApplication::configWidget()) {
+    ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
+    if (config_widget) {
+        // First call initialize on the config_widget to make sure it has all the pages available in the global object pool:
+        config_widget->initialize();
+        if (config_widget->hasPage(tr("My Page"))) {
+            // We can get the interface to this page like this:
+            IConfigWidget* config_widget_iface = config_widget->getPage("My Page");
+
+            // Or we can show this page:
+            config_widget->setActivePage(tr("Code Editors"));
+            config_widget->show();
+        }
+    }
+}
+\endcode
+
         Below is an example of the configuartion widget taken from the Object Management Example in the QtilitiesExamples project:
 
         \image html project_configuration_widget.jpg "Project Configuration Widget"
-        \image latex project_configuration_widget.eps "Project Configuration Widget" width=\textwidth
 
+        It is possible to either show the configuration pages as a list as shown above, or it can be shown as a categorized tree by using the correct Qtilities::DisplayMode in the constructor. This allows your pages to provide a Qtilities::Core::QtilitiesCategory to use in the categorized tree through the \p IConfigPage interface.
+
+        \sa Qtilities::CoreGui::Interfaces::IConfigPage
+
+        \section configuration_widget_storage_layout Configuration settings storage in Qtilities
+
+        Throughout %Qtilities the modules store application settings using \p QSettings. For this method to work properly, it is important to construct your \p QApplication object properly as shown below:
+\code
+int main(int argc, char *argv[])
+{
+    QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Object Management Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
+\endcode
+
+        The construction of the QSettings object is done as follows everywhere that settings are saved. This example saves settings of a specific ObserverWidget:
+\code
+QSettings settings;
+settings.beginGroup("Qtilities");
+settings.beginGroup("GUI");
+settings.beginGroup(d->global_meta_type);
+// .... Stores some ObserverWidget stuff ...
+settings.endGroup();
+settings.endGroup();
+settings.endGroup();
+\endcode
+
+        Thus, the settings are saved throughout the %Qtilities modules under the default place used by QSettings, under a group called %Qtilities. For more information see the QSettings documentation.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ConfigurationWidget : public QWidget {
             Q_OBJECT

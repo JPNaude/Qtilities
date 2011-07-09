@@ -62,6 +62,20 @@ namespace Qtilities {
         /*!
           \class LoggerConfigWidget
           \brief The LoggerConfigWidget class provides a widget allowing the user to control the logger through a visual interface.
+
+          The LoggerConfigWidget widget exposes settings of the logger through a configuration page shown below:
+
+        \image html logging_configuration_widget.jpg "Logging Configuration Widget"
+
+        To add this page to your application's ConfigurationWidget, do the following:
+\code
+// Logging configuration page:
+OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
+\endcode
+
+        \note When using the Qtilities::Plugins::SessionLog plugin in your application, this page will automatically appear in your configuration widget.
+
+        For more information see the \ref page_logging article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT LoggerConfigWidget : public QWidget, public IConfigPage {
             Q_OBJECT

@@ -122,7 +122,7 @@ observerWidget.show();
 
         \section observer_subject_filters Subject filters
 
-    Subject filters are a feature of the observer architecture which allows control over object attachment and detachment, as well as monitoring of properties introduced by the subject filter. For more information on this see the \ref subject_filters section of the \ref page_observer page.
+    Subject filters are a feature of the observer architecture which allows control over object attachment and detachment, as well as monitoring of properties introduced by the subject filter. For more information on this see the \ref subject_filters section of the \ref page_observers page.
 
         \section observer_threads Observers and threads
 
@@ -511,11 +511,11 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             bool isModified() const;
         public slots:
             /*!
-              For observers, the listeners will only be notified if a processing cycle is not active.
+              For observers, the listeners will only be notified if a processing cycle is not active or if it is forced using \p force_notifications.
 
               \sa isProcessingCycleActive(), startProcessingCycle(), endProcessingCycle()
               */
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners);
+            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
         signals:
             void modificationStateChanged(bool is_modified) const;
 

@@ -253,6 +253,7 @@ void Qtilities::CoreGui::TreeNode::endProcessingCycle() {
 Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
     TreeItem* new_item = new TreeItem(name);
     new_item->setCategory(category,this);
+    new_item->setModificationState(false);
     if (attachSubject(new_item,Observer::SpecificObserverOwnership)) {
         return new_item;
     } else {
@@ -264,6 +265,7 @@ Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QStrin
 Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name, const QtilitiesCategory& category) {
     TreeNode* new_node = new TreeNode(name);
     new_node->setCategory(category,this);
+    new_node->setModificationState(false);
     if (attachSubject(new_node,Observer::SpecificObserverOwnership)) {
         return new_node;
     } else {
@@ -276,6 +278,7 @@ bool Qtilities::CoreGui::TreeNode::addNodeFromFile(QString file_name, const Qtil
     TreeNode* new_node = new TreeNode();
     if (new_node->loadFromFile(file_name,errorMsg,false) != IExportable::Failed) {
         new_node->setCategory(category,this);
+        new_node->setModificationState(false);
         return attachSubject(new_node,Observer::ObserverScopeOwnership);
     } else {
         delete new_node;

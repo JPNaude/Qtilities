@@ -693,7 +693,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              // Check if the node (observer) accepts drops or allows drags:
              Observer* obs = qobject_cast<Observer*> (item->getObject());
              if (obs) {
-                 // We need to check a few things things:
+                 // We need to check a few things:
                  // 1. Do we the observer hints?
                  // 2. If so, does the observer have hints?
                  ObserverHints* hints_to_use = 0;
@@ -813,7 +813,8 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (CLIPBOARD_MANAGER->mimeData());
         if (observer_mime_data) {
             // Try to attach it:
-            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
+            QString error_msg;
+            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
                 // Now check the proposed action of the event.
                 if (observer_mime_data->dropAction() == Qt::MoveAction) {
                     // Attempt to move the dragged objects:
@@ -831,7 +832,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                     }
                 }
             } else
-                LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context.")));
+                LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context. Error message: ") + error_msg));
         } else
             LOG_ERROR(QString(tr("The drop operation could not be completed. The clipboard manager does not contain a valid mime data object.")));
     } else

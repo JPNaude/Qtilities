@@ -256,7 +256,9 @@ bool Qtilities::CoreGui::CodeEditorWidget::isModified() const {
         return false;
 }
 
-void Qtilities::CoreGui::CodeEditorWidget::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::CoreGui::CodeEditorWidget::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     if (!d->codeEditor)
         return;
 
@@ -427,6 +429,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
     if (request_id == d->global_meta_type || request_id == "AllCodeEditors") {
         // Read the text editor settings from QSettings
         QSettings settings;
+        settings.beginGroup("Qtilities");
         settings.beginGroup("GUI");
         settings.beginGroup("Editors");
         settings.beginGroup("Code Editor Widget");
@@ -437,6 +440,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
         font.setPointSize(settings.value("font_size",10).toInt());
         d->codeEditor->setFont(font);
 
+        settings.endGroup();
         settings.endGroup();
         settings.endGroup();
         settings.endGroup();

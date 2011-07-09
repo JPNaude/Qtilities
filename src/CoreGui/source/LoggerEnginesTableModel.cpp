@@ -39,12 +39,12 @@
 
 using namespace Qtilities::CoreGui::Constants;
 
-Qtilities::CoreGui::LoggerEnginesTableModel::LoggerEnginesTableModel(QObject* parent) : QAbstractTableModel(parent)
+Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::qti_private_LoggerEnginesTableModel(QObject* parent) : QAbstractTableModel(parent)
 {
     connect(Log,SIGNAL(loggerEngineCountChanged(AbstractLoggerEngine*,Logger::EngineChangeIndication)),SLOT(handleLoggerEngineChanged(AbstractLoggerEngine*,Logger::EngineChangeIndication)));
 }
 
-QVariant Qtilities::CoreGui::LoggerEnginesTableModel::data(const QModelIndex &index, int role) const {
+QVariant Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
@@ -61,7 +61,7 @@ QVariant Qtilities::CoreGui::LoggerEnginesTableModel::data(const QModelIndex &in
     return QVariant();
 }
 
-Qt::ItemFlags Qtilities::CoreGui::LoggerEnginesTableModel::flags(const QModelIndex &index) const
+Qt::ItemFlags Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::flags(const QModelIndex &index) const
 {
      if (!index.isValid())
          return Qt::ItemIsEnabled;
@@ -75,7 +75,7 @@ Qt::ItemFlags Qtilities::CoreGui::LoggerEnginesTableModel::flags(const QModelInd
 }
 
 
-QVariant Qtilities::CoreGui::LoggerEnginesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((section == NameColumn) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         return tr("Logger Engines");
@@ -84,7 +84,7 @@ QVariant Qtilities::CoreGui::LoggerEnginesTableModel::headerData(int section, Qt
     return QVariant();
 }
 
-bool Qtilities::CoreGui::LoggerEnginesTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_UNUSED(value)
 
@@ -101,19 +101,19 @@ bool Qtilities::CoreGui::LoggerEnginesTableModel::setData(const QModelIndex &ind
     return false;
 }
 
-int Qtilities::CoreGui::LoggerEnginesTableModel::rowCount(const QModelIndex &parent) const {
+int Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
 
     return Log->attachedLoggerEngineCount();
 }
 
-int Qtilities::CoreGui::LoggerEnginesTableModel::columnCount(const QModelIndex &parent) const {
+int Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
 
     return NameColumn+1;
 }
 
-void Qtilities::CoreGui::LoggerEnginesTableModel::handleLoggerEngineChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication) {
+void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::handleLoggerEngineChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication) {
     Q_UNUSED(engine)
     Q_UNUSED(change_indication)
 
@@ -121,7 +121,7 @@ void Qtilities::CoreGui::LoggerEnginesTableModel::handleLoggerEngineChanged(Abst
     emit layoutChanged();
 }
 
-void Qtilities::CoreGui::LoggerEnginesTableModel::requestRefresh() {
+void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::requestRefresh() {
     emit dataChanged(index(0,0),index(rowCount(),columnCount()));
     emit layoutChanged();
 }

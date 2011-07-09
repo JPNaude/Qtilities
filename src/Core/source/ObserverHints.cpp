@@ -335,7 +335,9 @@ bool Qtilities::Core::ObserverHints::isModified() const {
     return d->is_modified;
 }
 
-void Qtilities::Core::ObserverHints::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::Core::ObserverHints::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     d->is_modified = new_state;
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);

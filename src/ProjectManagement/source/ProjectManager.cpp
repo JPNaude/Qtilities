@@ -407,6 +407,7 @@ void Qtilities::ProjectManagement::ProjectManager::setModifiedProjectsHandlingPo
 void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     // Store settings using QSettings only if it was initialized
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("Projects");
     settings.setValue("open_last_project", d->open_last_project);
     settings.setValue("auto_create_new_project", d->auto_create_new_project);
@@ -417,6 +418,7 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.setValue("modified_projects_handling_policy", QVariant((int) d->modified_projects_handling_policy));
     settings.setValue("custom_projects_path", QVariant(d->custom_projects_path));
     settings.endGroup();
+    settings.endGroup();
 }
 
 void Qtilities::ProjectManagement::ProjectManager::readSettings() {
@@ -425,6 +427,7 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
 
     // Load project management paramaters using QSettings()
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("Projects");
     d->open_last_project = settings.value("open_last_project", false).toBool();
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
@@ -438,6 +441,7 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     for (int i = 0; i < variant_stack_list.count(); i++)
         string_stack_list << variant_stack_list.at(i).toString();
     d->recent_project_stack = string_stack_list;
+    settings.endGroup();
     settings.endGroup();
 }
 
@@ -540,7 +544,9 @@ bool Qtilities::ProjectManagement::ProjectManager::isModified() const {
     return false;
 }
 
-void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     if (notification_targets & IModificationNotifier::NotifyListeners) {
         emit modificationStateChanged(new_state);
     }

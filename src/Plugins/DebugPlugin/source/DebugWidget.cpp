@@ -123,14 +123,16 @@ Qtilities::Plugins::Debug::DebugWidget::DebugWidget(QWidget *parent) :
     connect(d->object_pool_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
 
     // Conan Widgets:
+    ui->lblConanLabel->setText("Signal and slot analysis is done using the <a href=\"http://sourceforge.net/projects/conanforqt\">Conan</a> library.");
     #ifdef QTILITIES_CONAN
         ui->btnAnalyzeCurrentObject->setEnabled(true);
-        ui->btnAboutConan->setEnabled(true);
         ui->btnAnalyzeAction->setEnabled(true);
+        ui->lblConanExcluded->setVisible(false);
     #else
         ui->btnAnalyzeCurrentObject->setEnabled(false);
-        ui->btnAboutConan->setEnabled(false);
         ui->btnAnalyzeAction->setEnabled(false);
+        ui->lblConanExcluded->setText("<font color=\"red\">Conan integration is disabled, see <b>QTILITIES_CONAN</b> for details.</font>");
+        ui->lblConanExcluded->setVisible(true);
     #endif
 
     // Object Property Browser:
@@ -906,16 +908,6 @@ void Qtilities::Plugins::Debug::DebugWidget::on_btnAnalyzeCurrentObject_clicked(
         d->object_analysis_widget->AddRootObject(d->current_object);
         d->object_analysis_widget->show();
     }
-    #endif
-}
-
-void Qtilities::Plugins::Debug::DebugWidget::on_btnAboutConan_clicked()
-{
-    #ifdef QTILITIES_CONAN
-    //if (!d->conan_about_dialog)
-    //    d->conan_about_dialog = new AboutDialog(this);
-
-    //d->conan_about_dialog->show();
     #endif
 }
 

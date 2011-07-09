@@ -240,7 +240,6 @@ The above example registers the Qtilities::ExtensionSystem::PluginInfoWidget wid
 The diagram below shows the sequence in which plugins are initialized during the plugin loading process.
 
 \image html plugin_loading_sequence.jpg "Plugin Loading Sequence"
-\image latex plugin_loading_sequence.eps "Plugin Loading Sequence" width=\textwidth
 
 Plugins should register any objects in which other plugins or the main application might be interested in (configuration pages, contexts) etc. in the Qtilities::ExtensionSystem::Interfaces::IPlugin::initialize() function implementation. After all plugin instances were created and added to the global object pool, this function is called on all plugins. That is, all plugins are loaded first before any of them are initialized. To make things clear, lets look at simplified version of the \p initialize() function implementation in the Qtilities::Plugins::SessionLog plugin:
 

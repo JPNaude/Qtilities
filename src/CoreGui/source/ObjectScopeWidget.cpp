@@ -62,13 +62,11 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::ObjectScopeWidgetPrivateData {
-    ObjectScopeWidgetPrivateData() : actionAddContext(0),
-        actionDetachToSelection(0),
+    ObjectScopeWidgetPrivateData() : actionDetachToSelection(0),
         actionRemoveContext(0),
         obj(0),
         action_provider(0) {}
 
-    QAction* actionAddContext;
     QAction* actionDetachToSelection;
     QAction* actionRemoveContext;
     QPointer<QObject> obj;
@@ -372,15 +370,6 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     context.push_front(context_id);
 
     // ---------------------------
-    // Add Context
-    // ---------------------------
-    d->actionAddContext = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
-//    d->action_provider->addAction(d->actionAddContext);
-//    d->actionAddContext->setEnabled(false);
-//    connect(d->actionAddContext,SIGNAL(triggered()),SLOT(handle_actionAddContext_triggered()));
-//    Command* command = ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_ADD,d->actionAddContext,context);
-//    command->setCategory(QtilitiesCategory("Item Scope"));
-    // ---------------------------
     // Remove Context
     // ---------------------------
     d->actionRemoveContext = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected",this);
@@ -399,7 +388,6 @@ void Qtilities::CoreGui::ObjectScopeWidget::constructActions() {
     ACTION_MANAGER->registerAction(qti_action_SELECTION_SCOPE_REMOVE_OTHERS,d->actionDetachToSelection,context);
     command->setCategory(QtilitiesCategory("Item Scope"));
 
-    //ui->observerTable->addAction(d->actionAddContext);
     QAction* sep1 = new QAction(0);
     sep1->setSeparator(true);
     ui->observerTable->addAction(sep1);
@@ -437,31 +425,10 @@ void Qtilities::CoreGui::ObjectScopeWidget::refreshActions() {
     }
 
     // Check if the observer limit is reached, if so disable the add context action.
-    if (d->obj) {
-        QVariant prop;
-        prop = d->obj->property(qti_prop_OBSERVER_LIMIT);
-
-        if (prop.isValid() && prop.canConvert<SharedProperty>()) {
-            // This is a shared property
-            int limit = (prop.value<SharedProperty>()).value().toInt();
-            if (ui->observerTable->rowCount() >= limit) {
-                d->actionAddContext->setEnabled(false);
-                return;
-            }
-        }
-
-        d->actionAddContext->setEnabled(true);
-    } else {
+    if (!d->obj) {
         d->actionDetachToSelection->setEnabled(false);
         d->actionRemoveContext->setEnabled(false);
-        d->actionAddContext->setEnabled(false);
     }
-}
-
-void Qtilities::CoreGui::ObjectScopeWidget::handle_actionAddContext_triggered() {
-    QMessageBox msgBox;
-    msgBox.setText(tr("This feature is not currenlty implemented and will become available in a future release."));
-    msgBox.exec();
 }
 
 void Qtilities::CoreGui::ObjectScopeWidget::handle_actionRemoveContext_triggered() {

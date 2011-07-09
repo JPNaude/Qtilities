@@ -151,21 +151,7 @@ bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::eventFilter(QObject *obje
         if (event->type() == QEvent::DynamicPropertyChange) {
             QDynamicPropertyChangeEvent* property_change_event = static_cast<QDynamicPropertyChangeEvent*> (event);
             if (property_change_event) {
-                QString property_name = QString(property_change_event->propertyName());
-                if (property_name.startsWith("qti."))
-                    return false;
-
-                //qDebug() << "Dynamic change event update: " << property_change_event->propertyName();
-                d->ignore_property_changes = true;
-                inspectObject(d->obj);
-                d->ignore_property_changes = false;
-            }
-        } else if (event->type() == QEvent::User) {
-            // In order for this to work, the observer that manages the events on the object
-            // must have qtilities property change events enabled.
-            QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
-            if (qtilities_event) {
-                //qDebug() << "Qtilities property change event: " << qtilities_event->propertyName();
+                //qDebug() << "Dynamic change event update in ObjectDynamicPropertyBrowser: " << property_change_event->propertyName();
                 d->ignore_property_changes = true;
                 inspectObject(d->obj);
                 d->ignore_property_changes = false;
@@ -302,7 +288,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         if (obs)
                             property_value = obs->observerName();
                         else
-                            property_value = QLatin1String("Unregistered Observer");
+                            property_value = QLatin1String("< Unregistered Observer >");
                     }
             }
 
@@ -420,8 +406,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
     QInputDialog dialog;
     dialog.setComboBoxItems(type_names);
     dialog.setComboBoxEditable(false);
-    dialog.setWindowTitle("Choose a property type");
-    dialog.setLabelText("Available property types:");
+    dialog.setWindowTitle(tr("Choose a property type"));
+    dialog.setLabelText(tr("Available property types:"));
     dialog.setOption(QInputDialog::UseListViewForComboBoxItems,true);
     if (dialog.exec()) {
         QString item = dialog.textValue().trimmed();
@@ -434,8 +420,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
             refresh();
         else {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Dynamic Property Browser");
-            msgBox.setText("Failed to add property to object in QObject::setProperty().");
+            msgBox.setWindowTitle(tr("Dynamic Property Browser"));
+            msgBox.setText(tr("Failed to add property to object in QObject::setProperty()."));
             msgBox.exec();
         }
     }
@@ -461,13 +447,13 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
             SharedProperty shared_property = Observer::getSharedProperty(d->obj,prop_data.name);
             if (shared_property.isReserved()) {
                 QMessageBox msgBox;
-                msgBox.setWindowTitle("Dynamic Property Browser");
-                msgBox.setText("The selected property is reserved and cannot be deleted.");
+                msgBox.setWindowTitle(tr("Dynamic Property Browser"));
+                msgBox.setText(tr("The selected property is reserved and cannot be deleted."));
                 msgBox.exec();
             } else if (!shared_property.isRemovable()) {
                 QMessageBox msgBox;
-                msgBox.setWindowTitle("Dynamic Property Browser");
-                msgBox.setText("The selected property is not removable and cannot be deleted.");
+                msgBox.setWindowTitle(tr("Dynamic Property Browser"));
+                msgBox.setText(tr("The selected property is not removable and cannot be deleted."));
                 msgBox.exec();
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());
@@ -476,13 +462,13 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
             MultiContextProperty observer_property = Observer::getMultiContextProperty(d->obj,prop_data.name);
             if (observer_property.isReserved()) {
                 QMessageBox msgBox;
-                msgBox.setWindowTitle("Dynamic Property Browser");
-                msgBox.setText("The selected property is reserved and cannot be deleted.");
+                msgBox.setWindowTitle(tr("Dynamic Property Browser"));
+                msgBox.setText(tr("The selected property is reserved and cannot be deleted."));
                 msgBox.exec();
             } else if (!observer_property.isRemovable()) {
                 QMessageBox msgBox;
-                msgBox.setWindowTitle("Dynamic Property Browser");
-                msgBox.setText("The selected property is not removable and cannot be deleted.");
+                msgBox.setWindowTitle(tr("Dynamic Property Browser"));
+                msgBox.setText(tr("The selected property is not removable and cannot be deleted."));
                 msgBox.exec();
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());

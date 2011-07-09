@@ -48,10 +48,11 @@ Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *pa
 {
     ui->setupUi(this);
     setWindowTitle(tr("About ") + "Qtilities");
-    ui->lblVersion->setText(QString(tr("v%1")).arg(QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString()));
+    ui->labelVersion->setText(QString(tr("v%1")).arg(QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString()));
     QFileInfo fi(QApplication::applicationFilePath());
     QString build_date = fi.created().toString();
     ui->labelBuildDate->setText(build_date);
+    ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">http://www.qtilities.org</a>");
     ui->labelCopyright->setText(tr("Copyright ©") + " 2010-2011, Jaco Naude");
 
     // Put the widget in the center of the screen

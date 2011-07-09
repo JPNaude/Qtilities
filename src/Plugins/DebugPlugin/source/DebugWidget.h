@@ -15,6 +15,8 @@
 #include <IMode>
 #include <Logger>
 
+#include "DebugPlugin.h"
+
 namespace Ui {
     class DebugWidget;
 }
@@ -40,7 +42,7 @@ namespace Qtilities {
 
               For more information see the \ref page_debugging article.
              */
-            class DebugWidget : public QMainWindow, public IMode
+            class DEBUG_PLUGIN_SHARED_EXPORT DebugWidget : public QMainWindow, public IMode
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
@@ -100,7 +102,6 @@ namespace Qtilities {
                 void on_btnExplorePluginCurrentConfigSetPath_clicked();
                 void on_btnEditPluginCurrentConfigSet_clicked();
                 void on_btnAnalyzeCurrentObject_clicked();
-                void on_btnAboutConan_clicked();
                 void on_btnAnalyzeAction_clicked();
                 void on_chkRefreshProperties_toggled(bool checked);
 

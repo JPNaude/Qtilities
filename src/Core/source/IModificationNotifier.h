@@ -47,15 +47,14 @@ namespace Qtilities {
         namespace Interfaces {
             /*!
             \class IModificationNotifier
-            \brief Objects can implement this interface if they want to broadcast information when they are modified/change.
+            \brief Interface which allows objects to broadcast changes made to them.
 
-            Objects can implement this interface if they want to broadcast information when they are modified. The use
-            of this interface will be described using an example of a program supports project management.
+            Objects can implement this interface if they want to broadcast information when they are modified.
 
-            The project manager will manage some objects all implementing this interface. When the object changes it
-            will emit the modificationStateChanged() signal. The user will then be notified that the project changed.
+            For example: The project manager will manage project items that implement this interface. When a project item's state changes, it
+            will emit its modificationStateChanged() signal which notifies the user that the project changed.
             When the user saves the project, the project manager will call the setModificationState() slot on
-            all objects.
+            all its project items and all objects in the project tree will have their modification state set to false.
 
             When you want to connect to the modificationStateChange signal on this interface, connect to it on the object
             returned by objectBase().
@@ -79,11 +78,13 @@ namespace Qtilities {
                 //! Sets the modification state of the object. Returns true if it was successfull.
                 /*!
                    When implementing this interface, the setModificationState() function must be declared as a slot.
+
                   \param notification_targets Indicates which targets must be notified of the change in modification state. By default all listeners are notified.
+                  \param force_notifications Forces the object to deliver modification state changes even if the new_state is the same as its current state.
 
                   \sa NotificationTarget
                   */
-                virtual void setModificationState(bool new_state, NotificationTargets notification_targets = NotifyListeners) = 0;
+                virtual void setModificationState(bool new_state, NotificationTargets notification_targets = NotifyListeners, bool force_notifications = false) = 0;
                 //! Implement this function as a signal when implementing the object.
                 /*!
                   Because this interface does not use the Q_OBJECT macro, you cannot connect to this signal directly.

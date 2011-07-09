@@ -242,15 +242,18 @@ p, li { white-space: pre-wrap; }
                <string>Signal and Slot Analysis</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_25">
-               <item row="0" column="0" colspan="4">
-                <widget class="QLabel" name="label_5">
+               <item row="0" column="0" colspan="3">
+                <widget class="QLabel" name="lblConanLabel">
                  <property name="text">
-                  <string>Signal and slot analysis is done using the Conan library.</string>
+                  <string>Conan Label</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
                  </property>
                  <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="openExternalLinks">
                   <bool>true</bool>
                  </property>
                 </widget>
@@ -276,13 +279,6 @@ p, li { white-space: pre-wrap; }
                 </widget>
                </item>
                <item row="1" column="2">
-                <widget class="QPushButton" name="btnAboutConan">
-                 <property name="text">
-                  <string>About Conan</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="3">
                 <spacer name="horizontalSpacer_10">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -294,6 +290,16 @@ p, li { white-space: pre-wrap; }
                   </size>
                  </property>
                 </spacer>
+               </item>
+               <item row="2" column="0" colspan="3">
+                <widget class="QLabel" name="lblConanExcluded">
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -517,8 +523,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>608</height>
+             <width>356</width>
+             <height>221</height>
             </rect>
            </property>
            <attribute name="label">

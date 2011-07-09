@@ -188,7 +188,9 @@ bool Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::isModified() co
         return false;
 }
 
-void Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     if (!d->code_editor)
         return;
 

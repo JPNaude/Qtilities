@@ -170,7 +170,6 @@ void Qtilities::UnitTests::TestVersionNumber::testToString() {
     VersionNumber ver(1,2,3);
     QVERIFY(ver.toString().compare("1.2.3") == 0);
     ver.setFieldWidthMinor(3);
-    qDebug() << ver.toString();
     QVERIFY(ver.toString().compare("1.002.3") == 0);
     ver.setFieldWidthRevision(3);
     QVERIFY(ver.toString().compare("1.002.003") == 0);

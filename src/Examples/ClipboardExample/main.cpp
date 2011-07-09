@@ -51,9 +51,9 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Clipboard Example");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
-    QMainWindow* main_window = new QMainWindow();
+    QMainWindow* main_window = new QMainWindow;
     QtilitiesApplication::setMainWindow(main_window);
-    ConfigurationWidget* config_widget = new ConfigurationWidget();
+    ConfigurationWidget* config_widget = new ConfigurationWidget(Qtilities::TreeView);
     QtilitiesApplication::setConfigWidget(config_widget);
 
     LOG_INITIALIZE();
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
 
     // Important: The Log widget must be created before the above action place holders were added since it registers some actions
     QDockWidget* log_dock_widget = LoggerGui::createLogDockWidget("Clipboard Example Log");
+    log_dock_widget->setObjectName("Session Log Dock Widget");
     log_dock_widget->show();
 
     // We want to use paste operations in this application, thus initialize the clipboard.
@@ -129,21 +130,11 @@ int main(int argc, char *argv[])
     observerA->displayHints()->setDisplayFlagsHint(display_flags);
     observerA->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
-    Observer* observerB = new Observer("Observer B","Child observer");
-    observerB->useDisplayHints();
-    // Naming policy filter
-    //NamingPolicyFilter* naming_filter2 = new NamingPolicyFilter();
-    //naming_filter2->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    //observerB->installSubjectFilter(naming_filter2);
-    //observerB->displayHints()->setNamingControlHint(ObserverHints::EditableNames);
-    // Activty policy filter
-    activity_filter = new ActivityPolicyFilter();
-    activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
+    // Now use TreeNode for nodes B and C to show that is makes working with Observers much easier:
+    TreeNode* observerB = new TreeNode("TreeNode B");
+    observerB->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    activity_filter = observerB->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection,ActivityPolicyFilter::MultipleActivity);
     activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
-    observerB->installSubjectFilter(activity_filter);
-    observerB->displayHints()->setNamingControlHint(ObserverHints::ReadOnlyNames);
-    observerB->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
-    observerB->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
     observerB->displayHints()->setObserverSelectionContextHint(ObserverHints::SelectionUseSelectedContext);
     observerB->displayHints()->setActionHints(action_hints);
     observerB->displayHints()->setActionHints(ObserverHints::ActionAllHints);
@@ -151,19 +142,10 @@ int main(int argc, char *argv[])
     observerB->displayHints()->setDisplayFlagsHint(display_flags);
     observerB->displayHints()->setDragDropHint(ObserverHints::AcceptDrops);
 
-    Observer* observerC = new Observer("Observer C","Child observer");
-    observerC->useDisplayHints();
-    activity_filter = new ActivityPolicyFilter();
-    activity_filter->setActivityPolicy(ActivityPolicyFilter::MultipleActivity);
+    TreeNode* observerC = new TreeNode("TreeNode C");
+    activity_filter = observerC->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection,ActivityPolicyFilter::MultipleActivity);
     activity_filter->setMinimumActivityPolicy(ActivityPolicyFilter::AllowNoneActive);
-    observerC->installSubjectFilter(activity_filter);
-    observerC->displayHints()->setActivityControlHint(ObserverHints::FollowSelection);
-    observerC->displayHints()->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
-    // Naming policy filter
-    //naming_filter = new NamingPolicyFilter();
-    //naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-    //observerC->installSubjectFilter(naming_filter);
-    //observerC->displayHints()->setNamingControlHint(Observer::EditableNames);
+    observerC->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
     observerC->displayHints()->setActionHints(action_hints);
     observerC->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     observerC->displayHints()->setItemSelectionControlHint(ObserverHints::SelectableItems);
@@ -178,71 +160,21 @@ int main(int argc, char *argv[])
     observerC->setAccessModeScope(Observer::CategorizedScope);
     observerC->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
 
-    // Create the objects
-    QObject* object1 = new QObject();
-    object1->setObjectName("Object 1");
-    MultiContextProperty category_property1(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category1;
-    multi_category1 << "Category 1";
-    category_property1.setValue(qVariantFromValue(multi_category1),observerC->observerID());
-    Observer::setMultiContextProperty(object1,category_property1);
+    // Add some items to the tree:
+    observerB->addItem("Item 1");
+    observerC->addItem("Item 2",QtilitiesCategory("Category 1"));
+    observerC->addItem("Item 3",QtilitiesCategory("Category 1"));
+    observerC->addItem("Item 4",QtilitiesCategory("Category 1"));
 
-    QObject* object2 = new QObject();
-    object2->setObjectName("Object 2");
-    MultiContextProperty category_property2(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category2;
-    multi_category2 << "Category 1";
-    category_property2.setValue(qVariantFromValue(multi_category2),observerC->observerID());
-    Observer::setMultiContextProperty(object2,category_property2);
-
-    QObject* object3 = new QObject();
-    object3->setObjectName("Object 3");
-    MultiContextProperty category_property3(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category3;
-    multi_category3 << "Category 1" << "Sub Category 3";
-    category_property3.setValue(qVariantFromValue(multi_category3),observerC->observerID());
-    Observer::setMultiContextProperty(object3,category_property3);
-
-    QObject* object4 = new QObject();
-    object4->setObjectName("Object 4");
-    MultiContextProperty category_property4(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category4;
-    multi_category4 << "Category 1" << "Sub Category 2";
-    category_property4.setValue(qVariantFromValue(multi_category4),observerC->observerID());
-    Observer::setMultiContextProperty(object4,category_property4);
-
-    QObject* object5 = new QObject();
-    object5->setObjectName("Object 5");
-    MultiContextProperty category_property5(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category5;
-    multi_category5 << "Category 1";
-    category_property5.setValue(qVariantFromValue(multi_category5),observerC->observerID());
-    Observer::setMultiContextProperty(object5,category_property5);
-
-    QObject* object6 = new QObject();
-    object6->setObjectName("Object 6");
-    MultiContextProperty category_property6(qti_prop_CATEGORY_MAP);
-    QtilitiesCategory multi_category6;
-    multi_category6 << "Category 1" << "Sub Category 1";
-    category_property6.setValue(qVariantFromValue(multi_category6),observerC->observerID());
-    Observer::setMultiContextProperty(object6,category_property6);
-
-    QObject* object7 = new QObject();
-    object7->setObjectName("Object 7");
-    MultiContextProperty category_property7(qti_prop_CATEGORY_MAP);
-    category_property7.setValue(qVariantFromValue(QtilitiesCategory("Category 2")),observerC->observerID());
-    Observer::setMultiContextProperty(object7,category_property7);
+    QtilitiesCategory multi_category;
+    multi_category << "Category 1" << "Sub Category 1";
+    observerC->addItem("Item 5",multi_category);
+    observerC->addItem("Item 6",QtilitiesCategory("Category 1::Sub Category 2","::"));
+    observerC->addItem("Item 7",QtilitiesCategory("Category 1::Sub Category 3","::"));
 
     // Create the structure of the tree
     observerA->attachSubject(observerB);
     observerA->attachSubject(observerC);
-    observerC->attachSubject(object1);
-    observerC->attachSubject(object2);
-    observerC->attachSubject(object3);
-    observerC->attachSubject(object4);
-    observerC->attachSubject(object5);
-    observerC->attachSubject(object6);
-    observerC->attachSubject(object7);
 
     // Only set the access mode after the object with the category exists in the context.
     observerC->setAccessMode(Observer::ReadOnlyAccess,category);
@@ -296,10 +228,12 @@ int main(int argc, char *argv[])
     main_window->resize(1000,800);
     main_window->setMenuBar(menu_bar->menuBar());
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("MainWindow");
     main_window->restoreGeometry(settings.value("geometry").toByteArray());
     main_window->restoreState(settings.value("windowState").toByteArray());
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
     main_window->show();
@@ -309,6 +243,7 @@ int main(int argc, char *argv[])
 
     // Create some widgets connected to the global active objects signal on the object manager:
     QDockWidget* object_scope_dock = new QDockWidget("Object Scope Overview");
+    object_scope_dock->setObjectName("Object Scope Overview Dock Widget");
     ObjectScopeWidget* scope_widget = new ObjectScopeWidget();
     object_scope_dock->setWidget(scope_widget);
     QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),scope_widget,SLOT(setObject(QList<QPointer<QObject> >)));
@@ -316,7 +251,8 @@ int main(int argc, char *argv[])
 
     #ifdef QTILITIES_PROPERTY_BROWSER
     QDockWidget* property_browser_dock = new QDockWidget("Object Properties");
-    ObjectPropertyBrowser* property_browser = new ObjectPropertyBrowser();
+    property_browser_dock->setObjectName("Object Properties Dock Widget");
+    ObjectPropertyBrowser* property_browser = new ObjectPropertyBrowser;
     property_browser_dock->setWidget(property_browser);
     QObject::connect(OBJECT_MANAGER,SIGNAL(metaTypeActiveObjectsChanged(QList<QPointer<QObject> >,QString)),property_browser,SLOT(setObject(QList<QPointer<QObject> >)));
     main_window->addDockWidget(Qt::LeftDockWidgetArea,property_browser_dock);

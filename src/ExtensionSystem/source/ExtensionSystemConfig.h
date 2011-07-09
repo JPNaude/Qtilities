@@ -48,6 +48,26 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui;
         using namespace Qtilities::CoreGui::Interfaces;
 
+
+
+        /*!
+          \class ExtensionSystemConfig
+          \brief The ExtensionSystemConfig class provides a ready to use configuration widget for the extension system.
+
+        The ExtensionSystemConfig widget exposes settings of the extension system through a configuration page shown below:
+
+        \image html extension_system_configuration_widget.jpg "Extension System Configuration Widget"
+
+        To add this page to your application's ConfigurationWidget, do the following:
+\code
+EXTENSION_SYSTEM->initialize();
+
+// Register extension system config page.
+OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
+\endcode
+
+        For more information see the \ref page_extension_system article.
+         */
         class ExtensionSystemConfig : public QWidget, public IConfigPage {
             Q_OBJECT
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)

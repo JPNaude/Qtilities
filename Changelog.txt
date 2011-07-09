@@ -1,23 +1,4 @@
 ================================
-Things outstanding for v1.0 release:
-================================
-- Property editor must refresh when properties change (see how dynamic one does it and test).
-- ObserverDotWriter::removeNodeAttribute() and edgeAttributes() not correctly implemented yet.
-- AboutWindow qtilities.org link does not work...
-- The basics article example: Push down actions does not show immediately when switching to table mode. Fix this.
-
-- Docs & finalization stuff:
-    - Make table wider in "The Basics" article.
-    - Hints and observer widget docs are outdated with regard to useObserverHints().
-    - Config and main window: show how to add to QtilitiesMainWindow.
-
-- For new website:
-    - Make sure links are correct to new website.
-    - Add Gitorious tips to doc page.
-    - Make video for new website.Enter one-line summary
-    - Create new website.
-
-================================
 Qtilities v1.0 Implemented Changes
 ================================
     General:
@@ -35,6 +16,8 @@ Qtilities v1.0 Implemented Changes
     - All constants defined by Qtilities now starts with "qti_".
     - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
     - All dependency build configuration options are now defined in Dependencies.pri.
+    - All settings stored in QSettings throughout the Qtilities modules are now stored under a group called "Qtilities".
+    - For a list of new classes, see the Qtilities documentation's "What's new" page.
 
     ============================
     QtilitiesLogging:
@@ -61,10 +44,6 @@ Qtilities v1.0 Implemented Changes
     ============================
     QtilitiesCore:
     ============================
-    New Classes:
-    - Added QtilitiesFileInfo class.
-    - New FileUtils class. At present this file contains a static function to remove a directory along with all its contents. In the future all file related functionality will be added to this class.
-
     Improvements and Notable Changes:
     - Observers
         - New ObjectDeletionPolicy which allows control of how Observers delete objects attached to them. Thread safe deletes are now possible.
@@ -112,6 +91,7 @@ Qtilities v1.0 Implemented Changes
         - New ObserverRelationalTable::parentsToObserverIDs() methods to convert parents() of an entry to a list of observer IDs.
         - New way of defining displayed names in observer tree models through the new qti_prop_DISPLAYED_ALIAS_MAP property.
         - ObjectManager::exportObjectProperties() and importObjectProperties() were removed.
+        - IModificationNotifier::setModificationState() got new parameter to force notifications to be emitted.
 
     Bug Fixes:
     - Fixed bug in SubjectTypeFilter::evaluateAttachment() in cases where inversed filtering was enabled and no known types were added.
@@ -243,6 +223,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed bug in ObserverWidget::toggleUseObserverHints() where it did not toggle this on the models used as well.
     - Fixed numerous bugs in Observer models which occured if an Observer with no hints was displayed.
     - Fixed serious bug in ObserverWidget where it incorrectly reset observer hints in some cases.
+    - Fixed bug in ObserverWidget where actions toolbars were not always updated correctly.
 
     ============================
     QtilitiesExtensionSystem:

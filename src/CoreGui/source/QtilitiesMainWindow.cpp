@@ -109,6 +109,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("MainWindow");
     settings.setValue("size", size());
@@ -116,15 +117,18 @@ void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
     settings.setValue("state", saveState());
     settings.endGroup();
     settings.endGroup();
+    settings.endGroup();
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::readSettings() {
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("MainWindow");
     resize(settings.value("size", QSize(1000, 1000)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     restoreState(settings.value("state").toByteArray());
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 }

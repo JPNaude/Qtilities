@@ -49,6 +49,20 @@ namespace Qtilities {
         /*!
           \class ProjectManagementConfig
           \brief The ProjectManagementConfig class provides a ready to use configuration widget for the project manager.
+
+        The ProjectManagementConfig widget exposes settings of the project manager through a configuration page shown below:
+
+        \image html project_configuration_widget.jpg "Project Configuration Widget"
+
+        To add this page to your application's ConfigurationWidget, do the following:
+\code
+// The project manager configuration page:
+OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
+\endcode
+
+        \note When using the Qtilities::Plugins::ProjectManagement plugin in your application, this page will automatically appear in your configuration widget.
+
+        For more information see the \ref page_project_management article.
          */
         class ProjectManagementConfig : public QWidget, public IConfigPage {
             Q_OBJECT

@@ -355,14 +355,18 @@ QtilitiesApplication::setApplicationName("Observer Widget Example");
 
 // This is the way settings are stored
 QSettings settings;
+settings.beginGroup("Qtilities");
 settings.beginGroup("GUI");
 settings.beginGroup(widget_name);
 // Store details
 settings.endGroup();
 settings.endGroup();
+settings.endGroup();
 \endcode
 
 Qtilities::CoreGui::ObserverWidget::globalMetaType() is used as the \p Widget_Name field in the group where the settings are stored. Observer widget classes are connected to the Qtilities::Core::QtilitiesCoreApplication::settingsUpdateRequest() signal by default and responds to settings update requests for the specific global meta type. See the function documentation for more details on this topic. See the \p ClipboardExample in the \p QtilitiesExamples project for a demonstration of how observer widget settings are managed.
+
+For more information on this see \ref configuration_widget_storage_layout.
 
 \subsection models_overview The models doing the work behind the scenes
 

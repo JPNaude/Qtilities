@@ -172,7 +172,9 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::isModified() cons
         return false;
 }
 
-void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets) {
+void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    Q_UNUSED(force_notifications)
+
     if (!d->observer)
         return;
 

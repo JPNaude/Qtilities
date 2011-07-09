@@ -46,6 +46,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
 
     // We read the settings of each widget:
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");
     int mode = settings.value("display_mode", Qtilities::TableView).toInt();
@@ -68,7 +69,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
     ui->checkConfirmDeletes2->setChecked(settings.value("confirm_deletes", true).toBool());
     settings.endGroup();
     settings.endGroup();
-
+    settings.endGroup();
 
     // Update widget according to settings which was read:
     if (ui->comboWidgetMode1->currentText() == "Table View") {
@@ -107,6 +108,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::Examples::Clipboard::ObserverWidge
 void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
     // Write the settings:
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");
     if (ui->comboWidgetMode1->currentText() == "Table View") {
@@ -127,6 +129,7 @@ void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
     settings.setValue("default_row_heigth", ui->spinBoxRowHeight2->value());
     settings.setValue("table_view_show_grid", ui->checkShowGrid2->isChecked());
     settings.setValue("confirm_deletes", ui->checkConfirmDeletes2->isChecked());
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 

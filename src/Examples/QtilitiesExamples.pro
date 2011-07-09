@@ -20,4 +20,5 @@ SUBDIRS    += BuildingTreeStructures
 SUBDIRS	   += ObserverWidgetExample
 SUBDIRS	   += MainWindowExample
 SUBDIRS	   += ClipboardExample
+SUBDIRS	   += TheBasicsExample
 SUBDIRS	   += ExportingExample

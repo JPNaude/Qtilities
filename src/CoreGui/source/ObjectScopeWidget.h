@@ -152,7 +152,6 @@ namespace Qtilities {
             void handleObjectDestroyed();
 
             void handle_observerWidgetSelectionChange(QList<QObject*> objects);
-            void handle_actionAddContext_triggered();
             void handle_actionRemoveContext_triggered();
             void handle_actionDetachToSelection_triggered();
             void handle_currentItemChanged(QTableWidgetItem * current);

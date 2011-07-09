@@ -281,6 +281,8 @@ categorized_widget->show();
               \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
               for an ObserverWidget, don't read it when the widget is created.
 
+              For more information see \ref configuration_widget_storage_layout.
+
               \sa readSettings(), globalMetaType()
               */
             virtual void writeSettings();
@@ -288,6 +290,8 @@ categorized_widget->show();
             //! Restores the widget to a previous state.
             /*!
               \note This function must be called only after initialize() was called.
+
+              For more information see \ref configuration_widget_storage_layout.
 
               \sa writeSettings(), globalMetaType()
               */

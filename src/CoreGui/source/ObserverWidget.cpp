@@ -1010,6 +1010,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
         return;
 
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup(d->global_meta_type);
     settings.setValue("display_mode", (int) d->display_mode);
@@ -1021,6 +1022,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
         settings.setValue("table_view_show_grid", d->table_view->showGrid());
     settings.endGroup();
     settings.endGroup();
+    settings.endGroup();
 }
 
 void Qtilities::CoreGui::ObserverWidget::readSettings() {
@@ -1030,6 +1032,7 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
     }
 
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup(d->global_meta_type);
 
@@ -1062,6 +1065,7 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
     // Automatic column resizing
     d->do_column_resizing = settings.value("do_column_resizing", true).toBool();
 
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
 
@@ -1272,9 +1276,9 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
 
     #ifndef QT_NO_DEBUG
     // ---------------------------
-    // Debug Object
+    // Object Debug
     // ---------------------------
-    d->actionDebugObject = new QAction(QIcon(qti_icon_DEBUG_16x16),tr("Debug Object<br><br><span style=\"color: gray;\">Adds the selected object to your global object pool and switches to the Qtilities Debugging plugin which provides numerous ways of debugging your object.</span>"),this);
+    d->actionDebugObject = new QAction(QIcon(qti_icon_DEBUG_16x16),tr("Debug Object<br><br><span style=\"color: gray;\">Adds the selected object to your global object pool. If the debug plugin is loaded, you can inspect the object there.</span>"),this);
     connect(d->actionDebugObject,SIGNAL(triggered()),SLOT(selectionDebug()));
     d->action_provider->addAction(d->actionDebugObject,QtilitiesCategory(tr("Items")));
     #endif
@@ -1598,6 +1602,8 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             }
         }
     }
+
+    refreshActionToolBar();
 }
 
 void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
@@ -1639,7 +1645,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
                 if (filter) {
                     // We set d->update_selection_activity to false in here since we don't want selectObjects()
                     // to select the objects again. We will get in this slot when the user already made a new
-                    // selection and we do not want to go into a endless loop.
+                    // selection and we do not want to go into an endless loop.
                     d->update_selection_activity = false;
                     filter->setActiveSubjects(d->current_selection);
                     d->update_selection_activity = true;
@@ -2301,8 +2307,9 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
         // Check if the subjects being dropped are of the same type as the destination observer.
         // If this is not the case, we do not allow the drop.
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (QApplication::clipboard()->mimeData());
+        QString error_msg;
         if (observer_mime_data) {
-            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
+            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
                 // Now check the proposed action of the event.
                 if (CLIPBOARD_MANAGER->clipboardOrigin() == IClipboard::CutAction) {
                     OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
@@ -2319,7 +2326,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
             } else {
                 QMessageBox msgBox;
                 msgBox.setText(tr("Paste Operation Failed."));
-                msgBox.setInformativeText(tr("The paste operation could not be completed. The destination observer could not accept all the objects in your selection.\n\nDo you want to keep the data in the clipboard for later usage?"));
+                msgBox.setInformativeText(tr("The paste operation could not be completed. The destination observer could not accept all the objects in your selection.\n\nError message: ") + error_msg + tr("\n\nDo you want to keep the data in the clipboard for later usage?"));
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 msgBox.setDefaultButton(QMessageBox::No);
                 int ret = msgBox.exec();
@@ -2913,9 +2920,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
         // Now create all toolbars:
         QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
         for (int i = 0; i < categories.count(); i++) {
-            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
+            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::NoFilter,categories.at(i));
             if (action_list.count() > 0) {
                 QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
+                new_toolbar->setObjectName(categories.at(i).toString());
                 d->action_toolbars << new_toolbar;
                 new_toolbar->addActions(action_list);
             }
@@ -3108,7 +3116,8 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                         return false;
                     }
 
-                    if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
+                    QString error_msg;
+                    if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
                         // Now check the proposed action of the event.
                         if (dropEvent->proposedAction() == Qt::MoveAction) {
                             dropEvent->accept();
@@ -3124,7 +3133,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                             }
                         }
                     } else
-                        LOG_ERROR(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection.")));
+                        LOG_ERROR(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection. Error message: ") + error_msg));
                 }
             }
             return false;

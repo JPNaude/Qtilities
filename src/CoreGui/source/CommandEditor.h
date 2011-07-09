@@ -65,6 +65,12 @@ namespace Qtilities {
 
         \image html command_editor.jpg "Command Editor"
 
+        To add this page to your application's ConfigurationWidget, do the following:
+\code
+// The shortcuts editor for commands in your application:
+OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
+\endcode
+
         For more information see the \ref page_action_management article.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT CommandEditor : public QWidget, public IConfigPage {

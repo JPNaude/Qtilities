@@ -69,6 +69,9 @@ namespace Qtilities {
                 private slots:
                     void addExampleObjects();
                     void createDotFile();
+                    void addDotProperties();
+                    void removeDotProperties();
+                    void queryDotProperties();
                     void addObject_triggered(QObject* observer = 0);
                     void selectionChanged(QList<QObject*> new_selection);
                     void handle_newObserverWidgetCreated(ObserverWidget* new_widget);

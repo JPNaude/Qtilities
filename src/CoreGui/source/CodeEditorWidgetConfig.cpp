@@ -42,11 +42,13 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* pare
 
     // Populate fields with values from QSettings
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("Editors");
     settings.beginGroup("Code Editor Widget");
     ui->fontComboBox->setEditText(settings.value("font_type","Courier").toString());
     ui->fontSizeComboBox->setEditText(settings.value("font_size",10).toString());
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();
@@ -75,11 +77,13 @@ QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
     // Save fields back to QSettings
     QSettings settings;
+    settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("Editors");
     settings.beginGroup("Code Editor Widget");
     settings.setValue("font_type",ui->fontComboBox->currentText());
     settings.setValue("font_size",ui->fontSizeComboBox->currentText().toInt());
+    settings.endGroup();
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();

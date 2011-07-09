@@ -38,11 +38,11 @@
 
 #include <QtGui>
 
-Qtilities::CoreGui::CommandTreeModel::CommandTreeModel(QObject* parent) : ObserverTreeModel(parent) {
+Qtilities::CoreGui::qti_private_CommandTreeModel::qti_private_CommandTreeModel(QObject* parent) : ObserverTreeModel(parent) {
 
 }
 
-QVariant Qtilities::CoreGui::CommandTreeModel::data(const QModelIndex &index, int role) const {
+QVariant Qtilities::CoreGui::qti_private_CommandTreeModel::data(const QModelIndex &index, int role) const {
     if ((index.column() == columnCount() - 2) && (role == Qt::DisplayRole)) {
         QObject* obj = getObject(index);
         if (obj) {
@@ -76,7 +76,7 @@ QVariant Qtilities::CoreGui::CommandTreeModel::data(const QModelIndex &index, in
     }
 }
 
-Qt::ItemFlags Qtilities::CoreGui::CommandTreeModel::flags(const QModelIndex &index) const {
+Qt::ItemFlags Qtilities::CoreGui::qti_private_CommandTreeModel::flags(const QModelIndex &index) const {
     if (index.column() == columnCount() - 2) {
         Qt::ItemFlags item_flags = 0;
         item_flags |= Qt::ItemIsEnabled;
@@ -93,7 +93,7 @@ Qt::ItemFlags Qtilities::CoreGui::CommandTreeModel::flags(const QModelIndex &ind
     }
 }
 
-QVariant Qtilities::CoreGui::CommandTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant Qtilities::CoreGui::qti_private_CommandTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if ((section == columnCount() - 2) && (role == Qt::DisplayRole)) {
         return QString("Label");
     } else if ((section == columnCount() - 1) && (role == Qt::DisplayRole)) {
@@ -103,7 +103,7 @@ QVariant Qtilities::CoreGui::CommandTreeModel::headerData(int section, Qt::Orien
     }
 }
 
-bool Qtilities::CoreGui::CommandTreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+bool Qtilities::CoreGui::qti_private_CommandTreeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
     if (index.column() == columnCount() - 2) {
         return false;
     } else if (index.column() == columnCount() - 1 && role == Qt::EditRole) {
@@ -121,11 +121,11 @@ bool Qtilities::CoreGui::CommandTreeModel::setData(const QModelIndex &index, con
     }
 }
 
-int Qtilities::CoreGui::CommandTreeModel::rowCount(const QModelIndex &parent) const {
+int Qtilities::CoreGui::qti_private_CommandTreeModel::rowCount(const QModelIndex &parent) const {
     return ObserverTreeModel::rowCount(parent);
 }
 
-int Qtilities::CoreGui::CommandTreeModel::columnCount(const QModelIndex &parent) const {
+int Qtilities::CoreGui::qti_private_CommandTreeModel::columnCount(const QModelIndex &parent) const {
     return ObserverTreeModel::columnCount(parent) + 2;
 }
 
