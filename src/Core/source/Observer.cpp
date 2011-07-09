@@ -104,7 +104,7 @@ Qtilities::Core::Observer::~Observer() {
         QVariant parent_observer_variant;
 
         LOG_TRACE(QString("Starting destruction of observer \"%1\":").arg(objectName()));
-        LOG_TRACE("Deleting neccessary children.");
+        LOG_TRACE("Deleting neccessary children:");
 
         QMutableListIterator<QObject*> i = observerData->subject_list.iterator();
         while (i.hasNext()) {

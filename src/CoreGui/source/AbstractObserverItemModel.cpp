@@ -37,15 +37,12 @@ using namespace Qtilities::Core;
 
 Qtilities::CoreGui::AbstractObserverItemModel::AbstractObserverItemModel() {
     model = new AbstractObserverItemModelData;
-    model->hints_default = new ObserverHints();
-    model->hints_selection_parent = 0;
+    model->hints_default = new ObserverHints;
     model->use_observer_hints = true;
 }
 
 Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
     delete model->hints_default;
-    if (model->hints_selection_parent)
-        delete model->hints_selection_parent;
     delete model;
 }
 
