@@ -55,18 +55,18 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
 # --------------------------
 # Conan
 # --------------------------
-# https://sourceforge.net/projects/conanforqt/
+# http://sourceforge.net/projects/conanforqt/
 # Requires at least, and tested with Conan v1.0.2.
 #
 # Integrates the Conan Library into the debug widget:
 # --------------------------
-# Builds Qtilities with the Conan library integrated into the debug plugin.
+# Builds Qtilities with the Conan library integrated into the unit testing module.
 # Note that this integration was only tested in Qt 4.7.x on Windows XP 32bit.
 # DEFINES += QTILITIES_CONAN
 #
 # The Conan library is released under GPL v3.0. Therefore, when uncommenting
-# the above DEFINE, the Debug Plugin (which links against Conan) is not released
-# under the normal Qtilities license found at http://www.qtilities.org/licensing.html.
+# the above DEFINE, the Unit Testing library (which links against Conan) is not released
+# under the normal Qtilities license found at http://www.qtilities.org/licensing.html
 # It is released under the following license:
 #
 # Under this license the Debug Plugin is free software: you can
