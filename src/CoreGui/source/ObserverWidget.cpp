@@ -161,7 +161,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QPointer<QTreeView> tree_view;
     ObserverTreeModel* tree_model;
     QAbstractProxyModel* custom_tree_proxy_model;
-    QAbstractProxyModel *proxy_model;
+    QAbstractProxyModel* proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
     ActivityPolicyFilter* activity_filter;
@@ -471,8 +471,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
     // Set the title and name of the observer widget.
     // Here we need to check if we must use d_observer inside a specific context
-    setWindowTitle(d_observer->objectName());
-    setObjectName(d_observer->objectName());
+    setWindowTitle(d_observer->observerName());
+    setObjectName("ObserverWidget: " + d_observer->observerName());
 
     // Get hints from d_observer:
     if (d->use_observer_hints) {
@@ -497,7 +497,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             delete ui->itemParentWidget->layout();
 
         // Set the title of this widget
-        setWindowTitle(QString("%1").arg(d_observer->objectName()));
+        setWindowTitle(d_observer->observerName());
 
         // Check and setup the item display mode
         if (d->display_mode == TreeView) {
@@ -2016,7 +2016,7 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
         selectObjects(current_selection);
     }
 
-    setWindowTitle(QString("%1").arg(d_observer->objectName()));
+    setWindowTitle(d_observer->observerName());
 
     if (d->navigation_bar)
         d->navigation_bar->refreshHierarchy();
@@ -2176,7 +2176,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDownNew() {
         // Check the observer's access
         if (observer->accessMode() == Observer::LockedAccess) {
             QMessageBox msgBox;
-            msgBox.setText("The context you are trying to access is locked.");
+            msgBox.setWindowTitle(tr("Context Access Locked"));
+            msgBox.setText(tr("The context you are trying to access is locked."));
             msgBox.exec();
             return;
         }

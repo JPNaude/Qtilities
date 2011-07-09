@@ -8,6 +8,7 @@
 # ***************************************************************************
 QTILITIES += extension_system
 QTILITIES += project_management
+QTILITIES += unit_tests
 include(../../Qtilities.pri)
 
 CONFIG(debug, debug|release) {
@@ -20,6 +21,7 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin
+CONFIG += qtestlib
 
 # ------------------------------
 # Temp Output Paths
@@ -34,16 +36,10 @@ UI_DIR          = $$QTILITIES_TEMP/DebugPlugin
 # --------------------------
 HEADERS += source/DebugPlugin.h \
            source/DebugPlugin_global.h \
-           source/DebugPluginConstants.h \
-           source/DebugWidget.h \
-           source/DropableListWidget.h
+           source/DebugPluginConstants.h
 
-SOURCES += source/DebugPlugin.cpp \
-           source/DebugWidget.cpp \
-           source/DropableListWidget.cpp
+SOURCES += source/DebugPlugin.cpp
 
 RESOURCES += \
     resources/DebugPlugin.qrc
 
-FORMS += \
-    source/DebugWidget.ui

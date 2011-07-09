@@ -832,7 +832,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     }
 
     if (!passed_filters) {
-        LOG_ERROR(QString(tr("Observer (%1): Warning: Subject filter rejected detachment of deleted object (%2).")).arg(objectName()).arg(obj->objectName()));
+        LOG_ERROR(QString(tr("Observer (%1): Error: Subject filter rejected detachment of deleted object (%2).")).arg(objectName()).arg(obj->objectName()));
     }
 
     for (int i = 0; i < observerData->subject_filters.count(); i++) {

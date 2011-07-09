@@ -30,9 +30,9 @@ namespace QtilitiesProjectManagement {
 	using namespace Qtilities::CoreGui::Actions; 
 	using namespace Qtilities::CoreGui::Icons; 
 	using namespace Qtilities::CoreGui::Images; 
-	using namespace Qtilities::ProjectManagement; 
-	using namespace Qtilities::ProjectManagement::Constants; 
-	using namespace Qtilities::ProjectManagement::Interfaces;
+  using namespace Qtilities::ProjectManagement; 
+  using namespace Qtilities::ProjectManagement::Constants; 
+  using namespace Qtilities::ProjectManagement::Interfaces;
 } 
 
 #endif

@@ -34,13 +34,13 @@
 #include <QApplication>
 #include <QtGui>
 
-#include <QtilitiesCoreGui>
+#include <QtilitiesUnitTests>
 
 #include "ObserverWidgetConfig.h"
 #include "ExtendedObserverTableModel.h"
 #include "ExtendedObserverTreeModel.h"
 
-using namespace QtilitiesCoreGui;
+using namespace QtilitiesUnitTests;
 using namespace Qtilities::Examples::Clipboard;
 
 int main(int argc, char *argv[])
@@ -264,6 +264,10 @@ int main(int argc, char *argv[])
         LOG_INFO(QObject::tr("Succesfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
     else
         LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
+
+    // Create a debug widget
+    DebugWidget* debug_widget = new DebugWidget;
+    debug_widget->modeWidget()->show();
 
     int result = a.exec();
 

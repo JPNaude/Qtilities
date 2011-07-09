@@ -10,17 +10,15 @@
 
 #include "DebugPlugin.h"
 #include "DebugPluginConstants.h"
-#include "DebugWidget.h"
 
-#include <ExtensionSystemConstants.h>
+#include <ExtensionSystemConstants>
 #include <Qtilities.h>
-#include <QtilitiesCoreApplication.h>
+#include <QtilitiesUnitTests>
 
 #include <QtPlugin>
 #include <QIcon>
 
-using namespace Qtilities::ExtensionSystem::Interfaces;
-using namespace Qtilities::Core;
+using namespace QtilitiesUnitTests;
 
 struct Qtilities::Plugins::Debug::DebugPluginPrivateData {
     DebugPluginPrivateData() : debug_mode(0) {}
@@ -42,7 +40,7 @@ bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &argum
     Q_UNUSED(errorString)
 
     // Add the session log mode to the global object pool:
-    d->debug_mode = new DebugWidget();
+    d->debug_mode = new DebugWidget;
     OBJECT_MANAGER->registerObject(d->debug_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
 
     // Register the context of the debug mode:

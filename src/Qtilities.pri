@@ -57,7 +57,7 @@ CONFIG              += debug
 # Library includes
 #****************************************************************************
 contains( QTILITIES, logging ) {
-    message( "Using Qtilities Logging module..." )
+    message( "Using Qtilities Logging Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
 
     CONFIG(debug, debug|release) {
@@ -70,8 +70,8 @@ contains( QTILITIES, logging ) {
 }
 
 contains( QTILITIES, core ) {
-    message( "Using Qtilities Core module..." )
-    message( "Core Dependency: Using Qtilities Logging module..." )
+    message( "Using Qtilities Core Module..." )
+    message( "Core Dependency: Using Qtilities Logging Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
 
@@ -89,9 +89,9 @@ contains( QTILITIES, core ) {
 }
 
 contains( QTILITIES, coregui ) {
-    message( "Using Qtilities Core Gui module..." )
-    message( "CoreGui Dependency: Using Qtilities Logging module..." )
-    message( "CoreGui Dependency: Using Qtilities Core module..." )
+    message( "Using Qtilities Core Gui Module..." )
+    message( "CoreGui Dependency: Using Qtilities Logging Module..." )
+    message( "CoreGui Dependency: Using Qtilities Core Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
@@ -114,10 +114,10 @@ contains( QTILITIES, coregui ) {
 }
 
 contains( QTILITIES, extension_system ) {
-    message( "Using Qtilities Extension System module..." )
-    message( "Extension System Dependency: Using Qtilities Logging module..." )
-    message( "Extension System Dependency: Using Qtilities Core module..." )
-    message( "Extension System Dependency: Using Qtilities CoreGui module..." )
+    message( "Using Qtilities Extension System Module..." )
+    message( "Extension System Dependency: Using Qtilities Logging Module..." )
+    message( "Extension System Dependency: Using Qtilities Core Module..." )
+    message( "Extension System Dependency: Using Qtilities CoreGui Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
@@ -145,10 +145,10 @@ contains( QTILITIES, extension_system ) {
 }
 
 contains( QTILITIES, project_management ) {
-    message( "Using Qtilities Project Management module..." )
-    message( "Project Management Dependency: Using Qtilities Logging module..." )
-    message( "Project Management Dependency: Using Qtilities Core module..." )
-    message( "Project Management Dependency: Using Qtilities CoreGui module..." )
+    message( "Using Qtilities Project Management Module..." )
+    message( "Project Management Dependency: Using Qtilities Logging Module..." )
+    message( "Project Management Dependency: Using Qtilities Core Module..." )
+    message( "Project Management Dependency: Using Qtilities CoreGui Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
@@ -176,15 +176,44 @@ contains( QTILITIES, project_management ) {
 }
 
 contains( QTILITIES, unit_tests ) {
-    message( "Using Unit Testing module..." )
+    message( "Using Unit Testing Module..." )
+    message( "Project Management Dependency: Using Qtilities Logging Module..." )
+    message( "Project Management Dependency: Using Qtilities Core Module..." )
+    message( "Project Management Dependency: Using Qtilities CoreGui Module..." )
+    message( "Project Management Dependency: Using Qtilities Project Management Module..." )
+    message( "Project Management Dependency: Using Qtilities Extension System Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesUnitTests
 
     CONFIG(debug, debug|release) {
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTestsd$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagementd$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.a
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTestsd$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
     } else {
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTests$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagement$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystem$${QTILITIES_FILE_VER}.a
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTests$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
     }
 }
-

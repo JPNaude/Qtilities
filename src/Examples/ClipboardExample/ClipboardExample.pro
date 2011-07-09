@@ -2,10 +2,11 @@
 # Copyright (c) 2009-2010, Jaco Naude
 # See http://www.qtilities.org/licensing.html for licensing details.
 # ***************************************************************************
-QTILITIES += coregui
+QTILITIES += unit_tests
 include(../../Qtilities.pri)
 QT += core
 QT += gui
+CONFIG += qtestlib
 TARGET = ClipboardExample
 CONFIG -= app_bundle
 

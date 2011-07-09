@@ -15,7 +15,7 @@ CONFIG += qt \
     dll \
     ordered
 
-QT += core
+QT += gui
 QT += xml
 CONFIG += qtestlib
 
@@ -51,7 +51,9 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestNamingPolicyFilter.h \
         source/TestActivityPolicyFilter.h \
         source/TestSubjectTypeFilter.h \
-        source/FunctionCallAnalyzer.h
+        source/FunctionCallAnalyzer.h \
+        source/DebugWidget.h \
+        source/DropableListWidget.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -63,7 +65,9 @@ SOURCES += source/TestObserver.cpp \
         source/TestNamingPolicyFilter.cpp \
         source/TestActivityPolicyFilter.cpp \
         source/TestSubjectTypeFilter.cpp \
-        source/FunctionCallAnalyzer.cpp
+        source/FunctionCallAnalyzer.cpp \
+        source/DebugWidget.cpp \
+        source/DropableListWidget.cpp
 }
 
 # --------------------------
@@ -76,5 +80,6 @@ HEADERS += source/UnitTestsConstants.h \
 
 SOURCES += source/TestFrontend.cpp
 
-FORMS += source/TestFrontend.ui
+FORMS += source/TestFrontend.ui \
+        source/DebugWidget.ui
 
