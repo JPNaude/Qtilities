@@ -266,8 +266,8 @@ int main(int argc, char *argv[])
         LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
 
     // Create a debug widget
-    DebugWidget* debug_widget = new DebugWidget;
-    debug_widget->modeWidget()->show();
+    //DebugWidget* debug_widget = new DebugWidget;
+    //debug_widget->modeWidget()->show();
 
     int result = a.exec();
 

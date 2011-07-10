@@ -19,9 +19,9 @@ git is a fast version management system for distributed development. This instal
 3. Make sure git is in your path. run the following command in a terminal window to make sure it is set up correctly
    "git --version"
 
-Set up dependencies (Optional)
+Set up dependencies (Optional, disabled by default so you can skip to "Build Qtilities". See Dependencies.pri for more information)
 ===================
-Qt can be build against a few other libraries to extend the Qtilities framework. The following lists the dependencies as well as describe how to get them installed.
+Qtiliites can be build against a few other libraries to extend its functionality. The following will list the dependencies as well as describe how to get them installed.
 
 Qt Property Browser
 -------------------
@@ -48,9 +48,9 @@ Build Qtilities
    QTILITIES_DEPENDENCIES should point to [YOUR_LIB_PATH]. Most probably "$$PWD/../../../".
 4. Set up Qtilities build options
    1. If the dependencies was build correctly as described above, open the "Dependencies.pri" file located in the src folder.
-   2. Comment out the following lines if they are not already commented out.
-      DEFINES += QTILITIES_NO_PROPERTY_BROWSER
-      DEFINES += QTILITIES_NO_CONAN
+   2. Uncomment the following lines if they are not already commented out.
+      DEFINES += QTILITIES_PROPERTY_BROWSER
+      DEFINES += QTILITIES_CONAN
 5. Examples and Plugins
    To build the Qtilities Examples and Plugins the following must be done
    1. Using Qt Creator open the 2 pro files in the "src/Examples" and "src/Plugins" folders.
@@ -72,8 +72,4 @@ Qtilities will not be able to run if the following steps are not followed. The l
    [YOUR_LIB_PATH]/qt-solutions/qtpropertybrowser/lib
 3. Update the libraries path
    Run the following command: sudo ldconfig
-
-Final Word
-==========
-Good luck!!!
 

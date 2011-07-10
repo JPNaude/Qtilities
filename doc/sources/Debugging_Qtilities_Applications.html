@@ -20,6 +20,9 @@ This page will give an overview of the debugging plugin and highlight some of it
 
 Table of contents:
 - \ref debugging_introduction
+    - \ref debugging_manual
+    - \ref debugging_automatic
+    .
 - \ref debugging_global_object_pool_view
     - \ref debugging_object_static_properties
     - \ref debugging_object_dynamic_properties
@@ -89,12 +92,28 @@ Table of contents:
 
 \section debugging_introduction Introduction
 
-The debugging plugin is part of the \p QtilitiesPlugins project and is called \p DebugPlugin. You can see the documentation
-for the plugin here: Qtilities::Plugins::Debug::DebugPlugin.
+The debugging plugin is part of the \p UnitTests module and can be added manually to your application, or if your application uses the %Qtilities extension system it can be added automatically as an application mode when you load \p DebugPlugin. You can find the documentation for the plugin here: Qtilities::Plugins::Debug::DebugPlugin.
 
-First of all, the easiest way to use the plugin is to make your application extendable (which is a very good thing)
-and then to add the debug plugin library to your application's plugin path. It will automatically be loaded as a mode
-in your application, thus you also need to use the Qtilities::CoreGui::QtilitiesMainWindow and set it up to use modes:
+\subsection debugging_manual Showing the debug widget manually
+
+To access the debug widget manually, do the following:
+
+\code
+// In your .pro file, add:
+QTILITIES += unit_tests
+
+// In your .cpp file, add:
+#include <QtilitiesUnitTests>
+using namespace QtilitiesUnitTests;
+
+// And then show the DebugWidget like this:
+DebugWidget* debug_widget = new DebugWidget;
+debug_widget->modeWidget()->show();
+\endcode
+
+\subsection debugging_automatic Showing the debug widget using the Debug Plugin
+
+Another way to use the debug widget is to make your application extendable and then to add the debug plugin library to your application's plugin path. It will automatically be loaded as a mode in your application, thus you also need to use the Qtilities::CoreGui::QtilitiesMainWindow and set it up to use modes:
 
 \code
 int main(int argc, char *argv[])
@@ -236,7 +255,7 @@ tags registered in each factory.
 
 \image html debugging_state_factories.jpg "Factories Overview"
 
-\subsection debugging_state_projects "Project Management"
+\subsection debugging_state_projects Project Management
 
 If you use projects in your application, the project management view will provide you with details about the
 Project Manager's current state. It is possible to open the current project or it's path and to get an overview
@@ -277,7 +296,6 @@ action to their action toolbars (when build in debug mode) as shown below:
 
 \image html debugging_observer_widget_action.jpg "Debug Selected Object Action"
 
-This action (blue bug) will add the selected object to your global object pool and then switch to the debugging plugin.
-The objects of the global object pool are the ones that you can debug as shown in the next section.
+This action (blue bug) will add the selected object to your global object pool and then switch to the debugging plugin (if using the approach described in \ref debugging_automatic, otherwise the object will just be added to the global object pool).
 
 */

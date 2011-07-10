@@ -14,11 +14,12 @@
 This page provides details of how to start using the %Qtilities libraries in your applications.
 
 Table of contents:
-- \ref getting_sources
+- \ref getting_started_getting_and_building
+    - \ref getting_started_getting_and_building_windows
+    - \ref getting_started_getting_and_building_linux
+    - \ref output_file_names
+    .
 - \ref tested_environments
-- \ref building_qtilities
-  - \ref output_file_names
-  .
 - \ref whats_next
 
 </td>
@@ -69,44 +70,197 @@ Table of contents:
 </tr>
 </table>
 
-\section getting_sources Getting the sources
+\section getting_started_getting_and_building Getting and Building Qtilities
 
 The project sources are hosted using the Git version control system on http://www.gitorious.org and can be accessed directly at http://gitorious.org/qtilities
 
-If you want to get the version controlled sources but you are not familiar with Git, see the <a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">Git User Manual</a> first. To clone the repository you can use the command below or see the \ref building_qtilities section for detailed instructions.
-
-\code
-git clone git://gitorious.org/qtilities/qtilities.git qtilities
-cd qtilities
-\endcode
-
-Note that it is not neccesarry to have a Gitorious account in order to clone the repository. It is however recommended to create an account and then clone the repository on the Gitorious website.
-
-The master branch host the current development snapshot and might not even build all time, thus it is recommended to use a stable branch for your development. You can also get an archive of any development branch by browsing the source tree on Gitorious and selecting the archive download link. All development happens in the \p master branch and stable versions have their own branches. Alternatively, you can download stable release archives from the <a href="http:\\code.google.com\p\qtilities\downloads\list">Qtilities download page</a>.
-
-\section tested_environments Tested environments
-
-At present the libraries have been tested on the following setups:
-- Qt 4.6.2 <-> Qt 4.7.2 / Windows XP / Mingw32
-- Qt 4.6.2 <-> Qt 4.7.2 / Windows 7 / Mingw32
-- Qt 4.6.2 <-> Qt 4.7.2 / Linux (Ubuntu 10.04 x64) / g++
-- Qt 4.6.2 <-> Qt 4.7.2 / Linux (Ubuntu 10.10 x32) / g++
-- Qt 4.6.2 <-> Qt 4.7.2 / Linux (Ubuntu 11.04 x32) / g++
-- Qt 4.6.2 / Windows 7 / MS Visual Studio 2008. Some testing was done but everything was not tested. Some problems related to template classes (factories etc.) were experienced after the build was done and the headers were included in a different project.
-
-Although %Qtilities have only been tested with Qt 4.6 and the Qt 4.7, it should work with Qt 4.x.
-
-\section building_qtilities Building Qtilities
-
-Detailed information on how to build information is provided in text files accompanying the source archive. Alternatively you can view the latest build instructions from the Gitorious repository:
+Detailed instructions on how to get started are shown below. Alternatively you can view the latest build instructions from the Gitorious repository:
 - <a href="http://gitorious.org/qtilities/qtilities/blobs/master/Building%20On%20Windows.txt">Building on Windows</a>
 - <a href="http://gitorious.org/qtilities/qtilities/blobs/master/Building%20On%20Linux.txt">Building on Linux</a>
+
+\note Is is not neccesarry to have a Gitorious account in order to clone the repository. It is however recommended to create an account and then clone the repository on the Gitorious website.
+\note The master branch host the current development snapshot and might not even build all time, thus it is recommended to use a stable branch for your development. You can also get an archive of any development branch by browsing the source tree on Gitorious and selecting the archive download link. All development happens in the \p master branch and stable versions have their own branches. Alternatively, you can download stable release archives from the <a href="http:\\code.google.com\p\qtilities\downloads\list">Qtilities download page</a>. The instructions below are included in the download archives.
+
+\subsection getting_started_getting_and_building_windows Windows Users
+\verbatim
+INSTALL (Windows)
+===============
+This guide is to build v1.0 of Qtilities on Windows (used Windows 7 & XP).
+
+To install Qtilities create a folder that will contain all the libraries used. This location will be reffered to as [YOUR_LIB_PATH]. It is assumed that the Qt SDK is insalled as well as git (see Required Software).
+
+Required Software:
+==================
+Qt SDK
+------
+1. Get the latest SDK from http://qt.nokia.com/downloads
+2. Install Qt SDK
+
+git (optional)
+-----------------
+git is a fast version management system for distributed development. This installation uses git to get the required source files.
+1. Download git from http://git-scm.com/download
+   Download the msysGit binary for windows
+2. Install git
+   Install the "Git Bash Only" option
+
+GIT Terminal
+============
+This is the steps needed to set up the git environment
+1. Open git bash
+2. In the terminal change directory to [YOUR_LIB_PATH]
+3. It is also possible to change the start folder in your git bash shortcut in order to open in the right location by default.
+
+Set up dependencies (Optional, disabled by default so you can skip to "Build Qtilities". See Dependencies.pri for more information)
+===================
+Qtiliites can be build against a few other libraries to extend its functionality. The following will list the dependencies as well as describe how to get them installed.
+
+Qt Property Browser
+-------------------
+1. Get the qt-solutions Qt Addons from http://qt.gitorious.org/qt-solutions.
+   Run the following command: git clone git://gitorious.org/qt-solutions/qt-solutions.git qt-solutions
+2. Build qtpropertybrowser, located inside the newly checked out qt-solutions folder.
+   Open the project file located inside the "buildlib" folder of the qtpropertybrowser.
+   It is advised to disable the "Shadow build" option in creator.
+   Lib files created should be in the "qtpropertybrowser/lib" folder.
+
+Connection analyzer for Qt
+--------------------------
+1. Download the conan for qt from http://sourceforge.net/projects/conanforqt/
+   To make things a bit easier later on place the conan code in "[YOUR_LIB_PATH]/conanforqt/Conan/".
+2. Build conan.
+   It is advised to disable the "Shadow build" option in creator. The lib files should be in the "Conan/lib" folder after a successfull build.
+   Build Debug and Release
+(note for Conan v1.0.2) When building against latest SDK it can complain that it does not find the qobject_p.h file. Locate the file in your Qt installtion and put absolute path in to get it to build.
+
+Build Qtilities
+===============
+1. Get the source code from gitorious/
+   Run the following command: git clone git://gitorious.org/qtilities/qtilities.git qtilities
+2. Open the Qtilities.pro file in QtCreator located in the src folder.
+3. Check your project paths:
+   Open the "Dependencies.pri" file located in the src folder and check that the paths are set up correctly.
+   QTILITIES_DEPENDENCIES should point to [YOUR_LIB_PATH]. Most probably "$$PWD/../../../".
+4. Set up Qtilities build options
+   1. If the dependencies was build correctly as described above, open the "Dependencies.pri" file located in the src folder.
+   2. Uncomment the following lines if they are not already commented out.
+      DEFINES += QTILITIES_PROPERTY_BROWSER
+      DEFINES += QTILITIES_CONAN
+5. Examples and Plugins
+   To build the Qtilities Examples and Plugins the following must be done
+   1. Using Qt Creator open the 2 pro files in the "src/Examples" and "src/Plugins" folders.
+   2. Go to the Project mode and click on the QtilitiesPlugins tab at the top.
+   3. Click on the Dependencies tab just underneath.
+   4. Make sure that "Qtilities" is checked in the Dependencies window.
+   5. Do the same for the Examples but both "Qtilities" and "QtilitiesPlugins" must be checked in the dependencies window.
+6. Qtilities should be able to build now
+
+LIBRARIES
+=========
+Qtilities will not be able to run if the following steps are not followed. The libraries created by the dependencies as well as Qtilities must be in your Windows PATH.
+1. Add the library locations to your WINDOWS PATH variable
+   The following must be added
+   [YOUR_LIB_PATH]/Qtilities/bin
+   [YOUR_LIB_PATH]/Qtilities/bin/plugins
+   [YOUR_LIB_PATH]/conanforqt/Conan/
+   [YOUR_LIB_PATH]/qt-solutions/qtpropertybrowser/lib
+3. Close Qt Creator and re-open it to make the changes to the PATH variable take effect.
+\endverbatim
+
+\subsection getting_started_getting_and_building_linux Linux Users
+\code
+INSTALL (Linux)
+===============
+This guide is to build v1.0 of Qtilities on Linux (used Ubuntu 10.10).
+
+To install Qtilities create a folder that will contain all the libraries used. Open a Terminal and navigate to that folder inside the Terminal. This location will be reffered to as [YOUR_LIB_PATH]. It is assumed that the Qt SDK is installed as well as git (see Required Software).
+
+Required Software:
+==================
+Qt SDK
+------
+1. Get the latest SDK from http://qt.nokia.com/downloads
+2. Install Qt SDK
+
+git (optional)
+-----------------
+git is a fast version management system for distributed development. This installation uses git to get the required source files.
+1. Download git from http://git-scm.com/download
+2. Install git
+3. Make sure git is in your path. run the following command in a terminal window to make sure it is set up correctly
+   "git --version"
+
+Set up dependencies (Optional, disabled by default so you can skip to "Build Qtilities". See Dependencies.pri for more information)
+===================
+Qtiliites can be build against a few other libraries to extend its functionality. The following will list the dependencies as well as describe how to get them installed.
+
+Qt Property Browser
+-------------------
+1. Get the qt-solutions Qt Addons from http://qt.gitorious.org/qt-solutions.
+   Run the following command: git clone git://gitorious.org/qt-solutions/qt-solutions.git qt-solutions
+2. Build qtpropertybrowser, located inside the newly checked out qt-solutions folder.
+   Lib files created should be in the "qtpropertybrowser/lib" folder.
+
+Connection Analyzer for Qt
+--------------------------
+1. Download the conan for qt from http://sourceforge.net/projects/conanforqt/
+   To make things a bit easier later on place the conan code in "[YOUR_LIB_PATH]/conanforqt/Conan/".
+2. Build Conan.
+   It is advised to disable the "Shadow build" option in creator. The lib files should be in the "Conan/lib" folder after a successfull build.
+   Build Debug and Release
+
+Build Qtilities
+===============
+1. Get the source code from gitorious
+   Run the following command: git clone git://gitorious.org/qtilities/qtilities.git qtilities
+2. Open the Qtilities.pro file in QtCreator located in the src folder.
+3. Check your project paths:
+   Open the "Dependencies.pri" file located in the src folder and check that the paths are set up correctly.
+   QTILITIES_DEPENDENCIES should point to [YOUR_LIB_PATH]. Most probably "$$PWD/../../../".
+4. Set up Qtilities build options
+   1. If the dependencies was build correctly as described above, open the "Dependencies.pri" file located in the src folder.
+   2. Uncomment the following lines if they are not already commented out.
+      DEFINES += QTILITIES_PROPERTY_BROWSER
+      DEFINES += QTILITIES_CONAN
+5. Examples and Plugins
+   To build the Qtilities Examples and Plugins the following must be done
+   1. Using Qt Creator open the 2 pro files in the "src/Examples" and "src/Plugins" folders.
+   2. Go to the Project mode and click on the QtilitiesPlugins tab at the top.
+   3. Click on the Dependencies tab just underneath.
+   4. Make sure that "Qtilities" is checked in the Dependencies window.
+   5. Do the same for the Examples but both "Qtilities" and "QtilitiesPlugins" must be checked in the dependencies window.
+6. Qtilities should be able to build now.
+
+LIBRARIES
+=========
+Qtilities will not be able to run if the following steps are not followed. The libraries created by the dependencies as well as Qtilities must be in your library path. The best way to do this is to
+1. Create new file in /etc/ld.so.conf.d/ for example Qtilities.conf. One can be made for all of the shared libraries grouped together or one can be made for each shared library.
+2. Edit the *.conf file and add all paths to shared libraries to the file, including the dependencies. The following should be added:
+   [YOUR_LIB_PATH]/Qtilities/bin
+   [YOUR_LIB_PATH]/Qtilities/bin/plugins
+   [YOUR_LIB_PATH]/conanforqt/Conan/
+   [YOUR_LIB_PATH]/qt-solutions/qtpropertybrowser/lib
+3. Update the libraries path
+   Run the following command: sudo ldconfig
+\endcode
 
 \subsection output_file_names Output file names
 
 All library file names, and the names of all example projects has the \p QTILITIES_FILE_VER variable appended to it. The format is as follows: \p -0.1.b1, meaning major version 0, minor version 1, beta version 1. Alpha versions will have an \p a character appended in the place of the \p b.
 
 When you build the libraries in debug mode, a small letter \p d character is appended to all library names. In release mode this character is removed.
+
+\section tested_environments Tested environments
+
+At present the libraries have been tested on the following setups:
+- Qt 4.6.2 <-> Qt 4.7.3 / Windows XP / Mingw32
+- Qt 4.6.2 <-> Qt 4.7.3 / Windows 7 / Mingw32
+- Qt 4.6.2 <-> Qt 4.7.3 / Linux (Ubuntu 10.04 x64) / g++
+- Qt 4.6.2 <-> Qt 4.7.3 / Linux (Ubuntu 10.10 x32) / g++
+- Qt 4.6.2 <-> Qt 4.7.3 / Linux (Ubuntu 11.04 x32) / g++
+- Qt 4.6.2 / Windows 7 / MS Visual Studio 2008. Some testing was done but everything was not tested. Some problems related to template classes (factories etc.) were experienced after the build was done and the headers were included in a different project.
+
+Although %Qtilities have only been tested with Qt 4.6 and the Qt 4.7, it should work with Qt 4.x.
 
 \section whats_next It Built, What Now?
 
