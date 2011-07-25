@@ -1,0 +1,1373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DebugWidget</class>
+ <widget class="QMainWindow" name="DebugWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1055</width>
+    <height>870</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Qtilities Debug Mode:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Qtilities Version: </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelVersion">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>XXX</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The debug plugin helps with debugging of Qtilities applications. To do a manual refresh of the information below, click the refresh button on the right.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QToolButton" name="btnRefreshViews">
+      <property name="toolTip">
+       <string>Refresh Views</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextBesideIcon</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QTabWidget" name="tabWidgetDebug">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabObjectPool">
+       <attribute name="title">
+        <string>Global Object Pool</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QSplitter" name="splitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="childrenCollapsible">
+           <bool>false</bool>
+          </property>
+          <widget class="QWidget" name="widgetObjectPoolHolder" native="true"/>
+          <widget class="QWidget" name="widgetObjectInfo" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>400</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBoxPropertyBrowser">
+              <property name="title">
+               <string>Object Properties</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_30">
+               <item row="1" column="0">
+                <widget class="QTabWidget" name="tabWidget">
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="tabObjectProperties">
+                  <attribute name="title">
+                   <string>Static Properties</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_31">
+                   <item row="0" column="0">
+                    <widget class="QWidget" name="objectPropertyBrowserHolder" native="true"/>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="tabDynamicObjectProperties">
+                  <attribute name="title">
+                   <string>Dynamic Properties</string>
+                  </attribute>
+                  <layout class="QGridLayout" name="gridLayout_32">
+                   <item row="0" column="0">
+                    <widget class="QWidget" name="objectDynamicPropertyBrowserHolder" native="true"/>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QCheckBox" name="chkRefreshProperties">
+                 <property name="text">
+                  <string>Refresh properties when selected object changes.</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxInheritanceList">
+              <property name="title">
+               <string>Inheritance</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_28">
+               <item row="0" column="0">
+                <widget class="QListView" name="objectInheritanceList">
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_9">
+              <property name="title">
+               <string>Scope Overview</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_26">
+               <item row="0" column="0">
+                <widget class="QWidget" name="widgetObjectScopeHolder" native="true"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_21">
+              <property name="title">
+               <string>Signal and Slot Analysis</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_25">
+               <item row="0" column="0" colspan="3">
+                <widget class="QLabel" name="lblConanLabel">
+                 <property name="text">
+                  <string>Conan Label</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                 <property name="openExternalLinks">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>69</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="btnAnalyzeCurrentObject">
+                 <property name="text">
+                  <string>Analyze Selected Object</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <spacer name="horizontalSpacer_10">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>69</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="2" column="0" colspan="3">
+                <widget class="QLabel" name="lblConanExcluded">
+                 <property name="text">
+                  <string>TextLabel</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabApplicationState">
+       <attribute name="title">
+        <string>Application State</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="QToolBox" name="toolBox">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="pageModes">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1013</width>
+             <height>608</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Application Modes</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <property name="margin">
+             <number>3</number>
+            </property>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>This page provides an overview of all the modes registered in your application.</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="Line" name="line_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <widget class="QTableWidget" name="tableModes">
+              <column>
+               <property name="text">
+                <string>Mode Name</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Mode ID</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Mode Shortcut</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Context String</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Help ID</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageContexts">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>568</width>
+             <height>192</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Contexts</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_29">
+            <property name="margin">
+             <number>3</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QWidget" name="widgetContextsHolder" native="true"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QWidget" name="widgetContextsContents" native="true">
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>This page provides an overview of the context manager's current state:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="2">
+                <widget class="Line" name="line_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QGroupBox" name="groupBox_5">
+                 <property name="title">
+                  <string>All Registered Contexts:</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_12">
+                  <item row="0" column="0" colspan="2">
+                   <widget class="QTableWidget" name="tableContextsAll">
+                    <column>
+                     <property name="text">
+                      <string>Context ID</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Context Name</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>261</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QPushButton" name="btnContextSetActive">
+                    <property name="text">
+                     <string>Set Selected Active</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QGroupBox" name="groupBox_6">
+                 <property name="title">
+                  <string>Active Contexts:</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_11">
+                  <item row="0" column="0" colspan="3">
+                   <widget class="QTableWidget" name="tableContextsActive">
+                    <column>
+                     <property name="text">
+                      <string>Context ID</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Context Name</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_7">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>195</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QPushButton" name="btnContextsClear">
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QPushButton" name="btnContextsBroadcast">
+                    <property name="text">
+                     <string>Broadcast State</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageActions">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>356</width>
+             <height>221</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Action Management</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>This page provides an overview of the action manager's current state:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QWidget" name="commandEditorHolder" native="true"/>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBox_22">
+                <property name="title">
+                 <string>Action Containers:</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_14">
+                 <item row="0" column="0">
+                  <widget class="QWidget" name="actionContainersHolder" native="true"/>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="title">
+               <string>Selected Command Overview:</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_15">
+               <item row="0" column="0">
+                <widget class="QLabel" name="lblCommandType">
+                 <property name="text">
+                  <string>Command Type: </string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>717</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="btnAnalyzeAction">
+                 <property name="text">
+                  <string>Analyze Signal and Slot Connections</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="3">
+                <widget class="QTableWidget" name="tableSelectedActionOverview">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="columnCount">
+                  <number>8</number>
+                 </property>
+                 <column/>
+                 <column/>
+                 <column/>
+                 <column/>
+                 <column/>
+                 <column/>
+                 <column/>
+                 <column/>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageFactories">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>142</width>
+             <height>293</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Factories</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="margin">
+             <number>3</number>
+            </property>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>This page provides an overview of all the factories registered in the object manager as well as the registered tags in each factory. </string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QListWidget" name="listFactories"/>
+              </item>
+              <item>
+               <widget class="QListWidget" name="listFactoryItemIDs"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageProjects">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>372</width>
+             <height>283</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Project Management</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QGroupBox" name="groupBox_20">
+              <property name="title">
+               <string>Project Management State:</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_33">
+               <item row="0" column="0" rowspan="2">
+                <layout class="QFormLayout" name="formLayout">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_8">
+                   <property name="text">
+                    <string>Current Project Path:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="txtProjectsCurrentFileName"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>Current Project Items:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QListWidget" name="listProjectsCurrentItems"/>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_12">
+                   <property name="text">
+                    <string>Recent Projects:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QListWidget" name="listProjectsRecent"/>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_14">
+                   <property name="text">
+                    <string>Registered Projects Items:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QListWidget" name="listProjectsRegisteredItems"/>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="1">
+                <widget class="QToolButton" name="btnProjectsCurrentOpenPath">
+                 <property name="text">
+                  <string>Open Path</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QToolButton" name="btnProjectsCurrentOpenFile">
+                 <property name="text">
+                  <string>Open File</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" colspan="2">
+                <spacer name="horizontalSpacer_11">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>125</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabPluginManagement">
+       <attribute name="title">
+        <string>Plugin Management</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_27">
+        <item row="0" column="0" rowspan="2">
+         <widget class="QToolBox" name="toolBoxPluginManagement">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="pageCurrentState">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1013</width>
+             <height>689</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Current State:</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBox_11">
+              <property name="title">
+               <string>Current System State</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_24">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_8">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Core Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_10">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsCoreCurrent"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_13">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_16">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsActiveCurrent"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_14">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>In-Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_17">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsInactiveCurrent"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_15">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Filtered Plugins:</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_18">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsFilteredCurrent"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_12">
+              <property name="title">
+               <string>Current Configuration Set</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_23">
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <item>
+                  <widget class="QLabel" name="label_13">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Active Configuration Set:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="txtPluginsActiveSet">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="0" column="1">
+                <widget class="QToolButton" name="btnExplorePluginCurrentConfigSetPath">
+                 <property name="text">
+                  <string>Explore Path</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QToolButton" name="btnEditPluginCurrentConfigSet">
+                 <property name="text">
+                  <string>Edit Config File</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" colspan="3">
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_16">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Core Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_19">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsCoreCurrentSet"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_17">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_20">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsActiveCurrentSet"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_18">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>In-Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_21">
+                    <item row="0" column="1">
+                     <widget class="QListWidget" name="listPluginsInactiveCurrentSet"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_19">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Plugin Filter Expressions</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_22">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsFilteredCurrentSet"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageCreateCustomSets">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>442</width>
+             <height>249</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Create Custom Configuration Sets:</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBox_10">
+              <property name="title">
+               <string/>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_9">
+               <item row="0" column="0" colspan="8">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
+                  <widget class="QLabel" name="label_10">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Configuration Set:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="txtPluginsEditSet">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="lblPluginInfoIcon">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="lblPluginInfoMessage">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <spacer name="horizontalSpacer_9">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>208</width>
+                   <height>17</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="3">
+                <widget class="QToolButton" name="btnExplorePluginConfigSetPath">
+                 <property name="text">
+                  <string>Explore Path</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4">
+                <widget class="QToolButton" name="btnEditPluginConfigSet">
+                 <property name="text">
+                  <string>Edit Config File</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="QToolButton" name="btnOpenPluginConfigSet">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string>Open</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="6">
+                <widget class="QToolButton" name="btnSaveNewPluginConfigSet">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string>Save As</string>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonTextBesideIcon</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="7">
+                <widget class="QToolButton" name="btnSavePluginConfigSet">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string>Save</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0" colspan="8">
+                <widget class="Line" name="line_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0" colspan="8">
+                <layout class="QHBoxLayout" name="horizontalLayout_3">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_4">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Core Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_8">
+                    <item row="0" column="0">
+                     <widget class="QListWidget" name="listPluginsCoreEditSet"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_7">
+                    <item row="1" column="0">
+                     <spacer name="horizontalSpacer_6">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>166</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QToolButton" name="btnRemoveActivePlugin">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QToolButton" name="btnAddActivePlugin">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0" colspan="3">
+                     <widget class="QWidget" name="listPluginsActiveHolder" native="true"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_2">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>In-Active Plugins</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_3">
+                    <item row="1" column="0">
+                     <spacer name="horizontalSpacer_5">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>167</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QToolButton" name="btnRemoveInactivePlugin">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QToolButton" name="btnAddInactivePlugin">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0" colspan="3">
+                     <widget class="QWidget" name="listPluginsInactiveHolder" native="true"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_3">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="title">
+                    <string>Plugin Filter Expressions</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_2">
+                    <item row="1" column="1">
+                     <widget class="QToolButton" name="btnRemoveFilterExpression">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QToolButton" name="btnAddFilterExpression">
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="autoRaise">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <spacer name="horizontalSpacer_2">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>172</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="0" column="0" colspan="3">
+                     <widget class="QWidget" name="listPluginsFilteredHolder" native="true"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="textEdit">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>150</height>
+               </size>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="html">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Plugin Classification:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Core Plugins:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; These&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;plugins&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;form&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;the&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;core&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;of&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;an&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;application.&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Thus&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;they&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;must&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;always&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;be&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;treated&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;as&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;active&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;plugins&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;(thus&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;loaded&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;and&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;initialized). Note that core plugins does not form part of plugin configuration sets since they must be set in your application code before plugins are loaded.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Active Plugins:  &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Active plugins are loaded and initialized. The list contains name of plugins which are currently loaded, with names as returned by the IPlugin::pluginName() implementation. Active plugins does not form part of .pconfig files since all plugins which does not fall under in-active plugins or filtered plugins will be loaded and initialized.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;In-Active Plugins:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; In-Active plugins are loaded but not initialized. The list contains name of plugins to be filtered, as returned by the IPlugin::pluginName() implementation.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Filtered Plugins:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; Filtered plugins are plugins that are skipped during plugin loading. The list contains wildcard regular expressions (See &lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#800080;&quot;&gt;QRegExp&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#000000;&quot;&gt;::&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#800080;&quot;&gt;Wildcard&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;) compared to plugin file names. Thus if a plugin's file name matches the wildcard, it will not be loaded.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>chkRefreshProperties</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>objectPropertyBrowserHolder</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>694</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>713</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chkRefreshProperties</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>objectDynamicPropertyBrowserHolder</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>777</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>703</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
