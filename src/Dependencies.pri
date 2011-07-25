@@ -32,7 +32,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
 # need the Qt Property Browser Solution.
-DEFINES += QTILITIES_PROPERTY_BROWSER
+# DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
@@ -69,20 +69,19 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
 # under the normal Qtilities license found at http://www.qtilities.org/licensing.html
 # It is released under the following license:
 #
-# Under this license the Debug Plugin is free software: you can
+# Under this license the Unit Testing Library is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General
 # Public License as published by the Free Software Foundation, either
 # version 3 of the License, or (at your option) any later version.
 #
-# The Debug Plugin is distributed in the hope that it will be useful,
+# The Unit Testing Library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with the Debug Plugin. If not, see http://www.gnu.org/licenses/.
+# along with the Unit Testing Library. If not, see http://www.gnu.org/licenses/.
 # --------------------------
-
 contains(DEFINES, QTILITIES_CONAN) {
     CONAN_BASE = $$QTILITIES_DEPENDENCIES/conanforqt/Conan
     INCLUDEPATH += $$CONAN_BASE/include

@@ -245,7 +245,7 @@ categorized_widget->show();
                 \sa activeHints(), setCustomHints()
               */
             void toggleUseObserverHints(bool toggle);
-            //! Indicates if this widget uses its own custom hints of that of the active observer.
+            //! Indicates if this widget uses its own custom hints or that of the active observer.
             bool usesObserverHints() const;
             //! This function allows you to copy the custom hints used by this ObserverWidget from a different ObserverHints instance.
             /*!
@@ -258,7 +258,7 @@ categorized_widget->show();
             bool setCustomHints(ObserverHints* custom_hints);
             //! This function will provide the hints which should be used by this widget at any time.
             /*!
-              \sa toggleUseObserverHints(), copyCustomHints()
+              \sa toggleUseObserverHints(), setCustomHints()
               */
             ObserverHints* activeHints() const;
 
@@ -333,7 +333,7 @@ categorized_widget->show();
               - As the context which is used to register backends for any actions created by this widget.
               - During readSettings() and writeSettings() to uniquely define this widget.
               - As the meta type which is used to identify a set of active objects in the object manager. For more information see Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjects().
-              - It is recommended to use the global meta type as the request ID when monitoring settings update requests. \sa handleSettingsUpdateRequest()
+              - It is recommended to use the global meta type as the request ID when monitoring settings update requests. See handleSettingsUpdateRequest()
 
               \returns The meta type used for this observer widget.
 

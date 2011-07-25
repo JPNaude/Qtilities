@@ -138,8 +138,7 @@ The resulting widget looks like this:
 
 \image html observer_widget_doc_table_view_simple.jpg "Observer Widget (Table View Mode)"
 
-For flat observer structures the above widget would be sufficient, however for hierarchical tree structures such as the example structure we are using, this is not going to work. The user must be able to push down into an observer and push up the tree as well. In order to do this, we need to add actions for to the observer widget which the user can then use to perform these tasks. We use Qtilities::Core::ObserverHints to do this which are described in detail later in this article in the \ref 
-observer_and_widget_integration section. For now we don't go into the details. 
+For flat observer structures the above widget would be sufficient, however for hierarchical tree structures such as the example structure we are using, this is not going to work. The user must be able to push down into an observer and push up the tree as well. In order to do this, we need to add actions for to the observer widget which the user can then use to perform these tasks. We use Qtilities::Core::ObserverHints to do this. Observer hints are described in detail later in this article in the \ref observer_and_widget_integration section. For now we don't go into the details.
 
 \code
 // Indicate to the widget that it should use its own hints, not that of the selected observer:
@@ -172,7 +171,7 @@ The observer widget class provides functions which makes it easy to interact wit
 
 \section observer_and_widget_integration Observer hints: Telling item views how they should show an observer context
 
-Observers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::activeHints() function. 
+Observers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::activeHints() function as shown in the above example.
 
 Observers does not automatically provide hints and the Qtilities::Core::Observer::useDisplayHints() function must be called on the observer after it is constructed and before any subjects are attached to it. Qtilities::CoreGui::TreeNode on the other hand calls this function in its constructor.
 
@@ -343,26 +342,7 @@ The %Qtilities object manager is able to manage global active objects, for more 
 
 \subsection saving_state Saving the state of different observer widgets
 
-The ObserverWidget class provides the Qtilities::CoreGui::ObserverWidget::writeSettings() and Qtilities::CoreGui::ObserverWidget::readSettings() functions which can be used to store information about an observer widget. 
-
-The settings is stored using QSettings under a group called \p Gui/Widget_Name, with the application settings prepended to this group. This is shown below:
-
-\code
-// This must be set in your application's main() function with your parameters
-QtilitiesApplication::setOrganizationName("Jaco Naude");
-QtilitiesApplication::setOrganizationDomain("Qtilities");
-QtilitiesApplication::setApplicationName("Observer Widget Example");
-
-// This is the way settings are stored
-QSettings settings;
-settings.beginGroup("Qtilities");
-settings.beginGroup("GUI");
-settings.beginGroup(widget_name);
-// Store details
-settings.endGroup();
-settings.endGroup();
-settings.endGroup();
-\endcode
+The ObserverWidget class provides the Qtilities::CoreGui::ObserverWidget::writeSettings() and Qtilities::CoreGui::ObserverWidget::readSettings() functions which can be used to store information about an observer widget.
 
 Qtilities::CoreGui::ObserverWidget::globalMetaType() is used as the \p Widget_Name field in the group where the settings are stored. Observer widget classes are connected to the Qtilities::Core::QtilitiesCoreApplication::settingsUpdateRequest() signal by default and responds to settings update requests for the specific global meta type. See the function documentation for more details on this topic. See the \p ClipboardExample in the \p QtilitiesExamples project for a demonstration of how observer widget settings are managed.
 
