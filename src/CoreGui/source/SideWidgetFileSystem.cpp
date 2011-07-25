@@ -50,7 +50,7 @@ struct Qtilities::CoreGui::SideWidgetFileSystemPrivateData {
     SideWidgetFileSystemPrivateData(): model(0) {}
 
     QFileSystemModel *model;
-    QPoint dragStartPosition;
+    QPoint drag_start_position;
 };
 
 Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& start_path, QWidget *parent) :
@@ -112,9 +112,9 @@ void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
             dest_path.append(file_info.fileName());
 
             if (file.copy(dest_path))
-                LOG_INFO_P(tr(QString("Successfully copied file from \"" + dest_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
+                LOG_INFO_P(tr(QString("Successfully copied file from \"" + source_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
             else
-                LOG_ERROR_P(tr(QString("Successfully copied file from \"" + dest_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
+                LOG_ERROR_P(tr(QString("Successfully copied file from \"" + source_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
         }
     }
 
@@ -193,7 +193,7 @@ bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEve
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (!(mouseEvent->buttons() & Qt::LeftButton || mouseEvent->buttons() & Qt::RightButton))
                 return false;
-            if ((mouseEvent->pos() - d->dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+            if ((mouseEvent->pos() - d->drag_start_position).manhattanLength() < QApplication::startDragDistance())
                 return false;
 
             QDrag *drag = new QDrag(this);
@@ -217,7 +217,7 @@ bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEve
         } else if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if ((mouseEvent->buttons() & Qt::LeftButton || mouseEvent->buttons() & Qt::RightButton))
-                d->dragStartPosition = mouseEvent->pos();
+                d->drag_start_position = mouseEvent->pos();
         }
     }
 

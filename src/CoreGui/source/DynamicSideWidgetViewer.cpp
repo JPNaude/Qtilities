@@ -80,7 +80,7 @@ Qtilities::CoreGui::DynamicSideWidgetViewer::~DynamicSideWidgetViewer()
     delete ui;
 }
 
-void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive) {
+void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive, const QStringList& widget_order) {
     d->is_exclusive = is_exclusive;
 
     // Clear previous widgets:
@@ -95,9 +95,24 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
     }
     d->text_iface_map = filtered_list;
 
-    // Only create wrappers for and show widgets which should be shown on startup:
+    // First handle the order using widget_order:
+    for (int i = 0; i < widget_order.count(); i++) {
+        if (filtered_list.contains(widget_order.at(i))) {
+            DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,widget_order.at(i),d->is_exclusive);
+            connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
+            connect(wrapper,SIGNAL(newSideWidgetRequest()),SLOT(handleNewSideWidgetRequest()));
+            connect(wrapper,SIGNAL(currentTextChanged(QString)),SLOT(updateWrapperComboBoxes()));
+            d->splitter->addWidget(wrapper);
+            d->active_wrappers << wrapper;
+            wrapper->show();
+            filtered_list.remove(widget_order.at(i));
+        }
+    }
+
+    // Now handle widgets which were not present in widget_order:
     for (int i = 0; i < filtered_list.count(); i++) {
         if (filtered_list.values().at(i)->startupModes().contains(d->mode_destination)) {
+            qDebug() << filtered_list.values().at(i)->widgetLabel();
             DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,filtered_list.keys().at(i),d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
             connect(wrapper,SIGNAL(newSideWidgetRequest()),SLOT(handleNewSideWidgetRequest()));

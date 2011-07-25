@@ -58,6 +58,26 @@ namespace Qtilities {
         \class SideWidgetFileSystem
         \brief A widget which provides access to the file system as a side widget.
 
+        A side widget which can be used in the %Qtilities main window architecture. For example:
+
+\code
+#define MODE_ID 101
+
+DynamicSideWidgetViewer* side_viewer_widget = new DynamicSideWidgetViewer(MODE_ID);
+QMap<QString, ISideViewerWidget*> text_iface_map;
+QList<int> file_system_modes;
+file_system_modes << MODE_ID;
+
+SideViewerWidgetFactory* factory = new SideViewerWidgetFactory(&SideWidgetFileSystem::factory,"My Label",file_system_modes,QList<int>(),false);
+text_iface_map[factory->widgetLabel()] = factory;
+connect(factory,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewFileSystemWidget(QWidget*)));
+
+side_viewer_widget->setIFaceMap(text_iface_map,true);
+side_viewer_widget->show();
+\endcode
+
+        \sa DynamicSideWidgetViewer, SideViewerWidgetFactory
+
         <i>This class was added in %Qtilities v0.2.</i>
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT SideWidgetFileSystem : public QWidget
@@ -67,9 +87,8 @@ namespace Qtilities {
         public:
             //! Constructs a side widget file system object.
             /*!
-              \param destination_mode The modes in which this side widget must be available.
-              \param startup_mode The modes in which this side widget must be available when the application starts up.
               \param start_path The path to use when this widget is constructed. By default it will use QDir::currentPath(), as well as in the case where start_path does not exist.
+              \param parent The parent widget.
               */
             explicit SideWidgetFileSystem(const QString& start_path = QString(), QWidget *parent = 0);
             virtual ~SideWidgetFileSystem() {}
@@ -86,6 +105,7 @@ namespace Qtilities {
             void setPath(const QString& path);
             //! Function to get the path of this side viewer widget.
             QString path() const;
+
 
         private slots:
             void handleRootPathChanged(const QString& newPath);

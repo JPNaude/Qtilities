@@ -92,6 +92,7 @@ Qtilities v1.0 Implemented Changes
         - New way of defining displayed names in observer tree models through the new qti_prop_DISPLAYED_ALIAS_MAP property.
         - ObjectManager::exportObjectProperties() and importObjectProperties() were removed.
         - IModificationNotifier::setModificationState() got new parameter to force notifications to be emitted.
+        - IObjectBase got new functions to identify the origin of an interface based object.
 
     Bug Fixes:
     - Fixed bug in SubjectTypeFilter::evaluateAttachment() in cases where inversed filtering was enabled and no known types were added.
@@ -197,6 +198,7 @@ Qtilities v1.0 Implemented Changes
         - New information icon.
         - The clipboard manager no longer register backend actions for Copy and Cut.
         - CodeEditorWidget now implements IModificationStateNotifier.
+        - DynamicSideWidgetViewer::setIFaceMap() got new parameter to control order of dynamic side widgets.
 
     Bug Fixes:
     - Fixed crash in NamingPolicyFilter::setValidator() if the filter did not have an observer context.

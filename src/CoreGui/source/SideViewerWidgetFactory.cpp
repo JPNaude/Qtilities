@@ -69,7 +69,7 @@ QWidget* Qtilities::CoreGui::SideViewerWidgetFactory::produceWidget() {
     QWidget* new_instance = d->factory.createInstance("Produce Me");
     d->widgets << new_instance;
     connect(new_instance,SIGNAL(destroyed(QObject*)),SLOT(handleWidgetDestroyed(QObject*)));
-    emit newWidgetCreated(new_instance);
+    emit newWidgetCreated(new_instance,d->widget_id);
     return new_instance;
 }
 

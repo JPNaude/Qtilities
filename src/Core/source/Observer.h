@@ -176,7 +176,7 @@ observerWidget.show();
             enum SubjectChangeIndication {
                 SubjectAdded,               /*!< Indicates that subjects were added. */
                 SubjectRemoved,             /*!< Indicates that subjects were removed. */
-                CycleProcess                /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle()*/
+                CyclicProcess               /*!< Indicates that the number of subjects changed during a cyclic process. The subject count can either be less or more than before the cyclic operation. \sa startProcessingCycle(), endProcessingCycle() */
             };
             //! The possible ownerships with which subjects can be attached to an observer.
             /*!
@@ -1025,12 +1025,12 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               - Number of subjects changes in an observer context which is part of the tree.
               - Observer hints changes. Since observer hints define how item models displays (lays out) an observer context, changes to these hints will trigger the layoutChanged() signal.
               - Replace operations triggered by NamingPolicyFilter filters.
-              - Observer access mode and access mode scope changes. \sa accessMode(), accessModeScope()
-              - Non-observer access mode changes. \sa Qtilities::Core::Properties::AccessMode
+              - Observer access mode and access mode scope changes.
+              - Subject access mode changes.
 
               \param new_selection The new desired selection in any views that are refreshed due to the layout changed.
-
               \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
+              \sa accessMode(), accessModeScope(), Qtilities::Core::Properties::qti_prop_ACCESS_MODE
               */
             void layoutChanged(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
             //! A signal which is emitted when the data in the observer or the tree underneath it changes.

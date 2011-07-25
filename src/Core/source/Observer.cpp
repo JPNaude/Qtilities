@@ -337,7 +337,6 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
             emit modificationStateChanged(new_state);
         }
     }
-
 }
 
 void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection) {

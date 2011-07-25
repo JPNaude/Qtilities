@@ -74,8 +74,9 @@ namespace Qtilities {
               \param text_iface_map A map with the name-interface pairs of side viewer widgets in the global object pool.
               \param is_exclusive When true, the side viewer widgets are exclusive which means that they can only appear once. If a widget is
               already active, it will not appear in the combo box to be switched to again.
+              \param widget_order A list containing the names of side widget you would like to show first (at the top) in your side widget viewer.
               */
-            void setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive = false);
+            void setIFaceMap(QMap<QString, ISideViewerWidget*> text_iface_map, bool is_exclusive = false, const QStringList& widget_order = QStringList());
             //! Indicates if this widget handles dynamic widgets in an exclusive way.
             /*!
               \sa setIFaceMap();

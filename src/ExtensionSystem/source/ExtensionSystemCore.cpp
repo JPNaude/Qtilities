@@ -708,7 +708,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
         if (savePluginConfiguration(d->active_configuration_file,&new_inactive_plugins,&d->set_filtered_plugins)) {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
-                d->extension_system_config_widget->setStatusMessage("Restart Required");
+                d->extension_system_config_widget->setStatusMessage("Application Restart Required");
         } else {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)

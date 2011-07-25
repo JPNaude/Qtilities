@@ -60,6 +60,21 @@ namespace Qtilities {
                   in a const method. This is a const operation.
                   */
                 virtual const QObject* objectBase() const = 0;
+                //! Allows interfaces to provide some sort of source identification.
+                /*!
+                  This is usefull in cases where interfaces need to provide information about their origin. For example, in a plugin based application plugin's can set the object source ID as the plugin name. This allows querying of an object's origin.
+
+                  \sa setObjectOriginID()
+                  */
+                QString objectOriginID() const { return d_object_origin_id; }
+                //! Allows setting of the object source ID of this interface implementation.
+                /*!
+                  \sa objectOriginID()
+                  */
+                void setObjectOriginID(const QString& object_origin_id) { d_object_origin_id = object_origin_id; }
+
+            private:
+                QString d_object_origin_id;
             };
         }
     }

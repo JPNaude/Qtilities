@@ -113,7 +113,7 @@ sideWidget->setIFaceMap(map, true);
 
         signals:
             //! Signal which is emitted when a new widget was manufactured.
-            void newWidgetCreated(QWidget* widget);
+            void newWidgetCreated(QWidget* widget, const QString& widget_label);
 
         private:
             SideViewerWidgetFactoryPrivateData* d;

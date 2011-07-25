@@ -52,22 +52,12 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionContainer : public QObject
         {
             Q_OBJECT
-            Q_ENUMS(EmptyPolicy)
 
         public:
-            ActionContainer(const QString& name, QObject* parent = 0) : QObject(parent) {
-                container_name = name;
-            }
+            ActionContainer(QObject* parent = 0) : QObject(parent) {}
             virtual ~ActionContainer() {}
 
-            enum EmptyPolicy { None, Hide, Disable };
-
-            //! Sets the emtpy policy of the action.
-            void setEmptyPolicy(EmptyPolicy policy) { empty_policy = policy; }
-            //! Gets the emtpy policy.
-            EmptyPolicy emptyPolicy() { return empty_policy; }
-
-            //! The menu associated with this command. If the container is a menu, 0 is returned.
+            //! The menu associated with this action container. If the action container is a menu, 0 is returned.
             virtual QMenu *menu() const = 0;
             //! Adds an action to the action container. If the action container is a menu bar, this call does nothing.
             /*!
@@ -80,17 +70,13 @@ namespace Qtilities {
               */
             virtual void addSeperator(const QString &before = QString()) = 0;
 
-            //! The menu bar associated with this command. If the command is a menu bar, 0 is returned.
+            //! The menu bar associated with this action container. If the action container is a menu bar, 0 is returned.
             virtual QMenuBar *menuBar() const = 0;
             //! Adds a menu to the action container. If the action container is a menu, the menu is inserted as a sub menu in the current menu.
             /*!
               \param before Inserts the menu before the action/menu represented by before.
               */
             virtual void addMenu(ActionContainer *menu, const QString &before = QString()) = 0;
-
-        protected:
-            EmptyPolicy empty_policy;
-            QString container_name;
         };
 
         /*!
@@ -121,9 +107,6 @@ namespace Qtilities {
             void addSeperator(const QString &before = QString());
             QMenuBar *menuBar() const;
             void addMenu(ActionContainer *menu, const QString &before = QString());
-
-        public slots:
-            void evaluateMenuActions();
 
         private:
             MenuContainerPrivateData* d;
