@@ -36,6 +36,21 @@
 
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the Unit Tests Module.
+    /*!
+    To use this module, add the following to your .pro %file:
+    \code
+    QTILITIES += unit_tests;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesUnitTests>
+    using namespace QtilitiesUnitTests;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace UnitTests {
 
     }

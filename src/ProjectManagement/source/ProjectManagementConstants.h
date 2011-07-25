@@ -36,6 +36,21 @@
 
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the ProjectManagement Module.
+    /*!
+    To use this module, add the following to your .pro %file:
+    \code
+    QTILITIES += project_management;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesProjectManagement>
+    using namespace QtilitiesProjectManagement;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace ProjectManagement {
         //! Namespace containing constants used inside the ProjectManagement Module.
         namespace Constants {

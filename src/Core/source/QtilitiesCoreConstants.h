@@ -38,6 +38,21 @@
 
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the Core Module.
+    /*!
+    To use this module, add the following to your .pro %file:
+    \code
+    QTILITIES += core;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesCore>
+    using namespace QtilitiesCore;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace Core {
         //! Namespace containing constants used inside the Core Module.
         namespace Constants {

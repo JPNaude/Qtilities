@@ -47,6 +47,21 @@ namespace Qtilities {
     };
 
     //! Namespace containing all the classes which forms part of the CoreGui Module.
+    /*!
+    To use this module, add the following to your .pro %file:
+    \code
+    QTILITIES += coregui;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesCoreGui>
+    using namespace QtilitiesCoreGui;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace CoreGui {
         //! Namespace containing constants used inside the CoreGui Module.
         namespace Constants {

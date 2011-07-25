@@ -37,6 +37,21 @@
 //! Namespace containing all the modules which forms part of the library set.
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the Logging Module.
+    /*!
+    To use this module, add the following to your .pro %file:
+    \code
+    QTILITIES += logging;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesLogging>
+    using namespace QtilitiesLogging;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace Logging {
         //! Namespace containing constants used inside the Logging Module.
         namespace Constants {

@@ -36,6 +36,21 @@
 
 namespace Qtilities {
     //! Namespace containing all the classes which forms part of the ExtensionSystem Module.
+    /*!
+    To use this module add, the following to your .pro %file:
+    \code
+    QTILITIES += extension_system;
+    include(Qtilities_Path/src/Qtilities.pri)
+    \endcode
+
+    To include all files in this module:
+    \code
+    #include <QtilitiesExtensionSystem>
+    using namespace QtilitiesExtensionSystem;
+    \endcode
+
+    For more information about the modules in %Qtilities, see \ref page_modules_overview.
+    */
     namespace ExtensionSystem {
         //! Namespace containing constants used inside the ExtensionSystem Module.
         namespace Constants {
