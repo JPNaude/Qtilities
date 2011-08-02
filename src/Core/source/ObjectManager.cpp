@@ -201,7 +201,7 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > obje
 }
 
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCategory category) {
-    if (category.isValid()) {
+    if (category.isValid() && obj) {
         if (obj->thread() == thread()) {
             if (Observer::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
                 MultiContextProperty category_property = Observer::getMultiContextProperty(obj,qti_prop_CATEGORY_MAP);
