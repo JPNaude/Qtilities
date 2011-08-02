@@ -64,6 +64,7 @@ Qtilities v1.0 Implemented Changes
     - Subject Filters
         - Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
         - ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
+        - ActivityPolicyFilter got new activeSubjectNames() and inActiveSubjectNames() functions.
         - AbstractSubjectFilter got two new functions to control if the subject filter's modification state must be monitored by its observer context. ActivityPolicyFilter got new get and set functions to support this. By default all Qtilities subject filters return true. Observers now respect this property and do not monitor the modification state of subject filters returning false. TreeNode::enableActivityControl() now has a parameter to disable modification monitoring.
         - Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the filter already had an observer context associated with it.
         - Changed behavior where SubjectTypeFilter's set functions would not have worked if the filter already had an observer context associated with it.
