@@ -163,6 +163,7 @@ Qtilities v1.0 Implemented Changes
         - Fixed problem with custom hints (thus not using observer hints) which did not work always.
         - Removed the non-const activeHints() functions from ObserverWidget and AbstractObserverItemModel.
         - TreeNode's string addNode() and addItem() now uses SpecificObserverOwnership during attachment.
+        - TreeNode got new addItems() function.
     - Configuration Widget
         - ConfigurationWidget now sorts config pages and figures out the max sizes of all pages and resizes itself according to this when constructed.
         - ConfigurationWidget has new setApplyAllPages() function which allows the 'Apply' button to apply changes on all pages, not just the current one.
@@ -242,9 +243,12 @@ Qtilities v1.0 Implemented Changes
     - The extension system got a new findPlugin() method which can be used to find a plugin interface using its IPlugin::pluginName().
     - Removed event filter from the observer managing plugins. This allows plugins to be moved to threads other than the main thread.
     - Added documentation related to the extension system and threading to the ExtensionSystemCore::initialize() function documentation.
+    - Plugins state handling functions improved.
+    - Improvements to plugin error messages.
 
     Bug Fixes:
     - Fixed memory leak in ExtensionSystemCore.
+    - Fixed bugs in handling of plugin states.
 
     ============================
     QtilitiesProjectManagement:
