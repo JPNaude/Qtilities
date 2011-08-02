@@ -298,16 +298,24 @@ tree_widget->show();
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeItem created.
 
-              \note This tree node will manage the lifetime of the node item and this node can be obtained through the normal QObject parent() function.
+              \note This tree node will manage the lifetime of the item and this node can be obtained through the normal QObject parent() function.
               */
             TreeItem* addItem(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
+            //! Creates new tree items and then add them under this node.
+            /*!
+              \param names The names of the items to add.
+              \param category The category of the items. By default QtilitiesCategory(), thus it does not specify a category.
+
+              \note This tree node will manage the lifetime of the items and this node can be obtained through the normal QObject parent() function.
+              */
+            void addItems(const QStringList& items, const QtilitiesCategory& category = QtilitiesCategory());
             //! Creates a new tree node and then add it as a tree item under this node.
             /*!
               \param name The name of the node.
               \param category The category of the item. By default QtilitiesCategory(), thus it does not specify a category.
               \returns The reference to the TreeNode created.
 
-              \note This tree node will manage the lifetime of the node item and this node can be obtained through the normal QObject parent() function.
+              \note This tree node will manage the lifetime of the item and this node can be obtained through the normal QObject parent() function.
               */
             TreeNode* addNode(const QString& name, const QtilitiesCategory& category = QtilitiesCategory());
             //! Adds a tree item under this node.

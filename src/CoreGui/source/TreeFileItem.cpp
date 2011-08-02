@@ -129,7 +129,7 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
             QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
             if (propertyChangeEvent) {
                 QString property_name = QString(propertyChangeEvent->propertyName().data());
-                if (property_name == QString(qti_prop_NAME)) {
+                if (property_name == QString(qti_prop_NAME) && !d_queued_file_path.isEmpty()) {
                     // Finish off what was started in setFile():
                     treeFileItemBase->file_info.setFile(d_queued_file_path);
                     if (!d_queued_relative_to_path.isEmpty())

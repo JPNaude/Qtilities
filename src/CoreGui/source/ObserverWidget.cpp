@@ -329,8 +329,11 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (d_observer == observer)
         return false;
 
-    if (!observer)
+    if (!observer) {
+        setEnabled(false);
         return false;
+    } else
+        setEnabled(true);
 
     if (d_observer) {
         d_observer->disconnect(this);

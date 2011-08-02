@@ -112,7 +112,6 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
     // Now handle widgets which were not present in widget_order:
     for (int i = 0; i < filtered_list.count(); i++) {
         if (filtered_list.values().at(i)->startupModes().contains(d->mode_destination)) {
-            qDebug() << filtered_list.values().at(i)->widgetLabel();
             DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,filtered_list.keys().at(i),d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
             connect(wrapper,SIGNAL(newSideWidgetRequest()),SLOT(handleNewSideWidgetRequest()));
