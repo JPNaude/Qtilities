@@ -226,6 +226,10 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             QList<QObject*> activeSubjects() const;
             //! Returns a list with references to all the inactive subjects in the current observer context.
             QList<QObject*> inactiveSubjects() const;
+            //! Returns a list with the names of all the active subjects in the current observer context.
+            QStringList activeSubjectNames() const;
+            //! Returns a list with the names of all the inactive subjects in the current observer context.
+            QStringList inactiveSubjectNames() const;
 
             // --------------------------------
             // AbstractSubjectFilter Implemenation

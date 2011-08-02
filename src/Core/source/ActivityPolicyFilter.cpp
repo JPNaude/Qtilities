@@ -266,11 +266,21 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
 }
 
 QStringList Qtilities::Core::ActivityPolicyFilter::activeSubjectNames() const {
-
+    QList<QObject*> list = activeSubjects();
+    QStringList names;
+    foreach (QObject* obj, list) {
+        names << observer->subjectNameInContext(obj);
+    }
+    return names;
 }
 
 QStringList Qtilities::Core::ActivityPolicyFilter::inactiveSubjectNames() const {
-
+    QList<QObject*> list = inactiveSubjects();
+    QStringList names;
+    foreach (QObject* obj, list) {
+        names << observer->subjectNameInContext(obj);
+    }
+    return names;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::isModified() const {
