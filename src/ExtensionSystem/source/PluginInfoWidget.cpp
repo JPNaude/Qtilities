@@ -61,10 +61,15 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
         ui->txtLicense->setPlainText(plugin->pluginLicense());
         ui->txtFileName->setText(plugin->pluginFileName());
 
-        if (plugin->errorString().isEmpty())
-            ui->txtErrorString->setPlainText(tr("No errors detected."));
-        else
-            ui->txtErrorString->setPlainText(plugin->errorString());
+        ui->listErrorMessages->clear();
+        if (plugin->hasErrors()) {
+            ui->listErrorMessages->addItems(plugin->errorMessages());
+        } else {
+            if (plugin->pluginState() == IPlugin::Functional)
+                ui->listErrorMessages->addItem(tr("No errors detected."));
+            else if (plugin->pluginState() == IPlugin::InActive)
+                ui->listErrorMessages->addItem(tr("Inactive"));
+        }
 
         if (plugin->pluginVersionInformation().hasSupportedVersions())
             ui->listCompatabilityVersions->addItems(plugin->pluginVersionInformation().supportedVersionString());
@@ -73,12 +78,14 @@ Qtilities::ExtensionSystem::PluginInfoWidget::PluginInfoWidget(IPlugin* plugin, 
 
         if (plugin->pluginState() == IPlugin::Functional)
             ui->lblStateImage->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
-        else if (plugin->pluginState() == IPlugin::CompatibilityError)
+        else if (plugin->pluginState() & IPlugin::ErrorState)
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
+        else if (plugin->pluginState() & IPlugin::IncompatibleState)
             ui->lblStateImage->setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16));
-        else if (plugin->pluginState() == IPlugin::InitializationError)
-            ui->lblStateImage->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
-        else if (plugin->pluginState() == IPlugin::DependancyError)
-            ui->lblStateImage->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
+        else if (plugin->pluginState() == IPlugin::InActive) {
+            ui->lblStateImage->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
+            ui->lblStateImage->setEnabled(false);
+        }
     }
 
     connect(ui->btnClose,SIGNAL(clicked()),SLOT(close()));

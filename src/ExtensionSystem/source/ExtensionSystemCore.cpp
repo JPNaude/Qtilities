@@ -214,10 +214,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             if (pluginIFace->pluginVersionInformation().hasSupportedVersions()) {
                                 if (!pluginIFace->pluginVersionInformation().isSupportedVersion(QCoreApplication::applicationVersion())) {
                                     LOG_ERROR(QString(tr("Incompatible plugin version of the following plugin detected (in file %1): Your application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(stripped_file_name).arg(QCoreApplication::applicationVersion()));
-                                    pluginIFace->setPluginState(IPlugin::CompatibilityError);
-                                    pluginIFace->setErrorString(tr("The plugin is loaded but it indicated that it is not fully compatible with the current version of your application. The plugin might not work as intended. If you have problems with the plugin, it is recommended to remove it from your plugin directory."));
-                                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_WARNING_16x16));
-                                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                                    pluginIFace->addPluginState(IPlugin::IncompatibleState);
+                                    pluginIFace->addErrorMessage(QString(tr("Application version (v%2) is not found in the list of compatible application versions that this plugin supports.")).arg(QCoreApplication::applicationVersion()));
                                 }
                             }
 
@@ -239,10 +237,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                                 #endif
                                 if (!pluginIFace->initialize(QStringList(), &error_string)) {
                                     LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
-                                    pluginIFace->setPluginState(IPlugin::InitializationError);
-                                    pluginIFace->setErrorString(error_string);
-                                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
-                                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                                    pluginIFace->addPluginState(IPlugin::ErrorState);
+                                    pluginIFace->addErrorMessage(error_string);
                                 } else {
                                     LOG_INFO(tr("Successfully initialized plugin \"") + stripped_file_name + tr("\"."));
                                 }
@@ -289,24 +285,12 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 time(&start_init_dep);
                 #endif
                 if (!pluginIFace->initializeDependancies(&error_string)) {               
-                    pluginIFace->setPluginState(IPlugin::DependancyError);
-                    pluginIFace->setErrorString(error_string);
-                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
-                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
-
+                    pluginIFace->addPluginState(IPlugin::ErrorState);
+                    pluginIFace->addErrorMessage(error_string);
                     LOG_ERROR(tr("Plugin (") + pluginIFace->pluginName() + tr(") failed during dependency initialization with error: ") + error_string);
                 } else {
-                    // Set the default state of the plugin:
-                    pluginIFace->setPluginState(IPlugin::Functional);
-                    pluginIFace->setErrorString(tr("No errors detected."));
-
-                    // Give it a success icon by default:
-                    SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
-                    Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
-
                     // Add it to the active list:
                     d->current_active_plugins << pluginIFace->pluginName();
-
                     LOG_INFO(tr("Successfully initialized dependencies in plugin \"") + pluginIFace->pluginName() + tr("\"."));
                 }
                 #ifdef QTILITIES_BENCHMARKING
@@ -323,8 +307,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 }
             } else {
                 // Set the default state of the plugin:
-                pluginIFace->setPluginState(IPlugin::InActive);
-                pluginIFace->setErrorString(tr("Inactive."));
+                pluginIFace->addPluginState(IPlugin::InActive);
                 d->current_inactive_plugins << pluginIFace->pluginName();
 
                 // Make it inactive:
@@ -332,13 +315,24 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 category_property.setValue(false,d->plugins.observerID());
                 Observer::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
-                // Give it a success icon by default:
-                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
-                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
-
                 LOG_INFO(QString(tr("Inactive plugin found which will not be initialized: %1")).arg(pluginIFace->pluginName()));
             }
             OBJECT_MANAGER->registerObject(d->plugins.subjectAt(i),QtilitiesCategory("Core::Plugins (IPlugin)","::"));
+
+            // Give the plugin an icon depending on its state:
+            if (pluginIFace->pluginState() == IPlugin::Functional) {
+                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
+                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+            } else if (pluginIFace->pluginState() & IPlugin::ErrorState) {
+                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
+                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+            } else if (pluginIFace->pluginState() & IPlugin::IncompatibleState) {
+                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_WARNING_16x16));
+                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+            } else if (pluginIFace->pluginState() == IPlugin::InActive) {
+                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
+                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+            }
         }
     }
 

@@ -57,7 +57,9 @@ namespace Qtilities {
             class EXTENSION_SYSTEM_SHARED_EXPORT IPlugin : virtual public IObjectBase
             {
             public:
-                IPlugin() {}
+                IPlugin() {
+                    d_state = Functional;
+                }
                 virtual ~IPlugin() {}
 
                 // -----------------------------------
@@ -65,36 +67,47 @@ namespace Qtilities {
                 // -----------------------------------
                 //! The possible states in which a plugin can be.
                 enum PluginState {
-                    Functional,             /*!< The plugin is fully functional. */
-                    CompatibilityError,     /*!< The plugin is loaded, but a compatibility error was detected. The plugin might not work as intended with the current version of the application. */
-                    InitializationError,    /*!< The plugin detected an error during initialization. \sa initialize(). */
-                    DependancyError,        /*!< The plugin detected an error during depedancy initialization. \sa initializeDependancies(). */
-                    InActive                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
+                    Functional = 0,             /*!< The plugin is fully functional and no errors were reported during initialization and dependency initialization. */
+                    IncompatibleState = 1,      /*!< The plugin is loaded, but indicated that it is incompatible with the current version of the application it was loaded in. See errorString() for a list of error messages. */
+                    ErrorState = 2,             /*!< The plugin is loaded, but errors occured. See errorString() for a list of error messages. */
+                    InActive = 4                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
+                Q_DECLARE_FLAGS(PluginStateFlags, PluginState);
+                Q_FLAGS(PluginStateFlags);
+
                 //! Function which returns a string associated with a the plugin's state.
                 QString pluginStateString() const {
                     if (d_state == Functional)
                         return QString(QObject::tr("Functional"));
-                    else if (d_state == CompatibilityError)
-                        return QString(QObject::tr("Compatibility Error"));
-                    else if (d_state == InitializationError)
-                        return QString(QObject::tr("Initialization Error"));
-                    else if (d_state == DependancyError)
-                        return QString(QObject::tr("Dependancy Error"));
+                    else if (d_state == InActive)
+                        return QString(QObject::tr("Inactive"));
+                    else {
+                        QString combined_error_str;
+                        if (d_state == ErrorState)
+                            combined_error_str = QObject::tr("Error State");
+                        if (d_state == IncompatibleState)
+                            combined_error_str = QObject::tr("Incompatible");
+                        if (d_state & ErrorState && d_state & IncompatibleState)
+                            combined_error_str = QObject::tr("Error State, Incompatible");
+                        return combined_error_str;
+                    }
+
                     return QString();
                 }
-                //! Sets the plugin state.
-                void setPluginState(PluginState state) { d_state = state; }
+                //! Adds a PluginState the PluginStateFlags of the plugin.
+                void addPluginState(PluginState state) { d_state = d_state | state; }
                 //! Gets the plugin state.
-                PluginState pluginState() const { return d_state; }
+                PluginStateFlags pluginState() const { return d_state; }
                 //! Sets the plugin file name.
                 void setPluginFileName(const QString& file_name) { d_file_name = file_name; }
                 //! Gets the plugin file name.
                 QString pluginFileName() const { return d_file_name; }
-                //! Sets the error string.
-                void setErrorString(const QString& error_string) { d_error_string = error_string; }
-                //! Gets the error state.
-                QString errorString() const { return d_error_string; }
+                //! Adds a error message to list of error associated with the plugin.
+                void addErrorMessage(const QString& error_string) { d_error_strings << error_string; }
+                //! Gets the error messages associated with the plugin.
+                QStringList errorMessages() const { return d_error_strings; }
+                //! Indicates if there are errors messages associated with this plugin.
+                bool hasErrors() const { return (d_error_strings.count() > 0); }
 
                 //! This function is called when the plugin is loaded.
                 /*!
@@ -156,8 +169,8 @@ return version_info;
                 virtual QString pluginLicense() const = 0;
 
             private:
-                PluginState d_state;
-                QString d_error_string;
+                PluginStateFlags d_state;
+                QStringList d_error_strings;
                 QString d_file_name;
             };
         }
