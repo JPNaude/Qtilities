@@ -265,6 +265,14 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
     return list;
 }
 
+QStringList Qtilities::Core::ActivityPolicyFilter::activeSubjectNames() const {
+
+}
+
+QStringList Qtilities::Core::ActivityPolicyFilter::inactiveSubjectNames() const {
+
+}
+
 bool Qtilities::Core::ActivityPolicyFilter::isModified() const {
     return d->is_modified;
 }
