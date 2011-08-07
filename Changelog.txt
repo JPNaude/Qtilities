@@ -52,6 +52,7 @@ Qtilities v1.0 Implemented Changes
         - Observer::specificObserverOwnership attachment now makes the observer to which is attached the QObject parent() of the subject.
         - Observer::refreshViewsLayout() got new parameter to allow you to select specific objects in your refreshed views.
         - Observer's layoutChanged() signal got a new parameter which will contain references of added objects if addition of objects triggered the signal, or if a paramater was passed through the refreshViewsLayout() signal.
+        - Observer got new subjectCategoryInContext() function.
         - OBSERVER_UNCATEGORIZED_CATEGORY is now removed. Thus you can add categorized and uncategorized subjects to the same observer.
         - Observer::setDisplayHints() is now obsolete. It is replaced by Observer::inheritDisplayHints().
         - New ObserverHints::ModificationStateDisplayHint hint which allows the modification state of items to be displayed in observer widgets. This hint is now part of binary and XML tree exports.
@@ -94,6 +95,8 @@ Qtilities v1.0 Implemented Changes
         - ObjectManager::exportObjectProperties() and importObjectProperties() were removed.
         - IModificationNotifier::setModificationState() got new parameter to force notifications to be emitted.
         - IObjectBase got new functions to identify the origin of an interface based object.
+        - InstanceFactoryInfo can now store a description of the type of object it will be used to create.
+        - InstanceFactoryInfo can now store an icon for the type of object it will be used to create.
 
     Bug Fixes:
     - Fixed bug in SubjectTypeFilter::evaluateAttachment() in cases where inversed filtering was enabled and no known types were added.
