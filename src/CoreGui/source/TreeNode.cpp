@@ -324,7 +324,7 @@ bool Qtilities::CoreGui::TreeNode::removeNode(TreeItemBase* node) {
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
     QFile file(file_name);
-    if(!file.open(QFile::WriteOnly)) {
+    if (!file.open(QFile::WriteOnly)) {
         if (errorMsg)
             *errorMsg = QString(tr("TreeNode could not be saved to file. File \"%1\" could not be opened in WriteOnly mode.")).arg(file_name);
         LOG_ERROR(QString(tr("TreeNode could not be saved to file. File \"%1\" could not be opened in WriteOnly mode.")).arg(file_name));
@@ -373,8 +373,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     // Load the file into doc:
     QDomDocument doc("QtilitiesTreeExport");
     QFile file(file_name);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly)) {
+        if (errorMsg)
+            *errorMsg = QString(tr("TreeNode could not be loaded from file. File \"%1\" could not be opened in ReadOnly mode.")).arg(file_name);
+        LOG_ERROR(QString(tr("TreeNode could not be loaded from file. File \"%1\" could not be opened in ReadOnly mode.")).arg(file_name));
         return IExportable::Failed;
+    }
     
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QString docStr = file.readAll();
@@ -402,25 +406,25 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     Qtilities::ExportVersion read_version;
     if (root.hasAttribute("ExportVersion")) {
         read_version = (Qtilities::ExportVersion) root.attribute("ExportVersion").toInt();
-        LOG_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(read_version));
+        LOG_INFO(QString(tr("Inspecting tree node file format: Qtilities export format version: %1")).arg(read_version));
     } else {
-        LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (root.hasAttribute("QtilitiesVersion"))
-        LOG_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(root.attribute("QtilitiesVersion")));
+        LOG_INFO(QString(tr("Inspecting tree node file format: Qtilities version used to save the file: %1")).arg(root.attribute("QtilitiesVersion")));
     quint32 application_read_version = 0;
     if (root.hasAttribute("ApplicationExportVersion")) {
         application_read_version = root.attribute("ApplicationExportVersion").toInt();
-        LOG_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(application_read_version));
+        LOG_INFO(QString(tr("Inspecting tree node file format: Application export format version: %1")).arg(application_read_version));
     } else {
-        LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (root.hasAttribute("ApplicationVersion"))
-        LOG_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(root.attribute("ApplicationVersion")));
+        LOG_INFO(QString(tr("Inspecting tree node file format: Application version used to save the file: %1")).arg(root.attribute("ApplicationVersion")));
 
     // ---------------------------------------------------
     // Check if input format is supported:
@@ -430,7 +434,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         is_supported_format = true;
 
     if (!is_supported_format) {
-        LOG_ERROR(QString(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.")).arg(read_version));
+        LOG_ERROR(QString(tr("Unsupported tree node file found with export version: %1. The file will not be parsed.")).arg(read_version));
         return IExportable::Failed;
     }
 

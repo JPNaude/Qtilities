@@ -367,9 +367,10 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
     // When observer_id = -1, we return the category of the only parent:
     if (observer_id == -1) {
         // Check the parent count:
-        if (Observer::parentCount(objectBase()) != 1) {
-            Q_ASSERT(Observer::parentCount(objectBase()) != 1);
-            LOG_DEBUG(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+        int parent_count = Observer::parentCount(objectBase());
+        if (parent_count != 1) {
+            //Q_ASSERT(parent_count == 1);
+            LOG_DEBUG(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parents.")).arg(objectBase()->objectName()).arg(parent_count));
         } else {
             MultiContextProperty prop = Observer::getMultiContextProperty(objectBase(),qti_prop_OBSERVER_MAP);
             if (prop.isValid()) {

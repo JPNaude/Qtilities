@@ -371,6 +371,7 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
         d->tree_name_column_delegate->setObserverContext(observer); 
 
     emit observerContextChanged(d_observer);
+    emit selectedObjectsChanged(QList<QObject*>());
     return true;
 }
 
