@@ -801,6 +801,8 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             QString observerName(int parent_id = -1) const;
             //! Returns the name used for the specified object in this context. QString() is returned if the object is not valid or not attached to this observer.
             QString subjectNameInContext(const QObject* obj) const;
+            //! Returns the category used for the specified object in this context. QtilitiesCategory() is returned if the object is not valid, not attached to this observer or does not have a category.
+            QtilitiesCategory subjectCategoryInContext(const QObject* obj) const;
             //! Returns the displayed name used for the specified object in this context. QString() is returned if the object is not valid or not attached to this observer.
             QString subjectDisplayedNameInContext(const QObject* obj) const;
             //! Returns the ownership used for the specified object in this context.

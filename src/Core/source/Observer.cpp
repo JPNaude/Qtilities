@@ -1363,6 +1363,23 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     return QString();
 }
 
+Qtilities::Core::QtilitiesCategory Qtilities::Core::Observer::subjectCategoryInContext(const QObject* obj) const {
+    if (!obj)
+        return QtilitiesCategory();
+
+    // Check if the object is in this context:
+    if (contains(obj) || contains(obj->parent())) {
+        // We need to check if a subject has a category name in this context. If so, we use the instance name, not the objectName().
+        QVariant category_property = getQtilitiesPropertyValue(obj,qti_prop_CATEGORY_MAP);
+        if (category_property.isValid()) {
+            return (category_property.value<QtilitiesCategory>());
+        } else
+            return QtilitiesCategory();
+    }
+
+    return QtilitiesCategory();
+}
+
 QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* obj) const {
     if (!obj)
         return QString();

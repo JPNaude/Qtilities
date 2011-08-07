@@ -60,7 +60,18 @@ namespace Qtilities {
 
             Objects managing instances of factories can implement this interface if they want to expose these factories to the object manager using the
             Qtilities::Core::Interfaces::IObjectManager::registerIFactoryProvider() function. The interface can be used to represent multiple factories,
-            each represented by a QString values.  To get a list of all factories provided through the interface, see the providedFactoryTags() function.
+            each represented by a QString values. To get a list of all factories provided through the interface, see the providedFactoryTags() function.
+
+            The following example shows how to construct a object through the IFactoryProvider interface:
+\code
+IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider("My Factory Tag");
+if (ifactory) {
+    QObject* obj = ifactory->createInstance(instanceFactoryInfo);
+    if (obj) {
+        // Do something with the constructed object.
+    }
+}
+\endcode
 
             For more information see the \ref page_factories article.
             */
