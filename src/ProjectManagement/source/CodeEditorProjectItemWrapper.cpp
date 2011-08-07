@@ -168,7 +168,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
                     QDomNode itemNode = itemNodes.item(i);
 
                     QDomCDATASection cdata = itemNode.toCDATASection();
-                    if(cdata.isNull())
+                    if (cdata.isNull())
                         continue;
 
                     d->code_editor->codeEditor()->setPlainText(cdata.data());
