@@ -21,8 +21,10 @@
 #include "TestSubjectTypeFilter.h"
 #include "FunctionCallAnalyzer.h"
 #include "DebugWidget.h"
+#include "TestAbstractTreeItem.h"
+#include "TestTreeFileItem.h"
 
-//! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
+//! Namespace which encapsulates all namespaces and sub namespaces for the Unit Tests module.
 namespace QtilitiesUnitTests { 
     using namespace Qtilities::Logging;
     using namespace Qtilities::Logging::Constants;
