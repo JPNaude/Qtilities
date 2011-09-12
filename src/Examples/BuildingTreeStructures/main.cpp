@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
     TreeItem* modified_item = rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
     rootNode->displayHints()->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
     modified_item->setModificationState(true);
+    delete rootNode;
 
     // ----------------------------------
     // Uncategorized Tree
