@@ -520,9 +520,10 @@ categorized_widget->show();
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.
             void refreshPropertyBrowser();
             #endif
-        protected:
+        public:
             //! Refreshes the action toolbar with the current state of the actions.
-            void refreshActionToolBar();
+            void refreshActionToolBar(bool force_full_refresh = false);
+        protected:
             //! Deletes all the current action toolbars.
             void deleteActionToolBars();
 

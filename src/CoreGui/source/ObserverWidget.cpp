@@ -559,7 +559,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup tree selection:
             d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
-            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+            d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
             // Setup proxy model:
             if (!d->custom_tree_proxy_model) {
@@ -628,7 +628,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->table_name_column_delegate->setObserverContext(d_observer);
 
             // Setup the table view to look nice
-            d->table_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+            d->table_view->setSelectionBehavior(QAbstractItemView::SelectItems);
             d->table_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
             d->table_view->verticalHeader()->setVisible(false);
 
@@ -2884,29 +2884,31 @@ void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
 }
 #endif
 
-void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
+void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_refresh) {
     // Check if an action toolbar should be created:
     if ((activeHints()->displayFlagsHint() & ObserverHints::ActionToolBar) && d->action_provider) {
-        if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
-            d->last_display_flags = activeHints()->displayFlagsHint();
-        else {
-            // Here we need to hide all toolbars that does not contain any actions:
-            // Now create all toolbars:
-            for (int i = 0; i < d->action_toolbars.count(); i++) {
-                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
-                bool has_visible_action = false;
-                foreach (QAction* action, toolbar->actions()) {
-                    if (action->isVisible()) {
-                        has_visible_action = true;
-                        break;
+        if (!force_full_refresh) {
+            if (d->last_display_flags != activeHints()->displayFlagsHint() || !d->initialized)
+                d->last_display_flags = activeHints()->displayFlagsHint();
+            else {
+                // Here we need to hide all toolbars that does not contain any actions:
+                // Now create all toolbars:
+                for (int i = 0; i < d->action_toolbars.count(); i++) {
+                    QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+                    bool has_visible_action = false;
+                    foreach (QAction* action, toolbar->actions()) {
+                        if (action->isVisible()) {
+                            has_visible_action = true;
+                            break;
+                        }
                     }
+                    if (!has_visible_action)
+                        toolbar->hide();
+                    else
+                        toolbar->show();
                 }
-                if (!has_visible_action)
-                    toolbar->hide();
-                else
-                    toolbar->show();
+                return;
             }
-            return;
         }
 
         // First delete all toolbars:
@@ -2931,6 +2933,25 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar() {
                 new_toolbar->setObjectName(categories.at(i).toString());
                 d->action_toolbars << new_toolbar;
                 new_toolbar->addActions(action_list);
+            }
+        }
+
+        if (force_full_refresh) {
+            // Here we need to hide all toolbars that does not contain any actions:
+            // Now create all toolbars:
+            for (int i = 0; i < d->action_toolbars.count(); i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+                bool has_visible_action = false;
+                foreach (QAction* action, toolbar->actions()) {
+                    if (action->isVisible()) {
+                        has_visible_action = true;
+                        break;
+                    }
+                }
+                if (!has_visible_action)
+                    toolbar->hide();
+                else
+                    toolbar->show();
             }
         }
     } else {
@@ -2976,7 +2997,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
     // ----------------------------------------------
     if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
         if (object == d->tree_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
-            if (d->current_selection.count() == 1) {
+            if (d->current_selection.count() == 1 && selectedIndexes().front().column() == d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) {
                 // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
                 bool use_parent_context = true;
                 Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
