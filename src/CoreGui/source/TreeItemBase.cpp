@@ -85,8 +85,8 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::TreeItemBase::getCategory
     return AbstractTreeItem::getCategory(observer_id);
 }
 
-QString Qtilities::CoreGui::TreeItemBase::getCategoryString(const QString& sep) const {
-    return AbstractTreeItem::getCategoryString(sep);
+QString Qtilities::CoreGui::TreeItemBase::getCategoryString(const QString& sep, int observer_id) const {
+    return AbstractTreeItem::getCategoryString(sep,observer_id);
 }
 
 bool Qtilities::CoreGui::TreeItemBase::setCategoryString(const QString& category_string, const QString& sep) {
@@ -105,3 +105,4 @@ void Qtilities::CoreGui::TreeItemBase::removeCategory(int observer_id) {
     AbstractTreeItem::removeCategory(observer_id);
     setModificationState(true);
 }
+

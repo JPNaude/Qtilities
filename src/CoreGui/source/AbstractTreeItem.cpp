@@ -270,8 +270,8 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCate
         return getCategory(tree_node->observerID());
 }
 
-QString Qtilities::CoreGui::AbstractTreeItem::getCategoryString(const QString& sep) const {
-    return getCategory().toString(sep);
+QString Qtilities::CoreGui::AbstractTreeItem::getCategoryString(const QString& sep, int observer_id) const {
+    return getCategory(observer_id).toString(sep);
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::setCategoryString(const QString& category_string, const QString& sep) {

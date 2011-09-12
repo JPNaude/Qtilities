@@ -198,7 +198,7 @@ tree_widget->show();
 
               \sa getCategorizedDisplayEnabled(), disableCategorizedDisplay()
               */
-            void enableCategorizedDisplay();;
+            void enableCategorizedDisplay();
             //! Disables categorized display on this node.
             /*!
               \sa getCategorizedDisplayEnabled(), enableCategorizedDisplay();

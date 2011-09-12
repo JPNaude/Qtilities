@@ -52,7 +52,7 @@ namespace Qtilities {
 
         /*!
           \class TreeItemBase
-          \brief The TreeItemBase class is the base class for all tree items, that is items which can be attached to tree nodes.
+          \brief The TreeItemBase class is the base class for all tree items, that is items which can be attached to TreeNode instancess.
 
           <i>This class was added in %Qtilities v0.2.</i>
         */
@@ -78,7 +78,7 @@ namespace Qtilities {
             virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
             virtual QtilitiesCategory getCategory(TreeNode* tree_node) const;
             virtual QtilitiesCategory getCategory(int observer_id = -1) const;
-            virtual QString getCategoryString(const QString& sep = "::") const;
+            virtual QString getCategoryString(const QString& sep = "::",int observer_id = -1) const;
             virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             virtual bool hasCategory() const;
             virtual void removeCategory(int observer_id = -1);
@@ -86,9 +86,9 @@ namespace Qtilities {
             // --------------------------------
             // IModificationNotifier Implementation
             // --------------------------------
-            bool isModified() const;
+            virtual bool isModified() const;
         public slots:
-            void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
+            virtual void setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets = IModificationNotifier::NotifyListeners, bool force_notifications = false);
         signals:
             void modificationStateChanged(bool is_modified) const;
 

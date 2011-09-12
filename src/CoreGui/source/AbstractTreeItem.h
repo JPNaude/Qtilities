@@ -126,7 +126,8 @@ namespace Qtilities {
               \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
               category and therefore will not be changed.
 
-              \note If this tree item is not attached to any tree node, this function does nothing.
+              \note If this tree item is not attached to any tree node, this function does nothing and
+              returns false.
 
               \sa removeCategory(), getCategory()
               */
@@ -146,17 +147,18 @@ namespace Qtilities {
               parent and if so, return the category for that parent. If it has more than one parent, the function
               will print an error message in release mode and assert id debug mode.
 
-
               \note If this tree item is not attached to any tree node, this function does nothing and
               returns an empty category.
               */
             virtual QtilitiesCategory getCategory(int observer_id = -1) const;
             //! Gets the category in a string format where different hierarchies of the category is split using \p sep.
             /*!
-              \note If this tree item is not attached to any tree node, this function does nothing and
-              return false.
+              \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
+              the function will assume that the item only has 1 parent and it will check if it has only one
+              parent and if so, return the category for that parent. If it has more than one parent, the function
+              will print an error message in release mode and assert id debug mode.
               */
-            virtual QString getCategoryString(const QString& sep = "::") const;
+            virtual QString getCategoryString(const QString& sep = "::", int observer_id = -1) const;
             //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
             /*!
               \note If this tree item is not attached to any tree node, this function does nothing and
@@ -166,6 +168,8 @@ namespace Qtilities {
             //! Removes the current category of this tree item for the specified observer context.
             /*!
               If no context is specified, the complete multi context category property is removed.
+
+              \note If this tree item is not attached to any tree node, this function does nothing.
 
               \sa setCategory(), getCategory()
               */
