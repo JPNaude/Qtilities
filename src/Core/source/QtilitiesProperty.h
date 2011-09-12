@@ -53,7 +53,7 @@ namespace Qtilities {
 
             For information about how QtilitiesProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
             */
-            class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : virtual public IExportable
+            class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : public IExportable
             {
             public:
                 QtilitiesProperty(const char* property_name = "")  {
@@ -61,20 +61,23 @@ namespace Qtilities {
                     is_reserved = QtilitiesProperty::propertyIsReserved(property_name);
                     supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name);
                     is_removable = QtilitiesProperty::propertyIsRemovable(property_name);
+                    is_read_only = false;
                 }
                 QtilitiesProperty(const QtilitiesProperty& property) {
                     name = property.propertyName();
                     is_reserved = property.isReserved();
                     is_removable = property.isRemovable();
                     supports_change_notifications = property.supportsChangeNotifications();
+                    is_read_only = property.isReadOnly();
 
-                    setIsExportable(property.isExportable());
+                    setIsExportable(property.isExportable());                      
                 }
                 void operator=(const QtilitiesProperty& property) {
                     name = property.propertyName();
                     is_reserved = property.isReserved();
                     is_removable = property.isRemovable();
                     supports_change_notifications = property.supportsChangeNotifications();
+                    is_read_only = property.isReadOnly();
 
                     setIsExportable(property.isExportable());
                 }
@@ -87,7 +90,7 @@ namespace Qtilities {
 
                 //! Indicates if the property is reserved.
                 /*!
-                  Reserved properties are is managed by %Qtilities and must be be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
+                  Reserved properties are managed by %Qtilities and must be be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
 
                   For non-Qtilities properties this is false by default.
                   */
@@ -98,6 +101,7 @@ namespace Qtilities {
                 void makeReserved() {
                     is_reserved = true;
                 }
+
                 //! Indicates if the property is removable.
                 /*!
                   Removable properties can be removed by developers. Properties that are not removable cannot be removed.
@@ -107,10 +111,25 @@ namespace Qtilities {
                 bool isRemovable() const {
                     return is_removable;
                 }
-                //! Makes the property non removable. Properties can only be made non removable once, after that they always stay reserved.
+                //! Makes the property non removable. Properties can only be made not removable once, after that they always stay not removable.
                 void makeNotRemovable() {
                     is_removable = false;
                 }
+
+                //! Indicates if the property is read only.
+                /*!
+                  Read only properties cannot be edited developers.
+
+                  \note This attribute is not used by any Qtilities properties.
+                  */
+                bool isReadOnly() const {
+                    return is_read_only;
+                }
+                //! Makes the property read only. Properties can only be made read only once, after that they always stay read only.
+                void makeReadOnly() {
+                    is_read_only = true;
+                }
+
                 //! Indicates if this property supports change notifications.
                 /*!
                   For non-Qtilities properties this is true by default.
@@ -128,9 +147,36 @@ namespace Qtilities {
                 //! Function to check if any %Qtilities property supports change notifications.
                 static bool propertySupportsChangeNotifications(const char* property_name);
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                /*!
+                  \note QtilitiesProperty is not a QObject, thus it returns 0.
+                  */
+                QObject* objectBase() { return 0; }
+                /*!
+                  \note QtilitiesProperty is not a QObject, thus it returns 0.
+                  */
+                const QObject* objectBase() const { return 0; }
+
+                // --------------------------------
+                // IExportable Implementation
+                // --------------------------------
+                virtual ExportModeFlags supportedFormats() const;
+                virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+                virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+                virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+                virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+
             protected:
+                //! Converts a QString type_string and QString value_string to a matching QVariant.
+                QVariant constructVariant(const QString& type_string, const QString& value_string) const;
+                //! Checks if a QVariant ia exported. Thus, if it can be converted to QString.
+                bool isExportableVariant(QVariant variant) const;
+
                 const char*             name;
                 bool                    is_reserved;
+                bool                    is_read_only;
                 bool                    is_removable;
                 bool                    supports_change_notifications;
             };
@@ -242,9 +288,11 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             // --------------------------------
             // IExportable Implementation
             // --------------------------------
-            ExportModeFlags supportedFormats() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual ExportModeFlags supportedFormats() const;
+            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
             QMap<quint32,QVariant>  context_map;
@@ -310,12 +358,12 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             bool operator!=(const SharedProperty& other) const;
 
             //! Returns the value of the property.
-            QVariant value() const;
+            virtual QVariant value() const;
             //! Sets the value of the property.
             /*!
               \param new_value The new QVariant value which must be assigned to the property.
               */
-            bool setValue(QVariant new_value);
+            virtual bool setValue(QVariant new_value);
 
             // --------------------------------
             // IObjectBase Implementation
@@ -333,8 +381,10 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:
             QVariant property_value;
