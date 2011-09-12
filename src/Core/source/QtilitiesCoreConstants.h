@@ -274,7 +274,7 @@ new_subject_name_property.setIsExportable(false);
 Observer::setSharedProperty(obj,new_subject_name_property);
 \endcode
 
-\sa qti_prop_DISPLAYED_NAME
+\sa qti_prop_DISPLAYED_ALIAS_MAP
 */
 const char * const qti_prop_NAME = "qti.filters.Name";
 
@@ -294,7 +294,7 @@ For more information on this property see \ref
 
 Below is an example of how you can create change the name displayed in Observer models showing this object.
 \code
-SharedProperty new_subject_displayed_name_property(qti_prop_DISPLAYED_NAME,QVariant(new_name));
+SharedProperty new_subject_displayed_name_property(qti_prop_DISPLAYED_ALIAS_MAP,QVariant(new_name));
 new_subject_displayed_name_property.setIsExportable(false);
 Observer::setSharedProperty(obj,new_subject_displayed_name_property);
 \endcode
