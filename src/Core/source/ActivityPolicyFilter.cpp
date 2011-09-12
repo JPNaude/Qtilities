@@ -547,6 +547,9 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
         if (!observer->isProcessingCycleActive())
             emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+    } else {
+        if (!observer->isProcessingCycleActive())
+            emit activeSubjectsChanged(QList<QObject*>(),QList<QObject*>());
     }
 
     // Unlock the filter mutex.
