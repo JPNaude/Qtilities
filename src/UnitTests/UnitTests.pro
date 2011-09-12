@@ -51,7 +51,8 @@ HEADERS += source/UnitTestsConstants.h \
         source/TestNamingPolicyFilter.h \
         source/TestActivityPolicyFilter.h \
         source/TestSubjectTypeFilter.h \
-        source/FunctionCallAnalyzer.h
+        source/TestTreeFileItem.h \
+        source/TestAbstractTreeItem.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -63,7 +64,8 @@ SOURCES += source/TestObserver.cpp \
         source/TestNamingPolicyFilter.cpp \
         source/TestActivityPolicyFilter.cpp \
         source/TestSubjectTypeFilter.cpp \
-        source/FunctionCallAnalyzer.cpp
+        source/TestTreeFileItem.cpp \
+        source/TestAbstractTreeItem.cpp
 }
 
 # --------------------------
@@ -74,11 +76,13 @@ HEADERS += source/UnitTestsConstants.h \
         source/ITestable.h \
         source/TestFrontend.h \
         source/DebugWidget.h \
-        source/DropableListWidget.h
+        source/DropableListWidget.h \
+        source/FunctionCallAnalyzer.h
 
 SOURCES += source/TestFrontend.cpp \
         source/DebugWidget.cpp \
-        source/DropableListWidget.cpp
+        source/DropableListWidget.cpp \
+        source/FunctionCallAnalyzer.cpp
 
 FORMS += source/TestFrontend.ui \
         source/DebugWidget.ui

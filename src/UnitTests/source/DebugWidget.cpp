@@ -151,6 +151,7 @@ Qtilities::UnitTests::DebugWidget::DebugWidget(QWidget *parent) :
 
         // Object Dynamic Property Browser:
         d->object_dynamic_property_browser = new ObjectDynamicPropertyBrowser;
+        d->object_dynamic_property_browser->toggleQtilitiesProperties(true);
 
         if (ui->objectDynamicPropertyBrowserHolder->layout())
             delete ui->objectDynamicPropertyBrowserHolder->layout();

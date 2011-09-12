@@ -353,14 +353,62 @@ void Qtilities::UnitTests::TestExporting::testObserverHints_1_0_1_0() {
 
 void Qtilities::UnitTests::TestExporting::testMultiContextProperty_1_0_1_0() {
     MultiContextProperty* obj_source = new MultiContextProperty("TestProperty");
-    MultiContextProperty* obj_import_binary = new MultiContextProperty;
-    MultiContextProperty* obj_import_xml = new MultiContextProperty;
+    MultiContextProperty* obj_import_binary = new MultiContextProperty("");
+    MultiContextProperty* obj_import_xml = new MultiContextProperty("");
 
+    // ---------------------------------------------
+    // We must test all QVariant types we support:
+    // ---------------------------------------------
+    // variant.type() == QVariant::String:
     obj_source->addContext("Test1",1);
-    obj_source->addContext("Test2",2);
-    obj_source->addContext("Test3",3);
-    obj_source->addContext("Test4",4);
-    obj_source->addContext("Test5",5);
+
+    // variant.type() == QVariant::Bool:
+    bool test_bool = true;
+    obj_source->addContext(test_bool,2);
+
+    // variant.type() == QVariant::ByteArray
+    QByteArray ba("Hello");
+    obj_source->addContext(ba,3);
+
+    // variant.type() == QVariant::Char
+    // TODO
+//    obj_source->addContext(QChar(QChar::Mark_Enclosing),4);
+
+    // variant.type() == QVariant::Date
+    obj_source->addContext(QDate::currentDate(),5);
+
+    // variant.type() == QVariant::DateTime
+    QDateTime test_date_time(QDate::currentDate());
+    obj_source->addContext(test_date_time,6);
+
+    // variant.type() == QVariant::Double
+    double test_double = 1.345;
+    obj_source->addContext(test_double,7);
+
+    // variant.type() == QVariant::Int
+    int test_int = 10;
+    obj_source->addContext(test_int,8);
+
+    // variant.type() == QVariant::StringList
+    QStringList test_string_list;
+    test_string_list << "ListItem1" << "ListItem2" << "ListItem3";
+    obj_source->addContext(test_string_list,9);
+
+    // variant.type() == QVariant::Time
+    QTime test_time(1,1,1);
+    obj_source->addContext(test_time,10);
+
+    // variant.type() == QVariant::UInt
+    quint32 test_uint = 5;
+    obj_source->addContext(test_uint,11);
+
+    // variant.type() == QVariant::LongLong
+    qlonglong test_long_log = 5999;
+    obj_source->addContext(test_long_log,12);
+
+    // variant.type() == QVariant::ULongLong
+    qulonglong test_ulong_log = 10999;
+    obj_source->addContext(test_ulong_log,13);
 
     if (obj_source->supportedFormats() & IExportable::Binary)
         QVERIFY(*obj_source != *obj_import_binary);
