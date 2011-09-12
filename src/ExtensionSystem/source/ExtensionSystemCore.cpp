@@ -230,15 +230,15 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             }
 
                             if (!is_inactive_plugin) {
-                                QString error_string;
+                                QStringList error_strings;
                                 #ifdef QTILITIES_BENCHMARKING
                                 time_t start_init,end_init;
                                 time(&start_init);
                                 #endif
-                                if (!pluginIFace->initialize(QStringList(), &error_string)) {
-                                    LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error: ") + error_string);
+                                if (!pluginIFace->initialize(QStringList(), &error_strings)) {
+                                    LOG_ERROR(tr("Plugin (") + stripped_file_name + tr(") failed during initialization with error(s): ") + error_strings.join(","));
                                     pluginIFace->addPluginState(IPlugin::ErrorState);
-                                    pluginIFace->addErrorMessage(error_string);
+                                    pluginIFace->addErrorMessages(error_strings);
                                 } else {
                                     LOG_INFO(tr("Successfully initialized plugin \"") + stripped_file_name + tr("\"."));
                                 }
@@ -264,7 +264,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
         emit newProgressMessage(QString(tr("Finished loading plugins in directory:\n %1")).arg(path));
     }
 
-    // Now that all plugins were loaded, we call initializeDependancies() on all active ones:
+    // Now that all plugins were loaded, we call initializeDependencies() on all active ones:
     for (int i = 0; i < d->plugins.subjectCount(); i++) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(i));
         if (pluginIFace) {
@@ -277,17 +277,17 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             }
 
             if (!is_inactive_plugin) {
-                QString error_string;
+                QStringList error_strings;
                 emit newProgressMessage(QString(tr("Initializing dependencies in plugin: %1")).arg(pluginIFace->pluginName()));
                 QCoreApplication::processEvents();
                 #ifdef QTILITIES_BENCHMARKING
                 time_t start_init_dep,end_init_dep;
                 time(&start_init_dep);
                 #endif
-                if (!pluginIFace->initializeDependancies(&error_string)) {               
+                if (!pluginIFace->initializeDependencies(&error_strings)) {
                     pluginIFace->addPluginState(IPlugin::ErrorState);
-                    pluginIFace->addErrorMessage(error_string);
-                    LOG_ERROR(tr("Plugin (") + pluginIFace->pluginName() + tr(") failed during dependency initialization with error: ") + error_string);
+                    pluginIFace->addErrorMessages(error_strings);
+                    LOG_ERROR(tr("Plugin (") + pluginIFace->pluginName() + tr(") failed during dependency initialization with error(s): ") + error_strings.join(","));
                 } else {
                     // Add it to the active list:
                     d->current_active_plugins << pluginIFace->pluginName();

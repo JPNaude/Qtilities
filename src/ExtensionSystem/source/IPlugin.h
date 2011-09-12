@@ -42,6 +42,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QStringList>
 
 namespace Qtilities {
     namespace ExtensionSystem {
@@ -104,6 +105,8 @@ namespace Qtilities {
                 QString pluginFileName() const { return d_file_name; }
                 //! Adds a error message to list of error associated with the plugin.
                 void addErrorMessage(const QString& error_string) { d_error_strings << error_string; }
+                //! Adds error messages to list of error associated with the plugin.
+                void addErrorMessages(const QStringList& error_strings) { d_error_strings << error_strings; }
                 //! Gets the error messages associated with the plugin.
                 QStringList errorMessages() const { return d_error_strings; }
                 //! Indicates if there are errors messages associated with this plugin.
@@ -114,14 +117,21 @@ namespace Qtilities {
                     Use this implementation to register objects in the global object pool. Typically one plugin
                     will look for objects in other plugins which implements a specific interface. These objects,
                     the ones implementing the interfaces, must be added to the global object pool in this function.
+
+                    \param arguments A list of possible arguments to be sent to the plugin during initialization.
+                    \param error_strings Plugins can add error/warning strings to this list when they detect errors.
+                    \returns True if the plugin was successfully initialized, false otherwise.
                     */
-                virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
+                virtual bool initialize(const QStringList &arguments, QStringList *error_strings) = 0;
                 //! This function is called when all the plugins in the system were loaded and initialized.
                 /*!
                     If you have an object which looks for specific interfaces in the global object pool, do the search
                     here.
+
+                    \param error_strings Plugins can add error/warning strings to this list when they detect errors.
+                    \returns True if dependancies were successfully initialized, false otherwise.
                     */
-                virtual bool initializeDependancies(QString *errorString) = 0;
+                virtual bool initializeDependencies(QStringList *error_strings) = 0;
                 //! This function is called before a plugin is unloaded in the system.
                 /*!
                     If your plugin needs to do something before it is unloaded (save settings for example), do it in here.
