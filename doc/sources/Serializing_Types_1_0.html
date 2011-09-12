@@ -68,10 +68,7 @@ Qtilities::Core::MultiContextProperty<br>
 MARKER_OBSERVER_PROPERTY = (quint32) 0xBABEFACE
 </td>
 <td>
-- MARKER_OBSERVER_PROPERTY
-- Property name (QString)
-- Is reserved (bool)
-- Supports change notifications (bool)
+- Qtilities::Core::QtilitiesProperty
 - Observer map (QMap<quint32,QVariant>)
   - Keys: Observer IDs
   - Values: QVariant with property values.
@@ -222,10 +219,7 @@ Qtilities::Core::SharedProperty<br>
 MARKER_OBSERVER_PROPERTY = (quint32) 0xBABEFACE
 </td>
 <td>
-- MARKER_OBSERVER_PROPERTY
-- Property name (QString)
-- Is reserved (bool)
-- Supports change notifications (bool)
+- Qtilities::Core::QtilitiesProperty
 - Property value (QVariant)
 - MARKER_OBSERVER_PROPERTY
 </td>
@@ -239,6 +233,22 @@ Qtilities::Core::QtilitiesCategory
 - Access mode of the category (quint32)
 - The depth of the category (quint32)
 - The category levels (Qtilities::Core::CategoryLevel)
+</td>
+</tr>
+
+<tr>
+<td>
+Qtilities::Core::QtilitiesProperty<br>
+MARKER_OBSERVER_PROPERTY = (quint32) 0xBABEFACE
+</td>
+<td>
+- MARKER_OBSERVER_PROPERTY
+- Property name (QString)
+- Is reserved (bool)
+- Is read only (bool)
+- Is removable (bool)
+- Supports change notifications (bool)
+- MARKER_OBSERVER_PROPERTY
 </td>
 </tr>
 

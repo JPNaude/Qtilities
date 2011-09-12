@@ -104,8 +104,8 @@ public:
     // --------------------------------------------
     // IPlugin Implementation
     // --------------------------------------------
-    bool initialize(const QStringList &arguments, QString *errorString);
-    bool initializeDependancies(QString *errorString);
+    bool initialize(const QStringList &arguments, QStringList *error_strings);
+    bool initializeDependencies(QStringList *error_strings);
     void finalize() {}
     QString pluginName() const { return "Example Plugin"; }
     QtilitiesCategory pluginCategory() const { return QtilitiesCategory("General"); }
@@ -119,21 +119,21 @@ public:
 };
 \endcode
 
-And next we look at the \p .cpp implementation %file:
+Next we look at the \p .cpp implementation %file:
 \code
 PluginTemplate::PluginTemplate(QObject* parent) : QObject(parent) {
     setObjectName(pluginName());
 }
 
-bool PluginTemplate::initialize(const QStringList &arguments, QString *errorString) {
+bool PluginTemplate::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     return true;
 }
 
-bool PluginTemplate::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool PluginTemplate::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     return true;
 }
@@ -244,9 +244,9 @@ The diagram below shows the sequence in which plugins are initialized during the
 Plugins should register any objects in which other plugins or the main application might be interested in (configuration pages, contexts) etc. in the Qtilities::ExtensionSystem::Interfaces::IPlugin::initialize() function implementation. After all plugin instances were created and added to the global object pool, this function is called on all plugins. That is, all plugins are loaded first before any of them are initialized. To make things clear, lets look at simplified version of the \p initialize() function implementation in the Qtilities::Plugins::SessionLog plugin:
 
 \code
-bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     // Add the session log mode to the global object pool:
     SessionLogMode* session_log_mode = new SessionLogMode();
@@ -262,11 +262,11 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringL
 }
 \endcode
 
-This is followed by calling the Qtilities::ExtensionSystem::Interfaces::IPlugin::initializeDependancies() function on all plugins. In this function plugins can inspect the global object pool to for interfaces they are interested in using the Qtilities::Core::Interfaces::IObjectManager::registeredInterfaces() function. Again, to make things clear lets write an implementation of the \p initializeDependencies() function which looks for all projects parts registered in the global object pool:
+This is followed by calling the Qtilities::ExtensionSystem::Interfaces::IPlugin::initializeDependencies() function on all plugins. In this function plugins can inspect the global object pool to for interfaces they are interested in using the Qtilities::Core::Interfaces::IObjectManager::registeredInterfaces() function. Again, to make things clear lets write an implementation of the \p initializeDependencies() function which looks for all projects parts registered in the global object pool:
 
 \code
-bool ProjectPartFinderPlugin::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool ProjectPartFinderPlugin::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     // Get a list of all the project items in the object pool:
     QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
