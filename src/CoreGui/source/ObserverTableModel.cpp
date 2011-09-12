@@ -217,8 +217,13 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                     QObject* obj = d_observer->subjectReference(getSubjectID(index));
                     QVariant subject_activity = d_observer->getQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP);
 
-                    Q_ASSERT(subject_activity.isValid());
-                    return subject_activity.toBool();
+                    if (subject_activity.isValid()) {
+                        if (subject_activity.toBool())
+                            return Qt::Checked;
+                        else
+                            return Qt::Unchecked;
+                    } else
+                        return QVariant();
                 }
             }
         // ------------------------------------

@@ -324,9 +324,12 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 }
             }
 
-            if (subject_activity.isValid())
-                return subject_activity.toBool();
-            else
+            if (subject_activity.isValid()) {
+                if (subject_activity.toBool())
+                    return Qt::Checked;
+                else
+                    return Qt::Unchecked;
+            } else
                 return QVariant();
         // ------------------------------------
         // Qt::DecorationRole
@@ -1339,8 +1342,7 @@ void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
     d->rootItem = 0;
 }
 
-Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::getItem(const QModelIndex &index) const
-{
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::getItem(const QModelIndex &index) const {
     if (index.isValid()) {
         ObserverTreeItem *item = static_cast<ObserverTreeItem*>(index.internalPointer());
         if (item)
