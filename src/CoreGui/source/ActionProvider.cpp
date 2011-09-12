@@ -53,6 +53,8 @@ QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::Act
     QMap<QString, QAction*> filtered_map;
     for (int i = 0; i < d->actions.count(); i++) {
         QAction* action = d->actions.keys().at(i);
+        if (!action)
+            continue;
         bool add_action = true;
 
         // Check the category:
@@ -155,7 +157,7 @@ QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const Qt
     return action;
 }
 
-void Qtilities::CoreGui::ActionProvider::addActions(QList<QAction*> actions, const QtilitiesCategory& category) {
+void Qtilities::CoreGui::ActionProvider::addActions(QList<QAction*> actions, const QtilitiesCategory& category) {   
     foreach (QAction* action, actions) {
         addAction(action, category);
     }
@@ -196,4 +198,14 @@ QAction* Qtilities::CoreGui::ActionProvider::findActionByObjectName(const QStrin
     }
 
     return 0;
+}
+
+void Qtilities::CoreGui::ActionProvider::removeAction(QAction* action) {
+    d->actions.remove(action);
+}
+
+void Qtilities::CoreGui::ActionProvider::removeActionCategory(const QtilitiesCategory& category) {
+    QList<QAction*> actions_to_remove = d->actions.keys(category);
+    foreach (QAction* action, actions_to_remove)
+        d->actions.remove(action);
 }

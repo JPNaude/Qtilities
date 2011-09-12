@@ -84,6 +84,8 @@ namespace Qtilities {
             void enableAllActions();
             QAction* findActionByText(const QString& action_text);
             QAction* findActionByObjectName(const QString& object_name);
+            void removeAction(QAction* action);
+            void removeActionCategory(const QtilitiesCategory& category);
 
             // --------------------------------
             // IObjectBase Implementation

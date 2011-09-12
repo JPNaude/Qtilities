@@ -128,6 +128,10 @@ namespace Qtilities {
                 virtual QAction* findActionByText(const QString& action_text) = 0;
                 //! Finds an action with the specified objectName() and returns a reference to it, otherwise return 0 if it was not found.
                 virtual QAction* findActionByObjectName(const QString& object_name) = 0;
+                //! Removes an action from the action provider. Does not delete the action.
+                virtual void removeAction(QAction* action) = 0;
+                //! Removes a complete category from the action provider. Does not delete the actions.
+                virtual void removeActionCategory(const QtilitiesCategory& category) = 0;
             };
         }
     }
