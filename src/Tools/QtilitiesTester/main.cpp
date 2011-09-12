@@ -60,35 +60,41 @@ int main(int argc, char *argv[])
     // Create and register the tests that we want to use:
     // ---------------------------------------------
     #ifndef QTILITIES_NO_UNIT_TESTS
-    TestVersionNumber* testVersionNumber = new TestVersionNumber;
-    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
+//    TestVersionNumber* testVersionNumber = new TestVersionNumber;
+//    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
-    testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
+//    TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
+//    testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestTreeIterator* testTreeIterator = new TestTreeIterator;
-    testFrontend.addTest(testTreeIterator,QtilitiesCategory("Qtilities::Core","::"));
+//    TestTreeIterator* testTreeIterator = new TestTreeIterator;
+//    testFrontend.addTest(testTreeIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestObserver* testObserver = new TestObserver;
-    testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
+//    TestObserver* testObserver = new TestObserver;
+//    testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
-    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
+//    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
+//    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
 
     TestExporting* testExporting = new TestExporting;
     testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
-    BenchmarkTests* benchmarkTests = new BenchmarkTests;
-    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
+//    BenchmarkTests* benchmarkTests = new BenchmarkTests;
+//    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
 
-    TestNamingPolicyFilter* testNamingPolicyFilter = new TestNamingPolicyFilter;
-    testFrontend.addTest(testNamingPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+//    TestNamingPolicyFilter* testNamingPolicyFilter = new TestNamingPolicyFilter;
+//    testFrontend.addTest(testNamingPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestActivityPolicyFilter* testActivityPolicyFilter = new TestActivityPolicyFilter;
-    testFrontend.addTest(testActivityPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+//    TestActivityPolicyFilter* testActivityPolicyFilter = new TestActivityPolicyFilter;
+//    testFrontend.addTest(testActivityPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestSubjectTypeFilter* testSubjectTypeFilter = new TestSubjectTypeFilter;
-    testFrontend.addTest(testSubjectTypeFilter,QtilitiesCategory("Qtilities::Core","::"));
+//    TestSubjectTypeFilter* testSubjectTypeFilter = new TestSubjectTypeFilter;
+//    testFrontend.addTest(testSubjectTypeFilter,QtilitiesCategory("Qtilities::Core","::"));
+
+//    TestAbstractTreeItem* testAbstractTreeItem = new TestAbstractTreeItem;
+//    testFrontend.addTest(testAbstractTreeItem,QtilitiesCategory("Qtilities::CoreGui","::"));
+
+//    TestTreeFileItem* testTreeFileItem = new TestTreeFileItem;
+//    testFrontend.addTest(testTreeFileItem,QtilitiesCategory("Qtilities::CoreGui","::"));
     #endif
 
     // ---------------------------------------------
