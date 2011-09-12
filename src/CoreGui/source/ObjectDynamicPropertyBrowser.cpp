@@ -82,12 +82,17 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
     QToolBar*                               toolbar;
     QAction*                                actionAddProperty;
     QAction*                                actionRemoveProperty;
+
+    bool                                    show_qtilities_properties;
+    bool                                    monitor_changes;
 };
 
-Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, bool show_toolbar, QWidget *parent) : QMainWindow(parent)
 {
     d = new ObjectDynamicPropertyBrowserPrivateData;
     d->ignore_property_changes = false;
+    d->show_qtilities_properties = false;
+    d->monitor_changes = false;
     d->obj = 0;
     if (browser_type == TreeBrowser) {
         QtTreePropertyBrowser* property_browser = new QtTreePropertyBrowser(this);
@@ -115,13 +120,15 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     d->property_manager_read_only = new QtVariantPropertyManager(this);
 
     // Set up the toolbar:
-    d->toolbar = addToolBar("Dynamic Property Actions");
-    d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),"Add Property",this);
-    connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
-    d->toolbar->addAction(d->actionAddProperty);
-    d->actionRemoveProperty = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected Property",this);
-    connect(d->actionRemoveProperty,SIGNAL(triggered()),SLOT(handleRemoveProperty()));
-    d->toolbar->addAction(d->actionRemoveProperty);
+    if (show_toolbar) {
+        d->toolbar = addToolBar("Dynamic Property Actions");
+        d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),"Add Property",this);
+        connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
+        d->toolbar->addAction(d->actionAddProperty);
+        d->actionRemoveProperty = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected Property",this);
+        connect(d->actionRemoveProperty,SIGNAL(triggered()),SLOT(handleRemoveProperty()));
+        d->toolbar->addAction(d->actionRemoveProperty);
+    }
 }
 
 Qtilities::CoreGui::ObjectDynamicPropertyBrowser::~ObjectDynamicPropertyBrowser() {
@@ -153,13 +160,20 @@ bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::eventFilter(QObject *obje
             if (property_change_event) {
                 //qDebug() << "Dynamic change event update in ObjectDynamicPropertyBrowser: " << property_change_event->propertyName();
                 d->ignore_property_changes = true;
-                inspectObject(d->obj);
+                //inspectObject(d->obj);
                 d->ignore_property_changes = false;
             }
         }
     }
 
     return false;
+}
+
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::toggleQtilitiesProperties(bool show_qtilities_properties) {
+    if (d->show_qtilities_properties != show_qtilities_properties) {
+        d->show_qtilities_properties = show_qtilities_properties;
+        refresh();
+    }
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
@@ -172,12 +186,13 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
     }
 
     d->obj = object;
+    d->monitor_changes = monitor_changes;
 
     if (monitor_changes) {
         // Connect to the IModificationNotifier interface if it exists:
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
-            connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+            connect(d->obj,SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
 
         // Install an event filter on the object.
         // This will catch property change events as well.
@@ -229,16 +244,43 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
         qti_private_MultiContextPropertyData prop_data = d->observer_properties[property];
         if (prop_data.type == qti_private_MultiContextPropertyData::Shared) {
             SharedProperty shared_property(property_name,value);
-            Observer::setSharedProperty(d->obj,shared_property);
+            if (Observer::setSharedProperty(d->obj,shared_property) && d->monitor_changes) {
+                // Connect to the IModificationNotifier interface if it exists:
+                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+                if (mod_iface) {
+                    d->ignore_property_changes = true;
+                    mod_iface->setModificationState(true);
+                    d->ignore_property_changes = false;
+                }
+            }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
             MultiContextProperty observer_property = Observer::getMultiContextProperty(d->obj,prop_data.name);
             observer_property.setValue(value,prop_data.observer_id);
-            Observer::setMultiContextProperty(d->obj,observer_property);
+            if (Observer::setMultiContextProperty(d->obj,observer_property) && d->monitor_changes) {
+                // Connect to the IModificationNotifier interface if it exists:
+                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+                if (mod_iface) {
+                    d->ignore_property_changes = true;
+                    mod_iface->setModificationState(true);
+                    d->ignore_property_changes = false;
+                }
+            }
         }
     } else {
         // Check if this is a normal property on the object:
-        if (d->top_level_properties.contains(property))
+        if (d->top_level_properties.contains(property)) {
             d->obj->setProperty(property_name,value);
+
+            if (d->monitor_changes) {
+                // Connect to the IModificationNotifier interface if it exists:
+                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+                if (mod_iface) {
+                    d->ignore_property_changes = true;
+                    mod_iface->setModificationState(true);
+                    d->ignore_property_changes = false;
+                }
+            }
+        }
     }
 
     refresh();
@@ -265,6 +307,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
 
     for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
         QString property_name = QString(obj->dynamicPropertyNames().at(i).data());
+        if (property_name.startsWith("qti.") && !d->show_qtilities_properties)
+            continue;
+
         QVariant property_variant = obj->property(obj->dynamicPropertyNames().at(i));
         QVariant property_value = property_variant;
 

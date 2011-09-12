@@ -181,7 +181,7 @@ if (Observer::propertyExists(obj,qti_prop_NAME)) {
             static UniquenessPolicy stringToUniquenessPolicy(const QString& uniqueness_policy_string);
             //! Policy to control how invalid or duplicate names should be handled.
             /*!
-              setUniquenessPolicy(), uniquenessPolicy(), setUniquenessResolutionPolicy(), uniquenessResolutionPolicy(), setValidityResolutionPolicy(), validityResolutionPolicy()
+              setUniquenessPolicy(), uniquenessNamingPolicy(), setUniquenessResolutionPolicy(), uniquenessResolutionPolicy(), setValidityResolutionPolicy(), validityResolutionPolicy()
               */
             enum ResolutionPolicy {
                 AutoRename = 0,             /*!< Automatically rename new names. \sa generateValidName() */
@@ -195,7 +195,7 @@ if (Observer::propertyExists(obj,qti_prop_NAME)) {
             static ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string);
             //! Policy to control how naming evaulation must be done during processing cycles.
             /*!
-              setProccesingCycleValidationChecks(), processingCycleValidationChecks(), setValidationChecks(), validationChecks()
+              setProcessingCycleValidationChecks(), processingCycleValidationChecks(), setValidationChecks(), validationChecks()
               */
             enum ValidationCheck {
                 NoChecks = 0,             /*!< Automatically rename new names. \sa generateValidName() */

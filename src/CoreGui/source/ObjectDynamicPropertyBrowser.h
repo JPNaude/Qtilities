@@ -92,9 +92,12 @@ namespace Qtilities {
                                     */
             };
 
-            ObjectDynamicPropertyBrowser(BrowserType browser_type = TreeBrowser, QWidget *parent = 0);
+            ObjectDynamicPropertyBrowser(BrowserType browser_type = TreeBrowser, bool show_toolbar = true, QWidget *parent = 0);
             ~ObjectDynamicPropertyBrowser();
             bool eventFilter(QObject *object, QEvent *event);
+
+            //! Toggles if Qtilities properties are shown.
+            void toggleQtilitiesProperties(bool show_qtilities_properties);
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -103,7 +106,7 @@ namespace Qtilities {
 
             //! Sets the object to inspect and display properties for.
             QObject *object() const;
-
+            //! Reimplement size hint for our case.
             QSize sizeHint() const;
 
         public slots:
