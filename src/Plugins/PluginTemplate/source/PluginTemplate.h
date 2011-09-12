@@ -78,8 +78,8 @@ namespace Qtilities {
                 // --------------------------------------------
                 // IPlugin Implementation
                 // --------------------------------------------
-                bool initialize(const QStringList &arguments, QString *errorString);
-                bool initializeDependancies(QString *errorString);
+                bool initialize(const QStringList &arguments, QStringList *error_strings);
+                bool initializeDependencies(QStringList *error_strings);
                 void finalize();
                 QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;

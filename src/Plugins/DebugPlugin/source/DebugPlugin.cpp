@@ -35,9 +35,9 @@ Qtilities::Plugins::Debug::DebugPlugin::~DebugPlugin() {
     delete d;
 }
 
-bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     // Add the session log mode to the global object pool:
     d->debug_mode = new DebugWidget;
@@ -50,8 +50,8 @@ bool Qtilities::Plugins::Debug::DebugPlugin::initialize(const QStringList &argum
     return true;
 }
 
-bool Qtilities::Plugins::Debug::DebugPlugin::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool Qtilities::Plugins::Debug::DebugPlugin::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     d->debug_mode->finalizeMode();
     return true;

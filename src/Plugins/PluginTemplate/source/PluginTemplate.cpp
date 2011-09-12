@@ -59,15 +59,15 @@ Qtilities::Plugins::Template::PluginTemplate::~PluginTemplate()
     delete d;
 }
 
-bool Qtilities::Plugins::Template::PluginTemplate::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::Template::PluginTemplate::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     return true;
 }
 
-bool Qtilities::Plugins::Template::PluginTemplate::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool Qtilities::Plugins::Template::PluginTemplate::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     return true;
 }

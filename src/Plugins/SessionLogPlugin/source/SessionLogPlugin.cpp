@@ -61,9 +61,9 @@ Qtilities::Plugins::SessionLog::SessionLogPlugin::~SessionLogPlugin()
     delete d;
 }
 
-bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     // Add the session log mode to the global object pool:
     SessionLogMode* session_log_mode = new SessionLogMode();
@@ -78,8 +78,8 @@ bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initialize(const QStringL
     return true;
 }
 
-bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool Qtilities::Plugins::SessionLog::SessionLogPlugin::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     return true;
 }

@@ -84,9 +84,9 @@ Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::~ProjectManageme
     delete d;
 }
 
-bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     // Create and add project management actions:
     // Add project menu items
@@ -152,8 +152,8 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     return true;
 }
 
-bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
     return true;
 }
 
