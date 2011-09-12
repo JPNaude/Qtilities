@@ -445,6 +445,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Observer Scope Ownership";
                     #endif
+                    obj->setParent(0);
                 } else if (object_ownership == SpecificObserverOwnership) {
                     // Update the ownership to SpecificObserverOwnership
                     setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
@@ -500,6 +501,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Owned By Subject Ownership (this context is now dependant on this subject, but the original ownership of the subject was not changed)";
                     #endif
+                    obj->setParent(0);
                 }
             } else {
                 // When OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a
@@ -541,18 +543,21 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Specific Observer Ownership";
                 #endif
+                obj->setParent(this);
             } else if (object_ownership == ObserverScopeOwnership) {
                 // This object must be deleted as soon as its not observed by any observers any more.
                 //obj->setParent(0);
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Observer Scope Ownership";
                 #endif
+                obj->setParent(0);
             } else if (object_ownership == OwnedBySubjectOwnership) {
                 // This observer must be deleted as soon as this subject is deleted.
                 connect(obj,SIGNAL(destroyed()),SLOT(deleteLater()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Owned By Subject Ownership";
                 #endif
+                obj->setParent(0);
             }
         }
 
@@ -599,9 +604,9 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         #ifndef QT_NO_DEBUG
         if (!observerData->process_cycle_active) {
             if (has_mod_iface)
-                LOG_DEBUG(QString("Observer (%1): Now observing object \"%2\" with management policy: %3. This object's modification state is now monitored by this observer.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
+                LOG_TRACE(QString("Observer (%1): Now observing object \"%2\" with management policy: %3. This object's modification state is now monitored by this observer.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
             else
-                LOG_DEBUG(QString("Observer (%1): Now observing object \"%2\" with management policy: %3.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
+                LOG_TRACE(QString("Observer (%1): Now observing object \"%2\" with management policy: %3.").arg(objectName()).arg(obj->objectName()).arg(management_policy_string));
         }
         #endif
     } else {
@@ -838,7 +843,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
         observerData->subject_filters.at(i)->finalizeDetachment(obj,passed_filters,true);
     }
 
-    LOG_DEBUG(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
+    LOG_TRACE(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
 
     // Emit neccesarry signals
     if (!observerData->process_cycle_active) {
@@ -874,7 +879,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     }
 
     if (!passed_filters) {
-        LOG_WARNING(QString(tr("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filter.")).arg(objectName()).arg(obj->objectName()));
+        LOG_WARNING(QString(tr("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filters.")).arg(objectName()).arg(obj->objectName()));
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             observerData->subject_filters.at(i)->finalizeDetachment(obj,false);
         }
