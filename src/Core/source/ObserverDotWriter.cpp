@@ -123,7 +123,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
                     QByteArray ba = property_name.remove(0,13).toAscii();
                     const char* char_name = ba.data();
                     // Get the shared property:
-                    SharedProperty shared_property = Observer::getSharedProperty(entry->object(),property_names.at(p).data());
+                    SharedProperty shared_property = ObjectManager::getSharedProperty(entry->object(),property_names.at(p).data());
                     if (shared_property.isValid()) {
                         entry_label.append(" " + QString(char_name) + "=" + shared_property.value().toString());
                     }
@@ -151,7 +151,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
                     QByteArray ba = property_name.remove(0,13).toAscii();
                     const char* char_name = ba.data();
                     // Get the shared property:
-                    MultiContextProperty multi_context_property = Observer::getMultiContextProperty(child_entry->object(),property_names.at(p).data());
+                    MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(child_entry->object(),property_names.at(p).data());
                     if (multi_context_property.isValid()) {
                         // Now check if this multi_context_property has a value for our context:
                         if (multi_context_property.hasContext(entry->sessionID())) {
@@ -200,7 +200,7 @@ bool Qtilities::Core::ObserverDotWriter::addNodeAttribute(QObject* node, const Q
     const char* char_name = byte_array_name.data();
     SharedProperty shared_property(char_name,value);
 
-    if (Observer::setSharedProperty(node,shared_property)) {
+    if (ObjectManager::setSharedProperty(node,shared_property)) {
         // Set the modification state of the object:
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (node);
         if (mod_iface)
@@ -224,7 +224,7 @@ bool Qtilities::Core::ObserverDotWriter::removeNodeAttribute(QObject* node, cons
     QString prop_name("qti.dot.node." + attribute);
     QByteArray byteArray = prop_name.toAscii();
     const char * char_name = byteArray.data();
-    if (!Observer::propertyExists(node,char_name))
+    if (!ObjectManager::propertyExists(node,char_name))
         return false;
 
     if (!node->setProperty(char_name,QVariant())) {
@@ -250,7 +250,7 @@ QHash<QByteArray,QString> Qtilities::Core::ObserverDotWriter::nodeAttributes(QOb
         QString prop_qstring_name = property_names.at(i);
         if (prop_qstring_name.startsWith("qti.dot.node")) {
             // Get the property value:
-            SharedProperty prop = Observer::getSharedProperty(node,property_names.at(i));
+            SharedProperty prop = ObjectManager::getSharedProperty(node,property_names.at(i));
             if (prop.isValid())
                 dot_properties[property_names.at(i)] = prop.value().toString();
         }
@@ -280,17 +280,17 @@ bool Qtilities::Core::ObserverDotWriter::addEdgeAttribute(Observer* parent, QObj
     const char* char_name = byte_array_name.data();
 
     bool success = false;
-    if (Observer::propertyExists(child,char_name)) {
-        MultiContextProperty existing_property = Observer::getMultiContextProperty(child,char_name);
+    if (ObjectManager::propertyExists(child,char_name)) {
+        MultiContextProperty existing_property = ObjectManager::getMultiContextProperty(child,char_name);
         if (existing_property.isValid()) {
             existing_property.setValue(value,parent->observerID());
-            success = Observer::setMultiContextProperty(child,existing_property);
+            success = ObjectManager::setMultiContextProperty(child,existing_property);
         } else
             return false;
     } else {
         MultiContextProperty new_property(char_name);
         new_property.setValue(value,parent->observerID());
-        success = Observer::setMultiContextProperty(child,new_property);
+        success = ObjectManager::setMultiContextProperty(child,new_property);
     }
 
     if (success) {
@@ -324,7 +324,7 @@ bool Qtilities::Core::ObserverDotWriter::removeEdgeAttribute(Observer* parent, Q
     QString prop_name("qti.dot.edge." + attribute);
     QByteArray byteArray = prop_name.toAscii();
     const char * char_name = byteArray.data();
-    MultiContextProperty property = Observer::getMultiContextProperty(child,char_name);
+    MultiContextProperty property = ObjectManager::getMultiContextProperty(child,char_name);
     if (property.isValid()) {
         // Check if the property exists:
         if (!property.hasContext(parent->observerID()))
@@ -337,7 +337,7 @@ bool Qtilities::Core::ObserverDotWriter::removeEdgeAttribute(Observer* parent, Q
         if (property.contextMap().keys().count() == 0)
             child->setProperty(char_name,QVariant());
         else
-            Observer::setMultiContextProperty(child,property);
+            ObjectManager::setMultiContextProperty(child,property);
 
         // Set the modification state of the object:
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (child);
@@ -363,7 +363,7 @@ QHash<QByteArray,QString> Qtilities::Core::ObserverDotWriter::edgeAttributes(Obs
         QString prop_qstring_name = property_names.at(i);
         if (prop_qstring_name.startsWith("qti.dot.edge")) {
             // Get the property value:
-            MultiContextProperty prop = Observer::getMultiContextProperty(child,property_names.at(i));
+            MultiContextProperty prop = ObjectManager::getMultiContextProperty(child,property_names.at(i));
             if (prop.isValid()) {
                 if (prop.hasContext(parent->observerID()))
                     dot_properties[property_names.at(i)] = prop.value(parent->observerID()).toString();

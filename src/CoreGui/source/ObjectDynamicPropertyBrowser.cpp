@@ -244,7 +244,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
         qti_private_MultiContextPropertyData prop_data = d->observer_properties[property];
         if (prop_data.type == qti_private_MultiContextPropertyData::Shared) {
             SharedProperty shared_property(property_name,value);
-            if (Observer::setSharedProperty(d->obj,shared_property) && d->monitor_changes) {
+            if (ObjectManager::setSharedProperty(d->obj,shared_property) && d->monitor_changes) {
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
@@ -254,9 +254,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
                 }
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
-            MultiContextProperty observer_property = Observer::getMultiContextProperty(d->obj,prop_data.name);
+            MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
             observer_property.setValue(value,prop_data.observer_id);
-            if (Observer::setMultiContextProperty(d->obj,observer_property) && d->monitor_changes) {
+            if (ObjectManager::setMultiContextProperty(d->obj,observer_property) && d->monitor_changes) {
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
@@ -489,7 +489,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
         // This is an observer property:
         qti_private_MultiContextPropertyData prop_data = d->observer_properties[property];
         if (prop_data.type == qti_private_MultiContextPropertyData::Shared) {
-            SharedProperty shared_property = Observer::getSharedProperty(d->obj,prop_data.name);
+            SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,prop_data.name);
             if (shared_property.isReserved()) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
@@ -504,7 +504,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
                 d->obj->setProperty(prop_data.name,QVariant());
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
-            MultiContextProperty observer_property = Observer::getMultiContextProperty(d->obj,prop_data.name);
+            MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
             if (observer_property.isReserved()) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));

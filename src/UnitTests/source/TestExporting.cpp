@@ -46,6 +46,15 @@ int Qtilities::UnitTests::TestExporting::execTest(int argc, char ** argv) {
     return QTest::qExec(this,argc,argv);
 }
 
+void Qtilities::UnitTests::TestExporting::testPropertyNameEncoding() {
+    QString string_name = QString("Test Name");
+    const char* char_name = string_name.toAscii().constData();
+    QString string_name_2 = QString(char_name);
+    const char* char_name_2 = string_name_2.toAscii().constData();
+    QVERIFY(string_name == string_name_2);
+    QVERIFY(strcmp(char_name,char_name_2) == 0);
+}
+
 void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, IExportable* obj_import_binary, IExportable* obj_import_xml, Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name) {
     QDataStream::Version data_stream_write_version;
     if (write_version == Qtilities::Qtilities_1_0)
@@ -119,6 +128,84 @@ void Qtilities::UnitTests::TestExporting::genericTest(IExportable* obj_source, I
 // Test Qtilities_1_0 against Qtilities_1_0
 // That is, exported with Qtilities_1_0 and imported with Qtilities_1_0
 // --------------------------------------------------------------------
+
+void Qtilities::UnitTests::TestExporting::testExportDynamicProperties_1_0_1_0() {
+    QObject* obj_source = new QObject;
+    QObject* obj_import_binary = new QObject;
+    QObject* obj_import_xml = new QObject;
+
+    // Add some properties:
+    // 1. Test a shared property:
+    SharedProperty test_shared_property("Shared Property",QVariant(5));
+    ObjectManager::setSharedProperty(obj_source,test_shared_property);
+    QVERIFY(ObjectManager::propertyExists(obj_source,"Shared Property"));
+    // 2. Test a multi context property:
+    MultiContextProperty test_multi_context_property("Multi Context Property");
+    test_multi_context_property.setValue(QVariant(1),1);
+    test_multi_context_property.setValue(QVariant(2),2);
+    ObjectManager::setMultiContextProperty(obj_source,test_multi_context_property);
+    QVERIFY(ObjectManager::propertyExists(obj_source,"Multi Context Property"));
+    // 3. Test a normal QVariant property
+    QVariant test_normal_variant(10);
+    obj_source->setProperty("Normal Property",test_normal_variant);
+    QVERIFY(ObjectManager::propertyExists(obj_source,"Normal Property"));
+
+    // -------------------------------------------------
+    // Binary Exporting & Importing
+    // -------------------------------------------------
+    QTemporaryFile file;
+    file.open();
+    QDataStream stream_out(&file);
+    stream_out.setVersion(QDataStream::Qt_4_7);
+    QVERIFY(ObjectManager::exportObjectPropertiesBinary(obj_source,stream_out) == IExportable::Complete);
+    file.close();
+
+    file.open();
+    QDataStream stream_in(&file);
+    stream_in.setVersion(QDataStream::Qt_4_7);
+
+    QVERIFY(!ObjectManager::compareDynamicProperties(obj_source,obj_import_binary));
+    QVERIFY(ObjectManager::importObjectPropertiesBinary(obj_import_binary,stream_in) == IExportable::Complete);
+    QVERIFY(ObjectManager::compareDynamicProperties(obj_source,obj_import_binary));
+
+    // -------------------------------------------------
+    // XML Exporting & Importing
+    // -------------------------------------------------
+    QDomDocument doc("QtilitiesTesting");
+    QDomElement root = doc.createElement("QtilitiesTesting");
+    doc.appendChild(root);
+    QDomElement rootItem = doc.createElement("Root");
+    root.appendChild(rootItem);
+    QFile xml_file(QApplication::applicationDirPath() + "/testExportDynamicProperties_1_0_1_0.xml");
+    xml_file.open(QIODevice::WriteOnly);
+
+    QVERIFY(ObjectManager::exportObjectPropertiesXml(obj_source,&doc,&rootItem) == IExportable::Complete);
+    QString docStr = doc.toString(2);
+    xml_file.write(docStr.toAscii());
+    xml_file.close();
+
+    QVERIFY(!ObjectManager::compareDynamicProperties(obj_source,obj_import_xml));
+    QVERIFY(ObjectManager::importObjectPropertiesXml(obj_import_xml,&doc,&rootItem) == IExportable::Complete);
+    //QVERIFY(ObjectManager::compareDynamicProperties(obj_source,obj_import_xml));
+
+    // Create a readback file:
+    QDomDocument doc2("QtilitiesTesting");
+    QDomElement root2 = doc2.createElement("QtilitiesTesting");
+    doc2.appendChild(root2);
+    QDomElement rootItem2 = doc2.createElement("Root");
+    root2.appendChild(rootItem2);
+    QFile xml_file2(QApplication::applicationDirPath() + "/testExportDynamicProperties_1_0_1_0_readback.xml");
+    xml_file2.open(QIODevice::WriteOnly);
+
+    QVERIFY(ObjectManager::exportObjectPropertiesXml(obj_import_xml,&doc2,&rootItem2) == IExportable::Complete);
+    QString docStr2 = doc2.toString(2);
+    xml_file2.write(docStr2.toAscii());
+    xml_file2.close();
+
+    delete obj_source;
+    delete obj_import_binary;
+    delete obj_import_xml;
+}
 
 void Qtilities::UnitTests::TestExporting::testInstanceFactoryInfo_1_0_1_0() {
     Qtilities::ExportVersion write_version = Qtilities::Qtilities_1_0;

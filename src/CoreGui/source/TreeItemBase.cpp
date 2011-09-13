@@ -105,4 +105,3 @@ void Qtilities::CoreGui::TreeItemBase::removeCategory(int observer_id) {
     AbstractTreeItem::removeCategory(observer_id);
     setModificationState(true);
 }
-

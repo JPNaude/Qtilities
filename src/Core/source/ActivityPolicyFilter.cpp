@@ -236,7 +236,7 @@ int Qtilities::Core::ActivityPolicyFilter::numActiveSubjects() const {
     int count = 0;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
+        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (is_active)
             ++count;
     }
@@ -247,7 +247,7 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::activeSubjects() const {
     QList<QObject*> list;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
+        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (is_active)
             list.push_back(observer->subjectAt(i));
     }
@@ -258,7 +258,7 @@ QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const 
     QList<QObject*> list;
     bool is_active = false;
     for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
+        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
         if (!is_active)
             list.push_back(observer->subjectAt(i));
     }
@@ -329,12 +329,12 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     filter_mutex.tryLock();
     // Set all objects as inactive
     for (int i = 0; i < observer->subjectCount(); i++) {
-        observer->setQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
+        observer->setMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
     }
     // Set objects in the list as active
     for (int i = 0; i < objects.count(); i++) {
         if (objects.at(i))
-            observer->setQtilitiesPropertyValue(objects.at(i),qti_prop_ACTIVITY_MAP,QVariant(true));
+            observer->setMultiContextPropertyValue(objects.at(i),qti_prop_ACTIVITY_MAP,QVariant(true));
     }
     filter_mutex.unlock();
 
@@ -348,7 +348,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
                 QCoreApplication::postEvent(observer->subjectAt(i),user_event);
                 #ifndef QT_NO_DEBUG
                     // Get activity of object for debugging purposes
-                    QVariant activity = observer->getQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP);
+                    QVariant activity = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP);
                     if (activity.isValid()) {
                         if (activity.toBool())
                             LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2) with activity true").arg(qti_prop_ACTIVITY_MAP).arg(observer->subjectAt(i)->objectName()));
@@ -390,6 +390,39 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj, bool 
     QList<QObject*> objects;
     objects << obj;
     setActiveSubjects(objects,broadcast);
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::toggleSubjectActivity(QObject* obj) {
+    // Get the activity within this context:
+    QVariant activity = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+    if (activity.isValid()) {
+        // The property change will be picked up and all policies will be checked there.
+        return observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,!activity.toBool());
+    } else
+        return false;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::setSubjectActivity(QObject* obj, bool is_active) {
+    return observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,is_active);
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::getSubjectActivity(const QObject* obj, bool* ok) const {
+    if (ok) {
+        QVariant activity = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+        if (activity.isValid()) {
+            *ok = true;
+            return activity.toBool();
+        } else {
+            *ok = false;
+            return false;
+        }
+    } else {
+        QVariant activity = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+        if (activity.isValid()) {
+            return activity.toBool();
+        } else
+            return false;
+    }
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
@@ -452,7 +485,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
                 if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
                     for (int i = 0; i < observer->subjectCount(); i++) {
                         if (observer->subjectAt(i) != obj)
-                            observer->setQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
+                            observer->setMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
                     }
                 }
                 new_activity = true;
@@ -461,17 +494,17 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             }
         }
 
-        MultiContextProperty subject_activity_property = observer->getMultiContextProperty(obj,qti_prop_ACTIVITY_MAP);
+        MultiContextProperty subject_activity_property = ObjectManager::getMultiContextProperty(obj,qti_prop_ACTIVITY_MAP);
         if (subject_activity_property.isValid()) {
             // Thus, the property already exists
             subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
-            observer->setMultiContextProperty(obj,subject_activity_property);
+            ObjectManager::setMultiContextProperty(obj,subject_activity_property);
         } else {
             // We need to create the property and add it to the object
             MultiContextProperty new_subject_activity_property(qti_prop_ACTIVITY_MAP);
             new_subject_activity_property.setIsExportable(true);
             new_subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
-            observer->setMultiContextProperty(obj,new_subject_activity_property);
+            ObjectManager::setMultiContextProperty(obj,new_subject_activity_property);
         }
 
         if (new_activity) {
@@ -533,15 +566,15 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
     if (observer->subjectCount() >= 1) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
-            bool is_active = observer->getQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
+            bool is_active = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
             if (is_active && (numActiveSubjects() == 0)) {
                 // We need to set a different subject to be active.
                 // Important bug fixed: In the case where a naming policy filter overwrites a conflicting
                 // object during attachment, we might get here before the activity on the new object
                 // which is replacing the conflicting object has been set. In that case, there is no qti_prop_ACTIVITY_MAP
                 // property yet. Thus check it first:
-                if (Observer::propertyExists(observer->subjectAt(0),qti_prop_ACTIVITY_MAP))
-                    observer->setQtilitiesPropertyValue(observer->subjectAt(0),qti_prop_ACTIVITY_MAP, QVariant(true));
+                if (ObjectManager::propertyExists(observer->subjectAt(0),qti_prop_ACTIVITY_MAP))
+                    observer->setMultiContextPropertyValue(observer->subjectAt(0),qti_prop_ACTIVITY_MAP, QVariant(true));
             }
         }
 
@@ -573,20 +606,20 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
         return true;
 
     bool single_object_change_only = true;
-    bool new_activity = observer->getQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
+    bool new_activity = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
     if (new_activity) {
         if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
             single_object_change_only = false;
             for (int i = 0; i < observer->subjectCount(); i++) {
                 if (observer->subjectAt(i) != obj) {
-                    observer->setQtilitiesPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP, QVariant(false));
+                    observer->setMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP, QVariant(false));
                 }
             }
         }
     } else {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive && (numActiveSubjects() == 0)) {
             // In this case, we allow the change to go through but we change the value here.
-            observer->setQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP, QVariant(true));
+            observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP, QVariant(true));
         }
     }
 
@@ -716,7 +749,7 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
                 // Now we need to check the following:
                 // 1. observer can only have one parent.
                 if (Observer::parentCount(observer) == 1) {
-                    MultiContextProperty observer_property = Observer::getMultiContextProperty(observer,qti_prop_ACTIVITY_MAP);
+                    MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(observer,qti_prop_ACTIVITY_MAP);
                     if (observer_property.isValid()) {
                         if (observer_property.contextMap().count() > 0) {
                             bool activity = observer_property.contextMap().values().at(0).toBool();

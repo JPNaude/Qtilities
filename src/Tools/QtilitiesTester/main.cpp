@@ -78,6 +78,9 @@ int main(int argc, char *argv[])
     TestExporting* testExporting = new TestExporting;
     testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
+    TestObjectManager* testObjectManager = new TestObjectManager;
+    testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
+
 //    BenchmarkTests* benchmarkTests = new BenchmarkTests;
 //    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
 

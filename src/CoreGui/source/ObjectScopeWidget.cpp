@@ -136,7 +136,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
 
     // For this widget we are interested in dynamic observer property changes in ALL the observers
     // which are observing this object
-    MultiContextProperty context_map_prop = Observer::getMultiContextProperty(d->obj,qti_prop_OBSERVER_MAP);
+    MultiContextProperty context_map_prop = ObjectManager::getMultiContextProperty(d->obj,qti_prop_OBSERVER_MAP);
     for (int i = 0; i < context_map_prop.contextMap().count(); i++) {
         Observer* observer = OBJECT_MANAGER->observerReference(context_map_prop.contextMap().keys().at(i));
         if (observer) {
@@ -216,12 +216,12 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
     ui->txtName->setText(d->obj->objectName());
 
     // Observer Count
-    MultiContextProperty context_map_prop = Observer::getMultiContextProperty(d->obj,qti_prop_OBSERVER_MAP);
+    MultiContextProperty context_map_prop = ObjectManager::getMultiContextProperty(d->obj,qti_prop_OBSERVER_MAP);
     if (context_map_prop.isValid())
         observer_count = context_map_prop.contextMap().count();
 
     // Observer Limit
-    SharedProperty shared_property = Observer::getSharedProperty(d->obj,qti_prop_OBSERVER_LIMIT);
+    SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,qti_prop_OBSERVER_LIMIT);
     if (shared_property.isValid())
         observer_limit = shared_property.value().toInt();
 
@@ -233,7 +233,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         ui->txtObserverLimit->setText(QString("%1").arg(observer_limit));
 
     // Ownership
-    shared_property = Observer::getSharedProperty(d->obj,qti_prop_OWNERSHIP);
+    shared_property = ObjectManager::getSharedProperty(d->obj,qti_prop_OWNERSHIP);
     if (shared_property.isValid())
         ownership = shared_property.value().toInt();
 
@@ -263,7 +263,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         QTableWidgetItem *nameItem = new QTableWidgetItem(observer->observerName(), id);
         ui->observerTable->setItem(i, 0, nameItem);
         if (ownership == Observer::SpecificObserverOwnership) {
-            QVariant observer_parent = observer->getQtilitiesPropertyValue(d->obj,qti_prop_PARENT_ID);
+            QVariant observer_parent = observer->getMultiContextPropertyValue(d->obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == id)) {
                 QTableWidgetItem *ownerItem = new QTableWidgetItem("", id);
                 ownerItem->setIcon(QIcon(qti_icon_SUCCESS_16x16));
@@ -277,7 +277,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         // Context ID
         tooltip_string.append(QString(tr("<br><b>Context ID</b>: %1")).arg(observer->observerID()));
         // Context Category
-        MultiContextProperty category_prop = Observer::getMultiContextProperty(d->obj,qti_prop_CATEGORY_MAP);
+        MultiContextProperty category_prop = ObjectManager::getMultiContextProperty(d->obj,qti_prop_CATEGORY_MAP);
         QString category_string;
         if (category_prop.isValid()) {
             if (category_prop.contextMap().keys().contains(observer->observerID()))
@@ -292,17 +292,17 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         // Attributes
         tooltip_string.append(tr("<br><br><b>Attributes: </b> "));
         // Attribute: Activity
-        QVariant activity = observer->getQtilitiesPropertyValue(d->obj,qti_prop_ACTIVITY_MAP);
+        QVariant activity = observer->getMultiContextPropertyValue(d->obj,qti_prop_ACTIVITY_MAP);
         if (activity.isValid() && activity.toBool())
             tooltip_string.append(tr("Active, "));
 
         // Attribute: Object Name Controller
-        QVariant name_manager_id = observer->getQtilitiesPropertyValue(d->obj,qti_prop_NAME_MANAGER_ID);
+        QVariant name_manager_id = observer->getMultiContextPropertyValue(d->obj,qti_prop_NAME_MANAGER_ID);
         if (name_manager_id.isValid() && (name_manager_id.toInt() == observer->observerID()))
             tooltip_string.append(tr("Manages Name, "));
 
         // Attribute: Uses Instance Name
-        MultiContextProperty instance_names = observer->getMultiContextProperty(d->obj,qti_prop_ALIAS_MAP);
+        MultiContextProperty instance_names = ObjectManager::getMultiContextProperty(d->obj,qti_prop_ALIAS_MAP);
         if (instance_names.isValid() && instance_names.hasContext(observer->observerID())) {
             tooltip_string.append(QString(tr("Uses Instance Name (\"%1\"), ").arg(instance_names.value(observer->observerID()).toString())));
             has_instance_names = true;
@@ -313,7 +313,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         }
 
         // Attribute: Ownership
-        int parent_id = Observer::getSharedProperty(d->obj,qti_prop_PARENT_ID).value().toInt();
+        int parent_id = ObjectManager::getSharedProperty(d->obj,qti_prop_PARENT_ID).value().toInt();
         if (parent_id == observer->observerID())
             tooltip_string.append(tr("Owner"));
 

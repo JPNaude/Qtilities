@@ -38,6 +38,7 @@
 #include "IFactoryProvider.h"
 #include "QtilitiesCategory.h"
 #include "Factory.h"
+#include "QtilitiesProperty.h"
 
 #include <QList>
 #include <QMap>
@@ -64,9 +65,11 @@ namespace Qtilities {
 
                 //! Possible property types.
                 enum PropertyTypes {
-                    ObserverProperties = 1,     /*!< Observer properties. \sa MultiContextProperty */
-                    SharedProperties = 2,       /*!< Shared observer properties. \sa SharedProperty */
-                    AllPropertyTypes = ObserverProperties | SharedProperties
+                    MultiContextProperties = 1,         /*!< Multi context properties. \sa MultiContextProperty */
+                    SharedProperties = 2,               /*!< Shared observer properties. \sa SharedProperty */
+                    QtilitiesInternalProperties = 4,    /*!< Shared observer properties. \sa SharedProperty */
+                    NonQtilitiesProperties = 8,         /*!< Normal QVariant properties added to objects using QObject::setProperty(). */
+                    AllPropertyTypes = MultiContextProperties | SharedProperties | QtilitiesInternalProperties | NonQtilitiesProperties
                 };
                 Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes)
                 Q_FLAGS(PropertyTypeFlags)
@@ -207,18 +210,6 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
                   \sa setMetaTypeActiveObjects(), metaTypeActiveObjectsChanged()
                   */
                 virtual QList<QPointer<QObject> > metaTypeActiveObjects(const QString& meta_type) const = 0;
-
-                // ---------------------------------
-                // Exporting & Importing Functionality
-                // ---------------------------------
-//                //! Streams exportable dynamic properties about the object to the given QDataStream.
-//                /*!
-//                  To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
-//                  This is the case for all properties used in %Qtilities.
-//                  */
-//                virtual bool exportObjectProperties(QObject* obj, QDataStream& stream, Qtilities::ExportVersion version, PropertyTypeFlags property_types = AllPropertyTypes) const = 0;
-//                //! Streams exportable dynamic properties about the new_instance QObject from the given QDataStream.
-//                virtual bool importObjectProperties(QObject* new_instance, QDataStream& stream, Qtilities::ExportVersion version) const = 0;
 
             signals:
                 //! Signal which is emitted when the setMetaTypeActiveObjects() is finished.

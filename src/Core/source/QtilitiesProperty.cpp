@@ -44,6 +44,80 @@ using namespace Qtilities::Core::Properties;
 // QtilitiesProperty
 // ------------------------------------------
 
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_name) {
+    if (property_name.isNull())
+        name = property_name;
+    else
+        name = QString("");
+
+    is_reserved = QtilitiesProperty::propertyIsReserved(property_name.toAscii().data());
+    supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name.toAscii().data());
+    is_removable = QtilitiesProperty::propertyIsRemovable(property_name.toAscii().data());
+    is_read_only = false;
+}
+
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name) {
+    if (property_name)
+        name = QString::fromAscii(property_name);
+    else
+        name = QString("");
+
+    is_reserved = QtilitiesProperty::propertyIsReserved(property_name);
+    supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name);
+    is_removable = QtilitiesProperty::propertyIsRemovable(property_name);
+    is_read_only = false;
+}
+
+Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& property) : name(property.propertyNameString()) {
+    is_reserved = property.isReserved();
+    is_removable = property.isRemovable();
+    supports_change_notifications = property.supportsChangeNotifications();
+    is_read_only = property.isReadOnly();
+
+    setIsExportable(property.isExportable());
+}
+
+void Qtilities::Core::QtilitiesProperty::QtilitiesProperty::operator=(const QtilitiesProperty& property) {
+    name = property.propertyNameString();
+    is_reserved = property.isReserved();
+    is_removable = property.isRemovable();
+    supports_change_notifications = property.supportsChangeNotifications();
+    is_read_only = property.isReadOnly();
+
+    setIsExportable(property.isExportable());
+}
+
+Qtilities::Core::QtilitiesProperty::~QtilitiesProperty() {
+
+}
+
+//const char* Qtilities::Core::QtilitiesProperty::propertyName() const {
+//    qDebug() << name;
+//    qDebug() << name.toAscii().constData();
+//    if (name.isEmpty())
+//        return "";
+//    else
+//        return name.toAscii().constData();
+//}
+
+QString Qtilities::Core::QtilitiesProperty::propertyNameString() const {
+    return name;
+}
+
+void Qtilities::Core::QtilitiesProperty::setPropertyName(const char* new_name) {
+    Q_ASSERT(new_name);
+    if (new_name)
+        name = QString::fromAscii(new_name);
+}
+
+void Qtilities::Core::QtilitiesProperty::setPropertyName(const QString& new_name) {
+    name = new_name;
+}
+
+bool Qtilities::Core::QtilitiesProperty::isValid() {
+    return !name.isEmpty();
+}
+
 bool Qtilities::Core::QtilitiesProperty::propertyIsExportable(const char* property_name) {
     if (!qstrcmp(property_name,qti_prop_ALIAS_MAP))
         return false;
@@ -198,9 +272,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
         return IExportable::Failed;
     }
 
-    char* name_tmp;
-    stream >> name_tmp;
-    name = name_tmp;
+    stream >> name;
     stream >> is_reserved;
     stream >> is_read_only;
     stream >> is_removable;
@@ -208,7 +280,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
 
     stream >> ui32;
     if (ui32 != MARKER_OBSERVER_PROPERTY) {
-        LOG_ERROR("SharedProperty binary import failed to detect end marker. Import will fail.");
+        LOG_ERROR("QtilitiesProperty binary import failed to detect end marker. Import will fail.");
         return IExportable::Failed;
     }
     return IExportable::Complete;
@@ -220,8 +292,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     if (!object_node)
         return IExportable::Failed;
 
-    object_node->setAttribute("Name",QString::fromLocal8Bit(name));
-    qDebug() << "Export side: " << QString::fromLocal8Bit(name);
+    object_node->setAttribute("Name",name);
 
     if (is_reserved)
         object_node->setAttribute("Reserved","1");
@@ -248,8 +319,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     Q_UNUSED(import_list)
 
     if (object_node->hasAttribute("Name")) {
-        name = object_node->attribute("Name").toLocal8Bit();
-        qDebug() << "Import side: " << name;
+        name = object_node->attribute("Name");
     }
 
     if (object_node->hasAttribute("Reserved")) {
@@ -280,19 +350,26 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     return IExportable::Complete;
 }
 
-QVariant Qtilities::Core::QtilitiesProperty::constructVariant(const QString& type_string, const QString& value_string) const {
-    QVariant variant(QVariant::nameToType(type_string.toLocal8Bit().data()));
-    variant.setValue(value_string);
-    variant.convert(QVariant::nameToType(type_string.toLocal8Bit().data()));
+QVariant Qtilities::Core::QtilitiesProperty::constructVariant(const QString& type_string, const QString& value_string) {
+    QVariant::Type type = QVariant::nameToType(type_string.toAscii().constData());
+    QVariant variant(type);
+
+    if (type == QVariant::StringList)
+        variant.setValue(value_string.split(","));
+    else
+        variant.setValue(value_string);
+
+    variant.convert(type);
 
     // If this assert happen for you, you can trying to construct a variant type which cannot be constructed from a string.
     // For supported types and more information see the QVariant::toString() documentation.
+    // You can also check if your variant will be exportable using the isExportableVariant() function below.
     Q_ASSERT(isExportableVariant(variant));
 
     return variant;
 }
 
-bool Qtilities::Core::QtilitiesProperty::isExportableVariant(QVariant variant) const {
+bool Qtilities::Core::QtilitiesProperty::isExportableVariant(QVariant variant) {
     if (variant.type() == QVariant::String ||
             variant.type() == QVariant::Bool ||
             variant.type() == QVariant::ByteArray ||
@@ -325,27 +402,39 @@ Qtilities::Core::MultiContextProperty::MultiContextProperty(QDataStream &ds, Qti
     importBinary(ds,import_list);
 }
 
-Qtilities::Core::MultiContextProperty::MultiContextProperty(const MultiContextProperty& property) : QtilitiesProperty(property.propertyName()){
+Qtilities::Core::MultiContextProperty::MultiContextProperty(const MultiContextProperty& property) : QtilitiesProperty(property){
     context_map = property.contextMap();
     last_change_context = property.lastChangedContext();
 }
 
 void Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty& other) {
+    name = other.propertyNameString();
     context_map = other.contextMap();
     last_change_context = other.lastChangedContext();
     is_reserved = other.isReserved();
     is_removable = other.isRemovable();
+    is_read_only = other.isReadOnly();
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
 }
 
 bool Qtilities::Core::MultiContextProperty::operator==(const MultiContextProperty& other) const {
-    if (context_map != other.contextMap())
+    if (name != other.propertyNameString())
         return false;
+    if (context_map != other.contextMap()) {
+//        for (int i = 0; i < context_map.count(); i++)
+//            qDebug() << context_map.values().at(i).toString();
+//        for (int i = 0; i < other.contextMap().count(); i++)
+//            qDebug() << other.contextMap().values().at(i).toString();
+
+        return false;
+    }
     if (is_reserved != other.isReserved())
         return false;
     if (is_removable != other.isRemovable())
+        return false;
+    if (is_read_only != other.isReadOnly())
         return false;
     if (supports_change_notifications != other.supportsChangeNotifications())
         return false;
@@ -439,17 +528,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextPr
         }
     }
 
-    QDomElement property_node = doc->createElement("PropertyMC");
-    object_node->appendChild(property_node);
-
-    IExportable::Result result = QtilitiesProperty::exportXml(doc,&property_node);
+    IExportable::Result result = QtilitiesProperty::exportXml(doc,object_node);
     if (result == IExportable::Failed)
         return result;
 
-    property_node.setAttribute("Count",context_map.count());
+    object_node->setAttribute("Count",context_map.count());
     for (int i = 0; i < context_map.count(); i++) {
         QDomElement context_element = doc->createElement("Context_" + QString::number(i));
-        property_node.appendChild(context_element);
+        object_node->appendChild(context_element);
         context_element.setAttribute("ID",QString::number(context_map.keys().at(i)));
         context_element.setAttribute("Type",context_map.values().at(i).typeName());
         if (context_map.values().at(i).type() == QVariant::StringList)
@@ -462,42 +548,28 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextPr
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    IExportable::Result result = IExportable::Complete;
-
     context_map.clear();
 
-    QDomNodeList childNodes = object_node->childNodes();
-    for (int i = 0; i < childNodes.count(); i++) {
-        QDomNode childNode = childNodes.item(i);
-        QDomElement child = childNode.toElement();
+    IExportable::Result  result = QtilitiesProperty::importXml(doc,object_node,import_list);
+    if (result == IExportable::Failed)
+        return result;
 
-        if (child.isNull())
+    QDomNodeList propNodes = object_node->childNodes();
+    for(int i = 0; i < propNodes.count(); i++) {
+        QDomNode propNode = propNodes.item(i);
+        QDomElement prop = propNode.toElement();
+
+        if (prop.isNull())
             continue;
 
-        if (child.tagName() == "PropertyMC") {
-            result = QtilitiesProperty::importXml(doc,&child,import_list);
-            if (result == IExportable::Failed)
-                return result;
-
-            QDomNodeList propNodes = child.childNodes();
-            for(int i = 0; i < propNodes.count(); i++) {
-                QDomNode propNode = propNodes.item(i);
-                QDomElement prop = propNode.toElement();
-
-                if (prop.isNull())
-                    continue;
-
-                if (prop.tagName().startsWith("Context_")) {
-                    if (prop.hasAttribute("Type") && prop.hasAttribute("Value")) {
-                        int observer_id = prop.attribute("ID").toInt();
-                        QString type_string = prop.attribute("Type");
-                        QString value_string = prop.attribute("Value");
-                        context_map[observer_id] = constructVariant(type_string,value_string);
-                    } else
-                        result = IExportable::Incomplete;
-                    continue;
-                }
-            }
+        if (prop.tagName().startsWith("Context_")) {
+            if (prop.hasAttribute("Type") && prop.hasAttribute("Value")) {
+                int observer_id = prop.attribute("ID").toInt();
+                QString type_string = prop.attribute("Type");
+                QString value_string = prop.attribute("Value");
+                context_map[observer_id] = constructVariant(type_string,value_string);
+            } else
+                result = IExportable::Incomplete;
             continue;
         }
     }
@@ -519,7 +591,7 @@ Qtilities::Core::SharedProperty::SharedProperty(QDataStream &ds, Qtilities::Expo
     importBinary(ds,import_list);
 }
 
-Qtilities::Core::SharedProperty::SharedProperty(const SharedProperty& shared_property) : QtilitiesProperty(shared_property.propertyName()) {
+Qtilities::Core::SharedProperty::SharedProperty(const SharedProperty& shared_property) : QtilitiesProperty(shared_property) {
     property_value = shared_property.value();
 }
 
@@ -536,17 +608,24 @@ bool Qtilities::Core::SharedProperty::setValue(QVariant new_value) {
 }
 
 void Qtilities::Core::SharedProperty::operator=(const SharedProperty& other) {
+    name = other.propertyNameString();
     property_value = other.value();
     is_reserved = other.isReserved();
     is_removable = other.isRemovable();
+    is_read_only = other.isReadOnly();
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
 }
+
 bool Qtilities::Core::SharedProperty::operator==(const SharedProperty& other) const {
+    if (name != other.propertyNameString())
+        return false;
     if (property_value != other.value())
         return false;
     if (is_reserved != other.isReserved())
+        return false;
+    if (is_read_only != other.isReadOnly())
         return false;
     if (is_removable != other.isRemovable())
         return false;
@@ -602,50 +681,30 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty
         return IExportable::Incomplete;
     }
 
-    QDomElement property_node = doc->createElement("PropertyS");
-    object_node->appendChild(property_node);
-
-    IExportable::Result result = QtilitiesProperty::exportXml(doc,&property_node);
+    IExportable::Result result = QtilitiesProperty::exportXml(doc,object_node);
     if (result == IExportable::Failed)
         return result;
 
-    property_node.setAttribute("Type",property_value.typeName());
+    object_node->setAttribute("Type",property_value.typeName());
     if (property_value.type() == QVariant::StringList)
-        property_node.setAttribute("Value",property_value.toStringList().join(","));
+        object_node->setAttribute("Value",property_value.toStringList().join(","));
     else
-        property_node.setAttribute("Value",property_value.toString());
+        object_node->setAttribute("Value",property_value.toString());
 
     return result;
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    IExportable::Result result = IExportable::Complete;
-    QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++) {
-        QDomNode childNode = childNodes.item(i);
-        QDomElement child = childNode.toElement();
+    IExportable::Result result = QtilitiesProperty::importXml(doc,object_node,import_list);
+    if (result == IExportable::Failed)
+        return result;
 
-        if (child.isNull())
-            continue;
-
-        if (child.tagName() == "PropertyS") {
-            IExportable::Result intermediate_result = QtilitiesProperty::importXml(doc,&child,import_list);
-            if (intermediate_result == IExportable::Failed)
-                return result;
-
-            if (result == IExportable::Complete)
-                result = intermediate_result;
-
-            if (child.hasAttribute("Type") && child.hasAttribute("Value")) {
-                QString type_string = child.attribute("Type");
-                QString value_string = child.attribute("Value");
-                property_value = constructVariant(type_string,value_string);
-            } else
-                result = IExportable::Incomplete;
-
-            continue;
-        }
-    }
+    if (object_node->hasAttribute("Type") && object_node->hasAttribute("Value")) {
+        QString type_string = object_node->attribute("Type");
+        QString value_string = object_node->attribute("Value");
+        property_value = constructVariant(type_string,value_string);
+    } else
+        result = IExportable::Incomplete;
 
     return result;
 }

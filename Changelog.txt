@@ -64,8 +64,9 @@ Qtilities v1.0 Implemented Changes
         - Observer got a new containsSubjectWithName() function.
     - Subject Filters
         - Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
-        - ActivitySubjectFilter got a new setActiveSubject() function set a single item active in an observer context.
+        - ActivityPolicyFilter got a new setActiveSubject() function set a single item active in an observer context.
         - ActivityPolicyFilter got new activeSubjectNames() and inActiveSubjectNames() functions.
+        - ActivityPolicyFilter got net toggleSubjectActivity(), setSubjectActivity() and getSubjectActivity();
         - AbstractSubjectFilter got two new functions to control if the subject filter's modification state must be monitored by its observer context. ActivityPolicyFilter got new get and set functions to support this. By default all Qtilities subject filters return true. Observers now respect this property and do not monitor the modification state of subject filters returning false. TreeNode::enableActivityControl() now has a parameter to disable modification monitoring.
         - Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the filter already had an observer context associated with it.
         - Changed behavior where SubjectTypeFilter's set functions would not have worked if the filter already had an observer context associated with it.
@@ -80,10 +81,12 @@ Qtilities v1.0 Implemented Changes
         - IContextManager::currentContexts() is now called IContextManager::activeContexts().
         - IContext interface now inherits IObjectBase in the same was as all other interfaces does.
     - Properties:
-        - MultiContextProperty::isReserved(), MultiContextProperty::makeReserved() and MultiContextProperty::supportsChangeNotifications() added.
-        - Added new propertyIsExportable(), propertyIsReserved() and propertySupportsChangeNotifications() static functions to both MultiContextProperty and SharedProperty to check Qtilities property names.
-        - isReserved() and supportsChangeNotifications() not part of observer property binary exports.
-        - Operator = overload added for MultiContextProperty class.
+        - ObserverProperty now named MultiContextProperty.
+        - Object manager got a bunch of new static properties to work with dynamic properties. Most of these were moved from Observer. See below.
+        - All QtilitiesProperty based classes now supports XML exporting of QVariant values convertable to QString. For supported types and more information see the QVariant::toString() documentation.
+        - getSharedProperty(),setSharedProperty(),getMultiContextProperty(),setMultiContextProperty(),propertyExists() static functions moved from Observer to Object Manager.
+        - Changed naming of properties to use QString, the old const char* way of doing it was flawed.
+        - Fixed many many problems with Qtilities properties.
     - Exporting through IExportable:
         - IExportable is now much easier to use. All export functions now have default implementations which exports the InstanceFactoryInfo of the object. Thus you can create objects which will be exported/imported successfully without having to implement any of the export/import functions.
         - IExportable's params parameter in the export and import function was removed. This is not used anywhere and to be honest I can't think of real use case scenarios where it will be usefull with the end result that it just bloated the code everywhere.
@@ -120,6 +123,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed bug in Observer destructor where it did not cleanup object properly.
     - Fixed bug in QtilitiesCoreApplication::notify().
     - Fixed bug in ActivityPolicyFilter where it did not set the modification state on objects to true when their activity changed.
+    - Fixed bug in ActivityPolicyFilter where it did not emit activeSubjectsChanged() when the last subject in the context was removed.
     - Fixed possible crash in Observer::detach().
 
     ============================
@@ -163,11 +167,14 @@ Qtilities v1.0 Implemented Changes
         - ObserverWidget::selectObjects() now clears the current selection when getting an empty list.
         - ObserverWidget got new setCustomTableProxyModel() and setCustomTreeProxyModel() functions allowing custom proxy models to be used.
         - ObserverWidget got a new selectObject() function.
+        - ObserverWidget views does not use QAbstractItemView::SelectRows selection policy by default anymore, it now uses QAbstractItemView::SelectItems.
+        - ObserverWidget now only emits doubleClickRequest() when double clicking on the name column.
         - ObserverTreeModelProxyFilter and ObserverTableModelCategoryFilter can now be subclassed.
         - Fixed problem with custom hints (thus not using observer hints) which did not work always.
         - Removed the non-const activeHints() functions from ObserverWidget and AbstractObserverItemModel.
         - TreeNode's string addNode() and addItem() now uses SpecificObserverOwnership during attachment.
         - TreeNode got new addItems() function.
+        - In all observer models active subjects are now indicated used Qt::Checked, not Qt::PartiallyChecked anymore.
     - Configuration Widget
         - ConfigurationWidget now sorts config pages and figures out the max sizes of all pages and resizes itself according to this when constructed.
         - ConfigurationWidget has new setApplyAllPages() function which allows the 'Apply' button to apply changes on all pages, not just the current one.
@@ -185,6 +192,8 @@ Qtilities v1.0 Implemented Changes
         - CodeEditor::removeWordHighlighting() is now implemented.
     - Interafaces
         - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
+        - IActionProvider got new removeAction() and removeActionCategory() functions.
+    - Naming Policy Subject Filter
     - Naming Policy Subject Filter
         - Made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
@@ -253,6 +262,7 @@ Qtilities v1.0 Implemented Changes
     Bug Fixes:
     - Fixed memory leak in ExtensionSystemCore.
     - Fixed bugs in handling of plugin states.
+    - Fixed wrong spelling of dependencies on IPlugin interface.
 
     ============================
     QtilitiesProjectManagement:

@@ -674,60 +674,20 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               is called will be used to define the observer context for which this function will get the property's value.
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
-            QVariant getQtilitiesPropertyValue(const QObject* obj, const char* property_name) const;
+            QVariant getMultiContextPropertyValue(const QObject* obj, const char* property_name) const;
             //! Convenience function which will set the value of a MultiContextProperty based dynamic property, and not the observer property itself.
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will set the property's value.
               If the property_name reffers to a shared property, the shared property's value will be returned.
               */
-            bool setQtilitiesPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
+            bool setMultiContextPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
 
             // --------------------------------
             // Static functions
             // --------------------------------
             //! Function which returns all the observers in a QList<QObject*> input list.
-            static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);
-            //! Convenience function which will get the specified MultiContextProperty of the specified object.
-            /*!
-              \sa setMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
-              */
-            static MultiContextProperty getMultiContextProperty(const QObject* obj, const char* property_name);
-            //! Convenience function which will set the specified MultiContextProperty on the specified object.
-            /*!
-              Caution should be taken when using this function because you can easily overwrite property values for other
-              contexts since the property has different values for different contexts.
-
-              Therefore you must always check if an observer property exist before setting as shown in the example below:
-\code
-QtilitiesCategory category("Test Category");
-// Check if the property exists:
-if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
-    // If it does we MUST append the value for our context:
-    MultiContextProperty category_property = Observer::getMultiContextProperty(iface->objectBase(),qti_prop_CATEGORY_MAP);
-    category_property.setValue(qVariantFromValue(category),observerID());
-    Observer::setMultiContextProperty(iface->objectBase(),category_property);
-} else {
-    // If not we create a new property with the value for our context:
-    MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-    category_property.setValue(qVariantFromValue(category),observerID());
-    Observer::setMultiContextProperty(iface->objectBase(),category_property);
-}
-\endcode
-
-                \sa getMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
-              */
-            static bool setMultiContextProperty(QObject* obj, MultiContextProperty observer_property);
-            //! Convenience function which will get the specified SharedProperty of the specified object.
-            /*!
-              \sa setMultiContextProperty(), setSharedProperty(), getMultiContextProperty(), propertyExists()
-              */
-            static SharedProperty getSharedProperty(const QObject* obj, const char* property_name);
-            //! Convenience function which will set the specified SharedProperty on the specified object.
-            /*!
-              \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
-              */
-            static bool setSharedProperty(QObject* obj, SharedProperty shared_property);
+            static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);           
             //! Convenience function to get the number of observers observing the specified object. Thus the number of parents of this object.
             /*!
               \sa parentReferences()
@@ -738,8 +698,6 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \sa parentCount()
               */
             static QList<Observer*> parentReferences(const QObject* obj);
-            //! Convenience function to check if a dynamic property exists on a object.
-            static bool propertyExists(const QObject* obj, const char* property_name);
             //! Function to check if a meta_type is supprted by an observer. Note that an observer must have a subject type filter which knows about the type in order for the function to return true.
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
@@ -747,7 +705,7 @@ if (Observer::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             static bool isSupportedType(const QString& meta_type, Observer* observer);           
 
         private:
-            //! This function will remove this observer from all the properties which it might have added to an obj.
+            //! This function will remove all the properties which this observer might have added to an obj.
             void removeQtilitiesProperties(QObject* obj);
 
         public:

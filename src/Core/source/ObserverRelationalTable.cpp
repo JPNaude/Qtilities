@@ -779,12 +779,12 @@ int Qtilities::Core::ObserverRelationalTable::getOwnership(QObject* obj) const {
 }
 
 int Qtilities::Core::ObserverRelationalTable::addVisitorID(QObject* obj) {
-    if (!Observer::propertyExists(obj, qti_prop_VISITOR_ID)) {
+    if (!ObjectManager::propertyExists(obj, qti_prop_VISITOR_ID)) {
         // We need to create the property and add it to the object
         SharedProperty new_prop(qti_prop_VISITOR_ID,d->visitor_id_count);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
-        obj->setProperty(new_prop.propertyName(),new_prop_variant);
-        if (Observer::propertyExists(obj,qti_prop_VISITOR_ID))
+        obj->setProperty(new_prop.propertyNameString().toAscii().data(),new_prop_variant);
+        if (ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID))
             LOG_TRACE("Added visitor ID property to object: " + obj->objectName());
         else
             LOG_TRACE("Failed to add visitor ID property to object: " + obj->objectName());
@@ -796,11 +796,11 @@ int Qtilities::Core::ObserverRelationalTable::addVisitorID(QObject* obj) {
 }
 
 int Qtilities::Core::ObserverRelationalTable::addLimitedExportProperty(QObject* obj)  {
-    if (!Observer::propertyExists(obj, qti_prop_LIMITED_EXPORTS)) {
+    if (!ObjectManager::propertyExists(obj, qti_prop_LIMITED_EXPORTS)) {
         // We need to create the property and add it to the object
         SharedProperty new_prop(qti_prop_LIMITED_EXPORTS,0);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
-        obj->setProperty(new_prop.propertyName(),new_prop_variant);
+        obj->setProperty(new_prop.propertyNameString().toAscii().data(),new_prop_variant);
         return d->visitor_id_count;
     }
     return -1;

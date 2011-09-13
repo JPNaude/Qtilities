@@ -313,7 +313,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
             // Set the mode icon as the object decoration for mode:
             if (mode->objectBase()) {
                 SharedProperty icon_property(qti_prop_DECORATION,mode->modeIcon());
-                Observer::setSharedProperty(mode->objectBase(),icon_property);
+                ObjectManager::setSharedProperty(mode->objectBase(),icon_property);
             }
             added_ids << id;
             added_items[id] = new_item;
@@ -345,7 +345,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                 // Set the mode icon as the object decoration for mode:
                 if (mode->objectBase()) {
                     SharedProperty icon_property(qti_prop_DECORATION,mode->modeIcon());
-                    Observer::setSharedProperty(mode->objectBase(),icon_property);
+                    ObjectManager::setSharedProperty(mode->objectBase(),icon_property);
                 }
 
                 added_ids << mode->modeID();

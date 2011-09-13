@@ -120,9 +120,9 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
 
 \code
 // We need to check if qti_prop_NAME exists first:
-if (Observer::propertyExists(obj,qti_prop_NAME)) {
+if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
     SharedProperty new_subject_name_property(qti_prop_NAME,QVariant("New Name"));
-    Observer::setSharedProperty(obj,new_subject_name_property);
+    ObjectManager::setSharedProperty(obj,new_subject_name_property);
 } else {
     // Handle cases where there is no naming policy filter:
     setObjectName("New Name");

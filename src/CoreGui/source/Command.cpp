@@ -91,21 +91,21 @@ QString Qtilities::CoreGui::Command::defaultText() const {
 
 void Qtilities::CoreGui::Command::setCategory(Qtilities::Core::QtilitiesCategory category) {
     // Ok it changed, thus set it again:
-    if (Observer::propertyExists(this,qti_prop_CATEGORY_MAP)) {
-        MultiContextProperty category_property = Observer::getMultiContextProperty(this,qti_prop_CATEGORY_MAP);
+    if (ObjectManager::propertyExists(this,qti_prop_CATEGORY_MAP)) {
+        MultiContextProperty category_property = ObjectManager::getMultiContextProperty(this,qti_prop_CATEGORY_MAP);
         category_property.setValue(qVariantFromValue(category),d_category_context);
-        Observer::setMultiContextProperty(this,category_property);
+        ObjectManager::setMultiContextProperty(this,category_property);
     } else {
         MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
         category_property.setValue(qVariantFromValue(category),d_category_context);
-        Observer::setMultiContextProperty(this,category_property);
+        ObjectManager::setMultiContextProperty(this,category_property);
     }
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const {
     Observer* obs = OBJECT_MANAGER->observerReference(d_category_context);
     if (obs) {
-        QVariant category_variant = obs->getQtilitiesPropertyValue(this,qti_prop_CATEGORY_MAP);
+        QVariant category_variant = obs->getMultiContextPropertyValue(this,qti_prop_CATEGORY_MAP);
         if (category_variant.isValid()) {
             return category_variant.value<QtilitiesCategory>();
         }

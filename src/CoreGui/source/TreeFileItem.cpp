@@ -144,7 +144,7 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
                     MultiContextProperty new_instance_names_property(qti_prop_DISPLAYED_ALIAS_MAP);
                     for (int i = 0; i < parents.count(); i++)
                         new_instance_names_property.addContext(QVariant(displayName()),parents.at(i)->observerID());
-                    Observer::setMultiContextProperty(this,new_instance_names_property);
+                    ObjectManager::setMultiContextProperty(this,new_instance_names_property);
                 }
             }
         }
@@ -163,14 +163,14 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
     QtilitiesFileInfo fi(file_path,relative_to_path);
 
     // We need to check if an object name exists first:
-    if (Observer::propertyExists(this,qti_prop_NAME)) {
+    if (ObjectManager::propertyExists(this,qti_prop_NAME)) {
         // The rest of the things that need to happen is done in eventFilter(), only when the name property was set correctly.
         // We just set paths to be used in the event filter here:
         d_queued_file_path = file_path;
         d_queued_relative_to_path = relative_to_path;
 
         SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
-        Observer::setSharedProperty(this,new_subject_name_property);
+        ObjectManager::setSharedProperty(this,new_subject_name_property);
     } else {
         // Handle cases where there is no naming policy filter:
         setObjectName(fi.actualFilePath());
@@ -179,9 +179,9 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
         treeFileItemBase->file_info.setFile(file_path);
         if (!relative_to_path.isEmpty())
             treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
-
-         setModificationState(true,IModificationNotifier::NotifyListeners);
     }
+
+    setModificationState(true,IModificationNotifier::NotifyListeners);
 
     if (broadcast)
         emit filePathChanged(fi.actualFilePath());

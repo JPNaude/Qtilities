@@ -152,7 +152,7 @@ QObject* object = new QObject();
 object->setObjectName("Categorized Item");
 MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
 category_property.setValue(qVariantFromValue(QtilitiesCategory("Item Category")),observer->observerID());
-Observer::setMultiContextProperty(object,category_property);
+ObjectManager::setMultiContextProperty(object,category_property);
 observer->attachSubject(object);
 
 // Using TreeNode (which inherits from Observer):

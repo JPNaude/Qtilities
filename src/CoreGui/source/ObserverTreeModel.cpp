@@ -317,7 +317,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                         for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
                             activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
                             if (activity_filter) {
-                                subject_activity = local_selection_parent->getQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+                                subject_activity = local_selection_parent->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                             }
                         }
                     }
@@ -342,7 +342,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_DECORATION);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_DECORATION);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -358,7 +358,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_WHATS_THIS);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_WHATS_THIS);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -374,7 +374,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_SIZE_HINT);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -390,7 +390,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_STATUSTIP);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_STATUSTIP);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -406,7 +406,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_FONT);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FONT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -422,7 +422,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -438,7 +438,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_BACKGROUND);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_BACKGROUND);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -454,7 +454,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = Observer::getSharedProperty(obj,qti_prop_FOREGROUND);
+                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FOREGROUND);
                 if (icon_property.isValid()) {
                     return icon_property.value();
                 }
@@ -470,7 +470,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             QObject* obj = item->getObject();
 
             if (obj) {
-                SharedProperty tooltip = Observer::getSharedProperty(obj,qti_prop_TOOLTIP);
+                SharedProperty tooltip = ObjectManager::getSharedProperty(obj,qti_prop_TOOLTIP);
                 if (tooltip.isValid()) {
                     return tooltip.value();
                 }
@@ -578,7 +578,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                                 return QIcon(qti_icon_LOCKED_16x16);
                         } else {
                             // Inspect the object to see if it has the qti_prop_ACCESS_MODE observer property.
-                            QVariant mode = d_observer->getQtilitiesPropertyValue(obj,qti_prop_ACCESS_MODE);
+                            QVariant mode = d_observer->getMultiContextPropertyValue(obj,qti_prop_ACCESS_MODE);
                             if (mode.toInt() == (int) Observer::ReadOnlyAccess)
                                 return QIcon(qti_icon_READ_ONLY_16x16);
                             if (mode.toInt() == Observer::LockedAccess)
@@ -586,7 +586,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                         }
                     } else {
                         // Inspect the object to see if it has the qti_prop_ACCESS_MODE observer property.
-                        QVariant mode = d_observer->getQtilitiesPropertyValue(obj,qti_prop_ACCESS_MODE);
+                        QVariant mode = d_observer->getMultiContextPropertyValue(obj,qti_prop_ACCESS_MODE);
                         if (mode.toInt() == (int) Observer::ReadOnlyAccess)
                             return QIcon(qti_icon_READ_ONLY_16x16);
                         if (mode.toInt() == Observer::LockedAccess)
@@ -909,13 +909,13 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
 
             // Check if the object has a qti_prop_NAME property, if not we set the name using setObjectName()
             if (obj) {
-                if (local_selection_parent->getSharedProperty(obj, qti_prop_NAME).isValid()) {
+                if (ObjectManager::getSharedProperty(obj, qti_prop_NAME).isValid()) {
                     // Now check if this observer uses an instance name
-                    MultiContextProperty instance_names = Observer::getMultiContextProperty(obj,qti_prop_ALIAS_MAP);
+                    MultiContextProperty instance_names = ObjectManager::getMultiContextProperty(obj,qti_prop_ALIAS_MAP);
                     if (instance_names.isValid() && instance_names.hasContext(local_selection_parent->observerID()))
-                        local_selection_parent->setQtilitiesPropertyValue(obj,qti_prop_ALIAS_MAP,value);
+                        local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP,value);
                     else
-                        local_selection_parent->setQtilitiesPropertyValue(obj,qti_prop_NAME,value);
+                        local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_NAME,value);
                 } else {
                     obj->setObjectName(value.toString());
                 }
@@ -939,11 +939,11 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                             if (activity_filter) {
                                 // The value comming in here is always Qt::Checked.
                                 // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that.
-                                QVariant current_activity = local_selection_parent->getQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+                                QVariant current_activity = local_selection_parent->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                                 if (current_activity.toBool()) {
-                                    local_selection_parent->setQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
+                                    local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
                                 } else {
-                                    local_selection_parent->setQtilitiesPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
+                                    local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                                 }
 
                                 handleContextDataChanged(local_selection_parent);
@@ -1033,7 +1033,7 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
 int Qtilities::CoreGui::ObserverTreeModel::getSubjectID(const QModelIndex &index) const {
     QObject* obj = getItem(index)->getObject();
     if (d_observer)
-        return d_observer->getQtilitiesPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
+        return d_observer->getMultiContextPropertyValue(obj,qti_prop_OBSERVER_MAP).toInt();
     else
         return -1;
 }
@@ -1150,13 +1150,13 @@ void Qtilities::CoreGui::ObserverTreeModel::setupChildData(ObserverTreeItem* ite
                                 QObject* category_item = new QObject();
                                 // Give the category a folder icon:
                                 SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_FOLDER_16X16));
-                                observer->setSharedProperty(category_item,icon_property);
+                                ObjectManager::setSharedProperty(category_item,icon_property);
                                 // Check the access mode of this category and add it to the category object:
                                 QtilitiesCategory shortened_category(category_levels);
                                 Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
                                 if (category_access_mode != Observer::InvalidAccess) {
                                     SharedProperty access_mode_property(qti_prop_ACCESS_MODE,(int) observer->accessMode(shortened_category));
-                                    observer->setSharedProperty(category_item,access_mode_property);
+                                    ObjectManager::setSharedProperty(category_item,access_mode_property);
                                 }
                                 category_item->setObjectName(category_levels.last());
 

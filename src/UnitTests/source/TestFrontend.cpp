@@ -96,7 +96,7 @@ void Qtilities::UnitTests::TestFrontend::addTest(ITestable* test, QtilitiesCateg
     if (category.isValid()) {
         MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
         category_property.setValue(qVariantFromValue(category),d->tests_observer.observerID());
-        Observer::setMultiContextProperty(test->objectBase(),category_property);
+        ObjectManager::setMultiContextProperty(test->objectBase(),category_property);
     }
 
     test->objectBase()->setObjectName(test->testName());
@@ -121,7 +121,7 @@ void Qtilities::UnitTests::TestFrontend::on_btnExecute_clicked()
             ITestable* test = qobject_cast<ITestable*> (active_tests.at(i));
             if (test) {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon()));
-                Observer::setSharedProperty(active_tests.at(i), property);
+                ObjectManager::setSharedProperty(active_tests.at(i), property);
             }
         }
     }
@@ -133,11 +133,11 @@ void Qtilities::UnitTests::TestFrontend::on_btnExecute_clicked()
         if (test) {
             if (test->execTest(d->argc,d->argv) == 0) {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon(qti_icon_SUCCESS_12x12)));
-                Observer::setSharedProperty(active_tests.at(i), property);
+                ObjectManager::setSharedProperty(active_tests.at(i), property);
                 ++success_count;
             } else {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon(qti_icon_ERROR_12x12)));
-                Observer::setSharedProperty(active_tests.at(i), property);
+                ObjectManager::setSharedProperty(active_tests.at(i), property);
                 ++error_count;
             }
         }

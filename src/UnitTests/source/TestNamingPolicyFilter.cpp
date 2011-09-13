@@ -51,12 +51,12 @@ void Qtilities::UnitTests::TestNamingPolicyFilter::testPropertyManagement() {
     // Check the creation of the basic name properties:
     // -----------------------
     // Check qti_prop_NAME
-    QVERIFY(Observer::propertyExists(item,qti_prop_NAME) == true);
-    QString property_name_value = nodeA.getSharedProperty(item,qti_prop_NAME).value().toString();
+    QVERIFY(ObjectManager::propertyExists(item,qti_prop_NAME) == true);
+    QString property_name_value = ObjectManager::getSharedProperty(item,qti_prop_NAME).value().toString();
     QVERIFY(property_name_value == QString("A"));
     // Check qti_prop_NAME_MANAGER_ID
-    QVERIFY(Observer::propertyExists(item,qti_prop_NAME_MANAGER_ID) == true);
-    int property_name_manager_id_value = nodeA.getSharedProperty(item,qti_prop_NAME_MANAGER_ID).value().toInt();
+    QVERIFY(ObjectManager::propertyExists(item,qti_prop_NAME_MANAGER_ID) == true);
+    int property_name_manager_id_value = ObjectManager::getSharedProperty(item,qti_prop_NAME_MANAGER_ID).value().toInt();
     QVERIFY(property_name_manager_id_value == nodeA.observerID());
 
     // -----------------------
@@ -66,27 +66,27 @@ void Qtilities::UnitTests::TestNamingPolicyFilter::testPropertyManagement() {
     nodeB.enableNamingControl(ObserverHints::ReadOnlyNames,NamingPolicyFilter::ProhibitDuplicateNames);
     nodeB.attachSubject(item);
     // Check qti_prop_ALIAS_MAP
-    QVERIFY(Observer::propertyExists(item,qti_prop_ALIAS_MAP) == true);
-    QString property_alias_map_value = nodeB.getMultiContextProperty(item,qti_prop_ALIAS_MAP).value(nodeB.observerID()).toString();
+    QVERIFY(ObjectManager::propertyExists(item,qti_prop_ALIAS_MAP) == true);
+    QString property_alias_map_value = ObjectManager::getMultiContextProperty(item,qti_prop_ALIAS_MAP).value(nodeB.observerID()).toString();
     QVERIFY(property_alias_map_value == QString("A"));
-    QVERIFY(nodeB.getMultiContextProperty(item,qti_prop_ALIAS_MAP).hasContext(nodeA.observerID()) == false);
+    QVERIFY(ObjectManager::getMultiContextProperty(item,qti_prop_ALIAS_MAP).hasContext(nodeA.observerID()) == false);
     // Check qti_prop_NAME has not changed.
-    QVERIFY(Observer::propertyExists(item,qti_prop_NAME) == true);
-    property_name_value = nodeA.getSharedProperty(item,qti_prop_NAME).value().toString();
+    QVERIFY(ObjectManager::propertyExists(item,qti_prop_NAME) == true);
+    property_name_value = ObjectManager::getSharedProperty(item,qti_prop_NAME).value().toString();
     QVERIFY(property_name_value == QString("A"));
     // Check qti_prop_NAME_MANAGER_ID has not changed.
-    QVERIFY(Observer::propertyExists(item,qti_prop_NAME_MANAGER_ID) == true);
-    property_name_manager_id_value = nodeA.getSharedProperty(item,qti_prop_NAME_MANAGER_ID).value().toInt();
+    QVERIFY(ObjectManager::propertyExists(item,qti_prop_NAME_MANAGER_ID) == true);
+    property_name_manager_id_value = ObjectManager::getSharedProperty(item,qti_prop_NAME_MANAGER_ID).value().toInt();
     QVERIFY(property_name_manager_id_value == nodeA.observerID());
 
     // -----------------------
     // Check qti_prop_NAME sync'ing with objectName():
     // -----------------------
-    nodeA.setQtilitiesPropertyValue(item,qti_prop_NAME,QString("B"));
-    property_name_value = nodeA.getSharedProperty(item,qti_prop_NAME).value().toString();
+    nodeA.setMultiContextPropertyValue(item,qti_prop_NAME,QString("B"));
+    property_name_value = ObjectManager::getSharedProperty(item,qti_prop_NAME).value().toString();
     QVERIFY(property_name_value == QString("B"));
     QVERIFY(item->objectName() == QString("B"));
-    property_alias_map_value = nodeB.getMultiContextProperty(item,qti_prop_ALIAS_MAP).value(nodeB.observerID()).toString();
+    property_alias_map_value = ObjectManager::getMultiContextProperty(item,qti_prop_ALIAS_MAP).value(nodeB.observerID()).toString();
     QVERIFY(property_alias_map_value == QString("A"));
 }
 

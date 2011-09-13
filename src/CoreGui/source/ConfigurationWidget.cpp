@@ -134,20 +134,20 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 // Add the category as a property on the object:
                 if (!config_page->configPageCategory().isEmpty()) {
-                    if (Observer::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
-                        MultiContextProperty category_property = Observer::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
+                    if (ObjectManager::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
+                        MultiContextProperty category_property = ObjectManager::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
                         if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-                            Observer::setMultiContextProperty(config_page->objectBase(),category_property);
+                            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
                     } else {
                         MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
                         if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-                            Observer::setMultiContextProperty(config_page->objectBase(),category_property);
+                            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
                     }
                 }
                 // Add the icon as a property on the object:
                 if (!config_page->configPageIcon().isNull()) {
                     SharedProperty icon_property(qti_prop_DECORATION,config_page->configPageIcon());
-                    Observer::setSharedProperty(config_page->objectBase(),icon_property);
+                    ObjectManager::setSharedProperty(config_page->objectBase(),icon_property);
                 }
 
                 if (d->config_pages.attachSubject(config_page->objectBase())) {

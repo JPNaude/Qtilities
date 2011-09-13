@@ -137,6 +137,86 @@ namespace Qtilities {
             void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type);
 
             // --------------------------------
+            // Static Dynamic Property Functions
+            // --------------------------------
+            //! Streams exportable dynamic properties about the object to the given QDataStream.
+            /*!
+              To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
+              This is the case for all properties used in %Qtilities.
+              */
+            static IExportable::Result exportObjectPropertiesBinary(const QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            //! Streams exportable dynamic properties from the given data stream and add them to the QObject.
+            /*!
+              \note Conflicting properties will be replaced.
+              */
+            static IExportable::Result importObjectPropertiesBinary(QObject* obj, QDataStream& stream);
+            //! Exports all exportable dynamic properties about the object to the given QDomDocument and QDomElement.
+            /*!
+              To use this function make sure that all the QVariants are exportable. See QtilitiesProperty::isExportableVariant() for more information.
+              */
+            static IExportable::Result exportObjectPropertiesXml(const QObject* obj, QDomDocument* doc, QDomElement* object_node, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            //! Streams exportable dynamic properties from the given QDomDocument and QDomElement and then add them to the QObject.
+            /*!
+              \note Conflicting properties will be replaced.
+              */
+            static IExportable::Result importObjectPropertiesXml(QObject* obj, QDomDocument* doc, QDomElement* object_node);
+            //! Streams exportable dynamic properties from the given QDomDocument and QDomElement and then add them to the QObject.
+            /*!
+              \note Conflicting properties will be replaced.
+              \sa removeDynamicProperties().
+              */
+            static bool cloneObjectProperties(const QObject* source_obj, QObject* target_obj, PropertyTypeFlags property_types = AllPropertyTypes);
+            //! Convenience function which will get the specified MultiContextProperty of the specified object.
+            /*!
+              \sa setMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
+              */
+            static MultiContextProperty getMultiContextProperty(const QObject* obj, const char* property_name);
+            //! Convenience function which will set the specified MultiContextProperty on the specified object.
+            /*!
+              Caution should be taken when using this function because you can easily overwrite property values for other
+              contexts since the property has different values for different contexts.
+
+              Therefore you must always check if an observer property exist before setting as shown in the example below:
+\code
+QtilitiesCategory category("Test Category");
+// Check if the property exists:
+if (ObjectManager::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
+    // If it does we MUST append the value for our context:
+    MultiContextProperty category_property = ObjectManager::getMultiContextProperty(iface->objectBase(),qti_prop_CATEGORY_MAP);
+    category_property.setValue(qVariantFromValue(category),observerID());
+    ObjectManager::setMultiContextProperty(iface->objectBase(),category_property);
+} else {
+    // If not we create a new property with the value for our context:
+    MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+    category_property.setValue(qVariantFromValue(category),observerID());
+    ObjectManager::setMultiContextProperty(iface->objectBase(),category_property);
+}
+\endcode
+
+                \sa getMultiContextProperty(), setSharedProperty(), getSharedProperty(), propertyExists()
+              */
+            static bool setMultiContextProperty(QObject* obj, MultiContextProperty multi_context_property);
+            //! Convenience function which will get the specified SharedProperty of the specified object.
+            /*!
+              \sa setMultiContextProperty(), setSharedProperty(), getMultiContextProperty(), propertyExists()
+              */
+            static SharedProperty getSharedProperty(const QObject* obj, const char* property_name);
+            //! Convenience function which will set the specified SharedProperty on the specified object.
+            /*!
+              \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
+              */
+            static bool setSharedProperty(QObject* obj, SharedProperty shared_property);
+            //! Convenience function to check if a dynamic property exists on a object.
+            static bool propertyExists(const QObject* obj, const char* property_name);
+            //! Convenience function to remove all properties that match the PropertyTypeFlags from an object.
+            static bool removeDynamicProperties(QObject* obj, PropertyTypeFlags property_types = AllPropertyTypes);
+            //! Convenience function to compare all properties that match the PropertyTypeFlags on two objects.
+            /*!
+              This function checks each property using the == overload of the QVariant property type and returns true if they match exactly, false otherwise.
+              */
+            static bool compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types = AllPropertyTypes);
+
+            // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }

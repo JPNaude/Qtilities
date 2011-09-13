@@ -114,8 +114,8 @@ Qtilities::Core::Observer::~Observer() {
             if (obs)
                 obs->startProcessingCycle();
 
-            subject_ownership_variant = getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
-            parent_observer_variant = getQtilitiesPropertyValue(obj,qti_prop_PARENT_ID);
+            subject_ownership_variant = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
+            parent_observer_variant = getMultiContextPropertyValue(obj,qti_prop_PARENT_ID);
             if ((subject_ownership_variant.toInt() == SpecificObserverOwnership) && (observerData->observer_id == parent_observer_variant.toInt())) {
                 // Subjects with SpecificObserverOwnership must be deleted as soon as this observer is deleted if this observer is their parent.
                LOG_TRACE(QString("Object \"%1\" (aliased as %2 in this context) is owned by this observer, it will be deleted.").arg(obj->objectName()).arg(subjectNameInContext(obj)));
@@ -414,16 +414,16 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Now, add observer details to needed properties
         // Add observer details to property: qti_prop_OBSERVER_MAP
-        MultiContextProperty subject_id_property = getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
+        MultiContextProperty subject_id_property = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
         if (subject_id_property.isValid()) {
             // Thus, the property already exists
             subject_id_property.addContext(QVariant(observerData->subject_id_counter),observerData->observer_id);
-            setMultiContextProperty(obj,subject_id_property);
+            ObjectManager::setMultiContextProperty(obj,subject_id_property);
         } else {
             // We need to create the property and add it to the object
             MultiContextProperty new_subject_id_property(qti_prop_OBSERVER_MAP);
             new_subject_id_property.addContext(QVariant(observerData->subject_id_counter),observerData->observer_id);
-            setMultiContextProperty(obj,new_subject_id_property);
+            ObjectManager::setMultiContextProperty(obj,new_subject_id_property);
         }
         observerData->subject_id_counter += 1;
 
@@ -436,20 +436,20 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         #endif
         // Check if the object is already managed, and if so with what ownership flag it was attached to those observers.
         if (parentCount(obj) > 1) {
-            QVariant current_ownership = getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
+            QVariant current_ownership = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
             if (current_ownership.toInt() != OwnedBySubjectOwnership) {
                 if (object_ownership == ObserverScopeOwnership) {
                     // Update the ownership to ObserverScopeOwnership
-                    setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
-                    setQtilitiesPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
+                    setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setMultiContextPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Observer Scope Ownership";
                     #endif
                     obj->setParent(0);
                 } else if (object_ownership == SpecificObserverOwnership) {
                     // Update the ownership to SpecificObserverOwnership
-                    setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
-                    setQtilitiesPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
+                    setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
+                    setMultiContextPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Specific Observer Ownership";
                     #endif
@@ -484,17 +484,17 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                     } else {
                         // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                         if (!obj->parent()) {
-                            setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                            setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                             #endif
                         } else {
-                            setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
+                            setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
                             #ifndef QT_NO_DEBUG
                                 management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                             #endif
                         }
-                        setQtilitiesPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
+                        setMultiContextPropertyValue(obj,qti_prop_PARENT_ID,QVariant(-1));
                     }
                 } else if (object_ownership == OwnedBySubjectOwnership) {
                     connect(obj,SIGNAL(destroyed()),SLOT(deleteLater()));
@@ -515,9 +515,9 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             }
         } else {
             SharedProperty ownership_property(qti_prop_OWNERSHIP,QVariant(object_ownership));
-            setSharedProperty(obj,ownership_property);
+            ObjectManager::setSharedProperty(obj,ownership_property);
             SharedProperty observer_parent_property(qti_prop_PARENT_ID,QVariant(-1));
-            setSharedProperty(obj,observer_parent_property);
+            ObjectManager::setSharedProperty(obj,observer_parent_property);
             if (object_ownership == ManualOwnership) {
                 // We don't care about this object's lifetime, its up to the user to manage the lifetime of this object.
                 #ifndef QT_NO_DEBUG
@@ -526,20 +526,20 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             } else if (object_ownership == AutoOwnership) {
                 // Check if the object already has a parent, otherwise we handle it as ObserverScopeOwnership.
                 if (!obj->parent()) {
-                    setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
+                    setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ObserverScopeOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had no parent, using Observer Scope Ownership)";
                     #endif
                 } else {
-                    setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
+                    setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(ManualOwnership));
                     #ifndef QT_NO_DEBUG
                         management_policy_string = "Auto Ownership (had parent, leave as Manual Ownership)";
                     #endif
                 }
             } else if (object_ownership == SpecificObserverOwnership) {
                 // This observer must be its parent.
-                setQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
-                setQtilitiesPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
+                setMultiContextPropertyValue(obj,qti_prop_OWNERSHIP,QVariant(SpecificObserverOwnership));
+                setMultiContextPropertyValue(obj,qti_prop_PARENT_ID,QVariant(observerID()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Specific Observer Ownership";
                 #endif
@@ -695,7 +695,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         return Observer::Rejected;
     }
 
-    QVariant category_variant = getQtilitiesPropertyValue(obj,qti_prop_CATEGORY_MAP);
+    QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
     QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
     if (isConst(category)) {
         QString reject_string = QString(tr("Attaching object \"%1\" to observer \"%2\" is not allowed. This observer is const for the recieved object.")).arg(obj->objectName()).arg(objectName());
@@ -730,7 +730,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is already monitored by this observer, if so abort.
         // This will ensure that no subject filters need to check for this, thus subject filters can assume that new attachments are actually new.
-        MultiContextProperty observer_list = getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
+        MultiContextProperty observer_list = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list.isValid()) {
             if (observer_list.hasContext(observerData->observer_id)) {
                 QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, object is already observed by this observer.")).arg(objectName()).arg(obj->objectName());
@@ -746,7 +746,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         int observer_limit;
         int observer_count = parentCount(obj);
 
-        QVariant observer_limit_variant = getQtilitiesPropertyValue(obj,qti_prop_OBSERVER_LIMIT);
+        QVariant observer_limit_variant = getMultiContextPropertyValue(obj,qti_prop_OBSERVER_LIMIT);
         if (observer_limit_variant.isValid()) {
             observer_limit = observer_limit_variant.toInt(&has_limit);
         }
@@ -899,7 +899,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         #endif
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
+        QVariant ownership_variant = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
         if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == ObserverScopeOwnership)) {
             if ((parentCount(obj) == 1) && obj) {
                 LOG_DEBUG(QString("Object (%1) went out of scope, it will be deleted.").arg(obj->objectName()));
@@ -912,7 +912,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
                 observerData->subject_list.removeOne(obj);
             }
         } else if (ownership_variant.isValid() && ((ObjectOwnership) ownership_variant.toInt() == SpecificObserverOwnership)) {
-            QVariant observer_parent = getQtilitiesPropertyValue(obj,qti_prop_PARENT_ID);
+            QVariant observer_parent = getMultiContextPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
                 deleteObject(obj);
                 obj = 0;
@@ -984,7 +984,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
 Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach(QObject* obj) const {
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is observed by this observer. If its not observed by this observer, we can't detach it.
-        MultiContextProperty observer_list_variant = getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
+        MultiContextProperty observer_list_variant = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list_variant.isValid()) {
             if (!observer_list_variant.hasContext(observerData->observer_id)) {
                 LOG_DEBUG(QString("Observer (%1): Object (%2) detachment is not allowed, object is not observed by this observer.").arg(observerData->observer_id).arg(obj->objectName()));
@@ -996,7 +996,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Validate operation against access mode
-        QVariant category_variant = getQtilitiesPropertyValue(obj,qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (isConst(category)) {
             LOG_DEBUG(QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName()));
@@ -1004,12 +1004,12 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         }
 
         // Check the ownership property of this object
-        QVariant ownership_variant = getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
+        QVariant ownership_variant = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
         if (ownership_variant.isValid() && (ownership_variant.toInt() == ObserverScopeOwnership)) {
             if (parentCount(obj) == 1)
                 return Observer::LastScopedObserver;
         } else if (ownership_variant.isValid() && (ownership_variant.toInt() == SpecificObserverOwnership)) {
-            QVariant observer_parent = getQtilitiesPropertyValue(obj,qti_prop_PARENT_ID);
+            QVariant observer_parent = getMultiContextPropertyValue(obj,qti_prop_PARENT_ID);
             if (observer_parent.isValid() && (observer_parent.toInt() == observerID()) && obj) {
                 return Observer::IsParentObserver;
             }
@@ -1054,7 +1054,7 @@ void Qtilities::Core::Observer::deleteAll() {
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
         // Validate operation against access mode if access mode scope is category:
-        QVariant category_variant = getQtilitiesPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (!isConst(category)) {
             deleteObject(observerData->subject_list.at(0));
@@ -1074,7 +1074,7 @@ void Qtilities::Core::Observer::deleteAll() {
     }
 }
 
-QVariant Qtilities::Core::Observer::getQtilitiesPropertyValue(const QObject* obj, const char* property_name) const {
+QVariant Qtilities::Core::Observer::getMultiContextPropertyValue(const QObject* obj, const char* property_name) const {
     #ifndef QT_NO_DEBUG
         if (!obj)
             qDebug() << "Failed to get property \"" << property_name << "\" on null object";
@@ -1102,7 +1102,7 @@ QVariant Qtilities::Core::Observer::getQtilitiesPropertyValue(const QObject* obj
     }
 }
 
-bool Qtilities::Core::Observer::setQtilitiesPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const {
+bool Qtilities::Core::Observer::setMultiContextPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const {
     #ifndef QT_NO_DEBUG
         if (!obj)
             qDebug() << "Failed to set property \"" << property_name  << "\" on null object";
@@ -1122,13 +1122,13 @@ bool Qtilities::Core::Observer::setQtilitiesPropertyValue(QObject* obj, const ch
         // This is a shared property
         SharedProperty shared_property = prop.value<SharedProperty>();
         shared_property.setValue(new_value);
-        setSharedProperty(obj,shared_property);
+        ObjectManager::setSharedProperty(obj,shared_property);
         return true;
     } else if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
         // This is a normal observer property (not shared)
         MultiContextProperty observer_property = prop.value<MultiContextProperty>();
         observer_property.setValue(new_value,observerData->observer_id);
-        setMultiContextProperty(obj,observer_property);
+        ObjectManager::setMultiContextProperty(obj,observer_property);
         return true;
     } else {
         QString error_str = QString(tr("Observer (%1): Setting the value of property (%2) failed. This property is not yet set as an MultiContextProperty type class.")).arg(objectName()).arg(property_name);
@@ -1167,11 +1167,11 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
 
     // Remove all the contexts first.
     foreach (QString property_name, added_properties) {
-        MultiContextProperty prop = getMultiContextProperty(obj, property_name.toStdString().data());
+        MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj, property_name.toStdString().data());
         if (prop.isValid()) {
             // If it exists, we remove this observer context:
             prop.removeContext(observerData->observer_id);
-            setMultiContextProperty(obj, prop);
+            ObjectManager::setMultiContextProperty(obj, prop);
         }
     }
 
@@ -1189,7 +1189,7 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
 
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) {
     // Get all the parents of observer
-    MultiContextProperty context_map_prop = getMultiContextProperty(observer, qti_prop_OBSERVER_MAP);
+    MultiContextProperty context_map_prop = ObjectManager::getMultiContextProperty(observer, qti_prop_OBSERVER_MAP);
     int observer_count;
     bool is_parent = false;
 
@@ -1208,7 +1208,7 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     } else {
         // Check above all contained observer parents:
         if (observer->parent()) {
-            MultiContextProperty parent_context_map_prop = getMultiContextProperty(observer->parent(), qti_prop_OBSERVER_MAP);
+            MultiContextProperty parent_context_map_prop = ObjectManager::getMultiContextProperty(observer->parent(), qti_prop_OBSERVER_MAP);
             int observer_count;
             if (parent_context_map_prop.isValid())
                 observer_count = parent_context_map_prop.contextMap().count();
@@ -1358,7 +1358,7 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
         // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
-        QVariant instance_name = getQtilitiesPropertyValue(obj,qti_prop_ALIAS_MAP);
+        QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
         if (instance_name.isValid())
             return instance_name.toString();
         else
@@ -1375,7 +1375,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::Core::Observer::subjectCategoryInC
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
         // We need to check if a subject has a category name in this context. If so, we use the instance name, not the objectName().
-        QVariant category_property = getQtilitiesPropertyValue(obj,qti_prop_CATEGORY_MAP);
+        QVariant category_property = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         if (category_property.isValid()) {
             return (category_property.value<QtilitiesCategory>());
         } else
@@ -1392,12 +1392,12 @@ QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* 
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
         // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
-        QVariant instance_name = getQtilitiesPropertyValue(obj,qti_prop_DISPLAYED_ALIAS_MAP);
+        QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_DISPLAYED_ALIAS_MAP);
         if (instance_name.isValid())
             return instance_name.toString();
         else {
             // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getQtilitiesPropertyValue(obj,qti_prop_ALIAS_MAP);
+            QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
             if (instance_name.isValid())
                 return instance_name.toString();
             else
@@ -1414,7 +1414,7 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
 
     // Check if the object is in this context:
     if (contains(obj) || contains(obj->parent())) {
-        QVariant current_ownership = getQtilitiesPropertyValue(obj,qti_prop_OWNERSHIP);
+        QVariant current_ownership = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
         Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
         return ownership;
     }
@@ -1481,7 +1481,7 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
             // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+            QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
             if (instance_name.isValid())
                 subject_names << instance_name.toString();
             else
@@ -1497,12 +1497,12 @@ QStringList Qtilities::Core::Observer::subjectDisplayedNames(const QString& ifac
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
             // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_DISPLAYED_ALIAS_MAP);
+            QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_DISPLAYED_ALIAS_MAP);
             if (instance_name.isValid())
                 subject_names << instance_name.toString();
             else {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
@@ -1517,13 +1517,13 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
     QStringList subject_names;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getQtilitiesPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Handles cases where category is valid, thus it contains levels.
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
@@ -1534,7 +1534,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
             // Thus subjects without a category specified for them.
             if (!category.isValid()) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
@@ -1548,7 +1548,7 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
 
 bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getQtilitiesPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
@@ -1581,7 +1581,7 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
     QList<QtilitiesCategory> subject_categories;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {    
-        QVariant category_variant = getQtilitiesPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
@@ -1605,7 +1605,7 @@ QObject* Qtilities::Core::Observer::subjectAt(int i) const {
 
 int Qtilities::Core::Observer::subjectID(int i) const {
     if (i < subjectCount()) {
-        QVariant prop = getQtilitiesPropertyValue(observerData->subject_list.at(i),qti_prop_OBSERVER_MAP);
+        QVariant prop = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_OBSERVER_MAP);
         return prop.toInt();
     } else
         return -1;
@@ -1629,7 +1629,7 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
     QList<QObject*> list;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QVariant category_variant = getQtilitiesPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
+        QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category)
@@ -1656,7 +1656,7 @@ QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
 QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QObject* obj = observerData->subject_list.at(i);
-        QVariant prop = getQtilitiesPropertyValue(obj,qti_prop_OBSERVER_MAP);
+        QVariant prop = getMultiContextPropertyValue(obj,qti_prop_OBSERVER_MAP);
         if (!prop.isValid()) {
             LOG_TRACE(QString("Observer (%1): Looking for subject ID (%2) failed, property 'Subject ID' contains invalid variant for this context.").arg(objectName()).arg(ID));
             return 0;
@@ -1670,7 +1670,7 @@ QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
 QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name, Qt::CaseSensitivity cs) const {
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QObject* obj = observerData->subject_list.at(i);
-        QVariant prop = getQtilitiesPropertyValue(obj,qti_prop_NAME);
+        QVariant prop = getMultiContextPropertyValue(obj,qti_prop_NAME);
         if (!prop.isValid()) {
             if (observerData->subject_list.at(i)->objectName().compare(subject_name,cs) == 0)
                 return observerData->subject_list.at(i);
@@ -2009,89 +2009,11 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::observerList(QList<
     return observer_list;
 }
 
-Qtilities::Core::MultiContextProperty Qtilities::Core::Observer::getMultiContextProperty(const QObject* obj, const char* property_name) {
-    #ifndef QT_NO_DEBUG
-        if (!obj)
-            qDebug() << "Failed to get multi-context property \"" << property_name  << "\" on null object";
-        Q_ASSERT(obj != 0);
-    #endif
-    #ifdef QT_NO_DEBUG
-        if (!obj)
-            return MultiContextProperty();
-    #endif
-
-    QVariant prop = obj->property(property_name);
-    if (prop.isValid() && prop.canConvert<MultiContextProperty>())
-        return prop.value<MultiContextProperty>();
-    else
-        return MultiContextProperty();
-}
-
-bool Qtilities::Core::Observer::setMultiContextProperty(QObject* obj, MultiContextProperty observer_property) {
-    #ifndef QT_NO_DEBUG
-        if (!obj)
-            qDebug() << "Failed to set multi context property \"" << observer_property.propertyName() << "\" on null object";
-        Q_ASSERT(obj != 0);
-    #endif
-    #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
-    #endif
-
-    if (!observer_property.isValid()) {
-        qDebug() << "Failed to set multi context property on object, the property is invalid.";
-        Q_ASSERT(observer_property.isValid());
-        return false;
-    }
-
-    QVariant property = qVariantFromValue(observer_property);
-    return !obj->setProperty(observer_property.propertyName(),property);
-}
-
-Qtilities::Core::SharedProperty Qtilities::Core::Observer::getSharedProperty(const QObject* obj, const char* property_name) {
-    #ifndef QT_NO_DEBUG
-        if (!obj)
-            qDebug() << "Failed to get shared property \"" << property_name << "\" on null object";
-        Q_ASSERT(obj != 0);
-    #endif
-    #ifdef QT_NO_DEBUG
-        if (!obj)
-            return SharedProperty();
-    #endif
-
-    QVariant prop = obj->property(property_name);
-    if (prop.isValid() && prop.canConvert<SharedProperty>())
-        return prop.value<SharedProperty>();
-    else
-        return SharedProperty();
-}
-
-bool Qtilities::Core::Observer::setSharedProperty(QObject* obj, SharedProperty shared_property) {
-    #ifndef QT_NO_DEBUG
-        if (!obj)
-            qDebug() << "Failed to set shared property \"" << shared_property.propertyName() << "\" on null object";
-        Q_ASSERT(obj != 0);
-    #endif
-    #ifdef QT_NO_DEBUG
-        if (!obj)
-            return false;
-    #endif
-
-    if (!shared_property.isValid()) {
-        qDebug() << "Failed to set shared property on object, the property is invalid.";
-        Q_ASSERT(shared_property.isValid());
-        return false;
-    }
-
-    QVariant property = qVariantFromValue(shared_property);
-    return !obj->setProperty(shared_property.propertyName(),property);
-}
-
 int Qtilities::Core::Observer::parentCount(const QObject* obj) {
     if (!obj)
         return -1;
 
-    MultiContextProperty prop = getMultiContextProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
+    MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
     if (prop.isValid()) {
         return prop.contextMap().count();
     }
@@ -2104,7 +2026,7 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::parentReferences(co
     if (!obj)
         return parents;
 
-    MultiContextProperty prop = getMultiContextProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
+    MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
     if (prop.isValid()) {
         for (int i = 0; i < prop.contextMap().count(); i++) {
             Observer* obs = OBJECT_MANAGER->observerReference(prop.contextMap().keys().at(i));
@@ -2114,14 +2036,6 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::parentReferences(co
     }
 
     return parents;
-}
-
-bool Qtilities::Core::Observer::propertyExists(const QObject* obj, const char* property_name) {
-    if (!obj)
-        return false;
-
-    QVariant prop = obj->property(property_name);
-    return prop.isValid();
 }
 
 bool Qtilities::Core::Observer::isSupportedType(const QString& meta_type, Observer* observer) {

@@ -23,6 +23,7 @@
 #include "DebugWidget.h"
 #include "TestAbstractTreeItem.h"
 #include "TestTreeFileItem.h"
+#include "TestObjectManager.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Unit Tests module.
 namespace QtilitiesUnitTests { 

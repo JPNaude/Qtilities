@@ -56,37 +56,21 @@ namespace Qtilities {
             class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : public IExportable
             {
             public:
-                QtilitiesProperty(const char* property_name = "")  {
-                    name = property_name;
-                    is_reserved = QtilitiesProperty::propertyIsReserved(property_name);
-                    supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name);
-                    is_removable = QtilitiesProperty::propertyIsRemovable(property_name);
-                    is_read_only = false;
-                }
-                QtilitiesProperty(const QtilitiesProperty& property) {
-                    name = property.propertyName();
-                    is_reserved = property.isReserved();
-                    is_removable = property.isRemovable();
-                    supports_change_notifications = property.supportsChangeNotifications();
-                    is_read_only = property.isReadOnly();
-
-                    setIsExportable(property.isExportable());                      
-                }
-                void operator=(const QtilitiesProperty& property) {
-                    name = property.propertyName();
-                    is_reserved = property.isReserved();
-                    is_removable = property.isRemovable();
-                    supports_change_notifications = property.supportsChangeNotifications();
-                    is_read_only = property.isReadOnly();
-
-                    setIsExportable(property.isExportable());
-                }
-                virtual ~QtilitiesProperty() {}
-
-                //! Get the name of this property.
-                inline const char* propertyName() const { return name; }
+                QtilitiesProperty(const QString& property_name = "");
+                QtilitiesProperty(const char* property_name);
+                QtilitiesProperty(const QtilitiesProperty& property);
+                void operator=(const QtilitiesProperty& property);
+                virtual ~QtilitiesProperty();
+//                //! Gets the name of this property as a const char*.
+//                const char* propertyName() const;
+                //! Gets the name of this property as a QString.
+                QString propertyNameString() const;
+                //! Sets the name of this property.
+                void setPropertyName(const char* new_name);
+                //! Sets the name of this property.
+                void setPropertyName(const QString& new_name);
                 //! Function to check if an observer property is valid.
-                inline bool isValid() { return (name != QString()); }
+                bool isValid();
 
                 //! Indicates if the property is reserved.
                 /*!
@@ -168,13 +152,13 @@ namespace Qtilities {
                 virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
                 virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
-            protected:
                 //! Converts a QString type_string and QString value_string to a matching QVariant.
-                QVariant constructVariant(const QString& type_string, const QString& value_string) const;
+                static QVariant constructVariant(const QString& type_string, const QString& value_string);
                 //! Checks if a QVariant ia exported. Thus, if it can be converted to QString.
-                bool isExportableVariant(QVariant variant) const;
+                static bool isExportableVariant(QVariant variant);
 
-                const char*             name;
+            protected:
+                QString                 name;
                 bool                    is_reserved;
                 bool                    is_read_only;
                 bool                    is_removable;
@@ -214,14 +198,14 @@ observer_property.addContext(QVariant(true),observerA->observerID());
 observer_property.addContext(QVariant(false),observerB->observerID());
 
 // Now set the observer property on the object
-Observer::setMultiContextProperty(obj,observer_property);
+ObjectManager::setMultiContextProperty(obj,observer_property);
 
 // Now we can get the value of the property for each observer using the observer references
-bool value_contextA = observerA->getQtilitiesPropertyValue(obj,property_name).toBool();
-bool value_contextB = observerB->getQtilitiesPropertyValue(obj,property_name).toBool();
+bool value_contextA = observerA->getMultiContextPropertyValue(obj,property_name).toBool();
+bool value_contextB = observerB->getMultiContextPropertyValue(obj,property_name).toBool();
 
 // Or get the value of the property without an observer reference: Option 1
-MultiContextProperty observer_property1 = Observer::getMultiContextProperty(property_name);
+MultiContextProperty observer_property1 = ObjectManager::getMultiContextProperty(property_name);
 if (observer_property1.isValid()) {
   bool value_contextA_1 = observer_property1->value(observerA_ID).toBool();
 }
@@ -292,6 +276,9 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             virtual IExportable::Result exportBinary(QDataStream& stream ) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            /*!
+              This function will add a set of attributes directly to the object_node passed to it.
+              */
             virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
@@ -321,16 +308,16 @@ SharedProperty string_property(property_name,"Example text");
 string_property.setIsExportable(false);
 
 // Set the property using the static convenience function provided by the observer class
-Observer::setSharedProperty(obj,string_property);
+ObjectManager::setSharedProperty(obj,string_property);
 
 // Attach the object to the observer
 obs->attachSubject(obj);
 
 // Now we can get the value of the property using the observer reference
-QString text = obs->getQtilitiesPropertyValue(obj,property_name).toString();
+QString text = obs->getMultiContextPropertyValue(obj,property_name).toString();
 
 // Or get the value of the property without the observer reference: Option 1
-SharedProperty shared_property1 = Observer::getSharedProperty(property_name);
+SharedProperty shared_property1 = ObjectManager::getSharedProperty(property_name);
 if (shared_property1.isValid()) {
 	QString text1 = shared_property1->value().toString();
 }
@@ -384,6 +371,9 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             virtual IExportable::Result exportBinary(QDataStream& stream ) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            /*!
+              This function will add a set of attributes directly to the object_node passed to it.
+              */
             virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:

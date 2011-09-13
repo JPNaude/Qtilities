@@ -70,16 +70,18 @@ namespace Qtilities {
             // Test Qtilities_1_0 against Qtilities_1_0
             // That is, exported with Qtilities_1_0 and imported with Qtilities_1_0
             // --------------------------------------------------------------------
+            void testPropertyNameEncoding();
+            void testSharedProperty_1_0_1_0();
+            void testMultiContextProperty_1_0_1_0();
+            void testExportDynamicProperties_1_0_1_0();
             void testInstanceFactoryInfo_1_0_1_0();
             void testActivityPolicyFilter_1_0_1_0();
             void testCategoryLevel_1_0_1_0();
             void testNamingPolicyFilter_1_0_1_0();
             void testQtilitiesCategory_1_0_1_0();
             void testObserverHints_1_0_1_0();
-            void testMultiContextProperty_1_0_1_0();
             void testRelationalTableEntry_1_0_1_0();
             void testObserverRelationalTable_1_0_1_0();
-            void testSharedProperty_1_0_1_0();
             void testSubjectTypeFilter_1_0_1_0();
             void testTreeFileItem_1_0_1_0();
             void testTreeItem_1_0_1_0();

@@ -205,7 +205,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             // Set the category property of the plugin:
                             MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
                             category_property.setValue(qVariantFromValue(pluginIFace->pluginCategory()),d->plugins.observerID());
-                            Observer::setMultiContextProperty(pluginIFace->objectBase(),category_property);
+                            ObjectManager::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
                             // Store the file name:
                             pluginIFace->setPluginFileName(dir.absoluteFilePath(fileName));
@@ -303,7 +303,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 if (d->core_plugins.contains(pluginIFace->pluginName())) {
                     QBrush disabled_brush = QApplication::palette().brush(QPalette::Disabled,QPalette::Text);
                     SharedProperty property(qti_prop_FOREGROUND,disabled_brush);
-                    Observer::setSharedProperty(pluginIFace->objectBase(), property);
+                    ObjectManager::setSharedProperty(pluginIFace->objectBase(), property);
                 }
             } else {
                 // Set the default state of the plugin:
@@ -313,7 +313,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                 // Make it inactive:
                 MultiContextProperty category_property(qti_prop_ACTIVITY_MAP);
                 category_property.setValue(false,d->plugins.observerID());
-                Observer::setMultiContextProperty(pluginIFace->objectBase(),category_property);
+                ObjectManager::setMultiContextProperty(pluginIFace->objectBase(),category_property);
 
                 LOG_INFO(QString(tr("Inactive plugin found which will not be initialized: %1")).arg(pluginIFace->pluginName()));
             }
@@ -322,16 +322,16 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             // Give the plugin an icon depending on its state:
             if (pluginIFace->pluginState() == IPlugin::Functional) {
                 SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
-                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                ObjectManager::setSharedProperty(pluginIFace->objectBase(),icon_property);
             } else if (pluginIFace->pluginState() & IPlugin::ErrorState) {
                 SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_ERROR_16x16));
-                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                ObjectManager::setSharedProperty(pluginIFace->objectBase(),icon_property);
             } else if (pluginIFace->pluginState() & IPlugin::IncompatibleState) {
                 SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_WARNING_16x16));
-                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                ObjectManager::setSharedProperty(pluginIFace->objectBase(),icon_property);
             } else if (pluginIFace->pluginState() == IPlugin::InActive) {
                 SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_SUCCESS_16x16));
-                Observer::setSharedProperty(pluginIFace->objectBase(),icon_property);
+                ObjectManager::setSharedProperty(pluginIFace->objectBase(),icon_property);
             }
         }
     }
@@ -688,7 +688,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
 
                 MultiContextProperty category_property(qti_prop_ACTIVITY_MAP);
                 category_property.setValue(true,d->plugins.observerID());
-                Observer::setMultiContextProperty(iface->objectBase(),category_property);
+                ObjectManager::setMultiContextProperty(iface->objectBase(),category_property);
                 d->plugins.refreshViewsData();
              } else
                 new_inactive_plugins << iface->pluginName();

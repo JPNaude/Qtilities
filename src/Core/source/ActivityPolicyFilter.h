@@ -275,6 +275,26 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             void setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast = true);
             //! Sets a single active subject.
             void setActiveSubject(QObject* obj, bool broadcast = true);
+            //! Toggles the activity of a specific subject.
+            /*!
+              \param obj The subject to toggle the activity for.
+              \returns True if successfull, false otherwise.
+              */
+            bool toggleSubjectActivity(QObject* obj);
+            //! Set the activity of a specific subject.
+            /*!
+              \param obj The subject to toggle the activity for.
+              \param is_active The new activity to be set on obj.
+              \returns True if successfull, false otherwise.
+              */
+            bool setSubjectActivity(QObject* obj, bool is_active);
+            //! Get the activity of a specific subject.
+            /*!
+              \param obj The subject to toggle the activity for.
+              \param ok True if the return value can be trusted, that is the subject is observed in this context etc. False otherwise.
+              \returns The activity of the subject.
+              */
+            bool getSubjectActivity(const QObject* obj, bool* ok = 0) const;
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.
