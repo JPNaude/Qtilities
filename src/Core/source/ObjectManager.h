@@ -86,6 +86,60 @@ namespace Qtilities {
         };
 
         /*!
+          \class PropertyDiffInfo
+          \brief The PropertyDiffInfo structure is used to define provide information of property differences between two objects.
+         */
+        class QTILIITES_CORE_SHARED_EXPORT PropertyDiffInfo {
+        public:
+            PropertyDiffInfo() {}
+            PropertyDiffInfo(const PropertyDiffInfo& ref) {
+                d_added_properties = ref.d_added_properties;
+                d_removed_properties = ref.d_removed_properties;
+                d_changed_properties = ref.d_changed_properties;
+            }
+            void operator=(const PropertyDiffInfo& ref) {
+                d_added_properties = ref.d_added_properties;
+                d_removed_properties = ref.d_removed_properties;
+                d_changed_properties = ref.d_changed_properties;
+            }
+            bool operator==(const PropertyDiffInfo& ref) {
+                if (d_added_properties != ref.d_added_properties)
+                    return false;
+                if (d_removed_properties != ref.d_removed_properties)
+                    return false;
+                if (d_changed_properties != ref.d_changed_properties)
+                    return false;
+
+                return true;
+            }
+            void clear() {
+                d_added_properties.clear();
+                d_removed_properties.clear();
+                d_changed_properties.clear();
+            }
+            bool hasChanges() {
+                if (d_added_properties.count() > 0)
+                    return true;
+                if (d_removed_properties.count() > 0)
+                    return true;
+                if (d_changed_properties.count() > 0)
+                    return true;
+                return false;
+            }
+
+            bool operator!=(const PropertyDiffInfo& ref) {
+                return !(*this==ref);
+            }
+
+            //! Added properties: Key = Property Name, Value = Property Value.
+            QMap<QString,QString> d_added_properties;
+            //! Removed properties: Key = Property Name, Value = Old Property Value.
+            QMap<QString,QString> d_removed_properties;
+            //! Changed properties: Key = Property Name, Value = "Old Property Value","New Property Value"
+            QMap<QString,QString> d_changed_properties;
+        };
+
+        /*!
           \class ObjectManagerPrivateData
           \brief The ObjectManagerPrivateData class stores data used by the ObjectManager class.
          */
@@ -206,6 +260,11 @@ if (ObjectManager::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
               */
             static bool setSharedProperty(QObject* obj, SharedProperty shared_property);
+            //! Convenience function which will create and set a SharedProperty with the given name and value on the object.
+            /*!
+              \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
+              */
+            static bool setSharedProperty(QObject* obj, const char* property_name, QVariant property_value);
             //! Convenience function to check if a dynamic property exists on a object.
             static bool propertyExists(const QObject* obj, const char* property_name);
             //! Convenience function to remove all properties that match the PropertyTypeFlags from an object.
@@ -213,8 +272,14 @@ if (ObjectManager::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
             //! Convenience function to compare all properties that match the PropertyTypeFlags on two objects.
             /*!
               This function checks each property using the == overload of the QVariant property type and returns true if they match exactly, false otherwise.
+
+              \param obj1 The first object to use in the comparison. The results will be relative to this object, for example if a property exists on \p obj1 and not on \p obj2, the diff result will show that the property was added. Also, when a property exists on both objects and the value changed, the old value will be the value on \p obj2 and the new value the value on \p obj1.
+              \param obj2 The second object to use in the comparison.
+              \param property_types The property types which must be compared.
+              \param property_diff_info Information about property changes on obj1 compared to obj2. By default the differences will not be calculated, it will only be done when the \p property_diff_info parameter is passed a valid reference.
+              \param ignore_list A list of property names which should be ignored in the comparison.
               */
-            static bool compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types = AllPropertyTypes);
+            static bool compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types = AllPropertyTypes, PropertyDiffInfo* property_diff_info = 0, QStringList ignore_list = QStringList());
 
             // --------------------------------
             // IObjectBase Implementation

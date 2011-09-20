@@ -352,7 +352,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesBinary
             MultiContextProperty multi_context_prop = prop.value<MultiContextProperty>();
             multi_context_prop.setExportVersion(version);
             properties_multi_context << multi_context_prop;
-        } else if (property_types & ObjectManager::NonQtilitiesProperties) {
+        } else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             properties_normal[QString(obj->dynamicPropertyNames().at(i).constData())] = prop;
         }
     }
@@ -474,16 +474,23 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(co
         QVariant prop = obj->property(obj->dynamicPropertyNames().at(i).constData());
         if (prop.isValid() && prop.canConvert<SharedProperty>() && (property_types & ObjectManager::SharedProperties)) {
             SharedProperty shared_prop = prop.value<SharedProperty>();
-            shared_prop.setExportVersion(version);
-            properties_shared << shared_prop;
+            if (shared_prop.isExportable()) {
+                shared_prop.setExportVersion(version);
+                properties_shared << shared_prop;
+            }
         } else if (prop.isValid() && prop.canConvert<MultiContextProperty>() && (property_types & ObjectManager::MultiContextProperties)) {
             MultiContextProperty multi_context_prop = prop.value<MultiContextProperty>();
-            multi_context_prop.setExportVersion(version);
-            properties_multi_context << multi_context_prop;
-        } else if (property_types & ObjectManager::NonQtilitiesProperties) {
+            if (multi_context_prop.isExportable()) {
+                multi_context_prop.setExportVersion(version);
+                properties_multi_context << multi_context_prop;
+            }
+        } else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             properties_normal[QString(obj->dynamicPropertyNames().at(i).constData())] = prop;
         }
     }
+
+    if (properties_shared.count() == 0 && properties_multi_context.count() == 0 && properties_normal.count() == 0)
+        return IExportable::Complete;
 
     // Now do the export:
     QDomElement property_node = doc->createElement("Properties");
@@ -561,9 +568,9 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
         if (item.isNull())
             continue;
 
-        if (item.tagName().startsWith("Properties")) {
+        if (item.tagName() == "Properties") {
             // ---------------------------------------------------
-            // Inspect file format:
+            // Inspect xml document format:
             // ---------------------------------------------------
             Qtilities::ExportVersion read_version;
             if (item.hasAttribute("ExportVersion")) {
@@ -597,6 +604,7 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
                     if (property.isNull())
                         continue;
 
+                    // TODO : Check counts against imported property counts.
                     if (property.tagName().startsWith("PropertyS")) {
                         SharedProperty prop;
                         IExportable::Result intermediate_result = prop.importXml(doc,&property,import_list);
@@ -632,21 +640,20 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
                     }
                 }
             }
-            continue;
-        } else
-            return IExportable::Incomplete;
-    }
 
-    for (int i = 0; i < properties_shared.count(); i++) {
-        if (!(ObjectManager::setSharedProperty(obj,properties_shared.at(i))))
-            return IExportable::Failed;
-    }
-    for (int i = 0; i < properties_multi_context.count(); i++) {
-        if (!(ObjectManager::setMultiContextProperty(obj,properties_multi_context.at(i))))
-            return IExportable::Failed;
-    }
-    for (int i = 0; i < properties_normal.count(); i++) {
-        obj->setProperty(properties_normal.keys().at(i).toUtf8().constData(),properties_normal.values().at(i));
+            for (int i = 0; i < properties_shared.count(); i++) {
+                if (!(ObjectManager::setSharedProperty(obj,properties_shared.at(i))))
+                    result = IExportable::Incomplete;
+            }
+            for (int i = 0; i < properties_multi_context.count(); i++) {
+                if (!(ObjectManager::setMultiContextProperty(obj,properties_multi_context.at(i))))
+                    result = IExportable::Incomplete;
+            }
+            for (int i = 0; i < properties_normal.count(); i++) {
+                obj->setProperty(properties_normal.keys().at(i).toUtf8().constData(),properties_normal.values().at(i));
+            }
+            continue;
+        }
     }
 
     return result;
@@ -672,7 +679,7 @@ bool Qtilities::Core::ObjectManager::cloneObjectProperties(const QObject* source
             shared_properties << prop.value<SharedProperty>();
         else if (prop.isValid() && prop.canConvert<MultiContextProperty>() && (property_types & ObjectManager::MultiContextProperties))
             multi_context_properties << prop.value<MultiContextProperty>();
-        else if (property_types & ObjectManager::NonQtilitiesProperties) {
+        else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             non_qtilities_properties[property_name] = prop;
         }
     }
@@ -774,6 +781,11 @@ bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, SharedPrope
     return !obj->setProperty(shared_property.propertyNameString().toAscii().data(),property);
 }
 
+bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, const char* property_name, QVariant property_value) {
+    SharedProperty sp(property_name,property_value);
+    return ObjectManager::setSharedProperty(obj,sp);
+}
+
 bool Qtilities::Core::ObjectManager::propertyExists(const QObject* obj, const char* property_name) {
     if (!obj)
         return false;
@@ -800,7 +812,7 @@ bool Qtilities::Core::ObjectManager::removeDynamicProperties(QObject* obj, Prope
             to_be_removed << QString(obj->dynamicPropertyNames().at(i).constData());
         else if (prop.isValid() && prop.canConvert<MultiContextProperty>() && (property_types & ObjectManager::MultiContextProperties))
             to_be_removed << QString(obj->dynamicPropertyNames().at(i).constData());
-        else if (property_types & ObjectManager::NonQtilitiesProperties) {
+        else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             to_be_removed << QString(obj->dynamicPropertyNames().at(i).constData());
         }
     }
@@ -813,7 +825,7 @@ bool Qtilities::Core::ObjectManager::removeDynamicProperties(QObject* obj, Prope
     return true;
 }
 
-bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types) {
+bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types, PropertyDiffInfo* property_diff_info, QStringList ignore_list) {
     if (!obj1 || !obj2)
         return false;
 
@@ -823,6 +835,12 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
     QMap<QString, MultiContextProperty> to_be_compared_multi1;
     for (int i = 0; i < obj1->dynamicPropertyNames().count(); i++) {
         QString property_name = QString(obj1->dynamicPropertyNames().at(i).constData());
+
+        // Check if the property is in the ignore list:
+        if (ignore_list.contains(property_name))
+            continue;
+
+        // Check if its a Qtilities property:
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
 
@@ -832,7 +850,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             to_be_compared_shared1[QString(obj1->dynamicPropertyNames().at(i).constData())] = prop.value<SharedProperty>();
         else if (prop.isValid() && prop.canConvert<MultiContextProperty>() && (property_types & ObjectManager::MultiContextProperties))
             to_be_compared_multi1[QString(obj1->dynamicPropertyNames().at(i).constData())] = prop.value<MultiContextProperty>();
-        else if (property_types & ObjectManager::NonQtilitiesProperties) {
+        else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             to_be_compared_normal1[QString(obj1->dynamicPropertyNames().at(i).constData())] = prop;
         }
     }
@@ -843,6 +861,12 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
     QMap<QString, MultiContextProperty> to_be_compared_multi2;
     for (int i = 0; i < obj2->dynamicPropertyNames().count(); i++) {
         QString property_name = QString(obj2->dynamicPropertyNames().at(i).constData());
+
+        // Check if the property is in the ignore list:
+        if (ignore_list.contains(property_name))
+            continue;
+
+        // Check if its a Qtilities property:
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
 
@@ -852,25 +876,169 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             to_be_compared_shared2[QString(obj2->dynamicPropertyNames().at(i).constData())] = prop.value<SharedProperty>();
         else if (prop.isValid() && prop.canConvert<MultiContextProperty>() && (property_types & ObjectManager::MultiContextProperties))
             to_be_compared_multi2[QString(obj2->dynamicPropertyNames().at(i).constData())] = prop.value<MultiContextProperty>();
-        else if (property_types & ObjectManager::NonQtilitiesProperties) {
+        else if (prop.isValid() && !prop.canConvert<SharedProperty>() && !prop.canConvert<MultiContextProperty>() && property_types & ObjectManager::NonQtilitiesProperties) {
             to_be_compared_normal2[QString(obj2->dynamicPropertyNames().at(i).constData())] = prop;
         }
     }
 
+    bool is_equal = true;
     // Compare lists of objects to compare:
     if (to_be_compared_normal1 != to_be_compared_normal2) {
         LOG_TRACE(QString("Comparing dynamic properties on object %1 with object %2. Comparison found that normal QVariant properties differ.").arg(obj1->objectName()).arg(obj2->objectName()));
-        return false;
+        is_equal = false;
     }
     if (to_be_compared_shared1 != to_be_compared_shared2) {
         LOG_TRACE(QString("Comparing dynamic properties on object %1 with object %2. Comparison found that shared properties differ.").arg(obj1->objectName()).arg(obj2->objectName()));
-        return false;
+        is_equal = false;
     }
     if (to_be_compared_multi1 != to_be_compared_multi2) {
         LOG_TRACE(QString("Comparing dynamic properties on object %1 with object %2. Comparison found that multi context properties differ.").arg(obj1->objectName()).arg(obj2->objectName()));
-        return false;
+        is_equal = false;
     }
 
-    return true;
+    if (!is_equal && property_diff_info) {
+        property_diff_info->clear();
+
+        // Get the differences in normal properties:
+        if (property_types & NonQtilitiesProperties) {
+            bool is_changed = true;
+            // Check for added properties:
+            for (int i = 0; i < to_be_compared_normal1.count(); i++) {
+                QString name1 = to_be_compared_normal1.keys().at(i);
+
+                if (!to_be_compared_normal2.contains(name1)) {
+                    if (!QtilitiesProperty::isExportableVariant(to_be_compared_normal1[name1]))
+                        property_diff_info->d_added_properties[name1] = "Non-exportable variant";
+                    else
+                        property_diff_info->d_added_properties[name1] = to_be_compared_normal1[name1].toString();
+                    is_changed = false;
+                }
+            }
+            // Check for removed properties:
+            for (int i = 0; i < to_be_compared_normal2.count(); i++) {
+                QString name2 = to_be_compared_normal2.keys().at(i);
+
+                if (!to_be_compared_normal1.contains(name2)) {
+                    if (!QtilitiesProperty::isExportableVariant(to_be_compared_normal2[name2]))
+                        property_diff_info->d_removed_properties[name2] = "Non-exportable variant";
+                    else
+                        property_diff_info->d_removed_properties[name2] = to_be_compared_normal2[name2].toString();
+                    is_changed = false;
+                }
+            }
+            // Check for changed properties:
+            if (is_changed) {
+                for (int i = 0; i < to_be_compared_normal1.count(); i++) {
+                    QString name = to_be_compared_normal1.keys().at(i);
+                    if (to_be_compared_normal2.contains(name)) {
+                        QVariant value1 = to_be_compared_normal1[name];
+                        QVariant value2 = to_be_compared_normal2[name];
+
+                        QString value1_string;
+                        QString value2_string;
+
+                        if (!QtilitiesProperty::isExportableVariant(value1))
+                            value1_string = "Non-exportable variant";
+                        else
+                            value1_string = value1.toString();
+                        if (!QtilitiesProperty::isExportableVariant(value2))
+                            value2_string = "Non-exportable variant";
+                        else
+                            value2_string = value2.toString();
+
+                        property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
+                    }
+                }
+            }
+        }
+
+        if (property_types & SharedProperties) {
+            bool is_changed = true;
+            // Check for added properties:
+            for (int i = 0; i < to_be_compared_shared1.count(); i++) {
+                QString name1 = to_be_compared_shared1.keys().at(i);
+
+                if (!to_be_compared_shared2.contains(name1)) {
+                    if (!QtilitiesProperty::isExportableVariant(to_be_compared_shared1[name1].value()))
+                        property_diff_info->d_added_properties[name1] = "Non-exportable variant";
+                    else
+                        property_diff_info->d_added_properties[name1] = to_be_compared_shared1[name1].value().toString();
+                    is_changed = false;
+                }
+            }
+            // Check for removed properties:
+            for (int i = 0; i < to_be_compared_shared2.count(); i++) {
+                QString name2 = to_be_compared_shared2.keys().at(i);
+
+                if (!to_be_compared_shared1.contains(name2)) {
+                    if (!QtilitiesProperty::isExportableVariant(to_be_compared_shared2[name2].value()))
+                        property_diff_info->d_removed_properties[name2] = "Non-exportable variant";
+                    else
+                        property_diff_info->d_removed_properties[name2] = to_be_compared_shared2[name2].value().toString();
+                    is_changed = false;
+                }
+            }
+            // Check for changed properties:
+            if (is_changed) {
+                for (int i = 0; i < to_be_compared_shared1.count(); i++) {
+                    QString name = to_be_compared_shared1.keys().at(i);
+                    if (to_be_compared_shared2.contains(name)) {
+                        QVariant value1 = to_be_compared_shared1[name].value();
+                        QVariant value2 = to_be_compared_shared2[name].value();
+
+                        QString value1_string;
+                        QString value2_string;
+
+                        if (!QtilitiesProperty::isExportableVariant(value1))
+                            value1_string = "Non-exportable variant";
+                        else
+                            value1_string = value1.toString();
+                        if (!QtilitiesProperty::isExportableVariant(value2))
+                            value2_string = "Non-exportable variant";
+                        else
+                            value2_string = value2.toString();
+
+                        property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
+                    }
+                }
+            }
+        }
+
+        if (property_types & MultiContextProperties) {
+            bool is_changed = true;
+            // Check for added properties:
+            for (int i = 0; i < to_be_compared_multi1.count(); i++) {
+                QString name1 = to_be_compared_multi1.keys().at(i);
+
+                if (!to_be_compared_multi2.contains(name1)) {
+                    property_diff_info->d_added_properties[name1] = "(" + to_be_compared_multi1[name1].valueString() + ")";
+                    is_changed = false;
+                }
+            }
+            // Check for removed properties:
+            for (int i = 0; i < to_be_compared_multi2.count(); i++) {
+                QString name2 = to_be_compared_multi2.keys().at(i);
+
+                if (!to_be_compared_multi1.contains(name2)) {
+                    property_diff_info->d_removed_properties[name2] = "(" + to_be_compared_multi2[name2].valueString() + ")";
+                    is_changed = false;
+                }
+            }
+            // Check for changed properties:
+            if (is_changed) {
+                for (int i = 0; i < to_be_compared_multi1.count(); i++) {
+                    QString name = to_be_compared_multi1.keys().at(i);
+                    if (to_be_compared_multi2.contains(name)) {
+                        QString value1_string = to_be_compared_multi1[name].valueString();
+                        QString value2_string = to_be_compared_multi2[name].valueString();
+
+                        property_diff_info->d_changed_properties[name] = "(" + value2_string + "),(" + value1_string + ")";
+                    }
+                }
+            }
+        }
+    }
+
+    return is_equal;
 }
 
