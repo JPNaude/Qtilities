@@ -76,7 +76,7 @@ namespace Qtilities {
 
         public:
             ObserverTreeModel(QObject *parent = 0);
-            virtual ~ObserverTreeModel() {}
+            virtual ~ObserverTreeModel();
 
             // --------------------------------
             // QAbstractItemModel Implementation
@@ -132,8 +132,11 @@ namespace Qtilities {
             //! Function which will rebuild the complete tree structure under the top level observer.
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
+
+                \param new_selection The objects which must be selected in the view after the rebuild was done. When new_selection is empty the current selection will
+                be the new selection (also, when nothing was selected, nothing will be selected after the rebuild in this case).
               */
-            void rebuildTreeStructure(QList<QPointer<QObject> > = QList<QPointer<QObject> >());
+            void rebuildTreeStructure(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
 
         public slots:
             //! Function which will calculate the selection parent of a selected object.
@@ -164,9 +167,9 @@ namespace Qtilities {
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
             void selectionParentChanged(Observer* new_observer);
-            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emmited when the tree finished to rebuild itself.
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
             void selectObjects(QList<QPointer<QObject> > objects) const;
-            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emmited when the tree finished to rebuild itself.
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
             void selectObjects(QList<QObject*> objects) const;
 
         private:

@@ -54,7 +54,7 @@ using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::ObserverTreeModelData {
-    ObserverTreeItem*           rootItem;
+    QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
     QModelIndex                 selection_index;
     QList<QPointer<QObject> >   selected_objects;
@@ -71,14 +71,20 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbs
     d->type_grouping_name = QString();
 }
 
-bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer) {
-    if (!observer)
-        return false;
+Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
+    if (d->rootItem)
+        delete d->rootItem;
+    delete d;
+}
 
+bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer) {
     if (d_observer) {
         d_observer->disconnect(this);
         reset();
     }
+
+    if (!observer)
+        return false;
 
     if (!AbstractObserverItemModel::setObserverContext(observer))
         return false;
@@ -979,6 +985,12 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<QObject> > new_selection) {
+    #ifdef QTILITIES_BENCHMARKING
+    time_t start,end;
+    time(&start);
+    #endif
+    qDebug() << "Rebuilding tree structure on view: " << objectName();
+
     // Rebuild the tree structure:
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     reset();
@@ -996,6 +1008,12 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     //printStructure();
     emit layoutAboutToBeChanged();
     emit layoutChanged();
+
+    #ifdef QTILITIES_BENCHMARKING
+    time(&end);
+    double diff = difftime(end,start);
+    LOG_WARNING("Tree model (" + objectName() + ") took " + QString::number(diff) + " seconds to rebuild itself.");
+    #endif
 
     // Handle item selection after tree has been rebuilt:
     if (new_selection.count() > 0) {
