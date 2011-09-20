@@ -228,6 +228,8 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             inline bool isValid() const { return d_category_levels.count() > 0; }
             //! Indicates if this category is empty. Thus no levels have been added to it.
             inline bool isEmpty() const { return (d_category_levels.count() == 0); }
+            //! Clears the category.
+            inline void clear() { d_category_levels.clear(); }
 
             //! Returns the category as a QString.
             /*!
