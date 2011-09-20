@@ -11,7 +11,11 @@
 <td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
 <h1 style="margin:0px; padding:0px">Overview</h1>
 
-The C++ factory pattern is a powerful tool which can be used to create objects using only a tag such as a string. The %Qtilities libraries provides an advanced factory pattern implementation which allows the developer to easily create factories, and to manage multiple factories in an application.
+The C++ factory pattern is a powerful tool which can be used to create objects using only a tag such as a string. The %Qtilities libraries provides an advanced
+Qt friendly factory pattern implementation which allows the developer to easily create factories, and to manage multiple factories in an plugin extendable application.
+
+This article explains a few different concepts, but everything comes together nicely at the end of the article, thus to get the whole picture you would need to
+hold out and read the whole page.
 
 Table of contents:
 - \ref creating_factories
@@ -177,13 +181,13 @@ The Qtilities::Core::InstanceFactoryInfo struct was created for this exact reaso
 
 As discussed in the previous section, a Qtilities::Core::InstanceFactoryInfo object contains all the information needed to construct an object somewhere in a factory exposed to the object manager. For this reason any object implementing the Qtilities::Core::Interfaces::IExportable interface must provide an InstanceFactoryInfo object. This way we can reconstruct the object during import operations on the interface. The InstanceFactoryInfo class has constructors for all of the export formats provided by the IExportable interface for this reason. 
 
-This gets us to a very important point: When implementing the IExportable interface, the first thing that must be added to the export object (whether it is a QDataStream during binary exporting, or a QDomElement during XML exporting) is the information contained by InstanceFactoryInfo. During import we get this information, construct the object and then pass the import object to the reconstructed object.
+This gets us to a very important point: When implementing the IExportable interface, the first thing that must be added to the export object (whether it is a QDataStream during binary exporting, or a QDomElement during XML exporting) is the information contained by InstanceFactoryInfo. During import we get this information, construct the object and the call the import functions on the reconstructed object.
 
 \subsection qtilities_factory Ready to use factory and factory classes
 
 The object manager provides a ready to use factory, called the %Qtilities factory in the documentation and by Qtilities::Core::Constants::qti_def_FACTORY_QTILITIES name in the %Qtilities sources. This factory can produce any QObject based class for which a factory interface was registered in the object manager. Many of the %Qtilities classes are registered by default and can be produced using this factory (See \ref factory_debugging).
 
-Lets look at an example where we create change the \p ProduceMe class in the above example. We make it QObject based, register it in the factory and then produce it:
+Lets look at an example where we create change the \p ProduceMe class in the above example. We make it QObject based, register it in the &Qtilities factory and then produce it:
 
 \code
 // --------------------------------------------

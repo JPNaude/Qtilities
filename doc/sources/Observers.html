@@ -23,7 +23,7 @@ Table of contents:
 	- \ref object_categories
 	- \ref object_lifetimes
         .
-- \ref observer_properties
+- \ref qtilities_properties
 	- \ref different_properties
 	- \ref important_properties
 	- \ref monitoring_property_changes
@@ -147,7 +147,7 @@ Now each object will be attached both observer A and observer B. The above code 
 
 Every observer created in your application will have an unique integer ID associated with it. This value is assigned to the observer by the object manager in its constructor. The ID of an observer can be accessed using the Qtilities::Core::Observer::observerID() function. It is also possible to access any observer instance through the Qtilities::Core::ObjectManager::observerReference() function. 
 
-When an object is attached to one or more observers it is assigned an unique ID within each context. The ID is stored on the object using the Qtilities::Core::Properties::qti_prop_OBSERVER_MAP dynamic property. The \ref observer_properties section explores dynamic properties in detail.
+When an object is attached to one or more observers it is assigned an unique ID within each context. The ID is stored on the object using the Qtilities::Core::Properties::qti_prop_OBSERVER_MAP dynamic property. The \ref qtilities_properties section explores dynamic properties in detail.
 
 \subsection object_categories Object categories: Organizing objects into categories inside a context
 
@@ -159,7 +159,7 @@ For examples of how observer widgets visualize categories, see the \ref hierarch
 
 When attaching objects to observers, it is possible to specify the way the object should be managed by the observer context. The possible management options are defined in the Qtilities::Core::Observer::ObjectOwnership enumeration. The ownership of any object observed by one or more observers is stored using the Qtilities::Core::Properties::qti_prop_OWNERSHIP property.
 
-\section observer_properties Dynamic properties used and managed by Observers
+\section qtilities_properties Dynamic properties used and managed by Observers
 
 %Observer classes use the dynamic property features of QObject classes extensively to manage objects in contexts. This section will explain how to use these properties, which properties exists and how property changes can be monitored. The sections to follow will explain the different properties which is used in %Qtilities, however new custom properties can easily be created and added to objects since the observer property classes are basically wrappers around QVariant. 
 
