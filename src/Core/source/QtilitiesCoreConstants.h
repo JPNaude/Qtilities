@@ -75,7 +75,7 @@ namespace Qtilities {
         /*!
           This namespace contains a set of properties which are defined and used in %Qtilities. For each property a set of permissions are given along with short description and an example of how to use it.
 
-          For an overview of the different kind of properties, see the \ref observer_properties section of the \ref page_observers article, or Qtilities::Core::QtilitiesProperty. \p QtilitiesProperty provides static functions to check the permissions etc. of a property at runtime. Note that all properties used by %Qtilities starts with "qti_prop". For an overview of property changes and changing properties see the \ref monitoring_property_changes section of the \ref page_observers article.
+          For an overview of the different kind of properties, see the \ref qtilities_properties section of the \ref page_observers article, or Qtilities::Core::QtilitiesProperty. \p QtilitiesProperty provides static functions to check the permissions etc. of a property at runtime. Note that all properties used by %Qtilities starts with "qti_prop". For an overview of property changes and changing properties see the \ref monitoring_property_changes section of the \ref page_observers article.
           */
         namespace Properties {
 

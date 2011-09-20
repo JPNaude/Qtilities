@@ -47,7 +47,7 @@ namespace Qtilities {
     namespace Core {
         /*!
         \class TreeIterator
-        \brief An iterator which iterates throught an Observer (thus also TreeNode) tree.
+        \brief An iterator which iterates throught an Observer tree (thus also Qtilities::CoreGui::TreeNode).
 
         The TreeIterator allows you to easily iterate over the items in a tree as shown below.
 

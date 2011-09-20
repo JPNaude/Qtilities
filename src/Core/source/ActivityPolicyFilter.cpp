@@ -310,7 +310,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
         }
 
         if (!observer->contains(objects.at(i)) && objects.at(i)) {
-            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context.").arg(objects.at(i)->objectName()));
+            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context (%2).").arg(objects.at(i)->objectName()).arg(observer->observerName()));
             return;
         }
     }

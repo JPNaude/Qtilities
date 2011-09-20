@@ -88,7 +88,6 @@ namespace Qtilities {
                 d_instance_tag = ref.d_instance_tag;
                 d_instance_name = ref.d_instance_name;
                 d_description = ref.d_description;
-                d_icon_path = ref.d_icon_path;
             }
             bool operator==(const InstanceFactoryInfo& ref) {
                 if (d_factory_tag != ref.d_factory_tag)
@@ -108,7 +107,6 @@ namespace Qtilities {
                 d_instance_tag = ref.d_instance_tag;
                 d_instance_name = ref.d_instance_name;
                 d_description = ref.d_description;
-                d_icon_path = ref.d_icon_path;
             }
 
             //! Returns true if this object contains the neccessary information to be used during object construction.
@@ -139,8 +137,6 @@ namespace Qtilities {
             QString d_instance_name;
             //! A description for this type of object. This is not part of any exports.
             QString d_description;
-            //! A path to an icon to load for this type of object. This is not part of any exports.
-            QString d_icon_path;
         };
     }
 }
