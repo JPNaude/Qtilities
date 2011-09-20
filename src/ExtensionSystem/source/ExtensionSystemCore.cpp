@@ -125,6 +125,15 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
+    // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
+    // an action is added in a plugin.
+    bool current_processing_cycle_active_commands = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+    bool current_processing_cycle_active_containers = ACTION_MANAGER->actionContainerObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();
+    bool current_processing_cycle_active_op = OBJECT_MANAGER->objectPool()->isProcessingCycleActive();
+    OBJECT_MANAGER->objectPool()->startProcessingCycle();
+
     // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
     // In that case, load the default plugin file:
     if (isPluginActivityControlEnabled()) {
@@ -344,6 +353,13 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
     // Only connect here since the signal will be emitted in above code:
     connect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
+
+    if (!current_processing_cycle_active_commands)
+        ACTION_MANAGER->commandObserver()->endProcessingCycle(true);
+    if (!current_processing_cycle_active_containers)
+        ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(true);
+    if (!current_processing_cycle_active_op)
+        OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
     emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
