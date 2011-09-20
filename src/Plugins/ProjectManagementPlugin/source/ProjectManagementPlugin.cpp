@@ -96,6 +96,9 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
 
+    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+
     // ---------------------------
     // New Project
     // ---------------------------
@@ -147,6 +150,9 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
 
     // Register project management config page.
     OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+
+    if (!current_processing_cycle_active)
+        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 
     d->is_initialized = true;
     return true;
