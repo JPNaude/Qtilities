@@ -245,6 +245,17 @@ QString Qtilities::CoreGui::TreeFileItem::filePath() const {
     return treeFileItemBase->file_info.filePath();
 }
 
+void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
+    bool modified = false;
+    if (filePath() != new_file_path)
+        modified = true;
+
+    treeFileItemBase->file_info.setFile(new_file_path);
+
+    if (modified)
+        setModificationState(true,IModificationNotifier::NotifyListeners);
+}
+
 QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativePath() const {
     return treeFileItemBase->file_info.absoluteToRelativePath();
 }

@@ -109,7 +109,7 @@ namespace Qtilities {
 
             //! Sets the file path of this tree file item.
             /*!
-              Does the same as QFileModel::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
+              Does the same as QFileInfo::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
 
               This function will check if there is an qti_prop_NAME property on this object and set it. If it does not exist it will
               just set objectName(). Note that this does not set the names in the qti_prop_ALIAS_MAP property if it exists.
@@ -120,9 +120,9 @@ namespace Qtilities {
               */
             virtual void setFile(const QString& file_path, const QString& relative_to_path = QString(), bool broadcast = true);
 
-            //! See QFileModel::isRelative().
+            //! See QFileInfo::isRelative().
             bool isRelative() const;
-            //! See QFileModel::isAbsolute().
+            //! See QFileInfo::isAbsolute().
             bool isAbsolute() const;
 
             //! See QtilitiesFileInfo::hasRelativeToPath().
@@ -132,26 +132,28 @@ namespace Qtilities {
             //! See QtilitiesFileInfo::relativeToPath().
             QString relativeToPath() const;
 
-            //! See QFileModel::path().
+            //! See QFileInfo::path().
             virtual QString path() const;
-            //! See QFileModel::path().
+            //! See QFileInfo::filePath().
             virtual QString filePath() const;
+            //! See QFileInfo::setFilePath();
+            virtual void setFilePath(const QString& new_file_path) ;
             //! See QtilitiesFileInfo::absoluteToRelativePath().
             virtual QString absoluteToRelativePath() const;
             //! See QtilitiesFileInfo::absoluteToRelativeFilePath().
             virtual QString absoluteToRelativeFilePath() const;
 
-            //! See QFileModel::fileName().
+            //! See QFileInfo::fileName().
             QString fileName() const;
             //! Reimplementation of QtilitiesFileInfo::setFileName() which sets the modification state to true if needed.
             void setFileName(const QString& new_file_name);
-            //! See QFileModel::baseName().
+            //! See QFileInfo::baseName().
             QString baseName() const;
-            //! See QFileModel::completeBaseName().
+            //! See QFileInfo::completeBaseName().
             QString completeBaseName() const;
-            //! See QFileModel::suffix().
+            //! See QFileInfo::suffix().
             QString suffix() const;
-            //! See QFileModel::completeSuffix().
+            //! See QFileInfo::completeSuffix().
             QString completeSuffix() const;
 
             //! See QtilitiesFileInfo::actualPath().
