@@ -96,6 +96,8 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.paren
 Qtilities::Core::Observer::~Observer() {
     startProcessingCycle();
 
+    observerData->number_of_subjects_start_of_proc_cycle = -1;
+
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         observerData->deliver_qtilities_property_changed_events = false;
 
@@ -113,6 +115,7 @@ Qtilities::Core::Observer::~Observer() {
             Observer* obs = qobject_cast<Observer*> (obj);
             if (obs)
                 obs->startProcessingCycle();
+            // TODO handle containment approach here as well, thus if contained, set processing cycle on contained observer as well.
 
             subject_ownership_variant = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
             parent_observer_variant = getMultiContextPropertyValue(obj,qti_prop_PARENT_ID);
@@ -302,13 +305,6 @@ bool Qtilities::Core::Observer::isModified() const {
 }
 
 void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
-    if (observerData->display_hints) {
-        if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
-            if (observerData->is_modified != new_state)
-                refreshViewsData();
-        }
-    }
-
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         // First notify all objects in this context.
         for (int i = 0; i < observerData->subject_list.count(); i++) {
@@ -337,6 +333,13 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
             emit modificationStateChanged(new_state);
         }
     }
+
+    if (observerData->display_hints) {
+        if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
+            if (observerData->is_modified != new_state)
+                refreshViewsData();
+        }
+    }
 }
 
 void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection) {
@@ -353,23 +356,59 @@ void Qtilities::Core::Observer::startProcessingCycle() {
     if (observerData->process_cycle_active)
         return;
 
+    observerData->number_of_subjects_start_of_proc_cycle = subjectCount();
     observerData->process_cycle_active = true;
     emit processingCycleStarted();
 }
 
-void Qtilities::Core::Observer::endProcessingCycle() {
+void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
     if (!observerData->process_cycle_active)
         return;
 
+    // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
+    if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
+        if (isModified())
+            emit modificationStateChanged(true);
+
+        if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
+            emit numberOfSubjectsChanged(Observer::SubjectRemoved);
+            emit layoutChanged();
+        }
+        else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
+            emit numberOfSubjectsChanged(Observer::SubjectAdded);
+            emit layoutChanged();
+        }
+    }
+
     observerData->process_cycle_active = false;
     emit processingCycleEnded();
-
-    if (isModified())
-        emit modificationStateChanged(true);
 }
 
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
+}
+
+void Qtilities::Core::Observer::startTreeProcessingCycle() {
+    QList<QObject*> obj_list = treeChildren();
+    for (int i = 0; i < obj_list.count(); i++) {
+        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
+        if (obs)
+            obs->startProcessingCycle();
+    }
+
+    startProcessingCycle();
+}
+
+void Qtilities::Core::Observer::endTreeProcessingCycle(bool broadcast) {
+    QList<QObject*> obj_list = treeChildren();
+    for (int i = 0; i < obj_list.count(); i++) {
+        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
+        if (obs) {
+            obs->endProcessingCycle(false);
+        }
+    }
+
+    endProcessingCycle(broadcast);
 }
 
 void Qtilities::Core::Observer::setFactoryData(Qtilities::Core::InstanceFactoryInfo factory_data) {
@@ -1062,16 +1101,17 @@ void Qtilities::Core::Observer::deleteAll() {
     }
     QCoreApplication::processEvents();
 
-    if (has_active_processing_cycle) {
-        setModificationState(true);
-        emit numberOfSubjectsChanged(SubjectRemoved, QList<QPointer<QObject> >());
-        emit layoutChanged(QList<QPointer<QObject> >());
-    } else {
+    if (!has_active_processing_cycle)
         endProcessingCycle();
-        setModificationState(true);
-        emit numberOfSubjectsChanged(SubjectRemoved, QList<QPointer<QObject> >());
-        emit layoutChanged(QList<QPointer<QObject> >());
-    }
+
+//    if (has_active_processing_cycle) {
+//        // Can't remember why this was in here
+//        //            setModificationState(true);
+//        //            emit numberOfSubjectsChanged(SubjectRemoved, QList<QPointer<QObject> >());
+//        //            emit layoutChanged(QList<QPointer<QObject> >());
+//    } else {
+//        endProcessingCycle();
+//    }
 }
 
 QVariant Qtilities::Core::Observer::getMultiContextPropertyValue(const QObject* obj, const char* property_name) const {
@@ -1794,7 +1834,7 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
 
 bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 {
-    if ((event->type() == QEvent::DynamicPropertyChange)) {
+    if ((event->type() == QEvent::DynamicPropertyChange) && observerData->filter_subject_events_enabled) {
         // Get the event in the correct format
         QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
 
@@ -1808,12 +1848,6 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
 
         // Next check if it is a monitored property.
         if (contains(object) && monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-            // Check if property change monitoring is enabled.
-            // Property changes from within observer sets this to true before changing properties.
-            if (!observerData->filter_subject_events_enabled) {
-                return false;
-            }
-
             // Handle changes from different threads:
             if (!observerData->observer_mutex.tryLock()) {
                 QList<QObject*> filtered_list;
@@ -1868,12 +1902,18 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                     (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_TEXT_ALIGNMENT)) ||
                     (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_FONT)) ||
                     (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_SIZE_HINT))) {
+
                     refreshViewsData();
                 }
 
                 // 4. For specific role properties, we need to notify views that layout changed:
                 if (!qstrcmp(propertyChangeEvent->propertyName().data(),qti_prop_CATEGORY_MAP)) {
-                    refreshViewsLayout();
+                    // Get the property and check its last changed context:
+                    MultiContextProperty prop = ObjectManager::getMultiContextProperty(object,qti_prop_CATEGORY_MAP);
+                    if (prop.isValid()) {
+                        if (prop.lastChangedContext() == observerID())
+                            refreshViewsLayout();
+                    }
                 }
             }
 

@@ -45,6 +45,7 @@
 #include "IModificationNotifier.h"
 #include "SubjectTypeFilter.h"
 #include "QtilitiesCategory.h"
+#include "IExportableObserver.h"
 
 #include <QObject>
 #include <QString>
@@ -116,7 +117,7 @@ observerWidget.show();
 
         In the above tree \p Root, \p A and \p B are all observers with \p 1-4 being any QObject based classes. On the \p Root observer it is possible to access its subjects using functions on observer that start with \p subject. For example: subjectCount(), subjectLimit(), subjectAt() etc. Thus these functions allow you to access the objects directly underneath an observer. On the other hand, function starting with \p tree allow you to operate on the complete tree underneath an observer. For example: treeCount(), treeAt() etc.
 
-        %Qtilities provides the SubjectIterator and TreeIterator iterators which allows you to iterator over different parts of the tree structure underneath an observer.
+        %Qtilities provides the SubjectIterator and TreeIterator iterators which allows you to iterate over different parts of the tree structure underneath an observer.
 
         A common request by Qt developers is the ability to easily create and display data based on arbitrary tree structures to users, and to easily interact with users through these trees. It is of course doable using Qt's QAbstractItemModel but its not a trivial tasks and can take time to get right. %Qtilities attempts to provide an easy solution to this request in the form of ready to use classes which allows you to build trees easily. The \ref page_tree_structures page provides a detailed overview of this solution.
 
@@ -127,7 +128,7 @@ observerWidget.show();
         \section observer_threads Observers and threads
 
         Since observers manage objects which can live in different threads it is important to take care when using observers outside of the GUI thread. The following considerations must be taken into account when using observers in threads outside of the GUI thread and attaching objects to observers that live in different threads:
-        - Observers monitor QDynamicPropertyChange events on objects that it manages, and send QtilitiesPropertyChangeEvents on specific internal %Qtilities properties to objects that it manages. Since properties cannot be posted to objects living in other threads, and events cannot be filtered on objects in a different thread, this functionality of observers cannot be used when using threads as specified above. Event filtering is enabled by default, thus if you intend to use observers which manage objects in different threads, disable this using toggleSubjectEventFiltering().
+        - Observers monitor QDynamicPropertyChange events on objects that it manages, and send QtilitiesPropertyChangeEvent events on specific internal %Qtilities properties to objects that it manages. Since properties cannot be posted to objects living in other threads, and events cannot be filtered on objects in a different thread, this functionality of observers cannot be used when using threads as specified above. Event filtering is enabled by default, thus if you intend to use observers which manage objects in different threads, disable this using toggleSubjectEventFiltering().
         - When using observer's with naming policy filters installed outside of the GUI thread, make sure you don't use the Qtilities::CoreGui::NamingPolicyFilter::PromptUser resolution policy since it will attempt to construct a QWidget under specific circumstances and you application will crash.
 
         Observer by itself is not thread-safe.
@@ -136,10 +137,11 @@ observerWidget.show();
 
         From a user perspective the observer API attempts to hide the complexities of how object management is done. Behind the scenes there is a lot that is happening and lots of complex features that allows you to customize the way you use observers. The \ref page_observers article is a good place to start exploring these details.
         */
-        class QTILIITES_CORE_SHARED_EXPORT Observer : public QObject, public IExportable, public IModificationNotifier
+        class QTILIITES_CORE_SHARED_EXPORT Observer : public QObject, public IExportable, public IModificationNotifier, public IExportableObserver
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableObserver)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
             Q_ENUMS(SubjectChangeIndication);
             Q_ENUMS(ObjectOwnership);            
@@ -502,6 +504,9 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               */
             virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
+            // --------------------------------
+            // IExportableObserver Implementation
+            // --------------------------------
             virtual IExportable::Result exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
             virtual IExportable::Result exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
 
@@ -552,34 +557,55 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               event filtering, see subjectEventFilteringEnabled() and toggleSubjectEventFiltering().
               
               If a processing cycle was already started, this function does nothing.
-              
-              \note It is very important to note that the observer's layoutChanged() and dataChanged() signals are not
-              emitted during processing cycles. Thus, views displaying the observer are not going to update until
-              during processing cycles. Therefore you need to call the refreshViewsLayout() or refreshViewsData() after
-              your processing cycle is completed. The function you must call will depend on what you changed during the
-              processing cycle.
 
-              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
+              \note It is very important to note that the observer's layoutChanged() and dataChanged() signals are not
+              emitted during processing cycles. Thus, views displaying the observer are not going to update
+              during processing cycles. When calling endProcessingCycle with the \p broadcast parameter set to true (the default) the
+              correct signals will be emitted only if the number of subjects changed during the processing cycle. See endProcessingCycle() for more
+              information.
+
+              \sa endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted(), startTreeProcessingCyle()
               */
             virtual void startProcessingCycle();
             //! Ends a processing cycle.
             /*!
-              Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started
-              when calling this function, it does nothing.
+              Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started when calling this function, it does nothing.
 
-              Note that you must manually call the needed update signals refreshViewsData() or refreshViewsLayout()
-              after ending a processing cycle.
+              \param broadcast If the number of subjects changed during the processing cycle (thus, since startProcessingCycle() was called the first time), this function will
+              automatically emit numberOfSubjectsChanged() and refreshLayout() when broadcast is true. When false, none of these signals are emitted. Also,
+              if the observer's modification state is true after the processing cycle ended, the modificationStateChanged() signal will automatically be called when broadcast
+              is true, and not when broadcast is false.
 
-              If the observer's modification state is true after the processing cycle ended, the modificationStateChanged() signal will automatically be called.
+              \note When emitting numberOfSubjectsChanged() the objects parameter will be empty even when the number of subjects changed.
 
-              \sa startProcessingCycle(), isProcessingCycleActive(), processingCycleEnded();
+              \sa startProcessingCycle(), isProcessingCycleActive(), processingCycleEnded(), endTreeProcessingCycle()
               */
-            virtual void endProcessingCycle();
+            virtual void endProcessingCycle(bool broadcast = true);
             //! Indicates if a processing cycle is active.
             /*!
               \sa startProcessingCycle(), endProcessingCycle()
               */
             bool isProcessingCycleActive() const;
+            //! Starts a processing cycle.
+            /*!
+              Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
+              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function. It
+              is also important to node that endTreeProcessingCycle() does not respect the processing cycles on any observers it encounters. Thus, if you start a processing cycle
+              on an Observer in the tree, calling endTreeProcessingCycle() will not respect the fact that you started and processing cycle already, and it will end it.
+
+              \sa endTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
+              */
+            virtual void startTreeProcessingCycle();
+            //! Starts a processing cycle.
+            /*!
+              Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
+              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function. It
+              is also important to node that endTreeProcessingCycle() does not respect the processing cycles on any observers it encounters. Thus, if you start a processing cycle
+              on an Observer in the tree, calling endTreeProcessingCycle() will not respect the fact that you started and processing cycle already, and it will end it.
+
+              \sa startTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
+              */
+            virtual void endTreeProcessingCycle(bool broadcast = true);
 
             // --------------------------------
             // Functions to attach / detach subjects
@@ -783,6 +809,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
                 This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
 
                 \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
+
+                \note This observer itself is not counted.
                 */
             int treeCount(const Observer* observer = 0) const;
             //! Function to get a QObject reference at a specific location in the tree underneath this observer.
@@ -792,9 +820,13 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             QObject* treeAt(int i) const;
             //! Function to check if a specific AbstractTreeItem is contained in the tree underneath this node.
             bool treeContains(QObject* tree_item) const;
-            //! Function to get the QOBject references of all items in the tree underneath this observer.
+            //! Function to get the QObject references of all items in the tree underneath this observer.
             /*!
+              Returns a list of QObjects* in tree underneath this observer where the list is populated in the same order in which Qtilities::Core::TreeIterator iterates through the tree.
+
               \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
+
+              \note This observer itself is not included in the list.
               */
             QList<QObject*> treeChildren(const Observer* observer = 0) const;
             //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subjects' names are returned.
@@ -970,13 +1002,14 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               in the complete tree under the observer, see layoutChanged().
 
               \param change_indication Slots can use this indicator to know what change occured.
-              \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted and the observer picked it up and removed them.
+              \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted and the observer picked it up and removed them. When this signal is emitted in endProcessingCycle() this list will be empty.
 
-              \note When ever it is needed to emit this signal, Observer will first set the modification state of the Observer to true and then emit the signal. This allows you to react to changes in the number of subjects and perform actions such as saving your project automatically etc.
-
-              \note When a processing cycle is active on the observer, this signal will always be emitted while the processing cycle is active.
+              \note Whenever it is needed to emit this signal, Observer will first set the modification state of the Observer to true and then emit the signal.
+              \note When a processing cycle is active on the observer, this signal will be emitted at the end of the processing cycle in endProcessingCycle only if
+              the number of subjects changed during the processing cycle. See endProcessingCycle() for more information.
               */
             void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QPointer<QObject> > objects = QList<QPointer<QObject> >());
+        signals:
             //! A signal which is emitted when the layout of the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the layout of an observer or the tree underneath it changes.

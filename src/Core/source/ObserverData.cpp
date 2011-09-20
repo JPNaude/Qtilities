@@ -344,7 +344,10 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStre
             if (obs) {
                  ExportItemFlags child_obs_flags = export_flags;
                  child_obs_flags &= ~ExportRelationalData;
-                 result = obs->exportBinaryExt(stream,child_obs_flags);
+
+                 IExportableObserver* export_iface_obs = qobject_cast<IExportableObserver*> (obs->objectBase());
+                 Q_ASSERT(export_iface_obs);
+                 result = export_iface_obs->exportBinaryExt(stream,child_obs_flags);
             } else
                  result = iface->exportBinary(stream);
 
@@ -602,10 +605,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
     if (!has_active_processing_cycle)
         observer->endProcessingCycle();
+
     observer->refreshViewsLayout();
 
     if (success) {
-
         if (complete) {
             LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was successfull (complete)."));
             return IExportable::Complete;
@@ -812,7 +815,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                     if (obs) {
                         ExportItemFlags child_obs_flags = export_flags;
                         child_obs_flags &= ~ExportRelationalData;
-                        intermediate_result = obs->exportXmlExt(doc,&subject_item,child_obs_flags);
+                        IExportableObserver* export_iface_obs = qobject_cast<IExportableObserver*> (obs->objectBase());
+                        Q_ASSERT(export_iface_obs);
+
+                        // Must create new IObserverExportable interface to handle this situation.
+                        intermediate_result = export_iface_obs->exportXmlExt(doc,&subject_item,child_obs_flags);
                     } else
                         intermediate_result = export_iface->exportXml(doc,&subject_item);
 
@@ -1024,9 +1031,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                                         if (childrenChild.hasAttribute("Ownership")) {
                                             ownership = Observer::stringToObjectOwnership(childrenChild.attribute("Ownership"));
                                         }
-                                        if (observer->attachSubject(iface->objectBase(),ownership))
+                                        if (observer->attachSubject(iface->objectBase(),ownership)) {
                                             import_list << obj;
-                                        else {
+                                        } else {
                                             LOG_WARNING(QString(QObject::tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
                                             delete obj;
                                             result = IExportable::Incomplete;
@@ -1067,7 +1074,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                                             intermediate_result = iface->importXml(doc,&childrenChild,import_list);
 
                                         if (intermediate_result != IExportable::Complete) {
-                                            LOG_WARNING(QString(QObject::tr("Failed to reconstruct object in tree node: %1. Import will be incomplete.")).arg(observer->observerName()));
+                                            LOG_WARNING(QString(QObject::tr("Failed to reconstruct object completely in tree node: %1. Item %2 will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()));
                                             result = IExportable::Incomplete;
                                         }
 

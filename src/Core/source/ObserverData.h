@@ -73,8 +73,6 @@ namespace Qtilities {
                 ExportData                  = 1, /*!< Exports all observer data, subjects and their children. */
                 ExportVisitorIDs            = 2, /*!< XML Only: Indicates that VisitorIDs must be added to subject nodes. This is needed when ExportRelationalData is used, and therefore it is automatically enabled in that case.  */
                 ExportRelationalData        = 4, /*!< Indicates that an ObserverRelationalTable must be constructed for the observer and it must be exported with the observer data. During extended imports the relational structure of the tree under your observer will be reconstructed. */
-//                ExportQtilitiesProperties   = 8, /*!< Binary Only: Exports all %Qtilities properties found on the objects which implements << and >> stream operators. This is needed when ExportRelationalData is used, and therefore it is automatically enabled in that case.*/
-
                 ExportAllItems             = ExportData | ExportVisitorIDs | ExportRelationalData
             };
             Q_DECLARE_FLAGS(ExportItemFlags, ExportItem);
@@ -90,7 +88,8 @@ namespace Qtilities {
                 process_cycle_active(false),
                 is_modified(false),
                 observer(obs),
-                object_deletion_policy(0)
+                object_deletion_policy(0),
+                number_of_subjects_start_of_proc_cycle(0)
             {
                 subject_list.setObjectName(observer_name);
             }
@@ -110,7 +109,8 @@ namespace Qtilities {
                 process_cycle_active(other.process_cycle_active),
                 is_modified(other.is_modified),
                 observer(other.observer),
-                object_deletion_policy(other.object_deletion_policy) {}
+                object_deletion_policy(other.object_deletion_policy),
+                number_of_subjects_start_of_proc_cycle(0) {}
 
             // --------------------------------
             // IObjectBase Implementation
@@ -181,9 +181,15 @@ namespace Qtilities {
             InstanceFactoryInfo factory_data;
             bool process_cycle_active;
             bool is_modified;
-            // Keeps track of its parent observer:
+            //! Keeps track of its parent observer:
             Observer* observer;
             int object_deletion_policy;
+            //! Used during processing cycles to store the number of subjects before the processing cycle started. This allows correct emission of numberOfSubjectsChanged() when the processing cycle ends.
+            /*!
+              \note When setting number_of_subjects_start_of_proc_cycle to -1, the numberOfSubjectsChanged() signal will not be emitted in endProcessingCycle(). This
+              is used in the ~Observer destructor. We don't want to emit that the number of subject changed in the destructor because all subjects will be removed.
+              */
+            int number_of_subjects_start_of_proc_cycle;           
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

@@ -72,7 +72,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/QtilitiesProperty.h \
     source/IIterator.h \
     source/SubjectIterator.h \
-    source/TreeIterator.h
+    source/TreeIterator.h \
+    source/IExportableObserver.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
