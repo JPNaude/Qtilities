@@ -163,7 +163,7 @@ tree_widget->show();
         class QTILITIES_CORE_GUI_SHARED_EXPORT TreeNode : public Observer, public AbstractTreeItem, public IExportableFormatting
         {
             Q_OBJECT
-            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableFormatting)
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableFormatting)        
             Q_PROPERTY(QFont Font READ getFont WRITE setFont)
             Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
             Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
@@ -173,14 +173,14 @@ tree_widget->show();
             Q_PROPERTY(QString WhatsThis READ getWhatsThis WRITE setWhatsThis)
 
         public:
-            TreeNode(const QString& name = QString());
+            TreeNode(const QString& name = QString(), QObject* parent = 0);
             virtual ~TreeNode();
 
             // --------------------------------
             // IExportableFormatting Implementation
             // --------------------------------
             IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
-            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);
+            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);           
 
             // --------------------------------
             // AbstractTreeItem virtual overwrites
@@ -284,13 +284,21 @@ tree_widget->show();
             SubjectTypeFilter* subjectTypeFilter() const;
 
             /*!
-              This overloaded function will also start a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              This overloaded function will also start a naming validation cycle on the naming policy filter if this node has one.
               */
             void startProcessingCycle();
             /*!
-              This overloaded function will also end a naming validation cycle on the naming policy filter if enableNamingControl() called.
+              This overloaded function will also end a naming validation cycle on the naming policy filter if this node has one.
               */
-            void endProcessingCycle();
+            void endProcessingCycle(bool broadcast = true);
+            /*!
+              This overloaded function will also start a naming validation cycle on the naming policy filter for tree nodes which has ones.
+              */
+            void startTreeProcessingCycle();
+            /*!
+              This overloaded function will also end a naming validation cycle on the naming policy filter for tree nodes which has ones.
+              */
+            void endTreeProcessingCycle(bool broadcast = true);
 
             //! Creates a new tree item and then add it as a tree item under this node.
             /*!

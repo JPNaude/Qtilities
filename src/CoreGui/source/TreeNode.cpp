@@ -54,7 +54,7 @@ struct Qtilities::CoreGui::TreeNodePrivateData {
     QPointer<SubjectTypeFilter>     subject_type_filter;
 };
 
-Qtilities::CoreGui::TreeNode::TreeNode(const QString& name) : Observer(name,""), AbstractTreeItem() {
+Qtilities::CoreGui::TreeNode::TreeNode(const QString& name, QObject* parent) : Observer(name,QString(),parent), AbstractTreeItem() {
     nodeData = new TreeNodePrivateData;
     setObjectName(name);
 
@@ -244,10 +244,44 @@ void Qtilities::CoreGui::TreeNode::startProcessingCycle() {
     Observer::startProcessingCycle();
 }
 
-void Qtilities::CoreGui::TreeNode::endProcessingCycle() {
+void Qtilities::CoreGui::TreeNode::endProcessingCycle(bool broadcast) {
     if (nodeData->naming_policy_filter)
         nodeData->naming_policy_filter->endValidationCycle();
-    Observer::endProcessingCycle();
+    Observer::endProcessingCycle(broadcast);
+}
+
+void Qtilities::CoreGui::TreeNode::startTreeProcessingCycle() {
+    QList<QObject*> obj_list = treeChildren();
+    for (int i = 0; i < obj_list.count(); i++) {
+        TreeNode* tree_node = qobject_cast<TreeNode*> (obj_list.at(i));
+        if (tree_node) {
+            tree_node->startProcessingCycle();
+            continue;
+        }
+        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
+        if (obs) {
+            obs->startProcessingCycle();
+        }
+    }
+
+    startProcessingCycle();
+}
+
+void Qtilities::CoreGui::TreeNode::endTreeProcessingCycle(bool broadcast) {
+    QList<QObject*> obj_list = treeChildren();
+    for (int i = 0; i < obj_list.count(); i++) {
+        TreeNode* tree_node = qobject_cast<TreeNode*> (obj_list.at(i));
+        if (tree_node) {
+            tree_node->endProcessingCycle(false);
+            continue;
+        }
+        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
+        if (obs) {
+            obs->endProcessingCycle(false);
+        }
+    }
+
+    endProcessingCycle(broadcast);
 }
 
 Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
