@@ -442,16 +442,21 @@ categorized_widget->show();
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
 
-              \sa selectedObjectsChanged()
+              \sa selectedObjectsChanged(), clearSelection(), selectObjects()
               */
             void selectObject(QObject* object);
+            //! Clears the current selection in the view.
+            /*!
+              \sa selectedObjectsChanged(), selectObjects(), selectObject()
+              */
+            void clearSelection();
             //! Selects the specified objects in a smart pointer list in the active item view.
             /*!
-              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared (or you could use clearSelection()).
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
 
-              \sa selectedObjectsChanged()
+              \sa selectedObjectsChanged(), clearSelection(), selectObject()
               */
             void selectObjects(QList<QPointer<QObject> > objects);
             //! Slot which resizes the rows in table view mode.
