@@ -40,6 +40,7 @@
 
 #include "QtilitiesCoreGui_global.h"
 #include <Factory>
+#include <ObjectManager>
 
 #include <QPointer>
 
@@ -92,7 +93,7 @@ namespace Qtilities {
                                     */
             };
 
-            ObjectDynamicPropertyBrowser(BrowserType browser_type = TreeBrowser, bool show_toolbar = true, QWidget *parent = 0);
+            ObjectDynamicPropertyBrowser(BrowserType browser_type = TreeBrowser, bool show_toolbar = true, Qt::ToolBarArea area = Qt::TopToolBarArea, QWidget *parent = 0);
             ~ObjectDynamicPropertyBrowser();
             bool eventFilter(QObject *object, QEvent *event);
 
@@ -108,6 +109,18 @@ namespace Qtilities {
             QObject *object() const;
             //! Reimplement size hint for our case.
             QSize sizeHint() const;
+            //! Clears currently displayed properties.
+            void clear();
+            //! Sets what property type must be used when the user adds new properties.
+            /*!
+              \note Only ObjectManager::SharedProperties and ObjectManager::NonQtilitiesProperties types are allowed, when trying to set it to something else this function does nothing.
+              */
+            void setNewPropertyType(ObjectManager::PropertyTypes new_property_type);
+            //! Gets what property type must be used when the user adds new properties.
+            /*!
+              \returns The property type used when the user adds new properties. Default is normal QVariants, thus ObjectManager::NonQtilitiesProperties.
+              */
+            ObjectManager::PropertyTypes newPropertyType() const;
 
         public slots:
             //! Refresh function which checks all properties on the current object and refreshes the property editor.
@@ -133,14 +146,14 @@ namespace Qtilities {
             /*!
               Function which allows this widget to be connected to the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal.
 
-              \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
+              \param objects A list of objects. When the list contains 1 item, it will be used in this widget, if it contains more than 1 this function does nothing.
               \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
                 interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */
             void setObject(QList<QObject*> objects, bool monitor_changes = true);
             //! Sets the object by providing a list of smart pointers.
             /*!
-              \param objects A list of objects. When the list contains 1 item, it will be used in this widget.
+              \param objects A list of objects. When the list contains 1 item, it will be used in this widget, if it contains more than 1 this function does nothing.
               \param monitor_changes When true this function will check if the object implements the Qtilities::Core::Interfaces::IModificationNotifier
                 interface, and if so it will monitor it for changes. When it changes the property browser will automatically call refresh().
               */

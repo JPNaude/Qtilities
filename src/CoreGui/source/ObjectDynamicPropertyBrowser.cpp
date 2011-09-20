@@ -69,7 +69,7 @@ struct Qtilities::CoreGui::qti_private_MultiContextPropertyData {
 
 struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
     QList<QtProperty*>                      top_level_properties;
-    QMap<QtProperty*, qti_private_MultiContextPropertyData> observer_properties;
+    QMap<QtProperty*, qti_private_MultiContextPropertyData> multi_context_properties;
 
     QtAbstractPropertyBrowser*              property_browser;
     QtVariantPropertyManager*               property_manager;
@@ -85,15 +85,19 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
 
     bool                                    show_qtilities_properties;
     bool                                    monitor_changes;
+
+    ObjectManager::PropertyTypes            new_property_type;
 };
 
-Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, bool show_toolbar, QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, bool show_toolbar, Qt::ToolBarArea area, QWidget *parent) : QMainWindow(parent)
 {
     d = new ObjectDynamicPropertyBrowserPrivateData;
     d->ignore_property_changes = false;
     d->show_qtilities_properties = false;
     d->monitor_changes = false;
     d->obj = 0;
+    d->new_property_type = ObjectManager::NonQtilitiesProperties;
+
     if (browser_type == TreeBrowser) {
         QtTreePropertyBrowser* property_browser = new QtTreePropertyBrowser(this);
         property_browser->setRootIsDecorated(false);
@@ -121,7 +125,9 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
 
     // Set up the toolbar:
     if (show_toolbar) {
-        d->toolbar = addToolBar("Dynamic Property Actions");
+        d->toolbar = new QToolBar("Dynamic Property Actions");
+        addToolBar(area,d->toolbar);
+        d->toolbar->setMovable(false);
         d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),"Add Property",this);
         connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
         d->toolbar->addAction(d->actionAddProperty);
@@ -143,6 +149,23 @@ QSize Qtilities::CoreGui::ObjectDynamicPropertyBrowser::sizeHint() const {
     }
 
     return this->size();
+}
+
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::clear() {
+    QListIterator<QtProperty *> it(d->top_level_properties);
+    while (it.hasNext()) {
+        d->property_browser->removeProperty(it.next());
+    }
+    d->top_level_properties.clear();
+}
+
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setNewPropertyType(ObjectManager::PropertyTypes new_property_type) {
+    if (new_property_type == ObjectManager::NonQtilitiesProperties || new_property_type == ObjectManager::SharedProperties)
+        d->new_property_type = new_property_type;
+}
+
+ObjectManager::PropertyTypes Qtilities::CoreGui::ObjectDynamicPropertyBrowser::newPropertyType() const {
+    return d->new_property_type;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh(bool has_changes) {
@@ -177,6 +200,13 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::toggleQtilitiesProperties
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
+    if (!object) {
+        setEnabled(false);
+        clear();
+        return;
+    } else
+        setEnabled(true);
+
     if (d->obj == object)
         return;
 
@@ -239,9 +269,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
     QByteArray ba = property->propertyName().toAscii();
     const char* property_name = ba.data();
 
-    if (d->observer_properties.contains(property)) {
+    if (d->multi_context_properties.contains(property)) {
         // This is an observer property:
-        qti_private_MultiContextPropertyData prop_data = d->observer_properties[property];
+        qti_private_MultiContextPropertyData prop_data = d->multi_context_properties[property];
         if (prop_data.type == qti_private_MultiContextPropertyData::Shared) {
             SharedProperty shared_property(property_name,value);
             if (ObjectManager::setSharedProperty(d->obj,shared_property) && d->monitor_changes) {
@@ -254,9 +284,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
                 }
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
-            MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
-            observer_property.setValue(value,prop_data.observer_id);
-            if (ObjectManager::setMultiContextProperty(d->obj,observer_property) && d->monitor_changes) {
+            MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
+            multi_context_property.setValue(value,prop_data.observer_id);
+            if (ObjectManager::setMultiContextProperty(d->obj,multi_context_property) && d->monitor_changes) {
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
@@ -299,11 +329,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
     if (!obj)
         return;
 
-    QListIterator<QtProperty *> it(d->top_level_properties);
-    while (it.hasNext()) {
-        d->property_browser->removeProperty(it.next());
-    }
-    d->top_level_properties.clear();
+    clear();
 
     for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
         QString property_name = QString(obj->dynamicPropertyNames().at(i).data());
@@ -318,7 +344,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
         // If it is MultiContextProperty or SharedProperty then we need to handle it:
         if (property_variant.isValid() && property_variant.canConvert<SharedProperty>()) {
             SharedProperty shared_property = (property_variant.value<SharedProperty>());
-            if (shared_property.isReserved())
+            if (shared_property.isReserved() || shared_property.isReadOnly())
                 is_enabled = false;
             property_value = shared_property.value();
 
@@ -338,36 +364,54 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
             }
 
             // Now add the property:
-            if (d->property_manager->isPropertyTypeSupported(property_value.type())) {
-                if (is_enabled)
-                    dynamic_property = d->property_manager->addProperty(property_value.type(), property_name);
-                else
-                    dynamic_property = d->property_manager_read_only->addProperty(property_value.type(), property_name);
-                if (dynamic_property) {
-                    d->property_manager->setValue(dynamic_property,property_value);
+            if (is_enabled) {
+                if (d->property_manager->isPropertyTypeSupported(property_value.type())) {
+                   dynamic_property = d->property_manager->addProperty(property_value.type(), property_name);
+
+                    if (dynamic_property) {
+                        d->property_manager->setValue(dynamic_property,property_value);
+                        d->top_level_properties.append(dynamic_property);
+                        d->property_browser->addProperty(dynamic_property);
+                        qti_private_MultiContextPropertyData prop_data;
+                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.type = qti_private_MultiContextPropertyData::Shared;
+                        d->multi_context_properties[dynamic_property] = prop_data;
+                    }
+                } else {
+                    dynamic_property = d->property_manager_read_only->addProperty(QVariant::String, property_name);
+                    d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
+                    dynamic_property->setEnabled(false);
                     d->top_level_properties.append(dynamic_property);
-                    d->property_browser->addProperty(dynamic_property);
-                    qti_private_MultiContextPropertyData prop_data;
-                    prop_data.name = obj->dynamicPropertyNames().at(i).data();
-                    prop_data.type = qti_private_MultiContextPropertyData::Shared;
-                    d->observer_properties[dynamic_property] = prop_data;
                 }
             } else {
-                dynamic_property = d->property_manager_read_only->addProperty(QVariant::String, property_name);
-                d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
-                dynamic_property->setEnabled(false);
-                d->top_level_properties.append(dynamic_property);
-                d->property_browser->addProperty(dynamic_property);
+                if (d->property_manager_read_only->isPropertyTypeSupported(property_value.type())) {
+                    dynamic_property = d->property_manager_read_only->addProperty(property_value.type(), property_name);
+
+                    if (dynamic_property) {
+                        d->property_manager_read_only->setValue(dynamic_property,property_value);
+                        d->top_level_properties.append(dynamic_property);
+                        d->property_browser->addProperty(dynamic_property);
+                        qti_private_MultiContextPropertyData prop_data;
+                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.type = qti_private_MultiContextPropertyData::Shared;
+                        d->multi_context_properties[dynamic_property] = prop_data;
+                    }
+                } else {
+                    dynamic_property = d->property_manager_read_only->addProperty(QVariant::String, property_name);
+                    d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
+                    dynamic_property->setEnabled(false);
+                    d->top_level_properties.append(dynamic_property);
+                }
             }
         } else if (property_variant.isValid() && property_variant.canConvert<MultiContextProperty>()) {
-            MultiContextProperty observer_property = (property_variant.value<MultiContextProperty>());
-            if (observer_property.isReserved())
+            MultiContextProperty multi_context_property = (property_variant.value<MultiContextProperty>());
+            if (multi_context_property.isReserved() || multi_context_property.isReadOnly())
                 is_enabled = false;
 
             // Now make a group property with the values for all the different contexts under it:
             dynamic_property = d->property_manager->addProperty(QtVariantPropertyManager::groupTypeId(), property_name);
             if (dynamic_property) {
-                QMap<quint32,QVariant> context_map = observer_property.contextMap();
+                QMap<quint32,QVariant> context_map = multi_context_property.contextMap();
                 for (int s = 0; s < context_map.count(); s++) {
                     QVariant sub_property_value = context_map.values().at(s);
                     Observer* obs = OBJECT_MANAGER->observerReference((int) context_map.keys().at(s));
@@ -376,19 +420,27 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         context_name = obs->observerName() + " (" + QString::number(obs->observerID()) + ")";
 
                     QtProperty* sub_property = 0;
-                    if (!d->property_manager->isPropertyTypeSupported(sub_property_value.type())) {
-                        sub_property = d->property_manager_read_only->addProperty(QVariant::String, context_name);
-                        d->property_manager_read_only->setValue(sub_property,QLatin1String("< Unknown Type >"));
-                        sub_property->setEnabled(false);
-                    } else {
-                        if (is_enabled)
+                    if (is_enabled) {
+                        if (!d->property_manager->isPropertyTypeSupported(sub_property_value.type())) {
+                            sub_property = d->property_manager_read_only->addProperty(QVariant::String, context_name);
+                            if (sub_property)
+                                d->property_manager_read_only->setValue(sub_property,QLatin1String("< Unknown Type >"));
+                        } else {
                             sub_property = d->property_manager->addProperty(sub_property_value.type(), context_name);
-                        else
-                            sub_property = d->property_manager_read_only->addProperty(sub_property_value.type(), context_name);
-
-                        if (sub_property) {
-                            d->property_manager->setValue(sub_property,sub_property_value);
+                            if (sub_property)
+                                d->property_manager->setValue(sub_property,sub_property_value);
                         }
+                    } else {
+                        if (!d->property_manager_read_only->isPropertyTypeSupported(sub_property_value.type())) {
+                            sub_property = d->property_manager_read_only->addProperty(QVariant::String, context_name);
+                            d->property_manager_read_only->setValue(sub_property,QLatin1String("< Unknown Type >"));
+                            sub_property->setEnabled(false);
+                        } else {
+                            sub_property = d->property_manager_read_only->addProperty(sub_property_value.type(), context_name);
+                            if (sub_property)
+                                d->property_manager_read_only->setValue(sub_property,sub_property_value);
+                        }
+
                     }
 
                     if (sub_property) {
@@ -397,7 +449,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         prop_data.name = obj->dynamicPropertyNames().at(i).data();
                         prop_data.type = qti_private_MultiContextPropertyData::Mixed;
                         prop_data.observer_id = (int) context_map.keys().at(s);
-                        d->observer_properties[sub_property] = prop_data;
+                        d->multi_context_properties[sub_property] = prop_data;
                     }
                 }
 
@@ -461,13 +513,29 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
         QByteArray property_name_ba = property_name.toAscii();
         const char* char_property_name = property_name_ba.data();
         selected_type = QVariant::nameToType(type_name);
-        if (!d->obj->setProperty(char_property_name,QVariant(selected_type)))
-            refresh();
-        else {
+
+        bool success = false;
+        if (d->new_property_type == ObjectManager::SharedProperties) {
+            if (ObjectManager::setSharedProperty(d->obj,char_property_name,QVariant(selected_type))) {
+                refresh();                        
+                success = true;
+            }
+        } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
+            if (!d->obj->setProperty(char_property_name,QVariant(selected_type))) {
+                refresh();
+                success = true;
+            }
+        }
+
+        if (!success) {
             QMessageBox msgBox;
             msgBox.setWindowTitle(tr("Dynamic Property Browser"));
             msgBox.setText(tr("Failed to add property to object in QObject::setProperty()."));
             msgBox.exec();
+        } else if (d->monitor_changes) {
+            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+            if (mod_iface)
+                mod_iface->setModificationState(true);
         }
     }
 }
@@ -485,9 +553,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
     QByteArray ba = property->propertyName().toAscii();
     const char* property_name = ba.data();
 
-    if (d->observer_properties.contains(property)) {
+    if (d->multi_context_properties.contains(property)) {
         // This is an observer property:
-        qti_private_MultiContextPropertyData prop_data = d->observer_properties[property];
+        qti_private_MultiContextPropertyData prop_data = d->multi_context_properties[property];
         if (prop_data.type == qti_private_MultiContextPropertyData::Shared) {
             SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,prop_data.name);
             if (shared_property.isReserved()) {
@@ -504,13 +572,13 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
                 d->obj->setProperty(prop_data.name,QVariant());
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
-            MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
-            if (observer_property.isReserved()) {
+            MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
+            if (multi_context_property.isReserved()) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
                 msgBox.setText(tr("The selected property is reserved and cannot be deleted."));
                 msgBox.exec();
-            } else if (!observer_property.isRemovable()) {
+            } else if (!multi_context_property.isRemovable()) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
                 msgBox.setText(tr("The selected property is not removable and cannot be deleted."));
