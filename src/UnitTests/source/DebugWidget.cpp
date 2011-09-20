@@ -371,7 +371,6 @@ void Qtilities::UnitTests::DebugWidget::on_btnRefreshViews_clicked() {
     refreshProjectsState();
 
     // Refresh Global Object Pool:
-    d->object_pool_widget->refresh();
     d->object_pool_widget->viewExpandAll();
 }
 

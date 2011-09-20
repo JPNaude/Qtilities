@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
 //    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
 //    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
 
-    TestExporting* testExporting = new TestExporting;
-    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
+//    TestExporting* testExporting = new TestExporting;
+//    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
     TestObjectManager* testObjectManager = new TestObjectManager;
     testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
