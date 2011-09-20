@@ -91,15 +91,6 @@ Qtilities::Core::QtilitiesProperty::~QtilitiesProperty() {
 
 }
 
-//const char* Qtilities::Core::QtilitiesProperty::propertyName() const {
-//    qDebug() << name;
-//    qDebug() << name.toAscii().constData();
-//    if (name.isEmpty())
-//        return "";
-//    else
-//        return name.toAscii().constData();
-//}
-
 QString Qtilities::Core::QtilitiesProperty::propertyNameString() const {
     return name;
 }
@@ -292,7 +283,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     if (!object_node)
         return IExportable::Failed;
 
-    object_node->setAttribute("Name",name);
+    if (!name.isEmpty())
+        object_node->setAttribute("Name",name);
 
     if (is_reserved)
         object_node->setAttribute("Reserved","1");
@@ -318,9 +310,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    if (object_node->hasAttribute("Name")) {
-        name = object_node->attribute("Name");
-    }
+    name = object_node->attribute("Name","");
 
     if (object_node->hasAttribute("Reserved")) {
         if (object_node->attribute("Reserved") == "1")
@@ -454,35 +444,47 @@ QMap<quint32,QVariant> Qtilities::Core::MultiContextProperty::contextMap() const
     return context_map;
 }
 
-QVariant Qtilities::Core::MultiContextProperty::value(int observer_context) const {
-    return (context_map.value((quint32) observer_context));
+QVariant Qtilities::Core::MultiContextProperty::value(int context_id) const {
+    return (context_map.value((quint32) context_id));
 }
 
-bool Qtilities::Core::MultiContextProperty::setValue(QVariant new_value, int observer_context) {
-    if (observer_context == -1)
+bool Qtilities::Core::MultiContextProperty::setValue(QVariant new_value, int context_id) {
+    if (context_id == -1)
         return false;
     if (!new_value.isValid())
         return false;
-    context_map[(quint32) observer_context] = new_value;
-    last_change_context = observer_context;
+    context_map[(quint32) context_id] = new_value;
+    last_change_context = context_id;
     return true;
+}
+
+QString Qtilities::Core::MultiContextProperty::valueString() const {
+    QStringList value_strings;
+    for (int i = 0; i < context_map.count(); i++) {
+        if (QtilitiesProperty::isExportableVariant(context_map.values().at(i)))
+            value_strings << context_map.values().at(i).toString();
+        else
+            value_strings << QObject::tr("Non-exportable variant");
+    }
+    return value_strings.join(",");
 }
 
 int Qtilities::Core::MultiContextProperty::lastChangedContext() const {
     return last_change_context;
 }
 
-bool Qtilities::Core::MultiContextProperty::hasContext(int observer_context) const {
-    return context_map.contains((quint32) observer_context);
+bool Qtilities::Core::MultiContextProperty::hasContext(int context_id) const {
+    return context_map.contains((quint32) context_id);
 }
 
-void Qtilities::Core::MultiContextProperty::removeContext(int observer_context) {
-    context_map.remove((quint32) observer_context);
+void Qtilities::Core::MultiContextProperty::removeContext(int context_id) {
+    last_change_context = context_id;
+    context_map.remove((quint32) context_id);
 }
 
-void Qtilities::Core::MultiContextProperty::addContext(QVariant new_value, int observer_context) {
-    if (!context_map.keys().contains((quint32) observer_context))
-        context_map[observer_context] = new_value;
+void Qtilities::Core::MultiContextProperty::addContext(QVariant new_value, int context_id) {
+    if (!context_map.keys().contains((quint32) context_id))
+        context_map[context_id] = new_value;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::MultiContextProperty::supportedFormats() const {

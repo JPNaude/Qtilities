@@ -51,7 +51,7 @@ namespace Qtilities {
             \class Qtilities::Core::QtilitiesProperty
             \brief The base class of all the different %Qtilities property types.
 
-            For information about how QtilitiesProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
+            For information about how QtilitiesProperty is used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
             */
             class QTILIITES_CORE_SHARED_EXPORT QtilitiesProperty : public IExportable
             {
@@ -61,8 +61,6 @@ namespace Qtilities {
                 QtilitiesProperty(const QtilitiesProperty& property);
                 void operator=(const QtilitiesProperty& property);
                 virtual ~QtilitiesProperty();
-//                //! Gets the name of this property as a const char*.
-//                const char* propertyName() const;
                 //! Gets the name of this property as a QString.
                 QString propertyNameString() const;
                 //! Sets the name of this property.
@@ -169,7 +167,7 @@ namespace Qtilities {
         \class Qtilities::Core::MultiContextProperty
         \brief A MultiContextProperty provides a property which has different values in different contexts.
 
-        A complete map of the property's contexts and their respective QVariant() values can be obtained using contextMap(). To get the last observer context
+        A complete map of the property's contexts and their respective QVariant() values can be obtained using contextMap(). To get the last context ID
         for which the property changed use lastChangedContext(). You can check if an MultiContextProperty is valid using the isValid() call. Convenience functions for working with different contexts include hasContext(), addContext(),removeContext() and value().
 
         \subsection MultiContextProperty_changing_properties Getting and setting multi context properties properties
@@ -217,7 +215,7 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
 }
 \endcode
 
-        For information about how MultiContextProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
+        For more information about how MultiContextProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
 
         \sa Qtilities::Core::SharedProperty
         */
@@ -236,26 +234,30 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             QMap<quint32,QVariant> contextMap() const;
             //! Returns the value of the property.
             /*!
-              \param observer_context Indicates the observer context for which the property value is required. If the property is
-              shared between context's, the observer_context paramater is ignored.
+              \param context_id Indicates the context ID for which the property value is required.
               */
-            virtual QVariant value(int observer_context) const;
+            virtual QVariant value(int context_id) const;
             //! Sets the value of the property.
             /*!
-              Sets the value for a specific observer context. If the observer context does not exist, it is created with the
+              Sets the value for a specific context ID. If the context ID does not exist, it is created with the
               specified value assigned to it.
               \param new_value The new QVariant value which must be assigned to the property.
-              \param observer_context Indicates the observer context for which the property value needs to be set.
+              \param context_id Indicates the context ID for which the property value needs to be set.
               */
-            virtual bool setValue(QVariant new_value, int observer_context);
+            virtual bool setValue(QVariant new_value, int context_id);
+            //! Returns a string representation of this property.
+            /*!
+              \returns A string representation which is basically a comma seperated context values list.
+              */
+            virtual QString valueString() const;
             //! Returns the context in which the last change took place.
             int lastChangedContext() const;
             //! Checks if this property is defined within the context of the specified observer.
-            bool hasContext(int observer_context) const;
-            //! Removes an observer context from the property.
-            void removeContext(int observer_context);
-            //! Adds an observer context from the property.
-            void addContext(QVariant new_value, int observer_context);
+            bool hasContext(int context_id) const;
+            //! Removes an context ID from the property.
+            void removeContext(int context_id);
+            //! Adds an context ID from the property.
+            void addContext(QVariant new_value, int context_id);
 
             // --------------------------------
             // IObjectBase Implementation
@@ -329,7 +331,7 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
 }
 \endcode
 
-        For information about how SharedProperty are used in the context of Qtilities::Core::Observer, please see \ref observer_properties.
+        For information about how SharedProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
 
         \sa Qtilities::Core::MultiContextProperty
         */
