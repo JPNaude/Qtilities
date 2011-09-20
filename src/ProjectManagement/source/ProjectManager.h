@@ -290,6 +290,17 @@ namespace Qtilities {
               \param success If the project was successfully loaded, success will be true. False otherwise.
               */
             void projectLoadingFinished(const QString& project_file, bool success);
+            //! A signal which is emitted when a project closing process starts.
+            /*!
+              \param project_file The current project file which is being closed.
+              */
+            void projectClosingStarted(const QString& project_file);
+            //! A signal which is emitted when a project closing process completes.
+            /*!
+              \param project_file The project file from which loading was done.
+              \param success If the project was successfully closed, success will be true. False otherwise.
+              */
+            void projectClosingFinished(bool success);
 
         private:
             //! Add a project to the recent project list.

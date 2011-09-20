@@ -179,9 +179,11 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
 
 bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
     if (d->current_project) {
-        if (d->current_project->isModified()) {
-            saveProject(d->current_project->projectFile());
-        }
+        emit projectClosingStarted(d->current_project->projectFile());
+        bool success = true;
+
+        if (d->current_project->isModified())
+            success = saveProject(d->current_project->projectFile());
 
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         d->current_project->closeProject();
@@ -190,6 +192,8 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
         delete d->current_project;
         d->current_project = 0;
         emit modificationStateChanged(false);
+
+        emit projectClosingFinished(success);
     }
     return true;
 }

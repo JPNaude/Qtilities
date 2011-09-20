@@ -128,7 +128,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             // We change the project name to the selected file name:
             QFileInfo fi(d->project_file);
-            QString file_name_only = fi.fileName().split(".").front();
+            QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
@@ -181,7 +181,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);
-            QString file_name_only = fi.fileName().split(".").front();
+            QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
@@ -222,16 +222,15 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         QDomDocument doc("QtilitiesXMLProject");
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         QString docStr = file.readAll();
+        file.close();
         QString error_string;
         int error_line;
         int error_column;
         if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
             LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
-            file.close();
             QApplication::restoreOverrideCursor();
             return false;
         }
-        file.close();
         QDomElement root = doc.documentElement();
 
         // Interpret the loaded doc:
@@ -253,7 +252,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         if (success != IExportable::Failed) {
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);
-            QString file_name_only = fi.fileName().split(".").front();
+            QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
 
             // Process events here before we set the modification state. This would ensure that any
@@ -299,7 +298,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         if (success != IExportable::Failed) {
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);
-            QString file_name_only = fi.fileName().split(".").front();
+            QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
 
             // Process events here before we set the modification state. This would ensure that any
@@ -590,6 +589,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
         if (item_result == IExportable::Incomplete && success == IExportable::Complete)
             success = item_result;
     }
+
+    // TODO - Export dynamic properties here
     return success;
 }
 
