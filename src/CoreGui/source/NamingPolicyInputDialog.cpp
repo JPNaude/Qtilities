@@ -117,6 +117,34 @@ bool Qtilities::CoreGui::NamingPolicyInputDialog::useCycleResolution() const {
         return false;
 }
 
+void Qtilities::CoreGui::NamingPolicyInputDialog::setObject(QObject* obj) {
+    if (!obj)
+        return;
+
+    object = obj;
+}
+
+QString Qtilities::CoreGui::NamingPolicyInputDialog::getName() {
+    if (!object)
+        return QString();
+
+    if (subject_filter->isObjectNameManager(object)) {
+        // We use the qti_prop_NAME property:
+        QVariant object_name_prop;
+        object_name_prop = object->property(qti_prop_NAME);
+        if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>())
+            return (object_name_prop.value<SharedProperty>()).value().toString();
+    } else {
+        // We use the qti_prop_ALIAS_MAP property:
+        QVariant instance_names_prop;
+        instance_names_prop = object->property(qti_prop_ALIAS_MAP);
+        if (instance_names_prop.isValid() && instance_names_prop.canConvert<MultiContextProperty>())
+            return (instance_names_prop.value<MultiContextProperty>()).value(observer_id).toString();
+
+    }
+    return QString();
+}
+
 bool Qtilities::CoreGui::NamingPolicyInputDialog::initialize(NamingPolicyFilter::NameValidity validity_result) {
     // Check if everything was specified in order to initialize this dialog.
     if (!object)
@@ -126,7 +154,7 @@ bool Qtilities::CoreGui::NamingPolicyInputDialog::initialize(NamingPolicyFilter:
         return false;
 
     // OK, everything is specified.
-    QString original_name = subject_filter->getName(object);
+    QString original_name = getName();
     if (!original_name.isEmpty())
         ui->lblOriginalName->setText(original_name);
     else
