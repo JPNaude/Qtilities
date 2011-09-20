@@ -88,7 +88,11 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
     d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
 
+    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
     d->observer_widget.initialize();
+    if (!current_processing_cycle_active)
+        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 
     d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
     if (d->observer_widget.treeView()) {

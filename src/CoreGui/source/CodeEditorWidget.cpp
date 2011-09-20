@@ -495,6 +495,9 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     QList<int> context;
     context.push_front(context_id);
 
+    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+
     // ---------------------------
     // New
     // ---------------------------
@@ -677,6 +680,9 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
         connect(d->codeEditor, SIGNAL(redoAvailable(bool)), d->actionRedo, SLOT(setEnabled(bool)));
     if (d->actionSave)
         connect(d->codeEditor,SIGNAL(modificationChanged(bool)),d->actionSave,SLOT(setEnabled(bool)));
+
+    if (!current_processing_cycle_active)
+        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {

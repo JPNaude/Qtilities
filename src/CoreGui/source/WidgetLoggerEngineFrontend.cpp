@@ -328,6 +328,9 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
+    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+
     // ---------------------------
     // Save
     // ---------------------------
@@ -422,6 +425,9 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     d->txtLog.addAction(sep2);
     //d->txtLog.addAction(d->actionSettings);
     d->txtLog.setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    if (!current_processing_cycle_active)
+        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
 QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngineFrontend::plainTextEdit() const {
