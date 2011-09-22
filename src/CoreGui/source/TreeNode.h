@@ -364,7 +364,7 @@ tree_widget->show();
               you use this function on a TreeNode which does have multiple items with the same name, the
               first item found with the specified name will be removed.
               */
-            bool removeItem(const QString& name);
+            bool removeItem(const QString& name);          
             //! Removes the specified tree item from this node.
             /*!
               \param item The reference to the item to be removed from this tree.

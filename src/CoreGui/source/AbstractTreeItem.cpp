@@ -301,7 +301,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     if (observer_id == -1) {
         // Check the parent count:
         if (Observer::parentCount(objectBase()) != 1) {
-            LOG_DEBUG(QString(QObject::tr("setCategory(category,-1) on AbstractTreeItem %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
+            LOG_TRACE(QString(QObject::tr("setCategory(category,-1) on AbstractTreeItem %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
             return false;
         } else {
             MultiContextProperty prop = ObjectManager::getMultiContextProperty(objectBase(),qti_prop_OBSERVER_MAP);

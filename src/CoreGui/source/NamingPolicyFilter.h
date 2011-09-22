@@ -73,7 +73,7 @@ namespace Qtilities {
 Observer* obs = new Observer;
 NamingPolicyFilter* naming_filter = new NamingPolicyFilter;
 naming_filter->setUniquenessPolicy(NamingPolicyFilter::ProhibitDuplicateNames);
-naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::Reject);
+naming_filter->setValidityResolutionPolicy(NamingPolicyFilter::PromptUser);
 naming_filter->setUniquenessResolutionPolicy(NamingPolicyFilter::Reject);
 obs->installSubjectFilter(naming_filter);
 \endcode
@@ -164,6 +164,9 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             bool operator==(const NamingPolicyFilter& ref) const;
             bool operator!=(const NamingPolicyFilter& ref) const;
 
+            //! Provides debug information about this filter.
+            QString debugInfo() const;
+
             // --------------------------------
             // Enumerations
             // --------------------------------
@@ -233,7 +236,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
             void finalizeDetachment(QObject* obj, bool detachment_successful, bool subject_deleted = false);
-            QString filterName() const { return qti_def_FACTORY_TAG_NAMING_FILTER; }
+            QString filterName() const { return QString(qti_def_FACTORY_TAG_NAMING_FILTER); }
             QStringList monitoredProperties() const;
             QStringList reservedProperties() const;
         protected:

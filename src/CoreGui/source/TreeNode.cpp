@@ -132,8 +132,9 @@ Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::enableNami
 
 void Qtilities::CoreGui::TreeNode::disableNamingControl() {
     if (nodeData->naming_policy_filter) {
-         delete nodeData->naming_policy_filter;
-         displayHints()->setNamingControlHint(ObserverHints::NoNamingControlHint);
+        uninstallSubjectFilter(nodeData->naming_policy_filter);
+        delete nodeData->naming_policy_filter;
+        displayHints()->setNamingControlHint(ObserverHints::NoNamingControlHint);
     }
 }
 
@@ -181,9 +182,10 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::enableActiv
 
 void Qtilities::CoreGui::TreeNode::disableActivityControl() {
     if (nodeData->activity_policy_filter) {
-         delete nodeData->activity_policy_filter;
-         displayHints()->setActivityControlHint(ObserverHints::NoActivityControlHint);
-         displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplayHint);
+        uninstallSubjectFilter(nodeData->activity_policy_filter);
+        delete nodeData->activity_policy_filter;
+        displayHints()->setActivityControlHint(ObserverHints::NoActivityControlHint);
+        displayHints()->setActivityDisplayHint(ObserverHints::NoActivityDisplayHint);
     }
 }
 

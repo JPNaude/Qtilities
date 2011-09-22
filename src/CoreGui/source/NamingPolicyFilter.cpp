@@ -122,6 +122,17 @@ bool Qtilities::CoreGui::NamingPolicyFilter::operator!=(const NamingPolicyFilter
     return !(*this==ref);
 }
 
+QString Qtilities::CoreGui::NamingPolicyFilter::debugInfo() const {
+    QString info;
+    info.append(QString(tr("Debug information on naming policy filter: %1\n")).arg(objectName()));
+    info.append(QString("--------------------------------------------\n"));
+    info.append(QString(tr("   Uniqueness policy: %1\n")).arg(uniquenessPolicyToString(d->uniqueness_policy)));
+    info.append(QString(tr("   Uniqueness resolution policy: %1\n")).arg(resolutionPolicyToString(d->uniqueness_resolution_policy)));
+    info.append(QString(tr("   Uniqueness validation policy: %1\n")).arg(resolutionPolicyToString(d->validity_resolution_policy)));
+    info.append(QString("--------------------------------------------\n"));
+    return info;
+}
+
 QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(UniquenessPolicy uniqueness_policy) {
     if (uniqueness_policy == AllowDuplicateNames) {
         return "AllowDuplicateNames";

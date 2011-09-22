@@ -249,6 +249,8 @@ categorized_widget->show();
             bool usesObserverHints() const;
             //! This function allows you to copy the custom hints used by this ObserverWidget from a different ObserverHints instance.
             /*!
+              This functions copies the hints provided by custom_hints, thus it does not manage the lifetime of the custom_hints instance passed to it.
+
               \note These hints are only used when usesObserverHints() is false.
 
               \return True if successfull, false otherwise.
