@@ -207,7 +207,7 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             ActivityPolicyFilter::MinimumActivityPolicy minimumActivityPolicy() const;
             //! Sets the new subject activity policy used by this subject filter.
             /*!
-             The policy can only be changed if no observer context has been set yet or if an observer context with no subjects have been set.
+             The policy can only be changed at any time.
 
              \sa newSubjectActivityPolicy()
              */
@@ -295,6 +295,29 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
               \returns The activity of the subject.
               */
             bool getSubjectActivity(const QObject* obj, bool* ok = 0) const;
+            //! Invert activity of subjects in the observer context in which this filter is installed.
+            /*!
+              \returns If the above inversion could be done, false otherwise.
+
+              \sa canInvertActivity();
+              */
+            bool invertActivity();
+
+        public:
+            //! Invert selection.
+            /*!
+              Checks if invertActivity() can invert the activity of subjects in this filter.
+
+              Inversion depends on the activity policies and has the following requirements:
+              - minimumActivityPolicy() must be AllowNoneActive
+              - activityPolicy() == MultipleActivity
+              - parentTrackingPolicy() == ParentIgnoreActivity
+
+              \returns If the above criteria is not met, false is returned. True otherwise.
+
+              \sa invertActivity();
+              */
+            bool canInvertActivity() const;
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.

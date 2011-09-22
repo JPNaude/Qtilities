@@ -220,12 +220,7 @@ Qtilities::Core::ActivityPolicyFilter::MinimumActivityPolicy Qtilities::Core::Ac
 }
 
 void Qtilities::Core::ActivityPolicyFilter::setNewSubjectActivityPolicy(ActivityPolicyFilter::NewSubjectActivityPolicy new_subject_activity_policy) {  
-    if (!observer) {
-        d->new_subject_activity_policy = new_subject_activity_policy;
-    } else {
-        if (observer->subjectCount() == 0)
-            d->new_subject_activity_policy = new_subject_activity_policy;
-    }
+    d->new_subject_activity_policy = new_subject_activity_policy;
 }
 
 Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core::ActivityPolicyFilter::newSubjectActivityPolicy() const {
@@ -423,6 +418,27 @@ bool Qtilities::Core::ActivityPolicyFilter::getSubjectActivity(const QObject* ob
         } else
             return false;
     }
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::invertActivity() {
+    if (!canInvertActivity())
+        return false;
+
+    // Now do the inversion:
+    setActiveSubjects(inactiveSubjects());
+    return true;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::canInvertActivity() const {
+    // Check requirements:
+    if (!(d->minimum_activity_policy == AllowNoneActive))
+        return false;
+    if (!(d->activity_policy == MultipleActivity))
+        return false;
+    if (!(d->parent_tracking_policy == ParentIgnoreActivity))
+        return false;
+
+    return true;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
