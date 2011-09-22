@@ -129,6 +129,8 @@ namespace Qtilities {
             QModelIndex findObject(QObject* obj) const;
 
         public slots:
+            //! Clears the tree structure without rebuilding it again from its observer context.
+            void clearTreeStructure();
             //! Function which will rebuild the complete tree structure under the top level observer.
             /*!
                 This slot will automatically be connected to the layoutChanged() signal on the top level observer.
