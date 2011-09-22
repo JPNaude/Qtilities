@@ -294,6 +294,11 @@ void Qtilities::UnitTests::TestObserver::testTreeChildren() {
     QList<QObject*> children_verify = rootNode->treeChildren();
     foreach (QObject* obj, children)
         QVERIFY(children_verify.contains(obj) == true);
+
+    QList<QObject*> nodes_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeNode");
+    QVERIFY(nodes_verify.count() == 2);
+    QList<QObject*> items_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeItem");
+    QVERIFY(items_verify.count() == 5);
 }
 
 void Qtilities::UnitTests::TestObserver::testTreeCountContainment() {

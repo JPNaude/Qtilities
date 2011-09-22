@@ -71,7 +71,7 @@ void Qtilities::UnitTests::TestTreeIterator::testIterationForwardSimple() {
     }
 }
 
-void Qtilities::UnitTests::TestTreeIterator::testIterationForwardComplex() {
+void Qtilities::UnitTests::TestTreeIterator::testIterationForwardComplexA() {
     TreeNode* rootNode = new TreeNode("1");
     TreeNode* nodeA = rootNode->addNode("2");
     nodeA->addItem("3");
@@ -97,6 +97,41 @@ void Qtilities::UnitTests::TestTreeIterator::testIterationForwardComplex() {
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 9);
+    for (int i = 0; i < testList.count(); i++) {
+        QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
+    }
+}
+
+void Qtilities::UnitTests::TestTreeIterator::testIterationForwardComplexB() {
+    TreeNode* rootNode = new TreeNode("1");
+    rootNode->addNode("2");
+    rootNode->addNode("3");
+    TreeNode* node4 = rootNode->addNode("4");
+    TreeNode* node5 = node4->addNode("5");
+    node5->addNode("6");
+    TreeNode* last = rootNode->addNode("7");
+
+    TreeIterator itr(rootNode);
+    QStringList testList;
+    QVERIFY(itr.current() == rootNode);
+    testList << itr.current()->objectName();
+    qDebug() << itr.current()->objectName();
+    while (itr.hasNext()) {
+        QObject* obj = itr.next();
+        QVERIFY(obj);
+        testList << obj->objectName();
+        if (itr.hasNext()) {
+            itr.next();
+            itr.previous();
+        }
+    }
+
+    QVERIFY(itr.first() == rootNode);
+    qDebug() << itr.last()->objectName();
+    QVERIFY(itr.last() == last);
+    QVERIFY(itr.hasNext() == false);
+    QVERIFY(itr.hasPrevious() == true);
+    QVERIFY(testList.count() == 7);
     for (int i = 0; i < testList.count(); i++) {
         QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
     }
@@ -139,7 +174,7 @@ void Qtilities::UnitTests::TestTreeIterator::testIterationBackwardSimple() {
     }
 }
 
-void Qtilities::UnitTests::TestTreeIterator::testIterationBackwardComplex() {
+void Qtilities::UnitTests::TestTreeIterator::testIterationBackwardComplexA() {
     TreeNode* rootNode = new TreeNode("1");
     TreeNode* nodeA = rootNode->addNode("2");
     nodeA->addItem("3");

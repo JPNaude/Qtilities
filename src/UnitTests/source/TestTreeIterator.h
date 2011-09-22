@@ -67,11 +67,13 @@ namespace Qtilities {
             //! Tests forward interation through a simple tree.
             void testIterationForwardSimple();
             //! Tests forward interation through a more complex tree.
-            void testIterationForwardComplex();
+            void testIterationForwardComplexA();
+            //! Tests forward interation through another more complex tree.
+            void testIterationForwardComplexB();
             //! Tests backward interation through a simple tree.
             void testIterationBackwardSimple();
             //! Tests backward interation through a more complex tree.
-            void testIterationBackwardComplex();
+            void testIterationBackwardComplexA();
 
         };
     }
