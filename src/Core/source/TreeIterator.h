@@ -42,6 +42,7 @@
 #include "IIterator.h"
 #include "Observer.h"
 #include "QtilitiesCore_global.h"
+#include "SubjectIterator.h"
 
 namespace Qtilities {
     namespace Core {
@@ -102,7 +103,7 @@ while (itr.hasPrevious()) {
         class TreeIterator : public Interfaces::IIterator<QObject>
         {
         public:
-            TreeIterator(Observer* top_node = 0)
+            TreeIterator(const Observer* top_node = 0)
                 : d_top_node(top_node)
             {
                 d_current = top_node;
@@ -111,54 +112,62 @@ while (itr.hasPrevious()) {
             QObject* first()
             {
                 d_current = d_top_node;
-                return d_current;
+                return const_cast<QObject*> (d_current);
             }
 
             QObject* last()
             {
                 d_current = d_top_node->treeChildren().last();
-                return d_current;
+                return const_cast<QObject*> (d_current);
             }
 
             QObject* current() const
             {
-                return d_current;
+                return const_cast<QObject*> (d_current);
             }
 
-            void setCurrent(QObject* current)
+            void setCurrent(const QObject* current)
             {
                 d_current = current;
             }
 
             QObject* next()
             {
-                Observer* obs = qobject_cast<Observer*> (d_current);
+                Observer* obs = qobject_cast<Observer*> (const_cast<QObject*> (d_current));
                 if (obs) {
                     if (obs->subjectCount() > 0) {
                         d_current = obs->subjectAt(0);
-                        return d_current;
+                        return const_cast<QObject*> (d_current);
                     } else {
-                        SubjectIterator<QObject> sibling_itr(obs,SubjectIterator<QObject>::IterateSiblings);
-                        if (sibling_itr.hasNext()) {
-                            d_current = sibling_itr.next();
-                            return d_current;
-                        } else {
-                            QObject* obj = findParentNext(d_current);
-                            if (obj)
-                                d_current = obj;
-                            return obj;
+                        if (d_current == d_top_node)
+                            return 0;
+                        else {
+                            SubjectIterator<QObject> sibling_itr(obs,SubjectIterator<QObject>::IterateSiblings);
+                            if (sibling_itr.hasNext()) {
+                                d_current = sibling_itr.next();
+                                return const_cast<QObject*> (d_current);
+                            } else {
+                                const QObject* obj = findParentNext(d_current);
+                                if (obj) {
+                                    d_current = obj;
+                                    return const_cast<QObject*> (d_current);
+                                } else
+                                    return 0;
+                            }
                         }
                     }
                 } else {
                     SubjectIterator<QObject> sibling_itr(d_current);
                     if (sibling_itr.hasNext()) {
                         d_current = sibling_itr.next();
-                        return d_current;
+                        return const_cast<QObject*> (d_current);
                     } else {
-                        QObject* obj = findParentNext(d_current);
-                        if (obj)
+                        const QObject* obj = findParentNext(d_current);
+                        if (obj) {
                             d_current = obj;
-                        return obj;
+                            return const_cast<QObject*> (d_current);
+                        } else
+                            return 0;
                     }
                 }
             }
@@ -168,51 +177,55 @@ while (itr.hasPrevious()) {
                 if (d_current == d_top_node)
                     return 0;
 
-                Observer* obs = qobject_cast<Observer*> (d_current);
+                Observer* obs = qobject_cast<Observer*> (const_cast<QObject*> (d_current));
                 if (obs) {
                     SubjectIterator<Observer> sibling_itr(obs,SubjectIterator<Observer>::IterateSiblings);
                     if (sibling_itr.hasPrevious()) {
                         Observer* previous_obs = sibling_itr.previous();
                         // If previous observer has children, take the last child, otherwise
                         // take previous observer.
-                        QList<QObject*> previous_obs_children = previous_obs->subjectReferences();
+                        QList<QObject*> previous_obs_children = previous_obs->treeChildren();
                         if (previous_obs_children.count() > 0) {
                             d_current = previous_obs_children.last();
-                            return d_current;
+                            return const_cast<QObject*> (d_current);
                         } else {
                             d_current = previous_obs;
-                            return d_current;
+                            return const_cast<QObject*> (d_current);
                         }
                     } else {
-                        QObject* obj = findParentPrevious(d_current);
-                        if (obj)
+                        const QObject* obj = findParentPrevious(d_current);
+                        if (obj) {
                             d_current = obj;
-                        return obj;
+                            return const_cast<QObject*> (d_current);
+                        } else
+                            return 0;
                     }
                 } else {
                     SubjectIterator<QObject> sibling_itr(d_current);
                     if (sibling_itr.hasPrevious()) {
                         d_current = sibling_itr.previous();
-                        return d_current;
+                        return const_cast<QObject*> (d_current);
                     } else {
-                        QObject* obj = findParentPrevious(d_current);
-                        if (obj)
+                        const QObject* obj = findParentPrevious(d_current);
+                        if (obj) {
                             d_current = obj;
-                        return obj;
+                            return const_cast<QObject*> (d_current);
+                        } else
+                            return 0;
                     }
                 }
             }
 
             Observer* topNode() const {
-                return d_top_node;
+                return const_cast<Observer*> (d_top_node);
             }
 
         protected:
             //! Finds the next parent of an object.
             /*!
-              If the obj has only one parent it is easy, if not we need to handle it in someway.
+              If the obj has only one parent it is easy, if not we need to handle it recursively.
               */
-            QObject* findParentNext(QObject* obj) {
+            const QObject* findParentNext(const QObject* obj) {
                 QList<Observer*> parents = Observer::parentReferences(obj);
                 if (parents.count() == 1) {
                     if (parents.front() == d_top_node)
@@ -232,9 +245,9 @@ while (itr.hasPrevious()) {
             }
             //! Finds the previous parent of an object.
             /*!
-              If the obj has only one parent it is easy, if not we need to handle it in someway.
+              If the obj has only one parent it is easy, if not we need to handle it recursively.
               */
-            QObject* findParentPrevious(QObject* obj) {
+            const QObject* findParentPrevious(const QObject* obj) {
                 QList<Observer*> parents = Observer::parentReferences(obj);
                 if (parents.count() > 1) {
                     // Handle this in some way...
@@ -245,8 +258,8 @@ while (itr.hasPrevious()) {
             }
 
         private:
-            QObject* d_current;
-            Observer* const d_top_node;
+            const QObject* d_current;
+            const Observer* const d_top_node;
         };
     }
 }

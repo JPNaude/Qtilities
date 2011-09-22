@@ -54,7 +54,7 @@ namespace Qtilities {
                 //! Gets the current item in the context iterated through.
                 virtual T* current() const = 0;
                 //! Sets the current item in the context iterated through.
-                virtual void setCurrent(T* current) = 0;
+                virtual void setCurrent(const T* current) = 0;
                 //! The next item in the context iterated through.
                 virtual T* next() = 0;
                 //! The previous item in the context iterated through.

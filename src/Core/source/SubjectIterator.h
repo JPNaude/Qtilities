@@ -156,7 +156,7 @@ while (itrB.hasNext()) {
               \param subject The current subject where your iterator must start.
               \param observer This is an optional parameter which is needed when your subject is observed in multiple contexts. In that case, the observer must be specified in order to know which observer parent to use.
               */
-            SubjectIterator(T* subject, Observer* observer = 0) :
+            SubjectIterator(const T* subject, Observer* observer = 0) :
                 d_root(subject),
                 d_parent_observer(observer)
             {
@@ -167,7 +167,7 @@ while (itrB.hasNext()) {
               \param observer The observer that must be used in cases where multiple subjects have multiple parents.
               \param iteration_level Indicates on which level the observer must be interated.
               */
-            SubjectIterator(Observer* observer, ObserverIterationLevel iteration_level) :
+            SubjectIterator(const Observer* observer, ObserverIterationLevel iteration_level) :
                 d_root(0),
                 d_parent_observer(observer)
             {
@@ -185,68 +185,63 @@ while (itrB.hasNext()) {
                 }
             }
 
-            T* first()
-            {
+            T* first() {
                 QList<QObject*> subjects = getSubjects(getParent());
                 if(subjects.count() != 0)
                     d_current = qobject_cast<T*>(subjects[0]);
                 else
                     d_current = NULL;
-                return d_current;
+                return const_cast<T*> (d_current);
             }
 
-            T* last()
-            {
+            T* last() {
                 QList<QObject*> subjects = getSubjects(getParent());
                 if(subjects.count() != 0)
                     d_current = qobject_cast<T*>(subjects[subjects.count() - 1]);
                 else
                     d_current = NULL;
-                return d_current;
+                return const_cast<T*> (d_current);
             }
 
-            T* current() const
-            {
-                return d_current;
+            T* current() const {
+                return const_cast<T*> (d_current);
             }
 
-            void setCurrent(T* current)
-            {
+            void setCurrent(const T* current) {
                 d_current = current;
             }
 
-            T* next()
-            {
+            T* next() {
                 QList<QObject*> subjects = getSubjects(getParent());
-                int currentIdx = getCurrentIndex(subjects);
+                int current_index = getCurrentIndex(subjects);
 
-                /* the subject was found*/
-                if(currentIdx != -1)
-                {
-                    /* Check if there is another subject after this one */
-                    if(currentIdx < (subjects.count() - 1))
-                    {
-                        d_current = qobject_cast<T*>(subjects[currentIdx + 1]);
-                        return d_current;
+//                for (int i = 0; i < subjects.count(); i++) {
+//                    qDebug() << "Siblings(" << QString::number(i) << "): " << subjects.at(i)->objectName();
+//                }
+                // The subject was found:
+                if (current_index != -1) {
+                    // Check if there is another subject after this one :
+                    if (current_index < (subjects.count() - 1)) {
+                        d_current = qobject_cast<T*>(subjects[current_index + 1]);
+//                        qDebug() << "Next sibling: " << d_current->objectName();
+                        return const_cast<T*> (d_current);
                     }
                 }
 
-                d_current = NULL;
-                return d_current;
+                d_current = 0;
+                return const_cast<T*> (d_current);
             }
 
-            T* previous()
-            {
+            T* previous() {
                 QList<QObject*> subjects = getSubjects(getParent());
-                int currentIdx = getCurrentIndex(subjects);
-                if(currentIdx > 0)
-                {
-                    d_current = qobject_cast<T*>(subjects[currentIdx - 1]);
-                    return d_current;
+                int current_index = getCurrentIndex(subjects);
+                if(current_index > 0) {
+                    d_current = qobject_cast<T*>(subjects[current_index - 1]);
+                    return const_cast<T*> (d_current);
                 }
 
                 d_current = NULL;
-                return d_current;
+                return const_cast<T*> (d_current);
             }
 
             Observer* iterationContext() const {
@@ -254,18 +249,20 @@ while (itrB.hasNext()) {
             }
 
         protected:
-            Observer* getParent()
-            {
+            const Observer* getParent() {
                 QList<Observer*> parents = Observer::parentReferences(d_root);
-                if (parents.count() > 1)
-                    return d_parent_observer;
-                else if (parents.count() == 1)
+                if (parents.count() > 1) {
+                    if (d_parent_observer)
+                        return d_parent_observer;
+                    else
+                        return parents.front();
+                } else if (parents.count() == 1)
                     return parents.front();
                 else
                     return 0;
             }
 
-            QList<QObject*> getSubjects(Observer* parent)
+            QList<QObject*> getSubjects(const Observer* parent)
             {
                 QList<QObject*> subjects;
                 if (parent)
@@ -276,21 +273,20 @@ while (itrB.hasNext()) {
 
             int getCurrentIndex(QList<QObject*> subjects)
             {
-                int currentIdx = -1;
+                int current_index = -1;
                 for(int subject = 0; subject < subjects.count(); subject++)
                 {
                     if(subjects[subject] == d_current)
-                        currentIdx = subject;
+                        current_index = subject;
                 }
-                return currentIdx;
+                return current_index;
             }
 
         private:
-            T* d_current;
-            T* d_root;
-            Observer* d_parent_observer;
+            const T* d_current;
+            const T* d_root;
+            const Observer* d_parent_observer;
         };
-
 
         // -----------------------------------------------
         // ConstSubjectIterator
@@ -330,7 +326,7 @@ while (itrB.hasNext()) {
               \param observer The observer that must be used in cases where multiple subjects have multiple parents.
               \param iteration_level Indicates on which level the observer must be interated.
               */
-            ConstSubjectIterator(Observer* observer, ObserverIterationLevel iteration_level) :
+            ConstSubjectIterator(const Observer* observer, ObserverIterationLevel iteration_level) :
                 d_root(0),
                 d_parent_observer(observer)
             {
@@ -381,15 +377,15 @@ while (itrB.hasNext()) {
             const T* next()
             {
                 QList<QObject*> subjects = getSubjects(getParent());
-                int currentIdx = getCurrentIndex(subjects);
+                int current_index = getCurrentIndex(subjects);
 
                 /* the subject was found*/
-                if(currentIdx != -1)
+                if(current_index != -1)
                 {
                     /* Check if there is another subject after this one */
-                    if(currentIdx < (subjects.count() - 1))
+                    if(current_index < (subjects.count() - 1))
                     {
-                        d_current = qobject_cast<T*>(subjects[currentIdx + 1]);
+                        d_current = qobject_cast<T*>(subjects[current_index + 1]);
                         return d_current;
                     }
                 }
@@ -401,10 +397,10 @@ while (itrB.hasNext()) {
             const T* previous()
             {
                 QList<QObject*> subjects = getSubjects(getParent());
-                int currentIdx = getCurrentIndex(subjects);
-                if(currentIdx > 0)
+                int current_index = getCurrentIndex(subjects);
+                if(current_index > 0)
                 {
-                    d_current = qobject_cast<T*>(subjects[currentIdx - 1]);
+                    d_current = qobject_cast<T*>(subjects[current_index - 1]);
                     return d_current;
                 }
 
@@ -421,9 +417,12 @@ while (itrB.hasNext()) {
             Observer* getParent()
             {
                 QList<Observer*> parents = Observer::parentReferences(d_root);
-                if (parents.count() > 1)
-                    return d_parent_observer;
-                else if (parents.count() == 1)
+                if (parents.count() > 1) {
+                    if (d_parent_observer)
+                        return d_parent_observer;
+                    else
+                        return parents.front();
+                } else if (parents.count() == 1)
                     return parents.front();
                 else
                     return 0;
@@ -440,13 +439,13 @@ while (itrB.hasNext()) {
 
             int getCurrentIndex(QList<QObject*> subjects)
             {
-                int currentIdx = -1;
+                int current_index = -1;
                 for(int subject = 0; subject < subjects.count(); subject++)
                 {
                     if(subjects[subject] == d_current)
-                        currentIdx = subject;
+                        current_index = subject;
                 }
-                return currentIdx;
+                return current_index;
             }
 
         private:
