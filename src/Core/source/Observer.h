@@ -824,21 +824,41 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             /*!
               Returns a list of QObjects* in tree underneath this observer where the list is populated in the same order in which Qtilities::Core::TreeIterator iterates through the tree.
 
-              \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
+              \param base_class_name The name of the base class of children you are looking for. When empty, all children underneath this observer is returned.
 
-              \note This observer itself is not included in the list.
+              For example:
+
+\code
+QList<QObject*> children;
+TreeNode* rootNode = new TreeNode("Root");
+TreeNode* parentNode1 = rootNode->addNode("Parent 1");
+TreeNode* parentNode2 = rootNode->addNode("Parent 2");
+
+parentNode1->addItem("Child 1");
+parentNode1->addItem("Child 2");
+parentNode2->addItem("Child 3");
+parentNode2->addItem("Child 5");
+
+// The following call will return
+QList<QObject*> nodes_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeNode");
+QVERIFY(nodes_verify.count() == 2);
+QList<QObject*> items_verify = rootNode->treeChildren("Qtilities::CoreGui::TreeItem");
+QVERIFY(items_verify.count() == 5);
+\endcode
+
+              \note This observer itself is not part of the list.
               */
-            QList<QObject*> treeChildren(const Observer* observer = 0) const;
-            //! Returns a list with the names of all the current observed subjects which implements a specific interface. By default all subjects' names are returned.
-            QStringList subjectNames(const QString& iface = QString()) const;
-            //! Returns a list with the displayed names of all the current observed subjects which implements a specific interface. By default all subjects' displayed names are returned.
-            QStringList subjectDisplayedNames(const QString& iface = QString()) const;
+            QList<QObject*> treeChildren(const QString& base_class_name = QString()) const;
+            //! Returns a list with the names of all the current observed subjects which inherits a specific base class. By default all subjects' names are returned.
+            QStringList subjectNames(const QString& base_class_name = QString()) const;
+            //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.
+            QStringList subjectDisplayedNames(const QString& base_class_name = QString()) const;
             //! Returns the subject reference at a given position.
             QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
             int subjectID(int i) const;
-            //! Returns a list with the subject references of all the observed subjects which implements a given interface. If you don't specify an interface, all objects in the observer are returned.
-            QList<QObject*> subjectReferences(const QString& iface = QString()) const;
+            //! Returns a list with the subject references of all the observed subjects which inherits a specific base class. If you don't specify an interface, all objects in the observer are returned.
+            QList<QObject*> subjectReferences(const QString& base_class_name = QString()) const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
             QMap<QPointer<QObject>, QString> subjectMap();
             //! Gets the subject reference for a specific, unique subject ID.

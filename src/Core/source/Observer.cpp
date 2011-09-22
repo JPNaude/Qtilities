@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "Observer.h"
+#include "TreeIterator.h"
 #include "QtilitiesCoreConstants.h"
 #include "QtilitiesProperty.h"
 #include "ActivityPolicyFilter.h"
@@ -1482,33 +1483,17 @@ bool Qtilities::Core::Observer::treeContains(QObject* tree_item) const {
      return treeChildren().contains(tree_item);
 }
 
-QList<QObject*> Qtilities::Core::Observer::treeChildren(const Observer* observer) const {
-    static QList<QObject*> children;
+QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface) const {
+    QList<QObject*> children;
 
-    // We need to iterate over all children recursively:
-    if (!observer) {
-        children.clear();
-        observer = this;
-    }
-
-    children << observer->subjectReferences();
-
-    Observer* child_observer = 0;
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        // Handle the case where the child is an observer.
-        child_observer = qobject_cast<Observer*> (observer->subjectAt(i));
-        if (child_observer)
-            treeChildren(child_observer);
+    TreeIterator itr(this);
+    while (itr.hasNext()) {
+        QObject* obj = itr.next();
+        if (iface.isEmpty())
+            children << obj;
         else {
-            // Handle the case where the child is the parent of an observer
-            foreach (QObject* child, observer->subjectAt(i)->children()) {
-                child_observer = qobject_cast<Observer*> (child);
-                if (child_observer) {
-                    children << child_observer;
-                    treeChildren(child_observer);
-                }
-                break;
-            }
+            if (obj->inherits(iface.toAscii().data()))
+                children << obj;
         }
     }
 
