@@ -8,7 +8,7 @@
 # ***************************************************************************
 QTILITIES += extension_system
 QTILITIES += project_management
-QTILITIES += unit_tests
+QTILITIES += testing
 include(../../Qtilities.pri)
 
 CONFIG(debug, debug|release) {

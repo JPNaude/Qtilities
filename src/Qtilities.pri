@@ -34,9 +34,9 @@ include(Dependencies.pri)
 #   *************************************************************************
 #   When uncommented, verbose action management messages are printed.
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-#   When uncommented, the UnitTests library contains the Qtilities
+#   When uncommented, the Testing library contains the Qtilities
 #   unit tests in it.
-DEFINES += QTILITIES_UNIT_TESTS
+DEFINES += QTILITIES_TESTING
 #   When uncommented, basic benchmarking of potentially long operations in
 #   Qtilities is done by logging execution times as warning messages.
 #   DEFINES += QTILITIES_BENCHMARKING
@@ -175,8 +175,8 @@ contains( QTILITIES, project_management ) {
     }
 }
 
-contains( QTILITIES, unit_tests ) {
-    message( "Using Unit Testing Module..." )
+contains( QTILITIES, testing ) {
+    message( "Using Testing Module..." )
     message( "Project Management Dependency: Using Qtilities Logging Module..." )
     message( "Project Management Dependency: Using Qtilities Core Module..." )
     message( "Project Management Dependency: Using Qtilities CoreGui Module..." )
@@ -187,10 +187,10 @@ contains( QTILITIES, unit_tests ) {
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesUnitTests
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
 
     CONFIG(debug, debug|release) {
-        win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTestsd$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesTestingd$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
@@ -200,10 +200,10 @@ contains( QTILITIES, unit_tests ) {
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTestsd$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTestingd$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
     } else {
-        win32::LIBS += $$QTILITIES_BIN/libQtilitiesUnitTests$${QTILITIES_FILE_VER}.a
+        win32::LIBS += $$QTILITIES_BIN/libQtilitiesTesting$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
         win32::LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
@@ -213,7 +213,7 @@ contains( QTILITIES, unit_tests ) {
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesUnitTests$${QTILITIES_FILE_VER}
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_FILE_VER}
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
     }
 }

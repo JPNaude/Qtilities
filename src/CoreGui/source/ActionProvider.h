@@ -54,7 +54,25 @@ namespace Qtilities {
         \class ActionProvider
         \brief A ready to use implementation of the IActionProvider interface.
 
-        For more information see the \ref page_action_management article.
+In the development done using %Qtilities the problem was often faced where an object (which is not a QWidget) needed to provide some actions to another object. To solve the problem the concept of action providers was introducted. Any object can become an action provider and other objects (a toolbar for example) can query the object for actions that it provides, or it can add actions to the object, in the same way that you can add actions to QWidget.
+
+Action providers allow actions to be grouped into categories and allows you to do specialized queries on the actions provided by an object, for example you can get only a list of actions which are enabled. The Qtilities::CoreGui::Interfaces::IActionProvider interface defines the interface that action providers use and the Qtilities::CoreGui::ActionProvider class provides a default implementation of this interface.
+
+Many classes in %Qtilities are action providers and they provide actions through their \p actionProvider() function. An example is Qtilities::CoreGui::ObserverWidget, which provides all the actions that is created and allows you to get for example all the enabled actions for the current observer context. If you use an \p ObserverWidget that displays its actions in an action toolbar, you can easily add new actions to the toolbar where toolbars are created for each action category. For example:
+
+\code
+ObserverWidget widget;
+widget.actionProvider()->addAction(my_action,QtilitiesCategory("My Action Category"));
+
+// We can get a list of actions provided by any object like this:
+QList<QAction*> actions = widget.actions();
+
+// Only enabled actions:
+QList<QAction*> enabled_actions = widget.actions(IActionProvider::FilterDisabled);
+
+// Only actions for a specific category:
+QList<QAction*> actions_per_category = widget.actions(IActionProvider::NoFilter,QtilitiesCategory("My Action Category"));
+\endcode
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ActionProvider : public QObject, public IActionProvider {
             Q_OBJECT

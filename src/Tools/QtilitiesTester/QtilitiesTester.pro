@@ -5,7 +5,7 @@
 #
 # ***************************************************************************
 QTILITIES += coregui
-QTILITIES += unit_tests
+QTILITIES += testing
 include(../../Qtilities.pri)
 
 QT       += core

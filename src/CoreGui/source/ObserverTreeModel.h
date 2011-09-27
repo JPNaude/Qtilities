@@ -139,8 +139,6 @@ namespace Qtilities {
                 be the new selection (also, when nothing was selected, nothing will be selected after the rebuild in this case).
               */
             void rebuildTreeStructure(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
-
-        public slots:
             //! Function which will calculate the selection parent of a selected object.
             /*!
               \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.

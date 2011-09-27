@@ -231,7 +231,7 @@ using namespace QtilitiesExtensionSystem;
 <a class="el" href="namespace_qtilities_1_1_extension_system.html">Unit Tests Module:</a>
 </td>
 <td style="vertical-align: text-top;width:80%">
-Provides classes which simplifies unit testing, a debug widget, and tests for numerous %Qtilities classes. The new \p QTILITIES_UNIT_TESTS define in \p Qtilities.pri allows you to build the UnitTests module with the %Qtilities test classes in it, thus without it you can use the library for your own custom tests.
+Provides classes which simplifies unit testing, a debug widget, and tests for numerous %Qtilities classes. The new \p QTILITIES_TESTING define in \p Qtilities.pri allows you to build the Testing module with the %Qtilities test classes in it, thus without it you can use the library for your own custom tests.
 
 <table style="table-layout:auto;
         margin: auto;
@@ -240,15 +240,15 @@ Provides classes which simplifies unit testing, a debug widget, and tests for nu
 <td style="vertical-align: text-top;width:50%">
 To add the correct paths to your include paths and link to the correct modules, add this in your .pro %file:
 \code
-QTILITIES += unit_tests;
+QTILITIES += testing;
 include(Qtilities_Path/src/Qtilities.pri)
 \endcode
 </td>
 <td style="vertical-align: text-top;width:50%">
 To include all files in this module:
 \code
-#include <QtilitiesUnitTests>
-using namespace QtilitiesUnitTests;
+#include <QtilitiesTesting>
+using namespace QtilitiesTesting;
 \endcode
 </td>
 </tr>

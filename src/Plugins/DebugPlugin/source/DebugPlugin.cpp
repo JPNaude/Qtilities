@@ -13,12 +13,12 @@
 
 #include <ExtensionSystemConstants>
 #include <Qtilities.h>
-#include <QtilitiesUnitTests>
+#include <QtilitiesTesting>
 
 #include <QtPlugin>
 #include <QIcon>
 
-using namespace QtilitiesUnitTests;
+using namespace QtilitiesTesting;
 
 struct Qtilities::Plugins::Debug::DebugPluginPrivateData {
     DebugPluginPrivateData() : debug_mode(0) {}

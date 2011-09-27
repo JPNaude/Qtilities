@@ -92,7 +92,7 @@ Table of contents:
 
 \section debugging_introduction Introduction
 
-The debugging plugin is part of the \p UnitTests module and can be added manually to your application, or if your application uses the %Qtilities extension system it can be added automatically as an application mode when you load \p DebugPlugin. You can find the documentation for the plugin here: Qtilities::Plugins::Debug::DebugPlugin.
+The debugging plugin is part of the \p Testing module and can be added manually to your application, or if your application uses the %Qtilities extension system it can be added automatically as an application mode when you load \p DebugPlugin. You can find the documentation for the plugin here: Qtilities::Plugins::Debug::DebugPlugin.
 
 \subsection debugging_manual Showing the debug widget manually
 
@@ -100,11 +100,11 @@ To access the debug widget manually, do the following:
 
 \code
 // In your .pro file, add:
-QTILITIES += unit_tests
+QTILITIES += testing
 
 // In your .cpp file, add:
-#include <QtilitiesUnitTests>
-using namespace QtilitiesUnitTests;
+#include <QtilitiesTesting>
+using namespace QtilitiesTesting;
 
 // And then show the DebugWidget like this:
 DebugWidget* debug_widget = new DebugWidget;

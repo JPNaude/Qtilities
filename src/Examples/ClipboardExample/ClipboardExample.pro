@@ -2,7 +2,7 @@
 # Copyright (c) 2009-2010, Jaco Naude
 # See http://www.qtilities.org/licensing.html for licensing details.
 # ***************************************************************************
-QTILITIES += unit_tests
+QTILITIES += testing
 include(../../Qtilities.pri)
 QT += core
 QT += gui

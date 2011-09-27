@@ -273,21 +273,22 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     bool is_modified = false;
                     if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay && role == Qt::DisplayRole) {
                         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
-                        if (mod_iface)
+                        if (mod_iface) {
                             is_modified = mod_iface->isModified();
+                        }
                     }
 
                     QString return_string;
                     // If observer is valid, we get the name, otherwise we just use object name.
-                    if (obs) {
+                    if (obs)
                         return_string = obs->subjectDisplayedNameInContext(obj);
-                    } else
-                        return_string =  obj->objectName();
+                    else
+                        return_string = obj->objectName();
 
                     if (is_modified)
                         return return_string + "*";
                     else
-                        return return_string;
+                        return return_string;//return return_string;
                 }
             } else
                 return tr("Invalid object");
@@ -1015,10 +1016,10 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     reset();
     deleteRootItem();
     QVector<QVariant> columns;
-    columns.push_back(QString("Child Count"));
-    columns.push_back(QString("Access"));
-    columns.push_back(QString("Type Info"));
-    columns.push_back(QString("Object Tree"));
+    columns.push_back(QString(tr("Child Count")));
+    columns.push_back(QString(tr("Access")));
+    columns.push_back(QString(tr("Type Info")));
+    columns.push_back(QString(tr("Object Tree")));
     d->rootItem = new ObserverTreeItem(0,0,columns);
     d->rootItem->setObjectName("Root Item");
     ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem);

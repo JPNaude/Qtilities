@@ -333,12 +333,11 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
         if ((notification_targets & IModificationNotifier::NotifyListeners) && !observerData->process_cycle_active) {
             emit modificationStateChanged(new_state);
         }
-    }
 
-    if (observerData->display_hints) {
-        if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
-            if (observerData->is_modified != new_state)
+        if (observerData->display_hints) {
+            if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint) {
                 refreshViewsData();
+            }
         }
     }
 }

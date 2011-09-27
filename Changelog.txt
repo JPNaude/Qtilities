@@ -62,6 +62,9 @@ Qtilities v1.0 Implemented Changes
         - Previously observer deleted objects directly when needed in its constructor as well as when an object was detached and went out of scope. This was changed to call deleteLater() on those objects, making it safer for objects living in other threads.
         - Observer::subjectReference(const QString& name) got new case sensitivity parameter.
         - Observer got a new containsSubjectWithName() function.
+        - Observer::endProcessingCycle() will not emit numberOfSubjectsChanged() with the correct change indication when the number of subjects changed during a processing cycle.
+        - Optimized handling of changes to qti_prop_CATEGORY_MAP and refreshing of observer models.
+        - New functions on Observer and TreeNode which allows starting and ending processing cycles on complete Observer trees.
     - Subject Filters
         - Now easier to implement since most AbstractSubjectFilter's abstract functions got default implementations.
         - ActivityPolicyFilter got a new setActiveSubject() function set a single item active in an observer context.
@@ -71,6 +74,7 @@ Qtilities v1.0 Implemented Changes
         - Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the filter already had an observer context associated with it.
         - Changed behavior where SubjectTypeFilter's set functions would not have worked if the filter already had an observer context associated with it.
         - All subject filters which forms part of %Qtilities are not exportable by default.
+        - New ActivityPolicyFilter::invertActivity() function.
         - New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
             - TreeNode::enableActivityControl() updated to include this new policy.
             - This policy is now part of binary and XML tree exports.
@@ -156,6 +160,7 @@ Qtilities v1.0 Implemented Changes
         - AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
         - TreeFileItem XML import & export methods are now virtual.
     - Observer Widgets & Observer Models
+        - ObserverWidget got new clearSelection() function.
         - ObserverWidget got a new action which only appear when built in debug mode which allow you to add any selection in any ObserverWidget to the global object pool and debug it there using the Qtilities Debugging plugin.
         - ObserverWidget handles ObserverHints::DisplayFlags better. It will not reconstruct toolbars everytime if the activeHints()'s display flags did not change. This could have caused the order of toolbars to change when it shouldn't.
         - ObserverWidget in table mode now resize all rows to contents every time that new items are added, previously this only happened when the widget's observer context changed.
@@ -258,6 +263,7 @@ Qtilities v1.0 Implemented Changes
     - Added documentation related to the extension system and threading to the ExtensionSystemCore::initialize() function documentation.
     - Plugins state handling functions improved.
     - Improvements to plugin error messages.
+    - Improved loading speed of plugins by starting processing cycles on the action observers.
 
     Bug Fixes:
     - Fixed memory leak in ExtensionSystemCore.
@@ -280,7 +286,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed bug where ObserverProjectItemWrapper could be modified without the project showing that it was modified.
 
     ============================
-    UnitTests:
+    Testing:
     ============================
 	New library
 	- Contains unit tests for numerous Qtilities classes.

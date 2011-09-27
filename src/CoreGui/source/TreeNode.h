@@ -214,7 +214,7 @@ tree_widget->show();
             /*!
               This function will create a Qtilities::CoreGui::NamingPolicyFilter with the specified
               parameters and install it on the tree node. It will also set the correct parameters on the
-              Observer base class.
+              Observer base class's observer hints.
 
               This function must be called only once, after the construction of your tree node before
               any tree items have been attached to the node. Calling it a second time will just return
@@ -239,7 +239,7 @@ tree_widget->show();
             /*!
               This function will create a Qtilities::Core::ActivityPolicyFilter with the specified
               parameters and install it on the tree node. It will also set the correct parameters on the
-              Observer base class.
+              Observer base class's observer hints.
 
               This function must be called only once, after the construction of your tree node before
               any tree items have been attached to the node. Calling it a second time will just return
@@ -248,6 +248,7 @@ tree_widget->show();
               \param activity_display The ObserverHints::ActivityDisplay hint to use in this tree node.
               \param activity_control The ObserverHints::ActivityControl hint to use in this tree node.
               \param activity_policy The ActivityPolicyFilter::ActivityPolicy hint to use in this tree node.
+              \param parent_tracking_policy The ActivityPolicyFilter::ParentTrackingPolicy hint to use in this tree node.
               \param minimum_activity_policy The ActivityPolicyFilter::MinimumActivityPolicy hint to use in this tree node.
               \param new_subject_activity_policy The ActivityPolicyFilter::NewSubjectActivityPolicy hint to use in this tree node.
               \param monitor_modification_state When true the modification state of the activity filter will be monitored by the node. Thus if the active subjects changes the TreeNode will indicate that it changed.

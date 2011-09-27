@@ -150,6 +150,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
 
             if (child.tagName() == "ObserverProjectItemWrapper") {
                 d->observer->setExportVersion(exportVersion());
+                doc->clear();
                 return d->observer->importXml(doc,&child,import_list);
             }
         }

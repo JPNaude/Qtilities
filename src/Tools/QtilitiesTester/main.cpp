@@ -36,8 +36,8 @@
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 
-#include <QtilitiesUnitTests>
-using namespace QtilitiesUnitTests;
+#include <QtilitiesTesting>
+using namespace QtilitiesTesting;
 
 int main(int argc, char *argv[])
 {
@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
 //    TestVersionNumber* testVersionNumber = new TestVersionNumber;
 //    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
-//    testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
+    TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
+    testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestTreeIterator* testTreeIterator = new TestTreeIterator;
-//    testFrontend.addTest(testTreeIterator,QtilitiesCategory("Qtilities::Core","::"));
+    TestTreeIterator* testTreeIterator = new TestTreeIterator;
+    testFrontend.addTest(testTreeIterator,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestObserver* testObserver = new TestObserver;
-//    testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
+    TestObserver* testObserver = new TestObserver;
+    testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
 
 //    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
 //    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
 //    TestExporting* testExporting = new TestExporting;
 //    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
-    TestObjectManager* testObjectManager = new TestObjectManager;
-    testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
+//    TestObjectManager* testObjectManager = new TestObjectManager;
+//    testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
 
 //    BenchmarkTests* benchmarkTests = new BenchmarkTests;
 //    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));

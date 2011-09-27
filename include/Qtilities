@@ -3,3 +3,4 @@
 #include <QtilitiesCoreGui/QtilitiesCoreGui>
 #include <QtilitiesProjectManagement/QtilitiesProjectManagement>
 #include <QtilitiesExtensionSystem/QtilitiesExtensionSystem>
+#include <QtilitiesTesting/QtilitiesTesting>
