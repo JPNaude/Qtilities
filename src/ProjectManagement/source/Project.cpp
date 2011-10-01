@@ -39,6 +39,7 @@
 
 #include <Logger>
 #include <QtilitiesApplication>
+#include <FileUtils>
 
 #include <QFileInfo>
 #include <QDomElement>
@@ -50,6 +51,7 @@
 
 using namespace Qtilities::ProjectManagement::Constants;
 using namespace Qtilities;
+using namespace Qtilities::Core;
 
 struct Qtilities::ProjectManagement::ProjectPrivateData {
     ProjectPrivateData(): project_file(QString()),
@@ -264,8 +266,20 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
-            if (success == IExportable::Incomplete)
-                LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
+            if (success == IExportable::Incomplete) {
+                QString backup_file_name = FileUtils::appendToFileName(file_name,".complete");
+                QFile backup_file(backup_file_name);
+                if (backup_file.exists()) {
+                    if (!backup_file.remove())
+                        LOG_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name);
+                }
+
+                if (!file.copy(backup_file_name)) {
+                    LOG_WARNING(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name);
+                } else {
+                    LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name);
+                }
+            }
             return true;
         } else {
             LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
@@ -310,8 +324,20 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
-            if (success == IExportable::Incomplete)
-                LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name);
+            if (success == IExportable::Incomplete) {
+                QString backup_file_name = FileUtils::appendToFileName(file_name,".complete");
+                QFile backup_file(backup_file_name);
+                if (backup_file.exists()) {
+                    if (!backup_file.remove())
+                        LOG_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name);
+                }
+
+                if (!file.copy(backup_file_name)) {
+                    LOG_WARNING(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name);
+                } else {
+                    LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name);
+                }
+            }
             return true;
         } else {
             LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
