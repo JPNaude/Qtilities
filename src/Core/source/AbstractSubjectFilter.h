@@ -127,7 +127,7 @@ namespace Qtilities {
                 \param obj The object to be added.
                 \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases.
                 \return Return true if the attachment is allowed, false otherwise.
-                \returns True if the attachment was succesfully initialized, false otherwise.
+                \returns True if the attachment was successfully initialized, false otherwise.
 
                 \note By default true is reruend by the base class.
               */

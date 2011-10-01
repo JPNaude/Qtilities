@@ -100,7 +100,7 @@ namespace Qtilities {
                 /*!
                   This function will attempt to move subjects from one observer context to another. If any of the subjects
                   cannot be attached, it will be skipped and attempt to move the next subject in the list. If any of the
-                  subjects could not be attached, the function will return false. If all subjects was moved succesfully the
+                  subjects could not be attached, the function will return false. If all subjects was moved successfully the
                   function will return true.
 
                   \param objects The objects which must be moved.
@@ -114,7 +114,7 @@ namespace Qtilities {
                 /*!
                   This function will attempt to move subjects from one observer context to another. If any of the subjects
                   cannot be attached, it will be skipped and attempt to move the next subject in the list. If any of the
-                  subjects could not be attached, the function will return false. If all subjects was moved succesfully the
+                  subjects could not be attached, the function will return false. If all subjects was moved successfully the
                   function will return true.
 
                   \param objects The objects which must be moved.

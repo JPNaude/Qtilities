@@ -96,6 +96,28 @@ while (itr.hasPrevious()) {
 // >> 1
 \endcode
 
+        \section tree_iterator_multiple_parents When subjects are attached to multiple parents
+
+        Because %Qtilities allows tree items to be attached to multiple trees care should be taken when iterating through trees in which subjects are attached to multiple trees. To explain this,
+        take the following tree as an example:
+
+        \image html observer_dot_graph_example_complex_tree_dot.jpg "Example Graph (Dot Layout Engine)"
+
+        To construct the above tree is simple as demonstrated in the code snippet below:
+
+\code
+
+\endcode
+
+        When TreeIterator iterates through this tree and it gets to the point where it must find the shared item's parent, there are two parents to choose from. The way
+        that TreeIterator handles cases such as this it to check for the observer to which it is attached with Observer::SpecificObserverOwnership. If you build a tree using the
+        Qtilities::CoreGui::TreeNode class's \p addItem() and \p addNode() functions this is done for you automatically. When you attach a tree item to a node using Observer::SpecificObserverOwnership
+        the item's \p parent() will be set to be the observer it is attached to.
+
+        Thus in the above tree, the parent called "TODO" will be used since it is the \p parent() of the item. When iterating through the other tree, the iteration will produce the wrong results.
+
+        To summarize, take care when using trees like the one shown above and make sure you understand how the iterator will iterate through the tree.
+
         \sa SubjectIterator, ConstSubjectIterator
 
         <i>This class was added in %Qtilities v1.0.</i>
@@ -226,6 +248,9 @@ while (itr.hasPrevious()) {
               If the obj has only one parent it is easy, if not we need to handle it recursively.
               */
             const QObject* findParentNext(const QObject* obj) {
+                if (!obj)
+                    return 0;
+
                 QList<Observer*> parents = Observer::parentReferences(obj);
                 if (parents.count() == 1) {
                     if (parents.front() == d_top_node)
@@ -239,8 +264,12 @@ while (itr.hasPrevious()) {
                         }
                     }
                 } else {
-                    // Handle this in some way...
-                    return 0;
+                    // If we have more than one parent, we search for a specific parent and use that route. If it does not have a specific parent, we assert:
+                    Observer* parent_observer = qobject_cast<Observer*> (obj->parent());
+                    qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
+                    LOG_ERROR("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
+                    Q_ASSERT(parent_observer);
+                    return parent_observer;
                 }
             }
             //! Finds the previous parent of an object.

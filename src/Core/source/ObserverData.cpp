@@ -1396,7 +1396,7 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
     return success;
 }
 
-QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<QObject*> objects, IExportable::ExportMode export_mode, bool * incomplete) const {
+QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool * incomplete) const {
     QList<IExportable*> exportable_list;
     qint32 iface_count = 0;
     if (incomplete)

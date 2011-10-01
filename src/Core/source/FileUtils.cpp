@@ -69,7 +69,7 @@ QString Qtilities::Core::FileUtils::appendToFileName(const QString &fullFileName
     QString file_path = file_info.path();
     QString extension = file_info.completeSuffix();
     QString name_only = file_info.baseName();
-    QString new_file_name = file_path + "/" + name_only + "_" + append_string + "." + extension;
+    QString new_file_name = file_path + "/" + name_only + append_string + "." + extension;
     return new_file_name;
 }
 

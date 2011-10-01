@@ -803,16 +803,14 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             /*!
                 This function is different from treeChildCount() which gets all the children underneath an observer (Thus, children of children etc.).
                 */
-            inline int subjectCount() const { return observerData->subject_list.count(); }
+            int subjectCount(const QString& base_class_name = "QObject") const;
             //! Function to get the number of children under the specified observer.
             /*!
                 This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
 
-                \param observer This is a recursive function and this parameter is used during recusion. Do not use it.
-
                 \note This observer itself is not counted.
                 */
-            int treeCount(const Observer* observer = 0) const;
+            int treeCount(const QString& base_class_name = "QObject") const;
             //! Function to get a QObject reference at a specific location in the tree underneath this observer.
             /*!
               If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
@@ -824,7 +822,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             /*!
               Returns a list of QObjects* in tree underneath this observer where the list is populated in the same order in which Qtilities::Core::TreeIterator iterates through the tree.
 
-              \param base_class_name The name of the base class of children you are looking for. When empty, all children underneath this observer is returned.
+              \param base_class_name The name of the base class of children you are looking for. By default, all children underneath this observer is returned.
 
               For example:
 
@@ -848,17 +846,17 @@ QVERIFY(items_verify.count() == 5);
 
               \note This observer itself is not part of the list.
               */
-            QList<QObject*> treeChildren(const QString& base_class_name = QString()) const;
+            QList<QObject*> treeChildren(const QString& base_class_name = "QObject") const;
             //! Returns a list with the names of all the current observed subjects which inherits a specific base class. By default all subjects' names are returned.
-            QStringList subjectNames(const QString& base_class_name = QString()) const;
+            QStringList subjectNames(const QString& base_class_name = "QObject") const;
             //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.
-            QStringList subjectDisplayedNames(const QString& base_class_name = QString()) const;
+            QStringList subjectDisplayedNames(const QString& base_class_name = "QObject") const;
             //! Returns the subject reference at a given position.
             QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
             int subjectID(int i) const;
             //! Returns a list with the subject references of all the observed subjects which inherits a specific base class. If you don't specify an interface, all objects in the observer are returned.
-            QList<QObject*> subjectReferences(const QString& base_class_name = QString()) const;
+            QList<QObject*> subjectReferences(const QString& base_class_name = "QObject") const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
             QMap<QPointer<QObject>, QString> subjectMap();
             //! Gets the subject reference for a specific, unique subject ID.

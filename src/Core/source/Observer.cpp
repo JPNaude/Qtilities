@@ -170,7 +170,8 @@ Qtilities::Core::Observer::~Observer() {
         int count = subjectCount();
         for (int i = 0; i < count; i++) {
             // In this case we need to remove any trace of this observer from the obj
-            removeQtilitiesProperties(observerData->subject_list.at(i));
+            if (observerData->subject_list.at(i))
+                removeQtilitiesProperties(observerData->subject_list.at(i));
         }
     }
 
@@ -1132,12 +1133,12 @@ QVariant Qtilities::Core::Observer::getMultiContextPropertyValue(const QObject* 
         // This is a shared property
         return (prop.value<SharedProperty>()).value();
     } else if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
-        // This is a normal observer property (not shared)
+        // This is a normal multi context property (not shared)
         return (prop.value<MultiContextProperty>()).value(observerData->observer_id);
     } else if (!prop.isValid()) {
         return QVariant();
     } else {
-        LOG_TRACE(QString("Observer (%1): Getting of property (%2) failed, property not recognized as an observer property type.").arg(objectName()).arg(property_name));
+        LOG_TRACE(QString("Observer (%1): Getting of property (%2) failed, property not recognized as a qtilities property type.").arg(objectName()).arg(property_name));
         return QVariant();
     }
 }
@@ -1165,7 +1166,7 @@ bool Qtilities::Core::Observer::setMultiContextPropertyValue(QObject* obj, const
         ObjectManager::setSharedProperty(obj,shared_property);
         return true;
     } else if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
-        // This is a normal observer property (not shared)
+        // This is a normal multi context property (not shared)
         MultiContextProperty observer_property = prop.value<MultiContextProperty>();
         observer_property.setValue(new_value,observerData->observer_id);
         ObjectManager::setMultiContextProperty(obj,observer_property);
@@ -1462,9 +1463,12 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
     return ManualOwnership;
 }
 
-int Qtilities::Core::Observer::treeCount(const Observer* observer) const {
-    Q_UNUSED(observer)
-    return treeChildren().count();
+int Qtilities::Core::Observer::treeCount(const QString& base_class_name) const {
+    return treeChildren(base_class_name).count();
+}
+
+int Qtilities::Core::Observer::subjectCount(const QString& base_class_name) const {
+    return subjectReferences(base_class_name).count();
 }
 
 QObject* Qtilities::Core::Observer::treeAt(int i) const {

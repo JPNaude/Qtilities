@@ -144,6 +144,9 @@ property will contain the observer ID of the parent observer.
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 <b>Removable:</b> No
+
+To get the specific parent observer can easily be done by just casting its \p parent() to Observer rather than
+first getting the parent property and then getting the parent through the object manager.
 */
 const char * const qti_prop_PARENT_ID        = "qti.core.ParentID";
 

@@ -157,7 +157,7 @@ namespace Qtilities {
             /*!
               In this case, we need to make sure objects appearing multiple times in the tree is not exported more than once. This is done using qti_prop_LIMITED_EXPORTS.
               */
-            QList<IExportable*> getLimitedExportsList(QList<QObject*> objects, IExportable::ExportMode export_mode, bool * incomplete = 0) const;
+            QList<IExportable*> getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool * incomplete = 0) const;
 
             // --------------------------------
             // All Data Stored For An Observer
@@ -187,7 +187,7 @@ namespace Qtilities {
             //! Used during processing cycles to store the number of subjects before the processing cycle started. This allows correct emission of numberOfSubjectsChanged() when the processing cycle ends.
             /*!
               \note When setting number_of_subjects_start_of_proc_cycle to -1, the numberOfSubjectsChanged() signal will not be emitted in endProcessingCycle(). This
-              is used in the ~Observer destructor. We don't want to emit that the number of subject changed in the destructor because all subjects will be removed.
+              is used in the ~Observer destructor. We don't want to emit that the number of subjects changed in the destructor because all subjects will be removed.
               */
             int number_of_subjects_start_of_proc_cycle;           
         };
