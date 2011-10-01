@@ -297,41 +297,58 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
     if (!category.isValid())
         return false;
 
-    // When observer_id = -1, we set the category of the only parent:
+    // When observer_id = -1, the function will find the parent in the following way:t in the following way:
+    // - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
+    //   parent and if so, return the category for that parent.
+    // - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
+    //   a specific parent, the category in this parent will be used.
+
+    // If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
     if (observer_id == -1) {
-        // Check the parent count:
-        if (Observer::parentCount(objectBase()) != 1) {
-            LOG_TRACE(QString(QObject::tr("setCategory(category,-1) on AbstractTreeItem %1 failed, the item has != 1 parents.")).arg(objectBase()->objectName()));
-            return false;
-        } else {
+        Observer* parent_observer = 0;
+
+        // Do the above checks:
+        // (1) Check if it has only one parent:
+        int parent_count = Observer::parentCount(objectBase());
+        if (parent_count == 1) {
             MultiContextProperty prop = ObjectManager::getMultiContextProperty(objectBase(),qti_prop_OBSERVER_MAP);
             if (prop.isValid()) {
-                int id = prop.contextMap().keys().at(0);
-                QObject* obj = objectBase();
-                Observer* obs = OBJECT_MANAGER->observerReference(id);
-                if (obj && obs) {
-                    // Check if the category changed, if not we don't set it again.
-                    // Setting it again will trigger a view refresh which should be avoided if possible.
-                    QVariant category_variant = obs->getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
-                    if (category_variant.isValid()) {
-                        QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
-                        if (old_category == category)
-                            return false;
-                    }
-
-                    // Ok it changed, thus set it again:
-                    if (ObjectManager::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
-                        MultiContextProperty category_property = ObjectManager::getMultiContextProperty(obj,qti_prop_CATEGORY_MAP);
-                        category_property.setValue(qVariantFromValue(category),id);
-                        ObjectManager::setMultiContextProperty(obj,category_property);
-                    } else {
-                        MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-                        category_property.setValue(qVariantFromValue(category),id);
-                        ObjectManager::setMultiContextProperty(obj,category_property);
-                    }
-                    return true;
-                }
+                observer_id = prop.contextMap().keys().at(0);
+                parent_observer = OBJECT_MANAGER->observerReference(observer_id);
             }
+        } else if (parent_count > 1 && objectBase()) {
+            // (2) Check if we have a specific observer parent:
+            parent_observer = qobject_cast<Observer*> (objectBase()->parent());
+        }
+
+        if (parent_observer != 0) {
+            QObject* obj = objectBase();
+            if (obj) {
+                // Check if the category changed, if not we don't set it again.
+                // Setting it again will trigger a view refresh which should be avoided if possible.
+                QVariant category_variant = parent_observer->getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
+                if (category_variant.isValid()) {
+                    QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
+                    if (old_category == category)
+                        return true;
+                }
+
+                // Ok it changed, thus set it again:
+                if (ObjectManager::propertyExists(obj,qti_prop_CATEGORY_MAP)) {
+                    MultiContextProperty category_property = ObjectManager::getMultiContextProperty(obj,qti_prop_CATEGORY_MAP);
+                    category_property.setValue(qVariantFromValue(category),parent_observer->observerID());
+                    ObjectManager::setMultiContextProperty(obj,category_property);
+                } else {
+                    MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+                    category_property.setValue(qVariantFromValue(category),parent_observer->observerID());
+                    ObjectManager::setMultiContextProperty(obj,category_property);
+                }
+                return true;
+            }
+        } else {
+            qDebug() << QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
+            LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
+            Q_ASSERT(parent_observer != 0);
         }
     } else {
         QObject* obj = objectBase();
@@ -364,25 +381,38 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
 }
 
 QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer_id) const {
-    // When observer_id = -1, we return the category of the only parent:
+    // When observer_id = -1, the function will find the parent in the following way:t in the following way:
+    // - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
+    //   parent and if so, return the category for that parent.
+    // - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
+    //   a specific parent, the category in this parent will be used.
+
+    // If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
     if (observer_id == -1) {
-        // Check the parent count:
+        Observer* parent_observer = 0;
+
+        // Do the above checks:
+        // (1) Check if it has only one parent:
         int parent_count = Observer::parentCount(objectBase());
-        if (parent_count != 1) {
-            //Q_ASSERT(parent_count == 1);
-            LOG_DEBUG(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parents.")).arg(objectBase()->objectName()).arg(parent_count));
-        } else {
+        if (parent_count == 1) {
             MultiContextProperty prop = ObjectManager::getMultiContextProperty(objectBase(),qti_prop_OBSERVER_MAP);
             if (prop.isValid()) {
-                int id = prop.contextMap().keys().at(0);
-                Observer* obs = OBJECT_MANAGER->observerReference(id);
-                if (obs) {
-                    QVariant category_variant = obs->getMultiContextPropertyValue(objectBase(),qti_prop_CATEGORY_MAP);
-                    if (category_variant.isValid()) {
-                        return category_variant.value<QtilitiesCategory>();
-                    }
-                }
+                observer_id = prop.contextMap().keys().at(0);
+                parent_observer = OBJECT_MANAGER->observerReference(observer_id);
             }
+        } else if (parent_count > 1 && objectBase()) {
+            // (2) Check if we have a specific observer parent:
+            parent_observer = qobject_cast<Observer*> (objectBase()->parent());
+        }
+
+        if (parent_observer != 0) {
+            QVariant category_variant = parent_observer->getMultiContextPropertyValue(objectBase(),qti_prop_CATEGORY_MAP);
+            if (category_variant.isValid())
+                return category_variant.value<QtilitiesCategory>();
+        } else {
+            qDebug() << QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
+            LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
+            Q_ASSERT(parent_observer != 0);
         }
     } else {
         const QObject* obj = objectBase();

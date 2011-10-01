@@ -112,18 +112,22 @@ namespace Qtilities {
 
             //! Sets the category of the tree item in the specified tree node.
             /*!
-              \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
+              \returns True if the category was successfully set. False otherwise. Note that false will be returned when the category is the same as the current
               category and therefore will not be changed.
               */
             virtual bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
             //! Sets the category of the tree item in the context specified by the given observer ID.
             /*!
-              \param observer_id The observer ID of the context for which the category must be set. When -1,
-              the function will assume that the item only has 1 parent and it will check if it has only one
-              parent and if so, set the category for that parent. If it has more than one parent, the function
-              will print an error message in release mode and assert id debug mode.
+              \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
+              the function will find the parent in the following way:
+              - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
+              parent and if so, return the category for that parent.
+              - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
+              a specific parent, the category in this parent will be used.
 
-              \returns True if the category was succesfully set. False otherwise. Note that false will be returned when the category is the same as the current
+              If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
+
+              \returns True if the category was successfully set. False otherwise. Note that false will be returned when the category is the same as the current
               category and therefore will not be changed.
 
               \note If this tree item is not attached to any tree node, this function does nothing and
@@ -143,9 +147,13 @@ namespace Qtilities {
             //! Gets the category of the tree item in the context specified by the given observer ID.
             /*!
               \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
-              the function will assume that the item only has 1 parent and it will check if it has only one
-              parent and if so, return the category for that parent. If it has more than one parent, the function
-              will print an error message in release mode and assert id debug mode.
+              the function will find the parent in the following way:
+              - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
+              parent and if so, return the category for that parent.
+              - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
+              a specific parent, the category in this parent will be used.
+
+              If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
 
               \note If this tree item is not attached to any tree node, this function does nothing and
               returns an empty category.
@@ -154,9 +162,13 @@ namespace Qtilities {
             //! Gets the category in a string format where different hierarchies of the category is split using \p sep.
             /*!
               \param observer_id The observer ID of the context for which the category must be obtained for. When -1,
-              the function will assume that the item only has 1 parent and it will check if it has only one
-              parent and if so, return the category for that parent. If it has more than one parent, the function
-              will print an error message in release mode and assert id debug mode.
+              the function will find the parent in the following way:
+              - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
+              parent and if so, return the category for that parent.
+              - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
+              a specific parent, the category in this parent will be used.
+
+              If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
               */
             virtual QString getCategoryString(const QString& sep = "::", int observer_id = -1) const;
             //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
