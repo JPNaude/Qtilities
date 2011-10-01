@@ -297,17 +297,29 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             bool getSubjectActivity(const QObject* obj, bool* ok = 0) const;
             //! Invert activity of subjects in the observer context in which this filter is installed.
             /*!
-              \returns If the above inversion could be done, false otherwise.
+              \returns If the inversion could be done, false otherwise.
 
               \sa canInvertActivity();
               */
             bool invertActivity();
+            //! Set all subjects to be active in the observer context in which this filter is installed.
+            /*!
+              \returns True if all subjects could be set active, false otherwise.
+
+              \sa canSetAllActive();
+              */
+            bool setAllActive();
+            //! Set all subjects to be inactive in the observer context in which this filter is installed.
+            /*!
+              \returns True if all subjects could be set inactive, false otherwise.
+
+              \sa canSetNoneActive();
+              */
+            bool setNoneActive();
 
         public:
-            //! Invert selection.
+            //! Checks if invertActivity() can change the activity of subjects in this filter.
             /*!
-              Checks if invertActivity() can invert the activity of subjects in this filter.
-
               Inversion depends on the activity policies and has the following requirements:
               - minimumActivityPolicy() must be AllowNoneActive
               - activityPolicy() == MultipleActivity
@@ -318,6 +330,26 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
               \sa invertActivity();
               */
             bool canInvertActivity() const;
+            //! Checks if setAllActive() can change the activity of subjects in this filter.
+            /*!
+              Being able to set all subjects active depends on the activity policies and has the following requirements:
+              - activityPolicy() == MultipleActivity
+
+              \returns If the above criteria is not met, false is returned. True otherwise.
+
+              \sa setAllActive();
+              */
+            bool canSetAllActive() const;
+            //! Checks if setNoneActive() can change the activity of subjects in this filter.
+            /*!
+              Being able to set all subjects inactive depends on the activity policies and has the following requirements:
+              - minimumActivityPolicy() must be AllowNoneActive
+
+              \returns If the above criteria is not met, false is returned. True otherwise.
+
+              \sa setNoneActive();
+              */
+            bool canSetNoneActive() const;
 
         signals:
             //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.

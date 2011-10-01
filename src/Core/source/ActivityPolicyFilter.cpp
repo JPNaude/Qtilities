@@ -429,6 +429,24 @@ bool Qtilities::Core::ActivityPolicyFilter::invertActivity() {
     return true;
 }
 
+bool Qtilities::Core::ActivityPolicyFilter::setAllActive() {
+    if (!canSetAllActive())
+        return false;
+
+    // Now do the inversion:
+    setActiveSubjects(observer->subjectReferences());
+    return true;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::setNoneActive() {
+    if (!canSetNoneActive())
+        return false;
+
+    // Now do the inversion:
+    setActiveSubjects(QList<QObject*>());
+    return true;
+}
+
 bool Qtilities::Core::ActivityPolicyFilter::canInvertActivity() const {
     // Check requirements:
     if (!(d->minimum_activity_policy == AllowNoneActive))
@@ -436,6 +454,22 @@ bool Qtilities::Core::ActivityPolicyFilter::canInvertActivity() const {
     if (!(d->activity_policy == MultipleActivity))
         return false;
     if (!(d->parent_tracking_policy == ParentIgnoreActivity))
+        return false;
+
+    return true;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::canSetAllActive() const {
+    // Check requirements:
+    if (!(d->activity_policy == MultipleActivity))
+        return false;
+
+    return true;
+}
+
+bool Qtilities::Core::ActivityPolicyFilter::canSetNoneActive() const {
+    // Check requirements:
+    if (!(d->minimum_activity_policy == AllowNoneActive))
         return false;
 
     return true;
@@ -763,7 +797,7 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
         if (qtilities_event) {
             if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_ACTIVITY_MAP)) {
                 // Now we need to check the following:
-                // 1. observer can only have one parent.
+                // 1. Observer can only have one parent.
                 if (Observer::parentCount(observer) == 1) {
                     MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(observer,qti_prop_ACTIVITY_MAP);
                     if (observer_property.isValid()) {
