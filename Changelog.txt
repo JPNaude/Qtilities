@@ -74,7 +74,9 @@ Qtilities v1.0 Implemented Changes
         - Changed behavior where ActivityPolicyFilter's policy set functions would not have worked if the filter already had an observer context associated with it.
         - Changed behavior where SubjectTypeFilter's set functions would not have worked if the filter already had an observer context associated with it.
         - All subject filters which forms part of %Qtilities are not exportable by default.
-        - New ActivityPolicyFilter::invertActivity() function.
+        - New ActivityPolicyFilter::invertActivity() and ActivityPolicyFilter::canInvertActivity() functions.
+        - New ActivityPolicyFilter::setAllActive() and ActivityPolicyFilter::canSetAllActive() functions.
+        - New ActivityPolicyFilter::setNoneActive() and ActivityPolicyFilter::canSetNoneActive() functions.
         - New ActivityPolicyFilter::ParentTrackingPolicy policy which resulted in the following additional changes:
             - TreeNode::enableActivityControl() updated to include this new policy.
             - This policy is now part of binary and XML tree exports.
@@ -280,6 +282,7 @@ Qtilities v1.0 Implemented Changes
     - A new checkbox to allow verbose debug information during project loading and saving (only Binary projects at present) was added to the project management configuraiton page.
     - The project manager now supports custom project suffices.
     - Project now prints log message with the number of seconds it took to load and save projects (only when building in debug mode).
+    - Whenever a project is loaded incompletely now (when a needed plugin is not present for example), a backup of the project file will be made to preserve the complete project file.
 
     Bug Fixes:
     - Fixed memory leak in ProjectManager.
