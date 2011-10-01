@@ -508,7 +508,10 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
-    emit dataChanged(index(0,0),index(rowCount(),columnCount()));
+    // This should not be neccessary but the dataChanged() signal does not refresh it!!!
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
+    //emit dataChanged(index(0,0),index(rowCount(),columnCount()));
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
