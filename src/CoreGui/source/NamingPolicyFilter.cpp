@@ -968,6 +968,9 @@ void Qtilities::CoreGui::NamingPolicyFilter::setModificationState(bool new_state
 }
 
 void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) {
+    if (!obj)
+        return;
+
     if (isObjectNameManager(obj)) {
         // Get the next available observer with a naming policy subject filter
         MultiContextProperty observer_list = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
