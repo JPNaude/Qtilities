@@ -160,8 +160,6 @@ namespace Qtilities {
             const char * const qti_icon_METHOD_16x16                   = ":/icons/method_icon_16x16.png";
             //! Icon used for an object event (signal).
             const char * const qti_icon_EVENT_16x16                    = ":/icons/event_icon_16x16.png";
-            //! Icon used for managers in %Qtilities.
-            const char * const qti_icon_MANAGER_16x16                  = ":/icons/manager_icon_16x16.png";
             //! Folder icon, used for categories in observer widgets in tree mode.
             const char * const qti_icon_FOLDER_16X16                   = ":/icons/folder_icon_16x16.png";
             //! Icon used for dynamic side widget remove action.
