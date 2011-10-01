@@ -192,7 +192,7 @@ namespace Qtilities {
 
               \sa initialize(), LOG_INITIALIZE
               */
-            QStringList availableFormattingEngines() const;
+            QStringList availableFormattingEnginesInFactory() const;
             //! Returns a reference to the formatting engine specified by the name given.
             AbstractFormattingEngine* formattingEngineReference(const QString& name);
             //! Returns a reference to the formatting engine which provides the given file extension.
@@ -210,7 +210,7 @@ namespace Qtilities {
             //! Register a new logger engine factory.
             void registerLoggerEngineFactory(const QString& tag, LoggerFactoryInterface<AbstractLoggerEngine>* factory_iface);
             //! Function used to get a QStringList with the tags of all available logger engines.
-            QStringList availableLoggerEngines() const;
+            QStringList availableLoggerEnginesInFactory() const;
             //! Provides the number of attached formatting engines.
             int attachedFormattingEngineCount() const;
 

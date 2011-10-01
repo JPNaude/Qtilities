@@ -236,7 +236,7 @@ void Qtilities::Logging::Logger::logPriorityMessage(const QString& engine_name, 
 }
 
 bool Qtilities::Logging::Logger::setPriorityFormattingEngine(const QString& name) {
-    if (!availableFormattingEngines().contains(name))
+    if (!availableLoggerEnginesInFactory().contains(name))
         return false;
 
     if (d->priority_formatting_engine)
@@ -251,7 +251,7 @@ void Qtilities::Logging::Logger::setPriorityFormattingEngine(AbstractFormattingE
         d->priority_formatting_engine = engine;
 }
 
-QStringList Qtilities::Logging::Logger::availableFormattingEngines() const {
+QStringList Qtilities::Logging::Logger::availableFormattingEnginesInFactory() const {
     QStringList names;
     for (int i = 0; i < d->formatting_engines.count(); i++) {
         names << d->formatting_engines.at(i)->name();
@@ -311,7 +311,7 @@ void Qtilities::Logging::Logger::registerLoggerEngineFactory(const QString& tag,
     d->logger_engine_factory.registerFactoryInterface(tag, factory_iface);
 }
 
-QStringList Qtilities::Logging::Logger::availableLoggerEngines() const {
+QStringList Qtilities::Logging::Logger::availableLoggerEnginesInFactory() const {
     return d->logger_engine_factory.tags();
 }
 
