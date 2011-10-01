@@ -544,6 +544,9 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
     if (!d->obj)
         return;
 
+    if (!d->property_browser->currentItem())
+        return;
+
     // Get the selected property:
     QtProperty* property = d->property_browser->currentItem()->property();
 
