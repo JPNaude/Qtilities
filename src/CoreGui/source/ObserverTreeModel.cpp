@@ -986,9 +986,10 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
+    #ifdef QTILITIES_BENCHMARKING
     qDebug() << "Clearing tree structure on view: " << objectName();
+    #endif
 
-    reset();
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString("Child Count"));
@@ -998,8 +999,8 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     d->rootItem = new ObserverTreeItem(0,0,columns);
     d->rootItem->setObjectName("Root Item");
     //printStructure();
-    emit layoutAboutToBeChanged();
-    emit layoutChanged();
+    // Maybe layoutChanged() here is good enough?
+    reset();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<QObject> > new_selection) {
@@ -1008,12 +1009,9 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     time(&start);
     #endif
     qDebug() << "Rebuilding tree structure on view: " << objectName();
-    if (objectName() == "Design Properties")
-        int i = 5;
 
     // Rebuild the tree structure:
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    reset();
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString(tr("Child Count")));
@@ -1026,8 +1024,8 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     d->rootItem->appendChild(top_level_observer_item);
     setupChildData(top_level_observer_item);
     //printStructure();
-    emit layoutAboutToBeChanged();
-    emit layoutChanged();
+    reset();
+    // Maybe layoutChanged() here is good enough?
 
     #ifdef QTILITIES_BENCHMARKING
     time(&end);

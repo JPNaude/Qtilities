@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
     // Create and register the tests that we want to use:
     // ---------------------------------------------
     #ifndef QTILITIES_NO_UNIT_TESTS
-//    TestVersionNumber* testVersionNumber = new TestVersionNumber;
-//    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
+    TestVersionNumber* testVersionNumber = new TestVersionNumber;
+    testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 
     TestSubjectIterator* testSubjectIterator = new TestSubjectIterator;
     testFrontend.addTest(testSubjectIterator,QtilitiesCategory("Qtilities::Core","::"));
@@ -72,32 +72,32 @@ int main(int argc, char *argv[])
     TestObserver* testObserver = new TestObserver;
     testFrontend.addTest(testObserver,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
-//    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
+    TestObserverRelationalTable* testObserverRelationalTable = new TestObserverRelationalTable;
+    testFrontend.addTest(testObserverRelationalTable,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestExporting* testExporting = new TestExporting;
-//    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
+    TestExporting* testExporting = new TestExporting;
+    testFrontend.addTest(testExporting,QtilitiesCategory("Qtilities::General","::"));
 
-//    TestObjectManager* testObjectManager = new TestObjectManager;
-//    testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
+    TestObjectManager* testObjectManager = new TestObjectManager;
+    testFrontend.addTest(testObjectManager,QtilitiesCategory("Qtilities::Core","::"));
 
-//    BenchmarkTests* benchmarkTests = new BenchmarkTests;
-//    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
+    BenchmarkTests* benchmarkTests = new BenchmarkTests;
+    testFrontend.addTest(benchmarkTests,QtilitiesCategory("Qtilities::Benchmarking","::"));
 
-//    TestNamingPolicyFilter* testNamingPolicyFilter = new TestNamingPolicyFilter;
-//    testFrontend.addTest(testNamingPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+    TestNamingPolicyFilter* testNamingPolicyFilter = new TestNamingPolicyFilter;
+    testFrontend.addTest(testNamingPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestActivityPolicyFilter* testActivityPolicyFilter = new TestActivityPolicyFilter;
-//    testFrontend.addTest(testActivityPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
+    TestActivityPolicyFilter* testActivityPolicyFilter = new TestActivityPolicyFilter;
+    testFrontend.addTest(testActivityPolicyFilter,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestSubjectTypeFilter* testSubjectTypeFilter = new TestSubjectTypeFilter;
-//    testFrontend.addTest(testSubjectTypeFilter,QtilitiesCategory("Qtilities::Core","::"));
+    TestSubjectTypeFilter* testSubjectTypeFilter = new TestSubjectTypeFilter;
+    testFrontend.addTest(testSubjectTypeFilter,QtilitiesCategory("Qtilities::Core","::"));
 
-//    TestAbstractTreeItem* testAbstractTreeItem = new TestAbstractTreeItem;
-//    testFrontend.addTest(testAbstractTreeItem,QtilitiesCategory("Qtilities::CoreGui","::"));
+    TestAbstractTreeItem* testAbstractTreeItem = new TestAbstractTreeItem;
+    testFrontend.addTest(testAbstractTreeItem,QtilitiesCategory("Qtilities::CoreGui","::"));
 
-//    TestTreeFileItem* testTreeFileItem = new TestTreeFileItem;
-//    testFrontend.addTest(testTreeFileItem,QtilitiesCategory("Qtilities::CoreGui","::"));
+    TestTreeFileItem* testTreeFileItem = new TestTreeFileItem;
+    testFrontend.addTest(testTreeFileItem,QtilitiesCategory("Qtilities::CoreGui","::"));
     #endif
 
     // ---------------------------------------------

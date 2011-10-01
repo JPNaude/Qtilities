@@ -75,11 +75,8 @@ Qtilities::CoreGui::NamingPolicyInputDialog::~NamingPolicyInputDialog()
 void Qtilities::CoreGui::NamingPolicyInputDialog::setContext(int context_id, const QString& context, const QIcon& window_icon) {
     observer_context = context;
     observer_id = context_id;
-    if (window_icon.isNull()) {
-        this->setWindowIcon(QIcon(qti_icon_MANAGER_16x16));
-    } else {
-        this->setWindowIcon(window_icon);
-    }
+    if (!window_icon.isNull())
+        setWindowIcon(window_icon);
 }
 
 void Qtilities::CoreGui::NamingPolicyInputDialog::accept() {

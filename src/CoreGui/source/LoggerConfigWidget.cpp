@@ -98,8 +98,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     }
 
     // Add formatting engines:
-    ui->listWidgetFormattingEngines->addItems(Log->availableFormattingEngines());
-    ui->comboBoxLoggerFormattingEngine->addItems(Log->availableFormattingEngines());
+    ui->listWidgetFormattingEngines->addItems(Log->availableFormattingEnginesInFactory());
+    ui->comboBoxLoggerFormattingEngine->addItems(Log->availableFormattingEnginesInFactory());
 
     // Read the logging settings
     readSettings();
@@ -140,7 +140,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::setApplyButtonVisible(bool visible)
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
     bool ok;
-    QString new_item_selection = QInputDialog::getItem(this, tr("What type of logger engine would you like to add?"),tr("Available Logger Engines:"), Log->availableLoggerEngines(), 0, false, &ok);
+    QString new_item_selection = QInputDialog::getItem(this, tr("What type of logger engine would you like to add?"),tr("Available Logger Engines:"), Log->availableLoggerEnginesInFactory(), 0, false, &ok);
     QString engine_name = QInputDialog::getText(this, tr("Name of new engine:"),tr("Engine Name:"), QLineEdit::Normal, "new_logger_engine", &ok);
 
     if (ok && !new_item_selection.isEmpty() && !engine_name.isEmpty()) {
@@ -148,8 +148,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
         if (new_item_selection == "File") {
             // Prompt the correct file extensions and select the formatting engine according to the user's selection.
             QString file_ext = "";
-            for (int i = 0; i < Log->availableFormattingEngines().count(); i++) {
-                AbstractFormattingEngine* engine = Log->formattingEngineReference(Log->availableFormattingEngines().at(i));
+            for (int i = 0; i < Log->availableFormattingEnginesInFactory().count(); i++) {
+                AbstractFormattingEngine* engine = Log->formattingEngineReference(Log->availableFormattingEnginesInFactory().at(i));
                 if (engine) {
                     if ((!engine->fileExtension().isEmpty()) && (!engine->name().isEmpty()))
                         file_ext.append(QString("%1 (*.%2);;").arg(engine->name()).arg(engine->fileExtension()));

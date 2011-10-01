@@ -54,9 +54,7 @@ namespace Qtilities {
             \class IActionProvider
             \brief An interface through which objects can provide actions to other objects.
 
-            \sa ActionProvider
-
-            For more information see the \ref page_action_management article.
+            For more information see ActionProvider.
               */
             class QTILITIES_CORE_GUI_SHARED_EXPORT IActionProvider : virtual public IObjectBase {
             public:
