@@ -146,8 +146,8 @@ namespace Qtilities {
     }
 }
 
-#define QtilitiesApp ((QtilitiesCoreApplication *) QCoreApplication::instance())
-#define OBJECT_MANAGER ((QtilitiesCoreApplication *) QCoreApplication::instance())->objectManager()
-#define CONTEXT_MANAGER ((QtilitiesCoreApplication *) QCoreApplication::instance())->contextManager()
+#define QtilitiesApp ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())
+#define OBJECT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->objectManager()
+#define CONTEXT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->contextManager()
 
 #endif // QTILITIES_CORE_H
