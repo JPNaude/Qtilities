@@ -785,7 +785,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     if (i != d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName))
                         tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::ResizeToContents);
                 }
-                tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+                if (tree_header->visualIndex(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) != -1)
+                    tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
             }
         }
     }
@@ -813,7 +814,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     d->activity_filter = filter;
 
                     // Connect to the activity change signal (to update activity on observer widget side):
-                    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
+                    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)),Qt::UniqueConnection);
                     QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
                     selectObjects(active_subjects);
                     create_default_selection = false;
@@ -832,7 +833,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
     // Init all actions
     refreshActions();
-    refreshActionToolBar();
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -3010,7 +3010,7 @@ void Qtilities::CoreGui::ObserverWidget::deleteActionToolBars() {
     int toolbar_count = d->action_toolbars.count();
     if (toolbar_count > 0) {
         for (int i = 0; i < toolbar_count; i++) {
-            QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
+            QPointer<QToolBar> toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
             removeToolBar(toolbar);
             if (toolbar) {
                 d->action_toolbars.removeOne(toolbar);
