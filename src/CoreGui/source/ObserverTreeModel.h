@@ -129,16 +129,11 @@ namespace Qtilities {
             QModelIndex findObject(QObject* obj) const;
 
         public slots:
-            //! Clears the tree structure without rebuilding it again from its observer context.
-            void clearTreeStructure();
-            //! Function which will rebuild the complete tree structure under the top level observer.
+            //! When the observer context changes, this function will take note of the change and when needed, the model will rebuild the internal tree structure using rebuildTreeStructure();
             /*!
-                This slot will automatically be connected to the layoutChanged() signal on the top level observer.
-
-                \param new_selection The objects which must be selected in the view after the rebuild was done. When new_selection is empty the current selection will
-                be the new selection (also, when nothing was selected, nothing will be selected after the rebuild in this case).
+              \param new_selection The selection of object that must be selected when the internal tree structure is rebuilt.
               */
-            void rebuildTreeStructure(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
+            void recordObserverChange(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
             //! Function which will calculate the selection parent of a selected object.
             /*!
               \param index_list The list of indexes currently selected in the tree view. This function will only calculate the selection parent if the list contain only one item.
@@ -171,6 +166,20 @@ namespace Qtilities {
             void selectObjects(QList<QPointer<QObject> > objects) const;
             //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
             void selectObjects(QList<QObject*> objects) const;
+            //! Request an update of the internal tree structure in this model and refresh views.
+            /*!
+                This slot will automatically be connected to the layoutChanged() signal on the top level observer.
+
+                \param new_selection The objects which must be selected in the view after the rebuild was done. When new_selection is empty the current selection will
+                be the new selection (also, when nothing was selected, nothing will be selected after the rebuild in this case).
+              */
+            void requestUpdate() const;
+
+        private slots:
+            //! Clears the tree structure without rebuilding it again from its observer context.
+            void clearTreeStructure();
+            //! Function which will rebuild the complete tree structure under the top level observer.
+            void rebuildTreeStructure(bool only_if_changes_pending = false);
 
         private:
             //! Recursive function used by findObject() to traverse through the trying to find an object.

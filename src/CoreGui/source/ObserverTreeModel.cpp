@@ -59,6 +59,9 @@ struct Qtilities::CoreGui::ObserverTreeModelData {
     QModelIndex                 selection_index;
     QList<QPointer<QObject> >   selected_objects;
     QString                     type_grouping_name;
+    int                         observer_change_count;
+    QList<QPointer<QObject> >   new_selection;
+    bool                        tree_constructed_once;
 };
 
 Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
@@ -69,6 +72,8 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbs
     d->rootItem = new ObserverTreeItem();
     d->selection_parent = 0;
     d->type_grouping_name = QString();
+    d->observer_change_count = 0;
+    d->tree_constructed_once = false;
 }
 
 Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
@@ -80,6 +85,7 @@ Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
 bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observer) {
     if (d_observer) {
         d_observer->disconnect(this);
+        clearTreeStructure();
         reset();
     }
 
@@ -100,10 +106,12 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
         }
     }
 
-    rebuildTreeStructure();
+    if (observer->observerName() != qti_def_GLOBAL_OBJECT_POOL)
+        recordObserverChange();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
-    connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(rebuildTreeStructure(QList<QPointer<QObject> >)));
+    connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(recordObserverChange(QList<QPointer<QObject> >)));
+    connect(this,SIGNAL(requestUpdate()),SLOT(rebuildTreeStructure()));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
     // If a selection parent does not exist, we set observer as the selection parent:
@@ -607,8 +615,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
     return QVariant();
 }
 
-Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &index) const
-{
+Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &index) const {
      if (!index.isValid())
          return Qt::ItemIsEnabled;
 
@@ -739,8 +746,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
      return item_flags;
 }
 
-QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
+QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         if (d->type_grouping_name.isEmpty())
             return tr("Contents Tree");
@@ -764,40 +770,40 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orie
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::index(int row, int column, const QModelIndex &parent) const {
-     if (!hasIndex(row, column, parent) || !d->rootItem)
-         return QModelIndex();
+    if (!hasIndex(row, column, parent) || !d->rootItem)
+        return QModelIndex();
 
-     ObserverTreeItem *parentItem;
+    ObserverTreeItem *parentItem;
 
-     if (!parent.isValid())
-         parentItem = d->rootItem;
-     else
-         parentItem = static_cast<ObserverTreeItem*>(parent.internalPointer());
+    if (!parent.isValid())
+        parentItem = d->rootItem;
+    else
+        parentItem = static_cast<ObserverTreeItem*>(parent.internalPointer());
 
-     ObserverTreeItem *childItem = parentItem->child(row);
-     if (childItem)
-         return createIndex(row, column, childItem);
-     else
-         return QModelIndex();
+    ObserverTreeItem *childItem = parentItem->child(row);
+    if (childItem)
+        return createIndex(row, column, childItem);
+    else
+        return QModelIndex();
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTreeModel::parent(const QModelIndex &index) const {
-     if (!index.isValid())
-         return QModelIndex();
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::parent(const QModelIndex &index) const {    
+    if (!index.isValid())
+        return QModelIndex();
 
-     ObserverTreeItem *childItem = getItem(index);
-     if (!childItem)
-         return QModelIndex();
-     ObserverTreeItem *parentItem = childItem->parent();
-     if (!parentItem)
-         return QModelIndex();
-     if (!parentItem->getObject())
-         return QModelIndex();
+    ObserverTreeItem *childItem = getItem(index);
+    if (!childItem)
+        return QModelIndex();
+    ObserverTreeItem *parentItem = childItem->parent();
+    if (!parentItem)
+        return QModelIndex();
+    if (!parentItem->getObject())
+        return QModelIndex();
 
-     if (parentItem == d->rootItem)
-         return QModelIndex();
+    if (parentItem == d->rootItem)
+        return QModelIndex();
 
-     return createIndex(parentItem->row(), 0, parentItem);
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
@@ -966,16 +972,26 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
 }
 
 int Qtilities::CoreGui::ObserverTreeModel::rowCount(const QModelIndex &parent) const {
-     ObserverTreeItem *parentItem;
-     if (parent.column() > 0)
-         return 0;
+    if (d->observer_change_count > 0 || !d->tree_constructed_once) {
+        emit requestUpdate();
+        d->new_selection.clear();
+    }
 
-     if (!parent.isValid())
-         parentItem = d->rootItem;
-     else
-         parentItem = static_cast<ObserverTreeItem*>(parent.internalPointer());
+    if (d->observer_change_count > 0 || !d->tree_constructed_once) {
+        emit requestUpdate();
+        d->new_selection.clear();
+    }
 
-     return parentItem->childCount();
+    ObserverTreeItem *parentItem;
+    if (parent.column() > 0)
+        return 0;
+
+    if (!parent.isValid())
+        parentItem = d->rootItem;
+    else
+        parentItem = static_cast<ObserverTreeItem*>(parent.internalPointer());
+
+    return parentItem->childCount();
 }
 
 int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent) const {
@@ -985,11 +1001,22 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
          return d->rootItem->columnCount();
 }
 
+void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<QObject> > new_selection) {
+    ++d->observer_change_count;
+    d->new_selection = new_selection;
+    #ifdef QTILITIES_BENCHMARKING
+    qDebug() << "Recording observer change on model: " << objectName() << ". Current change count: " << d->observer_change_count;
+    #endif
+    // TODO: Maybe only use queued changes when not-having a proxy filter?
+    rebuildTreeStructure();
+}
+
 void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     #ifdef QTILITIES_BENCHMARKING
     qDebug() << "Clearing tree structure on view: " << objectName();
     #endif
 
+    reset();
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString("Child Count"));
@@ -1000,17 +1027,27 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     d->rootItem->setObjectName("Root Item");
     //printStructure();
     // Maybe layoutChanged() here is good enough?
-    reset();
+    layoutAboutToBeChanged();
+    layoutChanged();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<QObject> > new_selection) {
+void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(bool only_if_changes_pending) {
+    if (only_if_changes_pending) {
+        if (d->observer_change_count == 0)
+            return;
+    }
+
     #ifdef QTILITIES_BENCHMARKING
     time_t start,end;
     time(&start);
+    qDebug() << "Rebuilding tree structure on view: " << objectName() << ". " << d->observer_change_count << " change(s) were pending.";
     #endif
-    qDebug() << "Rebuilding tree structure on view: " << objectName();
+
+    d->observer_change_count = 0;
+    d->tree_constructed_once = true;
 
     // Rebuild the tree structure:
+    reset();
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     deleteRootItem();
     QVector<QVariant> columns;
@@ -1023,9 +1060,8 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem);
     d->rootItem->appendChild(top_level_observer_item);
     setupChildData(top_level_observer_item);
-    //printStructure();
-    reset();
-    // Maybe layoutChanged() here is good enough?
+    layoutAboutToBeChanged();
+    layoutChanged();
 
     #ifdef QTILITIES_BENCHMARKING
     time(&end);
@@ -1034,8 +1070,8 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(QList<QPointer<
     #endif
 
     // Handle item selection after tree has been rebuilt:
-    if (new_selection.count() > 0) {
-        emit selectObjects(new_selection);
+    if (d->new_selection.count() > 0) {
+        emit selectObjects(d->new_selection);
     } else if (d->selected_objects.count() > 0)
         emit selectObjects(d->selected_objects);
     else
@@ -1391,6 +1427,8 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::get
 void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
     reset();
     clearTreeStructure();
+    d->observer_change_count = 0;
+    d->tree_constructed_once = false;
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::printStructure(ObserverTreeItem* item, int level) {
