@@ -101,7 +101,10 @@ bool Qtilities::CoreGui::TreeItemBase::hasCategory() const {
     return AbstractTreeItem::hasCategory();
 }
 
-void Qtilities::CoreGui::TreeItemBase::removeCategory(int observer_id) {
-    AbstractTreeItem::removeCategory(observer_id);
-    setModificationState(true);
+bool Qtilities::CoreGui::TreeItemBase::removeCategory(int observer_id) {
+    if (AbstractTreeItem::removeCategory(observer_id)) {
+        setModificationState(true);
+        return true;
+    } else
+        return false;
 }

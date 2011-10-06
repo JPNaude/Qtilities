@@ -81,7 +81,7 @@ namespace Qtilities {
             virtual QString getCategoryString(const QString& sep = "::",int observer_id = -1) const;
             virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             virtual bool hasCategory() const;
-            virtual void removeCategory(int observer_id = -1);
+            virtual bool removeCategory(int observer_id = -1);
 
             // --------------------------------
             // IModificationNotifier Implementation

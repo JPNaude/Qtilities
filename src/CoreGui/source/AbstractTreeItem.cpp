@@ -278,10 +278,13 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategoryString(const QString& cate
     return setCategory(QtilitiesCategory(category_string,sep));
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::removeCategory(int observer_id) {
+bool Qtilities::CoreGui::AbstractTreeItem::removeCategory(int observer_id) {
     if (observer_id == -1) {
-        objectBase()->setProperty(qti_prop_CATEGORY_MAP,QVariant());
-        return;
+        if (ObjectManager::propertyExists(objectBase(),qti_prop_CATEGORY_MAP)) {
+            objectBase()->setProperty(qti_prop_CATEGORY_MAP,QVariant());
+            return true;
+        } else
+            return false;
     }
 
     // Remove all the contexts first.
@@ -290,7 +293,9 @@ void Qtilities::CoreGui::AbstractTreeItem::removeCategory(int observer_id) {
         // If it exists, we remove this observer context:
         prop.removeContext(observer_id);
         ObjectManager::setMultiContextProperty(objectBase(), prop);
-    }
+        return true;
+    } else
+        return false;
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
@@ -330,7 +335,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                 if (category_variant.isValid()) {
                     QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                     if (old_category == category)
-                        return true;
+                        return false;
                 }
 
                 // Ok it changed, thus set it again:
@@ -346,9 +351,8 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
                 return true;
             }
         } else {
-            qDebug() << QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
-            LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
-            Q_ASSERT(parent_observer != 0);
+            //qDebug() << QString(QObject::tr("setCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
+            LOG_DEBUG(QString(QObject::tr("setCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
         }
     } else {
         QObject* obj = objectBase();
@@ -410,9 +414,8 @@ QtilitiesCategory Qtilities::CoreGui::AbstractTreeItem::getCategory(int observer
             if (category_variant.isValid())
                 return category_variant.value<QtilitiesCategory>();
         } else {
-            qDebug() << QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
-            LOG_ERROR(QString(QObject::tr("getCategory(-1) on item %1 failed, the item has %2 parent(s) and a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
-            Q_ASSERT(parent_observer != 0);
+            //qDebug() << QString(QObject::tr("getCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count);
+            LOG_DEBUG(QString(QObject::tr("getCategory(-1) on item \"%1\" failed, the item has %2 parent(s) and/or a specific parent could not be found.")).arg(objectBase()->objectName()).arg(parent_count));
         }
     } else {
         const QObject* obj = objectBase();

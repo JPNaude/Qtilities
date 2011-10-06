@@ -153,7 +153,7 @@ namespace Qtilities {
               - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
               a specific parent, the category in this parent will be used.
 
-              If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
+              If none of the above conditions were met the function will print an error message.
 
               \note If this tree item is not attached to any tree node, this function does nothing and
               returns an empty category.
@@ -168,7 +168,7 @@ namespace Qtilities {
               - If the item has more than one parent, the function will check if the item has a specific parent (thus it was attached using Observer::SpecificObserverOwnership). If it does have
               a specific parent, the category in this parent will be used.
 
-              If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
+              If none of the above conditions were met the function will print an error message.
               */
             virtual QString getCategoryString(const QString& sep = "::", int observer_id = -1) const;
             //! Sets the category in a string format where different hierarchies of the category is split using \p sep.
@@ -183,9 +183,12 @@ namespace Qtilities {
 
               \note If this tree item is not attached to any tree node, this function does nothing.
 
+              \returns True if the category was successfully removed, false otherwise. Note that false will also be returned if the
+                       category did not exist for the given observer context, or when observer_id = -1 and there was no category propery, false will also be returned.
+
               \sa setCategory(), getCategory()
               */
-            virtual void removeCategory(int observer_id = -1);
+            virtual bool removeCategory(int observer_id = -1);
             //! Checks if the item has a category.
             virtual bool hasCategory() const;
             //! Sets the tool tip of the tree item.
