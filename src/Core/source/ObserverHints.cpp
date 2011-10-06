@@ -98,9 +98,6 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->modification_state_display = other.modificationStateDisplayHint();
 
     setIsExportable(other.isExportable());
-
-    if (observerContext())
-        observerContext()->setModificationState(true);
 }
 
 void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
@@ -160,6 +157,9 @@ bool Qtilities::Core::ObserverHints::operator!=(const ObserverHints& other) cons
 }
 
 void Qtilities::Core::ObserverHints::setObserverSelectionContextHint(ObserverHints::ObserverSelectionContext observer_selection_context) {
+    if (d->observer_selection_context == observer_selection_context)
+        return;
+
     d->observer_selection_context = observer_selection_context;
 
     if (observerContext())
@@ -171,6 +171,9 @@ Qtilities::Core::ObserverHints::ObserverSelectionContext Qtilities::Core::Observ
 }
 
 void Qtilities::Core::ObserverHints::setNamingControlHint(ObserverHints::NamingControl naming_control) {
+    if (d->naming_control == naming_control)
+        return;
+
     d->naming_control = naming_control;
 
     if (observerContext())
@@ -182,6 +185,9 @@ Qtilities::Core::ObserverHints::NamingControl Qtilities::Core::ObserverHints::na
 }
 
 void Qtilities::Core::ObserverHints::setActivityDisplayHint(ObserverHints::ActivityDisplay activity_display) {
+    if (d->activity_display == activity_display)
+        return;
+
     d->activity_display = activity_display;
 
     if (observerContext())
@@ -193,6 +199,9 @@ Qtilities::Core::ObserverHints::ActivityDisplay Qtilities::Core::ObserverHints::
 }
 
 void Qtilities::Core::ObserverHints::setActivityControlHint(ObserverHints::ActivityControl activity_control) {
+    if (d->activity_control == activity_control)
+        return;
+
     d->activity_control = activity_control;
 
     if (observerContext())
@@ -204,6 +213,9 @@ Qtilities::Core::ObserverHints::ActivityControl Qtilities::Core::ObserverHints::
 }
 
 void Qtilities::Core::ObserverHints::setItemSelectionControlHint(ObserverHints::ItemSelectionControl item_selection_control) {
+    if (d->item_selection_control == item_selection_control)
+        return;
+
     d->item_selection_control = item_selection_control;
 
     if (observerContext())
@@ -215,6 +227,9 @@ Qtilities::Core::ObserverHints::ItemSelectionControl Qtilities::Core::ObserverHi
 }
 
 void Qtilities::Core::ObserverHints::setHierarchicalDisplayHint(ObserverHints::HierarchicalDisplay hierarhical_display) {
+    if (d->hierarhical_display == hierarhical_display)
+        return;
+
     d->hierarhical_display = hierarhical_display;
 
     if (observerContext())
@@ -226,6 +241,9 @@ Qtilities::Core::ObserverHints::HierarchicalDisplay Qtilities::Core::ObserverHin
 }
 
 void Qtilities::Core::ObserverHints::setDisplayFlagsHint(ObserverHints::DisplayFlags display_flags) {
+    if (d->display_flags == display_flags)
+        return;
+
     d->display_flags = display_flags;
 
     if (observerContext())
@@ -237,6 +255,9 @@ Qtilities::Core::ObserverHints::DisplayFlags Qtilities::Core::ObserverHints::dis
 }
 
 void Qtilities::Core::ObserverHints::setItemViewColumnHint(ObserverHints::ItemViewColumnFlags item_view_column_hint) {
+    if (d->item_view_column_hint == item_view_column_hint)
+        return;
+
     d->item_view_column_hint = item_view_column_hint;
 
     if (observerContext())
@@ -248,6 +269,9 @@ Qtilities::Core::ObserverHints::ItemViewColumnFlags Qtilities::Core::ObserverHin
 }
 
 void Qtilities::Core::ObserverHints::setActionHints(ObserverHints::ActionHints action_hints) {
+    if (d->action_hints == action_hints)
+        return;
+
     d->action_hints = action_hints;
 
     if (observerContext())
@@ -266,8 +290,11 @@ Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::dr
     return d->drag_drop_flags;
 }
 
-void Qtilities::Core::ObserverHints::setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display_hint) {
-    d->modification_state_display = modification_state_display_hint;
+void Qtilities::Core::ObserverHints::setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display) {
+    if (d->modification_state_display == modification_state_display)
+        return;
+
+    d->modification_state_display = modification_state_display;
 
     if (observerContext())
         observerContext()->setModificationState(true);
@@ -278,6 +305,9 @@ Qtilities::Core::ObserverHints::ModificationStateDisplayHint Qtilities::Core::Ob
 }
 
 void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
+    if (d->displayed_categories == displayed_categories && d->has_inversed_category_display == inversed)
+        return;
+
     d->displayed_categories = displayed_categories;
     d->has_inversed_category_display = inversed;
 

@@ -367,7 +367,7 @@ category_filter_enabled(false),
             //! Function to get the drag drop hint for this observer's context.
             ObserverHints::DragDropFlags dragDropHint() const;
             //! Function to set the modification state display hint for this observer's context.
-            void setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display_hint);
+            void setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display);
             //! Function to get the modification state display hint for this observer's context.
             ObserverHints::ModificationStateDisplayHint modificationStateDisplayHint() const;
 
