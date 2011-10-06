@@ -288,9 +288,9 @@ void Qtilities::CoreGui::TreeNode::endTreeProcessingCycle(bool broadcast) {
 
 Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
     TreeItem* new_item = new TreeItem(name);
-    new_item->setCategory(category,this);
-    new_item->setModificationState(false);
     if (attachSubject(new_item,Observer::SpecificObserverOwnership)) {
+        new_item->setCategory(category,this);
+        new_item->setModificationState(false);
         return new_item;
     } else {
         delete new_item;
@@ -306,9 +306,9 @@ void Qtilities::CoreGui::TreeNode::addItems(const QStringList& items, const Qtil
 
 Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name, const QtilitiesCategory& category) {
     TreeNode* new_node = new TreeNode(name);
-    new_node->setCategory(category,this);
-    new_node->setModificationState(false);
     if (attachSubject(new_node,Observer::SpecificObserverOwnership)) {
+        new_node->setCategory(category,this);
+        new_node->setModificationState(false);
         return new_node;
     } else {
         delete new_node;
