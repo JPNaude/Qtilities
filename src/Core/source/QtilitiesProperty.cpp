@@ -33,6 +33,8 @@
 
 #include "QtilitiesProperty.h"
 #include "QtilitiesCoreConstants.h"
+#include "ObjectManager.h"
+#include "Observer.h"
 
 #include <Logger>
 
@@ -731,4 +733,30 @@ QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SharedProperty& 
     QList<QPointer<QObject> > import_list;
     stream_obj.importBinary(stream,import_list);
     return stream;
+}
+
+// TODO: This does not work yet.. Exactly like Qt docs, don't get it!
+QDebug operator<<(QDebug dbg, const Qtilities::Core::SharedProperty &prop) {
+    if (Qtilities::Core::QtilitiesProperty::isExportableVariant(prop.value()))
+        dbg.nospace() << "(Shared Property: " << prop.propertyNameString() << ", Value: Non exportable variant type)";
+    else
+        dbg.nospace() << "(Shared Property: " << prop.propertyNameString() << ", Value: " << prop.value().toString() << ")";
+    return dbg.space();
+}
+
+QDebug operator<<(QDebug dbg, const Qtilities::Core::MultiContextProperty &prop) {
+    dbg.nospace() << "(Multi Context Property: " << prop.propertyNameString() << ")";
+    for (int i = 0; i < prop.contextMap().count(); i++) {
+        QString context_name = QString::number(prop.contextMap().keys().at(i));
+        Qtilities::Core::Observer* obs = OBJECT_MANAGER->observerReference(prop.contextMap().keys().at(i));
+        if (obs)
+            context_name = obs->observerName();
+
+        if (Qtilities::Core::QtilitiesProperty::isExportableVariant(prop.contextMap().values().at(i)))
+            dbg.nospace() << "(Context: " << context_name << ", Value: Non exportable variant type)";
+        else
+            dbg.nospace() << "(Context: " << context_name << ", Value: " << prop.contextMap().values().at(i).toString() << ")";
+    }
+
+    return dbg.space();
 }

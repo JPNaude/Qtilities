@@ -391,5 +391,8 @@ QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::MultiConte
 QDataStream & operator>> (QDataStream& stream, Qtilities::Core::MultiContextProperty& stream_obj);
 QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::SharedProperty& stream_obj);
 QDataStream & operator>> (QDataStream& stream, Qtilities::Core::SharedProperty& stream_obj);
+QDebug operator<<(QDebug dbg, const Qtilities::Core::SharedProperty &prop);
+QDebug operator<<(QDebug dbg, const Qtilities::Core::MultiContextProperty &prop);
+
 
 #endif // OBSERVERPROPERTY_H
