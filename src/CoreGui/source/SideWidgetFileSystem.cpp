@@ -95,8 +95,13 @@ void Qtilities::CoreGui::SideWidgetFileSystem::dragEnterEvent(QDragEnterEvent *e
  }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
+    if (event->source() == this) {
+        event->ignore();
+        return;
+    }
+
     // For now we just copy files (not folders) dropped here:
-    foreach(QUrl url, event->mimeData()->urls()) {
+    foreach (QUrl url, event->mimeData()->urls()) {
         // Create the source path:
         QString source_path = url.path();
         if (source_path.startsWith("/"))
