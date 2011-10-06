@@ -162,6 +162,7 @@ Qtilities v1.0 Implemented Changes
         - AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
         - TreeFileItem XML import & export methods are now virtual.
     - Observer Widgets & Observer Models
+        - ObserverTreeModel performance improved significantly. Internal tree structures are only rebuilt when views request information and the observer tree actually changed. Previously the internal tree structure was rebuild even if the view was not visible.
         - ObserverWidget got new clearSelection() function.
         - ObserverWidget got a new action which only appear when built in debug mode which allow you to add any selection in any ObserverWidget to the global object pool and debug it there using the Qtilities Debugging plugin.
         - ObserverWidget handles ObserverHints::DisplayFlags better. It will not reconstruct toolbars everytime if the activeHints()'s display flags did not change. This could have caused the order of toolbars to change when it shouldn't.
@@ -200,7 +201,6 @@ Qtilities v1.0 Implemented Changes
     - Interafaces
         - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
         - IActionProvider got new removeAction() and removeActionCategory() functions.
-    - Naming Policy Subject Filter
     - Naming Policy Subject Filter
         - Made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
@@ -247,6 +247,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed numerous bugs in Observer models which occured if an Observer with no hints was displayed.
     - Fixed serious bug in ObserverWidget where it incorrectly reset observer hints in some cases.
     - Fixed bug in ObserverWidget where actions toolbars were not always updated correctly.
+    - Fixed bug in DynamicSideWidgetWrapper where it produced some widgets twice.
 
     ============================
     QtilitiesExtensionSystem:
