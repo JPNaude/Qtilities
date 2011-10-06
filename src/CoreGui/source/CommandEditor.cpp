@@ -100,7 +100,8 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
         d->observer_widget.treeView()->setAlternatingRowColors(true);
         d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
         QHeaderView* table_header = d->observer_widget.treeView()->header();
-        table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
+        if (table_header)
+            table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
     }
 
     d->observer_widget.show();
