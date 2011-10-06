@@ -158,12 +158,14 @@ tree_widget->show();
           child using treeContains() function. A specific child can be accessed from the treeChildren() list using
           treeAt().
 
+          It is possible to iterate through the items in a tree using Qtilities::Core::TreeIterator.
+
           <i>This class was added in %Qtilities v0.2.</i>
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT TreeNode : public Observer, public AbstractTreeItem, public IExportableFormatting
         {
             Q_OBJECT
-            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableFormatting)        
+            Q_INTERFACES(Qtilities::Core::Interfaces::IExportableFormatting)
             Q_PROPERTY(QFont Font READ getFont WRITE setFont)
             Q_PROPERTY(QColor ForegroundRole READ getForegroundColor WRITE setForegroundColor)
             Q_PROPERTY(QColor BackgroundRole READ getBackgroundColor WRITE setBackgroundColor)
