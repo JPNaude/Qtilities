@@ -492,15 +492,27 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             virtual void setExportVersion(Qtilities::ExportVersion version);
             virtual void setApplicationExportVersion(quint32 version);
             virtual IExportable::Result exportBinary(QDataStream& stream ) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
             /*!
-              For children, the sequence in which the object reconstruction happens is as follows:
+              For subjects, the sequence in which the object reconstruction happens is as follows:
               - Construct object and set object name according to factory data.
               - Attach object.
               - Set object category if it exists.
               - Call the importXml() function on the object's IExportable implementation.
               - Set object activity.
+
+              \note This function does not call detachAll() before doing the import.
+              */
+            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            /*!
+              For subjects, the sequence in which the object reconstruction happens is as follows:
+              - Construct object and set object name according to factory data.
+              - Attach object.
+              - Set object category if it exists.
+              - Call the importXml() function on the object's IExportable implementation.
+              - Set object activity.
+
+              \note This function does not call detachAll() before doing the import.
               */
             virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
