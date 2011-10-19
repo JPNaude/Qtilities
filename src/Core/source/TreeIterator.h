@@ -244,9 +244,6 @@ while (itr.hasPrevious()) {
 
         protected:
             //! Finds the next parent of an object.
-            /*!
-              If the obj has only one parent it is easy, if not we need to handle it recursively.
-              */
             const QObject* findParentNext(const QObject* obj) {
                 if (!obj)
                     return 0;
@@ -266,25 +263,38 @@ while (itr.hasPrevious()) {
                 } else if (parents.count() > 1) {
                     // If we have more than one parent, we search for a specific parent and use that route. If it does not have a specific parent, we assert:
                     Observer* parent_observer = qobject_cast<Observer*> (obj->parent());
-                    qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
-                    LOG_ERROR("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
-                    Q_ASSERT(parent_observer);
-                    return parent_observer;
+                    if (!parent_observer) {
+                        qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
+                        LOG_FATAL("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
+                        Q_ASSERT(parent_observer);
+                        return parent_observer;
+                    } else {
+                        SubjectIterator<QObject> parent_itr(parent_observer,SubjectIterator<QObject>::IterateSiblings);
+                        if (parent_itr.hasNext()) {
+                            return parent_itr.next();
+                        } else {
+                            return findParentNext(parents.front());
+                        }
+                    }
                 } else
                     return 0;
             }
             //! Finds the previous parent of an object.
-            /*!
-              If the obj has only one parent it is easy, if not we need to handle it recursively.
-              */
             const QObject* findParentPrevious(const QObject* obj) {
                 QList<Observer*> parents = Observer::parentReferences(obj);
-                if (parents.count() > 1) {
-                    // Handle this in some way...
-                    return 0;
-                } else {
+                if (parents.count() == 1)
                     return parents.front();
-                }
+                else if (parents.count() > 1) {
+                    // If we have more than one parent, we search for a specific parent and use that route. If it does not have a specific parent, we assert:
+                    Observer* parent_observer = qobject_cast<Observer*> (obj->parent());
+                    if (!parent_observer) {
+                        qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
+                        LOG_FATAL("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
+                    }
+                    Q_ASSERT(parent_observer);
+                    return parent_observer;
+                } else
+                    return 0;
             }
 
         private:
