@@ -81,7 +81,6 @@ namespace Qtilities {
             //! Function to set the name of this tree item.
             /*!
               \param parent The name of the parent node which provides the context in which we want to set the name.
-              By default gets the objectName(). If a parent is specified which does not contain this item, QString() is returned.
               */
             void setName(const QString& new_name, TreeNode* parent = 0);
 

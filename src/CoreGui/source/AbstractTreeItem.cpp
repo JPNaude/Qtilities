@@ -63,6 +63,9 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
     if (!objectBase())
         return;
 
+    if (!parent)
+        return;
+
     // First check if this item has a name manager, if not we just need to set the object name:
     // If it has a name manager, it will have the qti_prop_NAME property.
     QVariant name_property = parent->getMultiContextPropertyValue(objectBase(),qti_prop_NAME);
