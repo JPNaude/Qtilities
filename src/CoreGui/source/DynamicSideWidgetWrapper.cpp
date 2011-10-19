@@ -92,7 +92,6 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     d->widgetCombo->addItems(items);
     connect(d->widgetCombo,SIGNAL(currentIndexChanged(QString)),SLOT(handleCurrentIndexChanged(QString)));
     d->widgetCombo->setCurrentIndex(index);
-    handleCurrentIndexChanged(current_text);
     setObjectName(current_text);
 }
 
@@ -113,6 +112,7 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
     if (d->ignore_combo_box_changes)
         return;
 
+    qDebug() << text;
     if (d->text_iface_map.contains(text)) {
         if (d->current_widget) {
             for (int i = 0; i < d->viewer_actions.count(); i++)
