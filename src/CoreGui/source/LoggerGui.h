@@ -77,7 +77,7 @@ session_log_dock->show();
 
             //! Creates a new logger widget which logs messages of the specified verbosity. The user must manage the widget instance.
             /*!
-                \param engine_name The name of the engine.
+                \param engine_name The name of the engine. If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types
@@ -85,6 +85,15 @@ session_log_dock->show();
                 \sa createTempLogWidget(), createLogDockWidget()
               */
             static QWidget* createLogWidget(const QString& engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+                QString new_logger_name = engine_name;
+                int logger_count = -1;
+                while (Log->attachedLoggerEngineNames().contains(new_logger_name)) {
+                    if (logger_count > -1)
+                        new_logger_name.chop(4);
+                    ++logger_count;
+                    new_logger_name.append(" (" + QString::number(logger_count) + ")");
+                }
+
                 // Create a new logger widget engine and add it to the logger.
                 WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine;
 
