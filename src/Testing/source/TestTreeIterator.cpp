@@ -115,7 +115,6 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
     QStringList testList;
     QVERIFY(itr.current() == rootNode);
     testList << itr.current()->objectName();
-    qDebug() << itr.current()->objectName();
     while (itr.hasNext()) {
         QObject* obj = itr.next();
         QVERIFY(obj);
@@ -127,13 +126,67 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
     }
 
     QVERIFY(itr.first() == rootNode);
-    qDebug() << itr.last()->objectName();
     QVERIFY(itr.last() == last);
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 7);
     for (int i = 0; i < testList.count(); i++) {
         QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
+    }
+}
+
+void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents() {
+    // This is the first tree (A):
+    TreeNode* rootNodeA = new TreeNode("A1");
+    rootNodeA->addNode("A2");
+    rootNodeA->addNode("A3");
+    TreeNode* nodeA4 = rootNodeA->addNode("A4");
+    TreeNode* nodeA5 = nodeA4->addNode("A5");
+    TreeItem* shared_item = nodeA5->addItem("A6"); // This is the shared item.
+//    qDebug() << "Shared item ownership with one parent: " << (Observer::ObjectOwnership) ObjectManager::getSharedProperty(shared_item,qti_prop_OWNERSHIP).value().toInt();
+//    qDebug() << "Shared item parent() with just one parent: " << shared_item->parent();
+    TreeNode* lastA = rootNodeA->addNode("A7");
+
+//    ObserverDotWriter writer(rootNodeA);
+//    writer.generateDotScript();
+//    writer.saveToFile("testIterationForwardMultipleParents.gv");
+
+    // This is the second tree (B):
+    TreeNode* rootNodeB = new TreeNode("B1");
+    rootNodeB->addNode("B2");
+    rootNodeB->addNode("B3");
+    TreeNode* nodeB4 = rootNodeB->addNode("B4");
+    TreeNode* nodeB5 = nodeB4->addNode("B5");
+    nodeB5->attachSubject(shared_item); // Here we attach the shared item to another tree's node.
+    // Because we use ManualOwnership above, shared_item's ownership will stay set to SpecificObserverOwnership where
+    // nodeA5 is the parent() of the item. Therefore, this iterator will work: When it gets to shared_item and
+    // sees there are two parents, it automatically takes the path of the parent() which will be nodeA5.
+//    qDebug() << "Shared item ownership with second parent added: " << (Observer::ObjectOwnership) ObjectManager::getSharedProperty(shared_item,qti_prop_OWNERSHIP).value().toInt();
+//    qDebug() << "Shared item parent() with just two parents: " << shared_item->parent();
+    rootNodeB->addNode("B7");
+
+    // Now try to iterate through tree A:
+    TreeIterator itr(rootNodeA);
+    QStringList testList;
+    QVERIFY(itr.current() == rootNodeA);
+    testList << itr.current()->objectName();
+    while (itr.hasNext()) {
+        QObject* obj = itr.next();
+        QVERIFY(obj);
+        testList << obj->objectName();
+        if (itr.hasNext()) {
+            obj = itr.next();
+            obj = itr.previous();
+        }
+    }
+
+    QVERIFY(itr.first() == rootNodeA);
+    QVERIFY(itr.last() == lastA);
+    QVERIFY(itr.hasNext() == false);
+    QVERIFY(itr.hasPrevious() == true);
+    QVERIFY(testList.count() == 7);
+    for (int i = 0; i < testList.count(); i++) {
+        QVERIFY(testList.at(i).compare("A" + QString::number(i+1)) == 0);
     }
 }
 
@@ -155,12 +208,6 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardSimple() {
         QVERIFY(obj);
         testList << obj->objectName();
     }
-//    testList << itr.previous()->objectName();
-//    testList << itr.previous()->objectName();
-//    testList << itr.previous()->objectName();
-//    testList << itr.previous()->objectName();
-//    testList << itr.previous()->objectName();
-//    testList << itr.previous()->objectName();
 
     QVERIFY(itr.first() == rootNode);
     QVERIFY(itr.hasNext() == true);
