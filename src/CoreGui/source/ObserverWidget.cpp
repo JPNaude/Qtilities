@@ -108,6 +108,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         activity_filter(0),
         top_level_observer(0),
         initialized(false),
+        read_only(false),
         update_selection_activity(true),
         hints_selection_parent(0),
         use_observer_hints(true),
@@ -180,6 +181,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Indicates if the widget is in an initialized state. Thus initialization was successful. \sa initialize()
     bool initialized;
+    //! Indicates if the widget is read only
+    bool read_only;
     //! Used to disable selection activiy updates in FollowSelection cases. This is only used internally to avoid continuous loops.
     bool update_selection_activity;
 
@@ -458,6 +461,32 @@ void Qtilities::CoreGui::ObserverWidget::setDisplayMode(DisplayMode display_mode
 
 Qtilities::DisplayMode Qtilities::CoreGui::ObserverWidget::displayMode() const {
     return d->display_mode;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
+    if (d->read_only == read_only)
+        return;
+
+    d->read_only = read_only;
+
+    // Make needed things read only:
+    if (d->tree_model)
+        d->tree_model->setReadOnly(read_only);
+    if (d->table_model)
+        d->table_model->setReadOnly(read_only);
+    refreshActions();
+
+    #ifdef QTILITIES_PROPERTY_BROWSER
+    // TODO: This can be improved. Add that both property editors can be made read only.
+    if (d->property_browser_widget)
+        d->property_browser_widget->setEnabled(!read_only);
+    #endif
+
+    emit readOnlyStateChanged(read_only);
+}
+
+bool Qtilities::CoreGui::ObserverWidget::readOnly() const {
+    return d->read_only;
 }
 
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
@@ -1620,6 +1649,15 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         }
     }
 
+    // For now just make stuff read only here at the end. This can probably be optimized in the future:
+    if (d->read_only) {
+        d->actionRemoveAll->setEnabled(false);
+        d->actionDeleteAll->setEnabled(false);
+        d->actionDeleteItem->setEnabled(false);
+        d->actionRemoveItem->setEnabled(false);
+        d->actionNewItem->setEnabled(false);
+    }
+
     refreshActionToolBar();
 }
 
@@ -2338,13 +2376,19 @@ void Qtilities::CoreGui::ObserverWidget::selectionCopy() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionCut() {
+    if (d->read_only)
+        return;
+
     ObserverMimeData *mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::MoveAction);
     QApplication::clipboard()->setMimeData(mimeData);
     CLIPBOARD_MANAGER->setClipboardOrigin(IClipboard::CutAction);
 }
 
 void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
-    if (activeHints()->actionHints() & ObserverHints::ActionPasteItem){
+    if (d->read_only)
+        return;
+
+    if (activeHints()->actionHints() & ObserverHints::ActionPasteItem) {
         // Check if the subjects being dropped are of the same type as the destination observer.
         // If this is not the case, we do not allow the drop.
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (QApplication::clipboard()->mimeData());
@@ -3170,11 +3214,11 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
     // -> TableView Mode:
     // ----------------------------------------------
     if (d->table_view && d->table_model && d->display_mode == TableView) {
-        if (object == d->table_view && event->type() == QEvent::DragMove) {
+        if (object == d->table_view && event->type() == QEvent::DragMove && !d->read_only) {
             QDragMoveEvent *dragMoveEvent = static_cast<QDragMoveEvent *>(event);
             dragMoveEvent->accept();
             return false;
-        } else if (object == this && event->type() == QEvent::Drop) {
+        } else if (object == this && event->type() == QEvent::Drop && !d->read_only) {
             QDropEvent *dropEvent = static_cast<QDropEvent *>(event);
 
             if (!d->initialized)
@@ -3209,7 +3253,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 }
             }
             return false;
-        } else if (object == d->table_view && event->type() == QEvent::DragEnter) {
+        } else if (object == d->table_view && event->type() == QEvent::DragEnter && !d->read_only) {
             QDragEnterEvent *dragEnterEvent = static_cast<QDragEnterEvent *>(event);
             dragEnterEvent->accept();
             return false;
@@ -3247,11 +3291,11 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
     // -> TreeView Mode:
     // ----------------------------------------------
     if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
-        if (object == d->tree_view && event->type() == QEvent::DragMove) {
+        if (object == d->tree_view && event->type() == QEvent::DragMove && !d->read_only) {
             QDragMoveEvent *dragMoveEvent = static_cast<QDragMoveEvent *>(event);
             dragMoveEvent->accept();
             return false;
-        } else if (object == d->tree_view && event->type() == QEvent::DragEnter) {
+        } else if (object == d->tree_view && event->type() == QEvent::DragEnter && !d->read_only) {
             QDragEnterEvent *dragEnterEvent = static_cast<QDragEnterEvent *>(event);
             dragEnterEvent->accept();
             return false;

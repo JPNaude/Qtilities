@@ -203,6 +203,18 @@ categorized_widget->show();
               \sa setDisplayMode(), toggleDisplayMode()
               */
             DisplayMode displayMode() const;
+            //! Sets if this widget must be read only, thus its actions and property editor will be read only.
+            /*!
+              \note Make sure you only call this function after the widget has been initialized through initialize().
+
+              \sa readOnly(), readOnlyStateChanged()
+              */
+            virtual void setReadOnly(bool read_only);
+            //! Gets if this widget must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa setReadOnly(), readOnlyStateChanged()
+              */
+            bool readOnly() const;
         public slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
@@ -212,6 +224,11 @@ categorized_widget->show();
         signals:
             //! Signal which is emitted when the observer context of this widget changes.
             void observerContextChanged(Observer* new_context);
+            //! Signal which is emitted when this widget's read only state changes.
+            /*!
+              \sa readOnly(), setReadOnly()
+              */
+            void readOnlyStateChanged(bool read_only);
 
             // --------------------------------
             // IContext implementation

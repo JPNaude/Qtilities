@@ -62,6 +62,7 @@ struct Qtilities::CoreGui::ObserverTreeModelData {
     int                         observer_change_count;
     QList<QPointer<QObject> >   new_selection;
     bool                        tree_constructed_once;
+    bool                        read_only;
 };
 
 Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
@@ -74,6 +75,7 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbs
     d->type_grouping_name = QString();
     d->observer_change_count = 0;
     d->tree_constructed_once = false;
+    d->read_only = false;
 }
 
 Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
@@ -647,7 +649,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
      } else {
          // The naming control hint we get from the active hints since the user must click
          // in order to edit the name. The click will update activeHints() for us.
-         if (activeHints()->namingControlHint() == ObserverHints::EditableNames)
+         if (activeHints()->namingControlHint() == ObserverHints::EditableNames && !d->read_only)
              item_flags |= Qt::ItemIsEditable;
          else
              item_flags &= ~Qt::ItemIsEditable;
@@ -657,7 +659,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
          Observer* local_selection_parent = parentOfIndex(index);
          if (local_selection_parent) {
              if (local_selection_parent->displayHints()) {
-                 if (local_selection_parent->displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered)
+                 if ((local_selection_parent->displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered))
                      item_flags |= Qt::ItemIsUserCheckable;
                  else
                      item_flags &= ~Qt::ItemIsUserCheckable;
@@ -672,7 +674,8 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
      // Handle drag & drop hints:
      if (index.column() != columnPosition(ColumnName)) {
          item_flags &= ~Qt::ItemIsDragEnabled;
-         item_flags &= ~Qt::ItemIsDropEnabled;
+         if (!d->read_only)
+            item_flags &= ~Qt::ItemIsDropEnabled;
      } else {
          if (item->itemType() == ObserverTreeItem::CategoryItem) {
              item_flags &= ~Qt::ItemIsDragEnabled;
@@ -728,7 +731,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
                      else
                          item_flags &= ~Qt::ItemIsDragEnabled;
                      // Check if drops are accepted:
-                     if (hints_to_use->dragDropHint() & ObserverHints::AcceptDrops)
+                     if ((hints_to_use->dragDropHint() & ObserverHints::AcceptDrops) && !d->read_only)
                          item_flags |= Qt::ItemIsDropEnabled;
                      else
                          item_flags &= ~Qt::ItemIsDropEnabled;
@@ -860,7 +863,8 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
 
 Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () const {
     Qt::DropActions drop_actions = 0;
-    drop_actions |= Qt::CopyAction;
+    if (!d->read_only)
+        drop_actions |= Qt::CopyAction;
     //drop_actions |= Qt::MoveAction;
     return drop_actions;
 }
@@ -911,6 +915,9 @@ Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () c
 }*/
 
 bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_index, const QVariant &value, int role) {
+    if (d->read_only)
+        return false;
+
     if (set_data_index.column() == columnPosition(AbstractObserverItemModel::ColumnName)) {
         if (role == Qt::EditRole || role == Qt::DisplayRole) {
             ObserverTreeItem* item = getItem(set_data_index);
@@ -1362,6 +1369,17 @@ void Qtilities::CoreGui::ObserverTreeModel::setSelectedObjects(QList<QPointer<QO
     d->selected_objects = selected_objects;
 }
 
+void Qtilities::CoreGui::ObserverTreeModel::setReadOnly(bool read_only) {
+    if (d->read_only == read_only)
+        return;
+
+    d->read_only = read_only;
+}
+
+bool Qtilities::CoreGui::ObserverTreeModel::readOnly() const {
+    return d->read_only;
+}
+
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj) const {
     // Loop through all items indexes in the tree and check the object of each ObserverTreeItem at each index.
     QModelIndex root = index(0,0);
@@ -1427,6 +1445,7 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::get
 void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
     reset();
     clearTreeStructure();
+    d->selection_parent = 0;
     d->observer_change_count = 0;
     d->tree_constructed_once = false;
 }

@@ -118,6 +118,16 @@ namespace Qtilities {
                \returns The the subject ID of the object at the specified row. If the row is invalid, -1 is returned.
              */
             int getSubjectID(int row) const;
+            //! Sets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa readOnly()
+              */
+            virtual void setReadOnly(bool read_only);
+            //! Gets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa setReadOnly()
+              */
+            bool readOnly() const;
 
         private slots:
             //! Slot which will emit the correct signals in order for the view using the model to refresh its data.

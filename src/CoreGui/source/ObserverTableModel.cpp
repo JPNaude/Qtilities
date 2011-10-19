@@ -51,9 +51,11 @@ using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::ObserverTableModelData {
-    ObserverTableModelData() : type_grouping_name(QString()) { }
+    ObserverTableModelData() : type_grouping_name(QString()),
+        read_only(false) { }
 
     QString type_grouping_name;
+    bool read_only;
 };
 
 Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
@@ -401,7 +403,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTableModel::flags(const QModelIndex &i
 
      Qt::ItemFlags item_flags = Qt::ItemIsEnabled;
 
-     if (activeHints()->namingControlHint() == ObserverHints::EditableNames)
+     if (activeHints()->namingControlHint() == ObserverHints::EditableNames && !d->read_only)
          item_flags |= Qt::ItemIsEditable;
      else
          item_flags &= ~Qt::ItemIsEditable;
@@ -448,8 +450,10 @@ QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Ori
     return QVariant();
 }
 
-bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
+bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (d->read_only)
+        return false;
+
     if (index.column() == columnPosition(ColumnSubjectID)) {
         return false;
     } else if (index.column() == columnPosition(ColumnName)) {
@@ -537,6 +541,17 @@ int Qtilities::CoreGui::ObserverTableModel::getSubjectID(int row) const {
         return id;
     else
         return -1;
+}
+
+void Qtilities::CoreGui::ObserverTableModel::setReadOnly(bool read_only) {
+    if (d->read_only == read_only)
+        return;
+
+    d->read_only = read_only;
+}
+
+bool Qtilities::CoreGui::ObserverTableModel::readOnly() const {
+    return d->read_only;
 }
 
 QObject* Qtilities::CoreGui::ObserverTableModel::getObject(const QModelIndex &index) const {

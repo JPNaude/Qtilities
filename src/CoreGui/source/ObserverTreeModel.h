@@ -158,6 +158,16 @@ namespace Qtilities {
               rebuilding is done.
               */
             void setSelectedObjects(QList<QPointer<QObject> > selected_objects);
+            //! Sets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa readOnly()
+              */
+            virtual void setReadOnly(bool read_only);
+            //! Gets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa setReadOnly()
+              */
+            bool readOnly() const;
 
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
