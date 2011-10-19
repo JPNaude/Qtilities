@@ -162,6 +162,7 @@ Qtilities v1.0 Implemented Changes
         - AbstractTreeItem got new getCategoryString() and setCategoryString() functions. This allows categories of items to be set easily using Q_PROPERTY access.
         - TreeFileItem XML import & export methods are now virtual.
     - Observer Widgets & Observer Models
+        - ObserverWidget and observer models can now be set to be in read only mode.
         - ObserverTreeModel performance improved significantly. Internal tree structures are only rebuilt when views request information and the observer tree actually changed. Previously the internal tree structure was rebuild even if the view was not visible.
         - ObserverWidget got new clearSelection() function.
         - ObserverWidget got a new action which only appear when built in debug mode which allow you to add any selection in any ObserverWidget to the global object pool and debug it there using the Qtilities Debugging plugin.

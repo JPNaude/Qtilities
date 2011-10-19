@@ -435,4 +435,6 @@ The above code would create a tree which looks as follows:
 
 This approach allows for creation of complex trees. It solves the problem where you want to attach a class instance with children underneath it to a tree but the class already inherits \p QObject and since Qtilities::Core::Observer also inherits \p QObject the class cannot derive from Qtilities::Core::Observer. The limitation of this approach is that only the first observer child of an object is parsed. If we would add another observer child to \p object1 in the example above, it will not be part of the parsed tree.
 
+Note that tree iterators does not work on tree containment trees.
+
 */
