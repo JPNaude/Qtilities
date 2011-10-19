@@ -105,11 +105,11 @@ namespace Qtilities {
                   \note This attribute is not used by any Qtilities properties.
                   */
                 bool isReadOnly() const {
-                    return is_read_only;
+                    return read_only;
                 }
                 //! Makes the property read only. Properties can only be made read only once, after that they always stay read only.
                 void makeReadOnly() {
-                    is_read_only = true;
+                    read_only = true;
                 }
 
                 //! Indicates if this property supports change notifications.
@@ -158,7 +158,7 @@ namespace Qtilities {
             protected:
                 QString                 name;
                 bool                    is_reserved;
-                bool                    is_read_only;
+                bool                    read_only;
                 bool                    is_removable;
                 bool                    supports_change_notifications;
             };

@@ -57,6 +57,7 @@ namespace Qtilities {
         Additional extended functions include:
         - The ability to set the file name part only using setFileName().
         - The ability to check if a file name or path is valid.
+        - The ability to specifiy a custom relative to path to use for the file.
 
         The following example shows how the class works and you will notice that it is very close to QFileInfo, except for the additional functionality:
 

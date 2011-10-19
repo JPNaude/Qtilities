@@ -55,7 +55,7 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_na
     is_reserved = QtilitiesProperty::propertyIsReserved(property_name.toAscii().data());
     supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name.toAscii().data());
     is_removable = QtilitiesProperty::propertyIsRemovable(property_name.toAscii().data());
-    is_read_only = false;
+    read_only = false;
 }
 
 Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name) {
@@ -67,14 +67,14 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name)
     is_reserved = QtilitiesProperty::propertyIsReserved(property_name);
     supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name);
     is_removable = QtilitiesProperty::propertyIsRemovable(property_name);
-    is_read_only = false;
+    read_only = false;
 }
 
 Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& property) : name(property.propertyNameString()) {
     is_reserved = property.isReserved();
     is_removable = property.isRemovable();
     supports_change_notifications = property.supportsChangeNotifications();
-    is_read_only = property.isReadOnly();
+    read_only = property.isReadOnly();
 
     setIsExportable(property.isExportable());
 }
@@ -84,7 +84,7 @@ void Qtilities::Core::QtilitiesProperty::QtilitiesProperty::operator=(const Qtil
     is_reserved = property.isReserved();
     is_removable = property.isRemovable();
     supports_change_notifications = property.supportsChangeNotifications();
-    is_read_only = property.isReadOnly();
+    read_only = property.isReadOnly();
 
     setIsExportable(property.isExportable());
 }
@@ -248,7 +248,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     stream << MARKER_OBSERVER_PROPERTY;
     stream << name;
     stream << is_reserved;
-    stream << is_read_only;
+    stream << read_only;
     stream << is_removable;
     stream << supports_change_notifications;
     stream << MARKER_OBSERVER_PROPERTY;
@@ -267,7 +267,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
 
     stream >> name;
     stream >> is_reserved;
-    stream >> is_read_only;
+    stream >> read_only;
     stream >> is_removable;
     stream >> supports_change_notifications;
 
@@ -292,7 +292,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
         object_node->setAttribute("Reserved","1");
     else
         object_node->setAttribute("Reserved","0");
-    if (is_read_only)
+    if (read_only)
         object_node->setAttribute("ReadOnly","1");
     else
         object_node->setAttribute("ReadOnly","0");
@@ -322,9 +322,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
     }
     if (object_node->hasAttribute("ReadOnly")) {
         if (object_node->attribute("ReadOnly") == "1")
-            is_read_only = true;
+            read_only = true;
         if (object_node->attribute("ReadOnly") == "0")
-            is_read_only = false;
+            read_only = false;
     }
     if (object_node->hasAttribute("Removable")) {
         if (object_node->attribute("Removable") == "1")
@@ -405,7 +405,7 @@ void Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty
     last_change_context = other.lastChangedContext();
     is_reserved = other.isReserved();
     is_removable = other.isRemovable();
-    is_read_only = other.isReadOnly();
+    read_only = other.isReadOnly();
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
@@ -426,7 +426,7 @@ bool Qtilities::Core::MultiContextProperty::operator==(const MultiContextPropert
         return false;
     if (is_removable != other.isRemovable())
         return false;
-    if (is_read_only != other.isReadOnly())
+    if (read_only != other.isReadOnly())
         return false;
     if (supports_change_notifications != other.supportsChangeNotifications())
         return false;
@@ -616,7 +616,7 @@ void Qtilities::Core::SharedProperty::operator=(const SharedProperty& other) {
     property_value = other.value();
     is_reserved = other.isReserved();
     is_removable = other.isRemovable();
-    is_read_only = other.isReadOnly();
+    read_only = other.isReadOnly();
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
@@ -629,7 +629,7 @@ bool Qtilities::Core::SharedProperty::operator==(const SharedProperty& other) co
         return false;
     if (is_reserved != other.isReserved())
         return false;
-    if (is_read_only != other.isReadOnly())
+    if (read_only != other.isReadOnly())
         return false;
     if (is_removable != other.isRemovable())
         return false;
