@@ -89,7 +89,8 @@ namespace Qtilities {
                 is_modified(false),
                 observer(obs),
                 object_deletion_policy(0),
-                number_of_subjects_start_of_proc_cycle(0)
+                number_of_subjects_start_of_proc_cycle(0),
+                broadcast_modification_state_changes(true)
             {
                 subject_list.setObjectName(observer_name);
             }
@@ -110,7 +111,8 @@ namespace Qtilities {
                 is_modified(other.is_modified),
                 observer(other.observer),
                 object_deletion_policy(other.object_deletion_policy),
-                number_of_subjects_start_of_proc_cycle(0) {}
+                number_of_subjects_start_of_proc_cycle(0),
+                broadcast_modification_state_changes(true) {}
 
             // --------------------------------
             // IObjectBase Implementation
@@ -189,7 +191,9 @@ namespace Qtilities {
               \note When setting number_of_subjects_start_of_proc_cycle to -1, the numberOfSubjectsChanged() signal will not be emitted in endProcessingCycle(). This
               is used in the ~Observer destructor. We don't want to emit that the number of subjects changed in the destructor because all subjects will be removed.
               */
-            int number_of_subjects_start_of_proc_cycle;           
+            int number_of_subjects_start_of_proc_cycle;
+            //! Used internally in Observer to optimize the number of times modification state changes are broadcast.
+            bool broadcast_modification_state_changes;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

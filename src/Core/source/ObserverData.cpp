@@ -644,7 +644,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     if (export_flags & ExportData) {
         // 1. The data of this item is added to a new data node:
         QDomElement subject_data = doc->createElement("Data");
-        object_node->appendChild(subject_data);
 
         // Observer data:
         QDomElement observer_data = doc->createElement("ObserverData");
@@ -654,11 +653,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         if (!observer_description.isEmpty())
             observer_data.setAttribute("Description",observer_description);
         if (access_mode != Observer::FullAccess)
-            observer_data.setAttribute("AccessMode",Observer::accessModeToString((Observer::AccessMode) access_mode));
+            observer_data.setAttribute("AccessMode",Observer::accessModeToString((Observer::AccessMode) access_mode));        
         if (access_mode != Observer::GlobalScope)
             observer_data.setAttribute("AccessModeScope",Observer::accessModeScopeToString((Observer::AccessModeScope) access_mode_scope));
         if (object_deletion_policy != Observer::DeleteImmediately)
             observer_data.setAttribute("ObjectDeletionPolicy",Observer::objectDeletionPolicyToString((Observer::ObjectDeletionPolicy) object_deletion_policy));
+
+        // Check there are any attributes under observer data:
+        if (observer_data.attributes().count() > 0 || observer_data.childNodes().count() > 0)
+            subject_data.appendChild(observer_data);
 
         // Visitor ID (only when needed)
         if (export_flags & ExportVisitorIDs) {
@@ -685,20 +688,19 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                 categories.at(i).exportXml(doc,&category);
             }
         }
-        if (observer_data.attributes().count() > 0 || observer_data.childNodes().count() > 0)
-            subject_data.appendChild(observer_data);
 
         // Observer hints:
         if (display_hints) {
             if (display_hints->isExportable()) {
                 QDomElement hints_data = doc->createElement("ObserverHints");
-                subject_data.appendChild(hints_data);
                 display_hints->setExportVersion(exportVersion());
                 if (display_hints->exportXml(doc,&hints_data) == IExportable::Failed) {
                     if (relational_table)
                         delete relational_table;
                     return IExportable::Failed;
                 }
+                if (hints_data.attributes().count() > 0 || hints_data.childNodes().count() > 0)
+                    subject_data.appendChild(hints_data);
             }
         }
 
@@ -731,6 +733,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
             }
         }
 
+        if (subject_data.attributes().count() > 0 || subject_data.childNodes().count() > 0)
+            object_node->appendChild(subject_data);
+
         IExportable::Result result = IExportable::Complete;
 
         // Make List Of Exportable Subjects
@@ -751,7 +756,8 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
         // Export exportable subjects:
         QDomElement subject_children = doc->createElement("Children");
-        object_node->appendChild(subject_children);
+        if (exportable_list.count() > 0)
+            object_node->appendChild(subject_children);
         for (int i = 0; i < exportable_list.count(); i++) {
             Observer* obs = qobject_cast<Observer*> (exportable_list.at(i)->objectBase());
             IExportable* export_iface = exportable_list.at(i);
