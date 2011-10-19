@@ -31,7 +31,6 @@
 **
 ****************************************************************************/
 
-
 #include "TestFrontend.h"
 #include "ui_TestFrontend.h"
 #include "ITestable.h"
@@ -50,6 +49,10 @@ struct Qtilities::Testing::TestFrontendPrivateData {
     int                     argc;
     QPointer<QWidget>       log_widget;
     bool                    multiple_tests;
+
+    QAction*                actionInvertSelection;
+    QAction*                actionSetAllActive;
+    QAction*                actionSetAllInactive;
 };
 
 Qtilities::Testing::TestFrontend::TestFrontend(int argc, char ** argv, QWidget *parent) :
@@ -69,6 +72,17 @@ Qtilities::Testing::TestFrontend::TestFrontend(int argc, char ** argv, QWidget *
     d->tests_observer.enableCategorizedDisplay();
     d->tests_observer.setObjectName(tr("Registered Tests"));
     d->tests_observer.displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+
+    d->actionInvertSelection = new QAction("Invert",this);
+    connect(d->actionInvertSelection,SIGNAL(triggered()),d->tests_activity_filter,SLOT(invertActivity()));
+    d->actionSetAllActive = new QAction("All Active",this);
+    connect(d->actionSetAllActive,SIGNAL(triggered()),d->tests_activity_filter,SLOT(setAllActive()));
+    d->actionSetAllInactive= new QAction("None Active",this);
+    connect(d->actionSetAllInactive,SIGNAL(triggered()),d->tests_activity_filter,SLOT(setNoneActive()));
+
+    d->tests_observer_widget.actionProvider()->addAction(d->actionInvertSelection,QtilitiesCategory("Activity"));
+    d->tests_observer_widget.actionProvider()->addAction(d->actionSetAllActive,QtilitiesCategory("Activity"));
+    d->tests_observer_widget.actionProvider()->addAction(d->actionSetAllInactive,QtilitiesCategory("Activity"));
 
     d->tests_observer_widget.setObserverContext(&d->tests_observer);
     d->tests_observer_widget.initialize();
