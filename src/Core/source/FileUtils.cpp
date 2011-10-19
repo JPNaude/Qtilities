@@ -40,28 +40,64 @@
 #include <QFileInfoList>
 #include <QHash>
 #include <QtDebug>
+#include <QCoreApplication>
 
 bool Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
     bool result = true;
     QDir dir(dirName);
 
     if (dir.exists(dirName)) {
-        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-            if (info.isDir()) {
+        foreach (QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+            if (info.isDir())
                 result = removeDir(info.absoluteFilePath());
-            }
-            else {
+            else
                 result = QFile::remove(info.absoluteFilePath());
-            }
 
-            if (!result) {
+            if (!result)
                 return result;
-            }
         }
         result = dir.rmdir(dirName);
     }
 
     return result;
+}
+
+QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort, bool first_run) {
+    static QFileInfoList list;
+    if (first_run)
+        list.clear();
+
+    QDir::Filters final_filters = filters;
+    final_filters |= QDir::AllDirs;
+    final_filters |= QDir::Files;
+    final_filters |= QDir::NoDotAndDotDot;
+
+    QStringList ignore_patterns = ignore_list.split(" ",QString::SkipEmptyParts);
+    ignore_patterns.removeDuplicates();
+
+    QDir dir(dirName);    
+    if (dir.exists(dirName)) {
+        foreach (QFileInfo info, dir.entryInfoList(final_filters,sort)) {
+            QCoreApplication::processEvents();
+            // Check if this entry must be ignored:
+            bool not_ignored = true;
+            foreach (QString ignore_pattern, ignore_patterns) {
+                QRegExp regExp(ignore_pattern);
+                regExp.setPatternSyntax(QRegExp::Wildcard);
+                if (regExp.exactMatch(info.fileName()))
+                    not_ignored = false;
+            }
+
+            if (not_ignored) {
+                if (info.isDir())
+                    findFilesUnderDir(info.absoluteFilePath(),ignore_list,filters,sort,false);
+                else
+                    list.append(info);
+            }
+        }
+    }
+
+    return list;
 }
 
 QString Qtilities::Core::FileUtils::appendToFileName(const QString &fullFileName, const QString& append_string) {

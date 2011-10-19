@@ -36,6 +36,10 @@
 
 #include "QtilitiesCore_global.h"
 
+#include <QList>
+#include <QUrl>
+#include <QDir>
+
 namespace Qtilities {
     namespace Core {
         /*!
@@ -53,6 +57,26 @@ namespace Qtilities {
                \return true on success, false otherwise.
               */
             static bool removeDir(const QString &dirName);
+            //! Finds all files in the directory hierarhcy under a directory.
+            /*!
+               Finds all files under in the complete directory hierarhcy under dirName. It is only neccesarry to specify
+
+\code
+// All non-system and non-hidden files:
+QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path");
+
+// All system and hidden files as well:
+QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path",QDir::System | QDir::Hidden);
+\endcode
+
+               \param dirName Path of directory to remove.
+               \param ignore_list Files which should be ignored. Must be in the format: *.svn *.bak *.tmp
+               \param filters The QDir::Filters to apply when searching for files. All folder related filter options are ignored.
+               \param sort The QDir::SortFlags to apply when searching for files.
+               \param first_run Ignore this parameter, used in recursive operations.
+               \return A list of QUrls containing the files. The QUrls are constructed using QUrl::fromLocalFile().
+              */
+            static QFileInfoList findFilesUnderDir(const QString &dirName, const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
             //! Appends a string to the file name part of the file, that is after the file's name and before the extension.
             static QString appendToFileName(const QString &fullFileName, const QString& append_string);
             //! Removes the specified number of characters from the end of the file name part of the file, that is after the file's name and before the extension.
