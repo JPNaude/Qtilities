@@ -98,6 +98,7 @@ Qtilities::Core::Observer::~Observer() {
     startProcessingCycle();
 
     observerData->number_of_subjects_start_of_proc_cycle = -1;
+    toggleBroadcastModificationStateChanges(false);
 
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         observerData->deliver_qtilities_property_changed_events = false;
@@ -227,6 +228,14 @@ bool Qtilities::Core::Observer::qtilitiesPropertyChangeEventsEnabled() const {
     return observerData->deliver_qtilities_property_changed_events;
 }
 
+void Qtilities::Core::Observer::toggleBroadcastModificationStateChanges(bool toggle) {
+    observerData->broadcast_modification_state_changes = toggle;
+}
+
+bool Qtilities::Core::Observer::broadcastModificationStateChangesEnabled() const {
+    return observerData->broadcast_modification_state_changes;
+}
+
 Qtilities::Core::InstanceFactoryInfo Qtilities::Core::Observer::instanceFactoryInfo() const {
     InstanceFactoryInfo factory_data = observerData->factory_data;
     factory_data.d_instance_name = observerName();
@@ -307,6 +316,9 @@ bool Qtilities::Core::Observer::isModified() const {
 }
 
 void Qtilities::Core::Observer::setModificationState(bool new_state, IModificationNotifier::NotificationTargets notification_targets, bool force_notifications) {
+    if (!observerData->broadcast_modification_state_changes)
+        return;
+
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         // First notify all objects in this context.
         for (int i = 0; i < observerData->subject_list.count(); i++) {
@@ -980,9 +992,18 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
     QList<QPointer<QObject> > success_list;
     bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
+
+    QList<QPointer<QObject> > safe_list;
     for (int i = 0; i < objects.count(); i++) {
-        if (detachSubject(objects.at(i)))
-            success_list << objects.at(i);
+        if (objects.at(i)) {
+            safe_list << objects.at(i);
+            if (detachSubject(safe_list.at(i))) {
+                // The object could have been deleted in detach subject, thus we must use some
+                // safe QPointers here:
+                if (safe_list.at(i))
+                    success_list << safe_list.at(i);
+            }
+        }
     }
 
     // Broadcast if neccesarry
@@ -1058,14 +1079,27 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
 }
 
 void Qtilities::Core::Observer::detachAll() {
-    detachSubjects(subjectReferences());
+    int start_count = subjectCount();
+    bool current_broadcast = broadcastModificationStateChangesEnabled();
+    toggleBroadcastModificationStateChanges(false);
+
     // Updating is done in detachSubjects().
+    detachSubjects(subjectReferences());
+
+    toggleBroadcastModificationStateChanges(current_broadcast);
+
+    int end_count = subjectCount();
+    if (start_count != end_count)
+        setModificationState(true);
 }
 
-void Qtilities::Core::Observer::deleteAll() {
+void Qtilities::Core::Observer::deleteAll() {  
     int total = observerData->subject_list.count();
     if (total == 0)
         return;
+
+    bool current_broadcast = broadcastModificationStateChangesEnabled();
+    toggleBroadcastModificationStateChanges(false);
 
     bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
@@ -1077,9 +1111,13 @@ void Qtilities::Core::Observer::deleteAll() {
             deleteObject(observerData->subject_list.at(0));
         }
     }
-    QCoreApplication::processEvents();
 
-    setModificationState(true);
+    QCoreApplication::processEvents();
+    toggleBroadcastModificationStateChanges(current_broadcast);
+
+    int end_count = subjectCount();
+    if (total != end_count)
+        setModificationState(true);
     if (!has_active_processing_cycle)
         endProcessingCycle();
 }

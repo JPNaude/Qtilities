@@ -472,6 +472,18 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               \sa toggleQtilitiesPropertyChangeEvents(), subjectEventFilteringEnabled()
               */
             bool qtilitiesPropertyChangeEventsEnabled() const;
+            //! This function enables/disables broadcasting of modification state changes Observer.
+            /*!
+                If you don't use modification state changes turning this off will increase performance.
+
+                \sa broadcastModificationStateChangesEnabled()
+              */
+            void toggleBroadcastModificationStateChanges(bool toggle);
+            //! Indicates if broadcasting of modification state changes are enabled.
+            /*!
+              \sa toggleBroadcastModificationStateChanges()
+              */
+            bool broadcastModificationStateChangesEnabled() const;
 
             // --------------------------------
             // Factory Interface Implemenation
@@ -1093,7 +1105,7 @@ QVERIFY(items_verify.count() == 5);
         class QTILIITES_CORE_SHARED_EXPORT ObserverAwareBase
         {
         public:
-            ObserverAwareBase() { d_observer = 0; }
+            ObserverAwareBase() { }
             virtual ~ObserverAwareBase() {}
 
             //! Sets the observer context.
