@@ -33,13 +33,16 @@
 
 #include "LoggerConfigWidget.h"
 #include "ui_LoggerConfigWidget.h"
-#include "Logger.h"
-#include "LoggingConstants.h"
 #include "LoggerEnginesTableModel.h"
 #include "QtilitiesCoreGuiConstants.h"
+#include "WidgetLoggerEngine.h"
+#include "CodeEditorWidget.h"
 
-#include <AbstractLoggerEngine.h>
-#include <LoggingConstants.h>
+#include <LoggerEngines>
+#include <Logger>
+#include <LoggingConstants>
+#include <AbstractLoggerEngine>
+#include <QtilitiesApplication>
 
 #include <QString>
 #include <QInputDialog>
@@ -253,7 +256,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_ComboBoxGlobalLogLevelCurren
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnSaveConfigClicked() {
     QString filter = tr("Log Configurations (*") + qti_def_SUFFIX_LOGGER_CONFIG + ")";
-    QString session_log_path = QApplication::applicationDirPath();
+    QString session_log_path = QtilitiesApplication::applicationSessionPath();
     QString output_file = QFileDialog::getSaveFileName(0, tr("Save log configuration to:"), session_log_path, filter);
     if (output_file.isEmpty())
         return;
@@ -264,7 +267,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnSaveConfigClicked() {
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnLoadConfigClicked() {
     QString filter = tr("Log Configurations (*") + qti_def_SUFFIX_LOGGER_CONFIG + ")";
-    QString session_log_path = QApplication::applicationDirPath();
+    QString session_log_path = QtilitiesApplication::applicationSessionPath();
     QString input_file = QFileDialog::getOpenFileName(0, tr("Select log configuration to load:"), session_log_path, filter);
     if (input_file.isEmpty())
         return;
@@ -289,8 +292,11 @@ void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
+    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+        return;
+
     // Store settings using QSettings only if it was initialized
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Logging");
     settings.beginGroup("General");
@@ -306,7 +312,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::readSettings() {
         qDebug() << tr("The logger may not be able to restore paramaters from previous sessions since the correct details in QCoreApplication have not been set.");
 
     // Load logging paramaters using QSettings()
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Logging");
     settings.beginGroup("General");
@@ -363,8 +369,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
         ui->tableViewLoggerEngines->setRowHeight(i,17);
 }
 
-void Qtilities::CoreGui::LoggerConfigWidget::changeEvent(QEvent *e)
-{
+void Qtilities::CoreGui::LoggerConfigWidget::changeEvent(QEvent *e) {
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
@@ -373,4 +378,38 @@ void Qtilities::CoreGui::LoggerConfigWidget::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void Qtilities::CoreGui::LoggerConfigWidget::on_btnViewLog_clicked() {
+    if (d->active_engine) {
+        // For now we show file and widget logger engines:
+        WidgetLoggerEngine* widget_engine = qobject_cast<WidgetLoggerEngine*> (d->active_engine);
+        if (widget_engine) {
+            QWidget* widget = widget_engine->getWidget();
+            if (widget) {
+                widget->resize(QSize(1000,600));
+                widget->show();
+                widget->activateWindow();
+            }
+            return;
+        }
+
+        FileLoggerEngine* file_engine = qobject_cast<FileLoggerEngine*> (d->active_engine);
+        if (file_engine) {
+            CodeEditorWidget* code_editor = new CodeEditorWidget(CodeEditorWidget::ActionNoHints);
+            code_editor->loadFile(file_engine->getFileName());
+            code_editor->codeEditor()->setReadOnly(true);
+            code_editor->setAttribute(Qt::WA_QuitOnClose,false);
+            code_editor->setAttribute(Qt::WA_DeleteOnClose, true);
+            code_editor->resize(QSize(1000,600));
+            code_editor->show();
+            return;
+        }
+    }
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Cannot View Log");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText("The selected logger engine could not be viewed.");
+    msgBox.exec();
 }

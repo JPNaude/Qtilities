@@ -66,6 +66,10 @@ Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreAppl
     return QtilitiesCoreApplicationPrivate::instance()->contextManager();
 }
 
+Qtilities::Core::Interfaces::TaskManager* Qtilities::Core::QtilitiesCoreApplication::taskManager() {
+    return QtilitiesCoreApplicationPrivate::instance()->taskManager();
+}
+
 QString Qtilities::Core::QtilitiesCoreApplication::qtilitiesVersionString() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString();
 }
@@ -116,4 +120,26 @@ QString Qtilities::Core::QtilitiesCoreApplication::applicationSessionPath() {
 
 void Qtilities::Core::QtilitiesCoreApplication::setApplicationSessionPath(const QString& path) {
      QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(path);
+     Log->setLoggerSessionConfigPath(path);
+}
+
+QString Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPath() {
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesSettingsPath();
+}
+
+void Qtilities::Core::QtilitiesCoreApplication::setQtilitiesSettingsEnabled(bool is_enabled) {
+    QtilitiesCoreApplicationPrivate::instance()->setQtilitiesSettingsEnabled(is_enabled);
+    Log->setLoggerSettingsEnabled(is_enabled);
+}
+
+bool Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() {
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesSettingsPathEnabled();
+}
+
+void Qtilities::Core::QtilitiesCoreApplication::setApplicationBusy(bool is_busy) {
+    QtilitiesCoreApplicationPrivate::instance()->setApplicationBusy(is_busy);
+}
+
+bool Qtilities::Core::QtilitiesCoreApplication::applicationBusy() {
+    return QtilitiesCoreApplicationPrivate::instance()->applicationBusy();
 }

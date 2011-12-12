@@ -97,6 +97,8 @@ Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.paren
 Qtilities::Core::Observer::~Observer() {
     startProcessingCycle();
 
+    emit aboutToBeDeleted();
+
     observerData->number_of_subjects_start_of_proc_cycle = -1;
     toggleBroadcastModificationStateChanges(false);
 
@@ -284,6 +286,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::expo
 }
 
 bool Qtilities::Core::Observer::isModified() const {
+    if (!observerData->observer)
+        return false;
+
     if (observerData->is_modified)
         return true;
 
@@ -353,53 +358,63 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
     }
 }
 
-void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection) {
-    if (!observerData->process_cycle_active)
+void Qtilities::Core::Observer::refreshViewsLayout(QList<QPointer<QObject> > new_selection, bool force) {
+    if (!observerData->process_cycle_active || force)
         emit layoutChanged(new_selection);
 }
 
-void Qtilities::Core::Observer::refreshViewsData() {
-    if (!observerData->process_cycle_active)
+void Qtilities::Core::Observer::refreshViewsData(bool force) {
+    if (!observerData->process_cycle_active || force)
         emit dataChanged(this);
 }
 
 void Qtilities::Core::Observer::startProcessingCycle() {
-    if (observerData->process_cycle_active)
-        return;
+    int previous_start_processing_cycle_count = observerData->start_processing_cycle_count;
 
-    observerData->number_of_subjects_start_of_proc_cycle = subjectCount();
-    observerData->process_cycle_active = true;
-    emit processingCycleStarted();
+    ++observerData->start_processing_cycle_count;
+
+    if (previous_start_processing_cycle_count == 0 && observerData->start_processing_cycle_count == 1) {
+        observerData->number_of_subjects_start_of_proc_cycle = subjectCount();
+        observerData->process_cycle_active = true;
+        emit processingCycleStarted();
+    }
 }
 
 void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
-    if (!observerData->process_cycle_active)
-        return;
+    int previous_start_processing_cycle_count = observerData->start_processing_cycle_count;
 
-    // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
-    if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
-        if (isModified())
-            emit modificationStateChanged(true);
+    if (observerData->start_processing_cycle_count > 0)
+        --observerData->start_processing_cycle_count;
+    else
+        qWarning() << "endProcessingCycle() called too many times on observer: " << observerName();
 
-        if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
-            emit numberOfSubjectsChanged(Observer::SubjectRemoved);
-            emit layoutChanged();
-        }
-        else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
-            emit numberOfSubjectsChanged(Observer::SubjectAdded);
-            emit layoutChanged();
-        }
+     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
+         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
+         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
+             if (isModified())
+                 emit modificationStateChanged(true);
+
+             if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
+                 emit numberOfSubjectsChanged(Observer::SubjectRemoved);
+                 emit layoutChanged();
+             }
+             else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
+                 emit numberOfSubjectsChanged(Observer::SubjectAdded);
+                 emit layoutChanged();
+             }
+         }
+
+         // TODO: Send processing cycle end to subject filters in order for activity filter to emit the active subjects after the processing cycle if they changed.
+         observerData->process_cycle_active = false;
+         emit processingCycleEnded();
     }
-
-    observerData->process_cycle_active = false;
-    emit processingCycleEnded();
 }
 
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::startTreeProcessingCycle() {
+void Qtilities::Core::Observer::startTreeProcessingCycle() {        
     QList<QObject*> obj_list = treeChildren();
     for (int i = 0; i < obj_list.count(); i++) {
         Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
@@ -593,21 +608,26 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Specific Observer Ownership";
                 #endif
-                obj->setParent(this);
+                // QWidget's parent must be another QWidget, thus the rules don't apply to QWidgets.
+                if (!obj->inherits("QWidget"))
+                    obj->setParent(this);
             } else if (object_ownership == ObserverScopeOwnership) {
                 // This object must be deleted as soon as its not observed by any observers any more.
                 //obj->setParent(0);
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Observer Scope Ownership";
                 #endif
-                obj->setParent(0);
+                // Don't set parent to 0 if its a widget.
+                if (!obj->inherits("QWidget"))
+                    obj->setParent(0);
             } else if (object_ownership == OwnedBySubjectOwnership) {
                 // This observer must be deleted as soon as this subject is deleted.
                 connect(obj,SIGNAL(destroyed()),SLOT(deleteLater()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Owned By Subject Ownership";
                 #endif
-                obj->setParent(0);
+                if (!obj->inherits("QWidget"))
+                    obj->setParent(0);
             }
         }
 
@@ -672,10 +692,10 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         QList<QPointer<QObject> > objects;
         objects << obj;
         setModificationState(true);
-        if (!observerData->process_cycle_active) {
-            emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged(objects);
-        }
+//        if (!observerData->process_cycle_active) {
+//            emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
+//            emit layoutChanged(objects);
+//        }
 
         LOG_TRACE(QString("Object \"%1\" is now visible in the global object pool.").arg(obj->objectName()));
     }
@@ -690,7 +710,6 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
 QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QPointer<QObject> > success_list;
-    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < objects.count(); i++) {
         if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
@@ -701,14 +720,12 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(QList<QObjec
         emit layoutChanged(success_list);
         setModificationState(true);
     }
-    if (!has_active_processing_cycle)
-        endProcessingCycle();
+    endProcessingCycle();
     return success_list;
 }
 
 QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QPointer<QObject> > success_list;
-    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
         if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle))
@@ -719,8 +736,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(ObserverMime
         emit layoutChanged(success_list);
         setModificationState(true);
     }
-    if (!has_active_processing_cycle)
-        endProcessingCycle();
+    endProcessingCycle();
     return success_list;
 }
 
@@ -741,7 +757,8 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         return Observer::Rejected;
     }
 
-    // Check for circular dependancies
+    // Check for circular dependancies:
+    // TODO: Is this going to work for containment approach?
     const Observer* observer_cast = qobject_cast<Observer*> (obj);
     if (observer_cast) {
         if (isParentInHierarchy(observer_cast,this)) {
@@ -753,7 +770,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
         }
     }
 
-    // First evaluate new subject from Observer side
+    // First evaluate new subject from Observer side:
     if (observerData->subject_limit == observerData->subject_list.count()) {
         QString reject_string = QString(tr("Observer (%1): Object (%2) attachment failed, subject limit reached.")).arg(objectName()).arg(obj->objectName());
         LOG_WARNING(reject_string);
@@ -777,9 +794,9 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
             }
         }
 
-        // Evaluate dynamic properties on the object
+        // Evaluate dynamic properties on the object:
         bool has_limit = false;
-        int observer_limit;
+        int observer_limit = -1;
         int observer_count = parentCount(obj);
 
         QVariant observer_limit_variant = getMultiContextPropertyValue(obj,qti_prop_OBSERVER_LIMIT);
@@ -880,6 +897,8 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     }
 
     LOG_TRACE(QString("Observer (%1) detected deletion of object (%2), updated observer context accordingly.").arg(objectName()).arg(obj->objectName()));
+
+    emit subjectDeleted(obj);
 
     // Emit neccesarry signals
     setModificationState(true);
@@ -990,7 +1009,6 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
 
 QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects) {
     QList<QPointer<QObject> > success_list;
-    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
 
     QList<QPointer<QObject> > safe_list;
@@ -1013,9 +1031,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
         emit layoutChanged(QList<QPointer<QObject> >());
     }
 
-    if (!has_active_processing_cycle)
-        endProcessingCycle();
-
+    endProcessingCycle();
     return success_list;
 }
 
@@ -1079,6 +1095,8 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
 }
 
 void Qtilities::Core::Observer::detachAll() {
+    emit allSubjectsAboutToBeDetached();
+
     int start_count = subjectCount();
     bool current_broadcast = broadcastModificationStateChangesEnabled();
     toggleBroadcastModificationStateChanges(false);
@@ -1091,6 +1109,8 @@ void Qtilities::Core::Observer::detachAll() {
     int end_count = subjectCount();
     if (start_count != end_count)
         setModificationState(true);
+
+    emit allSubjectsDetached();
 }
 
 void Qtilities::Core::Observer::deleteAll() {  
@@ -1098,10 +1118,11 @@ void Qtilities::Core::Observer::deleteAll() {
     if (total == 0)
         return;
 
+    emit allSubjectsAboutToBeDeleted();
+
     bool current_broadcast = broadcastModificationStateChangesEnabled();
     toggleBroadcastModificationStateChanges(false);
 
-    bool has_active_processing_cycle = isProcessingCycleActive();
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
         // Validate operation against access mode if access mode scope is category:
@@ -1118,8 +1139,9 @@ void Qtilities::Core::Observer::deleteAll() {
     int end_count = subjectCount();
     if (total != end_count)
         setModificationState(true);
-    if (!has_active_processing_cycle)
-        endProcessingCycle();
+
+    endProcessingCycle();
+    emit allSubjectsDeleted();
 }
 
 QVariant Qtilities::Core::Observer::getMultiContextPropertyValue(const QObject* obj, const char* property_name) const {
@@ -1326,7 +1348,7 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory
     else {
         // Check if this category exists in this observer context:
         if (!hasCategory(category)) {
-            LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString()));
+            LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString(",")));
             return;
         }
 
@@ -1598,7 +1620,7 @@ bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) c
 Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessMode(const QtilitiesCategory& category) const {
     // Check if this category exists in this observer context:
     if (!hasCategory(category)) {
-        LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString()));
+        LOG_ERROR(QString(tr("Observer \"%1\" does not have category \"%2\", access mode cannot be set.")).arg(objectName()).arg(category.toString(",")));
         return InvalidAccess;
     }
 
@@ -1644,6 +1666,21 @@ int Qtilities::Core::Observer::subjectID(int i) const {
         return prop.toInt();
     } else
         return -1;
+}
+
+int Qtilities::Core::Observer::subjectID(const QString& subject_name, Qt::CaseSensitivity cs) const {
+    if (containsSubjectWithName(subject_name,cs)) {
+        QVariant prop = getMultiContextPropertyValue(subjectReference(subject_name,cs),qti_prop_OBSERVER_MAP);
+        return prop.toInt();
+    } else
+        return -1;
+}
+
+QList<int> Qtilities::Core::Observer::subjectIDs() const {
+    QList<int> subject_ids;
+    for (int i = 0; i < observerData->subject_list.count(); i++)
+        subject_ids << getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_OBSERVER_MAP).toInt();
+    return subject_ids;
 }
 
 QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& iface) const {
@@ -1827,8 +1864,9 @@ Qtilities::Core::ObserverHints* Qtilities::Core::Observer::useDisplayHints() {
     return 0;
 }
 
-bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
-{
+bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event) {
+//    if (observerName() != "qti.def.ObjectPool")
+//        qDebug() << "Observer::eventFilter(): " << observerName() << ", filter subject events enabled: " << observerData->filter_subject_events_enabled;
     if ((event->type() == QEvent::DynamicPropertyChange) && observerData->filter_subject_events_enabled) {
         // Get the event in the correct format
         QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
@@ -1879,6 +1917,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event)
                         QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
                         QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observerID());
                         QCoreApplication::postEvent(object,user_event);
+                        //qDebug() << QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName());
                         LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(object->objectName()));
                     }
                 } else {

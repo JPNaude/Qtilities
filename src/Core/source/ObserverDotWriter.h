@@ -113,7 +113,7 @@ nodeB->addItem("Item 4");
 // Create a dot script for this tree:
 ObserverDotWriter dotGraph(node);
 dotGraph.generateDotScript();
-dotGraph.saveToFile(QApplication::applicationDirPath() + "/output_file.gv");
+dotGraph.saveToFile(QtilitiesApplication::applicationSessionPath() + "/output_file.gv");
 \endcode
 
         The resulting \p dot script looks like this:

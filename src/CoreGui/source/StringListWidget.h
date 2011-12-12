@@ -35,12 +35,10 @@
 #define STRING_LIST_WIDGET_H
 
 #include "QtilitiesCoreGui_global.h"
-#include "IMode.h"
-#include "ModeManager.h"
 
-#include <QResizeEvent>
 #include <QMainWindow>
-#include <Logger>
+#include <QToolBar>
+#include <QListView>
 
 namespace Ui
 {
@@ -50,9 +48,6 @@ class QStringListModel;
 
 namespace Qtilities {
     namespace CoreGui {
-        using namespace Qtilities::CoreGui::Interfaces;
-        using namespace Qtilities::Logging;
-
         /*!
         \struct StringListWidgetPrivateData
         \brief A structure storing private data in the StringListWidget class.
@@ -76,20 +71,43 @@ namespace Qtilities {
         class QTILITIES_CORE_GUI_SHARED_EXPORT StringListWidget : public QMainWindow
         {
             Q_OBJECT
+            Q_ENUMS(ListType)
 
         public:
-            StringListWidget(const QStringList& string_list = QStringList(), const QString& string_type = QString(), QWidget * parent = 0, Qt::WindowFlags flags = 0);
+            //! The possible types of items which are listed in the string list widget.
+            enum ListType {
+                PlainStrings         = 0, /*!< Plain strings. */
+                FilePaths            = 1, /*!< File paths. */
+                Directories          = 2  /*!< Directories. */
+            };
+
+            StringListWidget(const QStringList& string_list = QStringList(), Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~StringListWidget();
 
-            //! Returns the current list of strings.
+            //! Gets the current list of strings.
             QStringList stringList() const;
             //! Sets the current list of string.
             void setStringList(const QStringList& string_list);
 
-            //! Returns the string type.
+            //! Gets the string type.
             QString stringType() const;
             //! Sets the string type.
             void setStringType(const QString& string_type);
+
+            //! Gets the type of items in the list.
+            ListType listType() const;
+            //! Sets the type of items in the list.
+            void setListType(const ListType& list_type);
+
+            //! Gets the file open dialog path to be used for FilePaths and Directories ListType.
+            QString fileOpenDialogPath() const;
+            //! Sets the file open dialog path to be used for FilePaths and Directories ListType.
+            void setFileOpenDialogPath(const QString& open_dialog_path);
+
+            //! Gets the file open dialog filter to be used for FilePaths ListType.
+            QString fileOpenDialogFilter() const;
+            //! Sets the file open dialog filter to be used for FilePaths ListType.
+            void setFileOpenDialogFilter(const QString& open_dialog_filter);
 
             //! Returns the list view used to display the strings.
             QListView* listView();
@@ -99,6 +117,8 @@ namespace Qtilities {
         signals:
             //! Signal emitted as soon as the list of string changed.
             void stringListChanged(const QStringList& string_list);
+            //! Signal emitted when the selection changes.
+            void selectionChanged();
 
         private slots:
             void handleAddString();

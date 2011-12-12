@@ -138,6 +138,8 @@ QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(Uniquen
         return "AllowDuplicateNames";
     } else if (uniqueness_policy == ProhibitDuplicateNames) {
         return "ProhibitDuplicateNames";
+    } else if (uniqueness_policy == ProhibitDuplicateNamesCaseSensitive) {
+        return "ProhibitDuplicateNamesCaseSensitive";
     }
 
     return QString();
@@ -148,6 +150,8 @@ Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::Nam
         return AllowDuplicateNames;
     } else if (uniqueness_policy_string == "ProhibitDuplicateNames") {
         return ProhibitDuplicateNames;
+    } else if (uniqueness_policy_string == "ProhibitDuplicateNamesCaseSensitive") {
+        return ProhibitDuplicateNamesCaseSensitive;
     }
     return AllowDuplicateNames;
 }
@@ -268,12 +272,18 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
     else if (!observer->isProcessingCycleActive() && !(d->validation_check_flags & Uniqueness))
         do_uniqueness_test = false;
 
-    if (do_uniqueness_test) {
+    if (do_uniqueness_test && d->uniqueness_policy == ProhibitDuplicateNames) {
+        Qt::CaseSensitivity case_sensitivity;
+        if (d->uniqueness_policy == ProhibitDuplicateNames)
+            case_sensitivity = Qt::CaseInsensitive;
+        else if (d->uniqueness_policy == ProhibitDuplicateNamesCaseSensitive)
+            case_sensitivity = Qt::CaseSensitive;
+
         if (!object) {
             // Check uniqueness of name:
-            if (observer->subjectNames().contains(name) && d->uniqueness_policy == ProhibitDuplicateNames) {
+            QStringList string_list = observer->subjectNames();
+            if (string_list.contains(name,case_sensitivity))
                 result |= Duplicate;
-            }
         } else {
             if (observer->subjectCount() > 0) {
                 // Check if the observer has an object model with this name:
@@ -286,7 +296,8 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
                 }
 
                 // Check uniqueness of name
-                if (actual_paths.keys().contains(name) && d->uniqueness_policy == ProhibitDuplicateNames) {
+                QStringList string_list = QStringList(actual_paths.keys());
+                if (string_list.contains(name,case_sensitivity)) {
                     if (actual_paths[name] != object)
                         result |= Duplicate;
                 }
@@ -508,7 +519,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
         if (isObjectNameManager(obj)) {
             // Since this observer is the object manager it will make sure that objectName() match the qti_prop_NAME property
             if (!isObjectNameDirty(obj)) {
-                // Ok, we know that the property did not change, or its invalid, thus its being added or removed. We never block these action.
+                // Ok, we know that the property did not change, or its invalid, thus its being added or removed. We never block these actions.
                 filter_mutex.unlock();
                 return false;
             }
@@ -535,14 +546,14 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
 
                     // We need to do some things here:
                     // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-                    if (obj->thread() == thread()) {
-                        if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-                            QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
-                            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-                            QCoreApplication::postEvent(obj,user_event);
-                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
-                        }
-                    }
+//                    if (obj->thread() == thread()) {
+//                        if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+//                            QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+//                            QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+//                            QCoreApplication::postEvent(obj,user_event);
+//                            LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+//                        }
+//                    }
 
                     // 2. Emit the monitoredPropertyChanged() signal:
                     QList<QObject*> changed_objects;
@@ -592,14 +603,14 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
 
                 // We need to do some things here:
                 // 1. If enabled, post the QtilitiesPropertyChangeEvent:
-                if (obj->thread() == thread()) {
-                    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
-                        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
-                        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
-                        QCoreApplication::postEvent(obj,user_event);
-                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
-                    }
-                }
+//                if (obj->thread() == thread()) {
+//                    if (observer->qtilitiesPropertyChangeEventsEnabled()) {
+//                        QByteArray property_name_byte_array = QByteArray(propertyChangeEvent->propertyName().data());
+//                        QtilitiesPropertyChangeEvent* user_event = new QtilitiesPropertyChangeEvent(property_name_byte_array,observer->observerID());
+//                        QCoreApplication::postEvent(obj,user_event);
+//                        LOG_TRACE(QString("Posting QtilitiesPropertyChangeEvent (property: %1) to object (%2)").arg(QString(propertyChangeEvent->propertyName().data())).arg(obj->objectName()));
+//                    }
+//                }
 
                 // 2. Emit the monitoredPropertyChanged() signal:
                 QList<QObject*> changed_objects;
@@ -852,6 +863,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
                 return_value = false;
         }
     }
+
     return return_value;
 }
 

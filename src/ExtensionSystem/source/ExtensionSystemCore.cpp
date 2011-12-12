@@ -114,7 +114,9 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::ExtensionSystemCore(QObject* pa
     d->plugins.displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
     d->plugins.endProcessingCycle();
-    d->active_configuration_file = QCoreApplication::applicationDirPath() + "/plugins/default" + qti_def_SUFFIX_PLUGIN_CONFIG;
+    QDir dir(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
+    dir.mkpath(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins");
+    d->active_configuration_file = QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Plugins" + QDir::separator() +  "default" + qti_def_SUFFIX_PLUGIN_CONFIG;
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
@@ -127,11 +129,8 @@ Qtilities::ExtensionSystem::ExtensionSystemCore::~ExtensionSystemCore()
 void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
     // an action is added in a plugin.
-    bool current_processing_cycle_active_commands = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
-    bool current_processing_cycle_active_containers = ACTION_MANAGER->actionContainerObserver()->isProcessingCycleActive();
     ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();
-    bool current_processing_cycle_active_op = OBJECT_MANAGER->objectPool()->isProcessingCycleActive();
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
     // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
@@ -169,7 +168,14 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
         QCoreApplication::processEvents();
 
         QDir dir(path);
-        foreach (QString fileName, dir.entryList(QDir::Files)) {
+        QStringList entry_list = dir.entryList(QDir::Files);
+        QRegExp reg_exp("*SessionLogPlugin*",Qt::CaseInsensitive,QRegExp::Wildcard);
+        int index_of_log = entry_list.indexOf(reg_exp);
+        if (index_of_log != -1) {
+            entry_list.move(index_of_log,0);
+            //qDebug() << "Moving log plugin to the start of the plugin load-list.";
+        }
+        foreach (QString fileName, entry_list) {
             QFileInfo file_info(fileName);
             QString stripped_file_name = file_info.fileName();
 
@@ -348,18 +354,16 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     #ifndef QT_NO_DEBUG
     time(&end);
     double diff = difftime(end,start);
-    qDebug() << QString("Extension system took " + QString::number(diff) + " seconds to load " + QString::number(d->plugins.subjectCount()) + " plugins. They were initialized according to your active configuration set.");
+    qDebug() << QString("Extension system took " + QString::number(diff) + " second(s) to load " + QString::number(d->plugins.subjectCount()) + " plugins. They were initialized according to your active configuration set.");
     #endif
 
     // Only connect here since the signal will be emitted in above code:
     connect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
 
-    if (!current_processing_cycle_active_commands)
-        ACTION_MANAGER->commandObserver()->endProcessingCycle(true);
-    if (!current_processing_cycle_active_containers)
-        ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(true);
-    if (!current_processing_cycle_active_op)
-        OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
+    // TODO: If there was errors or warnings, msgbox the user and ask if they want to review the errors.
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(true);
+    ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(true);
+    OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
     emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
     QCoreApplication::processEvents();
@@ -458,7 +462,7 @@ QStringList Qtilities::ExtensionSystem::ExtensionSystemCore::filteredPluginsCurr
     return d->set_filtered_plugins;
 }
 
-bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins, Qtilities::ExportVersion version) const {
+bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QString file_name, QStringList* inactive_plugins, QStringList* filtered_plugins, Qtilities::ExportVersion version) const {  
     if (file_name.isEmpty())
         file_name = d->active_configuration_file;
 
@@ -718,7 +722,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
         if (savePluginConfiguration(d->active_configuration_file,&new_inactive_plugins,&d->set_filtered_plugins)) {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)
-                d->extension_system_config_widget->setStatusMessage("Application Restart Required");
+                d->extension_system_config_widget->setStatusMessage("<font color=\"red\">Application Restart Required</font>");
         } else {
             // If there is a config widget, we update its status message:
             if (d->extension_system_config_widget)

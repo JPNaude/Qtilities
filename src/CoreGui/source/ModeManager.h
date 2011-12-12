@@ -145,7 +145,7 @@ modeListWidget()->setStyleSheet(stylesheet);
               \note Only modes which specify this manager as one of their manager IDs will be added.
               */
             void addModes(QList<IMode*> modes, bool initialize_modes = true);
-            //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the successfull interfaces to the main window.
+            //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the Successful interfaces to the main window.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
 
@@ -311,6 +311,8 @@ modeListWidget()->setStyleSheet(stylesheet);
         signals:
             //! This signal is emitted with the new active mode widget as the \p new_central_widget parameter as soon as the active mode changes.
             void changeCentralWidget(QWidget* new_central_widget);
+            //! This signal is emitted when the number sizes of items in the mode list changes.
+            void modeListItemSizesChanged();
 
         private:
             //! This function that should be used to add mode items to the list. This will take mode ordering into account.

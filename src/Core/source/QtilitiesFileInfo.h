@@ -235,6 +235,9 @@ completeSuffix:  "tar.gz"
               */
             QString actualFilePath() const;
 
+            //! Compares the actual file paths of QtilitiesFileInfo objects and returns true if they are the same, false otherwise.
+            bool compareActualFilePaths(const QtilitiesFileInfo& ref) const;
+
 #ifdef Q_OS_WIN
             //! Indicates if a file name is valid.
             /*!

@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setConfigWidget(config_widget);
 
     // Initialize the logger:
+    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
 
     // Add a menu bar to our main window with a File menu:

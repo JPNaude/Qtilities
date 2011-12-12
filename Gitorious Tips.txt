@@ -37,8 +37,10 @@ public keys. You will register the public key in your account at Gitorious
 and when you commit the private key on your machine will be used for
 authentication.
 
-Steps Linux (Tested on Ubuntu 11.04):
-1) Make sure you have SSH installed properly.
+Steps (Tested on Ubuntu 11.04, Windows XP and Windows 7):
+1) Make sure you have SSH installed properly. On Windows, you need to install 
+   msysGit first and then run the following commands in the Git Bash command 
+   line environment.
 2) Next open a terminal window and type the following to generate a pair of
    keys:
    

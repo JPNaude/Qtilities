@@ -320,13 +320,47 @@ p, li { white-space: pre-wrap; }
           <property name="currentIndex">
            <number>0</number>
           </property>
+          <widget class="QWidget" name="page">
+           <attribute name="label">
+            <string>Task Activity History</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>This page provides an overview of the tasks in your application:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="widgetTasksSummaryHolder" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="pageModes">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
              <width>1013</width>
-             <height>608</height>
+             <height>581</height>
             </rect>
            </property>
            <attribute name="label">
@@ -390,7 +424,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>568</width>
-             <height>192</height>
+             <height>201</height>
             </rect>
            </property>
            <attribute name="label">
@@ -524,7 +558,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>356</width>
-             <height>221</height>
+             <height>230</height>
             </rect>
            </property>
            <attribute name="label">
@@ -631,8 +665,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>142</width>
-             <height>293</height>
+             <width>160</width>
+             <height>280</height>
             </rect>
            </property>
            <attribute name="label">
@@ -676,8 +710,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>372</width>
-             <height>283</height>
+             <width>381</width>
+             <height>310</height>
             </rect>
            </property>
            <attribute name="label">
@@ -1002,8 +1036,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>442</width>
-             <height>249</height>
+             <width>451</width>
+             <height>267</height>
             </rect>
            </property>
            <attribute name="label">

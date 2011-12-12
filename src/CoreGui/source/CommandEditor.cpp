@@ -88,11 +88,9 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
     d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
 
-    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
     d->observer_widget.initialize();
-    if (!current_processing_cycle_active)
-        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 
     d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
     if (d->observer_widget.treeView()) {
@@ -134,7 +132,13 @@ QtilitiesCategory Qtilities::CoreGui::CommandEditor::configPageCategory() const 
 }
 
 void Qtilities::CoreGui::CommandEditor::configPageApply() {
-
+    QString shortcut_mapping_file = QString("%1%3%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE).arg(QDir::separator());
+    if (!ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file)) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Shortcut Export Failed");
+        msgBox.setText(tr("Shortcut mapping export failed. Please see the session log for details."));
+        msgBox.exec();
+    }
 }
 
 void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)

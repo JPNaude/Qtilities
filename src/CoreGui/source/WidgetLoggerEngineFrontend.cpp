@@ -135,7 +135,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handle_FindNext()));
     connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handle_FindPrevious()));
     d->searchBoxWidget->setEditorFocus();
-    setAttribute(Qt::WA_DeleteOnClose, true);
+    //setAttribute(Qt::WA_DeleteOnClose, true);
 
     // Assign a default meta type for this widget:
     // We construct each action and then register it
@@ -228,7 +228,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindNext() {
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Save Log"),QApplication::applicationDirPath(),tr("Log File (*.log)"));
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save Log"),QtilitiesApplication::applicationSessionPath(),tr("Log File (*.log)"));
 
     if (file_name.isEmpty())
         return;
@@ -270,7 +270,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPDF() {
 #ifndef QT_NO_PRINTER
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
     if (!fileName.isEmpty()) {
-        if (QFileInfo(fileName).suffix().isEmpty())
+        if (QFileInfo(fileName).completeSuffix().isEmpty())
             fileName.append(".pdf");
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
@@ -328,7 +328,6 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
-    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
 
     // ---------------------------
@@ -426,8 +425,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     //d->txtLog.addAction(d->actionSettings);
     d->txtLog.setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    if (!current_processing_cycle_active)
-        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
 QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngineFrontend::plainTextEdit() const {

@@ -92,8 +92,6 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QTemporaryFile file;
         file.open();
 
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
         // Create the QDomDocument:
         QDomDocument doc("QtilitiesXMLProject");
         QDomElement root = doc.createElement("QtilitiesXMLProject");
@@ -122,7 +120,6 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             if (current_file.exists())  {
                 if (!current_file.remove()) {
                     LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
-                    QApplication::restoreOverrideCursor();
                     return false;
                 }
             }
@@ -140,15 +137,11 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
                 LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
         } else {
             LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
-            QApplication::restoreOverrideCursor();
             return false;
         }
 
-        QApplication::restoreOverrideCursor();
         return true;
     } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
         QTemporaryFile file;
         file.open();
         QDataStream stream(&file);
@@ -175,7 +168,6 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             if (current_file.exists())  {
                 if (!current_file.remove()) {
                     LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
-                    QApplication::restoreOverrideCursor();
                     return false;
                 }
             }
@@ -193,10 +185,8 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
                 LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
         } else {
             LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
-            QApplication::restoreOverrideCursor();
             return false;
         }
-        QApplication::restoreOverrideCursor();
         return true;
     } else {
         LOG_ERROR_P(tr("Failed to save project. Unsupported project file suffix found on file: ") + file_name);
@@ -209,7 +199,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     if (close_current_first)
         closeProject();
 
-    LOG_INFO_P(tr("Loading project: ") + file_name);
+    LOG_INFO_P(tr("Opening project: ") + file_name);
     QFile file(file_name);
     if (!file.exists()) {
         LOG_ERROR_P(QString(tr("Project file does not exist at path \"") + file_name + tr("\". Project will not be loaded.")));
@@ -222,7 +212,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
     if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::XML))) {
         // Load the file into doc:
         QDomDocument doc("QtilitiesXMLProject");
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         QString docStr = file.readAll();
         file.close();
         QString error_string;
@@ -230,7 +219,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         int error_column;
         if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
             LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
-            QApplication::restoreOverrideCursor();
             return false;
         }
         QDomElement root = doc.documentElement();
@@ -249,8 +237,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         LOG_WARNING("Project XML import completed in " + QString::number(diff) + " seconds.");
         #endif
 
-        QApplication::restoreOverrideCursor();
-
         if (success != IExportable::Failed) {
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);
@@ -263,7 +249,11 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             // setModificationState() call below, it might change the modification state again.
             QCoreApplication::processEvents();
 
-            setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            if (!PROJECT_MANAGER->projectChangedDuringLoad())
+                setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            else
+                setModificationState(true,IModificationNotifier::NotifyListeners);
+
             if (success == IExportable::Complete)
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete) {
@@ -286,8 +276,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             return false;
         }
     } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
         QDataStream stream(&file);
         if (exportVersion() == Qtilities::Qtilities_1_0)
             stream.setVersion(QDataStream::Qt_4_7);
@@ -305,8 +293,6 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         LOG_WARNING("Project binary import completed in " + QString::number(diff) + " seconds.");
         #endif
 
-        QApplication::restoreOverrideCursor();
-
         file.close();
 
         if (success != IExportable::Failed) {
@@ -321,7 +307,11 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             // setModificationState() call below, it might change the modification state again.
             QCoreApplication::processEvents();
 
-            setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            if (!PROJECT_MANAGER->projectChangedDuringLoad())
+                setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
+            else
+                setModificationState(true,IModificationNotifier::NotifyListeners);
+
             if (success == IExportable::Complete)
                 LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
             if (success == IExportable::Incomplete) {
@@ -350,12 +340,10 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 }
 
 bool Qtilities::ProjectManagement::Project::closeProject() {
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     LOG_INFO_P(tr("Closing project: ") + d->project_file);
     for (int i = 0; i < d->project_items.count(); i++) {
         d->project_items.at(i)->closeProjectItem();
     }
-    QApplication::restoreOverrideCursor();
 
     setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
     return true;

@@ -97,10 +97,13 @@ OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
             void handle_radioSaveAutomatically(bool toggle);
             void handle_chkUseCustomProjectsPath(bool toggle);
             void handle_btnOpenProjectsPath();
-            void handle_txtCustomProjectsPathTextChanged(QString new_path);
+            void handle_txtCustomProjectsPathTextChanged(QString new_path = "");
 
         protected:
             void changeEvent(QEvent *e);
+
+        private slots:
+            void on_btnRestoreDefaultPath_clicked();
 
         private:
             Ui::ProjectManagementConfig *ui;

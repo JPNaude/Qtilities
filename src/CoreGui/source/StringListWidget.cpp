@@ -34,45 +34,55 @@
 #include "StringListWidget.h"
 #include "ui_StringListWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
+#include "QtilitiesApplication.h"
 
 #include <QInputDialog>
 #include <QStringListModel>
-
+#include <QFileDialog>
 
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::StringListWidgetPrivateData {
-    StringListWidgetPrivateData()  {}
+    StringListWidgetPrivateData() : list_type(StringListWidget::PlainStrings) {}
 
-    QStringListModel model;
-    QAction* actionAddString;
-    QAction* actionRemoveString;
-    QString string_type;
+    QStringListModel                model;
+    QAction*                        actionAddString;
+    QAction*                        actionRemoveString;
+    QString                         string_type;
+    StringListWidget::ListType      list_type;
 
+    QString                         open_dialog_filter;
+    QString                         open_dialog_path;
+
+    Qt::ToolBarArea                 toolbar_area;
 };
 
-Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string_list, const QString& string_type, QWidget* parent, Qt::WindowFlags flags) :
+Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string_list, Qt::ToolBarArea toolbar_area, QWidget* parent, Qt::WindowFlags flags) :
         QMainWindow(parent, flags), ui(new Ui::StringListWidget)
 {
     ui->setupUi(this);
     d = new StringListWidgetPrivateData;
+    d->toolbar_area = toolbar_area;
     d->model.setStringList(string_list);
     ui->listView->setModel(&d->model);
 
-    if (string_type.isEmpty()) {
-        d->actionAddString = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
-        d->actionRemoveString = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove",this);
-    } else {
-        d->actionAddString = new QAction(QIcon(qti_icon_NEW_16x16),"Add " + string_type,this);
-        d->actionRemoveString = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove" + string_type,this);
-    }
+    d->actionAddString = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
+    d->actionRemoveString = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove",this);
 
-    ui->toolBar->setObjectName(tr("List Modification Toolbar"));
-    ui->toolBar->addAction(d->actionAddString);
-    ui->toolBar->addAction(d->actionRemoveString);
+    QToolBar* toolbar = new QToolBar("List Modification Toolbar");
+    addToolBar(d->toolbar_area,toolbar);
+    toolbar->setObjectName(tr("List Modification Toolbar"));
+    toolbar->addAction(d->actionAddString);
+    toolbar->addAction(d->actionRemoveString);
     connect(d->actionAddString,SIGNAL(triggered()),SLOT(handleAddString()));
     connect(d->actionRemoveString,SIGNAL(triggered()),SLOT(handleRemoveString()));
+
+    d->open_dialog_filter = tr("All Files (*.*)");
+    d->open_dialog_path = QtilitiesApplication::applicationSessionPath();
+
+    // TODO: Bad way to do it, but workaround for now:
+    connect(ui->listView,SIGNAL(clicked(QModelIndex)),SIGNAL(selectionChanged()));
 }
 
 Qtilities::CoreGui::StringListWidget::~StringListWidget() {
@@ -98,24 +108,65 @@ void Qtilities::CoreGui::StringListWidget::setStringType(const QString& string_t
     d->string_type = string_type;
 }
 
+Qtilities::CoreGui::StringListWidget::ListType Qtilities::CoreGui::StringListWidget::listType() const {
+    return d->list_type;
+}
+
+void Qtilities::CoreGui::StringListWidget::setListType(const ListType& list_type) {
+    d->list_type = list_type;
+}
+
+QString Qtilities::CoreGui::StringListWidget::fileOpenDialogPath() const {
+    return d->open_dialog_path;
+}
+
+void Qtilities::CoreGui::StringListWidget::setFileOpenDialogPath(const QString& open_dialog_path) {
+    d->open_dialog_path = open_dialog_path;
+}
+
+QString Qtilities::CoreGui::StringListWidget::fileOpenDialogFilter() const {
+    return d->open_dialog_filter;
+}
+
+void Qtilities::CoreGui::StringListWidget::setFileOpenDialogFilter(const QString& open_dialog_filter) {
+    d->open_dialog_filter = open_dialog_filter;
+}
+
 void Qtilities::CoreGui::StringListWidget::handleAddString() {
     bool ok;
 
-    if (d->string_type.isEmpty()) {
-        QString text = QInputDialog::getText(this, tr("Add New"),tr("New Item:"), QLineEdit::Normal,"", &ok);
+    QString string_type;
+    if (d->string_type.isEmpty())
+        string_type = "Add New Item";
+    else
+        string_type = QString(tr("Add New %1")).arg(d->string_type);
+
+    if (d->list_type == PlainStrings) {
+        QString text = QInputDialog::getText(this, string_type,tr("New Item:"), QLineEdit::Normal,"", &ok);
         if (ok && !text.isEmpty()) {
             QStringList list = d->model.stringList();
             list << text;
             list.removeDuplicates();
             d->model.setStringList(list);
+            emit stringListChanged(list);
         }
-    } else {
-        QString text = QInputDialog::getText(this, QString(tr("Add New %1")).arg(d->string_type),tr("New Item"), QLineEdit::Normal,"", &ok);
-        if (ok && !text.isEmpty()) {
+    } else if (d->list_type == FilePaths) {
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),d->open_dialog_path,d->open_dialog_filter);
+        if (!fileName.isEmpty()) {
             QStringList list = d->model.stringList();
-            list << text;
+            list << QDir::toNativeSeparators(fileName);
             list.removeDuplicates();
             d->model.setStringList(list);
+            emit stringListChanged(list);
+        }
+    } else if (d->list_type == Directories) {
+        QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),d->open_dialog_path,QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+        if (!dir.isEmpty()) {
+            QStringList list = d->model.stringList();
+            list << QDir::toNativeSeparators(dir);
+            list.removeDuplicates();
+            d->model.setStringList(list);
+            emit stringListChanged(list);
         }
     }
 }

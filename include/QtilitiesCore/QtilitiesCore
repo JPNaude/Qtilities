@@ -37,6 +37,11 @@
 #include "SubjectIterator.h"
 #include "TreeIterator.h"
 #include "IExportableObserver.h"
+#include "TaskManager.h"
+#include "ITask.h"
+#include "ITaskContainer.h"
+#include "Task.h"
+#include "QtilitiesProcess.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 

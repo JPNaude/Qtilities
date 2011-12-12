@@ -49,6 +49,8 @@ namespace Qtilities {
             /*!
             \class IProjectItem
             \brief Interface through which objects can be exposed as project parts.
+
+            Project loading and saving is done through the implementation of IExportable.
               */
             class PROJECT_MANAGEMENT_SHARED_EXPORT IProjectItem : virtual public IModificationNotifier, virtual public IExportable {
             public:
@@ -60,7 +62,7 @@ namespace Qtilities {
                 //! Called by the project manager when a new project needs to be created.
                 virtual bool newProjectItem() = 0;
                 //! Close the project.
-                virtual bool closeProjectItem() = 0;                 
+                virtual bool closeProjectItem() = 0;
             };
         }
     }

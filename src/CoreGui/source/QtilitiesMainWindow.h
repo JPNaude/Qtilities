@@ -145,6 +145,8 @@ int main(int argc, char *argv[])
             QtilitiesMainWindow(ModeLayout modeLayout = ModesNone, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~QtilitiesMainWindow();
 
+            bool eventFilter(QObject *object, QEvent *event);
+
             // ----------------------------------
             // Functions related to modes
             // ----------------------------------
@@ -155,6 +157,33 @@ int main(int argc, char *argv[])
             ModeManager* modeManager();
             //! Returns the current mode layout of the widget.
             ModeLayout modeLayout() const;
+
+            // ----------------------------------
+            // Functions related to tasks
+            // ----------------------------------
+            //! Shows a task summary widget next to the mode list widget.
+            /*!
+              \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+
+              \sa hideTaskSummaryWidget(), taskSummaryWidgetVisible()
+              */
+            void showTaskSummaryWidget();
+            //! Hides a task summary widget next to the mode list widget.
+            /*!
+              \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+
+              \sa showTaskSummaryWidget(), taskSummaryWidgetVisible()
+              */
+            void hideTaskSummaryWidget();
+            //! Hides a task summary widget next to the mode list widget.
+            /*!
+              False by default.
+
+              \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+
+              \sa setShowTaskSummaryWidget()
+              */
+            bool taskSummaryWidgetVisible() const;
 
             // ----------------------------------
             // Functions related to widget setup
@@ -169,12 +198,19 @@ int main(int argc, char *argv[])
             void disablePriorityMessages();
 
         public slots:
-            //! The mode widget changes the central widget in the main window through this slot.
-            void changeCurrentWidget(QWidget* new_central_widget);
             //! Slot which received incomming priority messages from the &Qtilities logger.
             void processPriorityMessage(Logger::MessageType message_type, const QString& message);
 
+        private slots:
+            //! The mode widget changes the central widget in the main window through this slot.
+            void changeCurrentWidget(QWidget* new_central_widget);
+            //! Updates sizes of itesm in the main windows when modes are added to the application:
+            void updateItemSizes();
+
         private:
+            //! Do the layout required in the main widget.
+            void doLayout();
+
             Ui::QtilitiesMainWindow *ui;
             QtilitiesMainWindowPrivateData* d;
         };

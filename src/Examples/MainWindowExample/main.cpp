@@ -59,9 +59,15 @@ int main(int argc, char *argv[])
     ConfigurationWidget config_widget;
     QtilitiesApplication::setConfigWidget(&config_widget);
 
-    // Initialize the logger.
+    // Initialize the logger:
+    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
+
+    // Speed up application launching a bit...
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+    ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();
+    OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
     // We show a splash screen in this example:
     QPixmap pixmap(QTILITIES_LOGO_BT_300x300);
@@ -184,10 +190,7 @@ int main(int argc, char *argv[])
 
     // Load the previous session's keyboard mapping file.
     QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-    if (ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file))
-        LOG_INFO(QObject::tr("Successfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
-    else
-        LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
+    ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
 
     // Show the main window:
     exampleMainWindow.show();
@@ -197,6 +200,10 @@ int main(int argc, char *argv[])
     // PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);
     PROJECT_MANAGER_INITIALIZE();
 
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(false);
+    OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
+
     int result = a.exec();
     exampleMainWindow.writeSettings();
 
@@ -204,10 +211,7 @@ int main(int argc, char *argv[])
     PROJECT_MANAGER_FINALIZE();
 
     // Save the current keyboard mapping for the next session.
-    if (ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file))
-        LOG_INFO(QObject::tr("Successfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
-    else
-        LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);
+    ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
 
     LOG_FINALIZE();
     return result;

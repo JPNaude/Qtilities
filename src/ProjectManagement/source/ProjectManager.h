@@ -43,6 +43,7 @@
 #include <QStringList>
 
 #include <IModificationNotifier.h>
+#include <ITaskContainer>
 
 namespace Qtilities {
     namespace ProjectManagement {
@@ -64,13 +65,30 @@ namespace Qtilities {
 
         For more information see the \ref working_with_projects section of the \ref page_project_management article.
           */
-        class PROJECT_MANAGEMENT_SHARED_EXPORT ProjectManager : public QObject, public IModificationNotifier
+        class PROJECT_MANAGEMENT_SHARED_EXPORT ProjectManager : public QObject, public IModificationNotifier, public ITaskContainer
         {
             Q_OBJECT
             Q_ENUMS(ModifiedProjectsHandlingPolicy)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
 
         public:
+            //! Access names for tasks provided by ProjectManager.
+            enum ContainedTasks {
+                TaskSaveProject   = 0,  /*!< Save project task with progress information for saveProject(). Enabled by default. */
+                TaskOpenProject   = 1,  /*!< Open project task with progress information for openProject(). Enabled by deafult. */
+                TaskCloseProject   = 2  /*!< Close project task with progress information for closeProject(). Enabled by deafult. */
+            };
+            //! ContainedTasks to string conversion function.
+            QString taskNameToString(ContainedTasks task_name) const {
+                if (task_name == TaskSaveProject)
+                    return "Saving Project";
+                if (task_name == TaskOpenProject)
+                    return "Opening Project";
+                if (task_name == TaskCloseProject)
+                    return "Closing Project";
+                return "";
+            }
+
             static ProjectManager* instance();
             ~ProjectManager();
 
@@ -179,8 +197,10 @@ namespace Qtilities {
               \param file_name When empty the current open project will be saved to its current file. If there is not
               current project this function will do nothing. If there is a current project which has not been saved yet
               this function will also do nothing.
+              \param respect_project_busy When true the project won't save when its busy. It is however to ignore that the project is busy and
+              still save it by settings this parameter to false.
               */
-            bool saveProject(QString file_name = QString());
+            bool saveProject(QString file_name = QString(), bool respect_project_busy = true);
             //! Returns the name of the current project.
             QString currentProjectName() const;
             //! Returns the file name of the current project.
@@ -189,6 +209,17 @@ namespace Qtilities {
             IProject* currentProject() const;
             //! Refreshes the project part list by scanning the global object pool.
             void refreshPartList();
+            //! Sets if the current open project is busy, thus it cannot be closed, saved etc.
+            /*!
+              This function uses a stacked approach, thus your setActiveProjectBusy(false) calls must match the number of setActiveProjectBusy(true) calls.
+
+              For more information on this type of stacked approach, see Qtilities::Core::Observer::startProcessingCycle().
+
+              When settings a project as busy, the application will automatically be set as busy as well. For more information see Qtilities::Core::QtilitiesCoreApplication::setApplicationBusy().
+              */
+            void setActiveProjectBusy(bool is_busy);
+            //! Gets if the active project is busy, thus it cannot be closed, saved etc.
+            bool activeProjectBusy() const;
 
             // ----------------------------------------------
             // Functions related to the project manager state
@@ -245,8 +276,14 @@ namespace Qtilities {
             //! Sets how the project manager should handle modified open projects when set to check for them.
             void setModifiedProjectsHandlingPolicy(ModifiedProjectsHandlingPolicy handling_policy);
             //! Saves the project manager settings using QSettings.
+            /*!
+              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
+              */
             void writeSettings() const;
             //! Loads the project manager settings using QSettings.
+            /*!
+              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
+              */
             void readSettings();
             //! Function which initializes the project manager on application startup.
             /*!
@@ -263,6 +300,18 @@ namespace Qtilities {
               \sa PROJECT_MANAGER_FINALIZE
               */
             void finalize();
+            //! Sets that changes happened during the loading of the project. When loading is complete this information can be used by project item wrappers.
+            /*!
+              \note The project manager will reset this mark immediately after the projectLoadingFinished() signal was emitted.
+
+              \sa projectChangedDuringLoad()
+              */
+            void markProjectAsChangedDuringLoad(bool changed = true);
+            //! Gets if changes happened during the loading of the project. When loading is complete this information can be used by project item wrappers.
+            /*!
+              \sa markProjectAsChangedDuringLoad()
+              */
+            bool projectChangedDuringLoad();
 
             // --------------------------------
             // IObjectBase Implemenation
@@ -290,6 +339,17 @@ namespace Qtilities {
               \param success If the project was successfully loaded, success will be true. False otherwise.
               */
             void projectLoadingFinished(const QString& project_file, bool success);
+            //! A signal which is emitted when a project save process starts.
+            /*!
+              \param project_file The project file to which the project is saved.
+              */
+            void projectSavingStarted(const QString& project_file);
+            //! A signal which is emitted when a project save process completes.
+            /*!
+              \param project_file The project file to which the project is saved.
+              \param success If the project was successfully saved, success will be true. False otherwise.
+              */
+            void projectSavingFinished(const QString& project_file, bool success);
             //! A signal which is emitted when a project closing process starts.
             /*!
               \param project_file The current project file which is being closed.

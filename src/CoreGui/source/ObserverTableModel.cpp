@@ -478,11 +478,14 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
                     // The value coming in here is always Qt::Checked
                     // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that:
                     QVariant current_activity = d_observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+                    d_observer->startProcessingCycle();
                     if (current_activity.toBool()) {
                         d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
                     } else {
                         d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                     }
+                    d_observer->endProcessingCycle();
+                    emit dataChanged(index,index);
                     return true;
                 //}
             }
@@ -512,10 +515,7 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
-    // This should not be neccessary but the dataChanged() signal does not refresh it!!!
-    emit layoutAboutToBeChanged();
-    emit layoutChanged();
-    //emit dataChanged(index(0,0),index(rowCount(),columnCount()));
+    emit dataChanged(index(0,0),index(rowCount(),columnCount()));
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {

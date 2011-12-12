@@ -61,9 +61,6 @@ namespace Qtilities {
           The extension system core class is a singleton which is used to load plugins.
 
           See the \ref page_extension_system article for more information about the %Qtilities extension system.
-
-          \todo
-          - We never finalize the plugins, this must be added.
          */
         class EXTENSION_SYSTEM_SHARED_EXPORT ExtensionSystemCore : public QObject
         {
@@ -192,7 +189,7 @@ namespace Qtilities {
               \note This function only does something usefull when called before initialize().
               */
             void setInactivePlugins(QStringList inactive_plugins);
-            //! Function to set the file names of all plugins which as not loaded during the initialize() function call.
+            //! Function to set the file names of all plugins which should not be loaded during the initialize() function call.
             /*!
               Sets a list of wildcard mode <b>regular expressions</b> which will be evaluated during initialize(). Each plugin file that
               is found will be checked against this wildcard mode regular expression and if it matches the expression, it will not be loaded. See QRegExp::Wildcard for more information.
@@ -216,18 +213,22 @@ namespace Qtilities {
 
             //! Function which loads a plugin configuration file.
             /*!
-              Loads a plugin configuration from a file. Before initialization the function can be called with \p inactive_plugins = 0 and \p filtered_plugins = 0 in order to load the plugin configuration to be used in initialize(). After initialization you must pass proper values for \p inactive_plugins and \p filtered_plugins in order for the function to work. False will be returned when this requirement is not met. The reason for this is that the extension system's configuration set cannot be changed again after initialization since the plugins would have been loaded at that time.
+                Loads a plugin configuration from a file. Before initialization the function can be called with \p inactive_plugins = 0 and \p filtered_plugins = 0 in order to load the plugin configuration to be used in initialize(). After initialization you must pass proper values for \p inactive_plugins and \p filtered_plugins in order for the function to work. False will be returned when this requirement is not met. The reason for this is that the extension system's configuration set cannot be changed again after initialization since the plugins would have been loaded at that time.
 
-              \param file_name When empty the file name in activePluginConfigurationFile() will be used.
-              \param inactive_plugins The QStringList to be populated with the inactive plugin names found in the input file. When null, the inactive plugins in the extension system's active plugin configuration will be set. See setInactivePlugins() for more information.
-              \param filtered_plugins The QStringList to be populated with the plugin filter expressions found in the input file. When null, the filtered plugins in the extension system's active plugin configuration will be set. See setFilteredPlugins() for more information.
+                \param file_name When empty the file name in activePluginConfigurationFile() will be used. When empty the default plugin configuration file is used. The default plugin file is located at QtilitiesApplication::applicationSessionPath()/Plugins/default.pconfig. For more information, see Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath().
+                \param inactive_plugins The QStringList to be populated with the inactive plugin names found in the input file. When null, the inactive plugins in the extension system's active plugin configuration will be set. See setInactivePlugins() for more information.
+                \param filtered_plugins The QStringList to be populated with the plugin filter expressions found in the input file. When null, the filtered plugins in the extension system's active plugin configuration will be set. See setFilteredPlugins() for more information.
+
+                \sa savePluginConfiguration()
               */
             bool loadPluginConfiguration(QString file_name = QString(), QStringList* inactive_plugins = 0, QStringList* filtered_plugins = 0);
             //! Function which saves a plugin configuration file for the given parameters.
             /*!
-                \param file_name When empty the file name in activePluginConfigurationFile() will be used.
+                \param file_name When empty the file name in activePluginConfigurationFile() will be used. When empty the default plugin configuration file is used. The default plugin file is located at QtilitiesApplication::applicationSessionPath()/Plugins/default.pconfig. For more information, see Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath().
                 \param inactive_plugins The list of plugins which must be inactive plugins in the saved configuration file. When null, extension system's active plugin configuration's inactive plugins will be used. See inactivePlugins() for more information.
                 \param filtered_plugins The list of plugin filter expressions which must be used the saved configuration file. When null, extension system's active plugin configuration's filtered plugins will be used. See filteredPlugins() for more information.
+
+                \sa loadPluginConfiguration()
               */
             bool savePluginConfiguration(QString file_name = QString(), QStringList* inactive_plugins = 0, QStringList* filtered_plugins = 0, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) const;
 

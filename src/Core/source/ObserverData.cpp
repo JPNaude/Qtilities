@@ -364,10 +364,10 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStre
 
     if (success) {
         if (complete) {
-            LOG_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successfull (complete).")));
+            LOG_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was Successful (complete).")));
             return IExportable::Complete;
         } else {
-            LOG_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successfull (incomplete).")));
+            LOG_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was Successful (incomplete).")));
             return IExportable::Incomplete;
         }
     } else {
@@ -610,10 +610,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
     if (success) {
         if (complete) {
-            LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was successfull (complete)."));
+            LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was Successful (complete)."));
             return IExportable::Complete;
         } else {
-            LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was successfull (incomplete."));
+            LOG_DEBUG(QObject::tr("Binary import of observer ") + observer->observerName() + QObject::tr(" section was Successful (incomplete."));
             return IExportable::Incomplete;
         }
     } else {
@@ -1149,8 +1149,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
     if (!has_active_processing_cycle)
         observer->endProcessingCycle();
-
-    observer->refreshViewsLayout();
 
     // If active_subjects has items in it we must set them active:
     if (active_subjects.count() > 0) {

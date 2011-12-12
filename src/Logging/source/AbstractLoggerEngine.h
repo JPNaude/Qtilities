@@ -90,6 +90,11 @@ namespace Qtilities {
               Messages arrives at logger engines through the newMessages() slot which will format the messages and validate if they must be logged. If so, this function will be called with a formatted message. If you wish to handle the message formatting manually, you can reimplement the newMessages() function.
               */
             virtual void logMessage(const QString& message) = 0;
+            //! Clears the log currently hold by the logger engine.
+            /*!
+              \note This is not supported by all logger engines. See the class documentation of the logger engine you are interested in to see if it is supported.
+              */
+            virtual void clearLog() {}
 
             //! Indicates if the engine is active.
             bool isActive() const;

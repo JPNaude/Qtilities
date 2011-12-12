@@ -82,8 +82,6 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
             // --------------------------------------------
             QString projectItemName() const;
             bool newProjectItem();
-            bool loadProjectItem(QDataStream& stream);
-            bool saveProjectItem(QDataStream& stream);
             bool closeProjectItem();
 
             // --------------------------------

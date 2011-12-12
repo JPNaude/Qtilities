@@ -130,6 +130,10 @@ bool Qtilities::CoreGui::DynamicSideWidgetViewer::isExclusive() const {
     return d->is_exclusive;
 }
 
+QStringList Qtilities::CoreGui::DynamicSideWidgetViewer::widgetNames() const {
+    return d->text_iface_map.keys();
+}
+
 void Qtilities::CoreGui::DynamicSideWidgetViewer::handleSideWidgetDestroyed(QWidget* widget) {
     DynamicSideWidgetWrapper* wrapper = qobject_cast<DynamicSideWidgetWrapper*> (widget);
     QString wrapper_test = wrapper->currentText();

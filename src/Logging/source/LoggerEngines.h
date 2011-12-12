@@ -54,6 +54,10 @@ namespace Qtilities {
         /*!
         \class FileLoggerEngine
         \brief A logger engine which stores the logged messages in a file.
+
+        A logger engine which stores the logged messages in a file.
+
+        \note Clearing the log through clearLog() is not supported by this logger engine.
           */
         class LOGGING_SHARED_EXPORT FileLoggerEngine : public AbstractLoggerEngine, public ILoggerExportable
         {
@@ -109,6 +113,10 @@ namespace Qtilities {
         /*!
         \class QtMsgLoggerEngine
         \brief A logger engine which pipes messages to the Qt Messaging System as debug messages.
+
+        A logger engine which pipes messages to the Qt Messaging System as debug messages.
+
+        \note Clearing the log through clearLog() is not supported by this logger engine.
           */
         class LOGGING_SHARED_EXPORT QtMsgLoggerEngine : public AbstractLoggerEngine
         {
@@ -143,6 +151,10 @@ namespace Qtilities {
         /*!
         \class ConsoleLoggerEngine
         \brief A logger engine which pipes messages to a console using the stdio.h fprintf function.
+
+        A logger engine which pipes messages to a console using the stdio.h fprintf function.
+
+        \note Clearing the log through clearLog() is not supported by this logger engine.
           */
         class LOGGING_SHARED_EXPORT ConsoleLoggerEngine : public AbstractLoggerEngine
         {

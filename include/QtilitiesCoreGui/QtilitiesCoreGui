@@ -59,6 +59,10 @@
 #include "ObjectDynamicPropertyBrowser.h"
 #include "StringListWidget.h"
 #include "INamingPolicyDialog.h"
+#include "ObserverTreeModelBuilder.h"
+#include "TaskManagerGui.h"
+#include "SingleTaskWidget.h"
+#include "TaskSummaryWidget.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 

@@ -91,7 +91,7 @@ side_viewer_widget->show();
               \param parent The parent widget.
               */
             explicit SideWidgetFileSystem(const QString& start_path = QString(), QWidget *parent = 0);
-            virtual ~SideWidgetFileSystem() {}
+            virtual ~SideWidgetFileSystem();
             bool eventFilter(QObject *object, QEvent *event);
             void dragEnterEvent(QDragEnterEvent *event);
             void dropEvent(QDropEvent *event);
@@ -106,6 +106,12 @@ side_viewer_widget->show();
             //! Function to get the path of this side viewer widget.
             QString path() const;
 
+            //! Reconstructs the QFileSystemModel used inside the widget.
+            /*!
+              There is known problem with QFileSystemWatcher/QFileSystemModel which causes directories to not be deleted property when they
+              are viewed. Thus, thus function will destroy and reconstruct the model with the path pointed to QApplication::applicationDirPath().
+              */
+            void releasePath();
 
         private slots:
             void handleRootPathChanged(const QString& newPath);
@@ -113,6 +119,8 @@ side_viewer_widget->show();
             void handleDoubleClicked(const QModelIndex& index);
             void on_btnCdUp_clicked();
             void on_txtCurrentPath_editingFinished();
+            void handleClicked(const QModelIndex& index);
+            void on_treeView_doubleClicked(QModelIndex index);
 
         signals:
             void requestEditor(const QString& file_name);

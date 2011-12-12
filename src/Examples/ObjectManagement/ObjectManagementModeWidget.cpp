@@ -35,7 +35,6 @@
 #include "ui_ObjectManagementModeWidget.h"
 
 #include <QtGui>
-#include <QSettings>
 #include <QPointer>
 
 #include <QtilitiesProjectManagement>
@@ -260,6 +259,11 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     if (d->observer_widget->selectedObjects().count() == 1)
         selected_observer = qobject_cast<Observer*> (d->observer_widget->selectedObjects().front());
 
+    if (!selected_observer)
+        d->top_level_node->startProcessingCycle();
+    else
+        selected_observer->startProcessingCycle();
+
     // Create a categorized node:
     TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames,NamingPolicyFilter::AutoRename);
@@ -271,6 +275,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeA->displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
     for (int i = 0; i < 5; i++)
         nodeA->addItem(QString("Item %1").arg(i));
+
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeA, Observer::ObserverScopeOwnership);
     else
@@ -286,6 +291,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeB->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     for (int i = 0; i < 5; i++)
         nodeB->addItem(QString("Item %1").arg(i));
+
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeB, Observer::ObserverScopeOwnership);
     else
@@ -300,7 +306,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
     nodeC->displayHints()->setDisplayFlagsHint(ObserverHints::AllDisplayFlagHint);
     nodeC->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
     for (int i = 0; i < 5; i++) {
-        QWidget* widget = new QWidget();
+        QWidget* widget = new QWidget;
         QLabel* label_text = new QLabel(widget);
         label_text->setText(QString(tr("Hello, I'm a widget. I will delete myself when closed.")));
         label_text->adjustSize();
@@ -310,12 +316,16 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::addExamp
         widget->setAttribute(Qt::WA_DeleteOnClose, true);
         nodeC->attachSubject(widget, Observer::ObserverScopeOwnership);
     }
+
     if (!selected_observer)
         d->top_level_node->attachSubject(nodeC, Observer::ObserverScopeOwnership);
     else
         selected_observer->attachSubject(nodeC, Observer::ObserverScopeOwnership);
 
-    d->top_level_node->refreshViewsLayout();
+    if (!selected_observer)
+        d->top_level_node->endProcessingCycle();
+    else
+        selected_observer->endProcessingCycle();
 }
 
 void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::selectionChanged(QList<QObject*> new_selection) {
@@ -384,7 +394,7 @@ void Qtilities::Examples::ObjectManagement::ObjectManagementModeWidget::createDo
     ObserverDotWriter dotGraph(d->top_level_node);
     dotGraph.generateDotScript();
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QApplication::applicationDirPath(),tr("Dot Input Files (*.gv)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Dot Input File"),QtilitiesApplication::applicationSessionPath(),tr("Dot Input Files (*.gv)"));
     if (!fileName.isEmpty()) {
         dotGraph.saveToFile(fileName);
 

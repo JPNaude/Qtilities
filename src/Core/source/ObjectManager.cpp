@@ -43,7 +43,7 @@
 #include "SubjectTypeFilter.h"
 #include "ObserverRelationalTable.h"
 
-#include <Logger.h>
+#include <Logger>
 
 #include <QVariant>
 #include <QMap>
@@ -71,7 +71,9 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 {
     d = new ObjectManagerPrivateData;
     d->object_pool.startProcessingCycle();
-    setObjectName("Object Manager");
+    connect(&d->object_pool,SIGNAL(subjectDeleted(QObject*)),SIGNAL(objectRemoved(QObject*)));
+
+    setObjectName(tr("Object Manager"));
 
     // Add the standard observer subject filters which comes with the Qtilities library here:
     // CoreGui filters are installed in QtilitiesApplication
@@ -224,7 +226,8 @@ void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCateg
 }
 
 void Qtilities::Core::ObjectManager::removeObject(QObject* obj) {
-    d->object_pool.detachSubject(obj);
+    if (d->object_pool.detachSubject(obj))
+        emit objectRemoved(obj);
 }
 
 void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) {

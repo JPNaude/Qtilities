@@ -16,7 +16,7 @@ Qtilities v1.0 Implemented Changes
     - All constants defined by Qtilities now starts with "qti_".
     - Qtilities.pri now uses the QMake $$PWD functionality, thus you don't need to set an absolute path to where you placed Qtilities on your hard drive.
     - All dependency build configuration options are now defined in Dependencies.pri.
-    - All settings stored in QSettings throughout the Qtilities modules are now stored under a group called "Qtilities".
+    - All settings stored in QSettings throughout the Qtilities modules are now stored in a seperate ini file at QtilitiesCoreApplication::qtilitiesSettingsPath().
     - For a list of new classes, see the Qtilities documentation's "What's new" page.
 
     ============================
@@ -35,6 +35,7 @@ Qtilities v1.0 Implemented Changes
     - Improved the rich text formatting engine. The rich text is now also used by default in widget logger engines which results in colored output. Much nicer.
     - Improved searching in WidgetLoggerEngineFrontend. The selected text is now used as the search string when pressing the Find shortcut.
     - The logging configuration page now uses the correct font in the formatting engine preview editor.
+    - Logger engines can now be cleared using clearLog() on AbstractLoggerEngine.
 
     Bug Fixes:
     - Fixed bug in Logger which would have caused a crash during logger config exports if any engine was deleted during runtime.
@@ -121,6 +122,7 @@ Qtilities v1.0 Implemented Changes
     - Fixed bug in Observer where the QtilitiesPropertyChangeEvent for subject filter's monitoredProperties() were not delivered correctly.
     - Fixed internal handling of processing cycles in Observer. This could have caused user defined processing cycles to be ended incorrectly during some function calls such as attachSubjects() etc.
     - Fixed possible crash in ActivityPolicyFilter::setActiveSubjects() when called with null objects.
+    - Fixed bug in ActivityPolicyFilter where it still emitted signals when the observer context was in a processing cycle.
     - Fixed bug in Observer::importXml() where it could have passed invalid active subjects to activity policy filters if installed.
     - Fixed bugs in Observer::attachSubjects() and Observer::detachSubjects() where the Observer::numberOfSubjectsChanged() signal was emitted incorrectly.
     - Fixed bug in Context Manager where it would have registered invalid contexts in some cases.
@@ -154,6 +156,7 @@ Qtilities v1.0 Implemented Changes
         - IMode got two new functions: aboutToBeActivated() and justActivated().
         - QtilitiesMainWindow now uses scaled down icons (12x12) for priority messages which does not cause the status bar to change height anymore.
         - QtilitiesMainWindow now shows a success icon for messages starting with "Successfully" or any translation of it. It also ignores empty messages from now on.
+        - Fixed problem where it was not possible to resize the QtilitiesMainWindow with modes properly in some cases.
     - Tree Building Classes
         - TreeFileItem was almost rewritten from scratch and it now uses the new QtilitiesCore::QtilitiesFileInfo class at its core.
         - TreeNode got new functions to easily set up a SubjectTypeFilter on itself. This allows observer widgets to use meaningfull text in the name column's header. The ObserverTreeModel now respects this as well, previously only table models did.
@@ -203,6 +206,7 @@ Qtilities v1.0 Implemented Changes
         - IActionProvider got new findActionByText() and findActionByObjectName() functions. ActionManager::registerAction() now sets the backend action's name to the ID used to register it. Thus the findActionByObjectName() will be able to find actions by their IDs, for example in ObserverWidget.
         - IActionProvider got new removeAction() and removeActionCategory() functions.
     - Naming Policy Subject Filter
+        - NamingPolicyFilter::UniquenessPolicy got a new option: ProhibitDuplicateNamesCaseSensitive. The old ProhibitDuplicateNames now always does a case in-sensitive evaluation.
         - Made generateValidName() and setConflictingObject() public.
         - The default validator regular expression used for NamingPolicyFilter was changed to allow 256 characters by default.
         - NamingPolicyFilter::evaluateName() got a new parameter which contains a reference to the current object whose name is being evaluated in the contexts. In some cases during subclassing NamingPolicyFilter this is usefull, in others the default parameter can just be used.

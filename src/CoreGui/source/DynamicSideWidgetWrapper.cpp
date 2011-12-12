@@ -61,7 +61,7 @@ struct Qtilities::CoreGui::DynamicSideWidgetWrapperPrivateData {
     bool is_exclusive;
 };
 
-Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, bool is_exclusive, QWidget *parent) :
+Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, const QString& current_text, const bool is_exclusive, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::DynamicSideWidgetWrapper)
 {
@@ -83,15 +83,19 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     ui->toolBar->setMovable(false);
     d->widgetCombo->setEditable(false);
     QStringList items;
-    int index = 0;
+    int index = 0;   
     for (int i = 0; i < d->text_iface_map.count(); i++) {
         items << d->text_iface_map.keys().at(i);
         if (d->text_iface_map.keys().at(i) == current_text)
             index = i;
     }
+
     d->widgetCombo->addItems(items);
-    connect(d->widgetCombo,SIGNAL(currentIndexChanged(QString)),SLOT(handleCurrentIndexChanged(QString)));
+
+    // Set before we connect in case the text changes and the index change handler is called twice:
     d->widgetCombo->setCurrentIndex(index);
+    connect(d->widgetCombo,SIGNAL(currentIndexChanged(QString)),SLOT(handleCurrentIndexChanged(QString)));
+    handleCurrentIndexChanged(current_text);
     setObjectName(current_text);
 }
 
@@ -112,7 +116,6 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
     if (d->ignore_combo_box_changes)
         return;
 
-    qDebug() << text;
     if (d->text_iface_map.contains(text)) {
         if (d->current_widget) {
             for (int i = 0; i < d->viewer_actions.count(); i++)
@@ -164,6 +167,10 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::updateAvailableWidgets(QMap<Q
 }
 
 void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleActionClose_triggered() {
+    d->close_action->setEnabled(false);
+    d->new_action->setEnabled(false);
+    d->current_widget->setEnabled(false);
+
     emit aboutToBeDestroyed(this);
 
     // Delete the current widget if we need to manage it:

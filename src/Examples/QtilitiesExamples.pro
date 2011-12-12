@@ -22,3 +22,4 @@ SUBDIRS	   += MainWindowExample
 SUBDIRS	   += ClipboardExample
 SUBDIRS	   += TheBasicsExample
 SUBDIRS	   += ExportingExample
+SUBDIRS	   += TasksExample

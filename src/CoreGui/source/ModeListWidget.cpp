@@ -32,18 +32,19 @@
 ****************************************************************************/
 
 #include "ModeListWidget.h"
+
 #include <QApplication>
+#include <QtDebug>
 
 ModeListWidget::ModeListWidget(Qt::Orientation orientation, QWidget* parent) : QListWidget(parent) {
     d_orientation = orientation;
 }
 
-QSize ModeListWidget::sizeHint() const
-{
+QSize ModeListWidget::sizeHint() const {
     QSize maxSize = QSize(0,0);
-    for ( int i = 0; i < this->count(); i++ ) {
-        const QModelIndex index = model()->index( i, 0 );
-        const QSize tmpSize = this->sizeHintForIndex(index);
+    for (int i = 0; i < count(); i++) {
+        const QModelIndex index = model()->index(i,0);
+        const QSize tmpSize = sizeHintForIndex(index);
 
         if (tmpSize.width() > maxSize.width())
             maxSize.setWidth(tmpSize.width());
@@ -51,18 +52,13 @@ QSize ModeListWidget::sizeHint() const
             maxSize.setHeight(tmpSize.height());
     }
 
-    if (d_orientation == Qt::Horizontal)
-        return QSize( maxSize.width() + rect().width() - contentsRect().width(), this->height());
-    else
-        return QSize( this->width(), maxSize.height() + rect().height() - contentsRect().height());
-
+    return QSize(maxSize.width() + rect().width() - contentsRect().width(), maxSize.height() + rect().height() - contentsRect().height());
 }
 
-QSize ModeListWidget::itemSizeHint() const
-{
+QSize ModeListWidget::itemSizeHint() const {
     QSize maxSize = QSize(0,0);
-    for ( int i = 0; i < this->count(); i++ ) {
-        const QModelIndex index = model()->index( i, 0 );
+    for (int i = 0; i < this->count(); i++) {
+        const QModelIndex index = model()->index(i, 0);
         const QSize tmpSize = this->sizeHintForIndex(index);
 
         if (tmpSize.width() > maxSize.width())

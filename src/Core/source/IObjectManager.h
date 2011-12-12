@@ -216,6 +216,8 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
                 void metaTypeActiveObjectsChanged(QList<QPointer<QObject> > objects, const QString& meta_type);
                 //! Signal which is emitted when a new object is added to the global object pool.
                 void newObjectAdded(QObject* obj);
+                //! Signal which is emitted when an object is removed from the global object pool.
+                void objectRemoved(QObject* obj);
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IObjectManager::PropertyTypeFlags)

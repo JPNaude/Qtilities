@@ -38,14 +38,29 @@
 #include <QtDebug>
 
 Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type) : QObject(parent) {
-    parentItem = parent;
+    parent_item = parent;
     itemData = data;
     obj = object;
     type = item_type;
     contained_observer_ref = 0;
+    //qDebug() << type;
 
     if (obj) {
         setObjectName(obj->objectName());
+    } else {
+        setObjectName("Root item prior to tree construction");
+    }
+}
+
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& ref) {
+    parent_item = ref.parentItem();
+    itemData = ref.itemData;
+    obj = ref.obj;
+    type = ref.type;
+    contained_observer_ref = 0;
+
+    if (ref.obj) {
+        setObjectName(ref.obj->objectName());
     } else {
         setObjectName("Root item prior to tree construction");
     }
@@ -87,13 +102,13 @@ int Qtilities::CoreGui::ObserverTreeItem::columnCount() const {
     return itemData.count();
 }
 
-Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::parent() {
-    return parentItem;
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::parentItem() const {
+    return parent_item;
 }
 
 int Qtilities::CoreGui::ObserverTreeItem::row() const {
-    if (parentItem)
-        return parentItem->childItems.indexOf(const_cast<ObserverTreeItem*>(this));
+    if (parent_item)
+        return parent_item->childItems.indexOf(const_cast<ObserverTreeItem*>(this));
 
     return 0;
 }

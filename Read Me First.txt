@@ -13,8 +13,8 @@ The source archive consists of the following folders
 /doc         - Documentation
 
 This archive contains files which will guide you throught the process of building Qtilities:
-- On Windows see "Getting Started on Windows.txt"
-- On Linux see "Getting Started on Linux.txt"
+- On Windows see "Building on Windows.txt"
+- On Linux see ""Building  on Linux.txt"
 
 Alternatively see http://www.qtilities.org/docs/page_getting_started.html. The online documentation can also be compiled the sources by providing Doxygen with the /doc/doxyfile_website input file. On Windows you can run the /doc/win32_website.bat file directly if doxygen is in your path. Note that Doxygen versions prior to v1.7.4 generates garbage in some parts of the documentation.
 

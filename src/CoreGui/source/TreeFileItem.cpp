@@ -169,11 +169,12 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
         d_queued_file_path = file_path;
         d_queued_relative_to_path = relative_to_path;
 
-        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
+        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath()))));
         ObjectManager::setSharedProperty(this,new_subject_name_property);
+        setObjectName(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath())));
     } else {
         // Handle cases where there is no naming policy filter:
-        setObjectName(fi.actualFilePath());
+        setObjectName(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath())));
 
         // In this case we do not need to check in eventFilter() since the object name was correctly updated:
         treeFileItemBase->file_info.setFile(file_path);
@@ -234,34 +235,30 @@ void Qtilities::CoreGui::TreeFileItem::setRelativeToPath(const QString& path) {
 }
 
 QString Qtilities::CoreGui::TreeFileItem::relativeToPath() const {
-    return treeFileItemBase->file_info.relativeToPath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.relativeToPath()));
 }
 
 QString Qtilities::CoreGui::TreeFileItem::path() const {
-    return treeFileItemBase->file_info.path();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.path()));
 }
 
 QString Qtilities::CoreGui::TreeFileItem::filePath() const {
-    return treeFileItemBase->file_info.filePath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.filePath()));
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
-    bool modified = false;
-    if (filePath() != new_file_path)
-        modified = true;
-
-    treeFileItemBase->file_info.setFile(new_file_path);
-
-    if (modified)
+    if (QDir::toNativeSeparators(filePath()) != QDir::toNativeSeparators(new_file_path)) {
+        treeFileItemBase->file_info.setFile(new_file_path);
         setModificationState(true,IModificationNotifier::NotifyListeners);
+    }
 }
 
 QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativePath() const {
-    return treeFileItemBase->file_info.absoluteToRelativePath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.absoluteToRelativePath()));
 }
 
 QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativeFilePath() const {
-    return treeFileItemBase->file_info.absoluteToRelativeFilePath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.absoluteToRelativeFilePath()));
 }
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
@@ -269,14 +266,10 @@ QString Qtilities::CoreGui::TreeFileItem::fileName() const {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFileName(const QString& new_file_name) {
-    bool modified = false;
-    if (fileName() != new_file_name)
-        modified = true;
-
-    treeFileItemBase->file_info.setFileName(new_file_name);
-
-    if (modified)
+    if (fileName() != new_file_name) {
+        treeFileItemBase->file_info.setFileName(new_file_name);
         setModificationState(true,IModificationNotifier::NotifyListeners);
+    }
 }
 
 QString Qtilities::CoreGui::TreeFileItem::baseName() const {
@@ -296,11 +289,11 @@ QString Qtilities::CoreGui::TreeFileItem::completeSuffix() const {
 }
 
 QString Qtilities::CoreGui::TreeFileItem::actualPath() const {
-    return treeFileItemBase->file_info.actualPath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.actualPath()));
 }
 
 QString Qtilities::CoreGui::TreeFileItem::actualFilePath() const {
-    return treeFileItemBase->file_info.actualFilePath();
+    return QDir::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.actualFilePath()));
 }
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {

@@ -172,12 +172,12 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Qtili
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::exportBinary(QDataStream& stream) const {
     stream << (quint32) accessMode();
     stream << (quint32) categoryDepth();
-    bool all_successfull = true;
+    bool all_successful = true;
     for (int i = 0; i < categoryDepth(); i++) {
         if (categoryLevels().at(i).exportBinary(stream) != IExportable::Complete)
-            all_successfull = false;
+            all_successful = false;
     }
-    if (all_successfull)
+    if (all_successful)
         return IExportable::Complete;
     else
         return IExportable::Failed;
@@ -205,15 +205,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     object_node->setAttribute("AccessMode",d_access_mode);
     object_node->setAttribute("Depth",d_category_levels.count());
-    bool all_successfull = true;
+    bool all_successful = true;
     for (int i = 0; i < d_category_levels.count(); i++) {
         QDomElement category_level = doc->createElement("CategoryLevel_" + QString::number(i));
         object_node->appendChild(category_level);
         if (d_category_levels.at(i).exportXml(doc,&category_level) != IExportable::Complete)
-                all_successfull = false;
+                all_successful = false;
     }
 
-    if (all_successfull)
+    if (all_successful)
         return IExportable::Complete;
     else
         return IExportable::Failed;

@@ -79,6 +79,7 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Access to the application's configuration page through configWidget().
          - Export version informatin for both %Qtilities as well as application specific versioning information. For more information see Qtilities::Core::Interfaces::IExportable.
          - Allows setting of a session path for application information, see applicationSessionPath().
+         - Allows you to indicate that your application is busy and cannot be closed. See setApplicationBusy().
 
           \sa Qtilities::Core::QtilitiesCoreApplication
          */
@@ -154,25 +155,39 @@ QtilitiesApplication::initialize();
             static bool hasInstance(const char *function, bool silent = false);
 
             //! QCoreApplication::notify() overload. This allows exception handling in GUI applications.
-            bool notify(QObject * object, QEvent * event);
+//            bool notify(QObject * object, QEvent * event);
 
             //! Create a new settings update request.
             /*!
                 This function allows settings update requests to be sent anywhere in an application. This
-                allows objects which depend on the settings to update themselves when the settings change.
+                allows objects which depend on specific settings to update themselves when these settings change.
 
                 This function will emit settingsUpdateRequest() with the given \p request_id.
               */
             static inline void newSettingsUpdateRequest(const QString& request_id) { if (m_Instance) { emit m_Instance->settingsUpdateRequest(request_id); } }
 
-            //! Returns a session path for your application where you can store session related information (for example shortcut configurations etc.)
+            //! Returns a session path for your application where you can store session related information.
             /*!
-              By default this is QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION.
+              Throughout %Qtilities session information is saved to this session path. The information that is saved includes:
+              - Shortcut configurations. For more information see: Qtilities::CoreGui::Interfaces::IActionManager::saveShortcutMapping().
+              - %Logging configurations. For more information see: Qtilities::Logging::Logger::saveSessionConfig().
+              - Plugin configurations. For more information see: Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration().
+              - Internal settings saved by %Qtilities classes to a QSettings based ini file. See Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPath() for more information.
+
+              By default this is QDesktopServices::storageLocation(DataLocation).
+
+              \note In non-GUI applications, QDesktopServices is not available and the default session path is different for that reason. See Qtilities::Core::QtilitiesCoreApplication::applicationSessionPath()
+              for more information.
 
               \sa setApplicationSessionPath()
               */
             static QString applicationSessionPath();
-            //! Sets the session path to be used in your application:
+            //! Sets the session path to be used in your application.
+            /*!
+              \note This function will automatically update the session path used by the Logger as well by calling Qtilities::Logging::Logger::setLoggerSessionConfigPath().
+
+              \sa applicationSessionPath()
+              */
             static void setApplicationSessionPath(const QString& path);
 
             //! Sets the application export format for your application.
@@ -187,6 +202,18 @@ QtilitiesApplication::initialize();
               \sa Qtilities::Core::IExportable::applicationExportVersion(), setApplicationExportVersion()
               */
             static quint32 applicationExportVersion();
+
+            //! Sets if the application is busy, thus it cannot be closed.
+            /*!
+              This function uses a stacked approach, thus your setApplicationBusy(false) calls must match the number of setApplicationBusy(true) calls.
+              For more information on this type of stacked approach, see Qtilities::Core::Observer::startProcessingCycle().
+
+              If you use Qtilities::CoreGui::QtilitiesMainWindow as your main window, it will automatically block close events when you application is busy and
+              present the user with a message box saying that the application is busy.
+              */
+            static void setApplicationBusy(bool is_busy);
+            //! Gets if the application is busy, thus it cannot be closed.
+            static bool applicationBusy();
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.

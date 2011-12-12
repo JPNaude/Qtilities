@@ -35,6 +35,7 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "ObserverMimeData.h"
 #include "QtilitiesApplication.h"
+#include "ObserverTreeModelBuilder.h"
 
 #include <SubjectTypeFilter.h>
 #include <QtilitiesCoreConstants.h>
@@ -46,6 +47,10 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QDropEvent>
+#include <QFileIconProvider>
+
+#include <stdio.h>
+#include <time.h>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
@@ -53,19 +58,37 @@ using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
-struct Qtilities::CoreGui::ObserverTreeModelData {
+#define PROGRESS_BAR_DISPLAY_THRESHOLD 10
+
+struct Qtilities::CoreGui::ObserverTreeModelData  {
+    ObserverTreeModelData() : tree_model_up_to_date(true),
+        tree_rebuild_queued(false),
+        tree_building_threading_enabled(false) {}
+
+
     QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
     QModelIndex                 selection_index;
     QList<QPointer<QObject> >   selected_objects;
     QString                     type_grouping_name;
-    int                         observer_change_count;
-    QList<QPointer<QObject> >   new_selection;
-    bool                        tree_constructed_once;
     bool                        read_only;
+    QFileIconProvider           icon_provider;
+
+    QList<QPointer<QObject> >   new_selection;
+    QList<QPointer<QObject> >   queued_selection;
+
+    bool                        tree_model_up_to_date;
+    QThread                     tree_builder_thread;
+    ObserverTreeModelBuilder    tree_builder;
+    bool                        tree_rebuild_queued;
+    bool                        tree_building_threading_enabled;
+
+    QStringList                 expanded_items;
 };
 
-Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbstractItemModel(parent), AbstractObserverItemModel()
+Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) :
+    QAbstractItemModel(parent),
+    AbstractObserverItemModel()
 {
     d = new ObserverTreeModelData;
 
@@ -73,9 +96,9 @@ Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) : QAbs
     d->rootItem = new ObserverTreeItem();
     d->selection_parent = 0;
     d->type_grouping_name = QString();
-    d->observer_change_count = 0;
-    d->tree_constructed_once = false;
     d->read_only = false;
+
+    qRegisterMetaType<Qtilities::CoreGui::ObserverTreeItem>("Qtilities::CoreGui::ObserverTreeItem");
 }
 
 Qtilities::CoreGui::ObserverTreeModel::~ObserverTreeModel() {
@@ -108,12 +131,12 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
         }
     }
 
+    // The first time the observer context is set we rebuild the tree:
     if (observer->observerName() != qti_def_GLOBAL_OBJECT_POOL)
         recordObserverChange();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
     connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(recordObserverChange(QList<QPointer<QObject> >)));
-    connect(this,SIGNAL(requestUpdate()),SLOT(rebuildTreeStructure()));
     connect(d_observer,SIGNAL(dataChanged(Observer*)),SLOT(handleContextDataChanged(Observer*)));
 
     // If a selection parent does not exist, we set observer as the selection parent:
@@ -194,12 +217,12 @@ QStack<int> Qtilities::CoreGui::ObserverTreeModel::getParentHierarchy(const QMod
     if (!item)
         return parent_hierarchy;
 
-    ObserverTreeItem* parent_item = item->parent();
+    ObserverTreeItem* parent_item = item->parentItem();
     Observer* parent_observer = qobject_cast<Observer*> (parent_item->getObject());
     // Handle the cases where the parent is a category item:
     if (!parent_observer) {
         while (parent_item->itemType() == ObserverTreeItem::CategoryItem)
-            parent_item = parent_item->parent();
+            parent_item = parent_item->parentItem();
         parent_observer = qobject_cast<Observer*> (parent_item->getObject());
     }
 
@@ -217,13 +240,13 @@ QStack<int> Qtilities::CoreGui::ObserverTreeModel::getParentHierarchy(const QMod
 
     while (parent_observer) {
         parent_hierarchy.push_front(parent_observer->observerID());
-        parent_item = parent_item->parent();
+        parent_item = parent_item->parentItem();
         if (parent_item) {
             parent_observer = qobject_cast<Observer*> (parent_item->getObject());
             // Handle the cases where the parent is a category item:
             if (!parent_observer) {
                 while (parent_item->itemType() == ObserverTreeItem::CategoryItem)
-                    parent_item = parent_item->parent();
+                    parent_item = parent_item->parentItem();
                 parent_observer = qobject_cast<Observer*> (parent_item->getObject());
             }
             // Check if the parent observer is contained:
@@ -251,6 +274,9 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
     if (!d_observer)
         return QVariant();
 
+    if (!d->tree_model_up_to_date)
+        return QVariant();
+
     // ------------------------------------
     // Handle Name Column
     // ------------------------------------
@@ -271,11 +297,11 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     // Otherwise we must get the name of the object in the parent observer's context:
                     // First get the parent observer:
                     Observer* obs = 0;
-                    if (item->parent()) {
-                        if (item->parent()->itemType() == ObserverTreeItem::CategoryItem) {
-                            obs = item->parent()->containedObserver();
+                    if (item->parentItem()) {
+                        if (item->parentItem()->itemType() == ObserverTreeItem::CategoryItem) {
+                            obs = item->parentItem()->containedObserver();
                         } else {
-                            obs = qobject_cast<Observer*> (item->parent()->getObject());
+                            obs = qobject_cast<Observer*> (item->parentItem()->getObject());
                         }
                     }
 
@@ -283,9 +309,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     bool is_modified = false;
                     if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay && role == Qt::DisplayRole) {
                         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
-                        if (mod_iface) {
+                        if (mod_iface)
                             is_modified = mod_iface->isModified();
-                        }
                     }
 
                     QString return_string;
@@ -298,10 +323,13 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                     if (is_modified)
                         return return_string + "*";
                     else
-                        return return_string;//return return_string;
+                        return return_string;
                 }
-            } else
+            } else {
+                // We might get in here when a view tries to repaint itself (for example when a message box dissapears above it) befire
+                // the tree has been rebuilt properly.
                 return tr("Invalid object");
+            }
         // ------------------------------------
         // Qt::CheckStateRole
         // ------------------------------------
@@ -359,9 +387,13 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
-                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_DECORATION);
-                if (icon_property.isValid()) {
-                    return icon_property.value();
+                // If this is a category item we just use objectName:
+                if (item->itemType() == ObserverTreeItem::CategoryItem)
+                    return d->icon_provider.icon(QFileIconProvider::Folder);
+                else {
+                    SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_DECORATION);
+                    if (icon_property.isValid())
+                        return icon_property.value();
                 }
             }
         // ------------------------------------
@@ -376,9 +408,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_WHATS_THIS);
-                if (icon_property.isValid()) {
-                    return icon_property.value();
-                }
+                if (icon_property.isValid())
+                    return icon_property.value();                        
             }
         // ------------------------------------
         // Qt::SizeHintRole
@@ -392,9 +423,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::StatusTipRole
@@ -408,9 +438,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_STATUSTIP);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::FontRole
@@ -424,9 +453,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FONT);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::TextAlignmentRole
@@ -440,9 +468,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::BackgroundRole
@@ -456,9 +483,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_BACKGROUND);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::ForegroundRole
@@ -472,9 +498,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it has the OBJECT_ICON shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FOREGROUND);
-                if (icon_property.isValid()) {
+                if (icon_property.isValid())
                     return icon_property.value();
-                }
             }
         // ------------------------------------
         // Qt::ToolTipRole
@@ -488,9 +513,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             if (obj) {
                 SharedProperty tooltip = ObjectManager::getSharedProperty(obj,qti_prop_TOOLTIP);
-                if (tooltip.isValid()) {
+                if (tooltip.isValid())
                     return tooltip.value();
-                }
             }
         }
     // ------------------------------------
@@ -553,11 +577,11 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 if (item->itemType() == ObserverTreeItem::CategoryItem) {
                     // Get the parent observer:
                     Observer* obs = 0;
-                    if (item->parent()) {
-                        if (item->parent()->itemType() == ObserverTreeItem::CategoryItem) {
-                            obs = item->parent()->containedObserver();
+                    if (item->parentItem()) {
+                        if (item->parentItem()->itemType() == ObserverTreeItem::CategoryItem) {
+                            obs = item->parentItem()->containedObserver();
                         } else {
-                            obs = qobject_cast<Observer*> (item->parent()->getObject());
+                            obs = qobject_cast<Observer*> (item->parentItem()->getObject());
                         }
                     }
                     // If observer is valid, we get the name, otherwise we just use object name.
@@ -618,8 +642,11 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 }
 
 Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &index) const {
+    if (!d->tree_model_up_to_date)
+        return Qt::NoItemFlags;
+
      if (!index.isValid())
-         return Qt::ItemIsEnabled;
+         return Qt::NoItemFlags;
 
      Qt::ItemFlags item_flags = Qt::ItemIsEnabled;
      ObserverTreeItem* item = getItem(index);
@@ -670,7 +697,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              item_flags &= ~Qt::ItemIsUserCheckable;
          }
      }
-     
+
      // Handle drag & drop hints:
      if (index.column() != columnPosition(ColumnName)) {
          item_flags &= ~Qt::ItemIsDragEnabled;
@@ -682,7 +709,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
              item_flags &= ~Qt::ItemIsDropEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeItem) {
              // For items we need to check the drag drop hint of the parent of the index:
-             Observer* local_selection_parent = parentOfIndex(index);           
+             Observer* local_selection_parent = parentOfIndex(index);
              if (local_selection_parent) {
                  // We need to check a few things things:
                  // 1. Do we the observer hints?
@@ -773,6 +800,9 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orie
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::index(int row, int column, const QModelIndex &parent) const {
+    if (!d->tree_model_up_to_date)
+        return QModelIndex();
+
     if (!hasIndex(row, column, parent) || !d->rootItem)
         return QModelIndex();
 
@@ -790,14 +820,17 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::index(int row, int column, co
         return QModelIndex();
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTreeModel::parent(const QModelIndex &index) const {    
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::parent(const QModelIndex &index) const {
+    if (!d->tree_model_up_to_date)
+        return QModelIndex();
+
     if (!index.isValid())
         return QModelIndex();
 
     ObserverTreeItem *childItem = getItem(index);
     if (!childItem)
         return QModelIndex();
-    ObserverTreeItem *parentItem = childItem->parent();
+    ObserverTreeItem *parentItem = childItem->parentItem();
     if (!parentItem)
         return QModelIndex();
     if (!parentItem->getObject())
@@ -812,6 +845,9 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::parent(const QModelIndex &ind
 bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) {
     Q_UNUSED(data)
     Q_UNUSED(action)
+
+    if (!d->tree_model_up_to_date)
+        return false;
 
     Observer* obs = 0;
     if (row == -1 && column == -1) {
@@ -862,6 +898,9 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
 }
 
 Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () const {
+    if (!d->tree_model_up_to_date)
+        return Qt::IgnoreAction;
+
     Qt::DropActions drop_actions = 0;
     if (!d->read_only)
         drop_actions |= Qt::CopyAction;
@@ -915,6 +954,9 @@ Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () c
 }*/
 
 bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_index, const QVariant &value, int role) {
+    if (!d->tree_model_up_to_date)
+        return false;
+
     if (d->read_only)
         return false;
 
@@ -979,15 +1021,8 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
 }
 
 int Qtilities::CoreGui::ObserverTreeModel::rowCount(const QModelIndex &parent) const {
-    if (d->observer_change_count > 0 || !d->tree_constructed_once) {
-        emit requestUpdate();
-        d->new_selection.clear();
-    }
-
-    if (d->observer_change_count > 0 || !d->tree_constructed_once) {
-        emit requestUpdate();
-        d->new_selection.clear();
-    }
+    if (!d->tree_model_up_to_date)
+        return 0;
 
     ObserverTreeItem *parentItem;
     if (parent.column() > 0)
@@ -1002,6 +1037,9 @@ int Qtilities::CoreGui::ObserverTreeModel::rowCount(const QModelIndex &parent) c
 }
 
 int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent) const {
+    if (!d->tree_model_up_to_date)
+        return columnPosition(AbstractObserverItemModel::ColumnLast) + 1;
+
     if (parent.isValid()) {
          return columnPosition(AbstractObserverItemModel::ColumnLast) + 1;
      } else
@@ -1009,13 +1047,15 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<QObject> > new_selection) {
-    ++d->observer_change_count;
-    d->new_selection = new_selection;
-    #ifdef QTILITIES_BENCHMARKING
-    qDebug() << "Recording observer change on model: " << objectName() << ". Current change count: " << d->observer_change_count;
-    #endif
-    // TODO: Maybe only use queued changes when not-having a proxy filter?
-    rebuildTreeStructure();
+    if (d->tree_model_up_to_date) {
+        d->new_selection = new_selection;
+        //qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
+        rebuildTreeStructure();
+    } else {
+        d->tree_rebuild_queued = true;
+        d->queued_selection = new_selection;
+        //qDebug() << QString("Received tree rebuild request in " + d_observer->observerName() + "'s view. The current tree is being rebuilt, thus queueing this change.");
+    }
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
@@ -1023,7 +1063,8 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     qDebug() << "Clearing tree structure on view: " << objectName();
     #endif
 
-    reset();
+    beginResetModel();
+    d->tree_model_up_to_date = false;
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString("Child Count"));
@@ -1032,30 +1073,25 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     columns.push_back(QString("Object Tree"));
     d->rootItem = new ObserverTreeItem(0,0,columns);
     d->rootItem->setObjectName("Root Item");
-    //printStructure();
-    // Maybe layoutChanged() here is good enough?
-    layoutAboutToBeChanged();
-    layoutChanged();
+
+    d->tree_model_up_to_date = true;
+    endResetModel();
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(bool only_if_changes_pending) {
-    if (only_if_changes_pending) {
-        if (d->observer_change_count == 0)
-            return;
-    }
-
+void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     #ifdef QTILITIES_BENCHMARKING
-    time_t start,end;
-    time(&start);
-    qDebug() << "Rebuilding tree structure on view: " << objectName() << ". " << d->observer_change_count << " change(s) were pending.";
+    qDebug() << "Rebuilding tree structure on view: " << objectName();
     #endif
 
-    d->observer_change_count = 0;
-    d->tree_constructed_once = true;
+    // The view will call setExpandedItems() in its slot.
+    emit treeModelBuildAboutToStart();
 
     // Rebuild the tree structure:
-    reset();
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    beginResetModel();
+    //reset();
+    d->tree_model_up_to_date = false;
+
+    emit treeModelBuildStarted(d->tree_builder.taskID());
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString(tr("Child Count")));
@@ -1066,25 +1102,78 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure(bool only_if_ch
     d->rootItem->setObjectName("Root Item");
     ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem);
     d->rootItem->appendChild(top_level_observer_item);
-    setupChildData(top_level_observer_item);
-    layoutAboutToBeChanged();
-    layoutChanged();
 
-    #ifdef QTILITIES_BENCHMARKING
-    time(&end);
-    double diff = difftime(end,start);
-    LOG_WARNING("Tree model (" + objectName() + ") took " + QString::number(diff) + " seconds to rebuild itself.");
-    #endif
+    d->tree_rebuild_queued = false;
 
-    // Handle item selection after tree has been rebuilt:
-    if (d->new_selection.count() > 0) {
-        emit selectObjects(d->new_selection);
-    } else if (d->selected_objects.count() > 0)
-        emit selectObjects(d->selected_objects);
-    else
-        emit selectObjects(QList<QPointer<QObject> >());
+    if (d->tree_building_threading_enabled) {
+        d->tree_builder.setRootItem(top_level_observer_item);
+        d->tree_builder.setUseObserverHints(model->use_observer_hints);
+        d->tree_builder.setActiveHints(activeHints());
+        d->tree_builder.setThreadingEnabled(true);
 
-    QApplication::restoreOverrideCursor();
+        top_level_observer_item->setParent(0);
+        top_level_observer_item->moveToThread(&d->tree_builder_thread);
+        d->tree_builder.moveToThread(&d->tree_builder_thread);
+        d->tree_builder.setOriginThread(thread());
+
+        connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
+
+        d->tree_builder_thread.start();
+        QMetaObject::invokeMethod(&d->tree_builder, "startBuild", Qt::QueuedConnection);
+    } else {
+        d->tree_rebuild_queued = false;
+        //top_level_observer_item->moveToThread(&d->tree_builder_thread);
+        d->tree_builder.setRootItem(top_level_observer_item);
+        d->tree_builder.setUseObserverHints(model->use_observer_hints);
+        d->tree_builder.setActiveHints(activeHints());
+        connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)),Qt::UniqueConnection);
+        d->tree_builder.startBuild();
+    }
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {
+    //qDebug() << "Received prebuilt model from tree builder on view for observer: " << d_observer->observerName();
+
+    item->setParent(d->rootItem);
+
+    if (d->tree_building_threading_enabled) {
+        d->tree_builder_thread.quit();
+        disconnect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),this,SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
+    }
+
+    QList<QPointer<QObject> > new_selection;
+    if (d->tree_rebuild_queued) {
+        new_selection = d->queued_selection;
+    } else {
+        new_selection = d->new_selection;
+    }
+
+    //emit layoutAboutToBeChanged();
+    d->tree_model_up_to_date = true;
+
+    //emit layoutChanged();
+    endResetModel();
+    emit treeModelBuildEnded();
+
+    if (d->tree_rebuild_queued) {
+        rebuildTreeStructure();
+    } else {
+        // Handle item selection after tree has been rebuilt:
+        if (d->new_selection.count() > 0) {
+            emit selectObjects(new_selection);
+        } else if (d->selected_objects.count() > 0)
+            emit selectObjects(d->selected_objects);
+        else
+            emit selectObjects(QList<QPointer<QObject> >());
+
+        // Restore expanded items:
+        QModelIndexList complete_match_list;
+        foreach (QString item, d->expanded_items) {
+            complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item),1,Qt::MatchRecursive));
+            complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item + "*"),1,Qt::MatchRecursive));
+        }
+        emit expandItemsRequest(complete_match_list);
+    }
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
@@ -1125,185 +1214,6 @@ QObject* Qtilities::CoreGui::ObserverTreeModel::getObject(const QModelIndex &ind
         return 0;
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::setupChildData(ObserverTreeItem* item) {
-    // In here we build the complete structure of all the children below item.
-    Observer* observer = qobject_cast<Observer*> (item->getObject());
-    ObserverTreeItem* new_item;
-
-    if (!observer && item->getObject()) {
-        // Handle cases where a non-observer based child is the parent of an observer.
-        // Observer containment tree building approach.
-        foreach (QObject* child, item->getObject()->children()) {
-            Observer* child_observer = qobject_cast<Observer*> (child);
-            if (child_observer)
-                observer = child_observer;
-        }
-    }
-
-    if (!observer && item->getObject()) {
-        // Handle cases where the item is a category item
-        if (item->itemType() == ObserverTreeItem::CategoryItem) {
-            // Get the observer from the parent of item
-            if (item->parent()) {
-                Observer* parent_observer = item->containedObserver();
-                if (parent_observer) {
-                    // Now add all items belonging to this category
-                    for (int i = 0; i < parent_observer->subjectReferencesByCategory(item->category()).count(); i++) {
-                        // Storing all information in the data vector here can improve performance
-                        QObject* object = parent_observer->subjectReferencesByCategory(item->category()).at(i);
-                        Observer* obs = qobject_cast<Observer*> (object);
-                        QVector<QVariant> column_data;
-                        column_data << QVariant(parent_observer->subjectNamesByCategory(item->category()).at(i));
-                        if (obs)
-                            new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeNode);
-                        else
-                            new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeItem);
-                        item->appendChild(new_item);
-                        setupChildData(new_item);
-                    }
-                }
-            }
-        }
-    }
-
-    if (observer) {
-        // If this observer is locked we don't show its children:
-        if (observer->accessMode() != Observer::LockedAccess) {
-            // Check the HierarchicalDisplay hint of the observer:
-            // Remember this isan recursive function, we can't use activeHints() directly since thats linked to the selection parent.
-            bool use_categorized;
-            ObserverHints* hints_to_use = 0;
-            if (model->use_observer_hints) {
-                if (observer->displayHints()) {
-                    use_categorized = (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy);
-                    hints_to_use = observer->displayHints();
-                } else
-                    use_categorized = false;
-            } else {
-                use_categorized = (activeHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy);
-                hints_to_use = activeHints();
-            }
-
-            if (use_categorized) {
-                // Create items for each category:
-                foreach (QtilitiesCategory category, observer->subjectCategories()) {
-                    // Check the category against the displayed category list:
-                    bool valid_category = true;
-                    if (hints_to_use) {
-                        if (hints_to_use->categoryFilterEnabled()) {
-                            if (hints_to_use->hasInversedCategoryDisplay()) {
-                                if (!hints_to_use->displayedCategories().contains(category))
-                                    valid_category = true;
-                                else
-                                    valid_category = false;
-                            } else {
-                                if (hints_to_use->displayedCategories().contains(category))
-                                    valid_category = true;
-                                else
-                                    valid_category = false;
-                            }
-                        }
-                    }
-
-                    // Only add valid categories:
-                    if (valid_category) {
-                        // Ok here we need to create items for each category level and add the items underneath it.
-                        int level_counter = 0;
-                        QList<ObserverTreeItem*> tree_item_list;
-                        while (level_counter < category.categoryDepth()) {
-                            QStringList category_levels = category.toStringList(level_counter+1);
-
-                            // Get the correct parent:
-                            ObserverTreeItem* correct_parent;
-                            if (tree_item_list.count() == 0)
-                                correct_parent = item;
-                            else
-                                correct_parent = tree_item_list.last();
-
-                            // Check if the parent item already has a category for this level:
-                            ObserverTreeItem* existing_item = correct_parent->childWithName(category_levels.last());
-                            if (!existing_item) {
-                                // Create a category for the first level and add all items under this category to the tree:
-                                QVector<QVariant> category_columns;
-                                category_columns << category_levels.last();
-                                QObject* category_item = new QObject();
-                                // Give the category a folder icon:
-                                SharedProperty icon_property(qti_prop_DECORATION,QIcon(qti_icon_FOLDER_16X16));
-                                ObjectManager::setSharedProperty(category_item,icon_property);
-                                // Check the access mode of this category and add it to the category object:
-                                QtilitiesCategory shortened_category(category_levels);
-                                Observer::AccessMode category_access_mode = observer->accessMode(shortened_category);
-                                if (category_access_mode != Observer::InvalidAccess) {
-                                    SharedProperty access_mode_property(qti_prop_ACCESS_MODE,(int) observer->accessMode(shortened_category));
-                                    ObjectManager::setSharedProperty(category_item,access_mode_property);
-                                }
-                                category_item->setObjectName(category_levels.last());
-
-                                // Create new item:
-                                new_item = new ObserverTreeItem(category_item,correct_parent,category_columns,ObserverTreeItem::CategoryItem);
-                                new_item->setContainedObserver(observer);
-                                new_item->setCategory(category_levels);
-
-                                // Append new item to correct parent item:
-                                if (tree_item_list.count() == 0)
-                                    item->appendChild(new_item);
-                                else
-                                    tree_item_list.last()->appendChild(new_item);
-                                tree_item_list.push_back(new_item);
-
-                                // If this item has locked access, we don't dig into any items underneath it:
-                                if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
-                                    setupChildData(new_item);
-                                } else {
-                                    break;
-                                }
-                            } else {
-                                tree_item_list.push_back(existing_item);
-                            }
-
-                            // Increment the level counter:
-                            ++level_counter;
-                        }
-                    }
-                }
-
-                // Here we need to add all items which do not belong to a specific category:
-                // Get the list of uncategorized items from the observer
-                QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
-                QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
-                for (int i = 0; i < uncat_list.count(); i++) {
-                    Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
-                    QVector<QVariant> column_data;
-                    column_data << QVariant(uncat_names.at(i));
-                    if (obs) {
-                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);
-                        item->appendChild(new_item);
-                        // If this item has locked access, we don't dig into any items underneath it:
-                        if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
-                            setupChildData(new_item);
-                    } else {
-                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
-                        item->appendChild(new_item);
-                    }
-                }
-            } else {
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    // Storing all information in the data vector here can improve performance:
-                    Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
-                    QVector<QVariant> column_data;
-                    column_data << QVariant(observer->subjectNames().at(i));
-                    if (obs)
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
-                    else
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
-                    item->appendChild(new_item);
-                    setupChildData(new_item);
-                }
-            }
-        }
-    }
-}
-
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::selectionParent() const {
     return d->selection_parent;
 }
@@ -1315,7 +1225,7 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(
         return 0;
 
     if (item->itemType() != ObserverTreeItem::CategoryItem) {
-        ObserverTreeItem* item_parent = item->parent();
+        ObserverTreeItem* item_parent = item->parentItem();
         if (!item_parent)
             return 0;
         if (item_parent->getObject())
@@ -1380,6 +1290,14 @@ bool Qtilities::CoreGui::ObserverTreeModel::readOnly() const {
     return d->read_only;
 }
 
+QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getPersistentIndexList() const {
+    return persistentIndexList();
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {
+    d->expanded_items = expanded_items;
+}
+
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj) const {
     // Loop through all items indexes in the tree and check the object of each ObserverTreeItem at each index.
     QModelIndex root = index(0,0);
@@ -1407,6 +1325,27 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex&
         }
     }
     return QModelIndex();
+}
+
+QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTreeItem* item) const {
+    static QModelIndexList indexes;
+
+    if (!item) {
+        indexes.clear();
+        item = getItem(index(0,0));
+    }
+
+    if (!item)
+        return indexes;
+
+    // Add root and call getAllIndexes on all its children.
+    QModelIndex index = findObject(item->getObject());
+    indexes << index;
+    for (int i = 0; i < item->childCount(); i++) {
+        getAllIndexes(item->child(i));
+    }
+
+    return indexes;
 }
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::findObject(ObserverTreeItem* item, QObject* obj) const {
@@ -1443,21 +1382,7 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::get
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
-    reset();
     clearTreeStructure();
     d->selection_parent = 0;
-    d->observer_change_count = 0;
-    d->tree_constructed_once = false;
 }
 
-void Qtilities::CoreGui::ObserverTreeModel::printStructure(ObserverTreeItem* item, int level) {
-    if (level == 0) {
-        item = d->rootItem;
-        LOG_TRACE(QString("Tree Debug (%1): Object = %2, Parent = None, Child Count = %3").arg(level).arg(item->objectName()).arg(item->childCount()));
-    } else
-        LOG_TRACE(QString("Tree Debug (%1): Object = %2, Parent = %3, Child Count = %4").arg(level).arg(item->objectName()).arg(item->parent()->objectName()).arg(item->childCount()));
-
-    for (int i = 0; i < item->childCount(); i++) {
-        printStructure(item->child(i),level+1);
-    }
-}

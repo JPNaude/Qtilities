@@ -69,7 +69,7 @@ namespace Qtilities {
               \param is_exclusive Indicates if this wrapper is part of an exclusive side widget viewer.
               \param parent The parent of this widget.
               */
-            DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, QString current_text, bool is_exclusive, QWidget* parent = 0);
+            DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, const QString& current_text, const bool is_exclusive, QWidget* parent = 0);
             ~DynamicSideWidgetWrapper();
 
             //! Function which returns the current text in the combo box.

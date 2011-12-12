@@ -166,8 +166,10 @@ void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
 
 void Qtilities::Testing::TestFrontend::on_btnShowLog_clicked()
 {
-    if (!d->log_widget)
-         d->log_widget = LoggerGui::createLogWidget("Test Log");
+    if (!d->log_widget) {
+        QString engine_name = "Test Log";
+        d->log_widget = LoggerGui::createLogWidget(&engine_name);
+    }
 
     d->log_widget->show();
 }

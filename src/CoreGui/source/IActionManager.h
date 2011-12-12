@@ -138,6 +138,22 @@ namespace Qtilities {
                 //! Restores the default shortcut configuration.
                 virtual void restoreDefaultShortcuts() = 0;
                 //! Exports the current shortcut configuraiton.
+                /*!
+                  Shorcut mappings are saved automatically when the user clicks apply on Qtilities::CoreGui::CommandEditor. Apart from that you need to save and load your settings manually as shown below:
+
+\code
+// Load the previous session's keyboard mapping file.
+QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
+ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
+
+int result = application.exec();
+
+// Save the current keyboard mapping for the next session.
+ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
+
+return result;
+\endcode
+                  */
                 virtual bool saveShortcutMapping(const QString& file_name, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) = 0;
                 //! Imports a previously exported shortcut configuration.
                 virtual bool loadShortcutMapping(const QString& file_name) = 0;

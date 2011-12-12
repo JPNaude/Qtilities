@@ -401,6 +401,26 @@ tree_widget->show();
               */
             IExportable::Result loadFromFile(const QString& file_name, QString* errorMsg = 0, bool clear_first = true);
 
+//            //! Saves the tree under this tree node to an XML file.
+//            /*!
+//              \param file_name The file name from to which the file must be saved.
+//              \param errorMessage If this function returns IExportable::Failed the reason why it failed is available through this parameter if a valid QString reference is provided.
+//              \returns Result of the operation.
+
+//              \sa loadFromString()
+//              */
+//            IExportable::Result saveToString(QString* target_string, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
+//            //! Loads the tree under this tree node from an XML file.
+//            /*!
+//              \param file_name The file name from which the tree must be loaded.
+//              \param clear_first When true, all items under this tree is deleted first. When false, the items in the input file will be added to the current set of items under this tree node.
+//              \param errorMessage If this function returns IExportable::Failed the reason why it failed is available through this parameter if a valid QString reference is provided.
+//              \returns Result of the operation.
+
+//              \sa saveToString()
+//              */
+//            IExportable::Result loadFromString(QString* target_string, QString* errorMsg = 0, bool clear_first = true);
+
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------

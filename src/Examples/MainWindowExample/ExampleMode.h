@@ -80,7 +80,7 @@ namespace Qtilities {
 
             /*!
             \class ExampleMode
-            \brief An example mode widget which demonstrates the dynamic side widget architecture..
+            \brief An example mode widget which demonstrates the dynamic side widget architecture.
               */
             class ExampleMode : public QMainWindow, public IMode {
                 Q_OBJECT

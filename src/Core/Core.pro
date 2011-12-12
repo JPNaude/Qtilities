@@ -64,7 +64,6 @@ HEADERS += source/QtilitiesCore_global.h \
     source/QtilitiesCategory.h \
     source/IExportableFormatting.h \
     ../Common/Qtilities.h \
-    source/FileUtils.h \
     source/QtilitiesFileInfo.h \
     source/ObserverDotWriter.h \
     source/VersionInformation.h \
@@ -73,7 +72,13 @@ HEADERS += source/QtilitiesCore_global.h \
     source/IIterator.h \
     source/SubjectIterator.h \
     source/TreeIterator.h \
-    source/IExportableObserver.h
+    source/IExportableObserver.h \
+    source/ITask.h \
+    source/Task.h \
+    source/TaskManager.h \
+    source/ITaskContainer.h \
+    source/FileUtils.h \
+    source/QtilitiesProcess.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -89,10 +94,22 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/SubjectFilterTemplate.cpp \
     source/QtilitiesCategory.cpp \
     source/PointerList.cpp \
-    source/FileUtils.cpp \
     source/QtilitiesFileInfo.cpp \
     source/ObserverDotWriter.cpp \
     source/VersionInformation.cpp \
     source/InstanceFactoryInfo.cpp \
     source/QtilitiesProperty.cpp \
-    source/IExportable.cpp
+    source/IExportable.cpp \
+    source/TaskManager.cpp \
+    source/ITaskContainer.cpp \
+    source/Task.cpp \
+    source/FileUtils.cpp \
+    source/QtilitiesProcess.cpp
+
+
+
+
+
+
+
+

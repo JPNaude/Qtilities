@@ -38,6 +38,7 @@
 #include "ObjectManager.h"
 #include "ContextManager.h"
 #include "VersionInformation.h"
+#include "TaskManager.h"
 
 #include <Logger>
 
@@ -62,7 +63,7 @@ namespace Qtilities {
 
           \note In GUI applications, the QtilitiesCoreApplication instance will not be created. It is still possible to access
           the objectManager(), contextManager() and qtilitiesVersionString() functions. For the rest of the functionality, like the
-          settings update request for example, you should use Qtilities::CoreGui::QtilitiesApplication.
+          settings update requests for example, you should use Qtilities::CoreGui::QtilitiesApplication.
 
           \sa Qtilities::CoreGui::QtilitiesApplication
          */
@@ -79,6 +80,8 @@ namespace Qtilities {
             static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
             static IContextManager* contextManager();
+            //! Returns a reference to the task manager.
+            static TaskManager* taskManager();
 
             //! Returns a reference to the QtilitiesCoreApplication instance.
             /*!
@@ -116,8 +119,8 @@ namespace Qtilities {
 
             //! Create a new settings update request.
             /*!
-            This function allows settings update requests to be sent anywhere in an application. This
-            allows objects which depend on the settings to update themselves when the settings change.
+              This function allows settings update requests to be sent anywhere in an application. This
+              allows objects which depend on the settings to update themselves when the settings change.
 
               This function will emit settingsUpdateRequest() with the given \p request_id.
               */
@@ -125,18 +128,73 @@ namespace Qtilities {
 
             //! Returns a session path for your application where you can store session related information (for example shortcut configurations etc.)
             /*!
-              By default this is QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION.
+              In non-GUI applications this path is QCoreApplication::applicationDirPath() + Qtilities::Logging::Constants::qti_def_PATH_SESSION by default. However in GUI
+              applications the path is different as specified by Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath().
 
-              \sa setApplicationSessionPath()
+              \sa setApplicationSessionPath(), Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath()
               */
             static inline QString applicationSessionPath();
+            //! Sets the session path to be used in your application.
+            /*!
+              \note This function will automatically update the session path used by the Logger as well by calling Qtilities::Logging::Logger::setLoggerSessionConfigPath().
 
-            //! Sets the session path to be used in your application:
+              \sa applicationSessionPath(), Qtilities::CoreGui::QtilitiesApplication::setApplicationSessionPath()
+              */
             static void setApplicationSessionPath(const QString& path);
+
+            //! Gets the path of an ini file which is used by all %Qtilities classes to save information between different sessions.
+            /*!
+              The path used points to a file called \p qtilities.ini in the path returned by applicationSessionPath().
+
+              Everywhere in %Qtilities this path is used as follows to save settings.
+
+\code
+if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    return;
+
+QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
+// Some settings related code...
+\endcode
+
+              By using this ini file, the %Qtilities settings are kept seperate from the rest of the settings used by your application. If you don't want
+              %Qtilities to save any information during runtime you can disable is using setQtilitiesSettingsEnabled().
+
+              \sa setQtilitiesSettingsEnabled(), qtilitiesSettingsPathEnabled()
+              */
+            static QString qtilitiesSettingsPath();
+            //! Enables/disables the saving of settings by %Qtilities classes.
+            /*!
+              By disabling the saving of settings by %Qtilities classes, you can make sure %Qtilities does not save any settings information anywhere on the host machine where a
+              %Qtilities application is run. When saving is disabled, all settings related functionality in %Qtilities will operate on default settings.
+
+              Saving is enabled by default.
+
+              \note This function will automatically enables/disables the saving of settings on the Logger as well by calling Qtilities::Logging::Logger::setLoggerSettingsEnabled().
+
+              \sa qtilitiesSettingsPath(), qtilitiesSettingsPathEnabled()
+              */
+            static void setQtilitiesSettingsEnabled(bool is_enabled);
+            //! Gets if the saving of settings by %Qtilities classes is enabled.
+            /*!
+              Saving is enabled by default.
+
+              \sa setQtilitiesSettingsEnabled()
+              */
+            static bool qtilitiesSettingsPathEnabled();
+
+            //! Sets if the application is busy, thus it cannot be closed.
+            /*!
+              This function uses a stacked approach, thus your setApplicationBusy(false) calls must match the number of setApplicationBusy(true) calls.
+
+              For more information on this type of stacked approach, see Qtilities::Core::Observer::startProcessingCycle().
+              */
+            static void setApplicationBusy(bool is_busy);
+            //! Gets if the application is busy, thus it cannot be closed.
+            static bool applicationBusy();
 
         signals:
             //! Signal which broadcasts that settings identified by the \p request_id changed and requires updating.
-            void settingsUpdateRequest(const QString& request_id);
+            void settingsUpdateRequest(const QString& request_id);   
 
         private:
             Q_DISABLE_COPY(QtilitiesCoreApplication)
@@ -149,5 +207,6 @@ namespace Qtilities {
 #define QtilitiesApp ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())
 #define OBJECT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->objectManager()
 #define CONTEXT_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->contextManager()
+#define TASK_MANAGER ((Qtilities::Core::QtilitiesCoreApplication *) QCoreApplication::instance())->taskManager()
 
 #endif // QTILITIES_CORE_H

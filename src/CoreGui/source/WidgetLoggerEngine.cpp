@@ -119,6 +119,11 @@ void Qtilities::CoreGui::WidgetLoggerEngine::logMessage(const QString& message) 
         d->widget->appendMessage(message);
 }
 
+void Qtilities::CoreGui::WidgetLoggerEngine::clearLog() {
+    if (d->widget)
+        d->widget->plainTextEdit()->clear();
+}
+
 QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngine::plainTextEdit() const {
     return d->widget->plainTextEdit();
 }

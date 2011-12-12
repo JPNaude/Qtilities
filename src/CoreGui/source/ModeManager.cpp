@@ -389,9 +389,11 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     if (d->orientation == Qt::Horizontal) {
         d->mode_list_widget->setMinimumWidth(d->mode_list_widget->sizeHint().width());
         d->mode_list_widget->setMaximumWidth(d->mode_list_widget->sizeHint().width());
+        emit modeListItemSizesChanged();
     } else {
         d->mode_list_widget->setMinimumHeight(d->mode_list_widget->sizeHint().height());
         d->mode_list_widget->setMaximumHeight(d->mode_list_widget->sizeHint().height());
+        emit modeListItemSizesChanged();
     }
 
     // Set size hint for all items:

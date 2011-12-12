@@ -38,7 +38,6 @@
 #include <QTreeView>
 #include <QFileDialog>
 #include <QDir>
-#include <QSettings>
 
 namespace Qtilities {
     namespace CoreGui {
@@ -83,10 +82,29 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
     connect(d->model,SIGNAL(rootPathChanged(QString)),SLOT(handleRootPathChanged(QString)));
     connect(ui->btnBrowse,SIGNAL(clicked()),SLOT(handleBtnBrowse()));
     connect(ui->treeView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClicked(QModelIndex)));
+    connect(ui->treeView,SIGNAL(clicked(QModelIndex)),SLOT(handleClicked(QModelIndex)));
 
     // Handle drag drop events manually:
     ui->treeView->viewport()->installEventFilter(this);
     setAcceptDrops(true);
+}
+
+Qtilities::CoreGui::SideWidgetFileSystem::~SideWidgetFileSystem() {
+    delete d;
+}
+
+void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
+    ui->treeView->setModel(0);
+    delete d->model;
+
+    d->model = new QFileSystemModel;
+
+    // Set up drag ability:
+    d->model->setSupportedDragActions(Qt::CopyAction);
+    d->model->setRootPath(QApplication::applicationDirPath());
+    ui->treeView->setModel(d->model);
+    ui->txtCurrentPath->setText(d->model->rootPath());
+    ui->treeView->setEnabled(false);
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::dragEnterEvent(QDragEnterEvent *event) {
@@ -111,7 +129,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
         QFileInfo file_info(source_path);
         if (!file_info.isDir()) {
             // Create the destination path:
-            QString dest_path = path();
+            QString dest_path = ui->txtCurrentPath->text();
             if (!dest_path.endsWith("/"))
                 dest_path.append("/");
             dest_path.append(file_info.fileName());
@@ -136,7 +154,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleBtnBrowse() {
         QDir dir(path);
         if (dir.exists()) {
             ui->treeView->setRootIndex(d->model->index(dir.path()));
-            ui->txtCurrentPath->setText(dir.path());
+            ui->txtCurrentPath->setText(d->model->rootPath());
 
             if (dir.isRoot())
                 ui->btnCdUp->setEnabled(false);
@@ -160,9 +178,24 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleDoubleClicked(const QModelI
     emit requestEditor(file_path);
 }
 
+void Qtilities::CoreGui::SideWidgetFileSystem::handleClicked(const QModelIndex& index) {
+    if (!index.isValid())
+        return;
+
+    if (!d->model)
+        return;
+
+    if (d->model->isDir(index)) {
+        QString dir_path = d->model->filePath(index);
+        ui->txtCurrentPath->setText(dir_path);
+        return;
+    }
+}
+
 void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
     ui->treeView->setRootIndex(d->model->index(path));
     ui->txtCurrentPath->setText(path);
+    ui->treeView->setEnabled(true);
 }
 
 QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
@@ -227,4 +260,22 @@ bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEve
     }
 
     return false;
+}
+
+void Qtilities::CoreGui::SideWidgetFileSystem::on_treeView_doubleClicked(QModelIndex index) {
+    if (!index.isValid())
+        return;
+
+    if (!d->model)
+        return;
+
+    if (!d->model->isDir(index)) {
+        QString file_path = d->model->filePath(index);
+        QDesktopServices explorer_service;
+        if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(file_path)))) {
+            LOG_ERROR(QString("Failed to open file: %1").arg(file_path));
+        }
+        else
+            LOG_INFO(QString("Successfully opened file: %1").arg(file_path));
+    }
 }

@@ -123,20 +123,11 @@ if (QtilitiesApplication::configWidget()) {
 
         \section configuration_widget_storage_layout Configuration settings storage in Qtilities
 
-        Throughout %Qtilities the modules store application settings using \p QSettings. For this method to work properly, it is important to construct your \p QApplication object properly as shown below:
-\code
-int main(int argc, char *argv[])
-{
-    QtilitiesApplication a(argc, argv);
-    QtilitiesApplication::setOrganizationName("Jaco Naude");
-    QtilitiesApplication::setOrganizationDomain("Qtilities");
-    QtilitiesApplication::setApplicationName("Object Management Example");
-    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
-\endcode
+        Throughout %Qtilities classes store settings using \p QSettings using the QSettings::IniFormat.
 
         The construction of the QSettings object is done as follows everywhere that settings are saved. This example saves settings of a specific ObserverWidget:
 \code
-QSettings settings;
+QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
 settings.beginGroup("Qtilities");
 settings.beginGroup("GUI");
 settings.beginGroup(d->global_meta_type);
@@ -146,7 +137,13 @@ settings.endGroup();
 settings.endGroup();
 \endcode
 
-        Thus, the settings are saved throughout the %Qtilities modules under the default place used by QSettings, under a group called %Qtilities. For more information see the QSettings documentation.
+        An important difference is that the Logger modulde does not depend on the Core module, thus it does not have access to QtilitiesCoreApplication. However the logger stores the session path
+        it uses as well (see Qtilities::Logging::Logger::setLoggerSessionConfigPath()) and it will save its settings under that path in a file called \p qtilities.ini which by default points to the
+        same files as the rest of Qtilities. If you however changes the session path used by your application through QtilitiesCoreApplication::setApplicationSessionPath(), the Logger will automatically
+        be updated to use the same settings path, thus your settings will all be saved in the same ini file accross all %Qtilities modules. The same counts for disabling settings using
+        QtilitiesCoreApplication::setQtilitiesSettingsEnabled().
+
+        For more information see the Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPath() documentation.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ConfigurationWidget : public QWidget {
             Q_OBJECT

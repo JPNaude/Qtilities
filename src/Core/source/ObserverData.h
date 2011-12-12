@@ -85,6 +85,7 @@ namespace Qtilities {
                 access_mode(0),
                 display_hints(0),
                 factory_data(InstanceFactoryInfo(qti_def_FACTORY_QTILITIES,qti_def_FACTORY_TAG_OBSERVER,QString())),
+                start_processing_cycle_count(0),
                 process_cycle_active(false),
                 is_modified(false),
                 observer(obs),
@@ -107,6 +108,7 @@ namespace Qtilities {
                 categories(other.categories),
                 display_hints(other.display_hints),
                 factory_data(other.factory_data),
+                start_processing_cycle_count(other.start_processing_cycle_count),
                 process_cycle_active(other.process_cycle_active),
                 is_modified(other.is_modified),
                 observer(other.observer),
@@ -165,35 +167,36 @@ namespace Qtilities {
             // All Data Stored For An Observer
             // --------------------------------
         public:
-            PointerList subject_list;
-            QList<AbstractSubjectFilter*> subject_filters;
-            int subject_limit;
-            int subject_id_counter;
-            int observer_id;
-            QString observer_description;
-            QMutex observer_mutex;
-            bool filter_subject_events_enabled;
-            bool deliver_qtilities_property_changed_events;
-            int access_mode;
-            int access_mode_scope;
+            PointerList                         subject_list;
+            QList<AbstractSubjectFilter*>       subject_filters;
+            int                                 subject_limit;
+            int                                 subject_id_counter;
+            int                                 observer_id;
+            QString                             observer_description;
+            QMutex                              observer_mutex;
+            bool                                filter_subject_events_enabled;
+            bool                                deliver_qtilities_property_changed_events;
+            int                                 access_mode;
+            int                                 access_mode_scope;
             // This list does NOT store all categories in the observer context,
             // only categories for which access modes were defined.
-            QList<QtilitiesCategory> categories;
-            ObserverHints* display_hints;
-            InstanceFactoryInfo factory_data;
-            bool process_cycle_active;
-            bool is_modified;
+            QList<QtilitiesCategory>            categories;
+            ObserverHints*                      display_hints;
+            InstanceFactoryInfo                 factory_data;
+            int                                 start_processing_cycle_count;
+            bool                                process_cycle_active;
+            bool                                is_modified;
             //! Keeps track of its parent observer:
-            Observer* observer;
-            int object_deletion_policy;
+            Observer*                           observer;
+            int                                 object_deletion_policy;
             //! Used during processing cycles to store the number of subjects before the processing cycle started. This allows correct emission of numberOfSubjectsChanged() when the processing cycle ends.
             /*!
               \note When setting number_of_subjects_start_of_proc_cycle to -1, the numberOfSubjectsChanged() signal will not be emitted in endProcessingCycle(). This
               is used in the ~Observer destructor. We don't want to emit that the number of subjects changed in the destructor because all subjects will be removed.
               */
-            int number_of_subjects_start_of_proc_cycle;
+            int                                 number_of_subjects_start_of_proc_cycle;
             //! Used internally in Observer to optimize the number of times modification state changes are broadcast.
-            bool broadcast_modification_state_changes;
+            bool                                broadcast_modification_state_changes;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

@@ -45,7 +45,7 @@ Qtilities::Examples::Clipboard::ObserverWidgetConfig::ObserverWidgetConfig(QWidg
     connect(ui->comboWidgetMode2,SIGNAL(currentIndexChanged(QString)),SLOT(handle_comboWidgetMode2(QString)));
 
     // We read the settings of each widget:
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");
@@ -106,8 +106,11 @@ Qtilities::Core::QtilitiesCategory Qtilities::Examples::Clipboard::ObserverWidge
 }
 
 void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
+    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+        return;
+
     // Write the settings:
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup("ObserverWidget0");

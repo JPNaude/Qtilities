@@ -82,6 +82,8 @@ namespace Qtilities {
               \sa setIFaceMap();
               */
             bool isExclusive() const;
+            //! Returns a list of all widget names available in this widget.
+            QStringList widgetNames() const;
 
         public slots:
             //! Handles the deletion of side widgets.

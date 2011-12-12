@@ -128,17 +128,19 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
                 HideButtonDown = 8,     /*!< The button to hide the search box will be visible in the widget as an up arrow. */
                 AllButtons = NextButtons | PreviousButtons | HideButtonDown
             };
-            Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag);
-            Q_FLAGS(ButtonFlags);
+            Q_DECLARE_FLAGS(ButtonFlags, ButtonFlag)
+            Q_FLAGS(ButtonFlags)
             //! An enumeration which indicates which search options must be present in the widget.
             enum SearchOption {
                 CaseSensitive = 1,      /*!< Indicates that an action to toggle case sensitivity must be present. */
                 WholeWordsOnly = 2,     /*!< Indicates that an action to toggle whole words only must be present. */
                 RegEx = 4,              /*!< Indicates that an action to toggle regular expressions must be present. */
+                RegFixedString = 8,     /*!< Indicates that an action to toggle regular expressions must be present. */
+                RegWildcard = 16,       /*!< Indicates that an action to toggle regular expressions must be present. */
                 AllSearchOptions = CaseSensitive | WholeWordsOnly | RegEx
             };
-            Q_DECLARE_FLAGS(SearchOptions, SearchOption);
-            Q_FLAGS(SearchOptions);
+            Q_DECLARE_FLAGS(SearchOptions, SearchOption)
+            Q_FLAGS(SearchOptions)
 
             //! Constructs a search box widget using the paramaters to customize the look of the widget.
             SearchBoxWidget(SearchOptions search_options = AllSearchOptions, WidgetMode mode = SearchOnly, ButtonFlags buttons = AllButtons, QWidget *parent = 0);
@@ -153,13 +155,13 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             //! Indicates if the search string must match only whole words.
             bool wholeWordsOnly() const;
             //! Indicates if the search string must be interpreted as a regular expression.
-            bool regExpression() const;
+            QRegExp::PatternSyntax patternSyntax() const;
+            //! Sets the regular expression search option.
+            void setPatternSyntax(QRegExp::PatternSyntax pattern_syntax);
             //! Sets the case sensitivity search option.
             void setCaseSensitive(bool toggle);
             //! Sets the whole words only search option.
             void setWholeWordsOnly(bool toggle);
-            //! Sets the regular expression search option.
-            void setRegExpression(bool toggle);
             //! Sets focus to the search string text editor.
             void setEditorFocus();
             //! Sets the text editor on which this widget must operate.
@@ -223,6 +225,8 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             void handleReplaceStringChanged(const QString& string);
             void handleOptionsChanged();
             void handleClose();
+
+        public slots:
             void handleFindNext();
             void handleFindPrevious();
             void handleReplaceNext();

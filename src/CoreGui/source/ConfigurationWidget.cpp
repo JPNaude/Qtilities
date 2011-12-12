@@ -157,7 +157,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                         max_height = config_page->configPageWidget()->sizeHint().height();
                 }
             } else {
-                LOG_DEBUG("Found configuration page without a valid configuration widget. This page will not be shown.");
+                LOG_DEBUG("Found configuration page \"" + config_page->configPageTitle() + "\" without a valid configuration widget. This page will not be shown.");
             }
         }
     }
@@ -167,9 +167,13 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     int new_heigth = size().height();
     if (max_width > size().width())
         new_width = max_width;
-    if (max_height > size().height())
-        new_heigth = max_height;
+//    if (max_height > size().height())
+//        new_heigth = max_height;
     resize(new_width,new_heigth);
+
+    // Put the widget in the center of the screen:
+    QRect qrect = QApplication::desktop()->availableGeometry(this);
+    move(qrect.center() - rect().center());
 
     // Set up the observer widget:
     if (!d->initialized) {

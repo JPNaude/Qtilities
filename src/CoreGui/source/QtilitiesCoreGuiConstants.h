@@ -231,6 +231,34 @@ namespace Qtilities {
             //! File SaveAs icon (22x22).
             const char * const qti_icon_FILE_SAVEAS_22x22       = ":/icons/file_saveas_22x22.png";
 
+            // --------------------------------
+            // Task Icons
+            // --------------------------------
+            //! Task Not Started Icon.
+            const char * const qti_icon_TASK_NOT_STARTED_22x22                  = ":/icons/task_not_started_22x22.png";
+            //! Task Pause Icon.
+            const char * const qti_icon_TASK_PAUSE_22x22                        = ":/icons/task_pause_22x22.png";
+            //! Task Resume Icon.
+            const char * const qti_icon_TASK_RESUME_22x22                       = ":/icons/task_resume_22x22.png";
+            //! Task Stop Icon.
+            const char * const qti_icon_TASK_STOP_22x22                         = ":/icons/task_stop_22x22.png";
+            //! Task Start Icon.
+            const char * const qti_icon_TASK_START_22x22                        = ":/icons/task_start_22x22.png";
+            //! Task Busy Icon.
+            const char * const qti_icon_TASK_BUSY_22x22                         = ":/icons/task_busy_22x22.png";
+            //! Task Busy With Warnings Icon.
+            const char * const qti_icon_TASK_BUSY_WITH_WARNINGS_22x22           = ":/icons/task_busy_with_warnings_22x22.png";
+            //! Task Busy With Errors Icon.
+            const char * const qti_icon_TASK_BUSY_WITH_ERRORS_22x22             = ":/icons/task_busy_with_errors_22x22.png";
+            //! Task Completed Icon.
+            const char * const qti_icon_TASK_DONE_22x22                         = ":/icons/task_done_22x22.png";
+            //! Task Completed With Warnings Icon.
+            const char * const qti_icon_TASK_DONE_WITH_WARNINGS_22x22           = ":/icons/task_done_with_warnings_22x22.png";
+            //! Task Completed With Errors Icon.
+            const char * const qti_icon_TASK_DONE_WITH_ERRORS_22x22             = ":/icons/task_done_with_errors_22x22.png";
+            //! Task Failed Icon.
+            const char * const qti_icon_TASK_FAILED_22x22                       = ":/icons/task_failed_22x22.png";
+
             const char * const qti_icon_QTILITIES_SYMBOL_16x16              = ":/icons/qtilities_symbol_16x16.png";
             const char * const qti_icon_QTILITIES_SYMBOL_22x22              = ":/icons/qtilities_symbol_22x22.png";
             const char * const qti_icon_QTILITIES_SYMBOL_24x24              = ":/icons/qtilities_symbol_24x24.png";

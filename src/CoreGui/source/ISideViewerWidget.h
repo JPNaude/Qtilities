@@ -79,7 +79,7 @@ namespace Qtilities {
                   When true, this widget can only appear once inside a dynamic side widget viewer.
 
                   \note When true this side viewer widget can only be used with a Qtilities::CoreGui::DynamicSideWidgetViewer which
-                  is set to be exclusive. When the mode specified is not for an exclusive viewer widget, an error message will be printed.
+                  is set to be exclusive. When the mode(s) specified in destinationModes() is not for an exclusive viewer widget, an error message will be printed.
                   */
                 virtual bool isExclusive() const = 0;
             };

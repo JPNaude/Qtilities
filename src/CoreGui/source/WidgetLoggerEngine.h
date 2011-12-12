@@ -65,7 +65,11 @@ namespace Qtilities {
 
         /*!
         \class WidgetLoggerEngine
-        \brief A logger engine which shows logged messages in a widget with a QTextEdit widget.
+        \brief A logger engine which shows logged messages in a widget with a QPlainTextEdit widget.
+
+        A logger engine which shows logged messages in a widget with a QPlainTextEdit widget.
+
+        \note Clearing the log through clearLog() is supported by this logger engine.
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT WidgetLoggerEngine : public AbstractLoggerEngine
         {
@@ -106,6 +110,7 @@ namespace Qtilities {
 
         public slots:
             void logMessage(const QString& message);
+            void clearLog();
 
         private:
             WidgetLoggerEnginePrivateData* d;

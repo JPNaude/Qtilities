@@ -56,9 +56,15 @@ int main(int argc, char *argv[])
     QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesLeft);
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
-    // Initialize the logger.
+    // Initialize the logger:
+    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
+
+    // Speed up application launching a bit...
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+    ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();
+    OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
     // Create the menu bar and menus in the menu bar:
     bool existed;
@@ -134,7 +140,7 @@ int main(int argc, char *argv[])
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
     EXTENSION_SYSTEM->enablePluginActivityControl();
-    EXTENSION_SYSTEM->loadPluginConfiguration(QApplication::applicationDirPath() + "/plugins/default" + qti_def_SUFFIX_PLUGIN_CONFIG);
+    EXTENSION_SYSTEM->loadPluginConfiguration(QtilitiesApplication::applicationSessionPath() + "/plugins/default" + qti_def_SUFFIX_PLUGIN_CONFIG);
     EXTENSION_SYSTEM->setCorePlugins(QStringList("Session Log Plugin"));
     EXTENSION_SYSTEM->addPluginPath("../../plugins/");
     EXTENSION_SYSTEM->initialize();
@@ -158,10 +164,7 @@ int main(int argc, char *argv[])
 
     // Load the previous session's keyboard mapping file.
     QString shortcut_mapping_file = QString("%1/%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE);
-    if (ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file))
-        LOG_INFO(QObject::tr("Successfully loaded shortcut mapping from previous session. Path: ") + shortcut_mapping_file);
-    else
-        LOG_WARNING(QObject::tr("Failed to load shortcut mapping from previous session. The default mapping scheme will be used. Path: ") + shortcut_mapping_file);
+    ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
 
     // Show the main window:
     exampleMainWindow.show();
@@ -169,16 +172,17 @@ int main(int argc, char *argv[])
     // Initialize the project manager:
     PROJECT_MANAGER_INITIALIZE();
 
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(false);
+    OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
+
     int result = a.exec();
 
     // Save main window state:
     exampleMainWindow.writeSettings();
 
     // Save the current keyboard mapping for the next session.
-    if (ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file))
-        LOG_INFO(QObject::tr("Successfully saved shortcut mapping for next session. Path: ") + shortcut_mapping_file);
-    else
-        LOG_WARNING(QObject::tr("Failed to save shortcut mapping for next session. Path: ") + shortcut_mapping_file);
+    ACTION_MANAGER->saveShortcutMapping(shortcut_mapping_file);
 
     PROJECT_MANAGER_FINALIZE();
     LOG_FINALIZE();

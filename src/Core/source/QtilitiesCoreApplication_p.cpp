@@ -70,16 +70,27 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivat
     d_contextManagerIFace = qobject_cast<IContextManager*> (contextManagerQ);
     QObject::connect(d_objectManager,SIGNAL(newObjectAdded(QObject*)),d_contextManager,SLOT(addContexts(QObject*)));
 
+    // Task Manager
+    d_taskManager = new TaskManager;
+    QObject::connect(d_objectManager,SIGNAL(newObjectAdded(QObject*)),d_taskManager,SLOT(addTask(QObject*)));
+    QObject::connect(d_objectManager,SIGNAL(objectRemoved(QObject*)),d_taskManager,SLOT(removeTask(QObject*)));
+
     // Register QList<QPointer<QObject> > in Meta Object System.
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
-    d_application_session_path = QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+    d_application_session_path = applicationSessionPathDefault();
 
     // Version related stuff:
     d_version_number.setVersionMajor(qti_def_VERSION_MAJOR);
     d_version_number.setVersionMinor(qti_def_VERSION_MINOR);
     d_version_number.setVersionRevision(qti_def_VERSION_REVISION);
     d_application_export_version = 0;
+
+    // Settings related stuff:
+    d_settings_enabled = true;
+
+    // Application busy stuff:
+    d_application_busy_count = false;
 }
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPrivate() {
@@ -92,6 +103,10 @@ Qtilities::Core::Interfaces::IObjectManager* Qtilities::Core::QtilitiesCoreAppli
 
 Qtilities::Core::Interfaces::IContextManager* Qtilities::Core::QtilitiesCoreApplicationPrivate::contextManager() const {
     return d_contextManagerIFace;
+}
+
+Qtilities::Core::Interfaces::TaskManager* Qtilities::Core::QtilitiesCoreApplicationPrivate::taskManager() const {
+    return d_taskManager;
 }
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesVersionString() const {
@@ -113,6 +128,10 @@ QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath
     return d_application_session_path;
 }
 
+QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPathDefault() const {
+    return QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+}
+
 void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationSessionPath(const QString& path) {
     d_application_session_path = path;
 }
@@ -123,5 +142,46 @@ void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationExportVersi
 
 quint32 Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationExportVersion() const {
     return d_application_export_version;
+}
+
+QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsPath() {
+    return d_application_session_path + QDir::separator() + "qtilities.ini";
+}
+
+void Qtilities::Core::QtilitiesCoreApplicationPrivate::setQtilitiesSettingsEnabled(bool is_enabled) {
+    d_settings_enabled = is_enabled; 
+}
+
+bool Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsPathEnabled() const {
+    return d_settings_enabled;
+}
+
+void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationBusy(bool is_busy) {
+    int previous_count = d_application_busy_count;
+
+    if (is_busy) {
+        ++d_application_busy_count;
+    } else {
+        if (d_application_busy_count > 0)
+            --d_application_busy_count;
+        else
+            qWarning() << "setApplicationBusy(false) called too many times on QtilitiesCoreApplication";
+    }
+
+    #ifdef QTILITIES_BENCHMARKING
+    qDebug() << "Settings application busy: " << d_application_busy_count;
+    #endif
+
+    if (previous_count == 0 && d_application_busy_count == 1) {
+        // Application becomes busy:
+        // Nothing happens for now.
+    } else if (previous_count == 1 && d_application_busy_count == 0) {
+        // Application not busy anymore:
+        // Nothing happens for now.
+    }
+}
+
+bool Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationBusy() const {
+    return (d_application_busy_count > 0);
 }
 

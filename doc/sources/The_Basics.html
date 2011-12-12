@@ -74,12 +74,12 @@ A %Qtilities application is just a normal Qt application with one small differen
 \code
 QtilitiesApplication a(argc, argv);
 
-// If you use a different class that inherits from QApplication and it isnot possible to use QtilitiesApplication as shown above, it should be initialized directly after QApplication construction, as follows:
+// If you use a different class that inherits from QApplication and it is not possible to use QtilitiesApplication as shown above, it should be initialized directly after QApplication construction, as follows:
 QApplication a(argc, argv);
 QtilitiesApplication::initialize();
 \endcode
 
-This is the only difference between a %Qtilities application and a normal Qt application. If you don't use any GUI related classes, you can keep using QCoreApplication without needed to do anything different.
+This is the only difference between a %Qtilities application and a normal Qt application. If you don't use any GUI related classes, you can keep using QCoreApplication without the need to do anything different.
 
 \section basics_macros Macros made available to you
 
@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setConfigWidget(config_widget);
 
     // Initialize the logger:
+    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
 
     // Add a menu bar to our main window with a File menu:

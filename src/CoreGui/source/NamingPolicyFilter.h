@@ -175,8 +175,9 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
               \sa setUniquenessPolicy(), uniquenessNamingPolicy()
               */
             enum UniquenessPolicy {
-                AllowDuplicateNames,    /*!< Allow duplicate names. */
-                ProhibitDuplicateNames  /*!< Prohibit duplicate names. */
+                AllowDuplicateNames,                    /*!< Allow duplicate names. */
+                ProhibitDuplicateNames,                 /*!< Prohibit duplicate names (checking for duplicate names done in a case in-sensitive way). */
+                ProhibitDuplicateNamesCaseSensitive     /*!< Prohibit duplicate names (checking for duplicate names done in a case sensitive way). */
             };
             //! Function which returns a string associated with a specific UniquenessPolicy.
             static QString uniquenessPolicyToString(UniquenessPolicy uniqueness_policy);
@@ -317,7 +318,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             //! Evaluates a name in the observer context in which this subject filter is installed.
             /*!
               \param name The name to validate in observerContext().
-              \param object The current object. When null (by default) the context is checked for name and if it exists, Duplicate is returned. If object is not null, the context is checked for instances of the name except for the current object.
+              \param object The current object. When null (by default) the context is checked for \p name and if it exists, Duplicate is returned. If object is not null, the context is checked for instances of the name except for the current object.
               */
             virtual NamingPolicyFilter::NameValidity evaluateName(const QString& name, QObject* object = 0) const;
             //! Gets the name to be used during evaluateName() for a specific object.
@@ -415,6 +416,12 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             bool isObjectNameDirty(QObject* obj) const;
 
             //! Validates if \p property_name is a valid name for \p obj in this context.
+            /*!
+              \note When you are loading a project and there is a chance that duplicate names might occur and the user changes it, you need to subclass NamingPolicyFilter and
+              call PROJECT_MANAGER->markProjectAsChangedDuringLoad() in order for the project not to set your observer context as not modified.
+
+              \returns True if the changed name is allowed, false otherwise.
+              */
             virtual bool validateNamePropertyChange(QObject* obj, const char* property_name);
 
             NamingPolicyFilterData* d;
@@ -459,7 +466,6 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
         The naming policy delegate is used to allow editing of subject names in a text editor which is sensitive to a context's naming policy filter. Below is an example of the delegate in action in an observer widget.
 
         \image html observer_widget_naming_delegate.jpg "Observer Widget Handling Context Naming Policies"
-        \image latex observer_widget_naming_delegate.eps "Observer Widget Handling Context Naming Policies" width=4in
         */
          class QTILITIES_CORE_GUI_SHARED_EXPORT NamingPolicyDelegate : public QItemDelegate
          {

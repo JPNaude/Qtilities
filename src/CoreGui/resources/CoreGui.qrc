@@ -91,5 +91,17 @@
         <file>icons/info_12x12.png</file>
         <file>icons/debug_48x48.png</file>
         <file>icons/debug_16x16.png</file>
+        <file>icons/task_busy_22x22.png</file>
+        <file>icons/task_busy_with_errors_22x22.png</file>
+        <file>icons/task_busy_with_warnings_22x22.png</file>
+        <file>icons/task_done_22x22.png</file>
+        <file>icons/task_done_with_errors_22x22.png</file>
+        <file>icons/task_done_with_warnings_22x22.png</file>
+        <file>icons/task_stop_22x22.png</file>
+        <file>icons/task_not_started_22x22.png</file>
+        <file>icons/task_start_22x22.png</file>
+        <file>icons/task_resume_22x22.png</file>
+        <file>icons/task_pause_22x22.png</file>
+        <file>icons/task_failed_22x22.png</file>
     </qresource>
 </RCC>

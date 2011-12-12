@@ -237,7 +237,7 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
 
               \returns The joined category string. For example when join_string is :: we get TopLevelCategory::MiddleLevelCategory::LowerLevelCategory
               */
-            QString toString(const QString& join_string = QString("::")) const;
+            QString toString(const QString& join_string = "::") const;
             //! Returns the category as a QStringList.
             /*!
               \param level The depth of the requested string list. If the category has for example 3 levels, you can only get the first 2 levels by passing 2 as the \p level parameter. If \p level is bigger than the depth (number of levels) of the category, the depth of the category will be used.

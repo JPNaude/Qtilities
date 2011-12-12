@@ -313,10 +313,9 @@ void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<Qtilitie
 
     // Will update views connected to this signal.
     if (observerContext()) {
-        if (!observerContext()->isProcessingCycleActive()) {
-            observerContext()->setModificationState(true);
-            observerContext()->refreshViewsLayout();
-        }
+        observerContext()->setModificationState(true);
+        // Processing cycle check is done in refreshViewsLayout():
+        observerContext()->refreshViewsLayout();
     }
 }
 

@@ -50,6 +50,8 @@ struct Qtilities::Testing::DebugWidgetPrivateData {
     CommandEditor       command_editor;
     QPointer<Command>   current_command;
 
+    TaskSummaryWidget   task_summary_widget;
+
     #ifdef QTILITIES_CONAN
     QPointer<ConanWidget>   object_analysis_widget;
     QPointer<ConanWidget>   command_analysis_widget;
@@ -184,6 +186,19 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     // Modes:
     ui->tableModes->setAlternatingRowColors(true);
     ui->tableModes->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    // Tasks:
+    if (ui->widgetTasksSummaryHolder->layout())
+        delete ui->widgetTasksSummaryHolder->layout();
+
+    QVBoxLayout* tasks_layout = new QVBoxLayout(ui->widgetTasksSummaryHolder);
+    tasks_layout->setMargin(0);
+    tasks_layout->addWidget(&d->task_summary_widget);
+
+    d->task_summary_widget.setTaskDisplayOptions(TaskSummaryWidget::DisplayAllTasks);
+    d->task_summary_widget.setTaskRemoveOptionFlags(TaskSummaryWidget::RemoveWhenDeleted);
+    d->task_summary_widget.setNoActiveTaskHandling(TaskSummaryWidget::ShowSummaryWidget);
+    d->task_summary_widget.findCurrentTasks();
 
     // Contexts:
     if (ui->widgetContextsHolder->layout())
@@ -453,7 +468,7 @@ void Qtilities::Testing::DebugWidget::on_btnEditPluginCurrentConfigSet_clicked()
 
 void Qtilities::Testing::DebugWidget::on_btnOpenPluginConfigSet_clicked()
 {
-    QString open_path = QApplication::applicationDirPath();
+    QString open_path = QtilitiesApplication::applicationSessionPath();
     if (!ui->txtPluginsActiveSet->text().isEmpty()) {
         QFileInfo fi(ui->txtPluginsActiveSet->text());
         open_path = fi.path();
@@ -959,8 +974,7 @@ void Qtilities::Testing::DebugWidget::on_btnProjectsCurrentOpenPath_clicked()
         LOG_INFO_P(QString("Successfully opened folder: %1").arg(fi.path()));
 }
 
-void Qtilities::Testing::DebugWidget::on_btnProjectsCurrentOpenFile_clicked()
-{
+void Qtilities::Testing::DebugWidget::on_btnProjectsCurrentOpenFile_clicked() {
     if (ui->txtProjectsCurrentFileName->text().isEmpty())
         return;
 

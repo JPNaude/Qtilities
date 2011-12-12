@@ -399,6 +399,10 @@ Qtilities::Core::MultiContextProperty::MultiContextProperty(const MultiContextPr
     last_change_context = property.lastChangedContext();
 }
 
+Qtilities::Core::MultiContextProperty::MultiContextProperty(const QtilitiesProperty& qtilities_property) : QtilitiesProperty(qtilities_property){
+
+}
+
 void Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty& other) {
     name = other.propertyNameString();
     context_map = other.contextMap();
@@ -597,6 +601,10 @@ Qtilities::Core::SharedProperty::SharedProperty(QDataStream &ds, Qtilities::Expo
 
 Qtilities::Core::SharedProperty::SharedProperty(const SharedProperty& shared_property) : QtilitiesProperty(shared_property) {
     property_value = shared_property.value();
+}
+
+Qtilities::Core::SharedProperty::SharedProperty(const QtilitiesProperty& qtilities_property) : QtilitiesProperty(qtilities_property) {
+
 }
 
 QVariant Qtilities::Core::SharedProperty::value() const {

@@ -35,31 +35,64 @@
 #define FILEUTILS_H
 
 #include "QtilitiesCore_global.h"
+#include "ITaskContainer.h"
+#include "Task.h"
 
 #include <QList>
 #include <QUrl>
 #include <QDir>
+#include <QObject>
 
 namespace Qtilities {
     namespace Core {
+        using namespace Qtilities::Core::Interfaces;
+
+        /*!
+        \struct FileUtilsPrivateData
+        \brief Structure used by FileUtils to store private data.
+          */
+        struct FileUtilsPrivateData;
+
         /*!
         \class FileUtils
         \brief The FileUtils class provides commonly used file related functionality.
 
         <i>This class was added in %Qtilities v1.0.</i>
           */
-        class QTILIITES_CORE_SHARED_EXPORT FileUtils
-        {
+        class QTILIITES_CORE_SHARED_EXPORT FileUtils : public QObject, public ITaskContainer {
+            Q_OBJECT
+            Q_INTERFACES(Qtilities::Core::Interfaces::ITaskContainer)
+            Q_ENUMS(ContainedTasks)
+
         public:
-            //! Removes the specified directory along with all of its contents.
-            /*!
-               \param dirName Path of directory to remove.
-               \return true on success, false otherwise.
-              */
-            static bool removeDir(const QString &dirName);
+            //! Access names for tasks provided by FileUtils.
+            enum ContainedTasks {
+                TaskFindFilesUnderDir   = 0  /*!< The task which allows monitoring of the findFilesUnderDir() function's progress. */
+            };
+            //! ContainedTasks to string conversion function.
+            QString taskNameToString(ContainedTasks task_name) const {
+                if (task_name == TaskFindFilesUnderDir)
+                    return "Finding Files Under Directory";
+                return "";
+            }
+
+            FileUtils(QObject* parent = 0);
+            virtual ~FileUtils();
+
+            // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
+            // Functions for finding files under a directory.
+            // --------------------------------
             //! Finds all files in the directory hierarhcy under a directory.
             /*!
-               Finds all files under in the complete directory hierarhcy under dirName. It is only neccesarry to specify
+               Finds all files under in the complete directory hierarhcy under dirName. The ITask implementation on this object is linked
+               to this function's processing. Thus if you call this function, you can monitor the progress of findFilesUnderDir() through
+               the ITask interface implementation provided by the TaskFindFilesUnderDir task.
 
 \code
 // All non-system and non-hidden files:
@@ -69,14 +102,35 @@ QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path");
 QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path",QDir::System | QDir::Hidden);
 \endcode
 
-               \param dirName Path of directory to remove.
+               \param dirName Path of directory to search under.
                \param ignore_list Files which should be ignored. Must be in the format: *.svn *.bak *.tmp
                \param filters The QDir::Filters to apply when searching for files. All folder related filter options are ignored.
                \param sort The QDir::SortFlags to apply when searching for files.
                \param first_run Ignore this parameter, used in recursive operations.
                \return A list of QUrls containing the files. The QUrls are constructed using QUrl::fromLocalFile().
               */
-            static QFileInfoList findFilesUnderDir(const QString &dirName, const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
+            QFileInfoList findFilesUnderDir(const QString &dirName, const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
+            //! Returns the last QFileInfoList produced by fileFilesUnderDir().
+            QFileInfoList lastFilesUnderDir();
+            //! Sets up the paramaters for future findFilesUnderDir() runs.
+            void setFindFilesUnderDirParams(const QString &dirName, const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort);
+        private slots:
+            //! Finds all files in the directory hierarhcy under a directory.
+            /*!
+              This function uses parameters set through setFindFilesUnderDirParams().
+              */
+            QFileInfoList findFilesUnderDir();
+
+        public:
+            // --------------------------------
+            // Static Convenience Functions
+            // --------------------------------
+            //! Removes the specified directory along with all of its contents.
+            /*!
+               \param dirName Path of directory to remove.
+               \return true on success, false otherwise.
+              */
+            static bool removeDir(const QString &dirName);
             //! Appends a string to the file name part of the file, that is after the file's name and before the extension.
             static QString appendToFileName(const QString &fullFileName, const QString& append_string);
             //! Removes the specified number of characters from the end of the file name part of the file, that is after the file's name and before the extension.
@@ -90,6 +144,10 @@ QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path",QDir::System | Q
             static bool compareTextFiles(const QString& file1, const QString& file2);
             //! Compares two binary files and returns true if they are exactly the same, false otherwise.
             static bool compareBinaryFiles(const QString& file1, const QString& file2);
+
+        private:
+            QFileInfoList                   last_files_under_dir;
+            FileUtilsPrivateData*           d;
         };
     }
 }

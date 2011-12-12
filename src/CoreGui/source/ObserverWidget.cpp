@@ -48,12 +48,14 @@
 #include "ActionProvider.h"
 #include "ObserverTreeItem.h"
 #include "QtilitiesMainWindow.h"
+#include "SingleTaskWidget.h"
+#include "TaskManagerGui.h"
 
-#include <ActivityPolicyFilter.h>
-#include <ObserverHints.h>
-#include <ObserverMimeData.h>
-#include <QtilitiesCoreConstants.h>
-#include <Logger.h>
+#include <ActivityPolicyFilter>
+#include <ObserverHints>
+#include <ObserverMimeData>
+#include <QtilitiesCoreConstants>
+#include <Logger>
 
 #include <QAction>
 #include <QMessageBox>
@@ -123,7 +125,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionFilterCategories(0),
         actionFilterTypeSeperator(0),
         last_display_flags(ObserverHints::NoDisplayFlagsHint),
-        do_column_resizing(true) { }
+        do_column_resizing(true),
+        task_widget(0) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -228,6 +231,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Stores if automatic column resizing must be done. See enableAutoColumnResizing()
     bool do_column_resizing;
+
+    //! The task ID of the tree model rebuilding task.
+    SingleTaskWidget* task_widget;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -237,6 +243,8 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     ui->setupUi(this);
     d = new ObserverWidgetData;
     d->action_provider = new ActionProvider(this);
+
+    hideProgressInfo();
 
     #ifdef QTILITIES_PROPERTY_BROWSER
     d->property_browser_dock = 0;
@@ -348,9 +356,6 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
         d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
     }
 
-    // Connect to the distroyed signal
-    connect(observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
-
     if (d->top_level_observer) {
         if (d->display_mode == TableView) {
             // It was set in the navigation stack, don't change it.
@@ -368,9 +373,7 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     if (!ObserverAwareBase::setObserverContext(observer))
         return false;
 
-    // Resize the rows in the table view
-    if (d->display_mode == TableView && d->table_view)
-        resizeTableViewRows();
+    connect(d_observer,SIGNAL(destroyed()),SLOT(contextDeleted()));
 
     // Update the observer context of the delegates
     if (d->display_mode == TableView && d->table_name_column_delegate)
@@ -380,6 +383,7 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
 
     emit observerContextChanged(d_observer);
     emit selectedObjectsChanged(QList<QObject*>());
+    setEnabled(true);
     return true;
 }
 
@@ -417,6 +421,12 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
 
     d->tree_model = tree_model;
     d->tree_model->setParent(this);
+
+    connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
+    connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
+    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
+    connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(handleExpandItemsRequest(QModelIndexList)));
+    connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
     return true;
 }
 
@@ -448,6 +458,18 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeProxyModel(QAbstractProxyM
     d->custom_tree_proxy_model = proxy_model;
     d->custom_tree_proxy_model->setParent(this);
     return true;
+}
+
+Qtilities::CoreGui::ObserverTableModel* Qtilities::CoreGui::ObserverWidget::tableModel() const {
+   return d->table_model;
+}
+
+Qtilities::CoreGui::ObserverTreeModel* Qtilities::CoreGui::ObserverWidget::treeModel() const {
+    return d->tree_model;
+}
+
+QAbstractProxyModel* Qtilities::CoreGui::ObserverWidget::proxyModel() const {
+    return d->proxy_model;
 }
 
 void Qtilities::CoreGui::ObserverWidget::setDisplayMode(DisplayMode display_mode) {
@@ -487,6 +509,29 @@ void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
 
 bool Qtilities::CoreGui::ObserverWidget::readOnly() const {
     return d->read_only;
+}
+
+void Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
+    if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view) {
+        QStringList expanded_items;
+
+        foreach (QModelIndex index, d->tree_model->getAllIndexes()) {
+            QModelIndex mapped_index;
+            if (d->proxy_model)
+                mapped_index = d->proxy_model->mapFromSource(index);
+            else
+                mapped_index = index;
+
+            if (d->tree_view->isExpanded(mapped_index)) {
+                QString item_text = d->tree_model->data(index,Qt::DisplayRole).toString();
+                if (item_text.endsWith("*"))
+                    item_text.chop(1);
+                expanded_items << item_text;
+            }
+        }
+
+        d->tree_model->setExpandedItems(expanded_items);
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
@@ -561,6 +606,11 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
                     d->tree_model->toggleUseObserverHints(d->use_observer_hints);
                     d->tree_model->setCustomHints(d->hints_default);
+
+                    connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
+                    connect(d->tree_model,SIGNAL(treeModelBuildEnded()),SLOT(hideProgressInfo()));
+                    connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
+                    connect(d->tree_model,SIGNAL(expandItemsRequest(QModelIndexList)),SLOT(handleExpandItemsRequest(QModelIndexList)));
                 }
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
@@ -590,7 +640,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             d->tree_model->setObjectName(d->top_level_observer->observerName());
             d->tree_model->setObserverContext(d->top_level_observer);
-            d->tree_view->setItemDelegate(d->tree_name_column_delegate);
+            d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
 
             // Setup tree selection:
             d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -648,7 +698,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 }
 
                 connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->table_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
-                d->table_view->setItemDelegate(d->table_name_column_delegate);
+                d->table_view->setItemDelegateForColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),d->table_name_column_delegate);
             }
 
             if (ui->itemParentWidget->layout())
@@ -689,7 +739,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // The view must always be visible.
             d->table_view->setVisible(true);
-            resizeTableViewRows();
         }
     }
 
@@ -765,58 +814,30 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         else {
             d->table_view->showColumn(AbstractObserverItemModel::ColumnAccess);
         }
-
-        // Resize columns
-        if (d->do_column_resizing) {
-            d->table_view->resizeColumnsToContents();
-            QHeaderView* table_header = d->table_view->horizontalHeader();
-            table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
-        }
     } else if (d->display_mode == TreeView && d->tree_view && d->tree_model) {
         // Show only the needed columns for the current observer
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
-            if (d->do_column_resizing)
-                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
-            if (d->do_column_resizing)
-                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnChildCount));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
-            if (d->do_column_resizing)
-                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnTypeInfo));
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
             d->tree_view->hideColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         else {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
-            if (d->do_column_resizing)
-                d->tree_view->resizeColumnToContents(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
-        }
-
-        // Resize columns:
-        if (d->do_column_resizing) {
-            QHeaderView* tree_header = d->tree_view->header();
-            if (tree_header) {
-                for (int i = 0; i < tree_header->count(); i++) {
-                    if (i != d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName))
-                        tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::ResizeToContents);
-                }
-                if (tree_header->visualIndex(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) != -1)
-                    tree_header->setResizeMode(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
-            }
         }
     }
 
@@ -860,8 +881,12 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         }
     }
 
-    // Init all actions
-    refreshActions();
+    // Init all actions happens in here:
+    handleSelectionModelChange();
+
+    // Resize view:
+    if (!hints_only)
+        hideProgressInfo(false);
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -1049,7 +1074,10 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     if (!d->initialized)
         return;
 
-    QSettings settings;
+    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+        return;
+
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup(d->global_meta_type);
@@ -1060,6 +1088,15 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     settings.setValue("do_column_resizing", d->do_column_resizing);
     if (d->table_view)
         settings.setValue("table_view_show_grid", d->table_view->showGrid());
+
+    if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
+        QHeaderView* table_header = d->table_view->horizontalHeader();
+        settings.setValue("table_header_state", table_header->saveState());
+    } else if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+        QHeaderView* tree_header = d->tree_view->header();
+        settings.setValue("tree_header_state", tree_header->saveState());
+    }
+
     settings.endGroup();
     settings.endGroup();
     settings.endGroup();
@@ -1071,7 +1108,7 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
         return;
     }
 
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("GUI");
     settings.beginGroup(d->global_meta_type);
@@ -1104,6 +1141,15 @@ void Qtilities::CoreGui::ObserverWidget::readSettings() {
 
     // Automatic column resizing
     d->do_column_resizing = settings.value("do_column_resizing", true).toBool();
+
+    // Header settings:
+    if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
+        QHeaderView* table_header = d->table_view->horizontalHeader();
+        table_header->restoreState(settings.value("table_header_state").toByteArray());
+    } else if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+        QHeaderView* tree_header = d->tree_view->header();
+        tree_header->restoreState(settings.value("tree_header").toByteArray());
+    }
 
     settings.endGroup();
     settings.endGroup();
@@ -1176,12 +1222,10 @@ Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::ObserverWidget::searchB
 void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
     if (height == -1)
         height = d->default_row_height;
-    if (d->display_mode == TableView && d->table_view && d->table_model) {
-        if (d->do_column_resizing)
-            d->table_view->resizeColumnsToContents();
-        for (int i = 0; i < d->table_model->rowCount(); i++) {
+
+    if (d->display_mode == TableView && d->table_view && d->table_model) {       
+        for (int i = 0; i < d->table_model->rowCount(); i++)
             d->table_view->setRowHeight(i,height);
-        }
     }
 }
 
@@ -1192,7 +1236,6 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
-    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
 
     // ---------------------------
@@ -1326,8 +1369,7 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
     d->action_provider->addAction(d->actionDebugObject,QtilitiesCategory(tr("Items")));
     #endif
 
-    if (!current_processing_cycle_active)
-        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
 #ifndef QT_NO_DEBUG
@@ -1483,7 +1525,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     }
 
     // Remove & Delete Items + Navigating Up & Down
-    if (selectedObjects().count() == 0) {
+    if (d->current_selection.count() == 0) {
         d->actionDeleteItem->setEnabled(false);
         d->actionRemoveItem->setEnabled(false);
         if (d->display_mode == TableView) {
@@ -1561,9 +1603,9 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                 }
             }
         } else if (d->display_mode == TreeView) {
-            if (selectedObjects().count() == 1) {
+            if (d->current_selection.count() == 1) {
                 // We can't delete the top level observer in a tree:
-                Observer* selected = qobject_cast<Observer*> (selectedObjects().front());
+                Observer* selected = qobject_cast<Observer*> (d->current_selection.front());
                 if (selected == d->top_level_observer) {
                     d->actionDeleteItem->setEnabled(false);
                     d->actionRemoveItem->setEnabled(false);
@@ -1728,21 +1770,24 @@ void Qtilities::CoreGui::ObserverWidget::selectionDetach() {
                 first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
         }
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        if (d->current_selection.count() != 1)
+        if (d->current_selection.count() != 1) {
             return;
+        }
         
         // Make sure the selected object is not the top level observer (might happen in a tree view)
         Observer* observer = qobject_cast<Observer*> (d->current_selection.front());
-        if (observer == d->top_level_observer)
+        if (observer == d->top_level_observer) {
             return;
+        }
 
         if (selectionParent())
             first_delete_position = selectionParent()->subjectReferences().indexOf(d->current_selection.front());
         else if (!selectionParent() && d_observer)
             first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.front());
 
-        if (!d_observer->detachSubject(d->current_selection.front()))
+        if (!d_observer->detachSubject(d->current_selection.front())) {
             return;
+        }
     }
 
     // Select a different item in the same context:
@@ -1801,8 +1846,9 @@ void Qtilities::CoreGui::ObserverWidget::selectionDetachAll() {
     if (d->display_mode == TableView && d->table_model) {
         d_observer->detachAll();
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        if (selectedIndexes().count() != 1)
+        if (selectedIndexes().count() != 1) {
             return;
+        }
 
         // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed:
         bool use_parent_context = true;
@@ -1835,6 +1881,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDetachAll() {
             }
         }
     }
+    refreshActions();
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
@@ -1879,6 +1926,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
         }
     }
 
+    QApplication::processEvents();
+
     // Delete selected objects:
     int first_delete_position = -1;
     for (int i = 0; i < selected_count; i++) {       
@@ -1892,8 +1941,9 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
                     first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
 
                 delete d->current_selection.at(0);
-            } else
+            } else {
                 return;
+            }
         }
     }
 
@@ -1967,11 +2017,14 @@ void Qtilities::CoreGui::ObserverWidget::selectionDeleteAll() {
         }
     }
 
+    QApplication::processEvents();
+
     if (d->display_mode == TableView && d->table_model) {
         d_observer->deleteAll();
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        if (selectedIndexes().count() != 1)
+        if (selectedIndexes().count() != 1) {
             return;
+        }
 
         // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed:
         bool use_parent_context = true;
@@ -1989,7 +2042,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDeleteAll() {
         }
 
         if (use_parent_context) {
-            // We must check if there is an selection parent, else use d_observer
+            // We must check if there is a selection parent, else use d_observer
             if (d->tree_model->selectionParent()) {
                 Observer* selection_parent = d->tree_model->selectionParent();
                 selection_parent->deleteAll();
@@ -2032,7 +2085,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
             emit addActionNewItem_triggered(0, d_observer);
         } else if (d->current_selection.count() == 0) {
             // Check if the stack contains a parent for the current d_observer
-            if (navigationStack().count() > 0) {
+            if (!d->navigation_stack.isEmpty()) {
                 // Get observer from stack
                 Observer* selection_parent = OBJECT_MANAGER->observerReference(navigationStack().last());
                 emit addActionNewItem_triggered(d_observer, selection_parent);
@@ -2040,7 +2093,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
                 emit addActionNewItem_triggered(d_observer, 0);
         }
     } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        if (d->current_selection.count() == 1) {
+        if (d->current_selection.count() == 1 && d->tree_view->selectionModel()->selectedIndexes().count() > 0) {
             // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
             bool use_parent_context = true;
             Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
@@ -2059,6 +2112,8 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
             emit addActionNewItem_triggered(0, d->tree_model->selectionParent());
         else if (d->current_selection.count() == 0)
             emit addActionNewItem_triggered(0, d_observer);
+        else
+            emit addActionNewItem_triggered(0, d_observer);
     }
 }
 
@@ -2067,30 +2122,12 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
         return;
 
     QList<QObject*> current_selection = selectedObjects();
-    if (d->display_mode == TableView && d->table_model) {
-        bool cycle_active = false;
-        if (d_observer->isProcessingCycleActive()) {
-            d_observer->endProcessingCycle();
-            cycle_active = true;
-        }
-        d_observer->refreshViewsLayout();
-        if (cycle_active)
-            d_observer->startProcessingCycle();
-        resizeTableViewRows();
-    } else if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        bool cycle_active = false;
-        if (d_observer->isProcessingCycleActive()) {
-            d_observer->endProcessingCycle();
-            cycle_active = true;
-        }
-        d_observer->refreshViewsLayout();
-        if (cycle_active)
-            d_observer->startProcessingCycle();
-    }
+    d_observer->refreshViewsLayout(QList<QPointer<QObject> >(),true);
 
     if (activeHints()->activityControlHint() == ObserverHints::FollowSelection && d->activity_filter) {
         selectObjects(d->activity_filter->activeSubjects());
     } else {
+        // TODO: This way of doing it causes the expanded node history to get lost.
         selectObjects(current_selection);
     }
 
@@ -2364,7 +2401,7 @@ void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
-    if (d->tree_view && d->display_mode == TreeView) {
+    if (d->tree_view && d->display_mode == TreeView && isEnabled()) {
         d->tree_view->expandAll();
     }
 }
@@ -2483,8 +2520,6 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
         layout->addWidget(d->searchBoxWidget);
         layout->setMargin(0);
 
-        connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
-        connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));
         connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),ui->widgetSearchBox,SLOT(hide()));
         connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),SLOT(resetProxyModel()));
         if (d->table_view && d->display_mode == TableView) {
@@ -2518,6 +2553,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
                 d->actionFilterTypeSeperator->setVisible(false);
             }
         }
+        connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
+        connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));
     }
 
     if (!ui->widgetSearchBox->isVisible()) {
@@ -2671,6 +2708,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
 
     // Emit signals
     emit selectedObjectsChanged(object_list, selection_parent);
+    //qDebug() << "Emitting selectedObjectsChanged() with " << object_list;
 }
 
 void Qtilities::CoreGui::ObserverWidget::disconnectClipboard() {
@@ -2839,7 +2877,11 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
         } else if (d->tree_view) {
             if (d->tree_view->selectionModel())
                 d->tree_view->selectionModel()->clear();
-            viewExpandAll();
+            // Only expand if there are subjects in the observer context.
+            if (d->top_level_observer) {
+                if (d->top_level_observer->subjectCount() > 0)
+                    viewExpandAll();
+            }
         }
         return;
     }
@@ -2917,22 +2959,130 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchOptionsChanged() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString& filter_string) {
-    QRegExp::PatternSyntax syntax;
-    if (d->searchBoxWidget->regExpression())
-        syntax = QRegExp::PatternSyntax(QRegExp::RegExp);
-    else
-        syntax = QRegExp::PatternSyntax(QRegExp::FixedString);
-    Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
-    QRegExp regExp(filter_string, caseSensitivity, syntax);
-
     // Check if the installed proxy model is a QSortFilterProxyModel:
     QSortFilterProxyModel* model = qobject_cast<QSortFilterProxyModel*> (d->proxy_model);
-    if (model)
-        model->setFilterRegExp(regExp);
+    if (model) {
+        Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
+        model->setFilterCaseSensitivity(caseSensitivity);
+
+        QRegExp::PatternSyntax syntax = d->searchBoxWidget->patternSyntax();
+        if (syntax == QRegExp::RegExp)
+            model->setFilterRegExp(filter_string);
+        else if (syntax == QRegExp::FixedString)
+            model->setFilterFixedString(filter_string);
+        else if (syntax == QRegExp::Wildcard)
+            model->setFilterWildcard(filter_string);
+
+        model->invalidate();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::resetProxyModel() {
     handleSearchStringChanged("");
+}
+
+void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
+    if (!d->task_widget) {
+        d->task_widget = TaskManagerGui::instance()->singleTaskWidget(task_id);
+        d->task_widget->setMinimumWidth(700);
+        d->task_widget->progressBar()->setMinimumWidth(300);
+
+        if (ui->widgetProgressBarHolder->layout())
+            delete ui->widgetProgressBarHolder->layout();
+
+        QHBoxLayout* layout = new QHBoxLayout(ui->widgetProgressBarHolder);
+        layout->setMargin(0);
+        layout->addWidget(d->task_widget);
+        d->task_widget->show();
+    }
+
+    ui->widgetProgressInfo->show();
+    ui->widgetSearchBox->hide();
+    ui->itemParentWidget->hide();
+    ui->navigationBarWidget->hide();
+
+    emit treeModelBuildStarted(task_id);
+    QApplication::processEvents();
+}
+
+void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_completed) {
+    ui->widgetProgressInfo->hide();
+    ui->itemParentWidget->show();
+    ui->navigationBarWidget->show();
+
+    if (d->searchBoxWidget)
+        ui->widgetSearchBox->show();
+
+    if (d->do_column_resizing) {
+        if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
+            resizeTableViewRows();
+
+            d->table_view->resizeColumnsToContents();
+            QHeaderView* table_header = d->table_view->horizontalHeader();
+            if (table_header->visualIndex(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName)) != -1)
+                table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+        } else if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+            QHeaderView* tree_header = d->tree_view->header();
+            if (tree_header) {
+                tree_header->setMovable(true);
+                for (int i = 0; i < tree_header->count(); i++) {
+                    if (!tree_header->isSectionHidden(i)) {
+                        int logical_index = tree_header->logicalIndex(i);
+
+                        // TODO: This does not work! Returns wrong size hint...
+                        //d->tree_view->resizeColumnToContents(logical_index);
+
+                        // This is a bad workaround for now:
+                        // --------------------------------
+                        bool resize_name = true;
+                        if (tree_header->hiddenSectionCount() == tree_header->count()-1)
+                            resize_name = false;
+
+                        if (i == d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) {
+                            tree_header->setResizeMode(logical_index,QHeaderView::Interactive);
+                            if (resize_name)
+                                d->tree_view->setColumnWidth(i,600);
+                        } else {
+                            tree_header->setResizeMode(logical_index,QHeaderView::Interactive);
+                            d->tree_view->resizeColumnToContents(logical_index);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (emit_tree_build_completed)
+        emit treeModelBuildEnded();
+    QApplication::processEvents();
+}
+
+void Qtilities::CoreGui::ObserverWidget::adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight) {
+//    if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+//        int firstColumn= topleft.column();
+//        int lastColumn = bottomRight.column();
+//        // Resize the column to the size of its contents
+//        qDebug() << "adaptColumns()";
+//        do {
+//            d->tree_view->resizeColumnToContents(firstColumn);
+//            firstColumn++;
+//        } while (firstColumn < lastColumn);
+//    }
+}
+
+void Qtilities::CoreGui::ObserverWidget::handleExpandItemsRequest(QModelIndexList match_items) {
+    if (d->tree_view && d->display_mode == Qtilities::TreeView) {
+        foreach (QModelIndex index, match_items) {
+            if (d->proxy_model)
+                d->tree_view->setExpanded(d->proxy_model->mapFromSource(index),true);
+            else
+                d->tree_view->setExpanded(index,true);
+        }
+    }
+}
+
+void Qtilities::CoreGui::ObserverWidget::handleTreeModelBuildAboutToStart() {
+    findExpandedItems();
 }
 
 #ifdef QTILITIES_PROPERTY_BROWSER
@@ -3026,23 +3176,23 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
             }
         }
 
-        if (force_full_refresh) {
-            // Here we need to hide all toolbars that does not contain any actions:
-            // Now create all toolbars:
-            for (int i = 0; i < d->action_toolbars.count(); i++) {
-                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
-                bool has_visible_action = false;
-                foreach (QAction* action, toolbar->actions()) {
-                    if (action->isVisible()) {
-                        has_visible_action = true;
-                        break;
-                    }
+        // Here we need to hide all toolbars that does not contain any actions:
+        // This implementation will only hide empty toolbars, they will still be there when right clicking on the toolbar.
+        // However, this is the best solution I believe since the user can still see which toolbars are available, and
+        // then realize that no actions are available for the current selection in hidden toolbars.
+        for (int i = 0; i < d->action_toolbars.count(); i++) {
+            QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+            bool has_visible_action = false;
+            foreach (QAction* action, toolbar->actions()) {
+                if (action->isVisible()) {
+                    has_visible_action = true;
+                    break;
                 }
-                if (!has_visible_action)
-                    toolbar->hide();
-                else
-                    toolbar->show();
             }
+            if (!has_visible_action)
+                toolbar->hide();
+            else
+                toolbar->show();
         }
     } else {
         d->last_display_flags = ObserverHints::NoDisplayFlagsHint;

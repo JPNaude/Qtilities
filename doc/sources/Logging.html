@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setMainWindow(exampleMainWindow);
 
     // Initialize the logger:
+    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
     // We want to capture all messages <= Debug level:
     Log->setGlobalLogLevel(Logger::Debug);

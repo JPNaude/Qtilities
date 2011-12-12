@@ -193,6 +193,13 @@ categorized_widget->show();
               \returns True if the proxy model was successfully set.
               */
             bool setCustomTreeProxyModel(QAbstractProxyModel* proxy_model);
+
+        protected:
+            ObserverTableModel* tableModel() const;
+            ObserverTreeModel* treeModel() const;
+            QAbstractProxyModel* proxyModel() const;
+
+        public:
             //! Sets the display mode of the widget.
             /*!
               \sa displayMode(), toggleDisplayMode()
@@ -215,12 +222,26 @@ categorized_widget->show();
               \sa setReadOnly(), readOnlyStateChanged()
               */
             bool readOnly() const;
-        public slots:
+            //! Finds all expanded items in the current view and set this information on the tree model.
+            void findExpandedItems() const;
+
+        private slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.
             void contextDetachHandler(Observer::SubjectChangeIndication indication, QList<QPointer<QObject> > obj);
             //! Slot which will call the handleSearchStringChanged() slot with an empty QString as parameter.
             void resetProxyModel();
+            //! Shows the single task widget for the tree model rebuilding task.
+            void showProgressInfo(int task_id);
+            //! Hides the single task widget for the tree model rebuilding task.
+            void hideProgressInfo(bool emit_tree_build_completed = true);
+            //! Adapts the size of columns when data changes.
+            void adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight);
+            //! Handles expand item requests from tree model.
+            void handleExpandItemsRequest(QModelIndexList match_items);
+            //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
+            void handleTreeModelBuildAboutToStart();
+
         signals:
             //! Signal which is emitted when the observer context of this widget changes.
             void observerContextChanged(Observer* new_context);
@@ -268,7 +289,7 @@ categorized_widget->show();
             /*!
               This functions copies the hints provided by custom_hints, thus it does not manage the lifetime of the custom_hints instance passed to it.
 
-              \note These hints are only used when usesObserverHints() is false.
+              \note These custom hints are only used when usesObserverHints() is false.
 
               \return True if successfull, false otherwise.
 
@@ -300,7 +321,7 @@ categorized_widget->show();
               \note This connection is made in the readSettings() functions. Thus if you don't want to store settings
               for an ObserverWidget, don't read it when the widget is created.
 
-              For more information see \ref configuration_widget_storage_layout.
+              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
 
               \sa readSettings(), globalMetaType()
               */
@@ -310,7 +331,7 @@ categorized_widget->show();
             /*!
               \note This function must be called only after initialize() was called.
 
-              For more information see \ref configuration_widget_storage_layout.
+              For more information about the saving of settings by %Qtilities classes, see \ref configuration_widget_storage_layout.
 
               \sa writeSettings(), globalMetaType()
               */
@@ -664,6 +685,10 @@ categorized_widget->show();
             void constructActions();
 
         signals:
+            //! Signal which is emitted when a new tree building cycle starts (Only when in TreeView mode).
+            void treeModelBuildStarted(int task_id) const;
+            //! Signal which is emitted when a new tree building cycle ends (Only when in TreeView mode).
+            void treeModelBuildEnded() const;
             //! Signal which is emitted when the add new item action is triggered.
             /*!
               The parameters used during this signal emission is defferent depending on the display mode and the
@@ -746,8 +771,6 @@ categorized_widget->show();
         private:
             //! Disconnects the clipboard's copy and cut actions from this widget.
             void disconnectClipboard();
-
-        protected:
             void changeEvent(QEvent *e);
 
             Ui::ObserverWidget *ui;

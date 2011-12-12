@@ -124,6 +124,7 @@ void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setObjectMap(QMap<QPo
         }
         if (!item) {
             item = new QTreeWidgetItem((QTreeWidget*)0, QStringList(category_string));
+            // If we use this widget in the future: TODO: rather use QFileIconProvider::Folder;
             item->setData(0,Qt::DecorationRole,QIcon(QString(qti_icon_FOLDER_16X16)));
             items.append(item);
         }

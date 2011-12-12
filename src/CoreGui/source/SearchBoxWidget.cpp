@@ -42,13 +42,21 @@ using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::SearchBoxWidgetPrivateData {
-    SearchBoxWidgetPrivateData() : textEdit(0),
+    SearchBoxWidgetPrivateData() : searchOptionRegEx(0),
+        searchOptionFixedString(0),
+        searchOptionWildcard(0),
+        searchPatternGroup(0),
+        textEdit(0),
         plainTextEdit(0) {}
 
     QMenu*                          searchOptionsMenu;
     QAction*                        searchOptionCaseSensitive;
     QAction*                        searchOptionWholeWordsOnly;
+
     QAction*                        searchOptionRegEx;
+    QAction*                        searchOptionFixedString;
+    QAction*                        searchOptionWildcard;
+    QActionGroup*                   searchPatternGroup;
 
     SearchBoxWidget::WidgetTarget   widget_target;
     QTextEdit*                      textEdit;
@@ -84,19 +92,44 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     d->searchOptionsMenu->setObjectName(objectName());
     ui->btnSearchOptions->setIcon(QIcon(qti_icon_SEARCH_OPTIONS_22x22));
     ui->btnSearchOptions->setIconSize(QSize(16,16));
+
     d->searchOptionCaseSensitive = new QAction(tr("Case Sensitive"),0);
     d->searchOptionCaseSensitive->setCheckable(true);
     d->searchOptionCaseSensitive->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionCaseSensitive);
     connect(d->searchOptionCaseSensitive,SIGNAL(triggered()),SLOT(handleOptionsChanged()));
+
     d->searchOptionWholeWordsOnly = new QAction(tr("Whole Words Only"),0);
     d->searchOptionWholeWordsOnly->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionWholeWordsOnly);
     d->searchOptionWholeWordsOnly->setCheckable(true);
+    connect(d->searchOptionWholeWordsOnly,SIGNAL(triggered()),SLOT(handleOptionsChanged()));
+
+    d->searchOptionsMenu->addSeparator();
+
     d->searchOptionRegEx = new QAction(tr("Regular Expression"),0);
     d->searchOptionRegEx->setObjectName(objectName());
     d->searchOptionsMenu->addAction(d->searchOptionRegEx);
     d->searchOptionRegEx->setCheckable(true);
+
+    d->searchOptionWildcard = new QAction(tr("Wildcard Expression"),0);
+    d->searchOptionWildcard->setObjectName(objectName());
+    d->searchOptionsMenu->addAction(d->searchOptionWildcard);
+    d->searchOptionWildcard->setCheckable(true);
+
+    d->searchOptionFixedString = new QAction(tr("Fixed String"),this);
+    d->searchOptionFixedString->setObjectName(objectName());
+    d->searchOptionsMenu->addAction(d->searchOptionFixedString);
+    d->searchOptionFixedString->setCheckable(true);
+
+    d->searchPatternGroup = new QActionGroup(this);
+    d->searchPatternGroup->addAction(d->searchOptionRegEx);
+    d->searchPatternGroup->addAction(d->searchOptionWildcard);
+    d->searchPatternGroup->addAction(d->searchOptionFixedString);
+    d->searchOptionWildcard->setChecked(true);
+
+    connect(d->searchPatternGroup,SIGNAL(triggered(QAction*)),SLOT(handleOptionsChanged()));
+
     ui->btnSearchOptions->setPopupMode(QToolButton::InstantPopup);
     ui->btnSearchOptions->setMenu(d->searchOptionsMenu);
 
@@ -154,11 +187,37 @@ bool Qtilities::CoreGui::SearchBoxWidget::wholeWordsOnly() const {
         return false;
 }
 
-bool Qtilities::CoreGui::SearchBoxWidget::regExpression() const {
-    if (d->searchOptionRegEx)
-        return d->searchOptionRegEx->isChecked();
+QRegExp::PatternSyntax Qtilities::CoreGui::SearchBoxWidget::patternSyntax() const {
+    if (!d->searchOptionFixedString || !d->searchOptionRegEx || !d->searchOptionWildcard)
+        return QRegExp::Wildcard;
+
+    if (d->searchOptionRegEx->isChecked())
+        return QRegExp::RegExp;
+    if (d->searchOptionFixedString->isChecked())
+        return QRegExp::FixedString;
+    if (d->searchOptionWildcard->isChecked())
+        return QRegExp::Wildcard;
     else
-        return false;
+        return QRegExp::Wildcard;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::setPatternSyntax(QRegExp::PatternSyntax pattern_syntax) {
+    if (!d->searchOptionFixedString || !d->searchOptionRegEx || !d->searchOptionWildcard)
+        return;
+
+    if (pattern_syntax == QRegExp::RegExp) {
+        d->searchOptionRegEx->setChecked(true);
+        d->searchOptionWildcard->setChecked(false);
+        d->searchOptionFixedString->setChecked(false);
+    } else if (pattern_syntax == QRegExp::FixedString) {
+        d->searchOptionRegEx->setChecked(false);
+        d->searchOptionWildcard->setChecked(false);
+        d->searchOptionFixedString->setChecked(true);
+    } else if (pattern_syntax == QRegExp::Wildcard) {
+        d->searchOptionRegEx->setChecked(false);
+        d->searchOptionWildcard->setChecked(true);
+        d->searchOptionFixedString->setChecked(false);
+    }
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::setCaseSensitive(bool toggle) {
@@ -169,11 +228,6 @@ void Qtilities::CoreGui::SearchBoxWidget::setCaseSensitive(bool toggle) {
 void Qtilities::CoreGui::SearchBoxWidget::setWholeWordsOnly(bool toggle) {
     if (d->searchOptionWholeWordsOnly)
         return d->searchOptionWholeWordsOnly->setChecked(toggle);
-}
-
-void Qtilities::CoreGui::SearchBoxWidget::setRegExpression(bool toggle) {
-    if (d->searchOptionRegEx)
-        return d->searchOptionRegEx->setChecked(toggle);
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus() {
@@ -230,9 +284,12 @@ void Qtilities::CoreGui::SearchBoxWidget::setSearchOptions(SearchOptions search_
 
     if (d->search_options & RegEx) {
         d->searchOptionRegEx->setVisible(true);
-        d->searchOptionRegEx->setChecked(true);
-    } else {
-        d->searchOptionRegEx->setVisible(false);
+    }
+    if (d->search_options & RegWildcard) {
+        d->searchOptionWildcard->setVisible(true);
+    }
+    if (d->search_options & RegFixedString) {
+        d->searchOptionFixedString->setVisible(true);
     }
 }
 

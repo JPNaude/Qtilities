@@ -366,8 +366,10 @@ bool Qtilities::CoreGui::ActionManager::saveShortcutMapping(const QString& file_
         QString docStr = doc.toString(2);
         file.write(docStr.toAscii());
         file.close();
+        LOG_INFO("Successfully exported shortcut mapping for this session to: " + file_name);
         return true;
     } else {
+        LOG_ERROR("Failed to save shortcut mapping for this session to: " + file_name + ". The file could not be opened in WriteOnly mode.");
         return false;
     }
 }
@@ -459,6 +461,7 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
         }
     }
 
+    LOG_INFO("Successfully imported shortcut mapping for this session from: " + file_name);
     return true;
 }
 

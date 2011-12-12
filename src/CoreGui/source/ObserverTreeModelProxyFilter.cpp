@@ -61,16 +61,9 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sour
         if (tree_item) {
             if (!(row_filter_types & tree_item->itemType()))
                 return true;
-            else {
-                if (!sourceModel()->data(name_index).toString().contains(filterRegExp()))
-                    return false;
-            }
-        } else {
-            if (!sourceModel()->data(name_index).toString().contains(filterRegExp()))
-                return false;
         }
     }
-    return true;
+    return QSortFilterProxyModel::filterAcceptsRow(sourceRow,sourceParent);
 }
 
 void Qtilities::CoreGui::ObserverTreeModelProxyFilter::setRowFilterTypes(ObserverTreeItem::TreeItemTypeFlags type_flags) {

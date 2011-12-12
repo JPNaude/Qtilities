@@ -53,6 +53,9 @@ int main(int argc, char *argv[])
     observer_widget->resize(600,250);
     QtilitiesApplication::setMainWindow(observer_widget);
 
+    QtilitiesApplication::applicationSessionPath();
+    LOG_INITIALIZE();
+
     // Create a tree using TreeNode, a class inherting Observer:
     TreeNode* rootNode = new TreeNode("Root");
     rootNode->toggleQtilitiesPropertyChangeEvents(true);
@@ -76,6 +79,7 @@ int main(int argc, char *argv[])
     action_hints |= ObserverHints::ActionPushDown;
     action_hints |= ObserverHints::ActionPushUp;
     action_hints |= ObserverHints::ActionSwitchView;
+    action_hints |= ObserverHints::ActionRefreshView;
     observer_widget->activeHints()->setActionHints(action_hints);
     ObserverHints::DisplayFlags display_flags = 0;
     display_flags |= ObserverHints::ItemView;

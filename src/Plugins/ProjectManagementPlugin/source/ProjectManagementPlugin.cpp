@@ -46,6 +46,7 @@
 #include <QtPlugin>
 #include <QIcon>
 #include <QLabel>
+#include <QMessageBox>
 #include <QFileDialog>
 
 using namespace Qtilities::Core;
@@ -243,6 +244,15 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_actionProjectSaveAs() {
     if (!PROJECT_MANAGER->currentProject())
         return;
+
+    if (PROJECT_MANAGER->activeProjectBusy()) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Project Busy");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setText("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
+        msgBox.exec();
+        return;
+    }
 
     QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
     QString project_path;

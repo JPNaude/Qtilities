@@ -36,9 +36,9 @@ include(Dependencies.pri)
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
 #   When uncommented, the Testing library contains the Qtilities
 #   unit tests in it.
-DEFINES += QTILITIES_TESTING
+#   DEFINES += QTILITIES_TESTING
 #   When uncommented, basic benchmarking of potentially long operations in
-#   Qtilities is done by logging execution times as warning messages.
+#   Qtilities is done by logging execution times as debug messages.
 #   DEFINES += QTILITIES_BENCHMARKING
 #****************************************************************************
 
@@ -51,7 +51,7 @@ CONFIG              += ordered qt
 #****************************************************************************
 # Build mode
 #****************************************************************************
-CONFIG              += debug
+CONFIG              += release
 
 #****************************************************************************
 # Library includes

@@ -415,7 +415,7 @@ void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 #ifndef QT_NO_PRINTER
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
     if (!fileName.isEmpty()) {
-        if (QFileInfo(fileName).suffix().isEmpty())
+        if (QFileInfo(fileName).completeSuffix().isEmpty())
             fileName.append(".pdf");
         QPrinter printer(QPrinter::HighResolution);
         printer.setOutputFormat(QPrinter::PdfFormat);
@@ -427,8 +427,11 @@ void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QString& request_id) {
     if (request_id == d->global_meta_type || request_id == "AllCodeEditors") {
+        if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+            return;
+
         // Read the text editor settings from QSettings
-        QSettings settings;
+        QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
         settings.beginGroup("Qtilities");
         settings.beginGroup("GUI");
         settings.beginGroup("Editors");
@@ -437,7 +440,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
         QFont font;
         font.setFamily(settings.value("font_type","Courier").toString());
         font.setFixedPitch(true);
-        font.setPointSize(settings.value("font_size",10).toInt());
+        font.setPointSize(settings.value("font_size",8).toInt());
         d->codeEditor->setFont(font);
 
         settings.endGroup();
@@ -495,7 +498,6 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     QList<int> context;
     context.push_front(context_id);
 
-    bool current_processing_cycle_active = ACTION_MANAGER->commandObserver()->isProcessingCycleActive();
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
 
     // ---------------------------
@@ -681,8 +683,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->actionSave)
         connect(d->codeEditor,SIGNAL(modificationChanged(bool)),d->actionSave,SLOT(setEnabled(bool)));
 
-    if (!current_processing_cycle_active)
-        ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {

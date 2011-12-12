@@ -123,6 +123,7 @@ OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
             void handle_BtnLoadConfigClicked();
             void handle_BtnApplyClicked();
             void resizeCommandTableRows();
+            void on_btnViewLog_clicked();
 
         private:
             void refreshLoggerEngineInformation();

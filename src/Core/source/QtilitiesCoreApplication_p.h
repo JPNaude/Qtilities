@@ -37,6 +37,7 @@
 #include "QtilitiesCore_global.h"
 #include "ObjectManager.h"
 #include "ContextManager.h"
+#include "TaskManager.h"
 #include "VersionInformation.h"
 
 namespace Qtilities {
@@ -56,6 +57,8 @@ namespace Qtilities {
             Qtilities::Core::Interfaces::IObjectManager* objectManager() const;
             //! Function to access context manager pointer.
             Qtilities::Core::Interfaces::IContextManager* contextManager() const;
+            //! Function to access task manager pointer.
+            Qtilities::Core::TaskManager* taskManager() const;
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.
@@ -64,9 +67,29 @@ namespace Qtilities {
             //! Returns the version number of %Qtilities.
             VersionNumber qtilitiesVersion() const;
             //! Gets the session path used in your application.
+            /*!
+              By default this returns applicationSessionPathDefault() in a core application. In a GUI application it is overwritten by QtilitiesApplication to become:
+\code
+QDesktopServices::storageLocation(QDesktopServices::DataLocation)
+\endcode
+              */
             QString applicationSessionPath() const;
+            //! The default session path.
+            /*!
+              By default this returns:
+\code
+QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+\endcode
+
+              \sa setApplicationSessionPath()
+              */
+            QString applicationSessionPathDefault() const;
             //! Sets the session path to be used in your application.
+            /*!
+              \sa applicationSessionPath()
+              */
             void setApplicationSessionPath(const QString& path);
+
             //! Sets the application export format for your application.
             /*!
               \sa Qtilities::Core::IExportable::applicationExportVersion(), applicationExportVersion()
@@ -78,6 +101,23 @@ namespace Qtilities {
               */
             quint32 applicationExportVersion() const;
 
+            //! Gets the path of an ini file which is used by all %Qtilities classes to saved information between different sessions.
+            QString qtilitiesSettingsPath();
+            //! Enables/disables the saving of settings by %Qtilities classes.
+            void setQtilitiesSettingsEnabled(bool is_enabled);
+            //! Gets if the saving of settings by %Qtilities classes is enabled.
+            bool qtilitiesSettingsPathEnabled() const;
+
+            //! Sets if the application is busy, thus it cannot be closed.
+            /*!
+              This function uses a stacked approach, thus your setApplicationBusy(false) calls must match the number of setApplicationBusy(true) calls.
+
+              For more information on this type of stacked approach, see Qtilities::Core::Observer::startProcessingCycle().
+              */
+            void setApplicationBusy(bool is_busy);
+            //! Gets if the application is busy, thus it cannot be closed.
+            bool applicationBusy() const;
+
         private:
             QtilitiesCoreApplicationPrivate();
             static QtilitiesCoreApplicationPrivate* m_Instance;
@@ -86,9 +126,12 @@ namespace Qtilities {
             IObjectManager*     d_objectManagerIFace;
             ContextManager*     d_contextManager;
             IContextManager*    d_contextManagerIFace;
+            TaskManager*        d_taskManager;
             QString             d_application_session_path;
             VersionNumber       d_version_number;
-            quint32              d_application_export_version;
+            quint32             d_application_export_version;
+            bool                d_settings_enabled;
+            int                 d_application_busy_count;
         };
     }
 }

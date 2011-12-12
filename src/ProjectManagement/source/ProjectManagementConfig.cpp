@@ -35,9 +35,15 @@
 #include "ui_ProjectManagementConfig.h"
 #include "ProjectManager.h"
 
+#include <QtilitiesFileInfo>
+
+#include <QtilitiesApplication>
+#include <QtilitiesCoreGuiConstants>
+
 #include <QFileDialog>
 
-#include <QtilitiesCoreGuiConstants>
+using namespace Qtilities::Core;
+using namespace Qtilities::CoreGui;
 using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(QWidget *parent) :
@@ -46,11 +52,12 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
 {
     ui->setupUi(this);
     ui->btnOpenProjectsPath->setIcon(QIcon(qti_icon_FILE_OPEN_16x16));
+    ui->btnRestoreDefaultPath->setIcon(QIcon(qti_icon_EDIT_UNDO_16x16));
     ui->chkOpenLastProject->setChecked(PROJECT_MANAGER->openLastProjectOnStartup());
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());
     ui->chkUseCustomProjectsPath->setChecked(PROJECT_MANAGER->useCustomProjectsPath());
-    ui->txtCustomProjectsPath->setText(PROJECT_MANAGER->customProjectsPath());
+
     if (ui->chkOpenLastProject->isChecked()) {
         ui->chkCreateNewOnStartup->setEnabled(true);
     } else {
@@ -87,6 +94,8 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     connect(ui->radioSaveAutomatically,SIGNAL(toggled(bool)),SLOT(handle_radioSaveAutomatically(bool)));
     connect(ui->txtCustomProjectsPath,SIGNAL(textChanged(QString)),SLOT(handle_txtCustomProjectsPathTextChanged(QString)));
     connect(ui->btnOpenProjectsPath,SIGNAL(clicked()),SLOT(handle_btnOpenProjectsPath()));
+
+    ui->txtCustomProjectsPath->setText(PROJECT_MANAGER->customProjectsPath());
 }
 
 Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
@@ -111,6 +120,19 @@ Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManageme
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
+    // Create projects path if it does not exist:
+    if (!ui->txtCustomProjectsPath->text().isEmpty()) {
+        if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
+            QDir dir(ui->txtCustomProjectsPath->text());
+            if (!dir.exists()) {
+                if (dir.mkpath(ui->txtCustomProjectsPath->text())) {
+                    LOG_INFO_P("Successfully created custom projects path at: " + ui->txtCustomProjectsPath->text());
+                }
+            }
+        }
+    }
+    handle_txtCustomProjectsPathTextChanged();
+
     PROJECT_MANAGER->writeSettings();
 }
 
@@ -118,8 +140,7 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnClearRecen
     PROJECT_MANAGER->clearRecentProjects();
 }
 
-void Qtilities::ProjectManagement::ProjectManagementConfig::changeEvent(QEvent *e)
-{
+void Qtilities::ProjectManagement::ProjectManagementConfig::changeEvent(QEvent *e) {
     QWidget::changeEvent(e);
     switch (e->type()) {
     case QEvent::LanguageChange:
@@ -166,11 +187,34 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnOpenProjec
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_txtCustomProjectsPathTextChanged(QString new_path) {
-    QDir new_dir(new_path);
-    if (new_dir.exists()) {
-        ui->txtCustomProjectsPath->setStyleSheet("color: black");
-        PROJECT_MANAGER->setCustomProjectsPath(new_path);
-    } else {
+    Q_UNUSED(new_path)
+
+    if (ui->txtCustomProjectsPath->text().isEmpty()) {
+        ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
+        ui->lblPathMessageText->setText("Your custom projects path cannot be empty.");
         ui->txtCustomProjectsPath->setStyleSheet("color: red");
+    } else {
+        if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
+            QDir dir(ui->txtCustomProjectsPath->text());
+            if (dir.exists()) {
+                ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
+                ui->lblPathMessageText->setText("Your custom projects path exists and is correct.");
+                ui->txtCustomProjectsPath->setStyleSheet("color: black");
+            } else {
+                ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16));
+                ui->lblPathMessageText->setText("Your custom projects path does not exists. It will be created as soon as you Apply.");
+                ui->txtCustomProjectsPath->setStyleSheet("color: black");
+            }
+        } else {
+            ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
+            ui->lblPathMessageText->setText("Your path contains invalid characters: " + QtilitiesFileInfo::invalidFilePathCharacters());
+            ui->txtCustomProjectsPath->setStyleSheet("color: red");
+        }
     }
+
+    PROJECT_MANAGER->setCustomProjectsPath(ui->txtCustomProjectsPath->text());
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnRestoreDefaultPath_clicked() {
+    ui->txtCustomProjectsPath->setText(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects");
 }

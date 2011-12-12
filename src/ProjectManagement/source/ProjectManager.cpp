@@ -37,6 +37,8 @@
 
 #include <QtilitiesCore>
 
+#include <QtilitiesApplication>
+
 #include <QMutex>
 #include <QCoreApplication>
 #include <QMap>
@@ -47,31 +49,36 @@
 #include <QFileDialog>
 
 using namespace QtilitiesCore;
+using namespace Qtilities::CoreGui;
 using namespace Qtilities::ProjectManagement::Constants;
 
 struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
-    recent_projects_size(5),
-    is_initialized(false),
-    project_types(IExportable::Binary | IExportable::XML),
-    default_project_type(IExportable::XML) {}
+        current_project_busy_count(0),
+        recent_projects_size(5),
+        is_initialized(false),
+        project_types(IExportable::Binary | IExportable::XML),
+        default_project_type(IExportable::XML),
+        project_changed_during_load(false) {}
 
-    QPointer<Project>               current_project;
-    QList<IProjectItem*>            item_list;
-    QMap<QString, QVariant>         recent_project_names;
-    QStringList                     recent_project_stack;
-    int                             recent_projects_size;
-    QPointer<ProjectManagementConfig> config_widget;
-    bool                            open_last_project;
-    bool                            auto_create_new_project;
-    bool                            use_custom_projects_path;
-    QString                         custom_projects_path;
-    bool                            check_modified_projects;
+    QPointer<Project>                       current_project;
+    int                                     current_project_busy_count;
+    QList<IProjectItem*>                    item_list;
+    QMap<QString, QVariant>                 recent_project_names;
+    QStringList                             recent_project_stack;
+    int                                     recent_projects_size;
+    QPointer<ProjectManagementConfig>       config_widget;
+    bool                                    open_last_project;
+    bool                                    auto_create_new_project;
+    bool                                    use_custom_projects_path;
+    QString                                 custom_projects_path;
+    bool                                    check_modified_projects;
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
-    bool                            is_initialized;
-    IExportable::ExportModeFlags    project_types;
-    IExportable::ExportMode         default_project_type;
-    QMap<IExportable::ExportMode,QString> suffices;
+    bool                                    is_initialized;
+    IExportable::ExportModeFlags            project_types;
+    IExportable::ExportMode                 default_project_type;
+    QMap<IExportable::ExportMode,QString>   suffices;
+    bool                                    project_changed_during_load;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -99,6 +106,19 @@ Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : 
 
     d->suffices[IExportable::Binary] = qti_def_SUFFIX_PROJECT_BINARY;
     d->suffices[IExportable::XML] = qti_def_SUFFIX_PROJECT_XML;
+
+    // Register the tasks contained in this object:
+    // Create TaskSaveProject:
+    Task* taskSaveProject = new Task(taskNameToString(TaskSaveProject),false,this);
+    registerTask(taskSaveProject,taskNameToString(TaskSaveProject));
+
+    // Create TaskOpenProject:
+    Task* taskOpenProject = new Task(taskNameToString(TaskOpenProject),false,this);
+    registerTask(taskOpenProject,taskNameToString(TaskOpenProject));
+
+    // Create TaskCloseProject:
+    Task* taskCloseProject = new Task(taskNameToString(TaskCloseProject),false,this);
+    registerTask(taskCloseProject,taskNameToString(TaskCloseProject));
 }
 
 Qtilities::ProjectManagement::ProjectManager::~ProjectManager()
@@ -152,7 +172,7 @@ QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter(
 
 bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QString& file_name) const {
     QFileInfo fi(file_name);
-    if (d->suffices.values().contains(fi.suffix()))
+    if (d->suffices.values().contains(fi.completeSuffix()))
         return true;
     else
         return false;
@@ -167,11 +187,12 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
         d->current_project->setProjectItems(d->item_list,true);
         return true;
     } else {
-        closeProject();
-        d->current_project = new Project;
-        connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
-        d->current_project->setProjectItems(d->item_list,true);
-        return true;
+        if (closeProject()) {
+            d->current_project = new Project;
+            connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+            d->current_project->setProjectItems(d->item_list,true);
+            return true;
+        }
     }
 
     return false;
@@ -179,6 +200,23 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
 
 bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
     if (d->current_project) {
+        if (activeProjectBusy()) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Project Busy");
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.setText("You cannot close the current project while it is busy.<br>Wait for it to become idle and try again.");
+            msgBox.exec();
+            return false;
+        }
+
+        int task_id = findTaskID(taskNameToString(TaskCloseProject));
+        Task* task_ref = 0;
+        if (isTaskActive(task_id)) {
+            task_ref = findTask(taskNameToString(TaskCloseProject));
+            Q_ASSERT(task_ref);
+            task_ref->startTask(-1,tr("Closing Project"));
+        }
+
         emit projectClosingStarted(d->current_project->projectFile());
         bool success = true;
 
@@ -191,9 +229,14 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
         d->current_project->disconnect(this);
         delete d->current_project;
         d->current_project = 0;
-        emit modificationStateChanged(false);
 
+        emit modificationStateChanged(false);
         emit projectClosingFinished(success);
+
+        if (task_ref) {
+            task_ref->setDisplayName(tr("Closed Project"));
+            task_ref->completeTask(ITask::TaskSuccessful);
+        }
     }
     return true;
 }
@@ -210,7 +253,19 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         delete d->current_project;
     }
 
+    int task_id = findTaskID(taskNameToString(TaskOpenProject));
+    Task* task_ref = 0;
+    if (isTaskActive(task_id)) {
+        task_ref = findTask(taskNameToString(TaskOpenProject));
+        Q_ASSERT(task_ref);
+        QFileInfo fi(file_name);
+        task_ref->setDisplayName(tr("Opening Project: ") + fi.fileName());
+        task_ref->startTask(-1,tr("Opening Project: ") + fi.fileName(),Logger::Info);
+    }
+
+    markProjectAsChangedDuringLoad(false);
     emit projectLoadingStarted(file_name);
+
     d->current_project = new Project(this);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -220,23 +275,43 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         delete d->current_project;
         QApplication::restoreOverrideCursor();
         emit projectLoadingFinished(file_name,false);
+        markProjectAsChangedDuringLoad(false);
+
+        if (task_ref) {
+            QFileInfo fi(file_name);
+            task_ref->setDisplayName(tr("Opened Project: ") + fi.fileName());
+            task_ref->completeTask(ITask::TaskFailed);
+        }
+
         return false;
     }
 
     addRecentProject(d->current_project);
-    // Still not sure why we need to call it again here:
-    IModificationNotifier::NotificationTargets notify_targets = 0;
-    notify_targets |= IModificationNotifier::NotifyListeners;
-    notify_targets |= IModificationNotifier::NotifySubjects;
-    setModificationState(false,notify_targets);
     QApplication::restoreOverrideCursor();
     emit projectLoadingFinished(file_name,true);
+    markProjectAsChangedDuringLoad(false);
+
+    if (task_ref) {
+        QFileInfo fi(file_name);
+        task_ref->setDisplayName(tr("Opened Project: ") + fi.fileName());
+        task_ref->completeTask(ITask::TaskSuccessful);
+    }
+
     return true;
 }
 
-bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name) {
+bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name, bool respect_project_busy) {
     if (!d->current_project)
+        return false; 
+
+    if (activeProjectBusy() && respect_project_busy) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Project Busy");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setText("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
+        msgBox.exec();
         return false;
+    }
 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     if (file_name.isEmpty()) {
@@ -259,13 +334,42 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
             file_name = d->current_project->projectFile();
     }
 
+    int task_id = findTaskID(taskNameToString(TaskSaveProject));
+    Task* task_ref = 0;
+    if (isTaskActive(task_id)) {
+        task_ref = findTask(taskNameToString(TaskSaveProject));
+        Q_ASSERT(task_ref);
+        QFileInfo fi(file_name);
+        task_ref->setDisplayName(tr("Saving Project: ") + fi.fileName());
+        task_ref->startTask(-1,tr("Saving Project: ") + fi.fileName(),Logger::Info);
+    }
+
+    emit projectSavingStarted(file_name);
+
     if (d->current_project->saveProject(file_name)) {
         addRecentProject(d->current_project);
         QApplication::restoreOverrideCursor();
+
+        emit projectSavingFinished(file_name,true);
+
+        if (task_ref) {
+            QFileInfo fi(file_name);
+            task_ref->setDisplayName(tr("Saved Project: ") + fi.fileName());
+            task_ref->completeTask(ITask::TaskSuccessful);
+        }
+
         return true;
     }
 
     QApplication::restoreOverrideCursor();
+    emit projectSavingFinished(file_name,false);
+
+    if (task_ref) {
+        QFileInfo fi(file_name);
+        task_ref->setDisplayName(tr("Saved Project: ") + fi.fileName());
+        task_ref->completeTask(ITask::TaskFailed);
+    }
+
     return false;
 }
 
@@ -310,6 +414,35 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
         }
     }
     setProjectItemList(projectItems);
+}
+
+void Qtilities::ProjectManagement::ProjectManager::setActiveProjectBusy(bool is_busy) {
+    int previous_count = d->current_project_busy_count;
+
+    if (is_busy) {
+        ++d->current_project_busy_count;
+    } else {
+        if (d->current_project_busy_count > 0)
+            --d->current_project_busy_count;
+        else
+            qWarning() << "setActiveProjectBusy(false) called too many times on QtilitiesCoreApplication";
+    }
+
+    #ifdef QTILITIES_BENCHMARKING
+    qDebug() << "Settings current project busy: " << d->current_project_busy_count;
+    #endif
+
+    if (previous_count == 0 && d->current_project_busy_count == 1) {
+        // Project becomes busy:
+        QtilitiesCoreApplication::setApplicationBusy(true);
+    } else if (previous_count == 1 && d->current_project_busy_count == 0) {
+        // Project not busy anymore:
+        QtilitiesCoreApplication::setApplicationBusy(false);
+    }
+}
+
+bool Qtilities::ProjectManagement::ProjectManager::activeProjectBusy() const {
+    return (d->current_project_busy_count > 0);
 }
 
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() const {
@@ -376,7 +509,7 @@ bool Qtilities::ProjectManagement::ProjectManager::createNewProjectOnStartup() c
 }
 
 void Qtilities::ProjectManagement::ProjectManager::setCustomProjectsPath(const QString& projects_path) {
-    d->custom_projects_path = projects_path;
+    d->custom_projects_path = QDir::toNativeSeparators(QDir::cleanPath(projects_path));
 }
 
 QString Qtilities::ProjectManagement::ProjectManager::customProjectsPath() const {
@@ -409,14 +542,17 @@ void Qtilities::ProjectManagement::ProjectManager::setModifiedProjectsHandlingPo
 }
 
 void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
-    // Store settings using QSettings only if it was initialized
-    QSettings settings;
+    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+        return;
+
+    // Write the settings:
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Projects");
     settings.setValue("open_last_project", d->open_last_project);
     settings.setValue("auto_create_new_project", d->auto_create_new_project);
-    settings.setValue("recent_project_map", QVariant(d->recent_project_names));
-    settings.setValue("recent_project_stack", QVariant(d->recent_project_stack));
+    settings.setValue("recent_project_map", d->recent_project_names);
+    settings.setValue("recent_project_stack", d->recent_project_stack);
     settings.setValue("use_custom_projects_path", d->use_custom_projects_path);
     settings.setValue("check_modified_projects", d->check_modified_projects);
     settings.setValue("modified_projects_handling_policy", QVariant((int) d->modified_projects_handling_policy));
@@ -426,11 +562,8 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
 }
 
 void Qtilities::ProjectManagement::ProjectManager::readSettings() {
-    if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::organizationDomain().isEmpty() || QCoreApplication::applicationName().isEmpty())
-        LOG_DEBUG("The project manager may not be able to restore paramaters from previous sessions since the correct details in QCoreApplication have not been set.");
-
     // Load project management paramaters using QSettings()
-    QSettings settings;
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Projects");
     d->open_last_project = settings.value("open_last_project", false).toBool();
@@ -438,13 +571,9 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     d->use_custom_projects_path = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();
     d->modified_projects_handling_policy = (ProjectManager::ModifiedProjectsHandlingPolicy) settings.value("modified_projects_handling_policy", 0).toInt();
-    d->custom_projects_path = settings.value("custom_projects_path",QCoreApplication::applicationDirPath() + "/projects").toString();
+    d->custom_projects_path = settings.value("custom_projects_path",QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects").toString();
     d->recent_project_names = settings.value("recent_project_map", false).toMap();
-    QList<QVariant> variant_stack_list = settings.value("recent_project_stack", false).toList();
-    QStringList string_stack_list;
-    for (int i = 0; i < variant_stack_list.count(); i++)
-        string_stack_list << variant_stack_list.at(i).toString();
-    d->recent_project_stack = string_stack_list;
+    d->recent_project_stack = settings.value("recent_project_stack", QStringList()).toStringList();
     settings.endGroup();
     settings.endGroup();
 }
@@ -459,10 +588,11 @@ void Qtilities::ProjectManagement::ProjectManager::initialize() {
     // Settings was already read in the constructor.
     if (d->open_last_project) {
         QString last_project;
-        if (d->recent_project_names.count() > 0)
+        if (d->recent_project_names.count() > 0 && d->recent_project_stack.count() > 0)
             last_project = d->recent_project_stack.front();
+
         if (!last_project.isEmpty()) {
-            LOG_INFO_P(tr("Loading project from last session from path: ") + last_project);
+            LOG_INFO_P(tr("Opening project from last session from path: ") + last_project);
             QApplication::processEvents();
             if (!openProject(last_project)) {
                 // We create a empty project when the last project was not valid and auto create project is set.
@@ -499,6 +629,7 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
             if (d->modified_projects_handling_policy == PromptUser) {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle("Project Manager");
+                msgBox.setIcon(QMessageBox::Question);
                 msgBox.setText("Do you want to save your current project before you exit?");
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 msgBox.setDefaultButton(QMessageBox::Yes);
@@ -513,6 +644,14 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
     }
 
     writeSettings();
+}
+
+void Qtilities::ProjectManagement::ProjectManager::markProjectAsChangedDuringLoad(bool changed) {
+    d->project_changed_during_load = changed;
+}
+
+bool Qtilities::ProjectManagement::ProjectManager::projectChangedDuringLoad() {
+    return d->project_changed_during_load;
 }
 
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {

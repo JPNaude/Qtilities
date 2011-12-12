@@ -831,19 +831,19 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelationalTable::exportBinary(QDataStream& stream) const {
     // Stream the entries one after another:
     stream << (quint32) count();
-    bool all_successfull = true;
+    bool all_successful = true;
     for (int i = 0; i < count(); i++) {
         if (entryAt(i)) {
             entryAt(i)->setExportVersion(exportVersion());
             if (entryAt(i)->exportBinary(stream) != IExportable::Complete)
-                all_successfull = false;
+                all_successful = false;
         } else {
             LOG_ERROR(QString(QObject::tr("Internal error, ObserverRelationalTable::exportBinary(stream) found null object in entry position %1/%2")).arg(i).arg(count()));
             return IExportable::Failed;
         }
     }
 
-    if (all_successfull)
+    if (all_successful)
         return IExportable::Complete;
     else
         return IExportable::Failed;
@@ -879,7 +879,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelati
         return IExportable::Failed;
 
     object_node->setAttribute("EntryCount",d->entries.count());
-    bool all_successfull = true;
+    bool all_successful = true;
     for (int i = 0; i < d->entries.count(); i++) {
         QDomElement entry = doc->createElement("Entry_" + QString::number(i));
         object_node->appendChild(entry);
@@ -889,7 +889,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelati
         }
     }
 
-    if (all_successfull)
+    if (all_successful)
         return IExportable::Complete;
     else
         return IExportable::Failed;

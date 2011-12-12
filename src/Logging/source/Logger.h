@@ -141,6 +141,8 @@ namespace Qtilities {
               - Qtilities::Logging::FormattingEngine_Default
               - Qtilities::Logging::FormattingEngine_XML
 
+              \param engine_name The name of the engine to log to. If empty the message will be logged to all engines.
+
               \sa LOG_DEBUG, LOG_ERROR, LOG_WARNING, LOG_INFO, LOG_TRACE, LOG_FATAL
               */
             void logMessage(const QString& engine_name, MessageType message_type, const QVariant& message, const QVariant& msg1 = QVariant(),
@@ -238,8 +240,14 @@ namespace Qtilities {
             // Functions related to updating of QSettings
             // -----------------------------------------
             //! Stores the logging parameters using QSettings.
+            /*!
+              For more information see \ref configuration_widget_storage_layout and loggerSettingsEnabled()
+              */
             void writeSettings() const;
             //! Reads the current logging paramaters stored in QSettings.
+            /*!
+              For more information see \ref configuration_widget_storage_layout.
+              */
             void readSettings();
             //! Tell the logger to remember the current logging configuration the next time the appplication starts.
             /*!
@@ -317,10 +325,44 @@ namespace Qtilities {
             //! Detaches the logger engine specified.
             bool detachLoggerEngine(AbstractLoggerEngine* logger_engine);
 
-            //! Loads the session config from a previous session. If no file name is passed, the default session log file is used.
+            //! Loads the session config from a previous session.
+            /*!
+                If no file name is passed, the default session log file is used at QCoreApplication::applicationDirPath() + Qtilities::Logging::Constants::qti_def_PATH_SESSION + QDir::separator() + Qtilities::Logging::Constants::qti_def_PATH_LOGCONFIG_FILE.
+                However in GUI applications the default path changes, see Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath().
+            */
             bool loadSessionConfig(QString file_name = QString());
-            //! Save the current config to a file. If no file name is passed, the default session log file is used.
+            //! Save the current config to a file.
+            /*!
+                If no file name is passed, the default session log file in GUI applications is used at QCoreApplication::applicationDirPath() + Qtilities::Logging::Constants::qti_def_PATH_SESSION + QDir::separator() + Qtilities::Logging::Constants::qti_def_PATH_LOGCONFIG_FILE.
+                However in GUI applications the default path changes, see Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath().
+
+                This function is automatically called in:
+                - finalize() only when loggerSettingsEnabled() is true.
+                - When the user clicks apply in Qtilities::CoreGui::LoggerConfigWidget.
+            */
             bool saveSessionConfig(QString file_name = QString(), Qtilities::ExportVersion version = Qtilities::Qtilities_Latest) const;
+
+            //! Sets the session config path to be used by the logger.
+            /*!
+              The logger uses this path to save internal settings, and to save its logger configurations.
+
+              For more information about internal settings see \ref configuration_widget_storage_layout and loggerSettingsEnabled().
+              */
+            void setLoggerSessionConfigPath(const QString path);
+            //! Enables/disables the saving of settings by the logger.
+            /*!
+              Saving is enabled by default.
+
+              \sa loggerSettingsEnabled(), \ref configuration_widget_storage_layout
+              */
+            void setLoggerSettingsEnabled(bool is_enabled);
+            //! Gets if the saving of settings by the logger is enabled.
+            /*!
+              Saving is enabled by default.
+
+              \sa setLoggerSettingsEnabled(), \ref configuration_widget_storage_layout
+              */
+            bool loggerSettingsEnabled() const;
 
         signals:
             //! Signal which is emitted when a new message was logged. The logger connects all logger engines to this signal.
@@ -355,6 +397,9 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 /*!
     The initialization will create default formatting and logger engines for you. When rememberSessionConfig() is true, the initialization will also restore your previous configuration.
     \sa Qtilities::Logging::Logger::initialize()
+
+    In GUI applications, its recommended to call QtilitiesApplication::applicationSessionPath() directory before the initialization in order for
+    QtilitiesApplication to set the session path used by the logger to the correct path
     */
 #define LOG_INITIALIZE() Log->initialize()
 //! Finalizes the logger.
@@ -371,20 +416,20 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 /*!
     \note Trace messages are not part of release mode builds.
   */
-#define LOG_TRACE(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Trace, Msg)
+#define LOG_TRACE(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Trace, Msg)
 //! Logs a debug message to all active engines.
 /*!
     \note Debug messages are not part of release mode builds.
   */
-#define LOG_DEBUG(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Debug, Msg)
+#define LOG_DEBUG(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Debug, Msg)
 //! Logs an error message to all active engines.
-#define LOG_ERROR(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Error, Msg)
+#define LOG_ERROR(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Error, Msg)
 //! Logs a warning message to all active engines.
-#define LOG_WARNING(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Warning, Msg)
+#define LOG_WARNING(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Warning, Msg)
 //! Logs a fatal message to all active engines.
-#define LOG_FATAL(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Fatal, Msg)
+#define LOG_FATAL(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Fatal, Msg)
 //! Logs an information message to all active engines.
-#define LOG_INFO(Msg) Log->logMessage(QString("All"),Qtilities::Logging::Logger::Info, Msg)
+#define LOG_INFO(Msg) Log->logMessage(QString(),Qtilities::Logging::Logger::Info, Msg)
 
 // -----------------------------------
 // Priority Logging Macros
@@ -393,20 +438,20 @@ Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
 /*!
     \note Trace messages are not part of release mode builds.
   */
-#define LOG_TRACE_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Trace, Msg)
+#define LOG_TRACE_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Trace, Msg)
 //! Logs a priority debug message to all active engines.
 /*!
     \note Debug messages are not part of release mode builds.
   */
-#define LOG_DEBUG_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Debug, Msg)
+#define LOG_DEBUG_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Debug, Msg)
 //! Logs a priority error message to all active engines.
-#define LOG_ERROR_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Error, Msg)
+#define LOG_ERROR_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Error, Msg)
 //! Logs a priority warning message to all active engines.
-#define LOG_WARNING_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Warning, Msg)
+#define LOG_WARNING_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Warning, Msg)
 //! Logs a priority fatal message to all active engines.
-#define LOG_FATAL_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Fatal, Msg)
+#define LOG_FATAL_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Fatal, Msg)
 //! Logs a priority information message to all active engines.
-#define LOG_INFO_P(Msg) Log->logPriorityMessage(QString("All"),Qtilities::Logging::Logger::Info, Msg)
+#define LOG_INFO_P(Msg) Log->logPriorityMessage(QString(),Qtilities::Logging::Logger::Info, Msg)
 
 // -----------------------------------
 // Engine Specific Logging

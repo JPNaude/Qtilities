@@ -259,7 +259,7 @@ Since \p object2 has a parent, it will be attached using \p ManualOwnership and 
 
                 */
                 SpecificObserverOwnership,  /*!< 
-The observer becomes the parent of the subject. That is, when the observer is deleted, the subject is also deleted.
+The observer becomes the parent of the subject (by calling setParent() on the object). That is, when the observer is deleted, the subject is also deleted.
 
 \code
 // Create the observer
@@ -292,6 +292,8 @@ if (object2) {
 \endcode
 
 Both objects will become null after the observers are deleted since \p observerA becomes the specific parent of both objects.
+
+\note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
                 ObserverScopeOwnership,     /*!< 
 The object must have at least on Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
@@ -345,6 +347,8 @@ if (object2) {
 \endcode
 
 Both objects will still be valid after deleting \p observerA since it they are still visible in the scope of \p observerB. After \p observerB is deleted both objects will be null.
+
+\note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
                 OwnedBySubjectOwnership     /*!< 
 The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When the current ownership of a subject is \p OwnedBySubjectOwnership and it is attached to more contexts, the new ownership is ignored during attachment to the new contexts. Thus when a subject was attached to a context using \p OwnedBySubjectOwnership it is attached to all other contexts after that using \p OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using \p OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal.
@@ -372,6 +376,8 @@ if (observerA) {
 \endcode
 
 In this example \p observerA will be deleted as soon as \p object1 is deleted.
+
+\note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
             };
             //! Function which returns a string associated with a specific ObjectOwnership.
@@ -446,7 +452,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
 
               \param toggle True is event filtering is enabled, thus property changes are monitored by the observer. False otherwise.
 
-              \note Event filtering is enabled by default. It is also important to know that events won't be monitored on subjects which were attached while subject event filtering is disabled, even if you turn on subject event filtering again at a later stage. Therefore it is best to call this function only once, before attaching any objects to your observer.
+              \note Event filtering is enabled by default. It is also important to know that events won't be monitored on subjects which were attached while subject event filtering was disabled, even if you turn on subject event filtering again at a later stage. Therefore it is best to call this function only once, before attaching any objects to your observer.
 
               \sa subjectEventFilteringEnabled(), qtilitiesPropertyChangeEventsEnabled()
               */
@@ -563,13 +569,17 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             //! Function to refresh the layout views showing this observer.
             /*!
               This function will emit the layoutChanged() signal with the new_selection parameter.
+
+              \param force When true views will be updated even if a processing cycle is currently active on the observer. When false the processing cycle will be respected.
               */
-            void refreshViewsLayout(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());
+            void refreshViewsLayout(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >(), bool force = false);
             //! Function to refresh the data views showing this observer.
             /*!
               This function will emit the dataChanged(this) signal.
+
+              \param force When true views will be updated even if a processing cycle is currently active on the observer. When false the processing cycle will be respected.
               */
-            void refreshViewsData();
+            void refreshViewsData(bool force = false);
             //! Starts a processing cycle.
             /*!
               When adding/removing many subjects to the observer it makes sense to only let item views know
@@ -582,6 +592,33 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               
               If a processing cycle was already started, this function does nothing.
 
+              Internally observers keep track of how many times you start and end processing cycles. To stop a processing cycle you need to call endProcessingCycle() the same number of times you
+              called startProcessingCycle(). Thus, you don't need to keep track if a processing cycle was already started in the beginning of your function (you don't have to care about it). For example:
+
+\code
+Observer obs;
+obs.startProcessingCycle(); // Internal count = 1;
+obs.startProcessingCycle(); // Internal count = 2;
+
+// Some function gets the observer without any knowledge of previous start/end processing cycle calls:
+// It is not neccessarry to do the following:
+{
+    bool is_cycle_active = obs.isProcessingCycleActive();
+    obs.startProcessingCycle(); // Internal count = 3;
+
+    // Do some batch processing.
+    // If we did not have an internal counter the correct way to end it in a function would be:
+    if (!is_cycle_active)
+        obs.endProcessingCycle(); // Internal count = 2;
+
+    // However, since there is an internal counter we can ignore the is_cycle_active declaration in the above code and just call:
+    obs.endProcessingCycle();
+}
+
+obs.endProcessingCycle(); // Internal count = 1;
+obs.endProcessingCycle(); // Internal count = 0;
+\endcode
+
               \note It is very important to note that the observer's layoutChanged() and dataChanged() signals are not
               emitted during processing cycles. Thus, views displaying the observer are not going to update
               during processing cycles. When calling endProcessingCycle with the \p broadcast parameter set to true (the default) the
@@ -593,7 +630,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             virtual void startProcessingCycle();
             //! Ends a processing cycle.
             /*!
-              Ends a processing cycle started with startProcessingCycle(). If a processing cycle was not started when calling this function, it does nothing.
+              Ends a processing cycle started with startProcessingCycle(). The processing cycle will only be stopped when the number of endProcessingCycle() calls matches the number of
+              startProcessingCycle() calls. If you call endProcessingCycle() too many times an error message will be printed using qWarning().
 
               \param broadcast If the number of subjects changed during the processing cycle (thus, since startProcessingCycle() was called the first time), this function will
               automatically emit numberOfSubjectsChanged() and refreshLayout() when broadcast is true. When false, none of these signals are emitted. Also,
@@ -613,9 +651,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             //! Starts a processing cycle.
             /*!
               Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
-              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function. It
-              is also important to node that endTreeProcessingCycle() does not respect the processing cycles on any observers it encounters. Thus, if you start a processing cycle
-              on an Observer in the tree, calling endTreeProcessingCycle() will not respect the fact that you started and processing cycle already, and it will end it.
+              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function.
 
               \sa endTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
               */
@@ -623,9 +659,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             //! Starts a processing cycle.
             /*!
               Same behavior as startProcessingCyle(), but starts a processing cycle on the complete tree underneath the observer. Thus, processing cycles are started on all observers attached
-              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function. It
-              is also important to node that endTreeProcessingCycle() does not respect the processing cycles on any observers it encounters. Thus, if you start a processing cycle
-              on an Observer in the tree, calling endTreeProcessingCycle() will not respect the fact that you started and processing cycle already, and it will end it.
+              to this observer and those attached to that observer etc. It is important to node that you should use endTreeProcessingCycle() when using this function.
 
               \sa startTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
               */
@@ -636,7 +670,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             // --------------------------------
             //! Will attempt to attach the specified object to the observer. The success of this operation depends on the installed subject filters, as well as the dynamic properties defined for the object to be attached.
             /*!
-              When successfull \p obj will be part of this observer context until it is detached again or deleted.
+              When Successful \p obj will be part of this observer context until it is detached again or deleted.
 
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
@@ -713,6 +747,9 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
         private slots:
             //! Will handle an object which has been deleted somewhere else in the application.
             void handle_deletedSubject(QObject* obj);
+        signals:
+            //! Will be emmitted wehn a subject is deleted.
+            void subjectDeleted(QObject* obj);
 
             // --------------------------------
             // Observer property related functions
@@ -879,6 +916,16 @@ QVERIFY(items_verify.count() == 5);
             QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
             int subjectID(int i) const;
+            //! Returns the ID associated with a specific subject.
+            /*!
+              \note Only depend on this function (where you specify the object using the object's name) when you are sure that
+              objects have unique names. This can be achieved by installing a NamingPolicyFilter in your observer. If names
+              are not unique, the first match of the given subject_name will be used. If you don't care about unique subject names,
+              rather use subjectReference(int ID) to get subject references.
+              */
+            int subjectID(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+            //! Returns the IDs for all the attached subjects.
+            QList<int> subjectIDs() const;
             //! Returns a list with the subject references of all the observed subjects which inherits a specific base class. If you don't specify an interface, all objects in the observer are returned.
             QList<QObject*> subjectReferences(const QString& base_class_name = "QObject") const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
@@ -897,7 +944,10 @@ QVERIFY(items_verify.count() == 5);
             bool contains(const QObject* object) const;
             //! Returns true if a subject with the specified name is currently observed by the observer.
             /*!
-              \sa subjectReference()
+              \note Only depend on this function (where you specify the object using the object's name) when you are sure that
+              objects have unique names. This can be achieved by installing a NamingPolicyFilter in your observer. If names
+              are not unique, the first match of the given subject_name will be used. If you don't care about unique subject names,
+              rather use subjectReference(int ID) to get subject references.
               */
             bool containsSubjectWithName(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
@@ -1010,6 +1060,16 @@ QVERIFY(items_verify.count() == 5);
             QStringList reservedProperties() const;
 
         signals:
+            //! This signal is emitted when an observer is about to be deleted, thus its emitted in the beginning of the observer's destructor.
+            void aboutToBeDeleted();
+            //! This signal is emitted just before all subjects are about to be deleted.
+            void allSubjectsAboutToBeDeleted();
+            //! This signal is emitted after all subjects were deleted.
+            void allSubjectsDeleted();
+            //! This signal is emitted just before all subjects are about to be detached.
+            void allSubjectsAboutToBeDetached();
+            //! This signal is emitted after all subjects were to be detached.
+            void allSubjectsDetached();
             //! A signal which is emitted as soon as a monitored property of the observer or any of the installed subject filters changed.
             /*!
               This signal is usefull when you want to monitor a specific object. This can be done in two ways:

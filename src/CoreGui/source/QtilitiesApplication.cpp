@@ -40,6 +40,7 @@
 #include "TreeItem.h"
 #include "TreeFileItem.h"
 #include "TreeNode.h"
+#include "TaskManagerGui.h"
 
 #include <QtilitiesCoreApplication_p.h>
 #include <Qtilities.h>
@@ -47,6 +48,7 @@
 
 #include <QMutex>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui::Constants;
@@ -73,7 +75,9 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         // Register QList<QPointer<QObject> > in Meta Object System.
         qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
-        //QCoreApplication::instance()->installEventFilter(this);
+        connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(assignLoggerEngineToTask(QObject*)));
+
+        //QCoreApplication::instance()->installEventFilter(this);        
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }
@@ -139,6 +143,10 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
 
     // Register QList<QPointer<QObject> > in Meta Object System.
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
+
+    connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(assignLoggerEngineToTask(QObject*)));
+
+    applicationSessionPath();
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {
@@ -155,21 +163,21 @@ bool Qtilities::CoreGui::QtilitiesApplication::hasInstance(const char *function,
     return instance_exists;
 }
 
-bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent * event) {
-    try
-    {
-        return QApplication::notify(object, event);
-    }
-    catch (...)
-    {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(tr("Exception Caught"));
-        msgBox.setText("The context you are trying to access is locked.");
-        msgBox.exec();
-        LOG_FATAL(tr("QtilitiesApplication Caught Exception..."));
-    }
-    return false;
-}
+//bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent * event) {
+//    try
+//    {
+//        return QApplication::notify(object, event);
+//    }
+//    catch (...)
+//    {
+//        QMessageBox msgBox;
+//        msgBox.setWindowTitle(tr("Exception Caught"));
+//        msgBox.setText("The context you are trying to access is locked.");
+//        msgBox.exec();
+//        LOG_FATAL(tr("QtilitiesApplication Caught Exception..."));
+//    }
+//    return false;
+//}
 
 QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
     qti_private_AboutWindow* about_window = new qti_private_AboutWindow();
@@ -179,10 +187,17 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
 }
 
 QString Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath() {
+    // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
+    if (QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() == QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault()) {
+        QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        Log->setLoggerSessionConfigPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    }
+
     return QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath();
 }
 
 void Qtilities::CoreGui::QtilitiesApplication::setApplicationSessionPath(const QString& path) {
+    Log->setLoggerSessionConfigPath(path);
     QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(path);
 }
 
@@ -192,5 +207,13 @@ void Qtilities::CoreGui::QtilitiesApplication::setApplicationExportVersion(quint
 
 quint32 Qtilities::CoreGui::QtilitiesApplication::applicationExportVersion() {
     return QtilitiesCoreApplicationPrivate::instance()->applicationExportVersion();
+}
+
+void Qtilities::CoreGui::QtilitiesApplication::setApplicationBusy(bool is_busy) {
+    QtilitiesCoreApplicationPrivate::instance()->setApplicationBusy(is_busy);
+}
+
+bool Qtilities::CoreGui::QtilitiesApplication::applicationBusy() {
+    return QtilitiesCoreApplicationPrivate::instance()->applicationBusy();
 }
 

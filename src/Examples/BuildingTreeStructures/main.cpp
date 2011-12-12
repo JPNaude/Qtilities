@@ -48,6 +48,9 @@ int main(int argc, char *argv[])
     QWidget* proxy_widget = new QWidget;
     QtilitiesApplication::setMainWindow(proxy_widget);
 
+    QtilitiesApplication::applicationSessionPath();
+    LOG_INITIALIZE();
+
     // Create the tree nodes:
     /*TreeNode* nodeA = new TreeNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::FollowSelection);
@@ -94,11 +97,11 @@ int main(int argc, char *argv[])
     nodeB->activityPolicyFilter()->setActiveSubjects(active_subjects);*/
 
     // Test XML tree streaming:
-    /*QString path_formatted = QString("%1/test_formatted.xml").arg(QApplication::applicationDirPath());
+    /*QString path_formatted = QString("%1/test_formatted.xml").arg(QtilitiesApplication::applicationSessionPath());
     nodeA->saveToFile(path_formatted);
     nodeA->loadFromFile(path_formatted);
 
-    QString path_test = QString("%1/working_tree.xml").arg(QApplication::applicationDirPath());
+    QString path_test = QString("%1/working_tree.xml").arg(QtilitiesApplication::applicationSessionPath());
     nodeA->addNodeFromFile(path_test);
 
     // Create an observer widget wih the items:
@@ -152,7 +155,7 @@ int main(int argc, char *argv[])
     parentNode2->addItem("Child 4");
     parentNode2->addItem("Child 5");*/
 
-    /*rootNode->saveToFile(QApplication::applicationDirPath() + "/example_tree.xml");
+    /*rootNode->saveToFile(QtilitiesApplication::applicationSessionPath() + "/example_tree.xml");
     ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
     uncategorized_widget->show();*/
 
@@ -169,7 +172,7 @@ int main(int argc, char *argv[])
     // Create a dot script for this tree:
     ObserverDotWriter dotGraph(node);
     dotGraph.generateDotScript();
-    dotGraph.saveToFile(QApplication::applicationDirPath() + "/output_file.gv");*/
+    dotGraph.saveToFile(QtilitiesApplication::applicationSessionPath() + "/output_file.gv");*/
 
     return a.exec();
 }

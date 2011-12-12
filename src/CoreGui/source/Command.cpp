@@ -181,6 +181,7 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
             if (d->id_action_map.keys().contains(context_ids.at(i))) {
                 if (d->id_action_map[context_ids.at(i)] != 0) {
                     LOG_WARNING(tr("Attempting to register a backend action for a proxy action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
+                    qDebug() << "Attempting to register a backend action for a proxy action twice for a single context with name: " << CONTEXT_MANAGER->contextString(context_ids.at(i)) <<  ". Last action will be ignored: " <<  action->text();
                     return;
                 } else {
                     d->id_action_map[context_ids.at(i)] = action;
@@ -197,7 +198,9 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
         }
     }
 
-    updateFrontendAction();
+    // If any of the context_ids are active, we need to update the active backend action:
+    setCurrentContext(CONTEXT_MANAGER->activeContexts());
+    //qDebug() << "Adding action to proxy action:" << defaultText() << activeBackendAction() << CONTEXT_MANAGER->activeContexts();
 }
 
 bool Qtilities::CoreGui::ProxyAction::isActive() {
@@ -223,6 +226,7 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
 
             #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
             LOG_TRACE("Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", ProxyAction shortcut: " + d->proxy_action->shortcut().toString());
+            qDebug() << "Backend action found: " + d->active_backend_action->text() + ", backend shortcut: " + d->active_backend_action->shortcut().toString() + ", ProxyAction shortcut: " + d->proxy_action->shortcut().toString();
             #endif
 
             // This break will ensure that the first context is used for the case where multiple contexts are active at once.
@@ -231,8 +235,10 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
     }
 
     if (d->active_backend_action == old_action && d->initialized)  {
+        updateFrontendAction();
         #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
         LOG_TRACE("New backend action is the same as the current active backend action. Nothing to be done in here.");
+        qDebug() << "New backend action is the same as the current active backend action. Nothing to be done in here.";
         #endif
         return true;
     }
@@ -267,6 +273,7 @@ bool Qtilities::CoreGui::ProxyAction::setCurrentContext(QList<int> context_ids) 
              parent_name = parent->objectName();
         }
         LOG_TRACE("Base action connected: " + d->active_backend_action->text() + ", Base shortcut: " + d->proxy_action->shortcut().toString() + ", Parent: " + parent_name);
+        qDebug() << "Base action connected: " << d->active_backend_action->text() << ", Base shortcut: " << d->proxy_action->shortcut().toString() << ", Parent: " << parent_name;
         #endif
         return true;
     } else {
@@ -316,6 +323,7 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
     for (int i = 0; i < d->id_action_map.count(); i++) {
         backend_action = d->id_action_map.values().at(i);
         if (backend_action) {
+            // Update the tooltip:
             if (backend_action->toolTip().endsWith(old_key_tooltip)) {
                 QString chopped_tooltip = backend_action->toolTip();
                 chopped_tooltip.chop(old_key_tooltip.size());

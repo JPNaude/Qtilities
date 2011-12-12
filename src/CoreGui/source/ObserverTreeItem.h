@@ -61,6 +61,7 @@ namespace Qtilities {
         public:
             //! The possible types of items which can be part of the constructed observer tree.
             enum TreeItemType {
+                InvalidType         = 0, /*!< An invalid type. */
                 TreeItem            = 1, /*!< A tree item. */
                 TreeNode            = 2, /*!< A tree node. */
                 CategoryItem        = 4, /*!< A category item. */
@@ -69,7 +70,8 @@ namespace Qtilities {
             Q_DECLARE_FLAGS(TreeItemTypeFlags, TreeItemType);
             Q_FLAGS(TreeItemTypeFlags);
 
-            ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = TreeNode);
+            ObserverTreeItem(QObject* obj = 0, ObserverTreeItem *parent = 0, const QVector<QVariant> &data = QVector<QVariant>(), TreeItemType type = InvalidType);
+            ObserverTreeItem(const ObserverTreeItem& ref);
             ~ObserverTreeItem();
 
             ObserverTreeItem *child(int row);
@@ -82,7 +84,7 @@ namespace Qtilities {
             int childCount() const;
             int columnCount() const;
             int row() const;
-            ObserverTreeItem *parent();
+            ObserverTreeItem *parentItem() const;
             inline QList<QPointer<ObserverTreeItem> > childItemReferences() const { return childItems; }
             inline void setObject(QObject* object) { obj = object; }
             inline QPointer<QObject> getObject() const { return obj; }
@@ -93,11 +95,11 @@ namespace Qtilities {
             inline QtilitiesCategory category() const { return category_id; }
             //! Sets a references to an observer in the case where the observer is contained within an interface.
             /*!
-            This is used in cases where a non-observer based child is the parent of an observer.
-            An example of this where the requirement is an QObject based interface, thus
-            the object can't inherit from Observer directly. It can but it defeats the purpose of an
-            abstract interface which needs to hide the actual implementation. In such cases use the
-            observer class through containment and make the interface implementation it's parent.
+                This is used in cases where a non-observer based child is the parent of an observer.
+                An example of this where the requirement is an QObject based interface, thus
+                the object can't inherit from Observer directly. It can but it defeats the purpose of an
+                abstract interface which needs to hide the actual implementation. In such cases use the
+                observer class through containment and make the interface implementation it's parent.
               */
             inline void setContainedObserver(Observer* contained_observer) { contained_observer_ref = contained_observer; }
             //! Gets the contained observer reference. The reference is held by the category item.
@@ -109,7 +111,7 @@ namespace Qtilities {
         private:
             QList<QPointer<ObserverTreeItem> > childItems;
             QVector<QVariant> itemData;
-            QPointer<ObserverTreeItem> parentItem;
+            QPointer<ObserverTreeItem> parent_item;
             QPointer<QObject> obj;
             TreeItemType type;
             QtilitiesCategory category_id;

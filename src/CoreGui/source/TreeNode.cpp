@@ -367,7 +367,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
         return IExportable::Failed;
     }
 
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    //QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     // Create the QDomDocument:
     QDomDocument doc("QtilitiesTreeDoc");
@@ -398,7 +398,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     file.write(docStr.toAscii());
     file.close();
 
-    QApplication::restoreOverrideCursor();
+    //QApplication::restoreOverrideCursor();
     return result;
 }
 
@@ -416,7 +416,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         return IExportable::Failed;
     }
     
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    //QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QString docStr = file.readAll();
     QString error_string;
     int error_line;
@@ -426,7 +426,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
             *errorMsg = QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string);
         LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
         file.close();
-        QApplication::restoreOverrideCursor();
+        //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     file.close();
@@ -445,7 +445,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         LOG_INFO(QString(tr("Inspecting tree node file format: Qtilities export format version: %1")).arg(read_version));
     } else {
         LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
-        QApplication::restoreOverrideCursor();
+        //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (root.hasAttribute("QtilitiesVersion"))
@@ -456,7 +456,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
         LOG_INFO(QString(tr("Inspecting tree node file format: Application export format version: %1")).arg(application_read_version));
     } else {
         LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
-        QApplication::restoreOverrideCursor();
+        //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (root.hasAttribute("ApplicationVersion"))
@@ -471,6 +471,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
 
     if (!is_supported_format) {
         LOG_ERROR(QString(tr("Unsupported tree node file found with export version: %1. The file will not be parsed.")).arg(read_version));
+        //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
 
@@ -518,6 +519,48 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     endProcessingCycle();
     refreshViewsLayout();
 
-    QApplication::restoreOverrideCursor();
+    //QApplication::restoreOverrideCursor();
     return result;
 }
+
+//IExportable::Result Qtilities::CoreGui::TreeNode::saveToString(QString* target_string, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
+//    // Save it to a temp file and read back the file:
+//    if (!target_string) {
+//        if (errorMsg)
+//            *errorMsg = "Invalid target string pointer.";
+//        return IExportable::Result;
+//    }
+
+//    QTemporaryFile file;
+//    if (file.open()) {
+//        IExportable::Result result = saveToFile(file.fileName(),errorMsg,export_flags);
+//        *target_string = file.readAll();
+//        return result;
+//    }
+
+//    if (errorMsg)
+//        *errorMsg = "Failed to open a temporary file needed to produce string.";
+//    return IExportable::Failed;
+//}
+
+//IExportable::Result Qtilities::CoreGui::TreeNode::loadFromString(QString* target_string, QString* errorMsg, bool clear_first) {
+//    if (!target_string) {
+//        if (errorMsg)
+//            *errorMsg = "Invalid target string pointer.";
+//        return IExportable::Result;
+//    }
+
+
+//    //clear_first
+
+//    QTemporaryFile file;
+//    if (file.open()) {
+//        IExportable::Result result = saveToFile(file.fileName(),errorMsg,export_flags);
+//        *target_string = file.readAll();
+//        return result;
+//    }
+
+//    if (errorMsg)
+//        *errorMsg = "Failed to open a temporary file needed to produce string.";
+//    return IExportable::Failed;
+//}

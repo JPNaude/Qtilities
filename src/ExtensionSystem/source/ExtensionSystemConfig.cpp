@@ -136,5 +136,4 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::handleSelectionDoubleCli
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::setStatusMessage(const QString& status_message) {
     ui->lblStatusMessage->setText(status_message);
-
 }

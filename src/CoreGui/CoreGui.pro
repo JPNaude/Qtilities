@@ -92,7 +92,11 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModel.h \
     source/StringListWidget.h \
     source/CommandTreeModel.h \
-    source/INamingPolicyDialog.h
+    source/INamingPolicyDialog.h \
+    source/ObserverTreeModelBuilder.h \
+    source/TaskManagerGui.h \
+    source/SingleTaskWidget.h \
+    source/TaskSummaryWidget.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -137,7 +141,11 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTableModel.cpp \
     source/ObserverTreeModel.cpp \
     source/StringListWidget.cpp \
-    source/CommandTreeModel.cpp
+    source/CommandTreeModel.cpp \
+    source/ObserverTreeModelBuilder.cpp \
+    source/TaskManagerGui.cpp \
+    source/SingleTaskWidget.cpp \
+    source/TaskSummaryWidget.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
@@ -154,4 +162,18 @@ FORMS += source/ObserverWidget.ui \
     source/CodeEditorWidget.ui \
     source/CodeEditorWidgetConfig.ui \
     source/SideWidgetFileSystem.ui \
-    source/StringListWidget.ui
+    source/StringListWidget.ui \
+    source/SingleTaskWidget.ui \
+    source/TaskSummaryWidget.ui
+
+
+
+
+
+
+
+
+
+
+
+

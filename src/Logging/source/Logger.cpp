@@ -47,21 +47,22 @@
 using namespace Qtilities::Logging::Constants;
 
 struct Qtilities::Logging::LoggerPrivateData {
-    LoggerFactory<AbstractLoggerEngine> logger_engine_factory;
-    QList<QPointer<AbstractLoggerEngine> > logger_engines;
-    QList<QPointer<AbstractFormattingEngine> > formatting_engines;
-    QString default_formatting_engine;
-    Logger::MessageType global_log_level;
-    bool initialized;
-    bool is_qt_message_handler;
-    bool remember_session_config;
-    QPointer<AbstractFormattingEngine> priority_formatting_engine;
+    LoggerFactory<AbstractLoggerEngine>         logger_engine_factory;
+    QList<QPointer<AbstractLoggerEngine> >      logger_engines;
+    QList<QPointer<AbstractFormattingEngine> >  formatting_engines;
+    QString                                     default_formatting_engine;
+    Logger::MessageType                         global_log_level;
+    bool                                        initialized;
+    bool                                        is_qt_message_handler;
+    bool                                        remember_session_config;
+    QPointer<AbstractFormattingEngine>          priority_formatting_engine;
+    QString                                     session_path;
+    bool                                        settings_enabled;
 };
 
 Qtilities::Logging::Logger* Qtilities::Logging::Logger::m_Instance = 0;
 
-Qtilities::Logging::Logger* Qtilities::Logging::Logger::instance()
-{
+Qtilities::Logging::Logger* Qtilities::Logging::Logger::instance() {
     static QMutex mutex;
     if (!m_Instance)
     {
@@ -76,8 +77,7 @@ Qtilities::Logging::Logger* Qtilities::Logging::Logger::instance()
     return m_Instance;
 }
 
-Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
-{    
+Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent) {
     d = new LoggerPrivateData;
 
     d->default_formatting_engine = QString("Uninitialized");
@@ -85,10 +85,11 @@ Qtilities::Logging::Logger::Logger(QObject* parent) : QObject(parent)
     d->initialized = false;
     d->remember_session_config = false;
     d->priority_formatting_engine = 0;
+    d->session_path = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION;
+    d->settings_enabled = true;
 }
 
-Qtilities::Logging::Logger::~Logger()
-{
+Qtilities::Logging::Logger::~Logger() {
     clear();
     delete d;
 }
@@ -187,7 +188,7 @@ void Qtilities::Logging::Logger::logMessage(const QString& engine_name, MessageT
 
     // Create the correct message context:
     MessageContextFlags context = 0;
-    if (engine_name == "All")
+    if (engine_name.isEmpty())
         context |= SystemWideMessages;
     else
         context |= EngineSpecificMessages;
@@ -560,8 +561,11 @@ Qtilities::Logging::Logger::MessageType Qtilities::Logging::Logger::globalLogLev
 }
 
 void Qtilities::Logging::Logger::writeSettings() const {
+    if (!d->settings_enabled)
+        return;
+
     // Store settings using QSettings only if it was initialized
-    QSettings settings;
+    QSettings settings(d->session_path + QDir::separator() + "qtilities.ini",QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Logging");
     settings.beginGroup("General");
@@ -574,11 +578,8 @@ void Qtilities::Logging::Logger::writeSettings() const {
 }
 
 void Qtilities::Logging::Logger::readSettings() {
-    if (QCoreApplication::organizationName().isEmpty() || QCoreApplication::organizationDomain().isEmpty() || QCoreApplication::applicationName().isEmpty())
-        qDebug() << tr("The logger may not be able to restore paramaters from previous sessions since the correct details in QCoreApplication have not been set.");
-
     // Load logging paramaters using QSettings()
-    QSettings settings;
+    QSettings settings(d->session_path + QDir::separator() + "qtilities.ini",QSettings::IniFormat);
         settings.beginGroup("Qtilities");
     settings.beginGroup("Logging");
     settings.beginGroup("General");
@@ -650,16 +651,16 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     switch (type)
     {
     case QtDebugMsg:
-        Log->logMessage(QString("All"),Logger::Debug, msg);
+        Log->logMessage(QString(),Logger::Debug, msg);
         break;
     case QtWarningMsg:
-        Log->logMessage(QString("All"),Logger::Warning, msg);
+        Log->logMessage(QString(),Logger::Warning, msg);
         break;
     case QtCriticalMsg:
-        Log->logMessage(QString("All"),Logger::Error, msg);
+        Log->logMessage(QString(),Logger::Error, msg);
         break;
     case QtFatalMsg:
-        Log->logMessage(QString("All"),Logger::Fatal, msg);
+        Log->logMessage(QString(),Logger::Fatal, msg);
         msgMutex.unlock();
         abort();
     }
@@ -726,11 +727,26 @@ void Qtilities::Logging::Logger::toggleConsoleEngine(bool toggle) {
         ConsoleLoggerEngine::instance()->setActive(toggle);
 }
 
+void Qtilities::Logging::Logger::setLoggerSessionConfigPath(const QString path) {
+    d->session_path = path;
+}
+
+void Qtilities::Logging::Logger::setLoggerSettingsEnabled(bool is_enabled) {
+    d->settings_enabled = is_enabled;
+}
+
+bool Qtilities::Logging::Logger::loggerSettingsEnabled() const {
+    return d->settings_enabled;
+}
+
 quint32 MARKER_LOGGER_CONFIG_TAG = 0xFAC0000F;
 
 bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name, Qtilities::ExportVersion version) const {
+    if (!d->settings_enabled)
+        return false;
+
     if (file_name.isEmpty())
-        file_name = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION + "/" + qti_def_PATH_LOGCONFIG_FILE;
+        file_name = d->session_path + QDir::separator() + qti_def_PATH_LOGCONFIG_FILE;
 
     LOG_DEBUG(tr("Logging configuration export started to ") + file_name);
 
@@ -740,8 +756,8 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name, Qtilities:
 
     // Check if the directory exists:
     QFile file(file_name);
-    if (!file.open(QIODevice::ReadWrite)) {
-        LOG_DEBUG(tr("Logging configuration export failed to ") + file_name + tr(". The file could not be opened."));
+    if (!file.open(QIODevice::WriteOnly)) {
+        LOG_DEBUG(tr("Logging configuration export failed to ") + file_name + tr(". The file could not be opened in WriteOnly mode."));
         return false;
     }
     QDataStream stream(&file);
@@ -794,18 +810,18 @@ bool Qtilities::Logging::Logger::saveSessionConfig(QString file_name, Qtilities:
     if (success) {
         stream << MARKER_LOGGER_CONFIG_TAG;
         file.close();
-        LOG_INFO(tr("Logging configuration successfully exported to ") + file_name);
+        LOG_INFO(tr("Successfully exported logging configuration exported to ") + file_name);
         return true;
     } else {
         file.close();
-        LOG_INFO(tr("Logging configuration export failed to ") + file_name);
+        LOG_ERROR(tr("Logging configuration export failed to ") + file_name);
         return false;
     }
 }
 
 bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
     if (file_name.isEmpty())
-        file_name = QCoreApplication::applicationDirPath() + qti_def_PATH_SESSION + "/" + qti_def_PATH_LOGCONFIG_FILE;
+        file_name = d->session_path + QDir::separator() + qti_def_PATH_LOGCONFIG_FILE;
 
     LOG_DEBUG(tr("Logging configuration import started from ") + file_name);
     QFile file(file_name);
@@ -954,7 +970,7 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
         file.close();
         setGlobalLogLevel((Logger::MessageType) global_log_level);
         if (complete)
-            LOG_INFO(tr("Logging configuration successfully (complete) imported from ") + file_name);
+            LOG_INFO(tr("Successfully imported logging configuration (complete) imported from ") + file_name);
         else
             LOG_WARNING(tr("Logging configuration successfully (incomplete) imported from ") + file_name);
         return true;

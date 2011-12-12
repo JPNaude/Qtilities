@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
   QtilitiesApplication::setApplicationVersion("0.1");	 
 
   // Initialize the logger:
+  QtilitiesApplication::applicationSessionPath();
   LOG_INITIALIZE();
 
   // Set the Qt message engine active, this will log messages to the Qt debugging system during the plugin loading process:

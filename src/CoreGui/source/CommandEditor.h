@@ -100,6 +100,12 @@ OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor());
             QWidget* configPageWidget();
             QtilitiesCategory configPageCategory() const;
             QString configPageTitle() const;
+            /*!
+              By default the settings are saved to:
+\code
+QString shortcut_mapping_file = QString("%1%3%2").arg(QtilitiesApplication::applicationSessionPath()).arg(qti_def_PATH_SHORTCUTS_FILE).arg(QDir::separator());
+\endcode
+              */
             void configPageApply();
             bool supportsApply() const { return true; }
 

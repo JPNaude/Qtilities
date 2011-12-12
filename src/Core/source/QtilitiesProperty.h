@@ -225,6 +225,7 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             MultiContextProperty(const char* property_name = "");
             MultiContextProperty(QDataStream &ds, Qtilities::ExportVersion version);
             MultiContextProperty(const MultiContextProperty& property);
+            MultiContextProperty(const QtilitiesProperty& qtilities_property);
             virtual ~MultiContextProperty();
             void operator=(const MultiContextProperty& property);
             bool operator==(const MultiContextProperty& other) const;
@@ -341,6 +342,7 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             SharedProperty(const char* property_name = "", QVariant init_value = QVariant());
             SharedProperty(QDataStream &ds, Qtilities::ExportVersion version);
             SharedProperty(const SharedProperty& shared_property);
+            SharedProperty(const QtilitiesProperty& qtilities_property);
             ~SharedProperty() {}
             void operator=(const SharedProperty& other);
             bool operator==(const SharedProperty& other) const;

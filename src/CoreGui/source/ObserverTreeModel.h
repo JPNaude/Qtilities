@@ -163,11 +163,22 @@ namespace Qtilities {
               \sa readOnly()
               */
             virtual void setReadOnly(bool read_only);
+
+        public:
             //! Gets if this model must be read only, thus its actions and property editor will be read only.
             /*!
               \sa setReadOnly()
               */
             bool readOnly() const;
+            //! Returns the persistent index list of the model.
+            QModelIndexList getPersistentIndexList() const;
+            //! Gets all indexes under a specified model index.
+            /*!
+              Just call getAllIndexes() when you want to use this function. It will automatically start with the root node.
+              */
+            QModelIndexList getAllIndexes(ObserverTreeItem* item = 0) const;
+            //! Sets all expanded nodes and categories.
+            void setExpandedItems(QStringList expanded_items);
 
         signals:
             //! Signal which is emmited when the current selection parent changed. If the root item is selected, new_observer will be null.
@@ -176,35 +187,30 @@ namespace Qtilities {
             void selectObjects(QList<QPointer<QObject> > objects) const;
             //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
             void selectObjects(QList<QObject*> objects) const;
-            //! Request an update of the internal tree structure in this model and refresh views.
-            /*!
-                This slot will automatically be connected to the layoutChanged() signal on the top level observer.
-
-                \param new_selection The objects which must be selected in the view after the rebuild was done. When new_selection is empty the current selection will
-                be the new selection (also, when nothing was selected, nothing will be selected after the rebuild in this case).
-              */
-            void requestUpdate() const;
+            //! Signal which is emitted just before a tree model rebuild will start.
+            void treeModelBuildAboutToStart() const;
+            //! Signal which is emitted when a new tree building cycle starts.
+            void treeModelBuildStarted(int task_id) const;
+            //! Signal which is emitted when a new tree building cycle ends.
+            void treeModelBuildEnded() const;
+            //! Signal which requests for a set of items to be expanded in the view.
+            void expandItemsRequest(QModelIndexList indexes);
 
         private slots:
             //! Clears the tree structure without rebuilding it again from its observer context.
             void clearTreeStructure();
             //! Function which will rebuild the complete tree structure under the top level observer.
-            void rebuildTreeStructure(bool only_if_changes_pending = false);
+            void rebuildTreeStructure();
+            //! Slot which receives ready-built ObserverTreeItem from ObserverTreeModelBuilder.
+            void receiveBuildObserverTreeItem(ObserverTreeItem* item);
 
         private:
-            //! Recursive function used by findObject() to traverse through the trying to find an object.
+            //! Recursive function used by findObject() to traverse through the tree trying to find an object.
             QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
             //! Recursive function to get the ObserverTreeItem associacted with an object.
             ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
             //! Deletes all tree items, starting with the root item.
             void deleteRootItem();
-            //! Function called by rebuildTreeStructure during recursive building of the tree.
-            void setupChildData(ObserverTreeItem* item);
-            //! Prints the structure of the tree as trace messages.
-            /*!
-              \sa LOG_TRACE
-              */
-            void printStructure(ObserverTreeItem* item = 0, int level = 0);
 
         protected:
             ObserverTreeModelData* d;

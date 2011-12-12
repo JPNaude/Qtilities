@@ -39,8 +39,8 @@
 
 #include <QApplication>
 #include <QDateTime>
-#include <QDesktopWidget>
 #include <QFileInfo>
+#include <QDesktopWidget>
 
 Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *parent) :
     QWidget(parent),

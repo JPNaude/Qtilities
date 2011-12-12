@@ -89,6 +89,21 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             //! Reimplemented from AbstractSubjectFilter in order to install event filter on \p observer_context.
             bool setObserverContext(Observer* observer_context);
 
+            //! Disables enforcement of ActivityPolicy.
+            /*!
+              This can be usefull when the activity of a context is known to be correct and you need to speed up attachment of a large number of items.
+
+              \note When using this, make sure you know that the activity will be valid. Also, make sure to enable activity policy enforcement again using enablePolicyEnforcement().
+
+              \sa enableActivityPolicyEnforcement();
+              */
+            void disableActivityPolicyEnforcement();
+            //! Enables enforcement of ActivityPolicy.
+            /*!
+               \sa disableActivityPolicyEnforcement();
+              */
+            void enableActivityPolicyEnforcement();
+
             // --------------------------------
             // Factory Interface Implemenation
             // --------------------------------

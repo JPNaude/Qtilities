@@ -521,7 +521,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
                 success = true;
             }
         } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
-            if (!d->obj->setProperty(char_property_name,QVariant(selected_type))) {
+            if (d->obj->setProperty(char_property_name,QVariant(selected_type))) {
                 refresh();
                 success = true;
             }
@@ -529,6 +529,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
 
         if (!success) {
             QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Warning);
             msgBox.setWindowTitle(tr("Dynamic Property Browser"));
             msgBox.setText(tr("Failed to add property to object in QObject::setProperty()."));
             msgBox.exec();
@@ -563,36 +564,43 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
             SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,prop_data.name);
             if (shared_property.isReserved()) {
                 QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
                 msgBox.setText(tr("The selected property is reserved and cannot be deleted."));
                 msgBox.exec();
             } else if (!shared_property.isRemovable()) {
                 QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
-                msgBox.setText(tr("The selected property is not removable and cannot be deleted."));
+                msgBox.setText(tr("The selected property is not removable, thus you can't delete it."));
                 msgBox.exec();
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());
+                refresh();
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
             MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
             if (multi_context_property.isReserved()) {
                 QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
                 msgBox.setText(tr("The selected property is reserved and cannot be deleted."));
                 msgBox.exec();
             } else if (!multi_context_property.isRemovable()) {
                 QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
                 msgBox.setWindowTitle(tr("Dynamic Property Browser"));
-                msgBox.setText(tr("The selected property is not removable and cannot be deleted."));
+                msgBox.setText(tr("The selected property is not removable, thus you can't delete it."));
                 msgBox.exec();
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());
+                refresh();
             }
         }
     } else {
         // This is a normal property on the object:
         d->obj->setProperty(property_name,QVariant());
+        refresh();
     }
 }
 

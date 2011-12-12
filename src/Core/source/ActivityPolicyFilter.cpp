@@ -52,9 +52,11 @@ namespace Qtilities {
 }
 
 struct Qtilities::Core::ActivityPolicyFilterPrivateData {
-    ActivityPolicyFilterPrivateData() : is_modified(false) { }
+    ActivityPolicyFilterPrivateData() : is_modified(false),
+        enforce_activity_policy(true) { }
 
-    bool is_modified;
+    bool                                            is_modified;
+    bool                                            enforce_activity_policy;
     ActivityPolicyFilter::ActivityPolicy            activity_policy;
     ActivityPolicyFilter::MinimumActivityPolicy     minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy  new_subject_activity_policy;
@@ -297,6 +299,11 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
         return;
     }
 
+    // Check if the new set of active subjects is the same as the current active objects, if so return:
+    // TODO: Add this, but first fix problem where FollowSelection does not select the correct objects the first time this function is called.
+    //    if (activeSubjects() == objects)
+    //        return;
+
     // Make sure all objects in the list is observed by this observer context.
     for (int i = 0; i < objects.count(); i++) {
         if (!objects.at(i)) {
@@ -334,7 +341,7 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     filter_mutex.unlock();
 
     // We need to do some things here:
-    // 1. If enabled, post the QtilitiesPropertyChangeEvent:
+    // - If enabled, post the QtilitiesPropertyChangeEvent:
     if (observer->qtilitiesPropertyChangeEventsEnabled()) {
         for (int i = 0; i < observer->subjectCount(); i++) {
             if (observer->subjectAt(i)->thread() == thread()) {
@@ -355,19 +362,19 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
         }
     }
 
-    // 2. Emit the monitoredPropertyChanged() signal:
+    // - Emit the monitoredPropertyChanged() signal:
     QList<QObject*> changed_objects;
     changed_objects << observer->subjectReferences();
-    emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
+    emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects); 
 
-    if (broadcast) {
-        // 3. Emit the activeSubjectsChanged() signal:
+    if (broadcast && !observer->isProcessingCycleActive()) {
+        // - Emit the activeSubjectsChanged() signal:
         emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
-        // 4. Change the modification state of the filter:
+        // - Change the modification state of the filter:
         setModificationState(true);
 
-        // 5. Emit the dataChanged() signal on the observer context:
+        // - Emit the dataChanged() signal on the observer context:
         observer->refreshViewsData();
     } else {
         setModificationState(true,IModificationNotifier::NotifyNone);
@@ -520,7 +527,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
         // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
         filter_mutex.tryLock();
 
-        bool new_activity;
+        bool new_activity = true;
         // First determine the activity of the new subject
         // At this stage the object is not yet attached to the observer, thus dynamic property changes are not handled, we need
         // to do everyhing manually here.
@@ -532,7 +539,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             }
         } else {
             if (d->new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
-                if (d->activity_policy == ActivityPolicyFilter::UniqueActivity) {
+                if (d->activity_policy == ActivityPolicyFilter::UniqueActivity && d->enforce_activity_policy) {
                     for (int i = 0; i < observer->subjectCount(); i++) {
                         if (observer->subjectAt(i) != obj)
                             observer->setMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
@@ -547,14 +554,16 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
         MultiContextProperty subject_activity_property = ObjectManager::getMultiContextProperty(obj,qti_prop_ACTIVITY_MAP);
         if (subject_activity_property.isValid()) {
             // Thus, the property already exists
-            subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
+            subject_activity_property.addContext(new_activity,observer->observerID());
             ObjectManager::setMultiContextProperty(obj,subject_activity_property);
         } else {
             // We need to create the property and add it to the object
             MultiContextProperty new_subject_activity_property(qti_prop_ACTIVITY_MAP);
             new_subject_activity_property.setIsExportable(true);
-            new_subject_activity_property.addContext(QVariant(new_activity),observer->observerID());
+            new_subject_activity_property.addContext(new_activity,observer->observerID());
+            obj->blockSignals(true);
             ObjectManager::setMultiContextProperty(obj,new_subject_activity_property);
+            obj->blockSignals(false);
         }
 
         if (new_activity) {
@@ -574,15 +583,14 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
                 }
             }
 
-            // 2. Emit the monitoredPropertyChanged() signal:
-            // Note that the object which is attached is not yet in the observer context, thus we must add it to the active subject list.
-            QList<QObject*> changed_objects;
-            changed_objects << observer->subjectReferences();
-            changed_objects.push_back(obj);
-            emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
-
-
             if (!observer->isProcessingCycleActive()) {
+                // 2. Emit the monitoredPropertyChanged() signal:
+                // Note that the object which is attached is not yet in the observer context, thus we must add it to the active subject list.
+                QList<QObject*> changed_objects;
+                changed_objects << observer->subjectReferences();
+                changed_objects.push_back(obj);
+                emit monitoredPropertyChanged(qti_prop_ACTIVITY_MAP,changed_objects);
+
                 // 3. Emit the activeSubjectsChanged() signal:
                 emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
 
@@ -613,6 +621,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
     // Ensure that property changes are not handled by the QDynamicPropertyChangeEvent handler.
     filter_mutex.tryLock();
+    bool set_0_index_active = false;
     if (observer->subjectCount() >= 1) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive) {
             // Check if this subject was active.
@@ -624,7 +633,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
                 // which is replacing the conflicting object has been set. In that case, there is no qti_prop_ACTIVITY_MAP
                 // property yet. Thus check it first:
                 if (ObjectManager::propertyExists(observer->subjectAt(0),qti_prop_ACTIVITY_MAP))
-                    observer->setMultiContextPropertyValue(observer->subjectAt(0),qti_prop_ACTIVITY_MAP, QVariant(true));
+                    set_0_index_active = true;
             }
         }
 
@@ -637,6 +646,13 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
 
     // Unlock the filter mutex.
     filter_mutex.unlock();
+
+    if (set_0_index_active) {
+        // Do this after the mutex was unlocked in order for FollowSelection views to update properly:
+        // TODO: This still breaks... Why does FollowSelection not work when first object in list is deleted?
+        setActiveSubject(observer->subjectAt(0));
+    }
+
     if (!observer->isProcessingCycleActive())
         setModificationState(true);
     else
@@ -651,6 +667,9 @@ QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
 
 bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
     Q_UNUSED(property_name)
+
+    if (!d->enforce_activity_policy)
+        return true;
 
     if (!filter_mutex.tryLock())
         return true;
@@ -824,6 +843,14 @@ bool Qtilities::Core::ActivityPolicyFilter::setObserverContext(Observer* observe
         return true;
     } else
         return false;
+}
+
+void Qtilities::Core::ActivityPolicyFilter::disableActivityPolicyEnforcement() {
+    d->enforce_activity_policy = false;
+}
+
+void Qtilities::Core::ActivityPolicyFilter::enableActivityPolicyEnforcement() {
+    d->enforce_activity_policy = true;
 }
 
 QDataStream & operator<< (QDataStream& stream, const Qtilities::Core::ActivityPolicyFilter& stream_obj) {

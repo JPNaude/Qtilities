@@ -114,7 +114,7 @@ QString Qtilities::Logging::AbstractLoggerEngine::formattingEngineName() {
 }
 
 void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine_name, Logger::MessageType message_type, Logger::MessageContextFlags message_context, const QList<QVariant>& messages) {
-    if ((engine_name != QString("All")) && (engine_name != name()))
+    if ((!engine_name.isEmpty()) && (engine_name != name()))
         return;
 
     // Check the message context:

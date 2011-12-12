@@ -39,15 +39,14 @@ using namespace QtilitiesLogging;
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    // We must specify the following if we want the logger to remember its settings.
     QCoreApplication::setOrganizationName("Jaco Naude");
     QCoreApplication::setOrganizationDomain("Qtilities");
     QCoreApplication::setApplicationName("Console Logging Example");
-    QCoreApplication::setApplicationVersion("0.1");
+    QCoreApplication::setApplicationVersion("1.0");
 
-    // Initialize the logger.
+    // Initialize the logger:
     LOG_INITIALIZE();
-    // We want to capture all messages <= Trace level.
+    // We want to capture all messages <= Trace level:
     Log->setGlobalLogLevel(Logger::Trace);
 
     // Create a file engine to verify the results.
