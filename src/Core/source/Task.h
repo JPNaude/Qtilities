@@ -179,14 +179,22 @@ namespace Qtilities {
             // --------------------------------
             // Control Functionality
             // --------------------------------
+            /*!
+              False by default in Qtilities::Core::Task.
+              */
             bool canStart() const;
             void setCanStart(bool can_start);
+            /*!
+              False by default in Qtilities::Core::Task.
+              */
             bool canStop() const;
             void setCanStop(bool can_stop);
+            /*!
+              False by default in Qtilities::Core::Task.
+              */
             bool canPause() const;
             void setCanPause(bool can_pause);
         public slots:
-            //! Start does not set the state of the task to busy, this must be done in the implementation of the slot connected to startTaskRequest().
             virtual void start();
             virtual void stop();
             virtual void pause();

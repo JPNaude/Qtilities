@@ -266,33 +266,51 @@ namespace Qtilities {
                 virtual bool canStart() const {
                     return false;
                 }
-                //! Starts the task.
+                //! Starts the task from the user interface.
                 /*!
-                  \note This function must be a slot in your interface implementation.
+                  The slot called when the user starts the task from it's Qtilities::CoreGui::SingleTaskWidget. Programmatically, you should use startTask() instead of start().
+                  In Qtilities::Core::Task, the task will emit startTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+
+                  \note This function must be a slot in your interface implementation and will only do something when canStart() is true.
+                  \note This function does not set the busy state of the task to busy since the success of the execution of the task will depend on the task represented by Task.
+
+                  The default implementation of ITask does nothing.
                   */
                 virtual void start() {}
                 //! Indicates if users can stop the task.
                 virtual bool canStop() const {
                     return false;
                 }
-                //! Stops the task.
+                //! Stops the task from the user interface.
                 /*!
-                  \note This function must be a slot in your interface implementation.
+                  In Qtilities::Core::Task, the task will emit stopTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+
+                  \note This function must be a slot in your interface implementation and will only do something when canStop() is true.
+
+                  The default implementation of ITask does nothing.
                   */
                 virtual void stop() {}              
                 //! Indicates if users can pause the task.
                 virtual bool canPause() const {
                     return false;
                 }
-                //! Pauses the task.
+                //! Pauses the task from the user interface.
                 /*!
+                  In Qtilities::Core::Task, the task will emit pauseTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+
                   The task can be resumed through resume().
-                  \note This function must be a slot in your interface implementation.
+                  \note This function must be a slot in your interface implementation and will only do something when canPause() is true.
+
+                  The default implementation of ITask does nothing.
                   */
                 virtual void pause() {}
                 //! Resumes the task after it has been paused.
                 /*!
-                  \note This function must be a slot in your interface implementation.
+                  In Qtilities::Core::Task, the task will emit resumeTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+
+                  \note This function must be a slot in your interface implementation and will only do something if the task is in the paused state.
+
+                  The default implementation of ITask does nothing.
                   */
                 virtual void resume() {}
 

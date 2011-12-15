@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
 
     QMainWindow mainWindow;
     QtilitiesApplication::setMainWindow(&mainWindow);
-    TestFrontend testFrontend(argc,argv);
     LOG_INITIALIZE();
     Log->setGlobalLogLevel(Logger::Trace);
     Log->setIsQtMessageHandler(false);
     Log->toggleQtMsgEngine(false);
     Log->toggleConsoleEngine(false);
+    TestFrontend testFrontend(argc,argv);
 
     // ---------------------------------------------
     // Create and register the tests that we want to use:

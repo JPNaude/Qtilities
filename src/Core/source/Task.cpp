@@ -49,7 +49,7 @@ struct Qtilities::Core::TaskPrivateData {
         task_remove_action(ITask::TaskHideWhenRemoved),
         number_of_sub_tasks(-1),
         current_progress(0),
-        can_start(false),
+        can_start(true),
         can_stop(false),
         can_pause(false),
         log_context(Logger::EngineSpecificMessages),
