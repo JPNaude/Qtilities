@@ -98,6 +98,9 @@ int main(int argc, char *argv[])
 
     TestTreeFileItem* testTreeFileItem = new TestTreeFileItem;
     testFrontend.addTest(testTreeFileItem,QtilitiesCategory("Qtilities::CoreGui","::"));
+
+    TestTask* testTask = new TestTask;
+    testFrontend.addTest(testTask,QtilitiesCategory("Qtilities::Core","::"));
     #endif
 
     // ---------------------------------------------

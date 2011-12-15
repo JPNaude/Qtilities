@@ -53,7 +53,8 @@ HEADERS += source/TestingConstants.h \
         source/TestSubjectTypeFilter.h \
         source/TestTreeFileItem.h \
         source/TestAbstractTreeItem.h \
-        source/TestObjectManager.h
+        source/TestObjectManager.h \
+        source/TestTask.h
 
 SOURCES += source/TestObserver.cpp \
         source/TestObserverRelationalTable.cpp \
@@ -67,7 +68,8 @@ SOURCES += source/TestObserver.cpp \
         source/TestSubjectTypeFilter.cpp \
         source/TestTreeFileItem.cpp \
         source/TestAbstractTreeItem.cpp \
-        source/TestObjectManager.cpp
+        source/TestObjectManager.cpp \
+        source/TestTask.cpp
 }
 
 # --------------------------
