@@ -95,8 +95,7 @@ namespace Qtilities {
             void finalize();
             bool isInitialized() const;
             QString description() const;
-            QString status() const;
-            bool removable() const { return true; }
+            QString status() const;      
             // Logger widgets will always be created after LOG_INITIALIZE(), thus we won't be able to restore their settings.
             bool isFormattingEngineConstant() const { return true; }
 

@@ -76,7 +76,6 @@ namespace Qtilities {
             void finalize();
             QString description() const;
             QString status() const;
-            bool removable() const { return true; }
             bool isFormattingEngineConstant() const { return true; }
 
             // --------------------------------
@@ -117,6 +116,7 @@ namespace Qtilities {
         A logger engine which pipes messages to the Qt Messaging System as debug messages.
 
         \note Clearing the log through clearLog() is not supported by this logger engine.
+        \note QtMsgLoggerEngine engines are not removeable.
           */
         class LOGGING_SHARED_EXPORT QtMsgLoggerEngine : public AbstractLoggerEngine
         {
@@ -155,6 +155,7 @@ namespace Qtilities {
         A logger engine which pipes messages to a console using the stdio.h fprintf function.
 
         \note Clearing the log through clearLog() is not supported by this logger engine.
+        \note ConsoleLoggerEngine engines are not removeable.
           */
         class LOGGING_SHARED_EXPORT ConsoleLoggerEngine : public AbstractLoggerEngine
         {

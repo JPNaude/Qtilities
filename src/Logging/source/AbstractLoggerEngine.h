@@ -49,7 +49,8 @@ namespace Qtilities {
         This struct is defined in the header because it is use by inherited classes.
           */
         struct AbstractLoggerEngineData {
-            AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts) {}
+            AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts),
+                is_removable(true) {}
 
             //! The enabled message types for this logger engine.
             Logger::MessageTypeFlags        enabled_message_types;
@@ -63,13 +64,13 @@ namespace Qtilities {
             Logger::MessageContextFlags     message_contexts;
             //! The name of this logger engine.
             QString                         engine_name;
+            //! Indicates if this engine is removable by the user.
+            bool                            is_removable;
         };
 
         /*!
         \class AbstractLoggerEngine
         \brief The base class of all logger engines.
-
-        Note: Set the name of your logger engine in the constructor of your engine using setObjectName(). This name will be used in the logger.
           */
         class LOGGING_SHARED_EXPORT AbstractLoggerEngine : public QObject
         {
@@ -109,8 +110,10 @@ namespace Qtilities {
             virtual QString description() const = 0;
             //! Returns a status message for the engine.
             virtual QString status() const = 0;
-            //! Indicates if the user can remove this engine.
-            virtual bool removable() const = 0;
+            //! Gets if the user can remove this engine.
+            virtual bool removable() const;
+            //! Sets if the user can remove this engine.
+            virtual void setRemovable(bool is_removable);
 
             //! Sets the enabled message types for this engine.
             virtual void setEnabledMessageTypes(Logger::MessageTypeFlags message_types);

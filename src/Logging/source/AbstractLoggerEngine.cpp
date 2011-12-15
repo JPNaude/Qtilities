@@ -131,3 +131,11 @@ void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine
         }
     }
 }
+
+bool Qtilities::Logging::AbstractLoggerEngine::removable() const {
+    return abstractLoggerEngineData->is_removable;
+}
+
+void Qtilities::Logging::AbstractLoggerEngine::setRemovable(bool is_removable) {
+    abstractLoggerEngineData->is_removable = is_removable;
+}

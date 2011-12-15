@@ -148,7 +148,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
 
     if (ok && !new_item_selection.isEmpty() && !engine_name.isEmpty()) {
         // Handle new widget
-        if (new_item_selection == "File") {
+        if (new_item_selection == QString(qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE)) {
             // Prompt the correct file extensions and select the formatting engine according to the user's selection.
             QString file_ext = "";
             for (int i = 0; i < Log->availableFormattingEnginesInFactory().count(); i++) {
@@ -159,7 +159,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
                 }
             }
 
-            QString fileName = QFileDialog::getSaveFileName(this,tr("Select Output File"),QApplication::applicationDirPath(),file_ext);
+            QString fileName = QFileDialog::getSaveFileName(this,tr("Select Output File"),QtilitiesApplication::applicationSessionPath(),file_ext);
             if (!fileName.isEmpty()) {
                 Log->newFileEngine(engine_name,fileName,QString());
             }
@@ -413,3 +413,4 @@ void Qtilities::CoreGui::LoggerConfigWidget::on_btnViewLog_clicked() {
     msgBox.setText("The selected logger engine could not be viewed.");
     msgBox.exec();
 }
+

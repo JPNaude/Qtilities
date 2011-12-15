@@ -86,6 +86,7 @@ AbstractLoggerEngine* Qtilities::CoreGui::TaskManagerGui::assignLoggerEngineToTa
     //qDebug() << engine_name;
     AbstractLoggerEngine* log_engine = Log->loggerEngineReference(engine_name);
     Q_ASSERT(log_engine);
+    log_engine->setRemovable(false);
     log_engine->setMessageContexts(Logger::EngineSpecificMessages);
     task->setLoggerEngine(log_engine);
     LOG_DEBUG("Assigning logger engine to task: " + task->taskName());
