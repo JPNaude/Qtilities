@@ -27,7 +27,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Qtilities Application Tester</string>
+      <string>Qtilities Unit Tester</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
