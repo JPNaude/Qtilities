@@ -173,7 +173,7 @@ QString Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginNa
 }
 
 QtilitiesCategory Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginCategory() const {
-    return QtilitiesCategory(tr("General"));
+    return QtilitiesCategory(QApplication::applicationName());
 }
 
 Qtilities::Core::VersionInformation Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::pluginVersionInformation() const {

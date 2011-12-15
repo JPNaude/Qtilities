@@ -93,7 +93,7 @@ QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginName() const {
 }
 
 QtilitiesCategory Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginCategory() const {
-    return QtilitiesCategory(tr("General"));
+    return QtilitiesCategory(QApplication::applicationName());
 }
 
 Qtilities::Core::VersionInformation Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginVersionInformation() const {

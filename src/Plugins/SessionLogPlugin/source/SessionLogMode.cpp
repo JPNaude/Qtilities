@@ -57,21 +57,21 @@ Qtilities::Plugins::SessionLog::SessionLogMode::SessionLogMode(QObject* parent) 
     d->session_mode_widget = new QMainWindow();
     d->mode_icon = QIcon(qti_icon_SESSION_LOG_MODE_48x48);
 
-    QString log_widget_name = "Session Log";
+    QString log_widget_name = tr("Session Log");
     QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(&log_widget_name);
     if (session_log_dock) {
         connect(session_log_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
         d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,session_log_dock);
     }
 
-    log_widget_name = "Warnings";
+    log_widget_name = tr("Warnings");
     QDockWidget* warning_dock = LoggerGui::createLogDockWidget(&log_widget_name,QString(),true,Logger::Warning);
     if (warning_dock) {
         connect(warning_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
         d->session_mode_widget->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
     }
 
-    log_widget_name = "Errors";
+    log_widget_name = tr("Errors");
     QDockWidget* error_dock = LoggerGui::createLogDockWidget(&log_widget_name,QString(),true,Logger::Error | Logger::Fatal);
     if (error_dock) {
         connect(error_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
