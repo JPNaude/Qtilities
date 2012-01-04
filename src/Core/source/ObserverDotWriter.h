@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -273,7 +273,6 @@ digraph "Root Node" {
             //! Default constructor
             /*!
                \param observer The observer for which the script must be generated. The observer will also become the parent of this class.
-               \param graph_type The type of graph.
               */
             ObserverDotWriter(Observer* observer = 0);
             //! Copy constructor.

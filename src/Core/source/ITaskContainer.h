@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -60,6 +60,8 @@ namespace Qtilities {
 \code
 int task_id = d->file_utils.findTaskID(d->file_utils.taskNameToString(FileUtils::TaskFindFilesUnderDir));
 \endcode
+
+            See the \ref page_tasking article for more information on tasking.
 
             <i>This class was added in %Qtilities v1.0.</i>
               */

@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2011, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -32,12 +32,12 @@ include(Dependencies.pri)
 #   *************************************************************************
 #   General:
 #   *************************************************************************
-#   When uncommented, verbose action management messages are printed.
+#   When defined, verbose action management messages are printed.
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
-#   When uncommented, the Testing library contains the Qtilities
+#   When defined, the Testing library contains the Qtilities
 #   unit tests in it.
 #   DEFINES += QTILITIES_TESTING
-#   When uncommented, basic benchmarking of potentially long operations in
+#   When defined, basic benchmarking of potentially long operations in
 #   Qtilities is done by logging execution times as debug messages.
 #   DEFINES += QTILITIES_BENCHMARKING
 #****************************************************************************
@@ -51,7 +51,7 @@ CONFIG              += ordered qt
 #****************************************************************************
 # Build mode
 #****************************************************************************
-CONFIG              += release
+CONFIG              += debug
 
 #****************************************************************************
 # Library includes

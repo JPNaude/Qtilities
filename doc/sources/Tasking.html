@@ -1,0 +1,309 @@
+/**
+\page page_tasking Tasking
+
+<table CELLPADDING=0 style="width:100%;
+  table-layout:fixed;
+	margin:0px 0px 0px 0px;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;">
+<tr> 
+
+<td style="width:80%; padding:0px 5px 0px 0px; vertical-align: text-top; text-align: left">
+<h1 style="margin:0px; padding:0px">Overview</h1>
+
+Often in application development you encounter operations which takes more time that what you would like. Most of the time it is neccesarry to provide the user
+with some sort of indication of how long the process is going to take, and on the progress of the process.
+
+This is a common problem and there are numerous ways to solve it. In Qt there are also numerous solutions, with the most common being the use of
+multiple threads where the GUI thread says responsive while worker threads perform the work in the background. Another, simpler approach is to do the work in the
+main thread and manually refresh the GUI at regular intervals using \p QApplication::processEvents(). However you decide to do it, you need to provide the user
+with details of the progress of the task etc.
+
+%Qtilities has tasking build into its core functionality and provides classes to use with your own tasks. This article discusses the approach taken to
+handle tasking and shows you how to use it in your applications.
+
+Table of contents:
+- \ref tasks_classes
+- \ref tasks_introduction
+- \ref tasks_gui_classes
+- \ref tasks_examples
+  - \ref tasks_simple_example
+  - \ref tasks_simple_qprocess
+  .
+
+</td>
+
+<td style="width:20%; vertical-align: top; margin:0px 0px 0px 0px;">
+<table style="table-layout:auto;
+	margin:0px 0px 0px 0px; 
+  width: 100%;
+	border-width:0px 0px 0px 0px; 
+	border-color:#7F7F7F;
+  background-color: #d1d3d4;">
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">First Steps</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_getting_started.html">Getting Started</a><br>
+- <a href="page_the_basics.html">The Basics</a><br>
+- <a href="page_examples_and_plugins.html">Examples and Plugins</a><br>
+</td>
+</tr>
+<tr>
+<td style="background-color: #5a5c5e; text-align: center">
+<h2 style ="color:#FFFFFF">Overviews</h2>
+</td>
+</tr>
+<tr>
+<td>
+- <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_debugging.html">Debugging Applications</a><br>
+- <a href="page_extension_system.html">Extension System</a><br>
+- <a href="page_factories.html">Factories</a><br>
+- <a href="page_logging.html">Logging</a><br>
+- <a href="page_modules_overview.html">Modules</a><br>
+- <a href="page_object_management.html">Object Management</a><br>
+- <a href="page_observers.html">Observers</a><br>
+- <a href="page_observer_widgets.html">Observer Widgets</a><br>
+- <a href="page_project_management.html">Project Management</a><br>
+- <a href="page_tasking.html">Tasking</a><br>
+- <a href="page_widget_set.html">Widget Set</a><br>
+</td>
+</tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+\section tasks_classes Tasking Classes
+
+%Qtilities provides a set of classes which makes tasking in Qt applications easy. Lets look at an overview of the classes provided:
+
+- Qtilities::Core::Task : A ready to use task in %Qtilities.
+- Qtilities::Core::Interfaces::ITask : An interface through which you can communicate with a task. Qtilities::Core::Task is a ready to use implementation of this interface.
+- Qtilities::Core::TaskManager : A singleton which manages all active tasks in an application.
+
+The following GUI related tasking classes are available:
+- Qtilities::CoreGui::SingleTaskWidget : A widget which provides details and control functionality for a single task.
+- Qtilities::CoreGui::TaskSummaryWidget : A widget which provides details of all current tasks in an application.
+- Qtilities::CoreGui::TaskManagerGui : A singleton which manages all GUI related needs of active tasks in an application.
+
+For more advanced tasking requirements, the following classes are provided:
+- Qtilities::Core::Interfaces::ITaskContainer : An interface through which an object can provide information about tasks which can be perfomed by it.
+- Qtilities::Core::QtilitiesProcess : An easy to use way to launch external processes through an extended tasking wrapper around QProcess.
+
+The <a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html">Tasking Example</a> is a ready to use example showcasing the use of the above classes.
+
+\section tasks_introduction Introduction To Tasking
+
+In %Qtilities all tasks must implement Qtilities::Core::Interfaces::ITask which serves as a standard status and control interface on a task. You can either create your own implementation of the interface or use the ready to
+use Qtilities::Core::Task implementation.
+
+For the rest of this article we will focus on the ready to use implementation: Qtilities::Core::Task
+
+First lets create a simple task:
+\code
+Task* task = new Task("My Task");
+
+// Start the task:
+task->startTask();
+// Complete the task:
+task->completeTask();
+
+delete task;
+\endcode
+
+In the above example you simply create a task and change its state by starting it an then completing it. The task provides a set of control and information related
+functions which you would expect on a task. The example won't do anything usefull since the task does not represent anything at this stage.
+
+This brings us to the most important thing to remember when working with Qtilities::Core::Task: It is used to represent a task, it does not do any work itself. Thus, you need to first have some
+function/code which does some work and then let it communicate with your task while its working. Also, you need to set up your task to provide the correct set of capabilities that match the work you
+are doing.
+
+Lets look at an example where we represent the work done by a QTimer. Thus we will create a task as well as a QTimer and link them up.
+
+\code
+// Create the task:
+Task* task = new Task("Timer Task");
+// Create the timer:
+QTimer* timer = new QTimer(task);
+
+// Tell the task that it can be stopped:
+task->setCanStop(true);
+connect(task,SIGNAL(stopTaskRequest()),timer,SLOT(stop()));
+
+// Tell the task how it should manage its own lifetime:
+// Thus: When the above timer times out, the task will automatically be destroyed.
+task->setTaskLifeTimeFlags(Task::LifeTimeDestroyWhenSuccessful | Task::LifeTimeDestroyWhenStopped);
+
+// Register the task in the global object pool. This line will let the task manager assign an unique task ID to the task.
+// In GUI applications, also make Qtilities::CoreGui::TaskSummaryWidget aware that a new task was created.
+OBJECT_MANAGER->registerObject(task);
+
+// Let the task know that is should be completed when the timer times out:
+connect(timer,SIGNAL(timeout()),task,SLOT(completeTask()));
+
+// Set the interval on the timer:
+timer->setInterval(10000);
+
+// Starts the timer and the task:
+timer->start();
+task->startTask();
+\endcode
+
+The above example shows a very basic usage example of some of the tasking classes provided. In lots of cases it is possible to calculate the number of steps
+which will be needed in order to complete a task. In such cases you can provide this information to the task representation class. For example:
+
+\code
+Task* task = new Task("My Task");
+
+// Start the task and say that it will take 10 steps to complete:
+task->startTask(10);
+
+// Complete 10 steps on the task:
+for (int i = 0; i < 10; i++) {
+    task->addCompletedSubTasks(1,"Completed step " + QString::number(i));
+    QApplication::processEvents();
+}
+
+// Complete the task:
+task->completeTask();
+
+delete task;
+\endcode
+
+Note that we log a message with each completed subtask. Without going into too much detail on task logging here, it is worth mentioning that
+each task can have a log associated with it (the case by default).
+
+\section tasks_gui_classes Tasking GUIs
+
+Qtilities::CoreGui::SingleTaskWidget is the most basic tasking widget and it is used to represent a single task and can easily be constructed as follows:
+
+\code
+Task* task = new Task("Timer Task");
+OBJECT_MANAGER->registerObject(task);
+
+SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(task->taskID());
+\endcode
+
+The figure below shows a single task widget for an example task. Note that clicking on the green icon on the left of the progress bar allows you to view the log for the
+specific task. Also, the task widget will only show controls for the task according to the way the task was set up. In the QTimer example above we call \p setCanStop(true),
+thus the single task widget will provide the ability to stop the task. If it was set to false, the red stop button would have been disabled.
+
+\image html class_singletaskwidget_screenshot.jpg "Single Task Widget"
+
+The single task widget can be added anywhere in your application where you would like to display information about a task. However in some cases you would like to show all tasks in your application.
+Qtilities::CoreGui::TaskSummaryWidget provides this functionality and is customizable in order for your needs. It can for example only show active tasks, or all tasks (active and inactive).
+
+To create a task summary widget is straight forward. For example:
+
+\code
+TaskSummaryWidget task_summary_widget;
+
+// Tell the widget that it should not hide itself when now active tasks are visible:
+task_summary_widget.setNoActiveTaskHandling(TaskSummaryWidget::ShowSummaryWidget);
+
+// Find all current tasks in the global object pool:
+task_summary_widget.findCurrentTasks();
+
+// All tasks registered in the global object pool from here on will automatically be displayed
+// in the summary widget.
+\endcode
+
+It is important to note that only tasks registered in the global object pool and set as global tasks (see Qtilities::Core::Interfaces::ITask::TaskGlobal) are shown in
+the task summary widget. The figure below shows a task summary widget which shows three active tasks. Note that the QTimer task can be stopped.
+
+\image html class_tasksummarywidget_screenshot.jpg "Task Summary Widget"
+
+When using Qtilities::CoreGui::QtilitiesMainWindow you can set it up to show a task summary information automatically for you. This makes
+it very easy to provide an overview of tasks in your application. The <a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html">Tasking Example</a>
+demonstrates this:
+
+\image html example_tasking.jpg "Tasking Example"
+
+\section tasks_examples Examples
+
+The tasking classes provided were designed to be as generic as possible, allowing them to be used in the widest possible set of scenarios. This section
+shows a few additional possible usages.
+
+\subsection tasks_simple_example Adding A Task To An Existing Function
+
+The following example shows how to add a task to an existing slow function. This task will show up in all Qtilities::CoreGui::TaskSummaryWidget widgets and
+dissapear as soon as the task is completed (thus it goes out of scope). In this example all messages logged to the task will be logged to its own logger engine.
+
+\code
+bool MyClass::slowFunction() {
+    // Create a task on the stack:
+    Task task("Function Description");
+    OBJECT_MANAGER->registerObject(&task);
+    task.startTask();
+
+    // Existing code
+    QApplication::processEvents();
+    // Existing code
+    QApplication::processEvents();
+    // Existing code
+    QApplication::processEvents();
+
+    // Note how we call processEvents() as often as possible in order for the task widgets to update.
+
+    if (function_successfull) {
+        task.logMessage("Successfully completed task");
+        task.completeTask();
+        return true;
+    } else {
+        task.logError("Error message");
+        task.completeTask(ITask::TaskFailed);
+        return true;
+    }
+}
+\endcode
+
+It is also possible to log messages from the task as system wide messsages in your application. In the next example this approach is followed (note that the task
+itself does not have a log anymore in this example).
+
+\code
+bool MyClass::slowFunction() {
+    // Create a task on the stack:
+    Task task("Function Description",false);
+    task.setLogContext(Logger::SystemWideMessages);
+
+    // Same as previous example.
+}
+\endcode
+
+\subsection tasks_simple_qprocess QProcess and Tasking
+
+Qtilities::Core::QtilitiesProcess allows you to use QProcess as normal with a tasking wrapper around it. This is shown in the following example taken from the
+<a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html">Tasking Example</a>.
+
+\code
+// Information aboiut the doxyfile to use:
+QString fileName = "Path to a doxyfile";
+QFileInfo fi(fileName);
+
+// Create a new process on the heap (not on the stack!):
+QtilitiesProcess* process = new QtilitiesProcess("Doxygen Generation",true,this);
+
+// We acccess the QProcess instance used through process():
+process->process()->setWorkingDirectory(fi.dir().path());
+
+// Setup the way user stop/remove actions must be handled:
+process->setTaskStopAction(ITask::TaskDoNothingWhenStopped);
+process->setTaskRemoveAction(ITask::TaskDeleteWhenRemoved);
+
+// Register the process (also registers the task):
+OBJECT_MANAGER->registerObject(process);
+
+// Start a doxygen process (note that doxygen must be installed and in your path):
+process->startProcess("Doxygen",QStringList(fileName));
+
+// The process will automatically be deleted when the QProcess is done.
+\endcode
+
+*/

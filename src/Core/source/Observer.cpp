@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -373,6 +373,9 @@ void Qtilities::Core::Observer::startProcessingCycle() {
 
     ++observerData->start_processing_cycle_count;
 
+//    if (observerName() == "Observer Name")
+//        qDebug() << "startProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
+
     if (previous_start_processing_cycle_count == 0 && observerData->start_processing_cycle_count == 1) {
         observerData->number_of_subjects_start_of_proc_cycle = subjectCount();
         observerData->process_cycle_active = true;
@@ -388,25 +391,27 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
     else
         qWarning() << "endProcessingCycle() called too many times on observer: " << observerName();
 
-     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
-         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
-         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
-             if (isModified())
-                 emit modificationStateChanged(true);
+//    if (observerName() == "Observer Name")
+//        qDebug() << "endProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
 
-             if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
-                 emit numberOfSubjectsChanged(Observer::SubjectRemoved);
-                 emit layoutChanged();
-             }
-             else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
-                 emit numberOfSubjectsChanged(Observer::SubjectAdded);
-                 emit layoutChanged();
-             }
-         }
+    if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
+        // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
+        if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
+            if (isModified())
+                emit modificationStateChanged(true);
 
-         // TODO: Send processing cycle end to subject filters in order for activity filter to emit the active subjects after the processing cycle if they changed.
-         observerData->process_cycle_active = false;
-         emit processingCycleEnded();
+            if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
+                emit numberOfSubjectsChanged(Observer::SubjectRemoved);
+                emit layoutChanged();
+            }  else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
+                emit numberOfSubjectsChanged(Observer::SubjectAdded);
+                emit layoutChanged();
+            }
+        }
+
+        // TODO: Send processing cycle end to subject filters in order for activity filter to emit the active subjects after the processing cycle if they changed. Note that TreeNode does this already.
+        observerData->process_cycle_active = false;
+        emit processingCycleEnded();
     }
 }
 

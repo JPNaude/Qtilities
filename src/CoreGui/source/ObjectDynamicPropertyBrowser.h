@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -30,8 +30,6 @@
 ** contact support@qtilities.org.
 **
 ****************************************************************************/
-
-#ifdef QTILITIES_PROPERTY_BROWSER
 
 #ifndef ObjectDynamicPropertyBrowser_H
 #define ObjectDynamicPropertyBrowser_H
@@ -73,7 +71,7 @@ namespace Qtilities {
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectDynamicPropertyBrowser : public QMainWindow
         {
-            Q_OBJECT
+            Q_OBJECT          
             Q_ENUMS(BrowserType)
 
         public:
@@ -170,11 +168,8 @@ namespace Qtilities {
             void inspectObject(const QObject* obj);
 
             ObjectDynamicPropertyBrowserPrivateData* d;
-
         };
     }
 }
 
 #endif // ObjectDynamicPropertyBrowser_H
-
-#endif

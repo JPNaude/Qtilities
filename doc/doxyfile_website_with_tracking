@@ -1,6 +1,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
+PROJECT_NAME 		   = ""
 DOXYFILE_ENCODING      = UTF-8
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
@@ -97,12 +98,13 @@ INPUT                  = sources \
                       ../src/ExtensionSystem/source \
                       ../src/Logging/source \ 
                       ../src/ProjectManagement/source \
-                      ../src/UnitTests/source \
+                      ../src/Testing/source \
                       ../include/QtilitiesLogging \
                       ../include/QtilitiesCore \
                       ../include/QtilitiesCoreGui \
                       ../include/QtilitiesProjectManagement \
                       ../include/QtilitiesExtensionSystem \
+                      ../include/QtilitiesTesting \					  
                       ../src/Plugins \
                       ../src/Examples
 INPUT_ENCODING         = UTF-8
@@ -113,7 +115,8 @@ FILE_PATTERNS          = *.h \
                          QtilitiesCoreModule \
                          QtilitiesCoreGuiModule \
                          QtilitiesProjectManagementModule \
-                         QtilitiesExtensionSystemModule
+                         QtilitiesExtensionSystemModule \
+						 QtilitiesTesting
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO

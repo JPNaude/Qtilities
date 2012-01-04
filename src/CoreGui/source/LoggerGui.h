@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -94,7 +94,7 @@ AbstractLoggerEngine* engine = Log->loggerEngineReference(*engine_name);
                 int logger_count = -1;
                 while (Log->attachedLoggerEngineNames().contains(new_logger_name)) {
                     if (logger_count > -1)
-                        new_logger_name.chop(2 + QString::number(logger_count).length());
+                        new_logger_name.chop(3 + QString::number(logger_count).length());
                     ++logger_count;
                     new_logger_name.append(" (" + QString::number(logger_count) + ")");
                 }

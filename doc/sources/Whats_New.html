@@ -5,6 +5,7 @@ This page highlights new features and improvements in the v1.0 release, in no pa
 
 Table of contents:
 - \ref whats_new_v1_0_classes
+- \ref whats_new_v1_0_tasking
 - \ref whats_new_v1_0_exporting_architecture
 - \ref whats_new_v1_0_logging
 - \ref whats_new_v1_0_unit_testing
@@ -35,11 +36,26 @@ Alternatively have a look at the <a href="http://gitorious.org/qtilities/qtiliti
 - Qtilities::Core::VersionNumber
 - Qtilities::CoreGui::ObjectDynamicPropertyBrowser
 - Qtilities::CoreGui::StringListWidget
-- Qtilities::CoreGui::CodeEditorWidget (Was part of v0.2 in testing phase)
+- Qtilities::CoreGui::CodeEditorWidget
 - Qtilities::CoreGui::Interfaces::INamingPolicyDialog
 - Qtilities::ProjectManagement::CodeEditorProjectItemWrapper
 - Qtilities::Testing::TestFrontend
 - Qtilities::Testing::Interfaces::ITestable
+
+The following new classes adds \ref whats_new_v1_0_tasking capabilities to the %Qtilities libraries:
+
+- Qtilities::Core::Task
+- Qtilities::Core::Interfaces::ITask
+- Qtilities::Core::TaskManager
+- Qtilities::CoreGui::SingleTaskWidget
+- Qtilities::CoreGui::TaskSummaryWidget
+- Qtilities::CoreGui::TaskManagerGui
+- Qtilities::Core::Interfaces::ITaskContainer
+- Qtilities::Core::QtilitiesProcess
+
+\section whats_new_v1_0_tasking Tasking
+
+From v1.0 %Qtilities has tasking build into its core functionality and provides classes to use with your own tasks. See the new \ref page_tasking article for more information.
 
 \section whats_new_v1_0_exporting_architecture Revamped Exporting Architecture
 

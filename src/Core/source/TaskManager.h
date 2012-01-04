@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -57,6 +57,8 @@ namespace Qtilities {
         \brief A class which represents a task manager.
 
         The task manager is responsible to monitor the global object pool for tasks registered in it and to provide information about these tasks.
+
+        See the \ref page_tasking article for more information on tasking.
 
         <i>This class was added in %Qtilities v1.0.</i>
           */

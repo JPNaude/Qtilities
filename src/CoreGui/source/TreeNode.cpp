@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -241,15 +241,19 @@ Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::subjectTypeFil
 }
 
 void Qtilities::CoreGui::TreeNode::startProcessingCycle() {
-    if (nodeData->naming_policy_filter)
-        nodeData->naming_policy_filter->startValidationCycle();
     Observer::startProcessingCycle();
+    if (isProcessingCycleActive()) {
+        if (nodeData->naming_policy_filter)
+            nodeData->naming_policy_filter->startValidationCycle();
+    }
 }
 
 void Qtilities::CoreGui::TreeNode::endProcessingCycle(bool broadcast) {
-    if (nodeData->naming_policy_filter)
-        nodeData->naming_policy_filter->endValidationCycle();
     Observer::endProcessingCycle(broadcast);
+    if (!isProcessingCycleActive()) {
+        if (nodeData->naming_policy_filter)
+            nodeData->naming_policy_filter->endValidationCycle();
+    }
 }
 
 void Qtilities::CoreGui::TreeNode::startTreeProcessingCycle() {

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -54,7 +54,8 @@ struct Qtilities::Core::TaskPrivateData {
         can_pause(false),
         log_context(Logger::EngineSpecificMessages),
         logging_enabled(true),
-        clear_log_on_start(true) {}
+        clear_log_on_start(true),
+        parent_task(0) {}
 
     QString                         task_name;
     QString                         task_display_name;
@@ -78,6 +79,9 @@ struct Qtilities::Core::TaskPrivateData {
 
     time_t                          timer_start;
     time_t                          timer_end;
+
+    ITask*                          parent_task;
+    QPointer<QObject>               parent_task_base;
 };
 
 Qtilities::Core::Task::Task(const QString& task_name, bool enable_logging, QObject* parent) : QObject(parent), ITask() {
@@ -151,6 +155,28 @@ void Qtilities::Core::Task::setTaskRemoveAction(TaskRemoveAction task_remove_act
     d->task_remove_action = task_remove_action;
 }
 
+ITask* Qtilities::Core::Task::parentTask() const {
+    if (d->parent_task_base && d->parent_task)
+        return d->parent_task;
+    else {
+        d->parent_task = 0;
+        return 0;
+    }
+}
+
+void Qtilities::Core::Task::setParentTask(ITask* parent_task) {
+    if (!parent_task)
+        return;
+
+    d->parent_task = parent_task;
+    d->parent_task_base = parent_task->objectBase();
+}
+
+void Qtilities::Core::Task::removeParentTask() {
+    d->parent_task = 0;
+    d->parent_task_base = 0;
+}
+
 Task::TaskLifeTimeFlags Qtilities::Core::Task::taskLifeTimeFlags() const {
     return d->task_lifetime_flags;
 }
@@ -218,9 +244,6 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
     if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
         updateBusyState(type);
 
-    if (!d->log_engine && !d->custom_log_engine)
-        return;
-
     if (d->log_context & Logger::SystemWideMessages)
         Log->logMessage(QString(),type,message);
     if (d->log_context & Logger::PriorityMessages)
@@ -230,6 +253,8 @@ void Qtilities::Core::Task::logMessage(const QString& message, Logger::MessageTy
             Log->logMessage(d->log_engine->name(),type,message);
         if (d->custom_log_engine)
             Log->logMessage(d->custom_log_engine->name(),type,message);
+        if (parentTask())
+            parentTask()->logMessage(message,type);
     }
 }
 
@@ -448,13 +473,13 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
 
     // Log information about the result of the task:
     if (d->task_result == ITask::TaskSuccessful) {
-        logMessage(tr("Task completed successfully."));
+        logMessage(QString(tr("Task \"%1\" completed successfully.")).arg(taskName()));
     } else if (d->task_result == ITask::TaskSuccessfulWithErrors) {
-        logMessage(tr("Task completed successfully but some warnings and/or errors were logged in while the task was busy. See the task log for more information."),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged in while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
     } else if (d->task_result == ITask::TaskSuccessfulWithWarnings) {
-        logMessage(tr("Task completed successfully but some warnings were logged in while the task was busy. See the task log for more information."),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged in while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
     } else if (d->task_result == ITask::TaskFailed) {
-        logMessage(tr("Task failed. See the task log for more information."),Logger::Error);
+        logMessage(QString(tr("Task \"%1\" failed. See the task log for more information.")).arg(taskName()),Logger::Error);
     }
 
     emit taskCompleted(result,message,type);

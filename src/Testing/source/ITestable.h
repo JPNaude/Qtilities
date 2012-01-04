@@ -1,12 +1,6 @@
-#ifndef ITESTABLE_H
-#define ITESTABLE_H
-
-#endif // ITESTABLE_H
-
-
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -37,8 +31,8 @@
 **
 ****************************************************************************/
 
-#ifndef ITestable_H
-#define ITestable_H
+#ifndef ITESTABLE_H
+#define ITESTABLE_H
 
 #include "Testing_global.h"
 #include "IObjectBase.h"
@@ -75,4 +69,4 @@ namespace Qtilities {
 
 Q_DECLARE_INTERFACE(Qtilities::Testing::Interfaces::ITestable,"com.Qtilities.Testing.ITestable/1.0");
 
-#endif // ITestable_H
+#endif // ITESTABLE_H

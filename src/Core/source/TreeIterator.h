@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -98,23 +98,41 @@ while (itr.hasPrevious()) {
 
         \section tree_iterator_multiple_parents When subjects are attached to multiple parents
 
-        Because %Qtilities allows tree items to be attached to multiple trees care should be taken when iterating through trees in which subjects are attached to multiple trees. To explain this,
+        Because %Qtilities allows tree items to be attached to multiple trees, care should be taken when iterating through trees in which subjects are attached to multiple trees. To explain this,
         take the following tree as an example:
 
-        \image html observer_dot_graph_example_complex_tree_dot.jpg "Example Graph (Dot Layout Engine)"
+        \image html trees_multiple_parent_iteration.jpg "Advanced Tree Iteration"
 
-        To construct the above tree is simple as demonstrated in the code snippet below:
+        The above tree is constructed using the code snippet below:
 
 \code
+TreeNode* rootTop = new TreeNode("Root Node");
 
+// This is the first tree (A):
+TreeNode* rootNodeA = new TreeNode("A1");
+rootNodeA->addItem("A2");
+TreeItem* shared_item = rootNodeA->addItem("A3"); // This is the shared item.
+QObject* lastA = rootNodeA->addItem("A4");
+
+// This is the second tree (B):
+TreeNode* rootNodeB = new TreeNode("B1");
+rootNodeB->addItem("B2");
+rootNodeB->attachSubject(shared_item); // Here we attach the shared item to another tree's node.
+// Because we use ManualOwnership above, shared_item's ownership will stay set to SpecificObserverOwnership where
+// nodeA5 is the parent() of the item. Therefore, this iterator will work: When it gets to shared_item and
+// sees there are two parents, it automatically takes the path of the parent() which will be nodeA5.
+rootNodeB->addItem("B3");
+
+rootTop->attachSubject(rootNodeA);
+rootTop->attachSubject(rootNodeB);
 \endcode
 
-        When TreeIterator iterates through this tree and it gets to the point where it must find the shared item's parent, there are two parents to choose from. The way
+        When TreeIterator iterates through this tree and it gets to the point where it must find the parent of the shared item ("A3" indicated in red), there are two parents to choose from. The way
         that TreeIterator handles cases such as this it to check for the observer to which it is attached with Observer::SpecificObserverOwnership. If you build a tree using the
         Qtilities::CoreGui::TreeNode class's \p addItem() and \p addNode() functions this is done for you automatically. When you attach a tree item to a node using Observer::SpecificObserverOwnership
         the item's \p parent() will be set to be the observer it is attached to.
 
-        Thus in the above tree, the parent called "TODO" will be used since it is the \p parent() of the item. When iterating through the other tree, the iteration will produce the wrong results.
+        Thus in the above tree, the parent called "A1" will be used since it is the \p parent() of the item. When iterating through the other tree, the iteration will produce the wrong results.
 
         To summarize, take care when using trees like the one shown above and make sure you understand how the iterator will iterate through the tree.
 

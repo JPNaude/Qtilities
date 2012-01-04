@@ -40,6 +40,7 @@
 
 namespace Qtilities {
     namespace Examples {
+        //! Namespace containing all the classes which forms part of the Exporting Example.
         namespace ExportingExample {
             using namespace Qtilities::Core;
             using namespace Qtilities::Core::Interfaces;

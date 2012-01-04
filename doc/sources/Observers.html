@@ -73,6 +73,7 @@ Table of contents:
 <tr>
 <td>
 - <a href="page_action_management.html">Action Management</a><br>
+- <a href="page_tree_structures.html">Building Trees</a><br>
 - <a href="page_debugging.html">Debugging Applications</a><br>
 - <a href="page_extension_system.html">Extension System</a><br>
 - <a href="page_factories.html">Factories</a><br>
@@ -82,7 +83,7 @@ Table of contents:
 - <a href="page_observers.html">Observers</a><br>
 - <a href="page_observer_widgets.html">Observer Widgets</a><br>
 - <a href="page_project_management.html">Project Management</a><br>
-- <a href="page_tree_structures.html">Building Trees</a><br>
+- <a href="page_tasking.html">Tasking</a><br>
 - <a href="page_widget_set.html">Widget Set</a><br>
 </td>
 </tr>
@@ -237,7 +238,6 @@ All subject filters must inherit Qtilities::Core::AbstractSubjectFilter. You can
 When attaching an object to an observer context which has subject filters installed, these filters are called during the attachment process to validate the attachment and to make sure all other objects in the context are in the correct state as well after the object was attached. Subject filters normally also add properties to the attached object. The diagram below shows when the Qtilities::Core::AbstractSubjectFilter::initializeAttachment() and Qtilities::Core::AbstractSubjectFilter::finalizeAttachment() functions are called during attachment of an object.
 
 \image html subject_filters_attachment.jpg "Subject Filter Attachment Sequence"
-\image latex subject_filters_attachment.eps "Subject Filter Attachment Sequence" width=\textwidth
 
 Detachment of an object can happen in two ways:
 - By calling the Qtilities::Core::Observer::detachSubject() function
@@ -246,12 +246,10 @@ Detachment of an object can happen in two ways:
 The detachment process is slightly different for the two cases. The first diagram below shows the case where the detach function is called directly.
 
 \image html subject_filters_detachment.jpg "Subject Filter Detachment Sequence"
-\image latex subject_filters_detachment.eps "Subject Filter Detachment Sequence" width=\textwidth
 
 The diagram below shows the case where the object is deleted while attached to the observer. In this case the private slot \p handle_deletedSubject() on the observer instance is called.
 
 \image html subject_filters_object_deletion.jpg "Subject Filter Detachment Sequence (Object Deletion)"
-\image latex subject_filters_object_deletion.eps "Subject Filter Detachment Sequence (Object Deletion)" width=5in
 
 Another important feature of the observer implementation is that subject filters can indicate to the observer in which they are installed which properties must be monitored. This allows subject filters to validate property changes to the properties added to subjects by the filter.
 

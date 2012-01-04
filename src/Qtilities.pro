@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2011, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -39,6 +39,7 @@ OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_0.html
 OTHER_FILES += ../doc/sources/Whats_New.html
+OTHER_FILES += ../doc/sources/Tasking.html
 OTHER_FILES += ../doc/sources/Debugging_Qtilities_Applications.html
 OTHER_FILES += ../Read Me First.txt
 OTHER_FILES += ../Changelog.txt

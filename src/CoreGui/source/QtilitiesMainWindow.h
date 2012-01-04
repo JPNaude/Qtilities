@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -123,6 +123,8 @@ int main(int argc, char *argv[])
         Futher, the Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
         Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
         For more information on this see the relevant class documentation.
+
+        It is also possible to show a Qtilities::CoreGui::TaskSummaryWidget automatically using QtilitiesMainWindow through showTaskSummaryWidget().
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {
@@ -163,14 +165,22 @@ int main(int argc, char *argv[])
             // ----------------------------------
             //! Shows a task summary widget next to the mode list widget.
             /*!
-              \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+            When using Qtilities::CoreGui::QtilitiesMainWindow you can set it up to show a task summary information automatically for you. This makes
+            it very easy to provide an overview of tasks in your application. The <a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html">Tasking Example</a>
+            demonstrates this:
 
-              \sa hideTaskSummaryWidget(), taskSummaryWidgetVisible()
-              */
+            \image html example_tasking.jpg "Tasking Example"
+
+            \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+            \note At present the task summary is only supported with ModesTop and ModesBottom.
+
+            \sa hideTaskSummaryWidget(), taskSummaryWidgetVisible()
+            */
             void showTaskSummaryWidget();
             //! Hides a task summary widget next to the mode list widget.
             /*!
               \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+              \note At present the task summary is only supported with ModesTop and ModesBottom.
 
               \sa showTaskSummaryWidget(), taskSummaryWidgetVisible()
               */
@@ -180,6 +190,7 @@ int main(int argc, char *argv[])
               False by default.
 
               \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
+              \note At present the task summary is only supported with ModesTop and ModesBottom.
 
               \sa setShowTaskSummaryWidget()
               */

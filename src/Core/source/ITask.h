@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -51,7 +51,9 @@ namespace Qtilities {
 
             /*!
             \class ITask
-            \brief Generic interface which provides a way for tasks to broadcast information about a set of task, and to provide a control interface for set of tasks.
+            \brief An interface through which you can communicate with a task. Qtilities::Core::Task is a ready to use implementation of this interface.
+
+            See the \ref page_tasking article for more information on tasking.
 
             <i>This class was added in %Qtilities v1.0.</i>
               */
@@ -191,9 +193,50 @@ namespace Qtilities {
                 virtual void setTaskStopAction(TaskStopAction task_stop_action) = 0;
                 //! Sets the task's remove action.
                 virtual void setTaskRemoveAction(TaskRemoveAction task_remove_action) = 0;
+
+                //! The parent task of this task.
+                /*!
+                  \sa setParentTask(), removeParentTask()
+                  */
+                virtual ITask* parentTask() const = 0;
+                //! Sets the parent task of this task.
+                /*!
+                  Allows you to make this task a subtask of another task. What this basically means is that messages from this task will be logged to
+                  the parent task and the parent task's busy state will also track the busy state of this task.
+
+                  If you don't want the busy state to be tracked (thus only want to get the messages of this task in the log of a different task, use setCustomLoggerEngine() instead.
+
+                  \note It is recommended to set the parent task of this task before starting it since the parent task will not aquire the busy state of this task in this function.
+
+                  \sa parentTask(), removeParentTask()
+                  */
+                virtual void setParentTask(ITask* parent_task) = 0;
+                //! Removes the parent task of this task.
+                /*!
+                  \sa setParentTask(), parentTask()
+                  */
+                virtual void removeParentTask() = 0;
+
                 // --------------------------------------------------
                 // Logging Functionality
                 // --------------------------------------------------
+                //! Sets the default message logging context flags of this task.
+                /*!
+                  Default is Logger::EngineSpecificMessages.
+                  */
+                virtual void setLogContext(Logger::MessageContextFlags message_context) = 0;
+                //! Logs a message to this task.
+                virtual void logMessage(const QString& message, Logger::MessageType type = Logger::Info) = 0;
+                //! Convenience function to log an error in the task log.
+                virtual void logError(const QString& message) = 0;
+                //! Convenience function to log a warning in the task log.
+                virtual void logWarning(const QString& message) = 0;
+                //! Sets if the log must be cleared when the task is started.
+                /*!
+                  True by default.
+                  */
+                virtual void setClearLogOnStart(bool clear_log_on_start = true) const = 0;
+
                 //! Indicates if the activities of this task is logged.
                 /*!
                   False by default.
@@ -212,7 +255,7 @@ namespace Qtilities {
                 /*!
                   When logging is enabled this function will be called automatically by Qtilities::CoreGui::TaskManagerGui when the task is registered in the global object pool.
 
-                  If you want this task's messages to be logger in a different logger engine you should call setCustomLoggerEngine(). An example where this is usefull
+                  If you want this task's messages to be logged in a different logger engine you should call setCustomLoggerEngine(). An example where this is usefull
                   is when you want to log the messages of a task in the log of another task. In that case, call setCustomLoggerEngine() with the loggerEngine() of the
                   task where the messages should be logged.
 

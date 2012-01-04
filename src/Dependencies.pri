@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2011, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 # See the Conan section below for exceptions when enabling Conan Integration
@@ -27,12 +27,12 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Qt Property Browser Solution
 # --------------------------
 # http://qt.gitorious.org/qt-solutions
-# Tested with v2.6.
+# Tested with git pull on 17/11/2010.
 # --------------------------
 # Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
 # need the Qt Property Browser Solution.
-DEFINES += QTILITIES_PROPERTY_BROWSER
+# DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -52,6 +52,8 @@ namespace Qtilities {
         /*!
         \class TaskManagerGui
         \brief A class providing static member functions to acccess and create GUIs related to task management.
+
+        See the \ref page_tasking article for more information on tasking.
 
         \sa Qtilities::Core::TaskManager
           */

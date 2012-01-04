@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -55,6 +55,8 @@ namespace Qtilities {
         /*!
         \class Task
         \brief The Task class is a ready to use implementation of the Qtilities::Core::Interfaces::ITask interface.
+
+        See the \ref page_tasking article for more information on tasking.
 
         <i>This class was added in %Qtilities v1.0.</i>
           */
@@ -135,6 +137,15 @@ namespace Qtilities {
             void setTaskStopAction(TaskStopAction task_stop_action);
             void setTaskRemoveAction(TaskRemoveAction task_remove_action);
 
+            ITask* parentTask() const;
+            /*!
+             The lifetime of the parent task will be tracked. Thus, if your parent task is deleted this task will stop to log messages to it.
+
+             \note The parent task does not become the parent() of this task. Thus, this task will not be deleted when the parent task is deleted.
+              */
+            void setParentTask(ITask* parent_task);
+            void removeParentTask();
+
             //! Gets the task lifetime.
             TaskLifeTimeFlags taskLifeTimeFlags() const;
             //! Sets the task lifetime.
@@ -146,21 +157,10 @@ namespace Qtilities {
             // --------------------------------------------------
             // Logging Functionality
             // --------------------------------------------------
-            //! Sets the default message logging context flags of this task.
-            /*!
-              Default is Logger::EngineSpecificMessages.
-              */
             void setLogContext(Logger::MessageContextFlags message_context);
-            //! Logs a message to this task.
             void logMessage(const QString& message, Logger::MessageType type = Logger::Info);
-            //! Convenience function to log an error in the task log.
             void logError(const QString& message);
-            //! Convenience function to log a warning in the task log.
             void logWarning(const QString& message);
-            //! Sets if the log must be cleared when the task is started.
-            /*!
-              True by default.
-              */
             void setClearLogOnStart(bool clear_log_on_start = true) const;
 
             bool loggingEnabled() const;

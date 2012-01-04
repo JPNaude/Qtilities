@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -136,34 +136,35 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
 }
 
 void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents() {
+    TreeNode* rootTop = new TreeNode("Root Node");
+
     // This is the first tree (A):
     TreeNode* rootNodeA = new TreeNode("A1");
-    rootNodeA->addNode("A2");
-    rootNodeA->addNode("A3");
-    TreeNode* nodeA4 = rootNodeA->addNode("A4");
-    TreeNode* nodeA5 = nodeA4->addNode("A5");
-    TreeItem* shared_item = nodeA5->addItem("A6"); // This is the shared item.
+    rootNodeA->addItem("A2");
+    TreeItem* shared_item = rootNodeA->addItem("A3"); // This is the shared item.
 //    qDebug() << "Shared item ownership with one parent: " << (Observer::ObjectOwnership) ObjectManager::getSharedProperty(shared_item,qti_prop_OWNERSHIP).value().toInt();
 //    qDebug() << "Shared item parent() with just one parent: " << shared_item->parent();
-    TreeNode* lastA = rootNodeA->addNode("A7");
-
-//    ObserverDotWriter writer(rootNodeA);
-//    writer.generateDotScript();
-//    writer.saveToFile("testIterationForwardMultipleParents.gv");
+    QObject* lastA = rootNodeA->addItem("A4");
 
     // This is the second tree (B):
     TreeNode* rootNodeB = new TreeNode("B1");
-    rootNodeB->addNode("B2");
-    rootNodeB->addNode("B3");
-    TreeNode* nodeB4 = rootNodeB->addNode("B4");
-    TreeNode* nodeB5 = nodeB4->addNode("B5");
-    nodeB5->attachSubject(shared_item); // Here we attach the shared item to another tree's node.
+    rootNodeB->addItem("B2");
+    rootNodeB->attachSubject(shared_item); // Here we attach the shared item to another tree's node.
     // Because we use ManualOwnership above, shared_item's ownership will stay set to SpecificObserverOwnership where
     // nodeA5 is the parent() of the item. Therefore, this iterator will work: When it gets to shared_item and
     // sees there are two parents, it automatically takes the path of the parent() which will be nodeA5.
 //    qDebug() << "Shared item ownership with second parent added: " << (Observer::ObjectOwnership) ObjectManager::getSharedProperty(shared_item,qti_prop_OWNERSHIP).value().toInt();
 //    qDebug() << "Shared item parent() with just two parents: " << shared_item->parent();
-    rootNodeB->addNode("B7");
+    rootNodeB->addItem("B3");
+
+    rootTop->attachSubject(rootNodeA);
+    rootTop->attachSubject(rootNodeB);
+
+    ObserverDotWriter writer(rootTop);
+    // This line hangs the writer, bug somewhere:
+    //writer.addNodeAttribute(shared_item,"color","red");
+    bool created_dot_file = writer.saveToFile(QtilitiesApplication::applicationSessionPath() + "/testIterationForwardMultipleParents.gv");
+    qDebug() << created_dot_file;
 
     // Now try to iterate through tree A:
     TreeIterator itr(rootNodeA);
@@ -184,7 +185,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents()
     QVERIFY(itr.last() == lastA);
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
-    QVERIFY(testList.count() == 7);
+    QVERIFY(testList.count() == 4);
     for (int i = 0; i < testList.count(); i++) {
         QVERIFY(testList.at(i).compare("A" + QString::number(i+1)) == 0);
     }

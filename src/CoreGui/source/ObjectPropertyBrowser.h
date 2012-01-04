@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -30,8 +30,6 @@
 ** contact support@qtilities.org.
 **
 ****************************************************************************/
-
-#ifdef QTILITIES_PROPERTY_BROWSER
 
 #ifndef OBJECTPROPERTYBROWSER_H
 #define OBJECTPROPERTYBROWSER_H
@@ -183,5 +181,3 @@ namespace Qtilities {
 }
 
 #endif // OBJECTPROPERTYBROWSER_H
-
-#endif

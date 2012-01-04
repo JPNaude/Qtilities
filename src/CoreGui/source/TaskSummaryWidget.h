@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -57,6 +57,33 @@ namespace Qtilities {
         \class TaskSummaryWidget
         \brief A widget which provides a summary of all registered global tasks.
 
+        Qtilities::CoreGui::TaskSummaryWidget provides the ability to display all tasks in an application and is customizable in order for your needs. It can for example only show active tasks, or all tasks (active and inactive).
+
+        To create a task summary widget is straight forward. For example:
+
+\code
+TaskSummaryWidget task_summary_widget;
+
+// Tell the widget that it should not hide itself when now active tasks are visible:
+task_summary_widget.setNoActiveTaskHandling(TaskSummaryWidget::ShowSummaryWidget);
+
+// Find all current tasks in the global object pool:
+task_summary_widget.findCurrentTasks();
+
+// All tasks registered in the global object pool from here on will automatically be displayed
+// in the summary widget.
+\endcode
+
+        It is important to note that only tasks registered in the global object pool and set as global tasks (see Qtilities::Core::Interfaces::ITask::TaskGlobal) are shown in
+        the task summary widget. The figure below shows a task summary widget which shows three active tasks. Note that the QTimer task can be stopped.
+
+        \image html class_tasksummarywidget_screenshot.jpg "Task Summary Widget"
+
+        When using Qtilities::CoreGui::QtilitiesMainWindow you can set it up to show a task summary information automatically for you. This makes
+        it very easy to provide an overview of tasks in your application. The <a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html">Tasking Example</a>
+        demonstrates this.
+
+        See the \ref page_tasking article for more information on tasking.
 
         <i>This class was added in %Qtilities v1.0.</i>
           */

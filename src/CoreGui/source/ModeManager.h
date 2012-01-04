@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -319,12 +319,12 @@ modeListWidget()->setStyleSheet(stylesheet);
             void refreshList();
             //! Converts a list of mode names to the corresponding list of mode ids.
             /*!
-              \note If the name_list constains multiple entries, only the first instance will be converted.
+              \note If the name_list contains multiple entries, only the first instance will be converted.
               */
             QList<int> modeNamesToIDs(QStringList name_list) const;
             //! Converts a list of mode interfaces to the corresponding list of mode ids.
             /*!
-              \note If the imode_list constains multiple entries, only the first instance will be converted.
+              \note If the imode_list contains multiple entries, only the first instance will be converted.
               */
             QList<int> modeIFacesToIDs(QList<IMode*> imode_list) const;
             //! Converts a list of mode IDs to a list of corresponding mode names.

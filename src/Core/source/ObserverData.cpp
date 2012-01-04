@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -377,15 +377,13 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStre
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    bool has_active_processing_cycle = process_cycle_active;
     observer->startProcessingCycle();
 
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_OBS_DATA_SECTION) {
         LOG_ERROR(QObject::tr("Observer binary import failed to detect marker at start of import. Import will fail at ") + Q_FUNC_INFO);
-        if (!has_active_processing_cycle)
-            observer->endProcessingCycle();
+        observer->endProcessingCycle();
         return IExportable::Failed;
     }
 
@@ -411,8 +409,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
             LOG_ERROR(QObject::tr("Observer binary import failed to detect marker located after factory data. Import will fail at ") + Q_FUNC_INFO);
-            if (!has_active_processing_cycle)
-                observer->endProcessingCycle();
+            observer->endProcessingCycle();
             return IExportable::Failed;
         }
 
@@ -459,8 +456,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
             LOG_ERROR(QObject::tr("Observer binary import failed to detect marker located after ObserverData. Import will fail at ") + Q_FUNC_INFO);
-            if (!has_active_processing_cycle)
-                observer->endProcessingCycle();
+            observer->endProcessingCycle();
             return IExportable::Failed;
         }
 
@@ -473,8 +469,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
             // Get the factory data of the subject filter:
             InstanceFactoryInfo instanceFactoryInfo;
             if (!instanceFactoryInfo.importBinary(stream,exportVersion())) {
-                if (!has_active_processing_cycle)
-                    observer->endProcessingCycle();
+                observer->endProcessingCycle();
                 return IExportable::Failed;
             } else {
                 AbstractSubjectFilter* new_filter = qobject_cast<AbstractSubjectFilter*> (OBJECT_MANAGER->createInstance(instanceFactoryInfo));
@@ -486,8 +481,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                     observer->installSubjectFilter(new_filter);
                 } else {
                     LOG_ERROR(QString(QObject::tr("%1/%2: Importing subject filter \"%3\" failed. Import cannot continue at %4")).arg(i+1).arg(subject_filter_count).arg(instanceFactoryInfo.d_instance_name).arg(Q_FUNC_INFO));
-                    if (!has_active_processing_cycle)
-                        observer->endProcessingCycle();
+                    observer->endProcessingCycle();
                     return IExportable::Failed;
                 }
             }
@@ -496,8 +490,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
             LOG_ERROR(QObject::tr("Observer binary import failed to detect marker located after subject filters. Import will fail at ") + Q_FUNC_INFO);
-            if (!has_active_processing_cycle)
-                observer->endProcessingCycle();
+            observer->endProcessingCycle();
             return IExportable::Failed;
         }
 
@@ -514,8 +507,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
             InstanceFactoryInfo instanceFactoryInfo;
             if (!instanceFactoryInfo.importBinary(stream,exportVersion())) {
-                if (!has_active_processing_cycle)
-                    observer->endProcessingCycle();
+                observer->endProcessingCycle();
                 return IExportable::Failed;
             }
             if (instanceFactoryInfo.isValid()) {
@@ -568,8 +560,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                         break;
                     }
                 } else {
-                    if (!has_active_processing_cycle)
-                        observer->endProcessingCycle();
+                    observer->endProcessingCycle();
                     return IExportable::Failed;
                 }
             }
@@ -577,8 +568,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         stream >> ui32;
         if (ui32 != MARKER_OBS_DATA_SECTION) {
             LOG_ERROR(QObject::tr("Observer binary import failed to detect end marker. Import will fail at ") + Q_FUNC_INFO);
-            if (!has_active_processing_cycle)
-                observer->endProcessingCycle();
+            observer->endProcessingCycle();
             return IExportable::Failed;
         }
     }
@@ -603,10 +593,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         ObserverRelationalTable::removeRelationalProperties(observer);
     }
 
-    if (!has_active_processing_cycle)
-        observer->endProcessingCycle();
-
-    observer->refreshViewsLayout();
+    observer->endProcessingCycle();
 
     if (success) {
         if (complete) {
@@ -856,7 +843,6 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     QList<QPointer<QObject> > active_subjects;
-    bool has_active_processing_cycle = process_cycle_active;
     observer->startProcessingCycle();
     IExportable::Result result = IExportable::Complete;
 
@@ -1099,8 +1085,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                                         }
                                     } else {
                                         LOG_WARNING(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()));
-                                        if (!has_active_processing_cycle)
-                                            observer->endProcessingCycle();
+                                        observer->endProcessingCycle();
                                         return IExportable::Failed;
                                     }
                                 } else {
@@ -1147,8 +1132,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
         ObserverRelationalTable::removeRelationalProperties(observer);
     }
 
-    if (!has_active_processing_cycle)
-        observer->endProcessingCycle();
+    observer->endProcessingCycle();
 
     // If active_subjects has items in it we must set them active:
     if (active_subjects.count() > 0) {

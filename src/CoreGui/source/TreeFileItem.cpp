@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -169,12 +169,12 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
         d_queued_file_path = file_path;
         d_queued_relative_to_path = relative_to_path;
 
-        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath()))));
+        SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
         ObjectManager::setSharedProperty(this,new_subject_name_property);
-        setObjectName(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath())));
+        setObjectName(fi.actualFilePath());
     } else {
         // Handle cases where there is no naming policy filter:
-        setObjectName(QDir::toNativeSeparators(QDir::cleanPath(fi.actualFilePath())));
+        setObjectName(fi.actualFilePath());
 
         // In this case we do not need to check in eventFilter() since the object name was correctly updated:
         treeFileItemBase->file_info.setFile(file_path);

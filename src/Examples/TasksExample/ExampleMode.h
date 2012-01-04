@@ -51,14 +51,22 @@ namespace Qtilities {
 
         //! Namespace containing all the classes which forms part of the Tasks Example.
         /*!
-          // TODO: Update this description
+        An example which demonstrates the use of tasking in the %Qtilities libraries.
+
+        This example uses the following modules and plugins:
+        - <a class="el" href="namespace_qtilities_1_1_logging.html">Logging Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core.html">Core Module</a>
+        - <a class="el" href="namespace_qtilities_1_1_core_gui.html">CoreGui Module</a>
+
+        Below is a screenshot of this example in action:
+        \image html example_tasking.jpg "Tasking Example"
           */
         namespace TasksExample {
             using namespace Qtilities::CoreGui::Interfaces;
 
             // Object Management Mode Parameters
             #define MODE_EXAMPLE_ID                   998
-            const char * const CONTEXT_EXAMPLE_MODE   = "Context.ObjectManagementMode";
+            const char * const CONTEXT_EXAMPLE_MODE   = "Context.TaskingMode";
 
             /*!
               \struct ExampleModePrivateData

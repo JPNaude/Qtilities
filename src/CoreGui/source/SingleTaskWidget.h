@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -59,6 +59,25 @@ namespace Qtilities {
         /*!
         \class SingleTaskWidget
         \brief A widget provides an overview of a single task.
+
+        Qtilities::CoreGui::SingleTaskWidget is the most basic tasking widget and it is used to represent a single task and can easily be constructed as follows:
+
+\code
+Task* task = new Task("Timer Task");
+OBJECT_MANAGER->registerObject(task);
+
+SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(task->taskID());
+\endcode
+
+        The figure below shows a single task widget for an example task. Note that clicking on the green icon on the left of the progress bar allows you to view the log for the
+        specific task. Also, the task widget will only show controls for the task according to the way the task was set up. In the QTimer example above we call \p setCanStop(true),
+        thus the single task widget will provide the ability to stop the task. If it was set to false, the red stop button would have been disabled.
+
+        \image html class_singletaskwidget_screenshot.jpg "Single Task Widget"
+
+        The single task widget can be added anywhere in your application where you would like to display information about a task.
+
+        See the \ref page_tasking article for more information on tasking.
 
         <i>This class was added in %Qtilities v1.0.</i>
           */

@@ -16,7 +16,7 @@ using namespace Qtilities::Logging;
 struct Qtilities::Core::QtilitiesProcessPrivateData {
     QtilitiesProcessPrivateData() : process(0) { }
 
-    QProcess*   process;
+    QProcess* process;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, QObject* parent) : Task(task_name,enable_logging,parent) {
