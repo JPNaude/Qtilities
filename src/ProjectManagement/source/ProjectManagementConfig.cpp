@@ -122,7 +122,12 @@ Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManageme
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
     // Create projects path if it does not exist:
     if (!ui->txtCustomProjectsPath->text().isEmpty()) {
+
+        #ifdef Q_OS_WIN
         if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
+        #else
+        if (!ui->txtCustomProjectsPath->text().isEmpty()) {
+        #endif
             QDir dir(ui->txtCustomProjectsPath->text());
             if (!dir.exists()) {
                 if (dir.mkpath(ui->txtCustomProjectsPath->text())) {
