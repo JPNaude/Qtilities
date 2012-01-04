@@ -31,13 +31,10 @@
 ######################
 .DS_Store?
 ehthumbs.db
-Icon?
 Thumbs.db
 
 # Folder ignores #
 ######################
-qtpropertybrowser-2.5-opensource
-conan
 build_files
 output
 bin/Examples
