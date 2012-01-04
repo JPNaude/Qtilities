@@ -122,7 +122,6 @@ Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManageme
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
     // Create projects path if it does not exist:
     if (!ui->txtCustomProjectsPath->text().isEmpty()) {
-
         #ifdef Q_OS_WIN
         if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
         #else
@@ -199,7 +198,11 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_txtCustomProj
         ui->lblPathMessageText->setText("Your custom projects path cannot be empty.");
         ui->txtCustomProjectsPath->setStyleSheet("color: red");
     } else {
+        #ifdef Q_OS_WIN
         if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
+        #else
+        if (!ui->txtCustomProjectsPath->text().isEmpty()) {
+        #endif
             QDir dir(ui->txtCustomProjectsPath->text());
             if (dir.exists()) {
                 ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
@@ -212,7 +215,11 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_txtCustomProj
             }
         } else {
             ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
+            #ifdef Q_OS_WIN
             ui->lblPathMessageText->setText("Your path contains invalid characters: " + QtilitiesFileInfo::invalidFilePathCharacters());
+            #else
+            ui->lblPathMessageText->setText("Your path contains invalid characters.");
+            #endif
             ui->txtCustomProjectsPath->setStyleSheet("color: red");
         }
     }
