@@ -61,7 +61,8 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
 # Integrates the Conan Library into the debug widget:
 # --------------------------
 # Builds Qtilities with the Conan library integrated into the unit testing module.
-# Note that this integration was only tested in Qt 4.7.x on Windows XP 32bit.
+# Note that this integration was only tested in Qt 4.7.x, since Conan v1.0.2 requires
+# Qt 4.7.x and higher.
 # DEFINES += QTILITIES_CONAN
 #
 # The Conan library is released under GPL v3.0. Therefore, when uncommenting
