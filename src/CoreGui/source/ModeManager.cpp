@@ -377,8 +377,9 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     }
 
     // If we still don't have an active item it means no modes are present. We don't have to do anything in that case.
-    if (!set_active_done) {
+    if (!set_active_done) {       
         emit changeCentralWidget(0);
+        emit modeListItemSizesChanged();
     } else {
         // Now assign correct shortcuts for all modes:
         for (int i = 0; i < added_ids.count(); i++) {
