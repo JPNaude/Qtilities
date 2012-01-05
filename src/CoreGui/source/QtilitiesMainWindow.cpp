@@ -286,8 +286,11 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
     if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
         int max_height = d->mode_manager->modeListWidget()->sizeHint().height();
 
+        if (max_height == 0)
+            max_height = 96;
+
         d->mode_manager->modeListWidget()->setMinimumHeight(max_height);
-        d->mode_manager->modeListWidget()->setMinimumHeight(max_height);
+        d->mode_manager->modeListWidget()->setMaximumHeight(max_height);
 
         if (d->task_summary_widget) {
             d->task_summary_widget->setMaximumHeight(max_height);
@@ -296,11 +299,14 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
         int max_width = d->mode_manager->modeListWidget()->sizeHint().width();
 
-        d->mode_manager->modeListWidget()->setMaximumWidth(max_width);
+        if (max_width == 0)
+            max_width = 96;
+
+        d->mode_manager->modeListWidget()->setMinimumWidth(max_width);
         d->mode_manager->modeListWidget()->setMaximumWidth(max_width);
 
         if (d->task_summary_widget) {
-            d->task_summary_widget->setMaximumWidth(max_width);
+            d->task_summary_widget->setMinimumWidth(max_width);
             d->task_summary_widget->setMaximumWidth(max_width);
         }
     }
