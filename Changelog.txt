@@ -3,6 +3,8 @@ Qtilities v1.0 Changes
 ================================
     General:
     ============================
+    - Source Repository
+        - The source repository was moved from Gitorious to GitHub.
     - Documentation
         - Documentation now uses Doxygen's COLORSTYLE parameters to style the docs properly.
         - Getting Started article improved and updated, especially the Linux information.

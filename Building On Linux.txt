@@ -41,7 +41,7 @@ Connection Analyzer for Qt
 Build Qtilities
 ===============
 1. Get the source code from gitorious
-   Run the following command: git clone git://gitorious.org/qtilities/qtilities.git qtilities
+   Run the following command: git clone git://github.com/JPNaude/Qtilities.git qtilities
 2. Open the Qtilities.pro file in QtCreator located in the src folder.
 3. Check your project paths:
    Open the "Dependencies.pri" file located in the src folder and check that the paths are set up correctly. 
