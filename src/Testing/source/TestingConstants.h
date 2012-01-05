@@ -35,7 +35,7 @@
 #define TESTING_CONSTANTS_H
 
 namespace Qtilities {
-    //! Namespace containing all the classes which forms part of the Unit Tests Module.
+    //! Namespace containing all the classes which forms part of the Testing Module.
     /*!
     To use this module, add the following to your .pro %file:
     \code
