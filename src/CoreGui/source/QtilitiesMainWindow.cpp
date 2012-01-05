@@ -235,6 +235,8 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
         d->central_widget->show();
         if (d->task_summary_widget_visible)
             d->task_summary_widget->show();
+
+        d->mode_manager->modeListWidget()->show();
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
         if (!d->mode_manager) {
             d->mode_manager = new ModeManager(qti_def_DEFAULT_MODE_MANAGER,Qt::Horizontal,this);
@@ -305,8 +307,10 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_central_widget) {
-    if (!new_central_widget)
-        return;
+    if (!new_central_widget) {
+        new_central_widget = new QWidget(this);
+        new_central_widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    }
 
     // Hide current widget
     if (d->current_widget)

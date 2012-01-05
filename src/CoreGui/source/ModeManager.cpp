@@ -175,6 +175,9 @@ void Qtilities::CoreGui::ModeManager::addModes(QList<IMode*> modes, bool initial
 }
 
 void Qtilities::CoreGui::ModeManager::initialize() {
+    d->id_iface_map.clear();
+    d->active_mode = -1;
+
     QList<QObject*> modes = OBJECT_MANAGER->registeredInterfaces("IMode");
     LOG_DEBUG(QString("%1 mode(s) found.").arg(modes.count()));
     addModes(modes);
@@ -373,32 +376,37 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
         set_active_done = true;
     }
 
-    // Now assign correct shortcuts for all modes:
-    for (int i = 0; i < added_ids.count(); i++) {
-        QString shortcut_id = QString("ApplicationMode.%1").arg(added_ids.at(i));
-        Command* command = ACTION_MANAGER->command(shortcut_id);
-        if (command) {
-            command->setKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
-            QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">Ctrl+%1</span>").arg(i+1);
-            QString tooltip = QString(added_items[added_ids.at(i)]->toolTip() + new_key_tooltip);
-            added_items[added_ids.at(i)]->setToolTip(tooltip);
-        }
-    }
-
-    // Set the min & max widths and heigths:
-    if (d->orientation == Qt::Horizontal) {
-        d->mode_list_widget->setMinimumWidth(d->mode_list_widget->sizeHint().width());
-        d->mode_list_widget->setMaximumWidth(d->mode_list_widget->sizeHint().width());
-        emit modeListItemSizesChanged();
+    // If we still don't have an active item it means no modes are present. We don't have to do anything in that case.
+    if (!set_active_done) {
+        emit changeCentralWidget(0);
     } else {
-        d->mode_list_widget->setMinimumHeight(d->mode_list_widget->sizeHint().height());
-        d->mode_list_widget->setMaximumHeight(d->mode_list_widget->sizeHint().height());
-        emit modeListItemSizesChanged();
-    }
+        // Now assign correct shortcuts for all modes:
+        for (int i = 0; i < added_ids.count(); i++) {
+            QString shortcut_id = QString("ApplicationMode.%1").arg(added_ids.at(i));
+            Command* command = ACTION_MANAGER->command(shortcut_id);
+            if (command) {
+                command->setKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
+                QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">Ctrl+%1</span>").arg(i+1);
+                QString tooltip = QString(added_items[added_ids.at(i)]->toolTip() + new_key_tooltip);
+                added_items[added_ids.at(i)]->setToolTip(tooltip);
+            }
+        }
 
-    // Set size hint for all items:
-    for (int i = 0; i < added_items.count(); i++) {
-        added_items.values().at(i)->setSizeHint(d->mode_list_widget->itemSizeHint());
+        // Set the min & max widths and heigths:
+        if (d->orientation == Qt::Horizontal) {
+            d->mode_list_widget->setMinimumWidth(d->mode_list_widget->sizeHint().width());
+            d->mode_list_widget->setMaximumWidth(d->mode_list_widget->sizeHint().width());
+            emit modeListItemSizesChanged();
+        } else {
+            d->mode_list_widget->setMinimumHeight(d->mode_list_widget->sizeHint().height());
+            d->mode_list_widget->setMaximumHeight(d->mode_list_widget->sizeHint().height());
+            emit modeListItemSizesChanged();
+        }
+
+        // Set size hint for all items:
+        for (int i = 0; i < added_items.count(); i++) {
+            added_items.values().at(i)->setSizeHint(d->mode_list_widget->itemSizeHint());
+        }
     }
 }
 

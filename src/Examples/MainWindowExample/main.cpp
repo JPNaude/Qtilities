@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
 
     // Create the Example before plugin loading since it registers a project items:
     ExampleMode* example_mode = new ExampleMode;
+    OBJECT_MANAGER->registerObject(example_mode);
 
     // Load plugins using the extension system:
     Log->toggleQtMsgEngine(true);
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
     modes << MODE_EXAMPLE_ID;
     SideViewerWidgetFactory* file_system_side_widget_helper = new SideViewerWidgetFactory(&SideWidgetFileSystem::factory,"File System",modes,modes);
     OBJECT_MANAGER->registerObject(file_system_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
-    QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
+    QObject::connect(file_system_side_widget_helper,SIGNAL(newWidgetCreated(QWidget*,QString)),example_mode,SLOT(handleNewFileSystemWidget(QWidget*)));
     SideViewerWidgetFactory* object_scope_side_widget_helper = new SideViewerWidgetFactory(&ObjectScopeWidget::factory,"Object Scope",modes,modes);
     OBJECT_MANAGER->registerObject(object_scope_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #ifdef QTILITIES_PROPERTY_BROWSER
@@ -168,11 +169,9 @@ int main(int argc, char *argv[])
     OBJECT_MANAGER->registerObject(property_editor_side_widget_helper,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
     #endif
 
-    // Now that all the modes have been loaded from the plugins, add them to the main window:
-    QList<QObject*> registered_modes = OBJECT_MANAGER->registeredInterfaces("IMode");
-    registered_modes << example_mode;
-    LOG_INFO(QString("%1 application mode(s) found in set of loaded plugins.").arg(registered_modes.count()));
-    exampleMainWindow.modeManager()->addModes(registered_modes);
+    exampleMainWindow.modeManager()->initialize();
+    exampleMainWindow.modeManager()->setManagerID(1);
+    exampleMainWindow.modeManager()->initialize();
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
