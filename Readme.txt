@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2011, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -20,7 +20,6 @@ Alternatively see http://www.qtilities.org/docs/page_getting_started.html. The o
 
 For any questions or comments, please use any of the resources below:
 Website: http://www.qtilities.org
+Source Repo & Bug Tracker: https://github.com/JPNaude/Qtilities
 Blog: http://qtilities.blogspot.com
 Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
-Bug Tracker: http://code.google.com/p/qtilities/issues/list
-Source Repo: http://gitorious.org/qtilities
