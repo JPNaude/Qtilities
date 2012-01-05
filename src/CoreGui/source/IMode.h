@@ -56,7 +56,9 @@ namespace Qtilities {
             {
 
             public:
-                IMode() : d_mode_id(-1) {}
+                IMode() : d_mode_id(-1) {
+                    d_target_manager_ids << Qtilities::CoreGui::Constants::qti_def_DEFAULT_MODE_MANAGER;
+                }
                 virtual ~IMode() {}
 
                 //! The main window's central widget for the mode.
@@ -121,18 +123,26 @@ namespace Qtilities {
                   */
                 virtual void justActivated() {}
 
-                //! A list of mode managers in which this mode must appear.
+                //! Gets the list of mode managers in which this mode must appear.
                 /*!
                   The default implementation returns qti_def_DEFAULT_MODE_MANAGER which is used by the mode manager constructed by QtilitiesMainWindow.
+
+                  \sa setTargetManagerIDs()
                   */
-                virtual QList<int> targetManagerIDs() const {
-                    QList<int> ids;
-                    ids << Qtilities::CoreGui::Constants::qti_def_DEFAULT_MODE_MANAGER;
-                    return ids;
+                QList<int> targetManagerIDs() const {
+                    return d_target_manager_ids;
+                }
+                //! Sets the list of mode managers in which this mode must appear.
+                /*!
+                  \sa targetManagerIDs()
+                  */
+                void setTargetManagerIDs(QList<int> new_target_manager_ids) {
+                    d_target_manager_ids = new_target_manager_ids;
                 }
 
             private:
                 int d_mode_id;
+                QList<int> d_target_manager_ids;
             };
         }
     }
