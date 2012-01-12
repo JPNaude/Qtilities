@@ -1577,18 +1577,18 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                         // Delete and Remove All depends on the selected context:
                         if (observer->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
                             if (observer->subjectCount() > 0) {
-                                d->actionRemoveAll->setText(tr("Detach All Under Selection"));
+                                d->actionRemoveAll->setText(tr("Detach All Under \"") + observer->observerName() + "\"");
                                 d->actionRemoveAll->setEnabled(true);
-                                d->actionDeleteAll->setText(tr("Delete All Under Selection"));
+                                d->actionDeleteAll->setText(tr("Delete All Under: ") + observer->observerName() + "\"");
                                 d->actionDeleteAll->setEnabled(true);
                             } else {
                                 d->actionRemoveAll->setEnabled(false);
                                 d->actionDeleteAll->setEnabled(false);
                             }
                         } else if (observer->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
-                            d->actionRemoveAll->setText(tr("Detach All"));
+                            d->actionRemoveAll->setText(tr("Detach All Under: ") + selectionParent()->observerName() + "\"");
                             d->actionRemoveAll->setEnabled(true);
-                            d->actionDeleteAll->setText(tr("Delete All"));
+                            d->actionDeleteAll->setText(tr("Delete All Under: ") + selectionParent()->observerName() + "\"");
                             d->actionDeleteAll->setEnabled(true);
                         }
                     }
@@ -1638,33 +1638,39 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                     else if (!d->use_observer_hints)
                         hints_to_use_for_selection = activeHints();
 
+                    // We should not end up with not getting any hints.
                     if (!hints_to_use_for_selection) {
                         d->actionRemoveAll->setText(tr("Detach All In Current Context"));
-                        d->actionRemoveAll->setEnabled(true);
                         d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                        d->actionRemoveAll->setEnabled(true);
                         d->actionDeleteAll->setEnabled(true);
                     } else {
                         if (hints_to_use_for_selection->observerSelectionContextHint() == ObserverHints::SelectionUseSelectedContext) {
                             if (selected->subjectCount() > 0) {
-                                d->actionRemoveAll->setText(tr("Detach All Under Selection"));
+                                d->actionRemoveAll->setText(tr("Detach All Under \"") + selected->observerName() + "\"");
                                 d->actionRemoveAll->setEnabled(true);
-                                d->actionDeleteAll->setText(tr("Delete All Under Selection"));
+                                d->actionDeleteAll->setText(tr("Delete All Under \"") + selected->observerName() + "\"");
                                 d->actionDeleteAll->setEnabled(true);
                             } else {
                                 d->actionRemoveAll->setEnabled(false);
                                 d->actionDeleteAll->setEnabled(false);
                             }
                         } else if (hints_to_use_for_selection->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
-                            d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                            d->actionRemoveAll->setText(tr("Detach All Under \"") + selectionParent()->observerName() + "\"");
                             d->actionRemoveAll->setEnabled(true);
-                            d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                            d->actionDeleteAll->setText(tr("Delete All Under  \"") + selectionParent()->observerName() + "\"");
                             d->actionDeleteAll->setEnabled(true);
                         }
                     }
                 } else {
-                    d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                    if (selectionParent()) {
+                        d->actionRemoveAll->setText(tr("Detach All Under \"") + selectionParent()->observerName() + "\"");
+                        d->actionDeleteAll->setText(tr("Delete All Under \"") + selectionParent()->observerName() + "\"");
+                    } else {
+                        d->actionRemoveAll->setText(tr("Detach All In Current Context"));
+                        d->actionDeleteAll->setText(tr("Delete All In Current Context"));
+                    }
                     d->actionRemoveAll->setEnabled(true);
-                    d->actionDeleteAll->setText(tr("Delete All In Current Context"));
                     d->actionDeleteAll->setEnabled(true);
                 }
 
@@ -2030,6 +2036,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDeleteAll() {
         bool use_parent_context = true;
         Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
         if (obs) {
+            // TODO: This is wrong, we need to use the hints only when we are using observer hints. See refresh actions for details...
             if (obs->displayHints()) {
                 if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
                     obs->deleteAll();
@@ -2041,6 +2048,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDeleteAll() {
             }
         }
 
+        // TODO: Is this correct? Also in detachAll(), we need to do something when it is false as well...
         if (use_parent_context) {
             // We must check if there is a selection parent, else use d_observer
             if (d->tree_model->selectionParent()) {
