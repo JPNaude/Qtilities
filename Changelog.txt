@@ -1,4 +1,42 @@
 ================================
+Qtilities v1.0.1 Changes
+================================
+    General:
+    ============================
+
+    ============================
+    QtilitiesLogging:
+    ============================
+    - FIXED #30: Fixed bug where Logger::newFileEngine() could crash if file could not be created at the location provided.
+
+    ============================
+    QtilitiesCore:
+    ============================
+
+    ============================
+    QtilitiesCoreGui:
+    ============================
+    - FIXED #29: ObserverWidget deleteAll() and detachAll() actions should use better text.
+	- FIXED #31: ObserverWidget deleteItem() and detachItem() actions should use better text.	
+	- Fixed wrong error debug message in SideWidgetFileSystem.cpp
+	- Fixed documentation on NamingPolicyFilter::ValidationCheck
+	- Improved usage of CodeEditorWidget when viewing file logger engines in the LoggerConfigWidget.
+
+    ============================
+    QtilitiesExtensionSystem:
+    ============================
+	- Improved error message when a plugin could not be loaded on Linux.
+
+    ============================
+    QtilitiesProjectManagement:
+    ============================
+
+    ============================
+    QtilitiesTesting:
+    ============================
+
+
+================================
 Qtilities v1.0 Changes
 ================================
     General:
