@@ -170,8 +170,6 @@ int main(int argc, char *argv[])
     #endif
 
     exampleMainWindow.modeManager()->initialize();
-    exampleMainWindow.modeManager()->setManagerID(1);
-    exampleMainWindow.modeManager()->initialize();
 
     // Register command editor config page.
     OBJECT_MANAGER->registerObject(ACTION_MANAGER->commandEditor(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
