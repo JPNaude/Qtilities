@@ -1549,10 +1549,18 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             d->actionPushDownNew->setEnabled(false);
 
             // Inspect property to see if push up, or push down related actions should be enabled.
-            if (d->current_selection.count() == 1) {
+            if (d->current_selection.count() == 1) {               
                 // Check if the selected object is an observer.
                 QObject* obj = d->current_selection.front();
                 if (obj) {
+                    if (d_observer) {
+                        d->actionDeleteItem->setText("Delete \"" + d_observer->subjectNameInContext(obj));
+                        d->actionRemoveItem->setText("Detach \"" + d_observer->subjectNameInContext(obj));
+                    } else {
+                        d->actionDeleteItem->setText("Delete \"" + obj->objectName());
+                        d->actionRemoveItem->setText("Detach \"" + obj->objectName());
+                    }
+
                     Observer* observer = qobject_cast<Observer*> (obj);
                     if (!observer) {
                         // Handle the cases where the current object has an observer child
@@ -1604,6 +1612,19 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             }
         } else if (d->display_mode == TreeView) {
             if (d->current_selection.count() == 1) {
+                // Give the remove and delete item actions better text:
+                if (d->current_selection.front()) {
+                    Observer* parent_obs = selectionParent();
+                    if (parent_obs) {
+                        d->actionDeleteItem->setText("Delete \"" + parent_obs->subjectNameInContext(d->current_selection.front()));
+                        d->actionRemoveItem->setText("Detach \"" + parent_obs->subjectNameInContext(d->current_selection.front()));
+                    } else {
+                        d->actionDeleteItem->setText("Delete \"" + d->current_selection.front()->objectName());
+                        d->actionRemoveItem->setText("Detach \"" + d->current_selection.front()->objectName());
+                    }
+                }
+
+
                 // We can't delete the top level observer in a tree:
                 Observer* selected = qobject_cast<Observer*> (d->current_selection.front());
                 if (selected == d->top_level_observer) {
