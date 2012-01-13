@@ -520,6 +520,18 @@ QTextDocument::FindFlags Qtilities::CoreGui::SearchBoxWidget::findFlags() const 
     return find_flags;
 }
 
+void Qtilities::CoreGui::SearchBoxWidget::setInfoText(const QString& info_text) {
+    ui->txtInfoMessage->setText(info_text);
+}
+
+QString Qtilities::CoreGui::SearchBoxWidget::infoText() const {
+    return ui->txtInfoMessage->text();
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::clearInfoText() {
+    ui->txtInfoMessage->clear();
+}
+
 void Qtilities::CoreGui::SearchBoxWidget::setMessage(const QString& message) {
     ui->lblMessage->setText(message);
 }

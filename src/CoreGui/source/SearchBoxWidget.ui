@@ -122,6 +122,13 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="txtInfoMessage">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QToolButton" name="btnClose">
         <property name="toolTip">
          <string>Hide</string>

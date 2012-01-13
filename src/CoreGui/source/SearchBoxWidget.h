@@ -211,6 +211,13 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             //! Function which returns the QTextDocument::FindFlags for the current search options.
             QTextDocument::FindFlags findFlags() const;
 
+            //! Sets the information string text.
+            void setInfoText(const QString& info_text);
+            //! Gets the information string text.
+            QString infoText() const;
+            //! Clears the information string text.
+            void clearInfoText();
+
         public slots:
             //! Sets the current search string in the search text box.
             void setCurrentSearchString(const QString& search_string);
