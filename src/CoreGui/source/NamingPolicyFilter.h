@@ -197,7 +197,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             static QString resolutionPolicyToString(ResolutionPolicy resolution_policy);
             //! Function which returns the ResolutionPolicy associated with a string.
             static ResolutionPolicy stringToResolutionPolicy(const QString& resolution_policy_string);
-            //! Policy to control how naming evaulation must be done during processing cycles.
+            //! Policy to control which checks must be performed by the filter.
             /*!
               setProcessingCycleValidationChecks(), processingCycleValidationChecks(), setValidationChecks(), validationChecks()
               */
