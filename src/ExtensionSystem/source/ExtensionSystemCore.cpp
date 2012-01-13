@@ -267,7 +267,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             LOG_ERROR(tr("Plugin found which does not implement the expected IPlugin interface."));
                         }
                     } else {
+                        #ifdef Q_WS_WIN
                         LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this is that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as Dependency Walker."));
+                        #else
+                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this is that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as \"ldd\"."));
+                        #endif
                     }
                 }
             } else {

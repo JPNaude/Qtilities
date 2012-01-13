@@ -203,6 +203,31 @@ namespace Qtilities {
               of the plugins which should be handled as core plugins. Note that the setInactivePlugins() function checks that you don't set a core plugin as inactive but the setFilteredPlugins() function does not do that. Thus it is possible to filter a core plugin. The developer must make sure this does not happen.
 
               \note This function only does something usefull when called before initialize().
+
+              Below is an example of how you can verify that all core plugins loaded successfully:
+\code
+QStringList core_plugins;
+core_plugins << "Project Management Plugin";
+EXTENSION_SYSTEM->setCorePlugins(core_plugins);
+EXTENSION_SYSTEM->initialize();
+
+// Give error message if any of the core plugins were not found:
+bool core_plugins_ok = true;
+foreach (QString core_plugin, core_plugins) {
+    if (!EXTENSION_SYSTEM->activePlugins().contains(core_plugin)) {
+        core_plugins_ok = false;
+        break;
+    }
+}
+
+if (!core_plugins_ok) {
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setWindowTitle("All Core Plugins Not Found");
+    msgBox.setText("All core plugins could not be loaded properly. Everything might not work as expected.<br><br>The following core plugins are needed: " + core_plugins.join(",") + "<br>The following plugins were loaded and set active: " + EXTENSION_SYSTEM->activePlugins().join(","));
+    msgBox.exec();
+}
+\endcode
               */
             void setCorePlugins(QStringList core_plugins);
 
