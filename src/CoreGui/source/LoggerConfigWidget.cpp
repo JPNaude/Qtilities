@@ -396,8 +396,10 @@ void Qtilities::CoreGui::LoggerConfigWidget::on_btnViewLog_clicked() {
 
         FileLoggerEngine* file_engine = qobject_cast<FileLoggerEngine*> (d->active_engine);
         if (file_engine) {
-            CodeEditorWidget* code_editor = new CodeEditorWidget(CodeEditorWidget::ActionNoHints);
+            CodeEditorWidget* code_editor = new CodeEditorWidget(CodeEditorWidget::ActionFind);
             code_editor->loadFile(file_engine->getFileName());
+            code_editor->showSearchBox();
+            code_editor->searchBoxWidget()->setWidgetMode(SearchBoxWidget::SearchOnly);
             code_editor->codeEditor()->setReadOnly(true);
             code_editor->setAttribute(Qt::WA_QuitOnClose,false);
             code_editor->setAttribute(Qt::WA_DeleteOnClose, true);
