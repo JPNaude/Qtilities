@@ -137,7 +137,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::dropEvent(QDropEvent *event) {
             if (file.copy(dest_path))
                 LOG_INFO_P(tr(QString("Successfully copied file from \"" + source_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
             else
-                LOG_ERROR_P(tr(QString("Successfully copied file from \"" + source_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
+                LOG_ERROR_P(tr(QString("Failed to copy file from \"" + source_path + "\" to path \"" + dest_path + "\".").toStdString().data()));
         }
     }
 
