@@ -3198,7 +3198,19 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
         for (int i = 0; i < categories.count(); i++) {
             QList<QAction*> action_list = d->action_provider->actions(IActionProvider::NoFilter,categories.at(i));
             if (action_list.count() > 0) {
-                QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
+                QToolBar* new_toolbar = 0;
+
+                QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+                foreach (QToolBar* toolbar, toolbars) {
+                    if (toolbar->objectName() == categories.at(i).toString()) {
+                        new_toolbar = toolbar;
+                        qDebug() << "Got it";
+                        break;
+                    }
+                }
+
+                if (!new_toolbar)
+                    new_toolbar = addToolBar(categories.at(i).toString());
                 new_toolbar->setObjectName(categories.at(i).toString());
                 d->action_toolbars << new_toolbar;
                 new_toolbar->addActions(action_list);
