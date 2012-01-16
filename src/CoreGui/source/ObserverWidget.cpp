@@ -3204,15 +3204,15 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
                 foreach (QToolBar* toolbar, toolbars) {
                     if (toolbar->objectName() == categories.at(i).toString()) {
                         new_toolbar = toolbar;
-                        qDebug() << "Got it";
                         break;
                     }
                 }
 
-                if (!new_toolbar)
+                if (!new_toolbar) {
                     new_toolbar = addToolBar(categories.at(i).toString());
+                    d->action_toolbars << new_toolbar;
+                }
                 new_toolbar->setObjectName(categories.at(i).toString());
-                d->action_toolbars << new_toolbar;
                 new_toolbar->addActions(action_list);
             }
         }
