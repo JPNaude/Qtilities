@@ -122,9 +122,12 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
                 ui->toolBar->removeAction(d->viewer_actions.at(0));
 
             d->viewer_actions.clear();
+            d->current_widget->setParent(0);
+
             // Check if we must delete the current widget:
-            if (d->text_iface_map[text]->manageWidgets())
+            if (d->text_iface_map[text]->manageWidgets()) {
                 delete d->current_widget;
+            }
         }
 
         ISideViewerWidget* iface = d->text_iface_map[text];
@@ -177,8 +180,9 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleActionClose_triggered()
     if (d->current_widget) {
         QString current_text = d->widgetCombo->currentText();
         ISideViewerWidget* current_iface = d->text_iface_map[current_text];
-        if (current_iface->manageWidgets())
+        if (current_iface->manageWidgets()) {
             delete d->current_widget;
+        }
     }
 
     // Delete this object.
