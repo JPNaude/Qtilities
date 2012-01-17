@@ -54,7 +54,7 @@ namespace Qtilities {
           The AbstractSubjectFilter class defines the standard interface that subject filters must use to be able to interoperate with observers.
           It is not supposed and cannot to be instantiated directly. Instead, you should subclass it to create new subject filters.
 
-          In short, an subject filter is used by an observer to evaulate specific actions performed on subjects by observers. Each
+          In short, a subject filter is used by an observer to evaulate specific operations performed on subjects by observers. Each
           subject filter needs an observer context which is set using setObserverContext(). Without the observer context set, the filter is not usable.
           When installing subject filters using the Qtilities::Core::Observer::installSubjectFilter() function the observer context
           will automatically be set. On the other hand, Qtilities::Core::Observer::uninstallSubjectFilter() will set the observer
