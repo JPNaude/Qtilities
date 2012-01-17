@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->loadShortcutMapping(shortcut_mapping_file);
 
     // Show the main window:
+    exampleMainWindow.readSettings();
     exampleMainWindow.show();
 
     // Initialize the project manager:

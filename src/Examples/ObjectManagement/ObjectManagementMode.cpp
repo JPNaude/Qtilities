@@ -43,7 +43,7 @@ struct Qtilities::Examples::ObjectManagement::ObjectManagementModePrivateData {
     QPointer<ObjectManagementModeWidget> widget;
 };
 
-Qtilities::Examples::ObjectManagement::ObjectManagementMode::ObjectManagementMode(QObject* parent) : QObject(parent)
+Qtilities::Examples::ObjectManagement::ObjectManagementMode::ObjectManagementMode(QObject* parent) : QObject(parent), IMode()
 {
     d = new ObjectManagementModePrivateData;
     setObjectName(tr("Object Management Mode"));
