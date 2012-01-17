@@ -91,7 +91,7 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2010-2011, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2012, Jaco Naude");
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {
