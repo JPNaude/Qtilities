@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -33,12 +33,28 @@
 
 #include "HelpBrowser.h"
 
+#include <QtDebug>
+
 Qtilities::Plugins::Help::HelpBrowser::HelpBrowser(QHelpEngine* helpEngine, QWidget *parent)
     : QTextBrowser(parent), helpEngine(helpEngine){
 }
 
 QVariant Qtilities::Plugins::Help::HelpBrowser::loadResource(int type, const QUrl &url) {
-    if (url.scheme() == "qthelp") {
-        return QVariant(helpEngine->fileData(url));
+//    if (url.scheme() == "qthelp") {
+//        return QVariant(helpEngine->fileData(url));
+//    } else {
+//        return QTextBrowser::loadResource(type, url);
+//    }
+
+    QByteArray ba;
+    if (type < 4) {
+        ba = helpEngine->fileData(url);
+        if (url.toString().endsWith(QLatin1String(".svg"), Qt::CaseInsensitive)) {
+            QImage image;
+            image.loadFromData(ba, "svg");
+            if (!image.isNull())
+                return image;
+        }
     }
+    return ba;
 }

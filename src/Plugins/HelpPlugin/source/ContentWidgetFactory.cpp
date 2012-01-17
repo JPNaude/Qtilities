@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -36,22 +36,26 @@
 
 #include <QHBoxLayout>
 #include <QHelpContentWidget>
+#include <QDebug>
 
 Qtilities::Plugins::Help::ContentWidgetFactory::ContentWidgetFactory(QHelpEngine* help_engine, QObject *parent)
-    : QObject(parent), help_engine(help_engine) {
+    : QObject(parent), d_help_engine(help_engine) {
 
 }
 
 QWidget* Qtilities::Plugins::Help::ContentWidgetFactory::produceWidget() {
-    QWidget* contents_widget = help_engine->contentWidget();
-    emit newWidgetCreated(contents_widget);
+    if (!d_content_widget && d_help_engine) {
+        d_content_widget = d_help_engine->contentWidget();
+        emit newWidgetCreated(d_content_widget);
+    }
 
-    return contents_widget;
+    return d_content_widget;
 }
 
 QString Qtilities::Plugins::Help::ContentWidgetFactory::widgetLabel() const {
     return tr("Contents");
 }
+
 QList<int> Qtilities::Plugins::Help::ContentWidgetFactory::startupModes() const {
     QList<int> modes;
     modes << MODE_HELP_ID;

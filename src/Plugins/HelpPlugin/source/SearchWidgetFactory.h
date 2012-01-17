@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -56,6 +56,12 @@ namespace Qtilities {
             public:
                 SearchWidgetFactory(QHelpSearchEngine* help_search_engine, QObject *parent = 0);
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+                const QObject* objectBase() const { return this; }
+
                 // --------------------------------------------
                 // ISideViewerWidget Implementation
                 // --------------------------------------------
@@ -75,7 +81,8 @@ namespace Qtilities {
                 void handleSearchSignal();
 
             private:
-                QHelpSearchEngine* help_search_engine;
+                QHelpSearchEngine*  d_help_search_engine;
+                QPointer<QWidget>   d_combined_widget;
             };
         }
     }

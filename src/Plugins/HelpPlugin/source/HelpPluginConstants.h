@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -42,9 +42,6 @@ namespace Qtilities {
         namespace Help {
             //! Namespace containing constants defined in the Help plugin.
             namespace Constants {
-                #define HELP_PLUGIN_VERSION_MAJOR QTILITIES_VERSION_MAJOR
-                #define HELP_PLUGIN_VERSION_MINOR QTILITIES_VERSION_MINOR
-
                 // Icons
                 const char * const HELP_MODE_ICON_48x48    = ":/icons/help_48x48.png";
             }

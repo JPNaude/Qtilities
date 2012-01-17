@@ -31,45 +31,49 @@
 **
 ****************************************************************************/
 
-#ifndef HELP_MODE_H
-#define HELP_MODE_H
+#ifndef HELP_PLUGIN_CONFIG_H
+#define HELP_PLUGIN_CONFIG_H
 
-#include <IMode.h>
+#include <IConfigPage.h>
+#include <StringListWidget>
 
-#include <QMainWindow>
-#include <QUrl>
+#include <QWidget>
 
 namespace Ui {
-    class HelpMode;
+    class HelpPluginConfig;
 }
 
 namespace Qtilities {
     namespace Plugins {
-        //! Namespace containing constants defined in the Help plugin.
         namespace Help {
+            using namespace Qtilities::CoreGui;
             using namespace Qtilities::CoreGui::Interfaces;
 
-            // Help Mode Parameters
-            #define MODE_HELP_ID                   997
-            const char * const CONTEXT_HELP_MODE   = "Context.HelpMode";
-
             /*!
-              \struct HelpModeData
-              \brief The HelpModeData class stores private data used by the HelpMode class.
+              \class HelpPluginConfig
+              \brief The HelpPluginConfig class provides a ready to use configuration widget for the help plugin.
+
+            The HelpPluginConfig widget exposes settings of the project manager through a configuration page shown below:
+
+            \image html project_configuration_widget.jpg "Project Configuration Widget"
+
+            To add this page to your application's ConfigurationWidget, do the following:
+    \code
+    // The project manager configuration page:
+    OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
+    \endcode
+
+            \note When using the Qtilities::Plugins::ProjectManagement plugin in your application, this page will automatically appear in your configuration widget.
+
+            For more information see the \ref page_project_management article.
              */
-            struct HelpModeData;
-
-            /*!
-            \class HelpMode
-            \brief An example mode widget which demonstrates the dynamic side widget architecture..
-              */
-            class HelpMode : public QMainWindow, public IMode {
+            class HelpPluginConfig : public QWidget, public IConfigPage {
                 Q_OBJECT
-                Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
+                Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
+
             public:
-                HelpMode(QWidget *parent = 0);
-                ~HelpMode();
-                bool eventFilter(QObject *object, QEvent *event);
+                HelpPluginConfig(QWidget *parent = 0);
+                ~HelpPluginConfig();
 
                 // --------------------------------
                 // IObjectBase Implementation
@@ -78,31 +82,28 @@ namespace Qtilities {
                 const QObject* objectBase() const { return this; }
 
                 // --------------------------------------------
-                // IMode Implementation
+                // IConfigPage Implementation
                 // --------------------------------------------
-                QWidget* modeWidget();
-                void initializeMode();
-                QIcon modeIcon() const;
-                QString modeName() const;
-                QString contextString() const { return CONTEXT_HELP_MODE; }
-                QString contextHelpId() const { return QString(); }
-                int modeID() const { return MODE_HELP_ID; }
+                QIcon configPageIcon() const;
+                QWidget* configPageWidget();
+                QtilitiesCategory configPageCategory() const;
+                QString configPageTitle() const;
+                void configPageApply();
+                bool supportsApply() const { return true; }
 
-            public slots:
-                //! Toggles the visibility of the dynamic help dock widget.
-                void toggleDock(bool toggle);
-                //! Handles a new help widget. This function makes the neccessary connections.
-                void handleNewHelpWidget(QWidget* widget);
-                //! Logs warning messages from the help engine in the logger.
-                void logMessage(const QString& message);
-                //! Handles QUrl requests from the help side widgets.
-                void handleUrl(const QUrl& url);
+            private slots:
+                void handleFilesChanged(const QStringList& files);
+
+            protected:
+                void changeEvent(QEvent *e);
 
             private:
-                HelpModeData* d;
+                Ui::HelpPluginConfig *ui;
+                StringListWidget files_widget;
             };
         }
     }
 }
 
-#endif // HELP_MODE_H
+
+#endif // HELP_PLUGIN_CONFIG_H

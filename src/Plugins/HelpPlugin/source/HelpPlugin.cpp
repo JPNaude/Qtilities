@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -34,6 +34,7 @@
 #include "HelpPlugin.h"
 #include "HelpPluginConstants.h"
 #include "HelpMode.h"
+#include "HelpPluginConfig.h"
 
 #include <ExtensionSystemConstants.h>
 #include <Qtilities.h>
@@ -48,6 +49,8 @@ using namespace Qtilities::Core;
 
 struct Qtilities::Plugins::Help::HelpPluginData {
     HelpPluginData() {}
+
+    HelpPluginConfig help_plugin_config;
 };
 
 Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(parent) {
@@ -59,18 +62,20 @@ Qtilities::Plugins::Help::HelpPlugin::~HelpPlugin() {
     delete d;
 }
 
-bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &arguments, QString *errorString) {
+bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &arguments, QStringList *error_strings) {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_UNUSED(error_strings)
 
     HelpMode* help_mode = new HelpMode();
     OBJECT_MANAGER->registerObject(help_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
 
+    OBJECT_MANAGER->registerObject(&d->help_plugin_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
+
     return true;
 }
 
-bool Qtilities::Plugins::Help::HelpPlugin::initializeDependancies(QString *errorString) {
-    Q_UNUSED(errorString)
+bool Qtilities::Plugins::Help::HelpPlugin::initializeDependencies(QStringList *error_strings) {
+    Q_UNUSED(error_strings)
 
     return true;
 }
@@ -87,14 +92,9 @@ QtilitiesCategory Qtilities::Plugins::Help::HelpPlugin::pluginCategory() const {
     return QtilitiesCategory(tr("General"));
 }
 
-double Qtilities::Plugins::Help::HelpPlugin::pluginVersion() const {
-    return (QString("%1.%2").arg(HELP_PLUGIN_VERSION_MAJOR).arg(HELP_PLUGIN_VERSION_MINOR)).toDouble();
-}
-
-QStringList Qtilities::Plugins::Help::HelpPlugin::pluginCompatibilityVersions() const {
-    QStringList compatible_versions;
-    compatible_versions << QtilitiesCoreApplication::qtilitiesVersion();
-    return compatible_versions;
+Qtilities::Core::VersionInformation Qtilities::Plugins::Help::HelpPlugin::pluginVersionInformation() const {
+    VersionInformation version_info(qti_def_VERSION_MAJOR,qti_def_VERSION_MINOR,qti_def_VERSION_REVISION);
+    return version_info;
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginPublisher() const {
@@ -114,7 +114,7 @@ QString Qtilities::Plugins::Help::HelpPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2010, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2012, Jaco Naude");
 }
 
 QString Qtilities::Plugins::Help::HelpPlugin::pluginLicense() const {

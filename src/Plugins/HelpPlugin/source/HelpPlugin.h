@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -76,13 +76,12 @@ namespace Qtilities {
                 // --------------------------------------------
                 // IPlugin Implementation
                 // --------------------------------------------
-                bool initialize(const QStringList &arguments, QString *errorString);
-                bool initializeDependancies(QString *errorString);
+                bool initialize(const QStringList &arguments, QStringList *error_strings);
+                bool initializeDependencies(QStringList *error_strings);
                 void finalize();
                 QString pluginName() const;
                 QtilitiesCategory pluginCategory() const;
-                double pluginVersion() const;
-                QStringList pluginCompatibilityVersions() const;
+                VersionInformation pluginVersionInformation() const;
                 QString pluginPublisher() const;
                 QString pluginPublisherWebsite() const;
                 QString pluginPublisherContact() const;

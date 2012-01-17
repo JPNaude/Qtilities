@@ -18,3 +18,4 @@ SUBDIRS    += PluginTemplate
 SUBDIRS    += SessionLogPlugin
 SUBDIRS    += ProjectManagementPlugin
 SUBDIRS    += DebugPlugin
+SUBDIRS    += HelpPlugin

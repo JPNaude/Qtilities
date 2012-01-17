@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -56,6 +56,12 @@ namespace Qtilities {
             public:
                 IndexWidgetFactory(QHelpEngine* help_engine, QObject *parent = 0);
 
+                // --------------------------------
+                // IObjectBase Implementation
+                // --------------------------------
+                QObject* objectBase() { return this; }
+                const QObject* objectBase() const { return this; }
+
                 // --------------------------------------------
                 // ISideViewerWidget Implementation
                 // --------------------------------------------
@@ -72,7 +78,8 @@ namespace Qtilities {
                 void newWidgetCreated(QWidget* widget);
 
             private:
-                QHelpEngine* help_engine;
+                QPointer<QHelpEngine>   d_help_engine;
+                QPointer<QWidget>       d_index_widget;
             };
         }
     }

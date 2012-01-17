@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -38,14 +38,16 @@
 #include <QHelpIndexWidget>
 
 Qtilities::Plugins::Help::IndexWidgetFactory::IndexWidgetFactory(QHelpEngine* help_engine, QObject *parent)
-    : QObject(parent), help_engine(help_engine) {
+    : QObject(parent), d_help_engine(help_engine) {
 }
 
 QWidget* Qtilities::Plugins::Help::IndexWidgetFactory::produceWidget() {
-    QWidget* index_widget = help_engine->indexWidget();
-    emit newWidgetCreated(index_widget);
+    if (!d_index_widget && d_help_engine) {
+        d_index_widget = d_help_engine->indexWidget();
+        emit newWidgetCreated(d_index_widget);
+    }
 
-    return index_widget;
+    return d_index_widget;
 }
 
 QString Qtilities::Plugins::Help::IndexWidgetFactory::widgetLabel() const {

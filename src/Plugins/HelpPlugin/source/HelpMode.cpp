@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -65,8 +65,9 @@ struct Qtilities::Plugins::Help::HelpModeData {
     ContentWidgetFactory* content_widget;
     IndexWidgetFactory* index_widget;
     SearchWidgetFactory* search_widget;
-    QWebView *view;
+
     QHelpEngine* helpEngine;
+    //QWebView* web;
 };
 
 Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
@@ -95,25 +96,58 @@ Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
     connect(d->actionShowDock,SIGNAL(triggered(bool)),SLOT(toggleDock(bool)));
 
     QList<int> context;
-    context.push_front(CONTEXT_MANAGER->contextID(CONTEXT_STANDARD));
+    context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerAction("HelpMode.DynamicDockWidget",d->actionShowDock,context);
     bool existed;
-    ActionContainer* view_menu = ACTION_MANAGER->createMenu(MENU_VIEW,existed);
+    ActionContainer* view_menu = ACTION_MANAGER->createMenu(qti_action_VIEW,existed);
     if (!existed) {
-        ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(MENUBAR_STANDARD,existed);
+        ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
         menu_bar->addMenu(view_menu);
-        view_menu->addAction(command,MENU_HELP);
+        view_menu->addAction(command,"Help");
     } else
         view_menu->addAction(command);
 
-    // Here we create all the help widgets:
-    d->helpEngine = new QHelpEngine("D:/Projects/Qt/Qtilities/trunk/doc/output/html_packages/qtilities.qhc", this);
-    d->helpEngine->setupData();
-    QHelpSearchEngine* helpSearchEngine = new QHelpSearchEngine(d->helpEngine,this);
+    // Delete the current help collection file:
+    QFile::remove(QtilitiesApplication::applicationSessionPath() + "/help_collection.qhc");
+    d->helpEngine = new QHelpEngine(QtilitiesApplication::applicationSessionPath() + "/help_collection.qhc",this);
+    connect(d->helpEngine,SIGNAL(warning(QString)),SLOT(logMessage(QString)));
+
+//    d->web = new QWebView(this);
+//    setCentralWidget(d->web);
+//    connect(d->web,SIGNAL(loadFinished(bool)),SLOT(handleBrowserLoad(bool)));
+//    d->web->load(QUrl("http://qt.nokia.com/"));
+//    d->web->show();
+
+    // Search engine indexing:
+    Task* indexing = new Task("Indexing Registered Documentation");
+    indexing->setTaskLifeTimeFlags(Task::LifeTimeDestroyWhenSuccessful);
+    OBJECT_MANAGER->registerObject(indexing);
+    connect(d->helpEngine->searchEngine(),SIGNAL(indexingStarted()),indexing,SLOT(startTask()));
+    connect(d->helpEngine->searchEngine(),SIGNAL(indexingFinished()),indexing,SLOT(completeTask()));
+
+    if (!d->helpEngine->setupData())
+        LOG_ERROR("Failed to setup help engine: " + d->helpEngine->error());
+
+    // Register the correct documentation:
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
+    settings.beginGroup("Qtilities");
+    settings.beginGroup("Help");
+    QStringList files = settings.value("registered_files").toStringList();
+    settings.endGroup();
+    settings.endGroup();
+
+    foreach (QString file, files) {
+        qDebug() << file;
+        if (!d->helpEngine->registerDocumentation(file))
+            LOG_ERROR(tr("Failed to register documentation from file: ") + file);
+        else
+            LOG_INFO(tr("Successfully registered documentation from file: ") + file);
+    }
 
     // - Help Browser
     d->help_browser = new HelpBrowser(d->helpEngine);
-    //setCentralWidget(d->help_browser);
+    setCentralWidget(d->help_browser);
+    d->help_browser->show();
 
     // - Register Contents Widget Factory
     d->content_widget = new ContentWidgetFactory(d->helpEngine);
@@ -128,15 +162,15 @@ Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
     OBJECT_MANAGER->registerObject(d->index_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
 
     // - Register Search Widget Factory
+    QHelpSearchEngine* helpSearchEngine = d->helpEngine->searchEngine();
     d->search_widget = new SearchWidgetFactory(helpSearchEngine);
     d->search_widget->setObjectName("Help Plugin: Search Engine Widget");
     connect(d->search_widget,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewHelpWidget(QWidget*)));
     OBJECT_MANAGER->registerObject(d->search_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
+}
 
-    d->view = new QWebView();
-    d->view->setWindowTitle("QWebView Help");
-    setCentralWidget(d->view);
-    d->view->show();
+void Qtilities::Plugins::Help::HelpMode::logMessage(const QString& message) {
+    LOG_WARNING(message);
 }
 
 bool Qtilities::Plugins::Help::HelpMode::eventFilter(QObject *object, QEvent *event) {
@@ -155,16 +189,15 @@ void Qtilities::Plugins::Help::HelpMode::toggleDock(bool toggle) {
     }
 }
 
-Qtilities::Plugins::Help::HelpMode::~HelpMode()
-{
+Qtilities::Plugins::Help::HelpMode::~HelpMode() {
     delete d;
 }
 
-QWidget* Qtilities::Plugins::Help::HelpMode::widget() {
+QWidget* Qtilities::Plugins::Help::HelpMode::modeWidget() {
     return this;
 }
 
-void Qtilities::Plugins::Help::HelpMode::initialize() {
+void Qtilities::Plugins::Help::HelpMode::initializeMode() {
     if (d->initialized)
         return;
 
@@ -183,11 +216,11 @@ void Qtilities::Plugins::Help::HelpMode::initialize() {
     d->initialized = true;
 }
 
-QIcon Qtilities::Plugins::Help::HelpMode::icon() const {
+QIcon Qtilities::Plugins::Help::HelpMode::modeIcon() const {
     return QIcon(HELP_MODE_ICON_48x48);
 }
 
-QString Qtilities::Plugins::Help::HelpMode::text() const {
+QString Qtilities::Plugins::Help::HelpMode::modeName() const {
     return tr("Documentation");
 }
 
@@ -195,24 +228,24 @@ void Qtilities::Plugins::Help::HelpMode::handleNewHelpWidget(QWidget* widget) {
     // Check which widget was created:
     QHelpContentWidget* content_widget = qobject_cast<QHelpContentWidget*> (widget);
     if (content_widget) {
-        connect(content_widget,SIGNAL(linkActivated(const QUrl&)),d->help_browser,SLOT(setSource(const QUrl&)));
-        connect(content_widget,SIGNAL(linkActivated(const QUrl&)),SLOT(updateUrl(QUrl)));
+        connect(content_widget,SIGNAL(linkActivated(const QUrl&)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
+        connect(content_widget,SIGNAL(linkActivated(const QUrl&)),SLOT(handleUrl(const QUrl&)),Qt::UniqueConnection);
         return;
     }
     QHelpIndexWidget* index_widget = qobject_cast<QHelpIndexWidget*> (widget);
     if (index_widget) {
-        connect(index_widget,SIGNAL(linkActivated(const QUrl&, const QString&)),d->help_browser,SLOT(setSource(const QUrl&)));
-        connect(index_widget,SIGNAL(linkActivated(const QUrl&)),SLOT(updateUrl(QUrl)));
+        connect(index_widget,SIGNAL(linkActivated(const QUrl&, const QString&)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
+        return;
+    }
+    QHelpSearchResultWidget* result_widget = qobject_cast<QHelpSearchResultWidget*> (widget);
+    if (result_widget) {
+        connect(result_widget,SIGNAL(requestShowLink(QUrl)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
         return;
     }
 }
 
-void Qtilities::Plugins::Help::HelpMode::updateUrl(const QUrl& url) {
-    //d->view->setHtml(d->helpEngine->fileData(url),QUrl("D:/Projects/Qt/Qtilities/trunk/doc/output/html_packages/"));
-    QString relative_url = url.toString();
-    QStringList item_list = relative_url.split("/");
-    item_list.pop_back();
-    QString path_url = item_list.join("/");
-    path_url.append("/");
-    d->view->setHtml(d->helpEngine->fileData(url),path_url);
+void Qtilities::Plugins::Help::HelpMode::handleUrl(const QUrl& url) {
+    //d->web->load(QUrl("http:://www.google.com"));
 }
+
+

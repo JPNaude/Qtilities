@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2010, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
@@ -44,14 +44,18 @@ HEADERS += source/HelpPlugin.h \
            source/ContentWidgetFactory.h \
            source/IndexWidgetFactory.h \
            source/SearchWidgetFactory.h \
-           source/HelpBrowser.h
+           source/HelpBrowser.h \
+    source/HelpPluginConfig.h
 
 SOURCES += source/HelpPlugin.cpp \
            source/HelpMode.cpp \
            source/ContentWidgetFactory.cpp \
            source/IndexWidgetFactory.cpp \
            source/SearchWidgetFactory.cpp \
-           source/HelpBrowser.cpp
+           source/HelpBrowser.cpp \
+    source/HelpPluginConfig.cpp
+
+FORMS   += \
+    source/HelpPluginConfig.ui
 
 RESOURCES += resources/resources.qrc
-

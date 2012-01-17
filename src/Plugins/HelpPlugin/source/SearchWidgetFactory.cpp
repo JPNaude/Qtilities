@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2010, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -38,32 +38,36 @@
 #include <QtHelp>
 
 Qtilities::Plugins::Help::SearchWidgetFactory::SearchWidgetFactory(QHelpSearchEngine* help_search_engine, QObject *parent)
-    : QObject(parent), help_search_engine(help_search_engine) {
+    : QObject(parent), d_help_search_engine(help_search_engine) {
+
 
 }
 
 QWidget* Qtilities::Plugins::Help::SearchWidgetFactory::produceWidget() {
-    QWidget* combined_widget = new QWidget();
-    if (combined_widget->layout())
-        delete combined_widget->layout();
+    if (!d_combined_widget && d_help_search_engine) {
+        d_combined_widget = new QWidget();
+        if (d_combined_widget->layout())
+            delete d_combined_widget->layout();
 
-    QVBoxLayout* layout = new QVBoxLayout(combined_widget);
-    QHelpSearchQueryWidget* queryWidget = help_search_engine->queryWidget();
-    connect(queryWidget,SIGNAL(search()),SLOT(handleSearchSignal()));
-    layout->addWidget(queryWidget);
-    QWidget* result_widget = help_search_engine->resultWidget();
-    layout->addWidget(result_widget);
-    layout->setMargin(0);
+        QVBoxLayout* layout = new QVBoxLayout(d_combined_widget);
+        QHelpSearchQueryWidget* queryWidget = d_help_search_engine->queryWidget();
+        connect(queryWidget,SIGNAL(search()),SLOT(handleSearchSignal()));
+        layout->addWidget(queryWidget);
+        QHelpSearchResultWidget* result_widget = d_help_search_engine->resultWidget();
+        result_widget->show();
+        layout->addWidget(result_widget);
+        layout->setMargin(0);
 
-    emit newWidgetCreated(result_widget);
+        emit newWidgetCreated(result_widget);
+    }
 
-    return combined_widget;
+    return d_combined_widget;
 }
 
 void Qtilities::Plugins::Help::SearchWidgetFactory::handleSearchSignal() {
     QHelpSearchQueryWidget* queryWidget = qobject_cast<QHelpSearchQueryWidget*> (sender());
     if (queryWidget) {
-        help_search_engine->search(queryWidget->query());
+        d_help_search_engine->search(queryWidget->query());
     }
 }
 
