@@ -3269,7 +3269,7 @@ void Qtilities::CoreGui::ObserverWidget::changeEvent(QEvent *e)
 
 bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *event) {
     if (!d->initialized)
-        return false;
+        return QMainWindow::eventFilter(object,event);
 
     // ----------------------------------------------
     // Double Click Signal Emitters
@@ -3530,7 +3530,6 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                     mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::MoveAction);
                 CLIPBOARD_MANAGER->setMimeData(mimeData);
             }
-            return false;
         }
     }
 
@@ -3549,5 +3548,6 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         }
         return false;
      }
-     return false;
+
+     return QMainWindow::eventFilter(object,event);;
 }
