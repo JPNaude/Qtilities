@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
     TreeNode* rootNodeCategorized = new TreeNode("Root");
     rootNodeCategorized->enableCategorizedDisplay();
     // TODO: This breaks the toolbar for some reason... Looks like a display issue since it only happens in QTabWidget:
-    rootNodeCategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
-    rootNodeCategorized->displayHints()->setActionHints(ObserverHints::ActionRefreshView);
+//    rootNodeCategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+//    rootNodeCategorized->displayHints()->setActionHints(ObserverHints::ActionRefreshView);
     rootNodeCategorized->displayHints()->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels | ObserverHints::CategoriesAcceptSubjectDrops);
     rootNodeCategorized->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
     rootNodeCategorized->addItem("Child 1",QtilitiesCategory("Category 1::A",QString("::")));

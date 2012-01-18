@@ -1039,7 +1039,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
             ObserverTreeItem* item = getItem(set_data_index);
             QObject* obj = item->getObject();
 
-            Observer* local_selection_parent = d->selection_parent;
+            QPointer<Observer> local_selection_parent = d->selection_parent;
 
             if (!local_selection_parent)
                 return false;
