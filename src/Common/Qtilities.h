@@ -41,13 +41,14 @@ namespace Qtilities {
       */
     enum ExportVersion {
         Qtilities_1_0           = 0,            /*!< %Qtilities v1.0. See \ref page_serializing_overview_1_0 for an detailed overview. */
-        Qtilities_Latest        = Qtilities_1_0 /*!< The latest export version in the current version of %Qtilities. */
+        Qtilities_1_1           = 1,            /*!< %Qtilities v1.1. See \ref page_serializing_overview_1_1 for an detailed overview. */
+        Qtilities_Latest        = Qtilities_1_1 /*!< The latest export version in the current version of %Qtilities. */
     };
 
     //! The %Qtilities major version number.
     #define qti_def_VERSION_MAJOR 1
     //! The %Qtilities minor version number.
-    #define qti_def_VERSION_MINOR 0
+    #define qti_def_VERSION_MINOR 1
     //! The %Qtilities revision version number.
     #define qti_def_VERSION_REVISION 0
     //! The %Qtilities beta number.
