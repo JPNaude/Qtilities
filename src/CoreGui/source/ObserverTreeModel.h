@@ -127,6 +127,8 @@ namespace Qtilities {
             ObserverTreeItem* getItem(const QModelIndex &index) const;
             //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
             QModelIndex findObject(QObject* obj) const;
+            //! Function to get the model index of a category. If the category does not exist, QModelIndex() is returned.
+            QModelIndex findCategory(QtilitiesCategory category) const;
 
         public slots:
             //! When the observer context changes, this function will take note of the change and when needed, the model will rebuild the internal tree structure using rebuildTreeStructure();
@@ -156,8 +158,17 @@ namespace Qtilities {
               This functionality is used when the layout of the tree changed externally (not in the view) and we
               need to rebuild the model. We attempt to select the previously selected objects when the tree
               rebuilding is done.
+
+              \sa setSelectedCategories()
               */
             void setSelectedObjects(QList<QPointer<QObject> > selected_objects);
+            //! Function to let the model know which categories is currently selected in the view connected to the model.
+            /*!
+              Allows selection of categories after tree rebuilds.
+
+              \sa setSelectedObjects()
+              */
+            void setSelectedCategories(QList<QtilitiesCategory> selected_categories);
             //! Sets if this model must be read only, thus its actions and property editor will be read only.
             /*!
               \sa readOnly()
@@ -187,6 +198,8 @@ namespace Qtilities {
             void selectObjects(QList<QPointer<QObject> > objects) const;
             //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
             void selectObjects(QList<QObject*> objects) const;
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when the tree finished to rebuild itself.
+            void selectCategories(QList<QtilitiesCategory> categories) const;
             //! Signal which is emitted just before a tree model rebuild will start.
             void treeModelBuildAboutToStart() const;
             //! Signal which is emitted when a new tree building cycle starts.
@@ -209,7 +222,13 @@ namespace Qtilities {
             QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
             //! Recursive function to get the ObserverTreeItem associacted with an object.
             ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
+
+            //! Recursive function used by findCategory() to traverse through the tree trying to find a category.
+            QModelIndex findCategory(const QModelIndex& index, QtilitiesCategory category) const;
+            //! Recursive function to get the ObserverTreeItem associacted with a category.
+            ObserverTreeItem* findCategory(ObserverTreeItem* item, QtilitiesCategory category) const;
             //! Deletes all tree items, starting with the root item.
+
             void deleteRootItem();
 
         protected:

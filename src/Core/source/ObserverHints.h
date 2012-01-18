@@ -82,6 +82,7 @@ namespace Qtilities {
             Q_ENUMS(ItemViewColumn)
             Q_ENUMS(DragDropHint)
             Q_ENUMS(ModificationStateDisplayHint)
+            Q_ENUMS(CategoryEditingHint)
 
         public:
             // --------------------------------
@@ -254,7 +255,9 @@ namespace Qtilities {
             static ActionHints stringToActionHints(const QString& actions_hints_string);
             //! The possible drag drop hints for an observer context.
             /*!
-              This hint indicates if an observer context supports drag or/and drop operations.
+              This hint indicates if an observer context supports drag or/and drop operations of subjects.
+
+              \note Category drops works independent of dragDropHint(). See categoryEditingFlags() for more information about category drops. Note that dragDropHint() must contain AllowDrags in order for category drag/drop operations to work.
 
               \sa setDragDropHint(), dragDropHint()
               */
@@ -278,10 +281,29 @@ namespace Qtilities {
                 NoModificationStateDisplayHint = 0,         /*!< No modification state display hint. The modification state is not displayed in any way. */
                 CharacterModificationStateDisplay = 1       /*!< The modification state of items is displayed by appending a specific character "*" to names of modified items. */
             };
-            //! Function which returns a string associated with a specific ActivityDisplay.
+            //! Function which returns a string associated with a specific ModificationStateDisplayHint.
             static QString modificationStateDisplayToString(ModificationStateDisplayHint modification_display);
-            //! Function which returns the ActivityDisplay associated with a string.
+            //! Function which returns the ModificationStateDisplayHint associated with a string.
             static ModificationStateDisplayHint stringToModificationStateDisplay(const QString& modification_display_string);
+            //! The possible category editing hints.
+            /*!
+              \note Only applicable when hierarchicalDisplayToString() is CategorizedHierarchy.
+              \note Category drops are enabled through CategoriesAcceptSubjectDrops which works independent of dragDropHint(). See categoryEditingFlags() for more information about category drops. Note that dragDropHint() must contain AllowDrags in order for category drag/drop operations to work.
+
+              \sa setCategoryEditingFlags(), categoryEditingFlags()
+              */
+            enum CategoryEditingHint {
+                CategoriesReadOnly = 0,             /*!< Categories are read only, double clicking on them expands/collapse them. */
+                CategoriesEditableTopLevel = 1,     /*!< Categories are editable, double clicking on them shows the top level category name to the user to edit. */
+                CategoriesEditableAllLevels = 2,    /*!< Categories are editable, double clicking on them shows all the category levels to the user to edit. */
+                CategoriesAcceptSubjectDrops = 4    /*!< Categories accept subject(s) dropped onto them and assigns the dropped category to the subject(s). */
+            };
+            Q_DECLARE_FLAGS(CategoryEditingFlags, CategoryEditingHint);
+            Q_FLAGS(CategoryEditingFlags);
+            //! Function which returns a string associated with a specific CategoryEditingFlags.
+            static QString categoryEditingFlagsToString(CategoryEditingFlags category_editing_flags);
+            //! Function which returns the CategoryEditingFlags associated with a string.
+            static CategoryEditingFlags stringToCategoryEditingFlags(const QString& category_editing_flags);
 
             // --------------------------------
             // Implementation
@@ -304,6 +326,7 @@ item_view_column_hint(ObserverHints::ColumnNoHints),
 drag_drop_flags(ObserverHints::NoDragDrop);
 action_hints(ObserverHints::ActionNoHints),
 modification_state_display(ObserverHints::NoModificationStateDisplayHint),
+category_editing_flags(ObserverHints::CategoriesReadOnly),
 category_list(QStringList()),
 inverse_categories(true),
 category_filter_enabled(false),
@@ -370,6 +393,10 @@ category_filter_enabled(false),
             void setModificationStateDisplayHint(ObserverHints::ModificationStateDisplayHint modification_state_display);
             //! Function to get the modification state display hint for this observer's context.
             ObserverHints::ModificationStateDisplayHint modificationStateDisplayHint() const;
+            //! Function to set the category editing display hint for this observer's context.
+            void setCategoryEditingFlags(ObserverHints::CategoryEditingFlags category_editing_flags);
+            //! Function to get the category editing display hint for this observer's context.
+            ObserverHints::CategoryEditingFlags categoryEditingFlags() const;
 
             // --------------------------------
             // Category Display Functionality
@@ -438,6 +465,7 @@ category_filter_enabled(false),
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DisplayFlags)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::ActionHints)
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::DragDropFlags)
+        Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverHints::CategoryEditingFlags)
     }
 }
 

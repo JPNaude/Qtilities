@@ -146,6 +146,36 @@ categorized_widget->show();
             int topLevelObserverID();
             //! Event filter which has responsibilities such as drag and drop operations etc.
             bool eventFilter(QObject *object, QEvent *event);
+
+            //! Sets the mouse button to use for drag and drop move operations.
+            /*!
+              Setting the button to Qt::NoButton disables the move drag/drop functionality.
+
+              \sa dragDropMoveButton()
+              */
+            void setDragDropMoveButton(Qt::MouseButton mouse_button);
+            //! Gets the mouse button to use for drag and drop move operations.
+            /*!
+              By default Qt::RightButton.
+
+              \sa setDragDropMoveButton()
+              */
+            Qt::MouseButton dragDropMoveButton() const;
+            //! Sets the mouse button to use for drag and drop copy operations.
+            /*!
+              Setting the button to Qt::NoButton disables the copy drag/drop functionality.
+
+              \sa dragDropCopyButton()
+              */
+            void setDragDropCopyButton(Qt::MouseButton mouse_button);
+            //! Gets the mouse button to use for drag and drop copy operations.
+            /*!
+              By default Qt::RightButton.
+
+              \sa setDragDropCopyButton()
+              */
+            Qt::MouseButton dragDropCopyButton() const;
+
             //! Function which sets a custom table model to be used in this widget when its in TableView mode.
             /*!
               By default the observer widget uses the Qtilities::CoreGui::ObserverTableModel as the model for the table view.
@@ -473,18 +503,35 @@ categorized_widget->show();
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
 
-              \sa selectedObjectsChanged()
+              \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectCategories(), selectCategory()
               */
             void selectObjects(QList<QObject*> objects);
             //! Selects the specified object in the active item view.
             /*!
-              \param object The object that must be selected. If the objects is not present in the view, it will be ignored.
+              \param object The object that must be selected. If the object is not present in the view, it will be ignored.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
 
-              \sa selectedObjectsChanged(), clearSelection(), selectObjects()
+              \sa selectedObjectsChanged(), clearSelection(), selectObjects(), selectCategories(), selectCategory()
               */
             void selectObject(QObject* object);
+            //! Selects the specified categories in the active item view.
+            /*!
+              \param categories The categories that must be selected. If any categories in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
+
+              \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategory()
+              */
+            void selectCategories(QList<QtilitiesCategory> categories);
+            //! Selects the specified object in the active item view.
+            /*!
+              \param category The category that must be selected. If the category is not present in the view, it will be ignored.
+
+              \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
+              \note This function only does something when displayMode() is Qtilities::TreeView.
+
+              \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategories()
+              */
+            void selectCategory(QtilitiesCategory category);
             //! Clears the current selection in the view.
             /*!
               \sa selectedObjectsChanged(), selectObjects(), selectObject()

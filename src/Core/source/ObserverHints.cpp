@@ -47,6 +47,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
         action_hints(ObserverHints::ActionNoHints),
         drag_drop_flags(ObserverHints::NoDragDrop),
         modification_state_display(ObserverHints::NoModificationStateDisplayHint),
+        category_editing_flags(ObserverHints::CategoriesReadOnly),
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false) {}
@@ -62,6 +63,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
     ObserverHints::ActionHints                  action_hints;
     ObserverHints::DragDropFlags                drag_drop_flags;
     ObserverHints::ModificationStateDisplayHint modification_state_display;
+    ObserverHints::CategoryEditingFlags         category_editing_flags;
     QList<Qtilities::Core::QtilitiesCategory>   displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
@@ -91,11 +93,12 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->display_flags = other.displayFlagsHint();
     d->item_view_column_hint = other.itemViewColumnHint();
     d->action_hints = other.actionHints();
-    d->drag_drop_flags = other.dragDropHint();
     d->displayed_categories = other.displayedCategories();
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->modification_state_display = other.modificationStateDisplayHint();
+    d->category_editing_flags = other.categoryEditingFlags();
+    d->drag_drop_flags = other.dragDropHint();
 
     setIsExportable(other.isExportable());
 }
@@ -114,6 +117,8 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
     d->has_inversed_category_display = other.hasInversedCategoryDisplay();
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->modification_state_display = other.modificationStateDisplayHint();
+    d->category_editing_flags = other.categoryEditingFlags();
+    d->drag_drop_flags = other.dragDropHint();
 
     setIsExportable(other.isExportable());
 
@@ -146,7 +151,11 @@ bool Qtilities::Core::ObserverHints::operator==(const ObserverHints& other) cons
         return false;
     if (d->category_filter_enabled != other.categoryFilterEnabled())
         return false;
+    if (d->drag_drop_flags != other.dragDropHint())
+        return false;
     if (d->modification_state_display != other.modificationStateDisplayHint())
+        return false;
+    if (d->category_editing_flags != other.categoryEditingFlags())
         return false;
 
     return true;
@@ -302,6 +311,20 @@ void Qtilities::Core::ObserverHints::setModificationStateDisplayHint(ObserverHin
 
 Qtilities::Core::ObserverHints::ModificationStateDisplayHint Qtilities::Core::ObserverHints::modificationStateDisplayHint() const {
     return d->modification_state_display;
+}
+
+void Qtilities::Core::ObserverHints::setCategoryEditingFlags(ObserverHints::CategoryEditingFlags category_editing_flags) {
+    if (d->category_editing_flags == category_editing_flags)
+        return;
+
+    d->category_editing_flags = category_editing_flags;
+
+    if (observerContext())
+        observerContext()->setModificationState(true);
+}
+
+Qtilities::Core::ObserverHints::CategoryEditingFlags Qtilities::Core::ObserverHints::categoryEditingFlags() const {
+    return d->category_editing_flags;
 }
 
 void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
@@ -559,6 +582,14 @@ Qtilities::Core::ObserverHints::DragDropFlags Qtilities::Core::ObserverHints::st
     return (DragDropFlags) drag_drop_flags_string.toInt();
 }
 
+QString Qtilities::Core::ObserverHints::categoryEditingFlagsToString(CategoryEditingFlags category_editing_flags) {
+    return QString("%1").arg((int) category_editing_flags);
+}
+
+Qtilities::Core::ObserverHints::CategoryEditingFlags Qtilities::Core::ObserverHints::stringToCategoryEditingFlags(const QString& category_editing_flags) {
+    return (CategoryEditingFlags) category_editing_flags.toInt();
+}
+
 QString Qtilities::Core::ObserverHints::modificationStateDisplayToString(ModificationStateDisplayHint modification_display) {
     if (modification_display == NoModificationStateDisplayHint) {
         return "NoModificationStateDisplayHint";
@@ -604,6 +635,16 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     stream << (quint32) d->drag_drop_flags;
     stream << (quint32) d->modification_state_display;
 
+    // -----------------------------------
+    // Start of specific to Qtilities v1.1:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_1) {
+        stream << (quint32) d->category_editing_flags;
+    }
+    // -----------------------------------
+    // End of specific to Qtilities v1.1:
+    // -----------------------------------
+
     stream << (quint32) d->displayed_categories.count();
     for (int i = 0; i < d->displayed_categories.count(); i++)
         d->displayed_categories.at(i).exportBinary(stream);
@@ -640,6 +681,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     d->drag_drop_flags = ObserverHints::DragDropFlags (qi32);
     stream >> qi32;
     d->modification_state_display = ObserverHints::ModificationStateDisplayHint (qi32);
+
+    // -----------------------------------
+    // Start of specific to Qtilities v1.1:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_1) {
+        stream >> qi32;
+        d->category_editing_flags = ObserverHints::CategoryEditingFlags (qi32);
+    }
+    // -----------------------------------
+    // End of specific to Qtilities v1.1:
+    // -----------------------------------
 
     stream >> qi32;
     int category_count = qi32;
@@ -681,6 +733,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
         object_node->setAttribute("ObserverSelectionContext",observerSelectionContextToString(d->observer_selection_context));
     if (d->modification_state_display != NoModificationStateDisplayHint)
         object_node->setAttribute("ModificationStateDisplay",modificationStateDisplayToString(d->modification_state_display));
+
+    // -----------------------------------
+    // Start of specific to Qtilities v1.1:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_1) {
+        if (d->category_editing_flags != CategoriesReadOnly)
+            object_node->setAttribute("CategoryEditingFlags",categoryEditingFlagsToString(d->category_editing_flags));
+    }
+    // -----------------------------------
+    // End of specific to Qtilities v1.1:
+    // -----------------------------------
 
     // Export category related stuff only if it is neccesarry:
     if (d->displayed_categories.count() > 0) {
@@ -732,6 +795,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
         d->observer_selection_context = stringToObserverSelectionContext(object_node->attribute("ObserverSelectionContext"));
     if (object_node->hasAttribute("ModificationStateDisplay"))
         d->modification_state_display = stringToModificationStateDisplay(object_node->attribute("ModificationStateDisplay"));
+
+    // -----------------------------------
+    // Start of specific to Qtilities v1.1:
+    // -----------------------------------
+    if (object_node->hasAttribute("CategoryEditingFlags"))
+        d->category_editing_flags = stringToCategoryEditingFlags(object_node->attribute("CategoryEditingFlags"));
+    // -----------------------------------
+    // End of specific to Qtilities v1.1:
+    // -----------------------------------
 
     // Category stuff:
     QDomNodeList childNodes = object_node->childNodes();

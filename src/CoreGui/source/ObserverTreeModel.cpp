@@ -70,6 +70,7 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
     QPointer<Observer>          selection_parent;
     QModelIndex                 selection_index;
     QList<QPointer<QObject> >   selected_objects;
+    QList<QtilitiesCategory>    selected_categories;
     QString                     type_grouping_name;
     bool                        read_only;
     QFileIconProvider           icon_provider;
@@ -83,7 +84,13 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
     bool                        tree_rebuild_queued;
     bool                        tree_building_threading_enabled;
 
+    //! Nodes to expand in the tree after a rebuild is done.
     QStringList                 expanded_items;
+    //! A map with expanded items which must be replaced after d->expanded_items was set by the observer widget.
+    /*!
+        This is needed in order to expand renamed categories.
+      */
+    QMap<QString,QString>       expanded_items_replace_map;
 };
 
 Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) :
@@ -291,9 +298,18 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             QObject* obj = item->getObject();
             if (obj) {
                 // If this is a category item we just use objectName:
-                if (item->itemType() == ObserverTreeItem::CategoryItem)
-                    return item->objectName();
-                else {
+                if (item->itemType() == ObserverTreeItem::CategoryItem) {
+                    if (role == Qt::DisplayRole)
+                        return item->objectName();
+                    else if (role == Qt::EditRole) {
+                        if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableTopLevel)
+                            return item->objectName();
+                        else if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableAllLevels)
+                            return item->category().toString();
+                        else
+                            return "Not supposed to be edited.";
+                    }
+                } else {
                     // Otherwise we must get the name of the object in the parent observer's context:
                     // First get the parent observer:
                     Observer* obs = 0;
@@ -671,7 +687,13 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
 
      // Handle category items
      if (item->itemType() == ObserverTreeItem::CategoryItem) {
-         item_flags &= ~Qt::ItemIsEditable;
+         if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableTopLevel)
+             item_flags |= Qt::ItemIsEditable;
+         else if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableAllLevels)
+             item_flags |= Qt::ItemIsEditable;
+         else
+             item_flags &= ~Qt::ItemIsEditable;
+
          item_flags &= ~Qt::ItemIsUserCheckable;
      } else {
          // The naming control hint we get from the active hints since the user must click
@@ -705,8 +727,13 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
             item_flags &= ~Qt::ItemIsDropEnabled;
      } else {
          if (item->itemType() == ObserverTreeItem::CategoryItem) {
-             item_flags &= ~Qt::ItemIsDragEnabled;
-             item_flags &= ~Qt::ItemIsDropEnabled;
+             if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesAcceptSubjectDrops) {
+                 item_flags |= Qt::ItemIsDropEnabled;
+             } else {
+                 item_flags &= ~Qt::ItemIsDropEnabled;
+             }
+
+            item_flags &= ~Qt::ItemIsDragEnabled;
          } else if (item->itemType() == ObserverTreeItem::TreeItem) {
              // For items we need to check the drag drop hint of the parent of the index:
              Observer* local_selection_parent = parentOfIndex(index);
@@ -849,45 +876,92 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
     if (!d->tree_model_up_to_date)
         return false;
 
+    if (!(activeHints()->dragDropHint() & ObserverHints::AllowDrags || activeHints()->categoryEditingFlags() & ObserverHints::CategoriesAcceptSubjectDrops))
+        return false;
+
     Observer* obs = 0;
+    ObserverTreeItem::TreeItemType target_item_type = ObserverTreeItem::InvalidType;
+    ObserverTreeItem* target_item = 0;
+    QtilitiesCategory* target_category = 0;
     if (row == -1 && column == -1) {
         // In this case we need to check if we dropped on an observer, in that case
         // we don't get the parent, we use parent.
-        ObserverTreeItem* item = getItem(parent);
-        if (item) {
-            if (item->getObject()) {
-                obs = qobject_cast<Observer*> (item->getObject());
+        target_item = getItem(parent);
+        if (target_item) {
+            target_item_type = target_item->itemType();
+            if (target_item_type == ObserverTreeItem::CategoryItem) {
+                target_category = new QtilitiesCategory(target_item->category());
+                if (!(activeHints()->categoryEditingFlags() & ObserverHints::CategoriesAcceptSubjectDrops))
+                    return false;
             }
+
+            if (target_item->getObject())
+                obs = qobject_cast<Observer*> (target_item->getObject());
         }
 
         if (!obs)
             obs = parentOfIndex(parent);
     } else
         obs = parentOfIndex(index(row,column,parent));
+
     if (obs) {
         const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (CLIPBOARD_MANAGER->mimeData());
         if (observer_mime_data) {
-            // Try to attach it:
-            QString error_msg;
-            if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
-                // Now check the proposed action of the event.
-                if (observer_mime_data->dropAction() == Qt::MoveAction) {
-                    // Attempt to move the dragged objects:
-                    OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
-                } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
-                    // Attempt to copy the dragged objects:
-                    // Either do all or nothing:
-                    if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),0,true) != Observer::Rejected) {
-                        QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
-                        if (dropped_list.count() != observer_mime_data->subjectList().count()) {
-                            LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
-                        } else {
-                            LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+            // Handle cases where we dropped subjects on a category:
+            if (target_item_type == ObserverTreeItem::CategoryItem) {
+                if (target_category) {
+                    if (observer_mime_data->sourceID() != obs->observerID()) {
+                        LOG_ERROR_P(QString(tr("The drop operation could not be completed. You can only assign categories using drag/drop operations within the same context.")));
+                        return false;
+                    }
+
+                    obs->startProcessingCycle();
+                    // Get all subjects in mime data and change their categories:
+                    QList<QPointer<QObject> > subjects = observer_mime_data->subjectList();
+                    for (int i = 0; i < subjects.count(); i++) {
+                        if (subjects.at(i)) {
+                            QVariant category_variant = obs->getMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP);
+                            // Check if a category property exists:
+                            if (category_variant.isValid()) {
+                                QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+                                // Skip if current category is same as new category:
+                                if (current_category == *target_category)
+                                    continue;
+
+                                obs->setMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP,qVariantFromValue(*target_category));
+                            }
                         }
                     }
+
+                    obs->endProcessingCycle();
+                    obs->refreshViewsLayout(observer_mime_data->subjectList());
+                    delete target_category;
+                    return true;
                 }
-            } else
-                LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context. Error message: ") + error_msg));
+            } else {
+                // Try to attach it:
+                QString error_msg;
+                // TODO: This is wrong??? Why does it work? Must be obs?
+                if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
+                    // Now check the proposed action of the event.
+                    if (observer_mime_data->dropAction() == Qt::MoveAction) {
+                        // Attempt to move the dragged objects:
+                        OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                    } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
+                        // Attempt to copy the dragged objects:
+                        // Either do all or nothing:
+                        if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),0,true) != Observer::Rejected) {
+                            QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                            if (dropped_list.count() != observer_mime_data->subjectList().count()) {
+                                LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                            } else {
+                                LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
+                            }
+                        }
+                    }
+                } else
+                    LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context. Error message: ") + error_msg));
+            }
         } else
             LOG_ERROR(QString(tr("The drop operation could not be completed. The clipboard manager does not contain a valid mime data object.")));
     } else
@@ -964,6 +1038,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
         if (role == Qt::EditRole || role == Qt::DisplayRole) {
             ObserverTreeItem* item = getItem(set_data_index);
             QObject* obj = item->getObject();
+
             Observer* local_selection_parent = d->selection_parent;
 
             if (!local_selection_parent)
@@ -971,15 +1046,61 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
 
             // Check if the object has a qti_prop_NAME property, if not we set the name using setObjectName()
             if (obj) {
-                if (ObjectManager::getSharedProperty(obj, qti_prop_NAME).isValid()) {
-                    // Now check if this observer uses an instance name
-                    MultiContextProperty instance_names = ObjectManager::getMultiContextProperty(obj,qti_prop_ALIAS_MAP);
-                    if (instance_names.isValid() && instance_names.hasContext(local_selection_parent->observerID()))
-                        local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP,value);
-                    else
-                        local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_NAME,value);
+                if (item->itemType() == ObserverTreeItem::CategoryItem) {
+                    if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableTopLevel) {
+                        QStringList list = item->category().toStringList();
+                        QString bottom_name_old = item->category().categoryBottom();
+                        list.pop_back();
+                        QtilitiesCategory new_category(list);
+                        new_category << value.toString();
+
+                        // Replace category in expanded category list if it was in there:
+                        // Expanded items only contains the top node names, thus
+                        // a simple replace works for CategoriesEditableTopLevel.
+                        d->expanded_items_replace_map.clear();
+                        d->expanded_items_replace_map[bottom_name_old] = new_category.categoryBottom();
+
+                        // Replace category in d->selected_categories if it was in there:
+                        if (d->selected_categories.contains(item->category())) {
+                            d->selected_categories.removeOne(item->category());
+                            d->selected_categories << new_category;
+                        }
+
+                        local_selection_parent->renameCategory(item->category(),new_category,false);
+                        return true;
+                    } else if (activeHints()->categoryEditingFlags() & ObserverHints::CategoriesEditableAllLevels) {
+                        QString bottom_name_old = item->category().categoryBottom();
+                        QtilitiesCategory new_category(value.toString(),QString("::"));
+
+                        // Replace category in expanded category list if it was in there:
+                        // Expanded items only contains the top node names, thus
+                        // a simple replace DOES NOT neccesserily work for CategoriesEditableAllLevels.
+                        // However this since we don't know what the user wants to do, we still add it
+                        // for cases where only the top level category is changed.
+                        d->expanded_items_replace_map.clear();
+                        d->expanded_items_replace_map[bottom_name_old] = new_category.categoryBottom();
+
+                        // Replace category in d->selected_categories if it was in there:
+                        if (d->selected_categories.contains(item->category())) {
+                            d->selected_categories.removeOne(item->category());
+                            d->selected_categories << new_category;
+                        }
+
+                        local_selection_parent->renameCategory(item->category(),new_category,false);
+                        return true;
+                    } else
+                        return false;
                 } else {
-                    obj->setObjectName(value.toString());
+                    if (ObjectManager::getSharedProperty(obj, qti_prop_NAME).isValid()) {
+                        // Now check if this observer uses an instance name
+                        MultiContextProperty instance_names = ObjectManager::getMultiContextProperty(obj,qti_prop_ALIAS_MAP);
+                        if (instance_names.isValid() && instance_names.hasContext(local_selection_parent->observerID()))
+                            local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP,value);
+                        else
+                            local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_NAME,value);
+                    } else {
+                        obj->setObjectName(value.toString());
+                    }
                 }
             }
 
@@ -1085,6 +1206,15 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 
     // The view will call setExpandedItems() in its slot.
     emit treeModelBuildAboutToStart();
+    // d->expanded_items would have been set in the above code.
+    // Now we do the needed replacements:
+    for (int i = 0; i < d->expanded_items_replace_map.count(); i++) {
+        if (d->expanded_items.contains(d->expanded_items_replace_map.keys().at(i))) {
+            d->expanded_items.removeOne(d->expanded_items_replace_map.keys().at(i));
+            d->expanded_items << d->expanded_items_replace_map.values().at(i);
+            //qDebug() << "Doing expanded items replace:" << d->expanded_items_replace_map.keys().at(i) << "with" << d->expanded_items_replace_map.values().at(i);
+        }
+    }
 
     // Rebuild the tree structure:
     beginResetModel();
@@ -1159,10 +1289,12 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
         rebuildTreeStructure();
     } else {
         // Handle item selection after tree has been rebuilt:
-        if (d->new_selection.count() > 0) {
+        if (new_selection.count() > 0)
             emit selectObjects(new_selection);
-        } else if (d->selected_objects.count() > 0)
+        else if (d->selected_objects.count() > 0)
             emit selectObjects(d->selected_objects);
+        else if (d->selected_categories.count() > 0)
+            emit selectCategories(d->selected_categories);
         else
             emit selectObjects(QList<QPointer<QObject> >());
 
@@ -1279,6 +1411,10 @@ void Qtilities::CoreGui::ObserverTreeModel::setSelectedObjects(QList<QPointer<QO
     d->selected_objects = selected_objects;
 }
 
+void Qtilities::CoreGui::ObserverTreeModel::setSelectedCategories(QList<QtilitiesCategory> selected_categories) {
+    d->selected_categories = selected_categories;
+}
+
 void Qtilities::CoreGui::ObserverTreeModel::setReadOnly(bool read_only) {
     if (d->read_only == read_only)
         return;
@@ -1299,24 +1435,28 @@ void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expande
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj) const {
-    // Loop through all items indexes in the tree and check the object of each ObserverTreeItem at each index.
     QModelIndex root = index(0,0);
     return findObject(root,obj);
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex& root, QObject* obj) const {
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::findCategory(QtilitiesCategory category) const {
+    QModelIndex root = index(0,0);
+    return findCategory(root,category);
+}
+
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex& current_index, QObject* obj) const {
     QModelIndex correct_index;
-    if (root.isValid()) {
+    if (current_index.isValid()) {
         // Check this index:
-        ObserverTreeItem* item = getItem(root);
+        ObserverTreeItem* item = getItem(current_index);
         if (item) {
             if (item->getObject() == obj) {
-                return root;
+                return current_index;
             }
 
             // Ok it was not this index, loop through all children under this index:
             for (int i = 0; i < item->childCount(); i++) {
-                QModelIndex child_index = index(i,0,root);
+                QModelIndex child_index = index(i,0,current_index);
                 correct_index = findObject(child_index,obj);
                 if (correct_index.isValid()) {
                     return correct_index;
@@ -1325,6 +1465,67 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex&
         }
     }
     return QModelIndex();
+}
+
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::findObject(ObserverTreeItem* item, QObject* obj) const {
+    // Check item:
+    if (item->getObject() == obj)
+        return item;
+
+    // Check all the children of item and traverse into them.
+    for (int i = 0; i < item->childCount(); i++) {
+        ObserverTreeItem* tree_item = findObject(item->childItemReferences().at(i),obj);
+        if (tree_item)
+            return tree_item;
+    }
+
+    return 0;
+}
+
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::findCategory(const QModelIndex& current_index, QtilitiesCategory category) const {
+    QModelIndex correct_index;
+    if (current_index.isValid()) {
+        // Check this index:
+        ObserverTreeItem* item = getItem(current_index);
+        if (item) {
+            if ((item->category() == category) && (item->itemType() == ObserverTreeItem::CategoryItem)) {
+                return current_index;
+            }
+
+            // Ok it was not this index, loop through all children under this index:
+            for (int i = 0; i < item->childCount(); i++) {
+                QModelIndex child_index = index(i,0,current_index);
+                correct_index = findCategory(child_index,category);
+                if (correct_index.isValid()) {
+                    return correct_index;
+                }
+            }
+        }
+    }
+    return QModelIndex();
+}
+
+Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::findCategory(ObserverTreeItem* item, QtilitiesCategory category) const {
+    // Check item:
+    if ((item->category() == category) && (item->itemType() == ObserverTreeItem::CategoryItem))
+        return item;
+
+    // Check all the children of item and traverse into them.
+    for (int i = 0; i < item->childCount(); i++) {
+        ObserverTreeItem* tree_item = findCategory(item->childItemReferences().at(i),category);
+        if (tree_item)
+            return tree_item;
+    }
+
+    return 0;
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
+    if (!d->rootItem)
+        return;
+
+    delete d->rootItem;
+    d->rootItem = 0;
 }
 
 QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTreeItem* item) const {
@@ -1346,29 +1547,6 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTre
     }
 
     return indexes;
-}
-
-Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::findObject(ObserverTreeItem* item, QObject* obj) const {
-    // Check item:
-    if (item->getObject() == obj)
-        return item;
-
-    // Check all the children of item and traverse into them.
-    for (int i = 0; i < item->childCount(); i++) {
-        ObserverTreeItem* tree_item = findObject(item->childItemReferences().at(i),obj);
-        if (tree_item)
-            return tree_item;
-    }
-
-    return 0;
-}
-
-void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
-    if (!d->rootItem)
-        return;
-
-    delete d->rootItem;
-    d->rootItem = 0;
 }
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::getItem(const QModelIndex &index) const {

@@ -1622,6 +1622,64 @@ bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) c
     return false;
 }
 
+QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const QtilitiesCategory& old_category,const QtilitiesCategory& new_category, bool match_exactly) {
+    QList<QPointer<QObject> > renamed_list;
+
+    toggleSubjectEventFiltering(false);
+    // Check the category on all subjects:
+    for (int i = 0; i < observerData->subject_list.count(); i++) {
+        QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
+        // Check if a category property exists:
+        if (category_variant.isValid()) {
+            QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
+            // Skip if current category is same as new category:
+            if (current_category == new_category)
+                continue;
+
+            // Check if we match exactly. In that case, the depths must match:
+            if (match_exactly) {
+                if (current_category.categoryDepth() != old_category.categoryDepth())
+                    continue;
+            }
+
+            QStringList subject_cat_list = current_category.toStringList(old_category.categoryDepth());
+
+            // Check if we must update it:
+            if (subject_cat_list == old_category.toStringList()) {
+                // Construct the renamed category:
+                QString new_cat_string = current_category.toString();
+                new_cat_string.replace(old_category.toString(),new_category.toString());
+                QtilitiesCategory renamed_category(new_cat_string,QString("::"));
+
+                // Skip if renamed category is same as current category:
+                if (renamed_category == current_category)
+                    continue;
+
+                // We need to update the access mode settings:
+                bool took_cat = false;
+                for (int c = 0; c < observerData->categories.count(); c++) {
+                    if (observerData->categories.at(c) == current_category) {
+                        observerData->categories.takeAt(c);
+                        took_cat = true;
+                        break;
+                    }
+                }
+                if (took_cat)
+                    observerData->categories << renamed_category;
+
+                // Update the property on the current subject:
+                setMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP,qVariantFromValue(renamed_category));
+                renamed_list << subjectAt(i);
+            }
+        }
+    }
+    toggleSubjectEventFiltering(true);
+    if (renamed_list.count() > 0)
+        refreshViewsLayout();
+
+    return renamed_list;
+}
+
 Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessMode(const QtilitiesCategory& category) const {
     // Check if this category exists in this observer context:
     if (!hasCategory(category)) {

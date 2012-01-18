@@ -1013,6 +1013,15 @@ QVERIFY(items_verify.count() == 5);
             // --------------------------------
             //! Checks if the specified category exists in this observer context.
             bool hasCategory(const QtilitiesCategory& category) const;
+            //! Renames \p old_category to \p new_category in this observer context.
+            /*!
+              \param old_category The category to rename.
+              \param new_category The new name that must be given to the category.
+              \param match_exactly When true, the old_category must match the new category exactly (thus the depths must match as well). When false, all categories that start with or match
+               the old_category will be updated to start with or match the new category.
+               \returns A list with the subjects for which the category was renamed.
+              */
+            QList<QPointer<QObject> > renameCategory(const QtilitiesCategory& old_category,const QtilitiesCategory& new_category, bool match_exactly = true);
             //! Returns the access mode for a specific category.
             /*!
               If the category does not exist, Observer::InvalidAccess is returned.
