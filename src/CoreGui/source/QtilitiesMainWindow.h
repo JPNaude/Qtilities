@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         displays the priority messages in the status bar of the main window by default. To disable this feature
         the disablePriorityMessages() function can be called.
 
-        Futher, the Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
+        Further, the Qtilities::CoreGui::DynamicSideWidgetViewer class is able to display widgets implementing the Qtilities::CoreGui::Interfaces::ISideViewerWidget interface.
         Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
         For more information on this see the relevant class documentation.
 
