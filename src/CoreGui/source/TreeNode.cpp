@@ -94,8 +94,9 @@ bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category
         return false;
 }
 
-void Qtilities::CoreGui::TreeNode::enableCategorizedDisplay() {
+void Qtilities::CoreGui::TreeNode::enableCategorizedDisplay(ObserverHints::CategoryEditingFlags category_editing_flags) {
     displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
+    displayHints()->setCategoryEditingFlags(category_editing_flags);
 }
 
 void Qtilities::CoreGui::TreeNode::disableCategorizedDisplay() {
