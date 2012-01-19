@@ -656,7 +656,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(import_list)
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
      
     quint32 qi32;
     stream >> qi32;
@@ -771,6 +773,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
      
     // Hints:
     if (object_node->hasAttribute("ActionHints"))

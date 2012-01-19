@@ -198,13 +198,14 @@ tree_widget->show();
               This is a convenience function which sets the Qtilities::Core::ObserverHints::CategorizedHierarchy hint on
               this node's observer base class.
 
-              \param category_editing_flags The Qtilities::Core::ObserverHints::CategoryEditingFlags that must be used on category nodes.
+              \param category_editing_flags The Qtilities::Core::ObserverHints::CategoryEditingFlags that must be used on category nodes. By default ObserverHints::CategoriesNoEditingFlags which
+              will respect the current editing flags set on the displayHints() of the tree node.
 
               \note This function does not refresh the view and it sets the modification state of the node to modified.
 
               \sa getCategorizedDisplayEnabled(), disableCategorizedDisplay()
               */
-            void enableCategorizedDisplay(ObserverHints::CategoryEditingFlags category_editing_flags = ObserverHints::CategoriesReadOnly);
+            void enableCategorizedDisplay(ObserverHints::CategoryEditingFlags category_editing_flags = ObserverHints::CategoriesNoEditingFlags);
             //! Disables categorized display on this node.
             /*!
               \sa getCategorizedDisplayEnabled(), enableCategorizedDisplay();

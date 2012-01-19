@@ -1,8 +1,9 @@
 ================================
-Qtilities v1.0.1 Changes
+Qtilities v1.1 Changes
 ================================
     General:
     ============================
+    - Extended the object management article with details about functionality to work with QObject properties offered by Qtilities.
 
     ============================
     QtilitiesLogging:
@@ -12,28 +13,51 @@ Qtilities v1.0.1 Changes
     ============================
     QtilitiesCore:
     ============================
+    - Better support for logging to tasks.
+    - IExporatble now supports setting a task to which export/import messages should be logged.
+    - Fixed problems with backward compatibility in Qtilities internal exports.
 
     ============================
     QtilitiesCoreGui:
     ============================
-    - FIXED #29: ObserverWidget deleteAll() and detachAll() actions should use better text.
-	- FIXED #31: ObserverWidget deleteItem() and detachItem() actions should use better text.	
-	- Fixed wrong error debug message in SideWidgetFileSystem.cpp
-	- Fixed documentation on NamingPolicyFilter::ValidationCheck
-	- Improved usage of CodeEditorWidget when viewing file logger engines in the LoggerConfigWidget.
+    - CLOSED #29: ObserverWidget deleteAll() and detachAll() actions should use better text.
+    - CLOSED #31: ObserverWidget deleteItem() and detachItem() actions should use better text.
+    - FIXED #34: Fixed bug in DynamicSideWidgetWrapper where it did not respect manageWidgets() properly.
+    - Fixed wrong error debug message in SideWidgetFileSystem.
+    - Fixed documentation on NamingPolicyFilter::ValidationCheck
+    - Improved usage of CodeEditorWidget when viewing file logger engines in the LoggerConfigWidget.
+    - Fixed ObserverWidget not remembering its expansion state in some cases.
+    - ObserverWidget will now remember category selections when rebuilding tree views.
+    - ObserverWidget got new setDragDropCopyButton() and setDragDropMoveButton() functions.
+    - TreeNode::enableCategorizedDisplay got new CategoryEditingFlags property.
+    - The LoggerConfigWidget now allows sorting of engines.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
-	- Improved error message when a plugin could not be loaded on Linux.
+    - Improved error message when a plugin could not be loaded on Linux.
 
     ============================
     QtilitiesProjectManagement:
     ============================
+    - IProject now has the ability to receive a task to which open, close and save operations should log their messages.
+    - Project related tasks now have proper logs.
 
     ============================
     QtilitiesTesting:
     ============================
+
+    ============================
+    Plugins:
+    ============================
+
+    ============================
+    Examples:
+    ============================
+    - Object Management Example:
+        - Fixed the object management not showing anymore.
+    - Tree Building Example:
+        - Much improved, now shows different trees under seperate tabs.
 
 
 ================================

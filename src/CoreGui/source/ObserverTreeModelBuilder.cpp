@@ -39,12 +39,10 @@
 
 using namespace QtilitiesCoreGui;
 
-
-
 struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     ObserverTreeModelBuilderPrivateData() : hints(0),
         root_item(0),
-        task("Tree Model Builder"),
+        task(QObject::tr("Tree Builder")),
         threading_enabled(false) {}
 
     QMutex                          build_lock;
@@ -78,8 +76,11 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setOriginThread(QThread* thre
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setRootItem(ObserverTreeItem* item) {
     d->root_item = item;
     if (d->root_item) {
-        d->task.setDisplayName("Loading: " + d->root_item->objectName());
-        d->task.setObjectName("Loading Tree: " + d->root_item->objectName());
+        d->task.setDisplayName(tr("Loading: ") + d->root_item->objectName());
+        d->task.setObjectName(tr("Loading Tree: ") + d->root_item->objectName());
+
+        if (d->task.loggerEngine())
+            d->task.loggerEngine()->setName(tr("Task Log: Tree Builder (") + d->root_item->objectName() + ")");
     }
 }
 

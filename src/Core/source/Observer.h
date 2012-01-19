@@ -508,6 +508,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
             virtual void setExportVersion(Qtilities::ExportVersion version);
+            virtual void setExportTask(ITask* task);
+            virtual void clearExportTask();
             virtual void setApplicationExportVersion(quint32 version);
             virtual IExportable::Result exportBinary(QDataStream& stream ) const;
             /*!

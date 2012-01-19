@@ -762,6 +762,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
 
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     quint32 ui32;
     stream >> ui32;
     d->activity_policy = (ActivityPolicy) ui32;
@@ -789,8 +793,20 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(doc)  
+    Q_UNUSED(doc)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
+    if (exportVersion() < Qtilities::Qtilities_1_0) {
+        LOG_TASK_ERROR(tr("Failed to ActivityPolicyFilter import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too old."),exportTask());
+        return IExportable::FailedTooOld;
+    } else if (exportVersion() > Qtilities::Qtilities_Latest) {
+        LOG_TASK_ERROR(tr("Failed to ActivityPolicyFilter import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too new."),exportTask());
+        return IExportable::FailedTooNew;
+    }
 
     if (object_node->hasAttribute("ActivityPolicy"))
         d->activity_policy = stringToActivityPolicy(object_node->attribute("ActivityPolicy"));

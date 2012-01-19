@@ -133,6 +133,8 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             void setExportVersion(Qtilities::ExportVersion version);
+            void setExportTask(ITask* task);
+            void clearExportTask();
             IExportable::Result exportBinary(QDataStream& stream) const;
             IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;

@@ -668,6 +668,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
      
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     quint32 ui32;
     stream >> ui32;
     d->uniqueness_policy = (UniquenessPolicy) ui32;
@@ -694,10 +698,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {    
     Q_UNUSED(doc)
-    Q_UNUSED(object_node)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     if (object_node->hasAttribute("NewSubjectActivityPolicy"))
         d->uniqueness_policy = stringToUniquenessPolicy(object_node->attribute("UniquenessPolicy"));

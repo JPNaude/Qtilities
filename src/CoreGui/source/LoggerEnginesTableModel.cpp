@@ -74,7 +74,6 @@ Qt::ItemFlags Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::flags(con
      return item_flags;
 }
 
-
 QVariant Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((section == NameColumn) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {

@@ -89,7 +89,10 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     ui->comboGlobalLogLevel->addItems(list);
 
     // Add logger engines:
-    ui->tableViewLoggerEngines->setModel(&d->logger_engine_model);
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(&d->logger_engine_model);
+    ui->tableViewLoggerEngines->setModel(proxyModel);
+    ui->tableViewLoggerEngines->setSortingEnabled(true);
     ui->tableViewLoggerEngines->verticalHeader()->setVisible(false);
     for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
         ui->tableViewLoggerEngines->setRowHeight(i,17);
@@ -144,6 +147,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::setApplyButtonVisible(bool visible)
 void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
     bool ok;
     QString new_item_selection = QInputDialog::getItem(this, tr("What type of logger engine would you like to add?"),tr("Available Logger Engines:"), Log->availableLoggerEnginesInFactory(), 0, false, &ok);
+    if (!ok)
+        return;
     QString engine_name = QInputDialog::getText(this, tr("Name of new engine:"),tr("Engine Name:"), QLineEdit::Normal, "new_logger_engine", &ok);
 
     if (ok && !new_item_selection.isEmpty() && !engine_name.isEmpty()) {
@@ -282,13 +287,12 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnApplyClicked() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
-    ui->tableViewLoggerEngines->sortByColumn(0,Qt::AscendingOrder);
     for (int i = 0; i < d->logger_engine_model.rowCount(); i++) {
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     }
 
     // We also sort in here:
-    ui->tableViewLoggerEngines->sortByColumn(0,Qt::DescendingOrder);
+    ui->tableViewLoggerEngines->sortByColumn(qti_private_LoggerEnginesTableModel::NameColumn,Qt::AscendingOrder);
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {

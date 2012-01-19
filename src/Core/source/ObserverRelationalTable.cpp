@@ -238,7 +238,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTabl
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTableEntry::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(import_list)
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     stream >> d->name;
     stream >> d->parents;
@@ -278,6 +280,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTabl
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::RelationalTableEntry::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     if (!object_node)
         return IExportable::Failed;
@@ -850,7 +856,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelati
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelationalTable::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(import_list);
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     quint32 qi32;
     stream >> qi32;
@@ -898,6 +906,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelati
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverRelationalTable::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     int depth_readback = 0;
     if (object_node->hasAttribute("EntryCount"))

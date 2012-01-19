@@ -52,7 +52,7 @@ namespace Qtilities {
 
         /*!
           \class ObserverDotWriter
-          \brief The ObserverDotWriter class generate dot scripts to create \p dot graphs for an observer hierarhcy.
+          \brief The ObserverDotWriter class generate dot scripts to create \p dot graphs for an observer tree.
 
           The ObserverDotWriter class is used to generate scripts in the \p dot language which can be parsed by
           a number of program to create \p dot graphs. For an overview of the \p dot language, a good place to start

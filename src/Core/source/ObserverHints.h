@@ -293,10 +293,11 @@ namespace Qtilities {
               \sa setCategoryEditingFlags(), categoryEditingFlags()
               */
             enum CategoryEditingHint {
-                CategoriesReadOnly = 0,             /*!< Categories are read only, double clicking on them expands/collapse them. */
-                CategoriesEditableTopLevel = 1,     /*!< Categories are editable, double clicking on them shows the top level category name to the user to edit. */
-                CategoriesEditableAllLevels = 2,    /*!< Categories are editable, double clicking on them shows all the category levels to the user to edit. */
-                CategoriesAcceptSubjectDrops = 4    /*!< Categories accept subject(s) dropped onto them and assigns the dropped category to the subject(s). */
+                CategoriesNoEditingFlags = 0,       /*!< Categories are read only, double clicking on them expands/collapse them. */
+                CategoriesReadOnly = 1,             /*!< Categories are read only, double clicking on them expands/collapse them. */
+                CategoriesEditableTopLevel = 2,     /*!< Categories are editable, double clicking on them shows the top level category name to the user to edit. */
+                CategoriesEditableAllLevels = 4,    /*!< Categories are editable, double clicking on them shows all the category levels to the user to edit. */
+                CategoriesAcceptSubjectDrops = 8    /*!< Categories accept subject(s) dropped onto them and assigns the dropped category to the subject(s). */
             };
             Q_DECLARE_FLAGS(CategoryEditingFlags, CategoryEditingHint);
             Q_FLAGS(CategoryEditingFlags);

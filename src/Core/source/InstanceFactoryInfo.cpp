@@ -66,6 +66,8 @@ bool Qtilities::Core::InstanceFactoryInfo::exportBinary(QDataStream& stream, Qti
 bool Qtilities::Core::InstanceFactoryInfo::importBinary(QDataStream& stream, Qtilities::ExportVersion version) {
     Q_UNUSED(version)
 
+    // We don't do a version check here. Observer will do it for us.
+
     quint32 ui32;
     stream >> ui32;
     if (ui32 != MARKER_IFI_CLASS_SECTION) {
@@ -99,6 +101,8 @@ bool Qtilities::Core::InstanceFactoryInfo::exportXml(QDomDocument* doc, QDomElem
 bool Qtilities::Core::InstanceFactoryInfo::importXml(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
     Q_UNUSED(version)
     Q_UNUSED(doc)
+
+    // We don't do a version check here. Observer will do it for us.
 
     if (object_node->hasAttribute("FactoryTag"))
         d_factory_tag = object_node->attribute("FactoryTag");

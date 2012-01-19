@@ -38,6 +38,7 @@
 #include <Qtilities.h>
 #include <QtilitiesCoreApplication.h>
 
+#include <QApplication>
 #include <QtPlugin>
 #include <QIcon>
 
@@ -81,7 +82,7 @@ QString Qtilities::Plugins::Template::PluginTemplate::pluginName() const {
 }
 
 QtilitiesCategory Qtilities::Plugins::Template::PluginTemplate::pluginCategory() const {
-    return QtilitiesCategory(tr("General"));
+    return QtilitiesCategory(QApplication::applicationName());
 }
 
 Qtilities::Core::VersionInformation Qtilities::Plugins::Template::PluginTemplate::pluginVersionInformation() const {

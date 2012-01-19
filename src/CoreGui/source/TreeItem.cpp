@@ -81,8 +81,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(stream)
-    Q_UNUSED(import_list)
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     return IExportable::Complete;
 }
@@ -93,9 +94,21 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::e
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeItem::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(doc)
     Q_UNUSED(object_node)
+    Q_UNUSED(doc)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
+    if (exportVersion() < Qtilities::Qtilities_1_0) {
+        LOG_TASK_ERROR(tr("Failed to TreeItem import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too old."),exportTask());
+        return IExportable::FailedTooOld;
+    } else if (exportVersion() > Qtilities::Qtilities_Latest) {
+        LOG_TASK_ERROR(tr("Failed to TreeItem import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too new."),exportTask());
+        return IExportable::FailedTooNew;
+    }
 
     return loadFormattingFromXML(doc,object_node,exportVersion());
 }

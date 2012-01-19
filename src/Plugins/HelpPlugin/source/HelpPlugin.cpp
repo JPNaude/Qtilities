@@ -42,7 +42,7 @@
 
 #include <QtPlugin>
 #include <QIcon>
-#include <QtHelp>
+#include <QApplication>
 
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
@@ -68,7 +68,6 @@ bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &argumen
 
     HelpMode* help_mode = new HelpMode();
     OBJECT_MANAGER->registerObject(help_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
-
     OBJECT_MANAGER->registerObject(&d->help_plugin_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     return true;
@@ -89,7 +88,7 @@ QString Qtilities::Plugins::Help::HelpPlugin::pluginName() const {
 }
 
 QtilitiesCategory Qtilities::Plugins::Help::HelpPlugin::pluginCategory() const {
-    return QtilitiesCategory(tr("General"));
+    return QtilitiesCategory(QApplication::applicationName());
 }
 
 Qtilities::Core::VersionInformation Qtilities::Plugins::Help::HelpPlugin::pluginVersionInformation() const {

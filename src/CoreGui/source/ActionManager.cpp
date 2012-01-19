@@ -409,7 +409,7 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_1_0)
+    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
         is_supported_format = true;
 
     if (!is_supported_format) {

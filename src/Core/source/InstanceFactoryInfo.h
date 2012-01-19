@@ -59,8 +59,7 @@ namespace Qtilities {
 
             \sa Factory, Interfaces::IFactoryProvider
          */
-        class QTILIITES_CORE_SHARED_EXPORT InstanceFactoryInfo{
-
+        class QTILIITES_CORE_SHARED_EXPORT InstanceFactoryInfo {
 
         public:
             InstanceFactoryInfo() {

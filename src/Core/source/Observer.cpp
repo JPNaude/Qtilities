@@ -256,6 +256,16 @@ void Qtilities::Core::Observer::setExportVersion(Qtilities::ExportVersion versio
     observerData->setExportVersion(version);
 }
 
+void Qtilities::Core::Observer::setExportTask(ITask* task) {
+    observerData->setExportTask(task);
+    IExportable::setExportTask(task);
+}
+
+void Qtilities::Core::Observer::clearExportTask() {
+    observerData->clearExportTask();
+    IExportable::clearExportTask();
+}
+
 void Qtilities::Core::Observer::setApplicationExportVersion(quint32 version) {
     IExportable::setApplicationExportVersion(version);
     observerData->setApplicationExportVersion(version);
@@ -1625,7 +1635,7 @@ bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) c
 QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const QtilitiesCategory& old_category,const QtilitiesCategory& new_category, bool match_exactly) {
     QList<QPointer<QObject> > renamed_list;
 
-    toggleSubjectEventFiltering(false);
+    startProcessingCycle();
     // Check the category on all subjects:
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
@@ -1673,7 +1683,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const Qtilit
             }
         }
     }
-    toggleSubjectEventFiltering(true);
+    endProcessingCycle(false);
     if (renamed_list.count() > 0)
         refreshViewsLayout();
 

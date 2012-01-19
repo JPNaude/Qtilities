@@ -96,7 +96,8 @@ bool Qtilities::CoreGui::TreeNode::setCategory(const QtilitiesCategory& category
 
 void Qtilities::CoreGui::TreeNode::enableCategorizedDisplay(ObserverHints::CategoryEditingFlags category_editing_flags) {
     displayHints()->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    displayHints()->setCategoryEditingFlags(category_editing_flags);
+    if (category_editing_flags != ObserverHints::CategoriesNoEditingFlags)
+        displayHints()->setCategoryEditingFlags(category_editing_flags);
 }
 
 void Qtilities::CoreGui::TreeNode::disableCategorizedDisplay() {
@@ -471,7 +472,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_1_0)
+    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
         is_supported_format = true;
 
     if (!is_supported_format) {

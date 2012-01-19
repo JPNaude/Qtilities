@@ -38,6 +38,7 @@ OTHER_FILES += ../doc/sources/Tree_Structures.html
 OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_0.html
+OTHER_FILES += ../doc/sources/Serializing_Types_1_1.html
 OTHER_FILES += ../doc/sources/Whats_New.html
 OTHER_FILES += ../doc/sources/Tasking.html
 OTHER_FILES += ../doc/sources/Debugging_Qtilities_Applications.html

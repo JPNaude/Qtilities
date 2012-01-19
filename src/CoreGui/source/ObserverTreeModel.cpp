@@ -1086,7 +1086,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                             d->selected_categories << new_category;
                         }
 
-                        local_selection_parent->renameCategory(item->category(),new_category,false);
+                        local_selection_parent->renameCategory(item->category(),new_category,false);                       
                         return true;
                     } else
                         return false;

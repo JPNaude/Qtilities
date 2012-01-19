@@ -38,6 +38,7 @@ Qtilities::Core::Interfaces::IExportable::IExportable() {
     d_export_version = Qtilities::Qtilities_Latest;
     d_application_export_version_set = false;
     d_is_exportable = true;
+    d_task = 0;
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Interfaces::IExportable::supportedFormats() const {
@@ -110,4 +111,26 @@ Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::Core::Interfaces
 
     Q_ASSERT(0);
     return None;
+}
+
+void Qtilities::Core::Interfaces::IExportable::setExportTask(ITask* task) {
+    if (!task) {
+        d_task_base = 0;
+        d_task = 0;
+    } else {
+        d_task_base = task->objectBase();
+        d_task = task;
+    }
+}
+
+Qtilities::Core::Interfaces::ITask* Qtilities::Core::Interfaces::IExportable::exportTask() const {
+    if (d_task_base)
+        return d_task;
+    else
+        return 0;
+}
+
+void Qtilities::Core::Interfaces::IExportable::clearExportTask() {
+    d_task = 0;
+    d_task_base = 0;
 }

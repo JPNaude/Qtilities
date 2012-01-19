@@ -40,6 +40,7 @@
 #include "InstanceFactoryInfo.h"
 
 #include <Logger>
+#include <ITask>
 
 #include <QList>
 #include <QPointer>
@@ -182,6 +183,10 @@ IExportable::Result VersionDetails::importXml(QDomDocument* doc, QDomElement* ob
         return IExportable::FailedTooOld;
     if (applicationExportVersion() > 2)
         return IExportable::FailedTooNew;
+
+    // If we want to log messages here, we do it using the LOG_TASK macros since
+    // the exportTask() might have been set on IExportable. For example:
+    LOG_TASK_INFO("Importing VersionDetails...",exportTask());
 
     // Find our RevisionInfo element:
     IExportable::Result result = IExportable::Complete;
@@ -342,11 +347,33 @@ int main(int argc, char *argv[])
                   \sa setApplicationExportVersion()
                   */
                 quint32 applicationExportVersion() const;
-                //! Returns the application export version currently used by all your application's classes.
+                //! Sets the application export version currently used by all your application's classes.
                 /*!
                   \sa applicationExportVersion()
                   */
                 virtual void setApplicationExportVersion(quint32 version);
+
+                //----------------------------
+                // Tasking
+                //----------------------------
+                //! Sets the task which must be used to log import/export information to.
+                /*!
+                  To remove the task, use clearExportTask()
+
+                  \sa exportTask(), clearExportTask()
+                  */
+                virtual void setExportTask(ITask* task);
+                //! Gets the task which must be used to log import/export information to.
+                /*!
+
+                  \sa setExportTask(), clearExportTask()
+                  */
+                virtual ITask* exportTask() const;
+                //! Clears the export task.
+                /*!
+                  \sa setExportTask(), exportTask()
+                  */
+                virtual void clearExportTask();
 
                 //----------------------------
                 // Is Exportable
@@ -383,6 +410,22 @@ int main(int argc, char *argv[])
                 virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
 
                 //----------------------------
+                // Check Qtilities Export Version
+                //----------------------------
+                //! Checks the exportVersion() against the supported %Qtilities export versions for the current %Qtilities version.
+                static Result validateQtilitiesExportVersion(Qtilities::ExportVersion export_version, ITask* task = 0) {
+                    if (export_version < Qtilities::Qtilities_1_0) {
+                        LOG_TASK_ERROR(QObject::tr("Failed import object. The Qtilities export version detected in the input data (version ") + (int) export_version + QObject::tr(") is too old."),task);
+                        return IExportable::FailedTooOld;
+                    } else if (export_version > Qtilities::Qtilities_Latest) {
+                        LOG_TASK_ERROR(QObject::tr("Failed import object. The Qtilities export version detected in the input data (version ") + (int) export_version + QObject::tr(") is too new."),task);
+                        return IExportable::FailedTooNew;
+                    }
+
+                    return IExportable::Complete;
+                }
+
+                //----------------------------
                 // XML Exporting
                 //----------------------------
                 //! Allows exporting to an XML document. A reference to the QDomElement to which the object's information must be added is provided, along with a reference to the QDomDocument.
@@ -405,10 +448,12 @@ int main(int argc, char *argv[])
                 static ExportMode stringToExportMode(const QString& export_mode_string);
 
             private:
-                Qtilities::ExportVersion d_export_version;
-                quint32 d_export_application_version;
-                bool d_is_exportable;
-                bool d_application_export_version_set;
+                Qtilities::ExportVersion    d_export_version;
+                quint32                     d_export_application_version;
+                bool                        d_is_exportable;
+                bool                        d_application_export_version_set;
+                QPointer<QObject>           d_task_base;
+                ITask*                      d_task;
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)

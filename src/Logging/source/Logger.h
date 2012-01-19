@@ -142,6 +142,9 @@ namespace Qtilities {
               - Qtilities::Logging::FormattingEngine_XML
 
               \param engine_name The name of the engine to log to. If empty the message will be logged to all engines.
+              \param message_type The type of message.
+              \param message The message.
+              \param msg1 More parameters which can be passed to the logger.
 
               \sa LOG_DEBUG, LOG_ERROR, LOG_WARNING, LOG_INFO, LOG_TRACE, LOG_FATAL
               */

@@ -213,10 +213,11 @@ EXTENSION_SYSTEM->initialize();
 
 // Give error message if any of the core plugins were not found:
 bool core_plugins_ok = true;
+QStringList missing_plugins;
 foreach (QString core_plugin, core_plugins) {
     if (!EXTENSION_SYSTEM->activePlugins().contains(core_plugin)) {
         core_plugins_ok = false;
-        break;
+        missing_plugins << core_plugin;
     }
 }
 
@@ -224,7 +225,7 @@ if (!core_plugins_ok) {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.setWindowTitle("All Core Plugins Not Found");
-    msgBox.setText("All core plugins could not be loaded properly. Everything might not work as expected.<br><br>The following core plugins are needed: " + core_plugins.join(",") + "<br>The following plugins were loaded and set active: " + EXTENSION_SYSTEM->activePlugins().join(","));
+    msgBox.setText("All core plugins could not be loaded properly. Everything might not work as expected.<br><br>The following core plugin(s) were not found: <br><br>" + missing_plugins.join("<br>") + "<br><br>The following plugin(s) were loaded and set active: <br><br>" + EXTENSION_SYSTEM->activePlugins().join("<br>"));
     msgBox.exec();
 }
 \endcode

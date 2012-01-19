@@ -256,7 +256,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesProperty::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(import_list)
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     quint32 ui32;
     stream >> ui32;
@@ -311,6 +313,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesPrope
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     name = object_node->attribute("Name","");
 
@@ -511,6 +517,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextPr
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextProperty::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     IExportable::Result result = QtilitiesProperty::importBinary(stream,import_list);
     if (result == IExportable::Failed)
         return result;
@@ -555,7 +565,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextPr
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::MultiContextProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {   
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     context_map.clear();
 
     IExportable::Result  result = QtilitiesProperty::importXml(doc,object_node,import_list);
@@ -671,6 +685,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     IExportable::Result result = QtilitiesProperty::importBinary(stream,import_list);
     if (result == IExportable::Failed)
         return result;
@@ -706,7 +724,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::SharedProperty::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {   
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     IExportable::Result result = QtilitiesProperty::importXml(doc,object_node,import_list);
     if (result == IExportable::Failed)
         return result;

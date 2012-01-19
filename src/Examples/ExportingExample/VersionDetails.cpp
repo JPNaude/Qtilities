@@ -140,6 +140,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingE
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     //if (applicationExportVersion() < 0)
     //    return IExportable::FailedTooOld;
     if (applicationExportVersion() > 2)
