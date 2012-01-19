@@ -20,6 +20,10 @@ Table of contents:
 	- \ref observer_features
 	- \ref meta_type_object_management
 	.
+- \ref object_property_management
+        - \ref object_property_management_displaying
+        - \ref object_property_management_working
+        .
 
 </td>
 
@@ -120,5 +124,19 @@ The possible management options are defined in the Qtilities::Core::Observer::Ob
 \subsection meta_type_object_management Global object activity management
 
 The object manager provides functionality to manage global active objects in an application. Active objects can be set on a meta-type basis where the meta type is a simple QString used to identify the set of active objects. Active objects for a meta-type can be set using the Qtilities::Core::Interfaces::IObjectManager::setMetaTypeActiveObjects() function. When this function is called the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjectsChanged() signal is emitted with the new set of active objects for the specified meta-type. The active objects for a meta-type can be accessed at any time using the Qtilities::Core::Interfaces::IObjectManager::metaTypeActiveObjects() function.
+
+\section object_property_management Object Property Management
+
+%Qtilities provided various features related to QObject property management. The sections that follows will provide highlights of these features.
+
+\subsection object_property_management_displaying Displaying object properties
+
+\subsubsection object_property_management_displaying_qproperties Displaying Q_PROPERTY properties
+
+
+\subsubsection object_property_management_displaying_dynamic_properties Displaying dynamic properties
+
+
+\subsection object_property_management_working Working with object properties
 
  */
