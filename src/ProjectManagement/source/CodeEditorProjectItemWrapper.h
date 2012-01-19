@@ -84,7 +84,7 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
             // --------------------------------------------
             QString projectItemName() const;
             bool newProjectItem();
-            bool closeProjectItem();
+            bool closeProjectItem(ITask *task = 0);
 
             // --------------------------------
             // IExportable Implementation

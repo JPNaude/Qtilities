@@ -88,7 +88,9 @@ bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::newProjectItem() 
     return true;
 }
 
-bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::closeProjectItem() {
+bool Qtilities::ProjectManagement::ObserverProjectItemWrapper::closeProjectItem(ITask *task) {
+    Q_UNUSED(task)
+
     if (!d->observer)
         return false;
 
@@ -113,15 +115,38 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::ObserverProje
 
 void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setExportVersion(Qtilities::ExportVersion version) {
     IExportable::setExportVersion(version);
-    d->observer->setExportVersion(version);
+    if (d->observer)
+        d->observer->setExportVersion(version);
+}
+
+void Qtilities::ProjectManagement::ObserverProjectItemWrapper::setExportTask(ITask* task) {
+    if (d->observer)
+        d->observer->setExportTask(task);
+    IExportable::setExportTask(task);
+}
+
+void Qtilities::ProjectManagement::ObserverProjectItemWrapper::clearExportTask() {
+    if (d->observer)
+        d->observer->clearExportTask();
+    IExportable::clearExportTask();
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::exportBinary(QDataStream& stream) const {
+    if (!d->observer)
+        return IExportable::Incomplete;
+
     d->observer->setExportVersion(exportVersion());
     return d->observer->exportBinaryExt(stream,d->export_flags);
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {    
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
+    if (!d->observer)
+        return IExportable::Incomplete;
+
     d->observer->setExportVersion(exportVersion());
     return d->observer->importBinary(stream,import_list);
 }
@@ -138,6 +163,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::O
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::ObserverProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+    Q_UNUSED(doc)
+    Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
+
     if (d->observer) {
         QDomNodeList childNodes = object_node->childNodes();
         for(int i = 0; i < childNodes.count(); i++)

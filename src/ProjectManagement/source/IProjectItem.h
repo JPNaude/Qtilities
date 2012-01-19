@@ -38,6 +38,7 @@
 
 #include <IModificationNotifier>
 #include <IExportable>
+#include <ITask>
 
 #include <QObject>
 #include <QString>
@@ -61,8 +62,8 @@ namespace Qtilities {
                 virtual QString projectItemName() const = 0;
                 //! Called by the project manager when a new project needs to be created.
                 virtual bool newProjectItem() = 0;
-                //! Close the project.
-                virtual bool closeProjectItem() = 0;
+                //! Close the project item.
+                virtual bool closeProjectItem(ITask *task = 0) = 0;
             };
         }
     }

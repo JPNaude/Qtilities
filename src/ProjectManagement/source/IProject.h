@@ -37,7 +37,8 @@
 #include "ProjectManagement_global.h"
 #include "IProjectItem.h"
 
-#include <IModificationNotifier.h>
+#include <IModificationNotifier>
+#include <ITask>
 
 #include <QStringList>
 
@@ -64,11 +65,11 @@ namespace Qtilities {
                 /*!
                   \param close_current_first In some cases it is not needed to close the current project first. An example of this is when you just created a new project and now load an existing project file into the project.
                   */
-                virtual bool loadProject(const QString& file_name, bool close_current_first = true) = 0;
+                virtual bool loadProject(const QString& file_name, bool close_current_first = true, ITask* task = 0) = 0;
                 //! Save the project to a specified file.
-                virtual bool saveProject(const QString& file_name) = 0;
+                virtual bool saveProject(const QString& file_name, ITask* task = 0) = 0;
                 //! Close the project.
-                virtual bool closeProject() = 0;
+                virtual bool closeProject(ITask* task = 0) = 0;
                 //! Project file name. Must return an empty string when no project file is associated with the project at present.
                 virtual QString projectFile() const = 0;
                 //! Project name.

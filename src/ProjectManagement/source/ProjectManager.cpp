@@ -109,15 +109,15 @@ Qtilities::ProjectManagement::ProjectManager::ProjectManager(QObject* parent) : 
 
     // Register the tasks contained in this object:
     // Create TaskSaveProject:
-    Task* taskSaveProject = new Task(taskNameToString(TaskSaveProject),false,this);
+    Task* taskSaveProject = new Task(taskNameToString(TaskSaveProject),true,this);
     registerTask(taskSaveProject,taskNameToString(TaskSaveProject));
 
     // Create TaskOpenProject:
-    Task* taskOpenProject = new Task(taskNameToString(TaskOpenProject),false,this);
+    Task* taskOpenProject = new Task(taskNameToString(TaskOpenProject),true,this);
     registerTask(taskOpenProject,taskNameToString(TaskOpenProject));
 
     // Create TaskCloseProject:
-    Task* taskCloseProject = new Task(taskNameToString(TaskCloseProject),false,this);
+    Task* taskCloseProject = new Task(taskNameToString(TaskCloseProject),true,this);
     registerTask(taskCloseProject,taskNameToString(TaskCloseProject));
 }
 
@@ -224,7 +224,7 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
             success = saveProject(d->current_project->projectFile());
 
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        d->current_project->closeProject();
+        d->current_project->closeProject(task_ref);
         QApplication::restoreOverrideCursor();
         d->current_project->disconnect(this);
         delete d->current_project;
@@ -271,7 +271,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
 
     connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
     d->current_project->setProjectItems(d->item_list);
-    if (!d->current_project->loadProject(file_name,false)) {
+    if (!d->current_project->loadProject(file_name,false,task_ref)) {
         delete d->current_project;
         QApplication::restoreOverrideCursor();
         emit projectLoadingFinished(file_name,false);
@@ -346,7 +346,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
 
     emit projectSavingStarted(file_name);
 
-    if (d->current_project->saveProject(file_name)) {
+    if (d->current_project->saveProject(file_name,task_ref)) {
         addRecentProject(d->current_project);
         QApplication::restoreOverrideCursor();
 

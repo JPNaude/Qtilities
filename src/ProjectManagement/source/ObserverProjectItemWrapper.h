@@ -82,7 +82,7 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
             // --------------------------------------------
             QString projectItemName() const;
             bool newProjectItem();
-            bool closeProjectItem();
+            bool closeProjectItem(ITask* task = 0);
 
             // --------------------------------
             // IExportable Implementation
@@ -90,6 +90,8 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
             virtual void setExportVersion(Qtilities::ExportVersion version);
+            virtual void setExportTask(ITask* task);
+            virtual void clearExportTask();
             virtual IExportable::Result exportBinary(QDataStream& stream ) const;
             virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             virtual Result exportXml(QDomDocument* doc, QDomElement* object_node) const;

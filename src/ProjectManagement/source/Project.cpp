@@ -85,8 +85,8 @@ bool Qtilities::ProjectManagement::Project::newProject() {
 
 quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 
-bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name) {
-    LOG_DEBUG(tr("Starting to save current project to file: ") + file_name);
+bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name, ITask* task) {
+    LOG_TASK_INFO(tr("Starting to save current project to file: ") + file_name,task);
 
     if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::XML))) {
         QTemporaryFile file;
@@ -101,11 +101,13 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         time_t start,end;
         time(&start);
         #endif
+        IExportable::setExportTask(task);
         IExportable::Result success = exportXml(&doc,&root);
+        IExportable::clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Project XML export completed in " + QString::number(diff) + " seconds.");
+        LOG_TASK_INFO("Project XML export completed in " + QString::number(diff) + " seconds.",task);
         #endif
 
         // Put the complete doc in a string and save it to the file:
@@ -119,7 +121,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFile current_file(d->project_file);
             if (current_file.exists())  {
                 if (!current_file.remove()) {
-                    LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
+                    LOG_TASK_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file,task);
                     return false;
                 }
             }
@@ -132,11 +134,11 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file);
+                LOG_TASK_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file,task);
             if (success == IExportable::Incomplete)
-                LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
+                LOG_TASK_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file,task);
         } else {
-            LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
+            LOG_TASK_ERROR_P(tr("Failed to save current project to file: ") + d->project_file,task);
             return false;
         }
 
@@ -145,18 +147,20 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QTemporaryFile file;
         file.open();
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_1_0)
+        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
             stream.setVersion(QDataStream::Qt_4_7);
 
         #ifdef QTILITIES_BENCHMARKING
         time_t start,end;
         time(&start);
         #endif
+        IExportable::setExportTask(task);
         IExportable::Result success = exportBinary(stream);
+        IExportable::clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Project binary export completed in " + QString::number(diff) + " seconds.");
+        LOG_TASK_INFO("Project binary export completed in " + QString::number(diff) + " seconds.",task);
         #endif
 
         file.close();
@@ -167,7 +171,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFile current_file(d->project_file);
             if (current_file.exists())  {
                 if (!current_file.remove()) {
-                    LOG_ERROR(tr("Failed to replace the current project file at path: ") + d->project_file);
+                    LOG_TASK_ERROR_P(tr("Failed to replace the current project file at path: ") + d->project_file,task);
                     return false;
                 }
             }
@@ -180,29 +184,29 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
-                LOG_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file);
+                LOG_TASK_INFO_P(tr("Successfully saved complete project to file: ") + d->project_file,task);
             if (success == IExportable::Incomplete)
-                LOG_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file);
+                LOG_TASK_INFO_P(tr("Successfully saved incomplete project to file: ") + d->project_file,task);
         } else {
-            LOG_ERROR_P(tr("Failed to save current project to file: ") + d->project_file);
+            LOG_TASK_ERROR_P(tr("Failed to save current project to file: ") + d->project_file,task);
             return false;
         }
         return true;
     } else {
-        LOG_ERROR_P(tr("Failed to save project. Unsupported project file suffix found on file: ") + file_name);
+        LOG_TASK_ERROR_P(tr("Failed to save project. Unsupported project file suffix found on file: ") + file_name,task);
     }
 
     return false;
 }
 
-bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name, bool close_current_first) {
+bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name, bool close_current_first, ITask* task) {
     if (close_current_first)
         closeProject();
 
-    LOG_INFO_P(tr("Opening project: ") + file_name);
+    LOG_TASK_INFO_P(tr("Opening project: ") + file_name,task);
     QFile file(file_name);
     if (!file.exists()) {
-        LOG_ERROR_P(QString(tr("Project file does not exist at path \"") + file_name + tr("\". Project will not be loaded.")));
+        LOG_TASK_ERROR_P(QString(tr("Project file does not exist at path \"") + file_name + tr("\". Project will not be loaded.")),task);
         return false;
     }
     d->project_file = file_name;
@@ -218,7 +222,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         int error_line;
         int error_column;
         if (!doc.setContent(docStr,&error_string,&error_line,&error_column)) {
-            LOG_ERROR(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string));
+            LOG_TASK_ERROR_P(QString(tr("The tree input file could not be parsed by QDomDocument. Error on line %1 column %2: %3")).arg(error_line).arg(error_column).arg(error_string),task);
             return false;
         }
         QDomElement root = doc.documentElement();
@@ -230,11 +234,13 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         time_t start,end;
         time(&start);
         #endif
+        setExportTask(task);
         IExportable::Result success = importXml(&doc,&root,import_list);
+        clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
-        LOG_WARNING("Project XML import completed in " + QString::number(diff) + " seconds.");
+        LOG_TASK_INFO("Project XML import completed in " + QString::number(diff) + " seconds.",task);
         #endif
 
         if (success != IExportable::Failed) {
@@ -255,29 +261,29 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 setModificationState(true,IModificationNotifier::NotifyListeners);
 
             if (success == IExportable::Complete)
-                LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
+                LOG_TASK_INFO_P(tr("Successfully loaded complete project from file: ") + file_name,task);
             if (success == IExportable::Incomplete) {
                 QString backup_file_name = FileUtils::appendToFileName(file_name,".complete");
                 QFile backup_file(backup_file_name);
                 if (backup_file.exists()) {
                     if (!backup_file.remove())
-                        LOG_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name);
+                        LOG_TASK_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name,task);
                 }
 
                 if (!file.copy(backup_file_name)) {
-                    LOG_WARNING(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name);
+                    LOG_TASK_WARNING_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name,task);
                 } else {
-                    LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name);
+                    LOG_TASK_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name,task);
                 }
             }
             return true;
         } else {
-            LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
+            LOG_TASK_ERROR_P(tr("Failed to load project from file: ") + file_name,task);
             return false;
         }
     } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_1_0)
+        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
             stream.setVersion(QDataStream::Qt_4_7);
 
         QList<QPointer<QObject> > import_list;
@@ -286,7 +292,9 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         time_t start,end;
         time(&start);
         #endif
+        setExportTask(task);
         IExportable::Result success = importBinary(stream,import_list);
+        clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -313,36 +321,36 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 setModificationState(true,IModificationNotifier::NotifyListeners);
 
             if (success == IExportable::Complete)
-                LOG_INFO_P(tr("Successfully loaded complete project from file: ") + file_name);
+                LOG_TASK_INFO_P(tr("Successfully loaded complete project from file: ") + file_name,task);
             if (success == IExportable::Incomplete) {
                 QString backup_file_name = FileUtils::appendToFileName(file_name,".complete");
                 QFile backup_file(backup_file_name);
                 if (backup_file.exists()) {
                     if (!backup_file.remove())
-                        LOG_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name);
+                        LOG_TASK_WARNING(tr("Failed to remove old project backup file at: ") + backup_file_name,task);
                 }
 
                 if (!file.copy(backup_file_name)) {
-                    LOG_WARNING(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name);
+                    LOG_TASK_WARNING_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". However, the project manager failed to make a backup of the complete project file at: ") + backup_file_name,task);
                 } else {
-                    LOG_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name);
+                    LOG_TASK_INFO_P(tr("Successfully loaded incomplete project from file: ") + file_name + tr(". A backup of the complete project file was created at: ") + backup_file_name,task);
                 }
             }
             return true;
         } else {
-            LOG_ERROR_P(tr("Failed to load project from file: ") + file_name);
+            LOG_TASK_ERROR_P(tr("Failed to load project from file: ") + file_name,task);
             return false;
         }
     } else {
-        LOG_ERROR_P(tr("Failed to load project. Unsupported project file suffix found on file: ") + file_name);
+        LOG_TASK_ERROR_P(tr("Failed to load project. Unsupported project file suffix found on file: ") + file_name,task);
     }
     return false;
 }
 
-bool Qtilities::ProjectManagement::Project::closeProject() {
-    LOG_INFO_P(tr("Closing project: ") + d->project_file);
+bool Qtilities::ProjectManagement::Project::closeProject(ITask *task) {
+    LOG_TASK_INFO_P(tr("Closing project: ") + d->project_file,task);
     for (int i = 0; i < d->project_items.count(); i++) {
-        d->project_items.at(i)->closeProjectItem();
+        d->project_items.at(i)->closeProjectItem(task);
     }
 
     setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
@@ -467,7 +475,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     for (int i = 0; i < d->project_items.count(); i++) {
         if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
             LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
+            d->project_items.at(i)->setExportTask(exportTask());
             IExportable::Result item_result = d->project_items.at(i)->exportBinary(stream);
+            d->project_items.at(i)->clearExportTask();
+
             if (item_result == IExportable::Failed) {
                 success = item_result;
                 break;
@@ -485,6 +496,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+
     // ---------------------------------------------------
     // Inspect file format:
     // ---------------------------------------------------
@@ -519,7 +531,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_1_0)
+    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
         is_supported_format = true;
 
     if (!is_supported_format) {
@@ -554,7 +566,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
             LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
             d->project_items.at(i)->setExportVersion(read_version);
             d->project_items.at(i)->setApplicationExportVersion(application_read_version);
+
+            d->project_items.at(i)->setExportTask(exportTask());
             IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
+            d->project_items.at(i)->clearExportTask();
+
             if (item_result == IExportable::Failed) {
                 success = item_result;
                 break;
@@ -595,7 +611,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
         QDomElement itemRoot = doc->createElement("ProjectItem_" + QString::number(i));
         itemRoot.setAttribute("Name",name);
         object_node->appendChild(itemRoot);
+        d->project_items.at(i)->setExportTask(exportTask());
         IExportable::Result item_result = d->project_items.at(i)->exportXml(doc,&itemRoot);
+        d->project_items.at(i)->clearExportTask();
         if (item_result == IExportable::Failed) {
             success = item_result;
             break;
@@ -615,35 +633,35 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     Qtilities::ExportVersion read_version;
     if (object_node->hasAttribute("ExportVersion")) {
         read_version = (Qtilities::ExportVersion) object_node->attribute("ExportVersion").toInt();
-        LOG_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(read_version));
+        LOG_TASK_INFO(QString(tr("Inspecting project file format: Qtilities export format version: %1")).arg(read_version),exportTask());
     } else {
-        LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        LOG_TASK_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")),exportTask());
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (object_node->hasAttribute("QtilitiesVersion"))
-        LOG_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(object_node->attribute("QtilitiesVersion")));
+        LOG_TASK_INFO(QString(tr("Inspecting project file format: Qtilities version used to save the file: %1")).arg(object_node->attribute("QtilitiesVersion")),exportTask());
     quint32 application_read_version = 0;
     if (object_node->hasAttribute("ApplicationExportVersion")) {
         application_read_version = object_node->attribute("ApplicationExportVersion").toInt();
-        LOG_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(application_read_version));
+        LOG_TASK_INFO(QString(tr("Inspecting project file format: Application export format version: %1")).arg(application_read_version),exportTask());
     } else {
-        LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")));
+        LOG_TASK_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The project file will not be parsed.")),exportTask());
         QApplication::restoreOverrideCursor();
         return IExportable::Failed;
     }
     if (object_node->hasAttribute("ApplicationVersion"))
-        LOG_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(object_node->attribute("ApplicationVersion")));
+        LOG_TASK_INFO(QString(tr("Inspecting project file format: Application version used to save the file: %1")).arg(object_node->attribute("ApplicationVersion")),exportTask());
 
     // ---------------------------------------------------
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (read_version == Qtilities::Qtilities_1_0)
+    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
         is_supported_format = true;
 
     if (!is_supported_format) {
-        LOG_ERROR(QString(tr("Unsupported project file found with export version: %1. The project file will not be parsed.")).arg(read_version));
+        LOG_TASK_ERROR(QString(tr("Unsupported project file found with export version: %1. The project file will not be parsed.")).arg(read_version),exportTask());
         return IExportable::Failed;
     }
 
@@ -666,9 +684,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
             QString item_name;
             if (item.hasAttribute("Name")) {
                 item_name = item.attribute("Name");
-                LOG_TRACE("Found project item in import file with name: " + item_name);
+                LOG_TASK_TRACE("Found project item in import file with name: " + item_name,exportTask());
             } else {
-                LOG_WARNING(tr("Nameless project item found in input file. This item will be skipped."));
+                LOG_TASK_WARNING(tr("Nameless project item found in input file. This item will be skipped."),exportTask());
                 continue;
             }
 
@@ -682,7 +700,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
             }
 
             if (!item_iface) {
-                LOG_WARNING(QString(tr("Input file contains a project item \"%1\" which does not exist in your application. Import will be incomplete.")).arg(item_name));
+                LOG_TASK_WARNING(QString(tr("Input file contains a project item \"%1\" which does not exist in your application. Import will be incomplete.")).arg(item_name),exportTask());
                 if (success != IExportable::Failed) {
                     success = IExportable::Incomplete;
                 }
@@ -690,9 +708,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
             } else {
                 item_iface->setExportVersion(read_version);
                 item_iface->setApplicationExportVersion(application_read_version);
+                item_iface->setExportTask(exportTask());
                 success = item_iface->importXml(doc,&item,import_list);
+                item_iface->clearExportTask();
+
                 if (success != IExportable::Complete && success != IExportable::Incomplete) {
-                    LOG_ERROR(tr("Project item \"") + item_name + tr("\" failed during import."));
+                    LOG_TASK_ERROR(tr("Project item \"") + item_name + tr("\" failed during import."),exportTask());
                     break;
                 }
             }
@@ -701,7 +722,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     }
 
     if (!found_project_item)
-        LOG_WARNING(tr("No project items found in project file."));
+        LOG_TASK_WARNING(tr("No project items found in project file."),exportTask());
 
     return success;
 }

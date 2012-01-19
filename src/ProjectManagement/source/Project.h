@@ -37,10 +37,13 @@
 #include "ProjectManagement_global.h"
 #include "IProject.h"
 
+#include <Logger>
+
 #include <QObject>
 
 namespace Qtilities {
     namespace ProjectManagement {
+        using namespace Qtilities::Logging;
         using namespace Qtilities::ProjectManagement::Interfaces;
         /*!
           \struct ProjectPrivateData
@@ -69,9 +72,9 @@ namespace Qtilities {
             // IProject Implementation
             // --------------------------------------------
             bool newProject();
-            bool loadProject(const QString& file_name, bool close_current_first = true);
-            bool saveProject(const QString& file_name);
-            bool closeProject();
+            bool loadProject(const QString& file_name, bool close_current_first = true, ITask* task = 0);
+            bool saveProject(const QString& file_name, ITask* task = 0);
+            bool closeProject(ITask* task = 0);
             QString projectFile() const;
             QString projectName() const;
 

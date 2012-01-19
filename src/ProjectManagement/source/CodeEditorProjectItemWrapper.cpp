@@ -87,7 +87,9 @@ bool Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::newProjectItem(
     return true;
 }
 
-bool Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::closeProjectItem() {
+bool Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::closeProjectItem(ITask *task) {
+    Q_UNUSED(task)
+
     if (!d->code_editor)
         return false;
 
@@ -117,8 +119,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    Q_UNUSED(import_list)
+Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {   
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     if (!d->code_editor)
         return IExportable::Failed;
@@ -147,9 +151,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
 }
 
 Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
-
-    Q_UNUSED(import_list)
     Q_UNUSED(doc)
+    Q_UNUSED(import_list)
+
+    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::Complete)
+        return version_check_result;
 
     if (d->code_editor) {
         QDomNodeList childNodes = object_node->childNodes();
