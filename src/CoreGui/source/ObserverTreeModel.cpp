@@ -68,7 +68,6 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
 
     QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
-    QModelIndex                 selection_index;
     QList<QPointer<QObject> >   selected_objects;
     QList<QtilitiesCategory>    selected_categories;
     QString                     type_grouping_name;
@@ -1311,7 +1310,6 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
     if (index_list.count() == 1) {
         d->selection_parent = parentOfIndex(index_list.front());
-        d->selection_index = index_list.front();
 
         // Do some hints debugging:
         /*if (d->selection_parent) {
@@ -1325,6 +1323,39 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
 
         emit selectionParentChanged(d->selection_parent);
         return d->selection_parent;
+    } else if (index_list.count() > 1) {
+        qDebug() << "Multiple selection, determining parent.";
+        Observer* parent = 0;
+        bool match = true;
+
+        foreach (QModelIndex index, index_list) {
+            Observer* obs = parentOfIndex(index);
+            if (parent == 0)
+                parent = obs;
+            else if (obs != parent) {
+                parent = obs;
+                match = false;
+                break;
+            }
+        }
+
+        // Only pass on the selection parent if the selected objects are all in the same context:
+        if (match) {
+            d->selection_parent = parent;
+            emit selectionParentChanged(d->selection_parent);
+
+            // Get the hints from the observer:
+            if (d->selection_parent) {
+                model->hints_selection_parent = d->selection_parent->displayHints();
+            }
+
+            return d->selection_parent;
+        } else {
+            d->selection_parent = 0;
+            model->hints_selection_parent = 0;
+            emit selectionParentChanged(0);
+            return 0;
+        }
     } else {
         return 0;
     }
