@@ -58,7 +58,7 @@ namespace Qtilities {
             //! Function to access context manager pointer.
             Qtilities::Core::Interfaces::IContextManager* contextManager() const;
             //! Function to access task manager pointer.
-            Qtilities::Core::TaskManager* taskManager() const;
+            Qtilities::Core::TaskManager* taskManager() const;          
             //! Returns the version string of %Qtilities as a QString.
             /*!
               \return The version of %Qtilities, for example: 0.1 Beta 1. Note that the v is not part of the returned string.

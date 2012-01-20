@@ -114,7 +114,8 @@ namespace Qtilities {
             enum ObserverSelectionContext {
                 NoObserverSelectionContextHint = 0,     /*!< No observer selection context hint. Uses SelectionUseParentContext by default. */
                 SelectionUseParentContext = 1,          /*!< Use the parent observer's context. */
-                SelectionUseSelectedContext = 2         /*!< Use the selected observer's context. */
+                SelectionUseSelectedContext = 2         /*!< Use the selected observer's context. Only enforced when a single selection is present in an ObserverWidget tree. When more items are selected
+                                                             SelectionUseParentContext will be used */
             };
             //! Function which returns a string associated with a specific ObserverSelectionContext.
             static QString observerSelectionContextToString(ObserverSelectionContext observer_selection_context);

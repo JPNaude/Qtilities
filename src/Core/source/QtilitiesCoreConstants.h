@@ -76,6 +76,14 @@ namespace Qtilities {
           This namespace contains a set of properties which are defined and used in %Qtilities. For each property a set of permissions are given along with short description and an example of how to use it.
 
           For an overview of the different kind of properties, see the \ref qtilities_properties section of the \ref page_observers article, or Qtilities::Core::QtilitiesProperty. \p QtilitiesProperty provides static functions to check the permissions etc. of a property at runtime. Note that all properties used by %Qtilities starts with "qti_prop". For an overview of property changes and changing properties see the \ref monitoring_property_changes section of the \ref page_observers article.
+
+          Note that you can inspect all %Qtilities property on an object through the Qtilities::CoreGui::DynamicObjectPropertyBrowser widget which allows you to inspect dynamic properties on QObjects at runtime. This widget allows you to display the following
+type of properties:
+- Normal QVariant QObject properties set using setProperty() on any QObject.
+- Qtilities::Core::SharedProperty properties.
+- Qtilities::Core::MultiContextProperty properties. Note that the property values for all contexts are displayed as shown below.
+
+            \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
           */
         namespace Properties {
 

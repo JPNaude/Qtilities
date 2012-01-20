@@ -105,11 +105,3 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/Task.cpp \
     source/FileUtils.cpp \
     source/QtilitiesProcess.cpp
-
-
-
-
-
-
-
-
