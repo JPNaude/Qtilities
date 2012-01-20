@@ -330,8 +330,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
     }
 }
 
-Qtilities::CoreGui::ObserverWidget::~ObserverWidget()
-{   
+Qtilities::CoreGui::ObserverWidget::~ObserverWidget() {
     delete ui;
     delete d;           
 }
@@ -506,7 +505,7 @@ void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
     refreshActions();
 
     #ifdef QTILITIES_PROPERTY_BROWSER
-    // TODO: This can be improved. Add that both property editors can be made read only.
+    // TODO: This can be improved. Add that property editors can be made read only.
     if (d->property_browser_widget)
         d->property_browser_widget->setEnabled(!read_only);
     #endif
@@ -652,7 +651,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
 
             // Setup tree selection:
-            d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
+            //d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
+            d->tree_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
             d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
 
             // Setup proxy model:
@@ -1009,7 +1009,64 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
     }
     d->current_selection = smart_selected_objects;   
     d->current_tree_item_selection = smart_tree_item_selection;
+    selectedObjectsContextMatch();
+    selectedObjectsHintsMatch();
     return selected_objects;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::selectedObjectsContextMatch() const {
+    QModelIndexList indexes = selectedIndexes();
+    Observer* parent = 0;
+    bool match = true;
+
+    foreach (QModelIndex index, indexes) {
+        Observer* obs = d->tree_model->parentOfIndex(index);
+        if (parent == 0)
+            parent = obs;
+        else if (obs != parent) {
+            parent = obs;
+            match = false;
+            break;
+        }
+    }
+
+    return match;
+}
+
+bool Qtilities::CoreGui::ObserverWidget::selectedObjectsHintsMatch() const {
+    if (!usesObserverHints())
+        return true;
+
+    QModelIndexList indexes = selectedIndexes();
+    Observer* parent = 0;
+    bool match = true;
+
+    foreach (QModelIndex index, indexes) {
+        Observer* obs = d->tree_model->parentOfIndex(index);
+        if (parent == 0) {
+            parent = obs;
+        } else {
+            ObserverHints* hintsA = 0;
+            ObserverHints* hintsB = 0;
+            if (!obs)
+                hintsA = d_observer->displayHints();
+            else
+                hintsA = obs->displayHints();
+
+            if (parent)
+                hintsB = parent->displayHints();
+
+            if (hintsA != 0 && hintsB != 0) {
+                if (*hintsA != *hintsB) {
+                    parent = obs;
+                    match = false;
+                    break;
+                }
+            }
+        }
+    }
+
+    return true;
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverWidget::selectionParent() const {
@@ -1392,10 +1449,13 @@ void Qtilities::CoreGui::ObserverWidget::constructActions() {
 
 #ifndef QT_NO_DEBUG
 void Qtilities::CoreGui::ObserverWidget::selectionDebug() const {
-    if (d->current_selection.count() == 1) {
-        QObject* selection = d->current_selection.front();
-        OBJECT_MANAGER->registerObject(selection);
+    bool change_mode = false;
+    foreach (QObject* obj, d->current_selection) {
+        OBJECT_MANAGER->registerObject(obj);
+        change_mode = true;
+    }
 
+    if (change_mode) {
         QtilitiesMainWindow* main_window = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
         if (main_window) {
             if (main_window->modeManager()) {
@@ -1627,9 +1687,75 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                         d->actionRemoveItem->setEnabled(false);
                     }
                 }
+            } else if (d->current_selection.count() > 1) {
+                // Can only delete or remove items if categories of all selected objects are not const:
+                bool has_const_category = false;
+                foreach (QObject* obj, d->current_selection) {
+                    QtilitiesCategory category = d_observer->getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
+                    Observer::AccessMode access_mode = d_observer->accessMode(category);
+                    if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
+                        has_const_category = true;
+                        break;
+                    }
+                }
+
+                // We don't need to check if the selected objects share the same parent in TableView mode, it will always be true:
+                Observer* obs = selectionParent();
+                if (obs) {
+                    d->actionRemoveAll->setEnabled(!has_const_category);
+                    d->actionDeleteAll->setEnabled(!has_const_category);
+                    d->actionSwitchView->setEnabled(true);
+                } else {
+                    d->actionRemoveAll->setEnabled(false);
+                    d->actionDeleteAll->setEnabled(false);
+                    d->actionSwitchView->setEnabled(false);
+                }
+
+                d->actionDeleteItem->setEnabled(!has_const_category);
+                d->actionRemoveItem->setEnabled(!has_const_category);
+                d->actionDeleteItem->setText("Delete Current Selection");
+                d->actionRemoveItem->setText("Detach Current Selection");
             }
         } else if (d->display_mode == TreeView) {
-            if (d->current_selection.count() == 1) {
+            if (d->current_selection.count() > 1) {
+                // Can only delete or remove items if categories of all selected objects are not const:
+                bool has_const_category = false;
+                foreach (QObject* obj, d->current_selection) {
+                    QtilitiesCategory category = d_observer->getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP).value<QtilitiesCategory>();
+                    Observer::AccessMode access_mode = d_observer->accessMode(category);
+                    if (access_mode == Observer::ReadOnlyAccess || access_mode == Observer::LockedAccess) {
+                        has_const_category = true;
+                        break;
+                    }
+                }
+
+                // We check if the selected objects share the same parent, if so we enable delete and detach all actions:
+                if (selectedObjectsContextMatch()) {
+                    Observer* obs = selectionParent();
+                    if (obs) {
+                        d->actionRemoveAll->setEnabled(!has_const_category);
+                        d->actionDeleteAll->setEnabled(!has_const_category);
+                        d->actionRemoveAll->setText(tr("Detach All Under \"") + obs->observerName() + "\"");
+                        d->actionDeleteAll->setText(tr("Delete All Under \"") + obs->observerName() + "\"");
+                        d->actionSwitchView->setEnabled(true);
+                    } else {
+                        d->actionRemoveAll->setEnabled(false);
+                        d->actionDeleteAll->setEnabled(false);
+                        d->actionSwitchView->setEnabled(false);
+                    }
+                } else {
+                    d->actionRemoveAll->setEnabled(false);
+                    d->actionDeleteAll->setEnabled(false);
+                    d->actionRemoveAll->setText(tr("Multiple Contexts Selected, Cannot Detach All"));
+                    d->actionDeleteAll->setText(tr("Multiple Contexts Selected, Cannot Delete All"));
+                    d->actionSwitchView->setEnabled(false);
+                }
+
+                d->actionDeleteItem->setEnabled(!has_const_category);
+                d->actionRemoveItem->setEnabled(!has_const_category);
+                d->actionDeleteItem->setText("Delete Current Selection");
+                d->actionRemoveItem->setText("Detach Current Selection");
+            } else if (d->current_selection.count() == 1) {
                 // Give the remove and delete item actions better text:
                 if (d->current_selection.front()) {
                     Observer* parent_obs = selectionParent();
@@ -1641,7 +1767,6 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                         d->actionRemoveItem->setText("Detach \"" + d->current_selection.front()->objectName());
                     }
                 }
-
 
                 // We can't delete the top level observer in a tree:
                 Observer* selected = qobject_cast<Observer*> (d->current_selection.front());
@@ -1727,11 +1852,6 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                         }
                     }
                 }
-            } else {
-                // Disable remove and delete all actions. We need to check if the selection is in the same
-                // context to be able to enable it.
-                d->actionRemoveAll->setEnabled(false);
-                d->actionDeleteAll->setEnabled(false);
             }
         }
     }
@@ -1748,9 +1868,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     refreshActionToolBar();
 }
 
-void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
+void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {   
     // This function will only be entered in TreeView mode.
     // It is a slot connected to the selection parent changed signal in the tree model.
+
+    // TODO: Is this going to work, the selection parent is set to 0 in the model. We should use the top level hints in the model as well
+    // and give a warning to the developer.
     if (!observer)
         observer = d->top_level_observer;
 

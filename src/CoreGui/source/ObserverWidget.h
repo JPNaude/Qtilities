@@ -451,6 +451,20 @@ categorized_widget->show();
               \sa selectedObjectsChanged()
               */
             QList<QObject*> selectedObjects() const;
+            //! Checks if all current selectedObjects() are in the same context.
+            /*!
+              \sa selectedObjectsChanged(), selectedObjects()
+              */
+            bool selectedObjectsContextMatch() const;
+            //! Checks if all current selectedObjects() share the same ObserverHints.
+            /*!
+              When selectedObjectsContextMatch() is false, this function allows you to check if all selected subjects shares the same hints. This can happen in two scenarios:
+              - When usesObserverHints() is false the hints of all subjects will always match.
+              - When the selected objects have observer parents with exactly the same hints.
+
+              \sa selectedObjectsChanged(), selectedObjects()
+              */
+            bool selectedObjectsHintsMatch() const;
             //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
             Observer* selectionParent() const;
             //! Provides a list of QModelIndexes which are currently selected. Use this call instead of the item model selection's selectedIndexes() call since this function will map the indexes from the proxy model's indexes to the real model's indexes.
