@@ -56,10 +56,11 @@ using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
 struct Qtilities::CoreGui::LoggerConfigWidgetPrivateData {
-    LoggerConfigWidgetPrivateData() : active_engine(0) {}
+    LoggerConfigWidgetPrivateData() : active_engine(0),proxyModel(0) {}
 
     qti_private_LoggerEnginesTableModel logger_engine_model;
     AbstractLoggerEngine* active_engine;
+    QSortFilterProxyModel *proxyModel;
 };
 
 Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisisble, QWidget *parent) :
@@ -89,9 +90,9 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     ui->comboGlobalLogLevel->addItems(list);
 
     // Add logger engines:
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(&d->logger_engine_model);
-    ui->tableViewLoggerEngines->setModel(proxyModel);
+    d->proxyModel = new QSortFilterProxyModel(this);
+    d->proxyModel->setSourceModel(&d->logger_engine_model);
+    ui->tableViewLoggerEngines->setModel(d->proxyModel);
     ui->tableViewLoggerEngines->setSortingEnabled(true);
     ui->tableViewLoggerEngines->verticalHeader()->setVisible(false);
     for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
@@ -187,7 +188,12 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_LoggerEngineTableClicked(con
     if (index.row() < 0 || index.row() >= Log->attachedLoggerEngineCount()) {
         d->active_engine = 0;
     } else {
-        d->active_engine = Log->loggerEngineReferenceAt(index.row());
+        QItemSelection selection = d->proxyModel->mapSelectionToSource(ui->tableViewLoggerEngines->selectionModel()->selection());
+        if (selection.count() > 0) {
+            d->active_engine = Log->loggerEngineReferenceAt(selection.indexes().front().row());
+        } else {
+            d->active_engine = 0;
+        }
     }
 
     refreshLoggerEngineInformation();
