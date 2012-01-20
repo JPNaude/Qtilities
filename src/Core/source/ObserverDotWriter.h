@@ -181,7 +181,7 @@ dotGraph.saveToFile("output_file.gv");
 \code
 digraph "Root Node" {
     label = "Graph Title";
-    0 [label="Root Node" color="red"];
+    0 [label="Root Node"];
     0 -> 1;
     0 -> 2;
     0 -> 3;
