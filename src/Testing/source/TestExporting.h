@@ -71,26 +71,42 @@ namespace Qtilities {
             // That is, exported with Qtilities_1_0 and imported with Qtilities_1_0
             // --------------------------------------------------------------------
             void testPropertyNameEncoding();
-            void testSharedProperty_1_0_1_0();
-            void testMultiContextProperty_1_0_1_0();
-            void testExportDynamicProperties_1_0_1_0();
-            void testInstanceFactoryInfo_1_0_1_0();
-            void testActivityPolicyFilter_1_0_1_0();
-            void testCategoryLevel_1_0_1_0();
-            void testNamingPolicyFilter_1_0_1_0();
-            void testQtilitiesCategory_1_0_1_0();
-            void testObserverHints_1_0_1_0();
-            void testRelationalTableEntry_1_0_1_0();
-            void testObserverRelationalTable_1_0_1_0();
-            void testSubjectTypeFilter_1_0_1_0();
-            void testTreeFileItem_1_0_1_0();
-            void testTreeItem_1_0_1_0();
-            void testCodeEditorProjectItemWrapper_1_0_1_0();
-            void testObserver_1_0_1_0();
-            void testProject_1_0_1_0();
-            void testObserverProjectItemWrapper_1_0_1_0();
-            void testExtensionSystemConfigurationFiles_1_0_1_0();
-            void testShortcutMappingFiles_1_0_1_0();
+            void testSharedProperty_w1_0_r1_0();
+            void testMultiContextProperty_w1_0_r1_0();
+            void testExportDynamicProperties_w1_0_r1_0();
+            void testInstanceFactoryInfo_w1_0_r1_0();
+            void testActivityPolicyFilter_w1_0_r1_0();
+            void testCategoryLevel_w1_0_r1_0();
+            void testNamingPolicyFilter_w1_0_r1_0();
+            void testQtilitiesCategory_w1_0_r1_0();
+            void testObserverHints_w1_0_r1_0();
+            void testRelationalTableEntry_w1_0_r1_0();
+            void testObserverRelationalTable_w1_0_r1_0();
+            void testSubjectTypeFilter_w1_0_r1_0();
+            void testTreeFileItem_w1_0_r1_0();
+            void testTreeItem_w1_0_r1_0();
+            void testCodeEditorProjectItemWrapper_w1_0_r1_0();
+            void testObserver_w1_0_r1_0();
+            void testProject_w1_0_r1_0();
+            void testObserverProjectItemWrapper_w1_0_r1_0();
+            void testExtensionSystemConfigurationFiles_w1_0_r1_0();
+            void testShortcutMappingFiles_w1_0_r1_0();
+
+            // --------------------------------------------------------------------
+            // Test Qtilities_1_1 against Qtilities_1_1
+            // That is, exported with Qtilities_1_1 and imported with Qtilities_1_1
+            //
+            // We only test the classes for which the exporting changed.
+            // --------------------------------------------------------------------
+            void testObserverHints_w1_1_r1_1();
+
+            // --------------------------------------------------------------------
+            // Test Qtilities_1_1 against Qtilities_1_0
+            // That is, exported with Qtilities_1_0 and imported with Qtilities_1_1
+            //
+            // We only test the classes for which the exporting changed.
+            // --------------------------------------------------------------------
+            void testObserverHints_w1_0_r1_1();
 
         private:
             void genericTest(IExportable* obj_source,IExportable* obj_import_binary,IExportable* obj_import_xml,Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name);
