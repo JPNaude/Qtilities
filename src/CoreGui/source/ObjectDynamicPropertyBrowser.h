@@ -63,9 +63,16 @@ namespace Qtilities {
 
           To view the properties of an object, set the object using the setObject() function and the current object can be obtained using the object() function. The properties can be displayed in different ways, defined by the BrowserType enumeration.
 
+            This widget allows you to display the following type of properties:
+            - Normal QVariant QObject properties set using setProperty() on any QObject.
+            - Qtilities::Core::SharedProperty properties.
+            - Qtilities::Core::MultiContextProperty properties. Note that the property values for all context are displayed as shown below.
+
           The widget embedded in the debug plugin is shown below for an example object.
 
           \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
+
+          \sa Qtilities::Core::ObjectPropertyBrowser
 
           <i>This class was added in %Qtilities v1.0.</i>
           */

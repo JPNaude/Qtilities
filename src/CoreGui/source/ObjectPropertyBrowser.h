@@ -67,6 +67,8 @@ namespace Qtilities {
           The widget embedded in the debug plugin is shown below for an example object.
 
           \image html debugging_static_properties.jpg "Static Properties Browser"
+
+          \sa ObjectDynamicPropertyBrowser
         */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ObjectPropertyBrowser : public QWidget
         {
