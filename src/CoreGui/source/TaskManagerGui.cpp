@@ -29,14 +29,15 @@ using namespace Qtilities::CoreGui;
 using namespace Qtilities::Logging;
 
 struct Qtilities::CoreGui::TaskManagerGuiPrivateData {
-    TaskManagerGuiPrivateData() {}
+    TaskManagerGuiPrivateData() : log_initialization(TaskManagerGui::TaskLogLazyInitialization){}
 
-    QList<QPointer<SingleTaskWidget> >  task_widgets;
+    QList<QPointer<SingleTaskWidget> >      task_widgets;
+    TaskManagerGui::TaskLogInitialization   log_initialization;
 };
 
-Qtilities::CoreGui::TaskManagerGui* Qtilities::CoreGui::TaskManagerGui::m_Instance = 0;
+Qtilities::CoreGui::TaskManagerGui* TaskManagerGui::m_Instance = 0;
 
-Qtilities::CoreGui::TaskManagerGui* Qtilities::CoreGui::TaskManagerGui::instance() {
+Qtilities::CoreGui::TaskManagerGui* TaskManagerGui::instance() {
     static QMutex mutex;
     if (!m_Instance)
     {
@@ -51,11 +52,23 @@ Qtilities::CoreGui::TaskManagerGui* Qtilities::CoreGui::TaskManagerGui::instance
     return m_Instance;
 }
 
-Qtilities::CoreGui::TaskManagerGui::TaskManagerGui() {
+TaskManagerGui::TaskManagerGui() {
     d = new TaskManagerGuiPrivateData;
 }
 
-Qtilities::CoreGui::TaskManagerGui::~TaskManagerGui() {
+void TaskManagerGui::handleObjectPoolAddition(QObject *obj) {
+    ITask* task = qobject_cast<ITask*> (obj);
+    if (!task)
+        return;
+
+    if (d->log_initialization == TaskLogActiveInitialization)
+        assignLoggerEngineToTask(task);
+    else
+        connect(task->objectBase(),SIGNAL(taskAboutToStart()),SLOT(assignLazyLoggerEngineToTask()));
+
+}
+
+TaskManagerGui::~TaskManagerGui() {
     for (int i = 0; i < d->task_widgets.count(); i++) {
         if (d->task_widgets.at(i))
             delete d->task_widgets.at(i);
@@ -63,15 +76,22 @@ Qtilities::CoreGui::TaskManagerGui::~TaskManagerGui() {
     delete d;
 }
 
-SingleTaskWidget* Qtilities::CoreGui::TaskManagerGui::singleTaskWidget(int task_id) {
+SingleTaskWidget* TaskManagerGui::singleTaskWidget(int task_id) {
     //qDebug() << "Constructing single task widget for task: " << task_id << ", Name: " << TASK_MANAGER->hasTask(task_id)->taskName();
     SingleTaskWidget* single_task_widget = new SingleTaskWidget(task_id);
     d->task_widgets << single_task_widget;
     return single_task_widget;
 }
 
-AbstractLoggerEngine* Qtilities::CoreGui::TaskManagerGui::assignLoggerEngineToTask(QObject* obj) {
-    ITask* task = qobject_cast<ITask*> (obj);
+TaskManagerGui::TaskLogInitialization TaskManagerGui::getTaskLogInitializationMode() const {
+    return d->log_initialization;
+}
+
+void TaskManagerGui::setTaskLogInitializationMode(Qtilities::CoreGui::TaskManagerGui::TaskLogInitialization log_initialization_mode) {
+    d->log_initialization = log_initialization_mode;
+}
+
+AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task) {
     if (!task)
         return 0;
 
@@ -91,4 +111,12 @@ AbstractLoggerEngine* Qtilities::CoreGui::TaskManagerGui::assignLoggerEngineToTa
     task->setLoggerEngine(log_engine);
     LOG_DEBUG("Assigning logger engine to task: " + task->taskName());
     return log_engine;
+}
+
+void TaskManagerGui::assignLazyLoggerEngineToTask() {
+    ITask* task = qobject_cast<ITask*> (sender());
+    if (task) {
+        LOG_DEBUG("Assigning lazy logger engine to task: " + task->taskName());
+        assignLoggerEngineToTask(task);
+    }
 }

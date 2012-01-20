@@ -64,19 +64,45 @@ namespace Qtilities {
             static TaskManagerGui* instance();
             virtual ~TaskManagerGui();
 
-        private:
-            TaskManagerGui();
+            //! The possible ways that TaskManagerGui can assign logger engines to tasks registered in the global object pool.
+            /*!
+              The default is TaskLogLazyInitialization.
+              */
+            enum TaskLogInitialization {
+                TaskLogLazyInitialization                 = 1, /*!< Assign task logger engines only when the task is started the first time, not when the task is registered in the global object pool. */
+                TaskLogActiveInitialization               = 2  /*!< Assign task logger engines only when the task is registered in the global object pool. */
+            };
+            Q_ENUMS(TaskLogInitialization)
+            //! Gets the task log initialization used by TaskManagerGui.
+            /*!
+              \sa setTaskLogInitializationMode
+              */
+            TaskLogInitialization getTaskLogInitializationMode() const;
+            //! Sets the task log initialization used by TaskManagerGui.
+            /*!
+              \sa getTaskLogInitializationMode
+              */
+            void setTaskLogInitializationMode(TaskLogInitialization log_initialization_mode);
 
-        public:
             //! Creates a SingleTaskWidget for the given task.
             /*!
               \param task_id The task ID for which a widget must be produced.
               */
             SingleTaskWidget* singleTaskWidget(int task_id);
 
+        private:
+            TaskManagerGui();
+
         private slots:
+            //! Slot which will inspect all objects registered in the object pool, and assign task logs to tasks according to TaskLogLazyInitialization.
+            void handleObjectPoolAddition(QObject* obj);
             //! Slot which will check if obj is a task and assign a logger engine to it if needed.
-            AbstractLoggerEngine* assignLoggerEngineToTask(QObject* obj);
+            AbstractLoggerEngine* assignLoggerEngineToTask(ITask *task);
+            //! Slot which will check is connected to the taskAboutToStart() signal on the task.
+            /*!
+              This function inspects the sender() to get the task to assign the logger engine to.
+              */
+            void assignLazyLoggerEngineToTask();
 
         private:
             static TaskManagerGui* m_Instance;
