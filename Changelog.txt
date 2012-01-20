@@ -16,6 +16,7 @@ Qtilities v1.1 Changes
     - Better support for logging to tasks.
     - IExporatble now supports setting a task to which export/import messages should be logged.
     - Fixed problems with backward compatibility in Qtilities internal exports.
+    - Added new signals on ITask: taskAboutToPause(), taskAboutToComplete(), taskSubTaskAboutToComplete(), taskAboutToStop(), taskAboutToStart(), taskAboutToResume().
 
     ============================
     QtilitiesCoreGui:
@@ -31,6 +32,8 @@ Qtilities v1.1 Changes
     - ObserverWidget got new setDragDropCopyButton() and setDragDropMoveButton() functions.
     - TreeNode::enableCategorizedDisplay got new CategoryEditingFlags property.
     - The LoggerConfigWidget now allows sorting of engines.
+    - TaskManagerGui now allows different ways of initializing task logger engines.
+    - ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
 
     ============================
     QtilitiesExtensionSystem:

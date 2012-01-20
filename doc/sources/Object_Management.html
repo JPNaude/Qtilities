@@ -21,8 +21,8 @@ Table of contents:
 	- \ref meta_type_object_management
 	.
 - \ref object_property_management
-        - \ref object_property_management_displaying
         - \ref object_property_management_working
+        - \ref object_property_management_displaying
         .
 
 </td>
@@ -127,16 +127,49 @@ The object manager provides functionality to manage global active objects in an 
 
 \section object_property_management Object Property Management
 
-%Qtilities provided various features related to QObject property management. The sections that follows will provide highlights of these features.
+%Qtilities provided various features related to QObject property management. The sections that follow will provide highlights of these features.
+
+\subsection object_property_management_working Working with object properties
+
+To make working with object properties easier, %Qtilities comes with its own property classes which all inherit from Qtilities::Core::QtilitiesProperty. This approach provides many advantages
+allowing you to control many aspects of the property. For example:
+- QtilitiesProperty inherits from IExportable, thus you can define how properties must be exported.
+- We can make interesting property types, for example Qtilities::Core::MultiContextProperty allows you to set a property on an object which has different values for different contexts. This is
+used extensively in %Qtilities and is the foundation which allows objects to be attached to multiple observers at the same time.
+
+The object manager provides many functions which helps you to work with properties on QObjects. QtilitiesProperty based classes are meant to compliment normal QVariant properties which can be set on QObjects and all the property functions provided by the object manager supports normal QVariant properties as well as
+property classes inheriting from QtilitiesProperty.
+
+Property related functionality on object manager includes:
+- Cloning of properties between objects.
+- Comparison of properties between objects.
+- Exporting and importing of properties to and from both QDataStream and QDomDocument.
+- Checking if properties exist.
+- Easy set and get functions for QtilitiesProperty derived property classes.
+
+See the static functions on Qtilities::Core::ObjectManager for more information.
 
 \subsection object_property_management_displaying Displaying object properties
 
+When %Qtilities is built using the \p QTILITIES_PROPERTY_BROWSER define enabled, the following widgets allows you to inspect properties on objects at runtime.
+
 \subsubsection object_property_management_displaying_qproperties Displaying Q_PROPERTY properties
 
+The Qtilities::CoreGui::ObjectPropertyBrowser allows you to inspect \p Q_PROPERTY properties on objects at runtime. The widget embedded in the debug plugin is shown below for an example object.
+
+\image html debugging_static_properties.jpg "Static Properties Browser"
 
 \subsubsection object_property_management_displaying_dynamic_properties Displaying dynamic properties
 
+The Qtilities::CoreGui::DynamicObjectPropertyBrowser allows you to inspect dynamic properties on QObjects at runtime. This widget allows you to display the following
+type of properties:
+- Normal QVariant QObject properties set using setProperty() on any QObject.
+- Qtilities::Core::SharedProperty properties.
+- Qtilities::Core::MultiContextProperty properties. Note that the property values for all contexts are displayed as shown below.
 
-\subsection object_property_management_working Working with object properties
+The widget embedded in the debug plugin is shown below for an example object.
+
+\image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
+
 
  */

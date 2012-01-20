@@ -32,7 +32,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
 # need the Qt Property Browser Solution.
-#  DEFINES += QTILITIES_PROPERTY_BROWSER
+DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT

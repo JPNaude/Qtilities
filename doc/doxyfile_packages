@@ -171,7 +171,6 @@ GENERATE_QHP           = YES
 QCH_FILE               = Qtilities.qch
 QHP_NAMESPACE          = Qtilities
 QHP_VIRTUAL_FOLDER     = "Qtilities Documentation"
-QHG_LOCATION           = C:\Tools\Qt\2010.03\qt\bin
 DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
 GENERATE_TREEVIEW      = NONE
@@ -184,7 +183,7 @@ HTML_COLORSYTLE_SAT    = 0
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
-GENERATE_LATEX         = YES
+GENERATE_LATEX         = NO
 LATEX_OUTPUT           = latex
 LATEX_CMD_NAME         = latex
 MAKEINDEX_CMD_NAME     = makeindex
