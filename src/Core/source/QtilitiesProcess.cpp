@@ -25,6 +25,7 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
 
     connect(d->process, SIGNAL(started()), this, SLOT(procStarted()));
     connect(this, SIGNAL(taskStopped()), this, SLOT(stopProcess()));
+
     connect(d->process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(procError(QProcess::ProcessError)));
     connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(procFinished(int, QProcess::ExitStatus)));
     connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(logProgressOutput()));

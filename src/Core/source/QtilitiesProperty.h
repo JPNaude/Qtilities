@@ -217,6 +217,11 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
 
         For more information about how MultiContextProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
 
+        Note that you can inspect all MultiContextProperty properties on an object through the Qtilities::CoreGui::DynamicObjectPropertyBrowser widget.
+        See the \p qti.core.CategoryMap property as an example below:
+
+        \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
+
         \sa Qtilities::Core::SharedProperty
         */
         class QTILIITES_CORE_SHARED_EXPORT MultiContextProperty : public QtilitiesProperty
@@ -310,8 +315,9 @@ SharedProperty string_property(property_name,"Example text");
 // For this example we don't need to make the property exportable. By default all properties are exportable.
 string_property.setIsExportable(false);
 
-// Set the property using the static convenience function provided by the observer class
+// Set the property using the static convenience function provided by the object manager:
 ObjectManager::setSharedProperty(obj,string_property);
+ObjectManager::setSharedProperty(obj,string_property,value);
 
 // Attach the object to the observer
 obs->attachSubject(obj);
@@ -333,6 +339,10 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
 \endcode
 
         For information about how SharedProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
+
+        Note that you can inspect all SharedProperty properties on an object through the Qtilities::CoreGui::DynamicObjectPropertyBrowser widget. See the example below:
+
+        \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
 
         \sa Qtilities::Core::MultiContextProperty
         */

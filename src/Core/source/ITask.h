@@ -315,7 +315,6 @@ namespace Qtilities {
                   In Qtilities::Core::Task, the task will emit startTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
 
                   \note This function must be a slot in your interface implementation and will only do something when canStart() is true.
-                  \note This function does not set the busy state of the task to busy since the success of the execution of the task will depend on the task represented by Task.
 
                   The default implementation of ITask does nothing.
                   */
@@ -426,6 +425,37 @@ namespace Qtilities {
                   \note This function must be a signal in your interface implementation.
                   */
                 virtual void newMessageLogged(const QString& message, Logger::MessageType) const = 0;
+
+                //! Signal emitted when the task is about to be paused.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskAboutToPause() const = 0;
+                //! Signal emitted when the task is about to be stopped.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskAboutToStop() const = 0;
+                //! Signal emitted when the task is about to be started.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskAboutToStart() const = 0;
+                //! Signal emitted when the task is about to be resumed from a paused state.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskAboutToResume() const = 0;
+                //! Signal emitted when the task is about to be completed.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskAboutToComplete() const = 0;
+                //! Signal emitted when a sub task is about to be completed.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void taskSubTaskAboutToComplete() const = 0;
 
             public:
                 //! Message logging function which directs messages aimed for a task to the task if the task exists, or to the logger as system wide messages if the task does not exist.

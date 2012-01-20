@@ -217,9 +217,17 @@ namespace Qtilities {
             void taskStarted(int expected_subtasks = -1, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
             void subTaskCompleted(int number_task_completed = 1, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
             void taskCompleted(ITask::TaskResult result, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
+
             void taskPaused() const;
             void taskResumed() const;
             void taskStopped() const;
+
+            void taskAboutToPause() const;
+            void taskAboutToComplete() const;
+            void taskSubTaskAboutToComplete() const;
+            void taskAboutToStop() const;
+            void taskAboutToStart() const;
+            void taskAboutToResume() const;
 
             void stateChanged(ITask::TaskState new_state, ITask::TaskState old_state) const;
             void busyStateChanged(ITask::TaskBusyState new_busy_state, ITask::TaskBusyState old_busy_state) const;
