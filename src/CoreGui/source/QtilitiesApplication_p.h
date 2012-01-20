@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+#include "HelpManager.h"
 
 #include <QMainWindow>
 #include <QPointer>
@@ -58,6 +59,9 @@ namespace Qtilities {
             Qtilities::CoreGui::Interfaces::IActionManager* actionManager() const;
             //! Function to access clipboard manager pointer.
             Qtilities::CoreGui::Interfaces::IClipboard* clipboardManager() const;
+            //! Function to access help manager pointer.
+            HelpManager *helpManager() const;
+
             //! Sets the main window reference for the application.
             void setMainWindow(QWidget* mainWindow);
             //! Gets the main window reference for the application.
@@ -65,7 +69,7 @@ namespace Qtilities {
             //! Sets the configuration widget reference for the application.
             void setConfigWidget(QWidget* configWidget);
             //! Gets the configuration widget reference for the application.
-            QWidget* configWidget();
+            QWidget* configWidget();        
 
         private:
             QtilitiesApplicationPrivate();
@@ -77,6 +81,7 @@ namespace Qtilities {
             IActionManager*         d_actionManagerIFace;
             ClipboardManager*       d_clipboardManager;
             IClipboard*             d_clipboardManagerIFace;
+            HelpManager*            d_helpManager;
         };
     }
 }

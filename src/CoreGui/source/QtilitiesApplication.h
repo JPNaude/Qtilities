@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+#include "HelpManager.h"
 
 #include <LoggingConstants>
 
@@ -95,6 +96,8 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
             static IContextManager* contextManager();
+            //! Returns a reference to the help manager.
+            static HelpManager* helpManager();
             //! Returns a reference to the action manager.
             /*!
               If you are using the action manager, you must specify a main window using setMainWindow() for
@@ -237,5 +240,6 @@ QtilitiesApplication::initialize();
 #define QtilitiesApp ((QtilitiesApplication *) QApplication::instance())
 #define ACTION_MANAGER ((QtilitiesApplication *) QApplication::instance())->actionManager()
 #define CLIPBOARD_MANAGER ((QtilitiesApplication *) QApplication::instance())->clipboardManager()
+#define HELP_MANAGER ((QtilitiesApplication *) QtilitiesApplication::instance())->helpManager()
 
 #endif // QTILITIES_APPLICATION_H

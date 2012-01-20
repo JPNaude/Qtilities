@@ -24,6 +24,7 @@ DEFINES += HELP_PLUGIN_LIBRARY
 CONFIG  += plugin
 CONFIG  += help
 
+QT += network
 QT += webkit
 
 # ------------------------------

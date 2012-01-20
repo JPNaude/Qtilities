@@ -13,6 +13,8 @@ INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
 CONFIG += qt \
     dll \
     ordered
+
+CONFIG  += help
 QT += xml
 CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
 else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
@@ -96,7 +98,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModelBuilder.h \
     source/TaskManagerGui.h \
     source/SingleTaskWidget.h \
-    source/TaskSummaryWidget.h
+    source/TaskSummaryWidget.h \
+    source/HelpManager.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -145,7 +148,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTreeModelBuilder.cpp \
     source/TaskManagerGui.cpp \
     source/SingleTaskWidget.cpp \
-    source/TaskSummaryWidget.cpp
+    source/TaskSummaryWidget.cpp \
+    source/HelpManager.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \

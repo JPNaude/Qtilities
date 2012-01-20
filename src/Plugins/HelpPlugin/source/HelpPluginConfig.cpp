@@ -35,9 +35,8 @@
 #include "ui_HelpPluginConfig.h"
 #include "HelpPluginConstants.h"
 
-#include <QtilitiesCoreApplication>
+#include <QtilitiesApplication>
 
-using namespace Qtilities::Core;
 using namespace Qtilities::Plugins::Help::Constants;
 
 Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
@@ -55,20 +54,10 @@ Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
     files_widget.show();
     files_widget.setListType(StringListWidget::FilePaths);
     files_widget.setFileOpenDialogFilter("Help Files (*.qch)");
-
-    // Read settings:
-    // Populate fields with values from QSettings
-    // TODO: We need a Help Manager in QtilitiesCore, and this must move to it.
-    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
-    settings.beginGroup("Qtilities");
-    settings.beginGroup("Help");
-    files_widget.setStringList(settings.value("registered_files").toStringList());
-    settings.endGroup();
-    settings.endGroup();
+    files_widget.setStringList(HELP_MANAGER->registeredFiles());
 }
 
-Qtilities::Plugins::Help::HelpPluginConfig::~HelpPluginConfig()
-{
+Qtilities::Plugins::Help::HelpPluginConfig::~HelpPluginConfig() {
     delete ui;
 }
 
@@ -89,12 +78,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::c
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {
-    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
-    settings.beginGroup("Qtilities");
-    settings.beginGroup("Help");
-    settings.setValue("registered_files",files_widget.stringList());
-    settings.endGroup();
-    settings.endGroup();
+    HELP_MANAGER->setRegisteredFiles(files_widget.stringList());
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {

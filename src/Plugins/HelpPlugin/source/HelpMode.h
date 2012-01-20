@@ -39,9 +39,65 @@
 #include <QMainWindow>
 #include <QUrl>
 
+#include <QNetworkProxyFactory>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
+#include <QWebPage>
+
 namespace Ui {
     class HelpMode;
 }
+
+// -- NetworkAccessManager
+
+//class NetworkAccessManager : public QNetworkAccessManager
+//{
+//    Q_OBJECT
+//public:
+//    NetworkAccessManager(QObject *parent = 0) : QNetworkAccessManager(parent) {}
+
+//public slots:
+//    void getUrl(const QUrl &url);
+
+//protected:
+//    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
+//};
+
+
+//// -- HelpNetworkAccessManager
+
+//class HelpNetworkAccessManager : public NetworkAccessManager
+//{
+//public:
+//    HelpNetworkAccessManager(QObject *parent) : NetworkAccessManager(parent) {}
+
+//protected:
+//    virtual QNetworkReply *createRequest(Operation op,
+//        const QNetworkRequest &request, QIODevice *outgoingData = 0);
+//};
+
+//// -- HelpPage
+
+//class HelpPage : public QWebPage
+//{
+//public:
+//    HelpPage(QObject *parent);
+
+//protected:
+//    virtual QWebPage *createWindow(QWebPage::WebWindowType);
+//    virtual void triggerAction(WebAction action, bool checked = false);
+
+//    virtual bool acceptNavigationRequest(QWebFrame *frame,
+//        const QNetworkRequest &request, NavigationType type);
+
+//private:
+//    bool closeNewTabIfNeeded;
+
+//    //friend class Help::Internal::HelpViewer;
+//    Qt::MouseButtons m_pressedButtons;
+//    Qt::KeyboardModifiers m_keyboardModifiers;
+//};
 
 namespace Qtilities {
     namespace Plugins {
@@ -93,8 +149,6 @@ namespace Qtilities {
                 void toggleDock(bool toggle);
                 //! Handles a new help widget. This function makes the neccessary connections.
                 void handleNewHelpWidget(QWidget* widget);
-                //! Logs warning messages from the help engine in the logger.
-                void logMessage(const QString& message);
                 //! Handles QUrl requests from the help side widgets.
                 void handleUrl(const QUrl& url);
 

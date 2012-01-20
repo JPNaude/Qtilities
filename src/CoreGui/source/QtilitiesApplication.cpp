@@ -75,7 +75,7 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
         // Register QList<QPointer<QObject> > in Meta Object System.
         qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
-        connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(assignLoggerEngineToTask(QObject*)));
+        connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
 
         //QCoreApplication::instance()->installEventFilter(this);        
     } else {
@@ -93,6 +93,10 @@ Qtilities::Core::Interfaces::IObjectManager* Qtilities::CoreGui::QtilitiesApplic
 
 Qtilities::Core::Interfaces::IContextManager* Qtilities::CoreGui::QtilitiesApplication::contextManager() {
     return QtilitiesCoreApplicationPrivate::instance()->contextManager();
+}
+
+Qtilities::CoreGui::HelpManager* Qtilities::CoreGui::QtilitiesApplication::helpManager() {
+    return QtilitiesApplicationPrivate::instance()->helpManager();
 }
 
 Qtilities::CoreGui::Interfaces::IActionManager* Qtilities::CoreGui::QtilitiesApplication::actionManager() {
@@ -144,7 +148,7 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     // Register QList<QPointer<QObject> > in Meta Object System.
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
-    connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(assignLoggerEngineToTask(QObject*)));
+    connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
 
     applicationSessionPath();
 }

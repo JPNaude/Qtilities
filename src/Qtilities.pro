@@ -19,7 +19,9 @@ SUBDIRS    += ExtensionSystem
 SUBDIRS    += ProjectManagement
 SUBDIRS    += Testing
 
-OTHER_FILES += ../doc/sources/Action_Management.html
+OTHER_FILES += ../doc/sources/Action_Management.html \
+    ../doc/sources/Whats_New_v1_0.html \
+    ../doc/sources/Whats_New_v1_1.html
 OTHER_FILES += ../doc/sources/Documentation_Overview.html
 OTHER_FILES += ../doc/sources/Examples_And_Plugins.html
 OTHER_FILES += ../doc/sources/Extension_System.html
@@ -39,7 +41,6 @@ OTHER_FILES += ../doc/sources/Widget_Set.html
 OTHER_FILES += ../doc/sources/Serializing_Overview.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_0.html
 OTHER_FILES += ../doc/sources/Serializing_Types_1_1.html
-OTHER_FILES += ../doc/sources/Whats_New.html
 OTHER_FILES += ../doc/sources/Tasking.html
 OTHER_FILES += ../doc/sources/Debugging_Qtilities_Applications.html
 OTHER_FILES += ../Read Me First.txt
