@@ -34,11 +34,15 @@ Qtilities v1.1 Changes
     - The LoggerConfigWidget now allows sorting of engines.
     - TaskManagerGui now allows different ways of initializing task logger engines.
     - ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
+    - ObserverWidget can now be used under the name TreeWidget as well.
+    - IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
+    - IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
     - Improved error message when a plugin could not be loaded on Linux.
+    - Added documentation showing how to check for core plugins when an application starts.
 
     ============================
     QtilitiesProjectManagement:
@@ -49,16 +53,18 @@ Qtilities v1.1 Changes
     ============================
     QtilitiesTesting:
     ============================
+    - Extended exporting unit tests in order to test new Qtilities::Qtilities_1_1 export version on all classes for which the export version changed.
 
     ============================
     Plugins:
     ============================
+    - Added Help plugin.
 
     ============================
     Examples:
     ============================
     - Object Management Example:
-        - Fixed the object management not showing anymore.
+        - Fixed the object management mode not showing anymore.
     - Tree Building Example:
         - Much improved, now shows different trees under seperate tabs.
 
