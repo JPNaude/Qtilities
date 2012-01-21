@@ -3360,6 +3360,8 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
     if (indexes.isEmpty()) {
         viewExpandAll();
         return;
+    } else {
+        viewCollapseAll();
     }
 
     if (d->tree_view && d->display_mode == Qtilities::TreeView) {
