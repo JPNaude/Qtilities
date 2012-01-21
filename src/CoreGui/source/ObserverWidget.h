@@ -276,11 +276,15 @@ categorized_widget->show();
             void adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight);
             //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
             void handleTreeModelBuildAboutToStart();
+            //! Slot which listens for the expanded() signal on the tree view if in Qtilities::TreeView mode in order to emit the latest expansion details using expandedNodesChanged().
+            void handleExpanded(const QModelIndex & index);
 
         public slots:
             //! Expand all nodes for which their display names matches the \p node_names parameters.
             /*!
               If any name in node_names does not exist in the tree it is ignored.
+
+              \param node_names The node names to expand. When empty, viewExpandAll() will be called.
 
               \sa findExpandedItems();
               */
@@ -289,11 +293,15 @@ categorized_widget->show();
             /*!
               If any name in node_names does not exist in the tree it is ignored.
 
+              \param indexes The indexes to expand. When empty, viewExpandAll() will be called.
+
               \sa findExpandedItems();
               */
             void expandNodes(QModelIndexList indexes);
 
         signals:
+            //! Signal which is emitted when the expanded nodes changes.
+            void expandedNodesChanged(const QStringList& node_names);
             //! Signal which is emitted when the observer context of this widget changes.
             void observerContextChanged(Observer* new_context);
             //! Signal which is emitted when this widget's read only state changes.

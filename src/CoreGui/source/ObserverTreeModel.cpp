@@ -1295,7 +1295,8 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
             emit selectObjects(QList<QPointer<QObject> >());
 
         // Restore expanded items:
-        emit expandItemsRequest(findExpandedNodeIndexes(d->expanded_items));
+        QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
+        emit expandItemsRequest(expanded_indexes);
     }
 }
 
@@ -1581,6 +1582,8 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTre
     for (int i = 0; i < item->childCount(); i++) {
         getAllIndexes(item->child(i));
     }
+
+    indexes << findObject(d->rootItem);
 
     return indexes;
 }
