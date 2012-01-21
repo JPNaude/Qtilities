@@ -235,7 +235,7 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
 
         if (task_ref) {
             task_ref->setDisplayName(tr("Closed Project"));
-            task_ref->completeTask(ITask::TaskSuccessful);
+            task_ref->completeTask();
         }
     }
     return true;
@@ -280,7 +280,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         if (task_ref) {
             QFileInfo fi(file_name);
             task_ref->setDisplayName(tr("Opened Project: ") + fi.fileName());
-            task_ref->completeTask(ITask::TaskFailed);
+            task_ref->completeTask();
         }
 
         return false;
@@ -294,7 +294,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     if (task_ref) {
         QFileInfo fi(file_name);
         task_ref->setDisplayName(tr("Opened Project: ") + fi.fileName());
-        task_ref->completeTask(ITask::TaskSuccessful);
+        task_ref->completeTask();
     }
 
     return true;
@@ -355,7 +355,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
         if (task_ref) {
             QFileInfo fi(file_name);
             task_ref->setDisplayName(tr("Saved Project: ") + fi.fileName());
-            task_ref->completeTask(ITask::TaskSuccessful);
+            task_ref->completeTask();
         }
 
         return true;
@@ -367,7 +367,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
     if (task_ref) {
         QFileInfo fi(file_name);
         task_ref->setDisplayName(tr("Saved Project: ") + fi.fileName());
-        task_ref->completeTask(ITask::TaskFailed);
+        task_ref->completeTask();
     }
 
     return false;
