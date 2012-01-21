@@ -78,7 +78,8 @@ Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::c
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {
-    HELP_MANAGER->setRegisteredFiles(files_widget.stringList());
+    HELP_MANAGER->clearRegisterFiles();
+    HELP_MANAGER->registerFiles(files_widget.stringList());
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {

@@ -36,9 +36,9 @@
 #include "HelpMode.h"
 #include "HelpPluginConfig.h"
 
-#include <ExtensionSystemConstants.h>
+#include <ExtensionSystemConstants>
 #include <Qtilities.h>
-#include <QtilitiesCoreApplication.h>
+#include <QtilitiesCoreApplication>
 
 #include <QtPlugin>
 #include <QIcon>

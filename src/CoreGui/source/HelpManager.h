@@ -64,19 +64,57 @@ namespace Qtilities {
 
             //! Returns a help engine to use in your application.
             /*!
-              The help plugin uses this same engine.
+              Make sure you call initialize() before using the help engine. The help plugin uses this same engine.
               */
             QHelpEngine* helpEngine();
-            //! Sets the registered files in the help engine.
-            void setRegisteredFiles(const QStringList& files);
+            //! Initializes the help engine.
+            /*!
+              Initialize will set up the internal help engine and start indexing of all documentation registered in the manager.
+
+              */
+            void initialize();
+
+            //! Register files in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
+            void clearRegisterFiles(bool initialize_after_change = true);
+            //! Register files in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
+            void registerFiles(const QStringList& files, bool initialize_after_change = true);
+            //! Registers a file in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
+            void registerFile(const QString &file, bool initialize_after_change = true);
             //! Gets the registered files in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
             QStringList registeredFiles() const;
+            //! Unregister files in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
+            void unregisterFiles(const QStringList& files, bool initialize_after_change = true);
+            //! Unregisters a file in the help engine.
+            /*!
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              */
+            void unregisterFile(const QString& file, bool initialize_after_change = true);
 
         private slots:
             //! Logs warning messages from the help engine in the logger.
             void logMessage(const QString& message);
 
         private:
+            //! Reads the help settings.
+            void readSettings(bool initialize_after_change = true);
+            //! Writes the help settings.
+            void writeSettings();
+
             HelpManagerPrivateData* d;
         };
     }
