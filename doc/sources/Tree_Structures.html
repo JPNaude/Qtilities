@@ -160,7 +160,7 @@ rootNode->addItem("Child 3",QtilitiesCategory("Category 2"));
 rootNode->addItem("Child 4",QtilitiesCategory("Category 2"));
 rootNode->addItem("Child 5",QtilitiesCategory("Category 2"));
 
-ObserverWidget* categorized_widget = new ObserverWidget(rootNode);
+TreeWidget* categorized_widget = new TreeWidget(rootNode);
 categorized_widget->show();
 \endcode
 
@@ -248,7 +248,7 @@ nodeC->addItem("Item 6")->setToolTip("Hello, I'm a ToolTip text");
 nodeC->addItem("Item 7")->setCategory(QtilitiesCategory("Category 1"),nodeC);
 
 // Create an observer widget with the items:
-ObserverWidget* tree_widget = new ObserverWidget(nodeA);
+TreeWidget* tree_widget = new TreeWidget(nodeA);
 tree_widget->show();
 \endcode
 
@@ -349,26 +349,7 @@ if (!tableA.compare(tableB)) {
 }
 \endcode
 
-We can also export detailed information about a table to a QDataStream and read it back at a later time.
-
-\code
-QTemporaryFile test_file;
-test_file.open();
-QDataStream test_stream_out(&test_file);
-tableA.exportBinary(test_stream_out);
-test_file.close();
-
-test_file.open();
-QDataStream test_stream_in(&test_file);
-ObserverRelationalTable readback_table;
-readback_table.importBinary(test_stream_in);
-test_file.close();
-if (tableA.compare(readback_table)) {
-  // We will always get here since the table was compared to itself.
-}
-\endcode
-
-The exporting and importing of table information is very useful when validating trees after they are imported. For more information about observer importing and exporting see Qtilities::Core::Interfaces::IExportable and Qtilities::Core::IObjectManager::exportObserverBinary().
+We can also export detailed information about a tree to files are read them back at a later time. See Qtilities::CoreGui::TreeNode::saveToFile() for more information.
 
 \subsection trees_lifetime_monitoring Trees automatically monitor the lifetime of objects in it
 

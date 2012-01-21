@@ -109,12 +109,12 @@ using namespace QtilitiesCore;
 Observer* observerA = new Observer;
 
 // Create the objects
-QPointer<QObject> object1 = new QObject();
-QPointer<QObject> object2 = new QObject();
+QPointer<QObject> object1 = new QObject;
+QPointer<QObject> object2 = new QObject;
 
 // Attach objects to observers
 observerA->attachSubject(object1);
-observerA->attachSubject(object2);
+observerA << object2;
 \endcode
 
 \subsection sharing_objects Object sharing: Attaching an object to multiple contexts
@@ -142,7 +142,7 @@ int parent_count_1 = Observer::parentCount(object1);
 QList<Observer*> parents_object1 = Observer::parentReferences(object1);
 \endcode
 
-Now each object will be attached both observer A and observer B. The above code example also shows how to get the references to an object's parents, and how to get the number of subjects inside an observer context along with and their references.
+The above code example also shows how to get the references to an object's parents, and how to get the number of subjects inside an observer context along with and their references.
 
 \subsection observer_subject_IDs Observer & Subject IDs: Accessing objects using unique IDs
 
