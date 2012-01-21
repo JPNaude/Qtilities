@@ -101,7 +101,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_e
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
-    d->build_lock.lock();
+    QMutexLocker locker(&d->build_lock);
 
     // Get number of children under observer tree:
     Observer* obs = qobject_cast<Observer*> (d->root_item->getObject());
@@ -121,7 +121,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
 
     d->task.completeTask(ITask::TaskSuccessful);
     //printStructure(root_item);
-    d->build_lock.unlock();
     emit buildCompleted(d->root_item);
 }
 

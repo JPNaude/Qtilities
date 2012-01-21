@@ -129,6 +129,11 @@ namespace Qtilities {
             QModelIndex findObject(QObject* obj) const;
             //! Function to get the model index of a category. If the category does not exist, QModelIndex() is returned.
             QModelIndex findCategory(QtilitiesCategory category) const;
+            //! Finds the matching QModelIndex indexes for all nodes with display names specified by \p node_names.
+            /*!
+              \sa Qtilities::CoreGui::ObserverWidget::expandedNodeNames()
+              */
+            QModelIndexList findExpandedNodeIndexes(const QStringList& node_names) const;
 
         public slots:
             //! When the observer context changes, this function will take note of the change and when needed, the model will rebuild the internal tree structure using rebuildTreeStructure();
@@ -217,7 +222,7 @@ namespace Qtilities {
             //! Slot which receives ready-built ObserverTreeItem from ObserverTreeModelBuilder.
             void receiveBuildObserverTreeItem(ObserverTreeItem* item);
 
-        private:
+        protected:
             //! Recursive function used by findObject() to traverse through the tree trying to find an object.
             QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
             //! Recursive function to get the ObserverTreeItem associacted with an object.
@@ -228,10 +233,8 @@ namespace Qtilities {
             //! Recursive function to get the ObserverTreeItem associacted with a category.
             ObserverTreeItem* findCategory(ObserverTreeItem* item, QtilitiesCategory category) const;
             //! Deletes all tree items, starting with the root item.
-
             void deleteRootItem();
 
-        protected:
             ObserverTreeModelData* d;
         };
     }

@@ -343,7 +343,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             } else {
                 // We might get in here when a view tries to repaint itself (for example when a message box dissapears above it) befire
                 // the tree has been rebuilt properly.
-                return tr("Invalid object");
+                return tr("Invalid object. Refresh needed...");
             }
         // ------------------------------------
         // Qt::CheckStateRole
@@ -938,33 +938,29 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                     return true;
                 }
             } else {
-                // Try to attach it:
-                QString error_msg;
-                // TODO: This is wrong??? Why does it work? Must be obs?
-                if (d_observer->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg) == Observer::Allowed) {
-                    // Now check the proposed action of the event.
-                    if (observer_mime_data->dropAction() == Qt::MoveAction) {
-                        // Attempt to move the dragged objects:
-                        OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
-                    } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
-                        // Attempt to copy the dragged objects:
-                        // Either do all or nothing:
-                        if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),0,true) != Observer::Rejected) {
-                            QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
-                            if (dropped_list.count() != observer_mime_data->subjectList().count()) {
-                                LOG_WARNING(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
-                            } else {
-                                LOG_INFO(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
-                            }
+                // Now check the proposed action of the event.
+                if (observer_mime_data->dropAction() == Qt::MoveAction) {
+                    // Attempt to move the dragged objects:
+                    OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
+                    // Attempt to copy the dragged objects:
+                    // Either do all or nothing:
+                    QString error_msg;
+                    if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg,true) != Observer::Rejected) {
+                        QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
+                        if (dropped_list.count() != observer_mime_data->subjectList().count()) {
+                            LOG_WARNING_P(QString(tr("The drop operation completed partially. %1/%2 objects were drop successfully.").arg(dropped_list.count()).arg(observer_mime_data->subjectList().count())));
+                        } else {
+                            LOG_INFO_P(QString(tr("The drop operation completed successfully on %1 objects.").arg(dropped_list.count())));
                         }
-                    }
-                } else
-                    LOG_ERROR(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context. Error message: ") + error_msg));
+                    } else
+                        LOG_ERROR_P(QString(tr("The drop operation could not be completed. All objects could not be accepted by the destination context. Error message: ") + error_msg));
+                }
             }
         } else
-            LOG_ERROR(QString(tr("The drop operation could not be completed. The clipboard manager does not contain a valid mime data object.")));
+            LOG_ERROR_P(QString(tr("The drop operation could not be completed. The clipboard manager does not contain a valid mime data object.")));
     } else
-        LOG_ERROR(QString(tr("The drop operation could not be completed. A suitable context to place your dropped data in could not be found.")));
+        LOG_ERROR_P(QString(tr("The drop operation could not be completed. A suitable context to place your dropped data in could not be found.")));
 
     CLIPBOARD_MANAGER->clearMimeData();
     return true;
@@ -1221,6 +1217,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     d->tree_model_up_to_date = false;
 
     emit treeModelBuildStarted(d->tree_builder.taskID());
+    QApplication::processEvents();
     deleteRootItem();
     QVector<QVariant> columns;
     columns.push_back(QString(tr("Child Count")));
@@ -1298,12 +1295,7 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
             emit selectObjects(QList<QPointer<QObject> >());
 
         // Restore expanded items:
-        QModelIndexList complete_match_list;
-        foreach (QString item, d->expanded_items) {
-            complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item),1,Qt::MatchRecursive));
-            complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item + "*"),1,Qt::MatchRecursive));
-        }
-        emit expandItemsRequest(complete_match_list);
+        emit expandItemsRequest(findExpandedNodeIndexes(d->expanded_items));
     }
 }
 
@@ -1324,7 +1316,6 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
         emit selectionParentChanged(d->selection_parent);
         return d->selection_parent;
     } else if (index_list.count() > 1) {
-        qDebug() << "Multiple selection, determining parent.";
         Observer* parent = 0;
         bool match = true;
 
@@ -1338,6 +1329,8 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
                 break;
             }
         }
+
+        //qDebug() << "Multiple selection, determining parent. Is the same:" << match;
 
         // Only pass on the selection parent if the selected objects are all in the same context:
         if (match) {
@@ -1357,6 +1350,9 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
             return 0;
         }
     } else {
+        d->selection_parent = 0;
+        model->hints_selection_parent = 0;
+        emit selectionParentChanged(0);
         return 0;
     }
 }
@@ -1557,6 +1553,15 @@ void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
 
     delete d->rootItem;
     d->rootItem = 0;
+}
+
+QModelIndexList Qtilities::CoreGui::ObserverTreeModel::findExpandedNodeIndexes(const QStringList& node_names) const {
+    QModelIndexList complete_match_list;
+    foreach (QString item, node_names) {
+        complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item),1,Qt::MatchRecursive));
+        complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item + "*"),1,Qt::MatchRecursive));
+    }
+    return complete_match_list;
 }
 
 QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTreeItem* item) const {

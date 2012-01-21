@@ -252,8 +252,15 @@ categorized_widget->show();
               \sa setReadOnly(), readOnlyStateChanged()
               */
             bool readOnly() const;
-            //! Finds all expanded items in the current view and set this information on the tree model.
-            void findExpandedItems() const;
+            //! Finds all expanded items in the current view.
+            /*!
+                This information is set on the tree model and returned as well.
+
+                \note Only usefull when displayMode() is Qtilities::TreeView.
+
+                \sa expandNodes);
+                */
+            QStringList findExpandedItems() const;
 
         private slots:
             void contextDeleted();
@@ -267,10 +274,24 @@ categorized_widget->show();
             void hideProgressInfo(bool emit_tree_build_completed = true);
             //! Adapts the size of columns when data changes.
             void adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight);
-            //! Handles expand item requests from tree model.
-            void handleExpandItemsRequest(QModelIndexList match_items);
             //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
             void handleTreeModelBuildAboutToStart();
+
+        public slots:
+            //! Expand all nodes for which their display names matches the \p node_names parameters.
+            /*!
+              If any name in node_names does not exist in the tree it is ignored.
+
+              \sa findExpandedItems();
+              */
+            void expandNodes(const QStringList& node_names);
+            //! Expand all nodes specified by the indexes in \p indexes.
+            /*!
+              If any name in node_names does not exist in the tree it is ignored.
+
+              \sa findExpandedItems();
+              */
+            void expandNodes(QModelIndexList indexes);
 
         signals:
             //! Signal which is emitted when the observer context of this widget changes.
@@ -671,6 +692,12 @@ categorized_widget->show();
               \sa selectionParent(), selectedObjects(), selectedObjectsChanged(), setConfirmDeletes(), confirmDeletes()
               */
             virtual void selectionDeleteAll();
+
+        private:
+            void selectionRemoveItems(bool delete_items);
+            void selectionRemoveAll(bool delete_all);
+
+        public slots:
             //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
             virtual void handle_actionNewItem_triggered();
             //! Refreshes the current item view.
@@ -837,6 +864,9 @@ categorized_widget->show();
             Ui::ObserverWidget *ui;
             ObserverWidgetData* d;
         };
+
+        //! Makes ObserverWidget available under the name TreeWidget.
+        typedef ObserverWidget TreeWidget;
     }
 }
 
