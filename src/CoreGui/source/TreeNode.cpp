@@ -70,11 +70,11 @@ Qtilities::CoreGui::TreeNode::~TreeNode() {
     delete nodeData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
     return saveFormattingToXML(doc,object_node,version);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
     return loadFormattingFromXML(doc,object_node,version);
 }
 
@@ -364,7 +364,7 @@ bool Qtilities::CoreGui::TreeNode::removeNode(TreeItemBase* node) {
     return detachSubject(node);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::saveToFile(const QString& file_name, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
     QFile file(file_name);
     if (!file.open(QFile::WriteOnly)) {
         if (errorMsg)
@@ -394,7 +394,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     // ---------------------------------------------------
     QDomElement rootItem = doc.createElement("Root");
     root.appendChild(rootItem);
-    IExportable::Result result = exportXmlExt(&doc,&rootItem,export_flags);
+    IExportable::ExportResultFlags result = exportXmlExt(&doc,&rootItem,export_flags);
     if (result == IExportable::Failed && errorMsg)
         *errorMsg = QString(tr("XML exporting on the observer base class failed. Please see the log for details."));
 
@@ -408,7 +408,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::s
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::loadFromFile(const QString& file_name, QString* errorMsg, bool clear_first) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::loadFromFile(const QString& file_name, QString* errorMsg, bool clear_first) {
     if (clear_first)
         deleteAll();
 
@@ -484,7 +484,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     // ---------------------------------------------------
     // Do the actual import:
     // ---------------------------------------------------
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
     QList<QPointer<QObject> > internal_import_list;
     QDomNodeList childNodes = root.childNodes();
     for(int i = 0; i < childNodes.count(); i++) {
@@ -500,7 +500,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
                 setObjectName(child.attribute("Name"));
 
             // Do import on observer base class:
-            IExportable::Result intermediate_result = importXml(&doc,&child,internal_import_list);
+            IExportable::ExportResultFlags intermediate_result = importXml(&doc,&child,internal_import_list);
             if (intermediate_result == IExportable::Failed) {
                 if (errorMsg)
                     *errorMsg = QString(tr("XML importing on the observer base class failed. Please see the log for details."));
@@ -529,17 +529,17 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
     return result;
 }
 
-//IExportable::Result Qtilities::CoreGui::TreeNode::saveToString(QString* target_string, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
+//IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::saveToString(QString* target_string, QString* errorMsg, ObserverData::ExportItemFlags export_flags) const {
 //    // Save it to a temp file and read back the file:
 //    if (!target_string) {
 //        if (errorMsg)
 //            *errorMsg = "Invalid target string pointer.";
-//        return IExportable::Result;
+//        return IExportable::ExportResultFlags;
 //    }
 
 //    QTemporaryFile file;
 //    if (file.open()) {
-//        IExportable::Result result = saveToFile(file.fileName(),errorMsg,export_flags);
+//        IExportable::ExportResultFlags result = saveToFile(file.fileName(),errorMsg,export_flags);
 //        *target_string = file.readAll();
 //        return result;
 //    }
@@ -549,11 +549,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
 //    return IExportable::Failed;
 //}
 
-//IExportable::Result Qtilities::CoreGui::TreeNode::loadFromString(QString* target_string, QString* errorMsg, bool clear_first) {
+//IExportable::ExportResultFlags Qtilities::CoreGui::TreeNode::loadFromString(QString* target_string, QString* errorMsg, bool clear_first) {
 //    if (!target_string) {
 //        if (errorMsg)
 //            *errorMsg = "Invalid target string pointer.";
-//        return IExportable::Result;
+//        return IExportable::ExportResultFlags;
 //    }
 
 
@@ -561,7 +561,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeNode::l
 
 //    QTemporaryFile file;
 //    if (file.open()) {
-//        IExportable::Result result = saveToFile(file.fileName(),errorMsg,export_flags);
+//        IExportable::ExportResultFlags result = saveToFile(file.fileName(),errorMsg,export_flags);
 //        *target_string = file.readAll();
 //        return result;
 //    }

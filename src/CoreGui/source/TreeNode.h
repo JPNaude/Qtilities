@@ -181,8 +181,8 @@ tree_widget->show();
             // --------------------------------
             // IExportableFormatting Implementation
             // --------------------------------
-            IExportable::Result exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
-            IExportable::Result importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);           
+            IExportable::ExportResultFlags exportFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
+            IExportable::ExportResultFlags importFormattingXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);
 
             // --------------------------------
             // AbstractTreeItem virtual overwrites
@@ -394,7 +394,7 @@ tree_widget->show();
 
               \sa loadFromFile()
               */
-            IExportable::Result saveToFile(const QString& file_name, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
+            IExportable::ExportResultFlags saveToFile(const QString& file_name, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
             //! Loads the tree under this tree node from an XML file.
             /*!
               \param file_name The file name from which the tree must be loaded.
@@ -404,7 +404,7 @@ tree_widget->show();
 
               \sa saveToFile()
               */
-            IExportable::Result loadFromFile(const QString& file_name, QString* errorMsg = 0, bool clear_first = true);
+            IExportable::ExportResultFlags loadFromFile(const QString& file_name, QString* errorMsg = 0, bool clear_first = true);
 
 //            //! Saves the tree under this tree node to an XML file.
 //            /*!
@@ -414,7 +414,7 @@ tree_widget->show();
 
 //              \sa loadFromString()
 //              */
-//            IExportable::Result saveToString(QString* target_string, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
+//            IExportable::ExportResultFlags saveToString(QString* target_string, QString* errorMsg = 0, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const;
 //            //! Loads the tree under this tree node from an XML file.
 //            /*!
 //              \param file_name The file name from which the tree must be loaded.
@@ -424,7 +424,7 @@ tree_widget->show();
 
 //              \sa saveToString()
 //              */
-//            IExportable::Result loadFromString(QString* target_string, QString* errorMsg = 0, bool clear_first = true);
+//            IExportable::ExportResultFlags loadFromString(QString* target_string, QString* errorMsg = 0, bool clear_first = true);
 
             // --------------------------------
             // IObjectBase Implemenation

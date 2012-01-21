@@ -109,7 +109,11 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::ProjectManagement::CodeEditorPro
     return InstanceFactoryInfo();
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     if (!d->code_editor)
         return IExportable::Failed;
 
@@ -119,9 +123,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {   
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {   
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (!d->code_editor)
@@ -134,7 +138,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     if (d->code_editor) {
         // Add a new node for this code editor. We don't want it to add its factory data
         // to the ProjectItem node.
@@ -150,12 +158,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::C
         return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (d->code_editor) {

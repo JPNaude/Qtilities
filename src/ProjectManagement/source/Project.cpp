@@ -102,7 +102,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         time(&start);
         #endif
         IExportable::setExportTask(task);
-        IExportable::Result success = exportXml(&doc,&root);
+        IExportable::ExportResultFlags success = exportXml(&doc,&root);
         IExportable::clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -155,7 +155,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         time(&start);
         #endif
         IExportable::setExportTask(task);
-        IExportable::Result success = exportBinary(stream);
+        IExportable::ExportResultFlags success = exportBinary(stream);
         IExportable::clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -235,7 +235,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         time(&start);
         #endif
         setExportTask(task);
-        IExportable::Result success = importXml(&doc,&root,import_list);
+        IExportable::ExportResultFlags success = importXml(&doc,&root,import_list);
         clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -293,7 +293,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         time(&start);
         #endif
         setExportTask(task);
-        IExportable::Result success = importBinary(stream,import_list);
+        IExportable::ExportResultFlags success = importBinary(stream,import_list);
         clearExportTask();
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -449,7 +449,7 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::ProjectMana
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::Project::exportBinary(QDataStream& stream) const {
     // ---------------------------------------------------
     // Save file format information:
     // ---------------------------------------------------
@@ -471,12 +471,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // Do the actual export:
     // ---------------------------------------------------
     LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
-    IExportable::Result success = IExportable::Complete;
+    IExportable::ExportResultFlags success = IExportable::Complete;
     for (int i = 0; i < d->project_items.count(); i++) {
         if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
             LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
             d->project_items.at(i)->setExportTask(exportTask());
-            IExportable::Result item_result = d->project_items.at(i)->exportBinary(stream);
+            IExportable::ExportResultFlags item_result = d->project_items.at(i)->exportBinary(stream);
             d->project_items.at(i)->clearExportTask();
 
             if (item_result == IExportable::Failed) {
@@ -495,7 +495,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     return success;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::Project::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
 
     // ---------------------------------------------------
     // Inspect file format:
@@ -560,7 +560,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
 
     // Now stream each project part.
     int int_count = project_item_count;
-    IExportable::Result success = IExportable::Complete;
+    IExportable::ExportResultFlags success = IExportable::Complete;
     for (int i = 0; i < int_count; i++) {
         if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
             LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
@@ -568,7 +568,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
             d->project_items.at(i)->setApplicationExportVersion(application_read_version);
 
             d->project_items.at(i)->setExportTask(exportTask());
-            IExportable::Result item_result = d->project_items.at(i)->importBinary(stream, import_list);
+            IExportable::ExportResultFlags item_result = d->project_items.at(i)->importBinary(stream, import_list);
             d->project_items.at(i)->clearExportTask();
 
             if (item_result == IExportable::Failed) {
@@ -592,7 +592,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     return success;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::Project::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     // ---------------------------------------------------
     // Save file format information:
     // ---------------------------------------------------
@@ -605,14 +605,14 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // ---------------------------------------------------
     // Do the actual export:
     // ---------------------------------------------------
-    IExportable::Result success = IExportable::Complete;
+    IExportable::ExportResultFlags success = IExportable::Complete;
     for (int i = 0; i < d->project_items.count(); i++) {
         QString name = d->project_items.at(i)->projectItemName();
         QDomElement itemRoot = doc->createElement("ProjectItem_" + QString::number(i));
         itemRoot.setAttribute("Name",name);
         object_node->appendChild(itemRoot);
         d->project_items.at(i)->setExportTask(exportTask());
-        IExportable::Result item_result = d->project_items.at(i)->exportXml(doc,&itemRoot);
+        IExportable::ExportResultFlags item_result = d->project_items.at(i)->exportXml(doc,&itemRoot);
         d->project_items.at(i)->clearExportTask();
         if (item_result == IExportable::Failed) {
             success = item_result;
@@ -626,7 +626,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     return success;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::Project::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::Project::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     // ---------------------------------------------------
     // Inspect file format:
     // ---------------------------------------------------
@@ -670,7 +670,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::ProjectManagement::P
     // ---------------------------------------------------
     // Do the actual import:
     // ---------------------------------------------------
-    IExportable::Result success = IExportable::Complete;
+    IExportable::ExportResultFlags success = IExportable::Complete;
     QDomNodeList itemNodes = object_node->childNodes();
     for(int i = 0; i < itemNodes.count(); i++) {
         QDomNode itemNode = itemNodes.item(i);

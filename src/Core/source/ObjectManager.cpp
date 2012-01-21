@@ -323,7 +323,7 @@ QList<QPointer<QObject> > Qtilities::Core::ObjectManager::metaTypeActiveObjects(
 
 quint32 MARKER_PROPERTY_EXPORT = 0xDEADBEEF;
 
-IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesBinary(const QObject* obj, QDataStream& stream, PropertyTypeFlags property_types, Qtilities::ExportVersion version) {
+IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPropertiesBinary(const QObject* obj, QDataStream& stream, PropertyTypeFlags property_types, Qtilities::ExportVersion version) {
     if (!obj)
         return IExportable::Failed;
 
@@ -383,7 +383,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesBinary
     return IExportable::Complete;
 }
 
-IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesBinary(QObject* obj, QDataStream& stream) {
+IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPropertiesBinary(QObject* obj, QDataStream& stream) {
     if (!obj)
         return IExportable::Failed;
 
@@ -447,7 +447,7 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesBinary
     return IExportable::Complete;
 }
 
-IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(const QObject* obj, QDomDocument* doc, QDomElement* object_node, PropertyTypeFlags property_types, Qtilities::ExportVersion version) {
+IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPropertiesXml(const QObject* obj, QDomDocument* doc, QDomElement* object_node, PropertyTypeFlags property_types, Qtilities::ExportVersion version) {
     if (!obj)
         return IExportable::Failed;
 
@@ -499,7 +499,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(co
     property_node.setAttribute("ExportVersion",QString::number(version));
     property_node.setAttribute("QtilitiesVersion",QtilitiesCoreApplication::qtilitiesVersionString());
 
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
 
     // Save all the properties:
     // Shared Properties:
@@ -508,7 +508,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(co
         QDomElement current_node = doc->createElement("PropertyS_" + QString::number(i));
         property_node.appendChild(current_node);
 
-        IExportable::Result intermediate_result = properties_shared.at(i).exportXml(doc,&current_node);
+        IExportable::ExportResultFlags intermediate_result = properties_shared.at(i).exportXml(doc,&current_node);
         if (intermediate_result == IExportable::Failed)
             return intermediate_result;
 
@@ -522,7 +522,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(co
         QDomElement current_node = doc->createElement("PropertyM_" + QString::number(i));
         property_node.appendChild(current_node);
 
-        IExportable::Result intermediate_result = properties_multi_context.at(i).exportXml(doc,&current_node);
+        IExportable::ExportResultFlags intermediate_result = properties_multi_context.at(i).exportXml(doc,&current_node);
         if (intermediate_result == IExportable::Failed)
             return intermediate_result;
 
@@ -547,7 +547,7 @@ IExportable::Result Qtilities::Core::ObjectManager::exportObjectPropertiesXml(co
     return result;
 }
 
-IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QObject* obj, QDomDocument* doc, QDomElement* object_node) {
+IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPropertiesXml(QObject* obj, QDomDocument* doc, QDomElement* object_node) {
     if (!obj)
         return IExportable::Failed;
 
@@ -555,7 +555,7 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
     QList<MultiContextProperty> properties_multi_context;
     QMap<QString,QVariant> properties_normal;
 
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
 
     QDomNodeList itemNodes = object_node->childNodes();
     for(int i = 0; i < itemNodes.count(); i++) {
@@ -603,7 +603,7 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
                 // TODO : Check counts against imported property counts.
                 if (property.tagName().startsWith("PropertyS")) {
                     SharedProperty prop;
-                    IExportable::Result intermediate_result = prop.importXml(doc,&property,import_list);
+                    IExportable::ExportResultFlags intermediate_result = prop.importXml(doc,&property,import_list);
                     if (intermediate_result == IExportable::Failed)
                         return intermediate_result;
                     if (intermediate_result == IExportable::Incomplete)
@@ -614,7 +614,7 @@ IExportable::Result Qtilities::Core::ObjectManager::importObjectPropertiesXml(QO
                     continue;
                 } else if (property.tagName().startsWith("PropertyM")) {
                     MultiContextProperty prop;
-                    IExportable::Result intermediate_result = prop.importXml(doc,&property,import_list);
+                    IExportable::ExportResultFlags intermediate_result = prop.importXml(doc,&property,import_list);
                     if (intermediate_result == IExportable::Failed)
                         return intermediate_result;
                     if (intermediate_result == IExportable::Incomplete)

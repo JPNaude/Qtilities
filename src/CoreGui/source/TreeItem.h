@@ -89,10 +89,10 @@ namespace Qtilities {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
             TreeItemPrivateData* d;

@@ -145,10 +145,10 @@ namespace Qtilities {
                 // IExportable Implementation
                 // --------------------------------
                 virtual ExportModeFlags supportedFormats() const;
-                virtual IExportable::Result exportBinary(QDataStream& stream ) const;
-                virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-                virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-                virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+                virtual IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+                virtual IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+                virtual IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+                virtual IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
                 //! Converts a QString type_string and QString value_string to a matching QVariant.
                 static QVariant constructVariant(const QString& type_string, const QString& value_string);
@@ -281,13 +281,13 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             // IExportable Implementation
             // --------------------------------
             virtual ExportModeFlags supportedFormats() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            virtual IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
             /*!
               This function will add a set of attributes directly to the object_node passed to it.
               */
-            virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
             QMap<quint32,QVariant>  context_map;
@@ -382,13 +382,13 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            virtual IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            virtual IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
             /*!
               This function will add a set of attributes directly to the object_node passed to it.
               */
-            virtual IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:
             QVariant property_value;

@@ -655,7 +655,11 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Na
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::NamingPolicyFilter::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     stream << (quint32) d->uniqueness_policy;
     stream << (quint32) d->uniqueness_resolution_policy;
     stream << (quint32) d->validity_resolution_policy;
@@ -665,11 +669,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::NamingPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
      
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     quint32 ui32;
@@ -687,8 +691,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::NamingPolicyFilter::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
+
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
 
     object_node->setAttribute("UniquenessPolicy",uniquenessPolicyToString(d->uniqueness_policy));
     object_node->setAttribute("ValidityResolutionPolicy",resolutionPolicyToString(d->validity_resolution_policy));
@@ -698,12 +706,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolic
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::NamingPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {    
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::NamingPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {    
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (object_node->hasAttribute("NewSubjectActivityPolicy"))

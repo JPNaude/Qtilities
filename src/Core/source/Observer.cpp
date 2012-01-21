@@ -271,27 +271,27 @@ void Qtilities::Core::Observer::setApplicationExportVersion(quint32 version) {
     observerData->setApplicationExportVersion(version);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::exportBinary(QDataStream& stream) const {
     return observerData->exportBinary(stream);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     return observerData->importBinary(stream,import_list);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     return observerData->exportXml(doc,object_node);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     return observerData->importXml(doc,object_node,import_list);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags) const {
     return observerData->exportBinaryExt(stream,export_flags);
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Observer::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Observer::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags) const {
     return observerData->exportXmlExt(doc,object_node,export_flags);
 }
 
@@ -444,9 +444,8 @@ void Qtilities::Core::Observer::endTreeProcessingCycle(bool broadcast) {
     QList<QObject*> obj_list = treeChildren();
     for (int i = 0; i < obj_list.count(); i++) {
         Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
-        if (obs) {
+        if (obs)
             obs->endProcessingCycle(false);
-        }
     }
 
     endProcessingCycle(broadcast);

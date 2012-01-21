@@ -68,9 +68,13 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::CoreGui::Tr
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeFileItem::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     // 1.1 Formatting:
-    IExportable::Result result = saveFormattingToXML(doc,object_node,exportVersion());
+    IExportable::ExportResultFlags result = saveFormattingToXML(doc,object_node,exportVersion());
 
     // 1.2 File Information:
     QDomElement file_data = doc->createElement("FileInfo");
@@ -81,15 +85,15 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
     return result;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileItem::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::TreeFileItem::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    IExportable::Result result = IExportable::Incomplete;
+    IExportable::ExportResultFlags result = IExportable::Incomplete;
 
     QDomNodeList dataNodes = object_node->childNodes();
     for(int i = 0; i < dataNodes.count(); i++) {
@@ -116,7 +120,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::CoreGui::TreeFileIte
         }
     }
 
-    IExportable::Result formatting_result = loadFormattingFromXML(doc,object_node,exportVersion());
+    IExportable::ExportResultFlags formatting_result = loadFormattingFromXML(doc,object_node,exportVersion());
     if (formatting_result != IExportable::Complete)
         result = formatting_result;
 

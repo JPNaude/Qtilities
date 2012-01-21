@@ -255,10 +255,10 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
             // IModificationNotifier Implemenation

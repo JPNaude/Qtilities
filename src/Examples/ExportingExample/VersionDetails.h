@@ -77,8 +77,8 @@ namespace Qtilities {
                 // --------------------------------
                 ExportModeFlags supportedFormats() const;
                 InstanceFactoryInfo instanceFactoryInfo() const;
-                Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-                Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+                IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+                IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
                 // --------------------------------
                 // Factory Interface Implemenation

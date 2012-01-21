@@ -125,7 +125,7 @@ void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Tree
     }
 }
 
-IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
+IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {
     Q_UNUSED(version)
 
     QDomElement formatting_data = doc->createElement("Formatting");
@@ -172,7 +172,7 @@ IExportable::Result Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QD
     return IExportable::Complete;
 }
 
-IExportable::Result Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
+IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormattingFromXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) {
     Q_UNUSED(doc)
     Q_UNUSED(version)
 

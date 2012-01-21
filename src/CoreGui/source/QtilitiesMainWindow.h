@@ -204,8 +204,16 @@ int main(int argc, char *argv[])
             //! Restores the state of the main window.
             void readSettings();
             //! Function to enabled priority messages in the status bar of the main window.
+            /*!
+              Enabled by default.
+
+              \sa disablePriorityMessages();
+              */
             void enablePriorityMessages();
             //! Function to disable priority messages in the status bar of the main window.
+            /*!
+              \sa enablePriorityMessages();
+              */
             void disablePriorityMessages();
 
         public slots:

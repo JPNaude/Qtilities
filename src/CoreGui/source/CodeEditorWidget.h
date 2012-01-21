@@ -82,7 +82,7 @@ code_editor.codeEditor()->setReadOnly(true);
         \image html example_main_window.jpg "Example Of Main Window Architecture"
 
         The CodeEditorWidget contains a search & replace box as well as a range of actions which is registered in the action manager
-        and available through the Qtilities::Core::Interfaces::IActionProvider interface. For example we can provide the user with toolbar actions to save a file
+        and available through the Qtilities::CoreGui::Interfaces::IActionProvider interface. For example we can provide the user with toolbar actions to save a file
         and to load a file like this:
 
 \code

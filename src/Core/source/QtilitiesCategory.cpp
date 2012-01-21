@@ -47,33 +47,41 @@ Qtilities::Core::IExportable::ExportModeFlags Qtilities::Core::CategoryLevel::su
     return flags;
 }
 
-Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportBinary(QDataStream& stream) const {
+Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     stream << d_name;
     return IExportable::Complete;
 }
 
-Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     stream >> d_name;
     return IExportable::Complete;
 }
 
-Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     Q_UNUSED(doc)
 
     object_node->setAttribute("Name",d_name);
     return IExportable::Complete;
 }
 
-Qtilities::Core::IExportable::Result Qtilities::Core::CategoryLevel::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (object_node->hasAttribute("Name")) {
@@ -175,7 +183,11 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Qtili
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::QtilitiesCategory::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     stream << (quint32) accessMode();
     stream << (quint32) categoryDepth();
     bool all_successful = true;
@@ -189,9 +201,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
         return IExportable::Failed;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::QtilitiesCategory::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
      
     quint32 ui32;
@@ -210,7 +222,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
         return IExportable::Failed;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::QtilitiesCategory::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     object_node->setAttribute("AccessMode",d_access_mode);
     object_node->setAttribute("Depth",d_category_levels.count());
     bool all_successful = true;
@@ -227,12 +243,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCateg
         return IExportable::Failed;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::QtilitiesCategory::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::QtilitiesCategory::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     int depth_readback = 0;

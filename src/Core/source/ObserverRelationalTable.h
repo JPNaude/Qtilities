@@ -125,10 +125,10 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:
             QString intListToString(QList<int> list) const;
@@ -319,10 +319,10 @@ for (int i = 0; i < table.count(); i++) {
             // IExportable Implementation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         private:
             //! Returns true if all the objects in the pointer list matches the objects in the table using the visitor ID property on each object. This comparison does not take any relational data into account.

@@ -54,13 +54,13 @@ namespace Qtilities {
                 IExportableObserver() {}
                 virtual ~IExportableObserver() {}
 
-                virtual IExportable::Result exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const {
+                virtual IExportable::ExportResultFlags exportBinaryExt(QDataStream& stream, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const {
                     Q_UNUSED(stream)
                     Q_UNUSED(export_flags)
 
                     return IExportable::Complete;
                 }
-                virtual IExportable::Result exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const {
+                virtual IExportable::ExportResultFlags exportXmlExt(QDomDocument* doc, QDomElement* object_node, ObserverData::ExportItemFlags export_flags = ObserverData::ExportData) const {
                     Q_UNUSED(doc)
                     Q_UNUSED(object_node)
                     Q_UNUSED(export_flags)

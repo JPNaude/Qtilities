@@ -48,27 +48,27 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Inter
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Interfaces::IExportable::exportBinary(QDataStream& stream ) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Interfaces::IExportable::exportBinary(QDataStream& stream ) const {
     Q_UNUSED(stream)
 
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Interfaces::IExportable::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Interfaces::IExportable::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(stream)
     Q_UNUSED(import_list)
 
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Interfaces::IExportable::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Interfaces::IExportable::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
 
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::Interfaces::IExportable::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Interfaces::IExportable::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(object_node)
     Q_UNUSED(import_list)

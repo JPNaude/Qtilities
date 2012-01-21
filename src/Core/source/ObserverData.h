@@ -135,27 +135,27 @@ namespace Qtilities {
             void setExportVersion(Qtilities::ExportVersion version);
             void setExportTask(ITask* task);
             void clearExportTask();
-            IExportable::Result exportBinary(QDataStream& stream) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
             // Extended Access Call Functions From Observer
             // --------------------------------
             //! Extended binary export function.
-            IExportable::Result exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const;
+            IExportable::ExportResultFlags exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const;
             //! Extended XML export function.
-            IExportable::Result exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
+            IExportable::ExportResultFlags exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
 
             // --------------------------------
             // Export Implementations For Different Qtilities Versions
             // --------------------------------
         private:
-            IExportable::Result exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const;
-            IExportable::Result importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            IExportable::Result exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
-            IExportable::Result importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const;
+            IExportable::ExportResultFlags importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const;
+            IExportable::ExportResultFlags importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             //! Construct relationships between a list of objects with the relational data being passed to the function as a RelationalObserverTable.
             bool constructRelationships(QList<QPointer<QObject> >& objects, ObserverRelationalTable* table) const;

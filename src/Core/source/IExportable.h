@@ -65,7 +65,7 @@ namespace Qtilities {
 
             Any object that implements this interface can specify which of the above export formats it supports through the supportedFormats() function. The interface also allows you to provide the needed information about reconstructing your object through the instanceFactoryInfo() function. In short, this allows your object to specify the factory that should be used to reconstruct it as well as the factory tag to use in that factory. For a detailed overview of the factory architecture used in %Qtilities, please refer to \ref page_factories.
 
-            In your own applications you can easily implement this interface in order to make your objects reconstructable and exportable throughout %Qtilities. For example if you implement this interface in an object and attach that object to an Qtilities::Core::Observer, the observer's export function will automatically make your object part of their exports. All export and import functions returns the result of their operation in the form of Qtilities::Core::Interfaces::IExportable::Result.
+            In your own applications you can easily implement this interface in order to make your objects reconstructable and exportable throughout %Qtilities. For example if you implement this interface in an object and attach that object to an Qtilities::Core::Observer, the observer's export function will automatically make your object part of their exports. All export and import functions returns the result of their operation in the form of Qtilities::Core::Interfaces::IExportable::ExportResultFlags.
 
             Lets look at the two export formats in detail.
 
@@ -148,11 +148,11 @@ int main(int argc, char *argv[])
             Here only the export and import functions will be shown. First, the export function which shows how the function handles different application versions.
 
 \code
-IExportable::Result VersionDetails::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+IExportable::ExportResultFlags VersionDetails::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     if (applicationExportVersion() < 0)
-        return IExportable::FailedTooOld;
+        return IExportable::VersionTooOld;
     if (applicationExportVersion() > 2)
-        return IExportable::FailedTooNew;
+        return IExportable::VersionTooNew;
 
     // Create a simple node and add our information to it:
     QDomElement revision_data = doc->createElement("RevisionInfo");
@@ -175,21 +175,21 @@ IExportable::Result VersionDetails::exportXml(QDomDocument* doc, QDomElement* ob
             And next the import function which checks the application export version again. In this case the version will be set to the version of the file that is parsed.
 
 \code
-IExportable::Result VersionDetails::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+IExportable::ExportResultFlags VersionDetails::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
     if (applicationExportVersion() < 0)
-        return IExportable::FailedTooOld;
+        return IExportable::VersionTooOld;
     if (applicationExportVersion() > 2)
-        return IExportable::FailedTooNew;
+        return IExportable::VersionTooNew;
 
     // If we want to log messages here, we do it using the LOG_TASK macros since
     // the exportTask() might have been set on IExportable. For example:
     LOG_TASK_INFO("Importing VersionDetails...",exportTask());
 
     // Find our RevisionInfo element:
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
     QDomNodeList childNodes = object_node->childNodes();
     for(int i = 0; i < childNodes.count(); i++) {
         QDomNode childNode = childNodes.item(i);
@@ -301,15 +301,20 @@ int main(int argc, char *argv[])
                 };
                 Q_DECLARE_FLAGS(ExportModeFlags, ExportMode);
                 Q_FLAGS(ExportModeFlags);
+                Q_ENUMS(ExportMode)
 
                 //! The possible results of an export/import operation.
                 enum Result {
-                    Complete,     /*!< Complete when all the information was successfully exported/imported. */
-                    Incomplete,   /*!< Incomplete when some information could not be exported/imported. An example of this is when an Observer exports itself. When only a subset of the subjets observed by the observer implements the IExportable interface the Observer will return Partial because it was only exported partially. */
-                    Failed,       /*!< Failed when an error occured. The operation must be aborted in this case. */
-                    FailedTooNew, /*!< Failed because the import format is too new. The operation must be aborted in this case. */
-                    FailedTooOld  /*!< Failed because the import format is too old. The operation must be aborted in this case. */
+                    Complete = 0,           /*!< Complete when all the information was successfully exported/imported. */
+                    Incomplete = 1,         /*!< Incomplete when some information could not be exported/imported. An example of this is when an Observer exports itself. When only a subset of the subjets observed by the observer implements the IExportable interface the Observer will return Partial because it was only exported partially. */
+                    Failed = 2,             /*!< Failed when an error occured. The import/export must be aborted in this case. */
+                    FailedContinue = 4,     /*!< Failed when an error occured. The import/export can continue in this case. */
+                    VersionTooNew = 8,      /*!< Failed because the import format is too new. The import/export can continue in this case. */
+                    VersionTooOld = 16,     /*!< Failed because the import format is too old. The import/export can continue in this case. */
+                    VersionSupported = 32   /*!< Flag indicating that an export version is supported by the current version of the application. */
                 };
+                Q_DECLARE_FLAGS(ExportResultFlags, Result);
+                Q_FLAGS(ExportResultFlags);
                 Q_ENUMS(Result)
 
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
@@ -399,7 +404,7 @@ int main(int argc, char *argv[])
 
                     \param stream A reference to the QDataStream to which the object's information must be appended is provided.
                   */
-                virtual Result exportBinary(QDataStream& stream) const;
+                virtual ExportResultFlags exportBinary(QDataStream& stream) const;
                 //! Allows importing and reconstruction of the object state from information provided in a QDataStream.
                 /*!
                     See \ref page_serializing_overview for more information about the expected output format.
@@ -407,22 +412,44 @@ int main(int argc, char *argv[])
                     \param stream The QDataStream which contains the object's information.
                     \param import_list All objects constructed during the import operation must be added to the import list. When the operation fails, all objects in this list will be deleted.
                     */
-                virtual Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+                virtual ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
 
                 //----------------------------
                 // Check Qtilities Export Version
                 //----------------------------
                 //! Checks the exportVersion() against the supported %Qtilities export versions for the current %Qtilities version.
+                /*!
+                  \param export_version The export version to check.
+                  \param task A task to which a compatibility message should be logged if its too new or too old.
+                  \returns IExportable::VersionSupported when the version is supported, IExportable::VersionTooOld when the version is too new, IExportable::VersionTooOld when the version is too old.
+                  */
                 static Result validateQtilitiesExportVersion(Qtilities::ExportVersion export_version, ITask* task = 0) {
                     if (export_version < Qtilities::Qtilities_1_0) {
-                        LOG_TASK_ERROR(QObject::tr("Failed import object. The Qtilities export version detected in the input data (version ") + (int) export_version + QObject::tr(") is too old."),task);
-                        return IExportable::FailedTooOld;
+                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + (int) export_version + QObject::tr(") is too old."),task);
+                        return IExportable::VersionTooOld;
                     } else if (export_version > Qtilities::Qtilities_Latest) {
-                        LOG_TASK_ERROR(QObject::tr("Failed import object. The Qtilities export version detected in the input data (version ") + (int) export_version + QObject::tr(") is too new."),task);
-                        return IExportable::FailedTooNew;
+                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + (int) export_version + QObject::tr(") is too new."),task);
+                        return IExportable::VersionTooNew;
                     }
 
-                    return IExportable::Complete;
+                    return IExportable::VersionSupported;
+                }
+                //! Checks the exportVersion() against the supported %Qtilities import versions for the current %Qtilities version.
+                /*!
+                  \param import_version The import version to check.
+                  \param task A task to which a compatibility message should be logged if its too new or too old.
+                  \returns IExportable::VersionSupported when the version is supported, IExportable::VersionTooOld when the version is too new, IExportable::VersionTooOld when the version is too old.
+                  */
+                static Result validateQtilitiesImportVersion(Qtilities::ExportVersion import_version, ITask* task = 0) {
+                    if (import_version < Qtilities::Qtilities_1_0) {
+                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too old."),task);
+                        return IExportable::VersionTooOld;
+                    } else if (import_version > Qtilities::Qtilities_Latest) {
+                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too new."),task);
+                        return IExportable::VersionTooNew;
+                    }
+
+                    return IExportable::VersionSupported;
                 }
 
                 //----------------------------
@@ -432,12 +459,12 @@ int main(int argc, char *argv[])
                 /*!
                     See \ref page_serializing_overview for more information about the expected output format.
                   */
-                virtual Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
+                virtual ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
                 //! Allows importing and reconstruction of data from information provided in a XML document. A reference to the QDomElement which contains the object's information is provided, along with a reference to the QDomDocument.
                 /*!
                     See \ref page_serializing_overview for more information about the expected output format.
                   */
-                virtual Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+                virtual ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
                 //----------------------------
                 // Enum <-> String Functions
@@ -457,6 +484,7 @@ int main(int argc, char *argv[])
             };
 
             Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportModeFlags)
+            Q_DECLARE_OPERATORS_FOR_FLAGS(IExportable::ExportResultFlags)
         }
     }
 }

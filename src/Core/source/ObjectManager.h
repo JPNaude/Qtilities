@@ -198,22 +198,22 @@ namespace Qtilities {
               To use this function make sure that all the QVariant properties have the streaming << / >> operators overloaded.
               This is the case for all properties used in %Qtilities.
               */
-            static IExportable::Result exportObjectPropertiesBinary(const QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            static IExportable::ExportResultFlags exportObjectPropertiesBinary(const QObject* obj, QDataStream& stream, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
             //! Streams exportable dynamic properties from the given data stream and add them to the QObject.
             /*!
               \note Conflicting properties will be replaced.
               */
-            static IExportable::Result importObjectPropertiesBinary(QObject* obj, QDataStream& stream);
+            static IExportable::ExportResultFlags importObjectPropertiesBinary(QObject* obj, QDataStream& stream);
             //! Exports all exportable dynamic properties about the object to the given QDomDocument and QDomElement.
             /*!
               To use this function make sure that all the QVariants are exportable. See QtilitiesProperty::isExportableVariant() for more information.
               */
-            static IExportable::Result exportObjectPropertiesXml(const QObject* obj, QDomDocument* doc, QDomElement* object_node, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
+            static IExportable::ExportResultFlags exportObjectPropertiesXml(const QObject* obj, QDomDocument* doc, QDomElement* object_node, PropertyTypeFlags property_types = AllPropertyTypes, Qtilities::ExportVersion version = Qtilities::Qtilities_Latest);
             //! Streams exportable dynamic properties from the given QDomDocument and QDomElement and then add them to the QObject.
             /*!
               \note Conflicting properties will be replaced.
               */
-            static IExportable::Result importObjectPropertiesXml(QObject* obj, QDomDocument* doc, QDomElement* object_node);
+            static IExportable::ExportResultFlags importObjectPropertiesXml(QObject* obj, QDomDocument* doc, QDomElement* object_node);
             //! Streams exportable dynamic properties from the given QDomDocument and QDomElement and then add them to the QObject.
             /*!
               \note Conflicting properties will be replaced.

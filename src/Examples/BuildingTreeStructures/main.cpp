@@ -47,9 +47,47 @@ int main(int argc, char *argv[])
 
     // We need to set a QWidget as the application's main window in order for proxy actions to work:
     QTabWidget* tab_widget = new QTabWidget;
-    QtilitiesApplication::setMainWindow(tab_widget);
+    QtilitiesMainWindow mainWindow;
+    mainWindow.enablePriorityMessages();
+    mainWindow.setCentralWidget(tab_widget);
+    QtilitiesApplication::setMainWindow(&mainWindow);
 
     LOG_INITIALIZE();
+
+    // ----------------------------------
+    // Uncategorized Tree
+    // ------------------------------------
+    TreeNode* rootNodeUncategorized = new TreeNode("Root");
+    //rootNodeUncategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+    rootNodeUncategorized->displayHints()->setActionHints(ObserverHints::ActionAllHints);
+    rootNodeUncategorized->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+
+    TreeNode* parentNode1 = rootNodeUncategorized->addNode("Parent 1");
+    parentNode1->copyHints(rootNodeUncategorized->displayHints());
+    TreeNode* parentNode2 = rootNodeUncategorized->addNode("Parent 2");
+    // Not copying the hints here allows demonstration of multiple selections with different parent hints:
+    //parentNode2->copyHints(rootNodeUncategorized->displayHints());
+    TreeNode* parentNode3 = rootNodeUncategorized->addNode("Parent 3");
+    parentNode3->copyHints(rootNodeUncategorized->displayHints());
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode1->addItem("Child 3");
+    parentNode1->addItem("Child 4");
+    parentNode1->addItem("Child 5");
+    parentNode2->addItem("Child 6");
+    parentNode2->addItem("Child 7");
+    parentNode2->addItem("Child 8");
+    parentNode2->addItem("Child 9");
+    parentNode2->addItem("Child 10");
+    parentNode3->addItem("Child 11");
+    parentNode3->addItem("Child 12");
+    parentNode3->addItem("Child 13");
+    parentNode3->addItem("Child 14");
+    parentNode3->addItem("Child 15");
+
+    TreeWidget* uncategorized_widget = new TreeWidget(rootNodeUncategorized);
+    tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
+    uncategorized_widget->show();
 
     // ------------------------------------
     // Categorized Tree
@@ -57,8 +95,8 @@ int main(int argc, char *argv[])
     TreeNode* rootNodeCategorized = new TreeNode("Root");
     rootNodeCategorized->enableCategorizedDisplay();
     // TODO: This breaks the toolbar for some reason... Looks like a display issue since it only happens in QTabWidget:
-//    rootNodeCategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
-//    rootNodeCategorized->displayHints()->setActionHints(ObserverHints::ActionRefreshView);
+    rootNodeCategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+    rootNodeCategorized->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     rootNodeCategorized->displayHints()->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels | ObserverHints::CategoriesAcceptSubjectDrops);
     rootNodeCategorized->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
     rootNodeCategorized->addItem("Child 1",QtilitiesCategory("Category 1::A",QString("::")));
@@ -68,25 +106,9 @@ int main(int argc, char *argv[])
     TreeItem* modified_item = rootNodeCategorized->addItem("Child 5",QtilitiesCategory("Category 2"));
     rootNodeCategorized->displayHints()->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
     modified_item->setModificationState(true);
-    ObserverWidget* categorized_widget = new ObserverWidget(rootNodeCategorized);
+    TreeWidget* categorized_widget = new TreeWidget(rootNodeCategorized);
     tab_widget->addTab(categorized_widget,QIcon(),"Categorized Tree");
     categorized_widget->show();
-
-    // ----------------------------------
-    // Uncategorized Tree
-    // ------------------------------------
-    TreeNode* rootNodeUncategorized = new TreeNode("Root");
-    TreeNode* parentNode1 = rootNodeUncategorized->addNode("Parent 1");
-    TreeNode* parentNode2 = rootNodeUncategorized->addNode("Parent 2");
-    parentNode1->addItem("Child 1");
-    parentNode1->addItem("Child 2");
-    parentNode2->addItem("Child 3");
-    parentNode2->addItem("Child 4");
-    parentNode2->addItem("Child 5");
-
-    ObserverWidget* uncategorized_widget = new ObserverWidget(rootNodeUncategorized);
-    tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
-    uncategorized_widget->show();
 
     // ----------------------------------
     // Tree With Subject Filters
@@ -102,12 +124,12 @@ int main(int argc, char *argv[])
     parentNode2WithSubjectFilters->addItem("Child 3");
     parentNode2WithSubjectFilters->addItem("Child 4");
 
-    ObserverWidget* subject_filters_widget = new ObserverWidget(rootNodeWithSubjectFilters);
+    TreeWidget* subject_filters_widget = new TreeWidget(rootNodeWithSubjectFilters);
     tab_widget->addTab(subject_filters_widget,QIcon(),"Tree With Subject Filters");
     subject_filters_widget->show();
 
     /*rootNode->saveToFile(QtilitiesApplication::applicationSessionPath() + "/example_tree.xml");
-    ObserverWidget* uncategorized_widget = new ObserverWidget(rootNode);
+    TreeWidget* uncategorized_widget = new TreeWidget(rootNode);
     uncategorized_widget->show();*/
 
     /*TreeNode* node = new TreeNode("Root Node");
@@ -181,11 +203,13 @@ int main(int argc, char *argv[])
     QString path_test = QString("%1/working_tree.xml").arg(QtilitiesApplication::applicationSessionPath());
     nodeAFormatting->addNodeFromFile(path_test);*/
 
-    ObserverWidget* formatted_widget = new ObserverWidget(nodeAFormatting);
+    TreeWidget* formatted_widget = new TreeWidget(nodeAFormatting);
     tab_widget->addTab(formatted_widget,QIcon(),"Tree With Formatting");
     formatted_widget->show();
 
-    tab_widget->resize(600,500);
     tab_widget->show();
+
+    mainWindow.resize(600,500);
+    mainWindow.show();
     return a.exec();
 }

@@ -622,7 +622,11 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverHints::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     stream << (quint32) d->observer_selection_context;
     stream << (quint32) d->naming_control;
     stream << (quint32) d->activity_display;
@@ -655,9 +659,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverHints::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    Q_UNUSED(import_list)
+
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
      
     quint32 qi32;
@@ -711,7 +717,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverHints::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     // Export hints:
     if (d->action_hints != ActionNoHints)
         object_node->setAttribute("ActionHints",actionHintsToString(d->action_hints));
@@ -771,11 +781,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints:
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverHints::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverHints::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
      
     // Hints:

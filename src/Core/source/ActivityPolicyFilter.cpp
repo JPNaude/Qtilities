@@ -749,7 +749,11 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Activ
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ActivityPolicyFilter::exportBinary(QDataStream& stream) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
+
     stream << (quint32) d->activity_policy;
     stream << (quint32) d->minimum_activity_policy;
     stream << (quint32) d->new_subject_activity_policy;
@@ -759,11 +763,11 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ActivityPolicyFilter::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     quint32 ui32;
@@ -780,8 +784,12 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ActivityPolicyFilter::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     Q_UNUSED(doc)
+
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
 
     object_node->setAttribute("ActivityPolicy",activityPolicyToString(d->activity_policy));
     object_node->setAttribute("MinimumActivityPolicy",minimumActivityPolicyToString(d->minimum_activity_policy));
@@ -792,21 +800,13 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicy
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ActivityPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ActivityPolicyFilter::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
-
-    if (exportVersion() < Qtilities::Qtilities_1_0) {
-        LOG_TASK_ERROR(tr("Failed to ActivityPolicyFilter import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too old."),exportTask());
-        return IExportable::FailedTooOld;
-    } else if (exportVersion() > Qtilities::Qtilities_Latest) {
-        LOG_TASK_ERROR(tr("Failed to ActivityPolicyFilter import from XML document. The Qtilities export version detected in the input data (version ") + (int) exportVersion() + tr(") is too new."),exportTask());
-        return IExportable::FailedTooNew;
-    }
 
     if (object_node->hasAttribute("ActivityPolicy"))
         d->activity_policy = stringToActivityPolicy(object_node->attribute("ActivityPolicy"));

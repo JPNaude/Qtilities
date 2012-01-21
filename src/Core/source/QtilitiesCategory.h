@@ -91,13 +91,13 @@ namespace Qtilities {
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             /*!
               This function adds a category level node under \p object_node with all the information about this category level.
               */
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             //! The name of the category level.
             QString                 d_name;
@@ -295,13 +295,13 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             // --------------------------------
             ExportModeFlags supportedFormats() const;
             void setExportVersion(Qtilities::ExportVersion version);
-            IExportable::Result exportBinary(QDataStream& stream ) const;
-            IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             /*!
               This function adds a category node under \p object_node with all the information about this category.
               */
-            IExportable::Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            IExportable::Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
         protected:
             QList<CategoryLevel>    d_category_levels;

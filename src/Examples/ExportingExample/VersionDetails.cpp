@@ -113,11 +113,10 @@ Qtilities::Core::InstanceFactoryInfo Qtilities::Examples::ExportingExample::Vers
     return factoryData;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingExample::VersionDetails::exportXml(QDomDocument* doc, QDomElement* object_node) const {
-    //if (applicationExportVersion() < 0)
-    //    return IExportable::FailedTooOld;
-    if (applicationExportVersion() > 2)
-        return IExportable::FailedTooNew;
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Examples::ExportingExample::VersionDetails::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
+        return version_check_result;
 
     // Create a simple node and add our information to it:
     QDomElement revision_data = doc->createElement("RevisionInfo");
@@ -136,21 +135,16 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingE
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Examples::ExportingExample::VersionDetails::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Examples::ExportingExample::VersionDetails::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     Q_UNUSED(doc)
     Q_UNUSED(import_list)
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    //if (applicationExportVersion() < 0)
-    //    return IExportable::FailedTooOld;
-    if (applicationExportVersion() > 2)
-        return IExportable::FailedTooNew;
-
     // Find our RevisionInfo element:
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
     QDomNodeList childNodes = object_node->childNodes();
     for(int i = 0; i < childNodes.count(); i++) {
         QDomNode childNode = childNodes.item(i);

@@ -112,18 +112,18 @@ Qtilities::Core::Interfaces::IExportable::ExportModeFlags Qtilities::Core::Obser
     return flags;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinary(QDataStream& stream) const {
     #ifdef QTILITIES_BENCHMARKING
     time_t start,end;
     time(&start);
     #endif
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
-        IExportable::Result result = exportBinaryExt_1_0(stream,ExportData);
+        IExportable::ExportResultFlags result = exportBinaryExt_1_0(stream,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -135,18 +135,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     #ifdef QTILITIES_BENCHMARKING
     time_t start,end;
     time(&start);
     #endif
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
-        IExportable::Result result = importBinaryExt_1_0(stream,import_list);
+        IExportable::ExportResultFlags result = importBinaryExt_1_0(stream,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -158,18 +158,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXml(QDomDocument* doc, QDomElement* object_node) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportXml(QDomDocument* doc, QDomElement* object_node) const {
     #ifdef QTILITIES_BENCHMARKING
     time_t start,end;
     time(&start);
     #endif
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
-        IExportable::Result result = exportXmlExt_1_0(doc,object_node,ExportData);
+        IExportable::ExportResultFlags result = exportXmlExt_1_0(doc,object_node,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -181,18 +181,18 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     return IExportable::Incomplete;
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     #ifdef QTILITIES_BENCHMARKING
     time_t start,end;
     time(&start);
     #endif
 
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
-        IExportable::Result result = importXmlExt_1_0(doc,object_node,import_list);
+        IExportable::ExportResultFlags result = importXmlExt_1_0(doc,object_node,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
         double diff = difftime(end,start);
@@ -204,9 +204,9 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     return IExportable::Incomplete;
 }
 
-IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const {
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& stream, ExportItemFlags export_flags) const {
+        IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
@@ -215,9 +215,9 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt(QDataStream& 
     return IExportable::Incomplete;
 }
 
-IExportable::Result Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
-    IExportable::Result version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
-    if (version_check_result != IExportable::Complete)
+IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(exportVersion(),exportTask());
+    if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
     if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
@@ -226,7 +226,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportXmlExt(QDomDocument* do
     return IExportable::Incomplete;
 }
 
-IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const {
+IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStream& stream, ExportItemFlags export_flags) const {
     stream << MARKER_OBS_DATA_SECTION;
     // Export the flags used:
     stream << (quint32) export_flags;
@@ -399,7 +399,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStre
             }
 
             // Check if it is an observer:
-            IExportable::Result result;
+            IExportable::ExportResultFlags result;
             Observer* obs = qobject_cast<Observer*> (iface->objectBase());
             if (obs) {
                 ExportItemFlags child_obs_flags = export_flags;
@@ -441,7 +441,7 @@ IExportable::Result Qtilities::Core::ObserverData::exportBinaryExt_1_0(QDataStre
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::importBinaryExt_1_0(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
     observer->startProcessingCycle();
 
     quint32 ui32;
@@ -610,7 +610,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
                             // Check if it is an observer: if so we must use internal_import_list, not import_list:
                             Observer* obs = qobject_cast<Observer*> (export_iface->objectBase());
-                            IExportable::Result result;
+                            IExportable::ExportResultFlags result;
                             if (obs) {
                                 obs->setExportTask(exportTask());
                                 result = obs->importBinary(stream,internal_import_list);
@@ -689,10 +689,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, ExportItemFlags export_flags) const {
     object_node->setAttribute("ExportFlags",QString::number(export_flags));
 
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
     bool complete = true;
 
     ObserverRelationalTable* relational_table = 0;
@@ -897,7 +897,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
                     export_iface->setExportVersion(exportVersion());
                     export_iface->setApplicationExportVersion(applicationExportVersion());
 
-                    IExportable::Result intermediate_result;
+                    IExportable::ExportResultFlags intermediate_result;
                     if (obs) {
                         ExportItemFlags child_obs_flags = export_flags;
                         child_obs_flags &= ~ExportRelationalData;
@@ -914,7 +914,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
                     export_iface->clearExportTask();
 
-                    if (intermediate_result == IExportable::Failed || intermediate_result == IExportable::FailedTooNew || intermediate_result == IExportable::FailedTooOld) {
+                    if (intermediate_result == IExportable::Failed || intermediate_result == IExportable::VersionTooOld || intermediate_result == IExportable::VersionTooNew) {
                         if (relational_table)
                             delete relational_table;
                         LOG_TASK_TRACE("TreeItem (" + export_iface->objectBase()->objectName() + ") failed.",exportTask());
@@ -936,7 +936,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     if (relational_table)
         delete relational_table;
 
-    if (result == IExportable::Failed || result == IExportable::FailedTooNew || result == IExportable::FailedTooOld) {
+    if (result == IExportable::Failed || result == IExportable::VersionTooOld || result == IExportable::VersionTooNew) {
         LOG_TASK_WARNING(QObject::tr("Binary export of observer ") + observer->observerName() + QObject::tr(" failed."),exportTask());
         return result;
     } else {
@@ -950,10 +950,10 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
     }
 }
 
-Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::ObserverData::importXmlExt_1_0(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list) {
     QList<QPointer<QObject> > active_subjects;
     observer->startProcessingCycle();
-    IExportable::Result result = IExportable::Complete;
+    IExportable::ExportResultFlags result = IExportable::Complete;
 
     ObserverRelationalTable* readback_table = 0;
 
@@ -1181,7 +1181,7 @@ Qtilities::Core::Interfaces::IExportable::Result Qtilities::Core::ObserverData::
 
                                         // Check if it is an observer: if so we must use internal_import_list, not import_list:
                                         Observer* obs = qobject_cast<Observer*> (iface->objectBase());
-                                        IExportable::Result intermediate_result;
+                                        IExportable::ExportResultFlags intermediate_result;
                                         if (obs)
                                             intermediate_result = iface->importXml(doc,&childrenChild,internal_import_list);
                                         else

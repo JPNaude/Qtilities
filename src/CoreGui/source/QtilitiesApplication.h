@@ -240,6 +240,6 @@ QtilitiesApplication::initialize();
 #define QtilitiesApp ((QtilitiesApplication *) QApplication::instance())
 #define ACTION_MANAGER ((QtilitiesApplication *) QApplication::instance())->actionManager()
 #define CLIPBOARD_MANAGER ((QtilitiesApplication *) QApplication::instance())->clipboardManager()
-#define HELP_MANAGER ((QtilitiesApplication *) QtilitiesApplication::instance())->helpManager()
+#define HELP_MANAGER ((QtilitiesApplication *) QApplication::instance())->helpManager()
 
 #endif // QTILITIES_APPLICATION_H

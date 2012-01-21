@@ -92,10 +92,10 @@ OBJECT_MANAGER->registerObject(project_item,QtilitiesCategory("Core::Project Ite
             virtual void setExportVersion(Qtilities::ExportVersion version);
             virtual void setExportTask(ITask* task);
             virtual void clearExportTask();
-            virtual IExportable::Result exportBinary(QDataStream& stream ) const;
-            virtual IExportable::Result importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
-            virtual Result exportXml(QDomDocument* doc, QDomElement* object_node) const;
-            virtual Result importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags exportBinary(QDataStream& stream ) const;
+            virtual IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
+            virtual IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
+            virtual IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             //! Sets the export item flags to be used for this project item.
             /*!
