@@ -123,9 +123,19 @@ namespace Qtilities {
                 //! Enables all actions registered in this action provider.
                 virtual void enableAllActions() = 0;
                 //! Finds an action that has the specified text and returns a reference to it, otherwise return 0 if it was not found.
-                virtual QAction* findActionByText(const QString& action_text) = 0;
+                /*!
+                  \param match_string The match string to match.
+                  \param match_flags The match flags to use during matching. All match flags except Qt::MatchRecursive and Qt::MatchWrap can be used.
+                  \returns All actions matching the match conditions. An empty list if no action matches the match conditions.
+                  */
+                virtual QList<QAction*> findActionsByText(const QString& match_string, Qt::MatchFlags match_flags = Qt::MatchFixedString) = 0;
                 //! Finds an action with the specified objectName() and returns a reference to it, otherwise return 0 if it was not found.
-                virtual QAction* findActionByObjectName(const QString& object_name) = 0;
+                /*!
+                  \param match_string The match string to match.
+                  \param match_flags The match flags to use during matching. At present Qt::MatchExactly, Qt::MatchFixedString, Qt::MatchContains, Qt::MatchStartsWith, Qt::MatchEndsWith, Qt::MatchCaseSensitive is supported.
+                  \returns All actions matching the match conditions. An empty list if no action matches the match conditions.
+                  */
+                virtual QList<QAction*> findActionsByObjectName(const QString& object_name, Qt::MatchFlags match_flags = Qt::MatchFixedString) = 0;
                 //! Removes an action from the action provider. Does not delete the action.
                 virtual void removeAction(QAction* action) = 0;
                 //! Removes a complete category from the action provider. Does not delete the actions.

@@ -180,24 +180,76 @@ void Qtilities::CoreGui::ActionProvider::enableAllActions() {
     }
 }
 
-QAction* Qtilities::CoreGui::ActionProvider::findActionByText(const QString& action_text) {
+QList<QAction*> Qtilities::CoreGui::ActionProvider::findActionsByText(const QString& match_string, Qt::MatchFlags match_flags) {
+    QList<QAction*> matches;
+    Qt::CaseSensitivity case_sensitivity = Qt::CaseInsensitive;
+    if (match_flags & Qt::CaseSensitive)
+        case_sensitivity = Qt::CaseSensitive;
+
     for (int i = 0; i < d->actions.count(); i++) {
-        if (d->actions.keys().at(i)->text() == action_text) {
-            return d->actions.keys().at(i);
+        if (match_flags == Qt::MatchFixedString) {
+            if (d->actions.keys().at(i)->text().compare(match_string,case_sensitivity) == 0)
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchExactly) {
+            if (d->actions.keys().at(i)->text().compare(match_string,case_sensitivity) == 0)
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchStartsWith) {
+            if (d->actions.keys().at(i)->text().startsWith(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchEndsWith) {
+            if (d->actions.keys().at(i)->text().endsWith(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchContains) {
+            if (d->actions.keys().at(i)->text().contains(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchWildcard) {
+            QRegExp reg_exp(match_string,case_sensitivity,QRegExp::Wildcard);
+            if (reg_exp.exactMatch(d->actions.keys().at(i)->text()))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchRegExp) {
+            QRegExp reg_exp(match_string,case_sensitivity);
+            if (reg_exp.exactMatch(d->actions.keys().at(i)->text()))
+                matches << d->actions.keys().at(i);
         }
     }
 
-    return 0;
+    return matches;
 }
 
-QAction* Qtilities::CoreGui::ActionProvider::findActionByObjectName(const QString& object_name) {
+QList<QAction*> Qtilities::CoreGui::ActionProvider::findActionsByObjectName(const QString& match_string, Qt::MatchFlags match_flags) {
+    QList<QAction*> matches;
+    Qt::CaseSensitivity case_sensitivity = Qt::CaseInsensitive;
+    if (match_flags & Qt::CaseSensitive)
+        case_sensitivity = Qt::CaseSensitive;
+
     for (int i = 0; i < d->actions.count(); i++) {
-        if (d->actions.keys().at(i)->objectName() == object_name) {
-            return d->actions.keys().at(i);
+        if (match_flags == Qt::MatchFixedString) {
+            if (d->actions.keys().at(i)->objectName().compare(match_string,case_sensitivity) == 0)
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchExactly) {
+            if (d->actions.keys().at(i)->objectName().compare(match_string,case_sensitivity) == 0)
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchStartsWith) {
+            if (d->actions.keys().at(i)->objectName().startsWith(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchEndsWith) {
+            if (d->actions.keys().at(i)->objectName().endsWith(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchContains) {
+            if (d->actions.keys().at(i)->objectName().contains(match_string,case_sensitivity))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchWildcard) {
+            QRegExp reg_exp(match_string,case_sensitivity,QRegExp::Wildcard);
+            if (reg_exp.exactMatch(d->actions.keys().at(i)->objectName()))
+                matches << d->actions.keys().at(i);
+        } else if (match_flags == Qt::MatchRegExp) {
+            QRegExp reg_exp(match_string,case_sensitivity);
+            if (reg_exp.exactMatch(d->actions.keys().at(i)->objectName()))
+                matches << d->actions.keys().at(i);
         }
     }
 
-    return 0;
+    return matches;
 }
 
 void Qtilities::CoreGui::ActionProvider::removeAction(QAction* action) {

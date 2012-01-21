@@ -100,8 +100,8 @@ QList<QAction*> actions_per_category = widget.actions(IActionProvider::NoFilter,
             QActionGroup *addActionGroup(QActionGroup * action_group, const QtilitiesCategory& category_filter = QtilitiesCategory());
             void disableAllActions();
             void enableAllActions();
-            QAction* findActionByText(const QString& action_text);
-            QAction* findActionByObjectName(const QString& object_name);
+            QList<QAction*> findActionsByText(const QString& match_string, Qt::MatchFlags match_flags = Qt::MatchFixedString);
+            QList<QAction*> findActionsByObjectName(const QString& match_string, Qt::MatchFlags match_flags = Qt::MatchFixedString);
             void removeAction(QAction* action);
             void removeActionCategory(const QtilitiesCategory& category);
 
