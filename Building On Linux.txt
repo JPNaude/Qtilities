@@ -72,4 +72,9 @@ Qtilities will not be able to run if the following steps are not followed. The l
    [YOUR_LIB_PATH]/qt-solutions/qtpropertybrowser/lib
 3. Update the libraries path
    Run the following command: sudo ldconfig
+   
+USING QTILITIES
+===============
+Check out http://www.qtilities.org/docs/master/page_the_basics.html#basics_includes_and_namespaces for details on how to use Qtilities in your own project. 
 
+Alternatively, to see how to use Qtilities in a qmake project as a thirdparty dependency using git submodules, see https://github.com/Ramblurr/Qtilities-Sample for an example. 
