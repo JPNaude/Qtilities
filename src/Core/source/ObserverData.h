@@ -163,7 +163,7 @@ namespace Qtilities {
             /*!
               In this case, we need to make sure objects appearing multiple times in the tree is not exported more than once. This is done using qti_prop_LIMITED_EXPORTS.
               */
-            QList<IExportable*> getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool * incomplete = 0) const;
+            QList<IExportable*> getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool * complete = 0) const;
 
             // --------------------------------
             // All Data Stored For An Observer

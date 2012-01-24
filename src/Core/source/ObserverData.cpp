@@ -349,16 +349,16 @@ IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt_1_
                 if (iface)
                     exportable_list << iface;
             }
-        }
 
-        if (exportable_list.count() < subject_list.count())
-            list_complete = false;
+            if (exportable_list.count() < subject_list.count())
+                list_complete = false;
 
-        if (!list_complete) {
-            LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
-            complete = false;
-        } else {
-            LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete")).arg(exportable_list.count()),exportTask());
+            if (!list_complete) {
+                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
+                complete = false;
+            } else {
+                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete")).arg(exportable_list.count()),exportTask());
+            }
         }
 
         // -----------------------------------
@@ -822,13 +822,13 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                 if (iface)
                     exportable_list << iface;
             }
-        }
 
-        if (exportable_list.count() < subject_list.count()) {
-            LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
-            complete = false;
-        } else {
-            LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete.")).arg(exportable_list.count()),exportTask());
+            if (exportable_list.count() < subject_list.count()) {
+                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is incomplete.")).arg(exportable_list.count()),exportTask());
+                complete = false;
+            } else {
+                LOG_TASK_TRACE(QString(QObject::tr("%1 exportable subjects found under this observer's level of hierarchy. This list is complete.")).arg(exportable_list.count()),exportTask());
+            }
         }
 
         // Export exportable subjects:
@@ -1508,11 +1508,11 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
     return success;
 }
 
-QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool * incomplete) const {
+QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<QObject* > objects, IExportable::ExportMode export_mode, bool *complete) const {
     QList<IExportable*> exportable_list;
     qint32 iface_count = 0;
-    if (incomplete)
-        *incomplete = true;
+    if (complete)
+        *complete = true;
     for (int i = 0; i < objects.count(); i++) {
         QObject* obj = objects.at(i);
         IExportable* iface = qobject_cast<IExportable*> (obj);
@@ -1532,12 +1532,12 @@ QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<Q
         if (iface) {
             if (!(iface->supportedFormats() & export_mode)) {
                 LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not support this export type. Export will be incomplete."),exportTask());
-                if (incomplete)
-                    *incomplete = false;
+                if (complete)
+                    *complete = false;
             } else if (!iface->instanceFactoryInfo().isValid()) {
                 LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") with invalid instanceFactoryInfo(). Export will be incomplete."),exportTask());
-                if (incomplete)
-                    *incomplete = false;
+                if (complete)
+                    *complete = false;
             } else {
                 // Handle limited export object, thus they should only be exported once.
                 int count = ObjectManager::getSharedProperty(obj,qti_prop_LIMITED_EXPORTS).value().toInt();
@@ -1552,8 +1552,8 @@ QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<Q
             }
         } else {
             LOG_TASK_WARNING(IExportable::exportModeToString(export_mode) + QObject::tr(" export found an interface on object (") + observer->subjectNameInContext(obj) + QObject::tr(" in context ") + observer->observerName() + QObject::tr(") which does not implement an exportable interface. Export will be incomplete."),exportTask());
-            if (incomplete)
-                *incomplete = false;
+            if (complete)
+                *complete = false;
         }
     }
     //qDebug() << "getLimitedExportsList() on " + observer->observerName() + ": input list count = " + QString::number(objects.count()) + ", exportable list count = " + QString::number(exportable_list.count());
