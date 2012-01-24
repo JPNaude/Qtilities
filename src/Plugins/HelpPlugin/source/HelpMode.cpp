@@ -32,7 +32,6 @@
 ****************************************************************************/
 
 #include "HelpMode.h"
-#include "HelpBrowser.h"
 #include "ContentWidgetFactory.h"
 #include "IndexWidgetFactory.h"
 #include "SearchWidgetFactory.h"
@@ -43,249 +42,119 @@
 #include <QtGui>
 #include <QtHelp>
 
-#include <QtWebKit/QWebView>
+#include <QByteArray>
+#include <QHelpContentItem>
+#include <QHelpContentModel>
+#include <QHelpContentWidget>
+#include <QHelpEngine>
+#include <QHelpIndexWidget>
+#include <QHelpSearchEngine>
+#include <QHelpSearchQueryWidget>
+#include <QHelpSearchResultWidget>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QPointer>
+#include <QtDebug>
+#include <QTimer>
+#include <QUrl>
+#include <QWebPage>
+#include <QWebView>
 
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
 using namespace Qtilities::Plugins::Help::Constants;
+using namespace Qtilities::Plugins::Help;
 
-//struct ExtensionMap {
-//    const char *extension;
-//    const char *mimeType;
-//} extensionMap[] = {
-//    { ".bmp", "image/bmp" },
-//    { ".css", "text/css" },
-//    { ".gif", "image/gif" },
-//    { ".html", "text/html" },
-//    { ".htm", "text/html" },
-//    { ".ico", "image/x-icon" },
-//    { ".jpeg", "image/jpeg" },
-//    { ".jpg", "image/jpeg" },
-//    { ".js", "application/x-javascript" },
-//    { ".mng", "video/x-mng" },
-//    { ".pbm", "image/x-portable-bitmap" },
-//    { ".pgm", "image/x-portable-graymap" },
-//    { ".pdf", "application/pdf" },
-//    { ".png", "image/png" },
-//    { ".ppm", "image/x-portable-pixmap" },
-//    { ".rss", "application/rss+xml" },
-//    { ".svg", "image/svg+xml" },
-//    { ".svgz", "image/svg+xml" },
-//    { ".text", "text/plain" },
-//    { ".tif", "image/tiff" },
-//    { ".tiff", "image/tiff" },
-//    { ".txt", "text/plain" },
-//    { ".xbm", "image/x-xbitmap" },
-//    { ".xml", "text/xml" },
-//    { ".xpm", "image/x-xpm" },
-//    { ".xsl", "text/xsl" },
-//    { ".xhtml", "application/xhtml+xml" },
-//    { ".wml", "text/vnd.wap.wml" },
-//    { ".wmlc", "application/vnd.wap.wmlc" },
-//    { "about:blank", 0 },
-//    { 0, 0 }
-//};
+class qti_private_HelpNetworkAccessManager : public QNetworkAccessManager {
+    public:
+        qti_private_HelpNetworkAccessManager(QHelpEngineCore* helpEngine, QNetworkAccessManager *manager, QObject *parentObject) :
+            QNetworkAccessManager(parentObject),
+            d_help_engine(helpEngine)
+        {
+            Q_ASSERT(manager);
+            Q_ASSERT(helpEngine);
 
-//void NetworkAccessManager::getUrl(const QUrl &url)
-//{
-//    QNetworkRequest req;
-//    req.setUrl(url);
-//    get(req);
-//}
+            setCache(manager->cache());
+            setProxy(manager->proxy());
+            setProxyFactory(manager->proxyFactory());
+            setCookieJar(manager->cookieJar());
+        }
 
-//QNetworkReply* NetworkAccessManager::createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData)
-//{
-////    QString agentStr = QString::fromLatin1("Qt-Creator/%1 (QNetworkAccessManager %2; %3; %4; %5 bit)")
-////            .arg(QLatin1String("Test",
-////                         QLatin1String(qVersion()),
-////                         getOsString(), QLocale::system().name())
-////                    .arg(QSysInfo::WordSize);
-//    QNetworkRequest req(request);
-//    req.setRawHeader("User-Agent", "agentStr.toLatin1()");
-//    return QNetworkAccessManager::createRequest(op, req, outgoingData);
-//}
+    protected:
+        virtual QNetworkReply *createRequest(
+            Operation operation, const QNetworkRequest &request, QIODevice *device) {
+                if (request.url().scheme() == "qthelp" && operation == GetOperation)
+                    return new qti_private_HelpNetworkReply(request.url(), d_help_engine);
+                else
+                    return QNetworkAccessManager::createRequest(operation, request, device);
+            }
+
+        QPointer<QHelpEngineCore>   d_help_engine;
+
+    private:
+        Q_DISABLE_COPY(qti_private_HelpNetworkAccessManager)
+};
 
 
-//// -- HelpNetworkReply
+qti_private_HelpNetworkReply::qti_private_HelpNetworkReply(const QUrl& url, QHelpEngineCore* help_engine) : QNetworkReply(help_engine) {
+    Q_ASSERT(help_engine);
 
-//class HelpNetworkReply : public QNetworkReply
-//{
-//public:
-//    HelpNetworkReply(const QNetworkRequest &request, const QByteArray &fileData,
-//        const QString &mimeType);
+    d_help_engine = help_engine;
+    setUrl(url);
 
-//    virtual void abort() {}
+    QTimer::singleShot(0, this, SLOT(process()));
+}
 
-//    virtual qint64 bytesAvailable() const
-//        { return data.length() + QNetworkReply::bytesAvailable(); }
+void qti_private_HelpNetworkReply::process() {
+    if (d_help_engine) {
+        QByteArray rawData = d_help_engine->fileData(url());
+        d_buffer.setData(rawData);
+        d_buffer.open(QIODevice::ReadOnly);
 
-//protected:
-//    virtual qint64 readData(char *data, qint64 maxlen);
-
-//private:
-//    QByteArray data;
-//    qint64 dataLength;
-//};
-
-//HelpNetworkReply::HelpNetworkReply(const QNetworkRequest &request,
-//        const QByteArray &fileData, const QString& mimeType)
-//    : data(fileData)
-//    , dataLength(fileData.length())
-//{
-//    setRequest(request);
-//    setOpenMode(QIODevice::ReadOnly);
-
-//    setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
-//    setHeader(QNetworkRequest::ContentLengthHeader, QByteArray::number(dataLength));
-//    QTimer::singleShot(0, this, SIGNAL(metaDataChanged()));
-//    QTimer::singleShot(0, this, SIGNAL(readyRead()));
-//}
-
-//qint64 HelpNetworkReply::readData(char *buffer, qint64 maxlen)
-//{
-//    qint64 len = qMin(qint64(data.length()), maxlen);
-//    if (len) {
-//        qMemCopy(buffer, data.constData(), len);
-//        data.remove(0, len);
-//    }
-//    if (!data.length())
-//        QTimer::singleShot(0, this, SIGNAL(finished()));
-//    return len;
-//}
-
-//QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
-//    const QNetworkRequest &request, QIODevice* outgoingData)
-//{
-//    //if (!HelpViewer::isLocalUrl(request.url()))
-//    //    return NetworkAccessManager::createRequest(op, request, outgoingData);
-
-//    QString url = request.url().toString();
-//    QHelpEngineCore* engine = HELP_MANAGER->helpEngine();
-//    // TODO: For some reason the url to load is already wrong (passed from webkit)
-//    // though the css file and the references inside should work that way. One
-//    // possible problem might be that the css is loaded at the same level as the
-//    // html, thus a path inside the css like (../images/foo.png) might cd out of
-//    // the virtual folder
-////    if (!engine.findFile(url).isValid()) {
-////        if (url.startsWith(HelpViewer::NsNokia) || url.startsWith(HelpViewer::NsTrolltech)) {
-////            QUrl newUrl = request.url();
-////            if (!newUrl.path().startsWith(QLatin1String("/qdoc/"))) {
-////                newUrl.setPath(QLatin1String("/qdoc/") + newUrl.path());
-////                url = newUrl.toString();
-////            }
-////        }
-////    }
-
-//    const QString &path = QUrl(url).path();
-//    const int index = path.lastIndexOf(QLatin1Char('.'));
-//    const QByteArray &ext = path.mid(index).toUtf8().toLower();
-
-//    const ExtensionMap *e = extensionMap;
-//    QString mimeType;
-//    while (e->extension) {
-//        if (ext == e->extension) {
-//            mimeType = QLatin1String(e->mimeType);
-//            break;
-//        }
-//        ++e;
-//    }
-//    mimeType = QLatin1String("");
-
-//    const QByteArray &data = engine->fileData(url);
-
-//    return new HelpNetworkReply(request, data, mimeType.isEmpty()
-//        ? QLatin1String("application/octet-stream") : mimeType);
-//}
-
-//// -------------------------------------------------------
-
-
-
-//HelpPage::HelpPage(QObject *parent)
-//    : QWebPage(parent)
-//    , closeNewTabIfNeeded(false)
-//    , m_pressedButtons(Qt::NoButton)
-//    , m_keyboardModifiers(Qt::NoModifier)
-//{
-//}
-
-//QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
-//{
-////    HelpPage* newPage = static_cast<HelpPage*>(OpenPagesManager::instance()
-////        .createPage()->page());
-//    HelpPage* newPage = new HelpPage(this);
-//    newPage->closeNewTabIfNeeded = closeNewTabIfNeeded;
-//    closeNewTabIfNeeded = false;
-//    return newPage;
-//}
-
-//void HelpPage::triggerAction(WebAction action, bool checked)
-//{
-//    switch (action) {
-//        case OpenLinkInNewWindow:
-//            closeNewTabIfNeeded = true;
-//        default:        // fall through
-//            QWebPage::triggerAction(action, checked);
-//            break;
-//    }
-//}
-
-//bool HelpPage::acceptNavigationRequest(QWebFrame *,
-//    const QNetworkRequest &request, QWebPage::NavigationType type)
-//{
-//    const bool closeNewTab = closeNewTabIfNeeded;
-//    closeNewTabIfNeeded = false;
-
-////    const QUrl &url = request.url();
-////    if (HelpViewer::launchWithExternalApp(url)) {
-////        if (closeNewTab)
-////            QMetaObject::invokeMethod(&OpenPagesManager::instance(), "closeCurrentPage");
-////        return false;
-////    }
-
-//    if (type == QWebPage::NavigationTypeLinkClicked
-//        && (m_keyboardModifiers & Qt::ControlModifier || m_pressedButtons == Qt::MidButton)) {
-//            m_pressedButtons = Qt::NoButton;
-//            m_keyboardModifiers = Qt::NoModifier;
-////            OpenPagesManager::instance().createPage(url);
-//            return false;
-//    }
-
-//    return true;
-//}
-
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+        open(QIODevice::ReadOnly|QIODevice::Unbuffered);
+        setHeader(QNetworkRequest::ContentLengthHeader, QVariant(rawData.size()));
+        setHeader(QNetworkRequest::ContentTypeHeader, "text/html");
+        emit readyRead();
+        emit finished();
+    }
+}
 
 struct Qtilities::Plugins::Help::HelpModeData {
     HelpModeData() : initialized(false),
-    side_viewer_dock(0),
-    side_viewer_widget(0),
-    actionShowDock(0),
-    help_browser(0),
-    content_widget(0),
-    index_widget(0),
-    search_widget(0) {}
+        side_viewer_dock(0),
+        side_viewer_widget(0),
+        actionShowDock(0),
+        content_widget(0),
+        index_widget(0),
+        search_widget(0),
+        web_view(0) {}
 
     bool initialized;
     QDockWidget* side_viewer_dock;
     DynamicSideWidgetViewer* side_viewer_widget;
     QAction* actionShowDock;
-    HelpBrowser* help_browser;
     ContentWidgetFactory* content_widget;
     IndexWidgetFactory* index_widget;
     SearchWidgetFactory* search_widget;
-
-    QWebView* web;
+    QWebView* web_view;
 };
 
-Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
+HelpMode::HelpMode(QWidget *parent) :
     QMainWindow(parent)
 {
     d = new HelpModeData;
     setObjectName("Help Mode");
+}
 
+bool HelpMode::eventFilter(QObject *object, QEvent *event) {
+    if (object == d->side_viewer_dock && event->type() == QEvent::Close) {
+        d->actionShowDock->setChecked(false);
+    }
+
+    return false;
+}
+
+void HelpMode::initiallize() {
     // Create and dock the dynamic side widget viewer
     d->side_viewer_dock = new QDockWidget(tr("Dynamic Help Widgets"));
     d->side_viewer_widget = new DynamicSideWidgetViewer(MODE_HELP_ID);
@@ -317,26 +186,13 @@ Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
     } else
         view_menu->addAction(command);
 
-    d->web = new QWebView();
+    d->web_view = new QWebView(this);
+    setCentralWidget(d->web_view);
 
-//    d->web->setPage(new HelpPage(this));
-
-//    HelpNetworkAccessManager *manager = new HelpNetworkAccessManager(this);
-//    d->web->page()->setNetworkAccessManager(manager);
-//    connect(manager, SIGNAL(finished(QNetworkReply*)), this,
-//        SLOT(slotNetworkReplyFinished(QNetworkReply*)));
-
-//    QNetworkProxyFactory::setUseSystemConfiguration(true);
-//    d->web->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-//    setCentralWidget(d->web);
-//    connect(d->web,SIGNAL(loadFinished(bool)),SLOT(handleBrowserLoad(bool)));
-//    d->web->load(QUrl("http://www.google.com"));
-//    d->web->show();
-
-    // - Help Browser
-    d->help_browser = new HelpBrowser(HELP_MANAGER->helpEngine());
-    setCentralWidget(d->help_browser);
-    d->help_browser->show();
+    QNetworkAccessManager *current_manager = d->web_view->page()->networkAccessManager();
+    qti_private_HelpNetworkAccessManager* newManager = new qti_private_HelpNetworkAccessManager(HELP_MANAGER->helpEngine(), current_manager, this);
+    d->web_view->page()->setNetworkAccessManager(newManager);
+    d->web_view->page()->setForwardUnsupportedContent(false);
 
     // - Register Contents Widget Factory
     d->content_widget = new ContentWidgetFactory(HELP_MANAGER->helpEngine());
@@ -358,15 +214,7 @@ Qtilities::Plugins::Help::HelpMode::HelpMode(QWidget *parent) :
     OBJECT_MANAGER->registerObject(d->search_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
 }
 
-bool Qtilities::Plugins::Help::HelpMode::eventFilter(QObject *object, QEvent *event) {
-    if (object == d->side_viewer_dock && event->type() == QEvent::Close) {
-        d->actionShowDock->setChecked(false);
-    }
-
-    return false;
-}
-
-void Qtilities::Plugins::Help::HelpMode::toggleDock(bool toggle) {
+void HelpMode::toggleDock(bool toggle) {
     if (toggle) {
         d->side_viewer_dock->show();
     } else {
@@ -374,15 +222,15 @@ void Qtilities::Plugins::Help::HelpMode::toggleDock(bool toggle) {
     }
 }
 
-Qtilities::Plugins::Help::HelpMode::~HelpMode() {
+HelpMode::~HelpMode() {
     delete d;
 }
 
-QWidget* Qtilities::Plugins::Help::HelpMode::modeWidget() {
+QWidget* HelpMode::modeWidget() {
     return this;
 }
 
-void Qtilities::Plugins::Help::HelpMode::initializeMode() {
+void HelpMode::initializeMode() {
     if (d->initialized)
         return;
 
@@ -401,36 +249,35 @@ void Qtilities::Plugins::Help::HelpMode::initializeMode() {
     d->initialized = true;
 }
 
-QIcon Qtilities::Plugins::Help::HelpMode::modeIcon() const {
+QIcon HelpMode::modeIcon() const {
     return QIcon(HELP_MODE_ICON_48x48);
 }
 
-QString Qtilities::Plugins::Help::HelpMode::modeName() const {
+QString HelpMode::modeName() const {
     return tr("Documentation");
 }
 
-void Qtilities::Plugins::Help::HelpMode::handleNewHelpWidget(QWidget* widget) {
+void HelpMode::handleNewHelpWidget(QWidget* widget) {
     // Check which widget was created:
     QHelpContentWidget* content_widget = qobject_cast<QHelpContentWidget*> (widget);
     if (content_widget) {
-        connect(content_widget,SIGNAL(linkActivated(const QUrl&)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
         connect(content_widget,SIGNAL(linkActivated(const QUrl&)),SLOT(handleUrl(const QUrl&)),Qt::UniqueConnection);
         return;
     }
     QHelpIndexWidget* index_widget = qobject_cast<QHelpIndexWidget*> (widget);
     if (index_widget) {
-        connect(index_widget,SIGNAL(linkActivated(const QUrl&, const QString&)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
+        connect(index_widget,SIGNAL(linkActivated(const QUrl&, const QString&)),SLOT(handleUrl(const QUrl&)),Qt::UniqueConnection);
         return;
     }
     QHelpSearchResultWidget* result_widget = qobject_cast<QHelpSearchResultWidget*> (widget);
     if (result_widget) {
-        connect(result_widget,SIGNAL(requestShowLink(QUrl)),d->help_browser,SLOT(setSource(const QUrl&)),Qt::UniqueConnection);
+        connect(result_widget,SIGNAL(requestShowLink(QUrl)),SLOT(handleUrl(const QUrl&)),Qt::UniqueConnection);
         return;
     }
 }
 
-void Qtilities::Plugins::Help::HelpMode::handleUrl(const QUrl& url) {
-    d->web->load(url);
+void HelpMode::handleUrl(const QUrl& url) {
+    d->web_view->load(url);
 }
 
 

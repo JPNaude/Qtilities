@@ -43,10 +43,15 @@ Qtilities::Plugins::Help::ContentWidgetFactory::ContentWidgetFactory(QHelpEngine
 
 }
 
+Qtilities::Plugins::Help::ContentWidgetFactory::~ContentWidgetFactory() {
+
+}
+
 QWidget* Qtilities::Plugins::Help::ContentWidgetFactory::produceWidget() {
     if (!d_content_widget && d_help_engine) {
-        d_content_widget = d_help_engine->contentWidget();
-        emit newWidgetCreated(d_content_widget);
+        QWidget* widget = d_help_engine->contentWidget();
+        d_content_widget = widget;
+        emit newWidgetCreated(widget);
     }
 
     return d_content_widget;

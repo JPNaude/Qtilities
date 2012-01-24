@@ -55,6 +55,8 @@ Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
     files_widget.setListType(StringListWidget::FilePaths);
     files_widget.setFileOpenDialogFilter("Help Files (*.qch)");
     files_widget.setStringList(HELP_MANAGER->registeredFiles());
+
+    connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
 }
 
 Qtilities::Plugins::Help::HelpPluginConfig::~HelpPluginConfig() {
@@ -78,8 +80,11 @@ Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::c
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {
-    HELP_MANAGER->clearRegisterFiles();
+    disconnect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),this,SLOT(handleFilesChanged(QStringList)));
+    HELP_MANAGER->clearRegisteredFiles(false);
     HELP_MANAGER->registerFiles(files_widget.stringList());
+    connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
+    HELP_MANAGER->writeSettings();
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {
@@ -94,6 +99,8 @@ void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::handleFilesChanged(const QStringList& files) {
-    configPageApply();
-    // TODO: When we have a Help Manager, refresh it here.
+    QStringList native_paths;
+    foreach (QString file, files)
+        native_paths << QDir::toNativeSeparators(file);
+    files_widget.setStringList(native_paths);
 }

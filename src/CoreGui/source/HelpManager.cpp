@@ -42,73 +42,135 @@ using namespace QtilitiesCoreGui;
 #include <QHelpEngine>
 #include <QHelpSearchEngine>
 
+using namespace Qtilities::CoreGui;
+
 struct Qtilities::CoreGui::HelpManagerPrivateData {
     HelpManagerPrivateData() { }
 
     QPointer<QHelpEngine>   helpEngine;
     QStringList             registered_files_session;
     QStringList             registered_files;
+    QPointer<Task>          setup_task;
+    QPointer<Task>          indexing_task;
+    QMap<QString,QString>   file_namespace_map;
 };
 
-Qtilities::CoreGui::HelpManager::HelpManager(QObject* parent) : QObject(parent) {
+HelpManager::HelpManager(QObject* parent) : QObject(parent) {
     d = new HelpManagerPrivateData;
 
-    readSettings(false);
 }
 
-Qtilities::CoreGui::HelpManager::~HelpManager() {
+HelpManager::~HelpManager() {
     delete d;
 }
 
-QHelpEngine* Qtilities::CoreGui::HelpManager::helpEngine()  {
+QHelpEngine* HelpManager::helpEngine()  {
     if (!d->helpEngine) {
-        // Delete the current help collection file:
-        QFile::remove(QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() + "/help_collection.qhc");
-        d->helpEngine = new QHelpEngine(QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() + "/help_collection.qhc",this);
-        connect(d->helpEngine,SIGNAL(warning(QString)),SLOT(logMessage(QString)));
+        qDebug() << "You must initialize the help manager before using the helpEngine()";
     }
 
     return d->helpEngine;
 }
 
 void HelpManager::initialize() {
-    // Call helpEngine() in case it was not called before to construct d->helpEngine:
-    helpEngine();
+    if (!d->helpEngine) {
+        QTemporaryFile temp_file;
+        temp_file.open();
 
-    // Search engine indexing:
-    Task* indexing = new Task("Indexing Registered Documentation");
-    indexing->setTaskLifeTimeFlags(Task::LifeTimeDestroyWhenSuccessful);
-    OBJECT_MANAGER->registerObject(indexing);
-    connect(d->helpEngine->searchEngine(),SIGNAL(indexingStarted()),indexing,SLOT(startTask()));
-    connect(d->helpEngine->searchEngine(),SIGNAL(indexingFinished()),indexing,SLOT(completeTask()));
+        // Delete the current help collection file:
+        d->helpEngine = new QHelpEngine(temp_file.fileName(),this);
+        connect(d->helpEngine,SIGNAL(warning(QString)),SLOT(logMessage(QString)));
+
+        readSettings(false);
+    }
+    Q_ASSERT(d->helpEngine);
+
+    // Search engine setup:
+    if (!d->setup_task) {
+        d->setup_task = new Task("Setting Up Help Engine");
+        OBJECT_MANAGER->registerObject(d->setup_task);
+        connect(d->helpEngine,SIGNAL(setupStarted()),d->setup_task,SLOT(startTask()));
+        connect(d->helpEngine,SIGNAL(setupFinished()),d->setup_task,SLOT(completeTask()));
+    }
 
     if (!d->helpEngine->setupData())
-        LOG_ERROR("Failed to setup help engine: " + d->helpEngine->error());
+        LOG_ERROR(tr("Failed to setup the help engine. Error: ") + d->helpEngine->error());
 
-    foreach (QString file, d->registered_files) {
-        if (!d->helpEngine->registerDocumentation(file))
-            LOG_ERROR(tr("Failed to register documentation from file: ") + file);
-        else
-            LOG_INFO(tr("Successfully registered documentation from file: ") + file);
+    // Unregister everything here. All files in d->registered_files will be registered again.
+    unregisterAllNamespaces();
+
+    foreach (QString registered_file, d->registered_files) {
+        QString filename = registered_file;
+
+        QFile file(filename);
+        QTemporaryFile *temp_file =QTemporaryFile::createLocalFile(file);
+        if (temp_file) {
+            filename = temp_file->fileName();
+            temp_file->setParent(this);
+            temp_file->setAutoRemove(true);
+        }
+
+        if (!d->helpEngine->registerDocumentation(filename))
+            LOG_ERROR(tr("Failed to register documentation from file: ") + registered_file + tr(". Error: ") + d->helpEngine->error());
+        else {
+            QString namespace_name = d->helpEngine->namespaceName(filename);
+            d->file_namespace_map[filename] = namespace_name;
+            LOG_INFO(tr("Successfully registered documentation from file: ") + registered_file + tr(" using namespace ") + namespace_name);
+        }
     }
+
+    // Search engine indexing:
+    if (!d->indexing_task) {
+        d->indexing_task = new Task("Indexing Documentation");
+        OBJECT_MANAGER->registerObject(d->indexing_task);
+        connect(d->helpEngine->searchEngine(),SIGNAL(indexingStarted()),d->indexing_task,SLOT(startTask()));
+        connect(d->helpEngine->searchEngine(),SIGNAL(indexingFinished()),d->indexing_task,SLOT(completeTask()));
+    }
+    d->helpEngine->searchEngine()->reindexDocumentation();
 }
 
-void HelpManager::clearRegisterFiles(bool initialize_after_change) {
+void HelpManager::clearRegisteredFiles(bool initialize_after_change) {
     d->registered_files.clear();
     if (initialize_after_change)
         initialize();
+
+    emit registeredFilesChanged(d->registered_files);
+}
+
+void HelpManager::unregisterAllNamespaces() {
+    foreach (QString namespace_name, d->file_namespace_map.values()) {
+        if (!d->helpEngine->unregisterDocumentation(namespace_name))
+            LOG_ERROR(tr("Failed to unregister namespace from help engine: ") + namespace_name + tr(". Error: ") + d->helpEngine->error());
+        else {
+            LOG_INFO(tr("Successfully unregistered namespace from help engine: ") + namespace_name);
+        }
+    }
+
+    d->file_namespace_map.clear();
 }
 
 void HelpManager::registerFiles(const QStringList &files, bool initialize_after_change) {
-    d->registered_files << files;
+    foreach (QString file, files) {
+        if (d->registered_files.contains(file))
+            continue;
+        d->registered_files << file;
+    }
+
     if (initialize_after_change)
         initialize();
+
+    emit registeredFilesChanged(d->registered_files);
 }
 
 void HelpManager::registerFile(const QString &file, bool initialize_after_change) {
+    if (d->registered_files.contains(file))
+        return;
+
     d->registered_files << file;
     if (initialize_after_change)
         initialize();
+
+    emit registeredFilesChanged(d->registered_files);
 }
 
 QStringList HelpManager::registeredFiles() const {
@@ -116,16 +178,28 @@ QStringList HelpManager::registeredFiles() const {
 }
 
 void HelpManager::unregisterFiles(const QStringList &files, bool initialize_after_change) {
+    QStringList old_files = d->registered_files;
     foreach (QString file, files)
         d->registered_files.removeAll(file);
+
+    if (old_files == d->registered_files)
+        return;
+
     if (initialize_after_change)
         initialize();
+
+    emit registeredFilesChanged(d->registered_files);
 }
 
 void HelpManager::unregisterFile(const QString &file, bool initialize_after_change) {
+    if (!d->registered_files.contains(file))
+        return;
+
     d->registered_files << file;
     if (initialize_after_change)
         initialize();
+
+    emit registeredFilesChanged(d->registered_files);
 }
 
 void Qtilities::CoreGui::HelpManager::logMessage(const QString& message) {
@@ -136,12 +210,9 @@ void Qtilities::CoreGui::HelpManager::readSettings(bool initialize_after_change)
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
     settings.beginGroup("Qtilities");
     settings.beginGroup("Help");
-    d->registered_files = settings.value("registered_files").toStringList();
+    registerFiles(settings.value("registered_files").toStringList(),initialize_after_change);
     settings.endGroup();
     settings.endGroup();
-
-    if (initialize_after_change)
-        initialize();
 }
 
 void Qtilities::CoreGui::HelpManager::writeSettings() {

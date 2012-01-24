@@ -50,22 +50,12 @@ namespace Qtilities {
             using namespace Qtilities::CoreGui::Interfaces;
 
             /*!
-              \class HelpPluginConfig
-              \brief The HelpPluginConfig class provides a ready to use configuration widget for the help plugin.
+            \class HelpPluginConfig
+            \brief The HelpPluginConfig class provides a ready to use configuration widget for the help plugin.
 
-            The HelpPluginConfig widget exposes settings of the project manager through a configuration page shown below:
+            The HelpPluginConfig widget exposes settings of the help manager through a configuration page shown below:
 
-            \image html project_configuration_widget.jpg "Project Configuration Widget"
-
-            To add this page to your application's ConfigurationWidget, do the following:
-    \code
-    // The project manager configuration page:
-    OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
-    \endcode
-
-            \note When using the Qtilities::Plugins::ProjectManagement plugin in your application, this page will automatically appear in your configuration widget.
-
-            For more information see the \ref page_project_management article.
+            \image html config_page_help.jpg "Help Configuration Page"
              */
             class HelpPluginConfig : public QWidget, public IConfigPage {
                 Q_OBJECT

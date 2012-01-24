@@ -55,6 +55,7 @@ namespace Qtilities {
 
             public:
                 ContentWidgetFactory(QHelpEngine* help_engine, QObject *parent = 0);
+                ~ContentWidgetFactory();
 
                 // --------------------------------
                 // IObjectBase Implementation
@@ -78,7 +79,7 @@ namespace Qtilities {
                 void newWidgetCreated(QWidget* widget);
 
             private:
-                QHelpEngine* d_help_engine;
+                QPointer<QHelpEngine> d_help_engine;
                 QPointer<QWidget> d_content_widget;
             };
         }

@@ -45,7 +45,6 @@ HEADERS += source/HelpPlugin.h \
            source/ContentWidgetFactory.h \
            source/IndexWidgetFactory.h \
            source/SearchWidgetFactory.h \
-           source/HelpBrowser.h \
     source/HelpPluginConfig.h
 
 SOURCES += source/HelpPlugin.cpp \
@@ -53,7 +52,6 @@ SOURCES += source/HelpPlugin.cpp \
            source/ContentWidgetFactory.cpp \
            source/IndexWidgetFactory.cpp \
            source/SearchWidgetFactory.cpp \
-           source/HelpBrowser.cpp \
     source/HelpPluginConfig.cpp
 
 FORMS   += \

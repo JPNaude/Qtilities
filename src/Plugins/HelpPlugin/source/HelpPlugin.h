@@ -56,7 +56,13 @@ namespace Qtilities {
               \class HelpPlugin
               \brief A help plugin for a Qtilities application.
 
-              This plugin provides a help mode in the Qtilities main window which allows Qt Assistant help files to be shown.
+                This plugin provides a help mode in the &Qtilities main window which allows Qt Assistant help files to be shown.
+
+                \image html plugins_help.jpg "Help Plugin Showing GUI Frontend For The Help Manager"
+
+                In addition, it adds a configuration page for the help system to the user.
+
+                \image html config_page_help.jpg "Help Configuration Page"
              */
             class HELP_PLUGIN_SHARED_EXPORT HelpPlugin : public QObject, public IPlugin
             {

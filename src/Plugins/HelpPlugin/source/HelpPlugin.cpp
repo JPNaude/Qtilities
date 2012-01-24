@@ -38,7 +38,7 @@
 
 #include <ExtensionSystemConstants>
 #include <Qtilities.h>
-#include <QtilitiesCoreApplication>
+#include <QtilitiesApplication>
 
 #include <QtPlugin>
 #include <QIcon>
@@ -46,11 +46,13 @@
 
 using namespace Qtilities::ExtensionSystem::Interfaces;
 using namespace Qtilities::Core;
+using namespace Qtilities::CoreGui;
 
 struct Qtilities::Plugins::Help::HelpPluginData {
-    HelpPluginData() {}
+    HelpPluginData() : help_mode(0) {}
 
-    HelpPluginConfig help_plugin_config;
+    HelpPluginConfig    help_plugin_config;
+    HelpMode*           help_mode;
 };
 
 Qtilities::Plugins::Help::HelpPlugin::HelpPlugin(QObject* parent) : QObject(parent) {
@@ -66,8 +68,8 @@ bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &argumen
     Q_UNUSED(arguments)
     Q_UNUSED(error_strings)
 
-    HelpMode* help_mode = new HelpMode();
-    OBJECT_MANAGER->registerObject(help_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
+    d->help_mode = new HelpMode();
+    OBJECT_MANAGER->registerObject(d->help_mode,QtilitiesCategory("GUI::Application Modes (IMode)","::"));
     OBJECT_MANAGER->registerObject(&d->help_plugin_config,QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     return true;
@@ -75,6 +77,9 @@ bool Qtilities::Plugins::Help::HelpPlugin::initialize(const QStringList &argumen
 
 bool Qtilities::Plugins::Help::HelpPlugin::initializeDependencies(QStringList *error_strings) {
     Q_UNUSED(error_strings)
+
+    HELP_MANAGER->initialize();
+    d->help_mode->initiallize();
 
     return true;
 }

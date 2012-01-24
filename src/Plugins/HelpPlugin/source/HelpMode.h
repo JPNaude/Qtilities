@@ -37,73 +37,55 @@
 #include <IMode.h>
 
 #include <QMainWindow>
-#include <QUrl>
-
-#include <QNetworkProxyFactory>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
-#include <QWebPage>
+#include <QtNetwork/QNetworkReply>
+#include <QBuffer>
+#include <QPointer>
 
 namespace Ui {
     class HelpMode;
 }
 
-// -- NetworkAccessManager
-
-//class NetworkAccessManager : public QNetworkAccessManager
-//{
-//    Q_OBJECT
-//public:
-//    NetworkAccessManager(QObject *parent = 0) : QNetworkAccessManager(parent) {}
-
-//public slots:
-//    void getUrl(const QUrl &url);
-
-//protected:
-//    virtual QNetworkReply* createRequest(Operation op, const QNetworkRequest &request, QIODevice *outgoingData);
-//};
-
-
-//// -- HelpNetworkAccessManager
-
-//class HelpNetworkAccessManager : public NetworkAccessManager
-//{
-//public:
-//    HelpNetworkAccessManager(QObject *parent) : NetworkAccessManager(parent) {}
-
-//protected:
-//    virtual QNetworkReply *createRequest(Operation op,
-//        const QNetworkRequest &request, QIODevice *outgoingData = 0);
-//};
-
-//// -- HelpPage
-
-//class HelpPage : public QWebPage
-//{
-//public:
-//    HelpPage(QObject *parent);
-
-//protected:
-//    virtual QWebPage *createWindow(QWebPage::WebWindowType);
-//    virtual void triggerAction(WebAction action, bool checked = false);
-
-//    virtual bool acceptNavigationRequest(QWebFrame *frame,
-//        const QNetworkRequest &request, NavigationType type);
-
-//private:
-//    bool closeNewTabIfNeeded;
-
-//    //friend class Help::Internal::HelpViewer;
-//    Qt::MouseButtons m_pressedButtons;
-//    Qt::KeyboardModifiers m_keyboardModifiers;
-//};
+class QHelpEngine;
+class QHelpEngineCore;
+class QUrl;
+class QWebView;
 
 namespace Qtilities {
     namespace Plugins {
         //! Namespace containing constants defined in the Help plugin.
         namespace Help {
             using namespace Qtilities::CoreGui::Interfaces;
+
+
+            class qti_private_HelpNetworkReply : public QNetworkReply
+            {
+                Q_OBJECT
+             public:
+                qti_private_HelpNetworkReply(const QUrl& url, QHelpEngineCore* helpEngine);
+
+                virtual void abort() {}
+                virtual qint64 bytesAvailable() const {
+                    return d_buffer.bytesAvailable();
+                }
+                virtual bool isSequential() const {
+                    return d_buffer.isSequential();
+                }
+
+            private slots:
+                void process();
+
+            protected:
+                virtual qint64 readData(char *data, qint64 maxSize) {
+                    return d_buffer.read(data, maxSize);
+                }
+
+                QPointer<QHelpEngineCore>   d_help_engine;
+                QBuffer                     d_buffer;
+
+            private:
+                Q_DISABLE_COPY(qti_private_HelpNetworkReply)
+            };
+
 
             // Help Mode Parameters
             #define MODE_HELP_ID                   997
@@ -126,6 +108,9 @@ namespace Qtilities {
                 HelpMode(QWidget *parent = 0);
                 ~HelpMode();
                 bool eventFilter(QObject *object, QEvent *event);
+
+                //! Initializes the help mode.
+                void initiallize();
 
                 // --------------------------------
                 // IObjectBase Implementation

@@ -40,7 +40,10 @@ namespace Qtilities {
     namespace Plugins {
         //! Namespace containing all classes which is part of the Help plugin.
         namespace Help {
-            //! Namespace containing constants defined in the Help plugin.
+            //! Namespace containing all classes related to the Help Plugin.
+            /*!
+              The help plugin was introduced in %Qtilities v1.1.
+              */
             namespace Constants {
                 // Icons
                 const char * const HELP_MODE_ICON_48x48    = ":/icons/help_48x48.png";
