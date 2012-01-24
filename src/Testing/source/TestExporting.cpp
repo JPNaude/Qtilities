@@ -68,7 +68,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
     // Binary Exporting & Importing
     // -------------------------------------------------
     if (obj_source->supportedFormats() & IExportable::Binary && obj_import_binary) {
-        QFile file(file_name + ".binary");
+        QFile file(QtilitiesApplication::applicationSessionPath() + "/" + file_name + ".binary");
         file.open(QIODevice::WriteOnly);
         QDataStream stream_out(&file);
         stream_out.setVersion(data_stream_write_version);
@@ -82,7 +82,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
         obj_import_binary->setExportVersion(read_version);
         obj_import_binary->importBinary(stream_in,import_list);
 
-        QFile file1(file_name + "_readback.binary");
+        QFile file1(QtilitiesApplication::applicationSessionPath() + "/" + file_name + "_readback.binary");
         file1.open(QIODevice::WriteOnly);
         QDataStream stream_out1(&file1);
         stream_out1.setVersion(data_stream_write_version);
@@ -94,7 +94,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
     // XML Exporting & Importing
     // -------------------------------------------------
     if (obj_source->supportedFormats() & IExportable::XML && obj_import_xml) {
-        QFile file(file_name + ".xml");
+        QFile file(QtilitiesApplication::applicationSessionPath() + "/" + file_name + ".xml");
         file.open(QIODevice::WriteOnly);
         QDomDocument doc("QtilitiesTesting");
         QDomElement root = doc.createElement("QtilitiesTesting");
@@ -110,7 +110,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
         obj_import_xml->setExportVersion(read_version);
         QVERIFY(obj_import_xml->importXml(&doc,&rootItem,import_list) == IExportable::Complete);
 
-        QFile file2(file_name + "_readback.xml");
+        QFile file2(QtilitiesApplication::applicationSessionPath() + "/" + file_name + "_readback.xml");
         file2.open(QIODevice::WriteOnly);
         QDomDocument doc2("QtilitiesTesting");
         QDomElement root2 = doc2.createElement("QtilitiesTesting");
@@ -922,7 +922,8 @@ void Qtilities::Testing::TestExporting::testObserver_w1_0_r1_0() {
         QDataStream stream_out(&file);
         stream_out.setVersion(QDataStream::Qt_4_7);
         obj_source->setExportVersion(write_version);
-        QVERIFY(obj_source->exportBinaryExt(stream_out,ObserverData::ExportAllItems) == IExportable::Complete);
+        IExportable::ExportResultFlags result_flags = obj_source->exportBinaryExt(stream_out,ObserverData::ExportAllItems);
+        QVERIFY(result_flags == IExportable::Complete);
         file.close();
 
         file.open(QIODevice::ReadOnly);
@@ -1032,12 +1033,12 @@ void Qtilities::Testing::TestExporting::testProject_w1_0_r1_0() {
 
     code_editor_widget_source.codeEditor()->setPlainText("Testing Plain Text... Hooray!");
 
-    obj_source->saveProject("testProject_w1_0_r1_0.prj");
-    obj_source->saveProject("testProject_w1_0_r1_0.xml");
-    obj_import_binary->loadProject("testProject_w1_0_r1_0.prj");
-    obj_import_xml->loadProject("testProject_w1_0_r1_0.xml");
-    obj_import_binary->saveProject("testProject_w1_0_r1_0_readback.prj");
-    obj_import_xml->saveProject("testProject_w1_0_r1_0_readback.xml");
+    obj_source->saveProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0.prj");
+    obj_source->saveProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0.xml");
+    obj_import_binary->loadProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0.prj");
+    obj_import_xml->loadProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0.xml");
+    obj_import_binary->saveProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0_readback.prj");
+    obj_import_xml->saveProject(QtilitiesApplication::applicationSessionPath() + "/testProject_w1_0_r1_0_readback.xml");
 
     // Compare output files:
     QString file_original_binary = QString("%1/%2.prj").arg(QtilitiesApplication::applicationSessionPath()).arg("testProject_w1_0_r1_0");
@@ -1125,6 +1126,9 @@ void Testing::TestExporting::testObserverHints_w1_1_r1_1() {
     obj_source->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
     obj_source->setCategoryFilterEnabled(true);
 
+    // This is different in v1.1:
+    obj_source->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels);
+
     QtilitiesCategory category1("Test1::Test1::Test1","::");
     QtilitiesCategory category2("Test2::Test2::Test2","::");
     QList<QtilitiesCategory> category_list;
@@ -1157,63 +1161,3 @@ void Testing::TestExporting::testObserverHints_w1_1_r1_1() {
     delete obj_import_binary;
     delete obj_import_xml;
 }
-
-// --------------------------------------------------------------------
-// Test Qtilities_1_1 against Qtilities_1_0
-// That is, exported with Qtilities_1_0 and imported with Qtilities_1_1
-//
-// We only test the classes for which the exporting changed.
-// --------------------------------------------------------------------
-
-void Testing::TestExporting::testObserverHints_w1_0_r1_1() {
-    ObserverHints* obj_source = new ObserverHints;
-    ObserverHints* obj_import_binary = new ObserverHints;
-    ObserverHints* obj_import_xml = new ObserverHints;
-
-    obj_source->setObserverSelectionContextHint(ObserverHints::SelectionUseSelectedContext);
-    obj_source->setNamingControlHint(ObserverHints::ReadOnlyNames);
-    obj_source->setActivityDisplayHint(ObserverHints::CheckboxActivityDisplay);
-    obj_source->setActivityControlHint(ObserverHints::CheckboxTriggered);
-    obj_source->setItemSelectionControlHint(ObserverHints::NonSelectableItems);
-    obj_source->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
-    obj_source->setDisplayFlagsHint(ObserverHints::PropertyBrowser);
-    obj_source->setItemViewColumnHint(ObserverHints::ColumnAllHints);
-    obj_source->setDragDropHint(ObserverHints::AllDragDrop);
-    obj_source->setActionHints(ObserverHints::ActionAllHints);
-    obj_source->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
-    obj_source->setCategoryFilterEnabled(true);
-
-    QtilitiesCategory category1("Test1::Test1::Test1","::");
-    QtilitiesCategory category2("Test2::Test2::Test2","::");
-    QList<QtilitiesCategory> category_list;
-    category_list << category1;
-    category_list << category2;
-
-    obj_source->setDisplayedCategories(category_list,true);
-
-    if (obj_source->supportedFormats() & IExportable::Binary)
-        QVERIFY(*obj_source != *obj_import_binary);
-    if (obj_source->supportedFormats() & IExportable::XML)
-        QVERIFY(*obj_source != *obj_import_xml);
-    genericTest(obj_source,obj_import_binary,obj_import_xml,Qtilities::Qtilities_1_0,Qtilities::Qtilities_1_1,"testObserverHints_w1_0_r1_1");
-    if (obj_source->supportedFormats() & IExportable::Binary)
-        QVERIFY(*obj_source == *obj_import_binary);
-    if (obj_source->supportedFormats() & IExportable::XML)
-        QVERIFY(*obj_source == *obj_import_xml);
-
-    // Compare output files:
-    QString file_original_binary = QString("%1/%2.binary").arg(QtilitiesApplication::applicationSessionPath()).arg("testObserverHints_w1_0_r1_1");
-    QString file_readback_binary = QString("%1/%2_readback.binary").arg(QtilitiesApplication::applicationSessionPath()).arg("testObserverHints_w1_0_r1_1");
-    QString file_original_xml = QString("%1/%2.xml").arg(QtilitiesApplication::applicationSessionPath()).arg("testObserverHints_w1_0_r1_1");
-    QString file_readback_xml = QString("%1/%2_readback.xml").arg(QtilitiesApplication::applicationSessionPath()).arg("testObserverHints_w1_0_r1_1");
-    if (obj_source->supportedFormats() & IExportable::Binary)
-        QVERIFY(FileUtils::compareBinaryFiles(file_original_binary,file_readback_binary));
-    if (obj_source->supportedFormats() & IExportable::XML)
-        QVERIFY(FileUtils::compareTextFiles(file_original_xml,file_readback_xml));
-
-    delete obj_source;
-    delete obj_import_binary;
-    delete obj_import_xml;
-}
-
-

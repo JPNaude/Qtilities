@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setApplicationName("Qtilities Tester");
     QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
+
     QMainWindow mainWindow;
     QtilitiesApplication::setMainWindow(&mainWindow);
     LOG_INITIALIZE();

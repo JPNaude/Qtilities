@@ -47,6 +47,11 @@ namespace Qtilities {
         using namespace Qtilities::Core::Interfaces;
 
         //! Allows testing of the exporting capabilities of %Qtilities classes.
+        /*!
+        We always test against the latest version of Qtilities. The goal is to support
+        writing out and reading back of all previous export versions.
+        Thus is acheived by setting the read and write versions to the same previous version.
+          */
         class TESTING_SHARED_EXPORT TestExporting: public QObject, public ITestable
         {
             Q_OBJECT
@@ -99,14 +104,6 @@ namespace Qtilities {
             // We only test the classes for which the exporting changed.
             // --------------------------------------------------------------------
             void testObserverHints_w1_1_r1_1();
-
-            // --------------------------------------------------------------------
-            // Test Qtilities_1_1 against Qtilities_1_0
-            // That is, exported with Qtilities_1_0 and imported with Qtilities_1_1
-            //
-            // We only test the classes for which the exporting changed.
-            // --------------------------------------------------------------------
-            void testObserverHints_w1_0_r1_1();
 
         private:
             void genericTest(IExportable* obj_source,IExportable* obj_import_binary,IExportable* obj_import_xml,Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name);
