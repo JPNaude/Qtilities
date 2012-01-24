@@ -192,10 +192,8 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
 
 QString Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath() {
     // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
-    if (QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() == QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault()) {
+    if (QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() == QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault())
         QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-        Log->setLoggerSessionConfigPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    }
 
     return QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath();
 }

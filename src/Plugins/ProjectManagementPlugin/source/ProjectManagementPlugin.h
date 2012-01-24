@@ -43,7 +43,7 @@
 
 namespace Qtilities {
     namespace Plugins {
-            namespace ProjectManagement {
+        namespace ProjectManagement {
             using namespace Qtilities::ExtensionSystem::Interfaces;
             using namespace Qtilities::ProjectManagement::Interfaces;
             using namespace Qtilities::Core;

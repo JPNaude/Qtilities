@@ -16,7 +16,9 @@ namespace Qtilities {
         //! Namespace containing all classes which is part of the debug plugin.
         /*!
         The debug plugin adds a debug mode to your application which provides debugging information at runtime. For more information see the \ref page_debugging article.
-          */
+
+        The debug plugin was introduced in %Qtilities v1.1.
+        */
         namespace Debug {
             //! Namespace containing constants defined in the debug plugin.
             namespace Constants {

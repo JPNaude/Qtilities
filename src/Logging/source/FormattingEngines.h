@@ -46,7 +46,11 @@ namespace Qtilities {
 
         //! Default formatting engine which basically parses the QVariant messages into a single QString message.
         /*!
+          The default formatting engine. A preview of the formatting applied is shown below:
 
+          \image html log_formatting_preview_default.jpg "Default Formatting Engine Preview"
+
+          \sa Qtilities::Logging::FormattingEngine_HTML, Qtilities::Logging::FormattingEngine_XML, Qtilities::Logging::FormattingEngine_QtMsgEngineFormat, Qtilities::Logging::FormattingEngine_Rich_Text
           */
         class FormattingEngine_Default : virtual public AbstractFormattingEngine
         {           
@@ -76,6 +80,12 @@ namespace Qtilities {
         /*!
           This formatting engine prepares the logged messages in rich text format suited for widget based logger
           engines.
+
+          A preview of the formatting applied is shown below:
+
+          \image html log_formatting_preview_rich_text.jpg "Rich Text Formatting Engine Preview"
+
+          \sa Qtilities::Logging::FormattingEngine_HTML, Qtilities::Logging::FormattingEngine_XML, Qtilities::Logging::FormattingEngine_QtMsgEngineFormat, Qtilities::Logging::FormattingEngine_Default
           */
         class FormattingEngine_Rich_Text : virtual public AbstractFormattingEngine
         {
@@ -99,9 +109,15 @@ namespace Qtilities {
             QString endOfLineChar() const { return QString("<br>"); }
         };
 
-        //! XML formatting engines.
+        //! XML Formatting Engine.
         /*!
           This formatting engine prepares the logged messages in XML format.
+
+          A preview of the formatting applied is shown below:
+
+          \image html log_formatting_preview_xml.jpg "XML Formatting Engine Preview"
+
+          \sa Qtilities::Logging::FormattingEngine_HTML, Qtilities::Logging::FormattingEngine_Rich_Text, Qtilities::Logging::FormattingEngine_QtMsgEngineFormat, Qtilities::Logging::FormattingEngine_Default
           */
         class FormattingEngine_XML : virtual public AbstractFormattingEngine
         {
@@ -125,9 +141,15 @@ namespace Qtilities {
             QString endOfLineChar() const { return QString("\n"); }
         };
 
-        //! HTML formatting engines.
+        //! HTML Formatting Engine.
         /*!
-          This formatting engine prepares the logged messages in HTML format.
+          This formatting engine prepares the logged messages in a very basic HTML format.
+
+          A preview of the formatting applied is shown below:
+
+          \image html log_formatting_preview_html.jpg "HTML Formatting Engine Preview"
+
+          \sa Qtilities::Logging::FormattingEngine_XML, Qtilities::Logging::FormattingEngine_Rich_Text, Qtilities::Logging::FormattingEngine_QtMsgEngineFormat, Qtilities::Logging::FormattingEngine_Default
           */
         class FormattingEngine_HTML : virtual public AbstractFormattingEngine
         {
@@ -157,6 +179,12 @@ namespace Qtilities {
           QtMsgLoggerEngine will interpret.
 
           This formatting engine is an internal engine.
+
+          A preview of the formatting applied is shown below:
+
+          \image html log_formatting_preview_qt_message.jpg "Qt Message Formatting Engine Preview"
+
+          \sa Qtilities::Logging::FormattingEngine_XML, Qtilities::Logging::FormattingEngine_Rich_Text, Qtilities::Logging::FormattingEngine_HTML, Qtilities::Logging::FormattingEngine_Default
           */
         class FormattingEngine_QtMsgEngineFormat : virtual public AbstractFormattingEngine
         {

@@ -37,12 +37,15 @@ Qtilities v1.1 Changes
     - ObserverWidget can now be used under the name TreeWidget as well.
     - IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
     - IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
+    - QtilitiesMainWindow makes available the QLabel used to display priority messages.
+    - QtilitiesMainWindow makes available the TaskSummaryWidget used to display task summary.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
     - Improved error message when a plugin could not be loaded on Linux.
     - Added documentation showing how to check for core plugins when an application starts.
+    - No longer creates "/Plugins" dir in applicationSessionPath() when extension system is used the first time, it now happens in initialize().
 
     ============================
     QtilitiesProjectManagement:

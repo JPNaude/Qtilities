@@ -79,10 +79,28 @@ AbstractLoggerEngine* engine = Log->loggerEngineReference(*engine_name);
 
             //! Creates and returns a new logger widget.
             /*!
+                When creating new logger widgets through the LoggerGui class the name assigned to the log can change if a engine with the same name already exists. Therefore you pass
+                the name to the logger as a pointer which will be updated with the new name if it was changed. When a engine with the same name exists the name will be changed by
+                adding " (1)" to the engine (where the number will match an unused number).
+
                 \param engine_name The name of the engine. If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types which must be logged in this log widget.
+
+                For example:
+
+\code
+// Get a widget that shows all log messages:
+QString log_widget_name = tr("Session Log");
+QWidget* log_widget = LoggerGui::createLogWidget(&log_widget_name);
+
+// We can now access the AbstractLoggerEngine instance like this:
+AbstractLoggerEngine* log_engine = Log->loggerEngineReference(log_widget_name);
+Q_ASSERT(log_engine);
+// As an example, lets change the message context to log only messages logged to this engine:
+log_engine->setMessageContexts(Logger::EngineSpecificMessages);
+\endcode
 
                 \note The user must manage the widget instance.
 

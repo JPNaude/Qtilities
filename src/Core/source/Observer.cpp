@@ -871,7 +871,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     bool success = true;
     int not_allowed_count = 0;
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
-        if (canAttach(mime_data_object->subjectList().at(i),Observer::ManualOwnership,0,silent) == Observer::Rejected) {
+        if (canAttach(mime_data_object->subjectList().at(i),Observer::ManualOwnership,rejectMsg,silent) == Observer::Rejected) {
             success = false;
             ++not_allowed_count;
         }

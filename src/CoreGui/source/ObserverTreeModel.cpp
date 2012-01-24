@@ -875,7 +875,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
     if (!d->tree_model_up_to_date)
         return false;
 
-    if (!(activeHints()->dragDropHint() & ObserverHints::AllowDrags || activeHints()->categoryEditingFlags() & ObserverHints::CategoriesAcceptSubjectDrops))
+    if (!(activeHints()->dragDropHint() & ObserverHints::AcceptDrops || activeHints()->categoryEditingFlags() & ObserverHints::CategoriesAcceptSubjectDrops))
         return false;
 
     Observer* obs = 0;
@@ -938,14 +938,15 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                     return true;
                 }
             } else {
+                QString error_msg;
                 // Now check the proposed action of the event.
                 if (observer_mime_data->dropAction() == Qt::MoveAction) {
                     // Attempt to move the dragged objects:
-                    OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID());
+                    if (!OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),d_observer->observerID(),&error_msg))
+                        LOG_ERROR_P(error_msg);
                 } else if (observer_mime_data->dropAction() == Qt::CopyAction) {
                     // Attempt to copy the dragged objects:
                     // Either do all or nothing:
-                    QString error_msg;
                     if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data),&error_msg,true) != Observer::Rejected) {
                         QList<QPointer<QObject> > dropped_list = obs->attachSubjects(const_cast<ObserverMimeData*> (observer_mime_data));
                         if (dropped_list.count() != observer_mime_data->subjectList().count()) {
@@ -1579,11 +1580,8 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTre
     // Add root and call getAllIndexes on all its children.
     QModelIndex index = findObject(item->getObject());
     indexes << index;
-    for (int i = 0; i < item->childCount(); i++) {
+    for (int i = 0; i < item->childCount(); i++)
         getAllIndexes(item->child(i));
-    }
-
-    indexes << findObject(d->rootItem);
 
     return indexes;
 }

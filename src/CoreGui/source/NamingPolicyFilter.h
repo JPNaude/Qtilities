@@ -104,7 +104,6 @@ QRegExpValidator* default_validator = new QRegExpValidator(default_expression,0)
         The diagram below shows a QObject which is observed by a number of observers with different, or no naming policy filters installed.
 
         \image html naming_policy_filter_overview.jpg "Naming Policy Filter Overview"
-        \image latex naming_policy_filter_overview.eps "Naming Policy Filter Overview" width=\textwidth
 
         Subject names are evaulated during attachment to the filter's observer context and when changing the name properties discussed above. Evaluation is done using the evaluateName() function which returns the validity of the name using a value defined by ValidityCheckResult. You can control how conflicting names are handled by setting the uniqueness resolution policy and the validity resolution policy of the subject filter. Access functions for these policies are setUniquenessResolutionPolicy(), uniquenessResolutionPolicy() setValidityResolutionPolicy() and validityResolutionPolicy(). Possible values for these policies are defined using ResolutionPolicy.
 
