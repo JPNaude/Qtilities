@@ -92,31 +92,27 @@ using namespace QtilitiesLogging;
 int main(int argc, char *argv[])
 {
     QtilitiesCoreApplication a(argc, argv);
-
-    // We must specify the following if we want the logger to remember its settings:
-    QtilitiesCoreApplication::setOrganizationName("Jaco Naude");
-    QtilitiesCoreApplication::setOrganizationDomain("Qtilities");
     QtilitiesCoreApplication::setApplicationName("Console Logging Example");
-    QtilitiesCoreApplication::setApplicationVersion("0.1");
 
-    // The action manager needs QtilitiesApplication::mainWindow() proxy actions.
-    // It must be done before we initialize the logger since the initialization might construct widget logger front-ends which will attempt to register actions:
-    QtilitiesMainWindow* exampleMainWindow = new QtilitiesMainWindow();
-    QtilitiesApplication::setMainWindow(exampleMainWindow);
+    // Before we initialize the logger, we want to use the same path in the logger and in
+    // QtilitiesCoreApplication. Since the logging lib does not depend on the core lib, we need to
+    // call QtilitiesCoreApplication::applicationSessionPath() which will set the session
+    // path in the logger to match the path used in QtilitiesCoreApplication.
+    // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
+    Log->setLoggerSessionConfigPath(QtilitiesCoreApplication::applicationSessionPath());
 
     // Initialize the logger:
-    QtilitiesApplication::applicationSessionPath();
     LOG_INITIALIZE();
     // We want to capture all messages <= Debug level:
     Log->setGlobalLogLevel(Logger::Debug);
 
     // Create a file engine to verify the results.
     // The file extensions are used to determine the formatting engine used for each file:
-    QString xml_example = QtilitiesCoreApplication::applicationDirPath() + "/XML_Log.xml";
+    QString xml_example = QtilitiesCoreApplication::applicationSessionPath() + "/XML_Log.xml";
     Log->newFileEngine("XML File Example",xml_example);
-    QString plain_example = QtilitiesCoreApplication::applicationDirPath() + "/Plain_Log.log";
+    QString plain_example = QtilitiesCoreApplication::applicationSessionPath() + "/Plain_Log.log";
     Log->newFileEngine("Plain File Example",plain_example);
-    QString html_example = QtilitiesCoreApplication::applicationDirPath() + "/HTML_Log.html";
+    QString html_example = QtilitiesCoreApplication::applicationSessionPath() + "/HTML_Log.html";
     Log->newFileEngine("HTML File Example",html_example);
 
     // Enable the Qt Message logger engine:
@@ -143,10 +139,11 @@ int main(int argc, char *argv[])
     Log->setIsQtMessageHandler(false);
     qDebug() << "Message from the Qt Message System which will not be caught.";
 
+    int result = a.exec();
+
     // Finalize the logger:
     LOG_FINALIZE();
-
-    return a.exec();
+    return result;
 }
 \endcode
 
@@ -159,14 +156,27 @@ The above example showed basic usage of the logger in a console application, how
 The %Qtilities CoreGui library provides ready to use logging widgets which can be accessed through the Qtilities::CoreGui::LoggerGui singleton's static methods. For example we can get log dock widgets as follows:
 
 \code
-QMainWindow* mainWindow = new QMainWindow();
+QMainWindow* mainWindow = new QMainWindow;
 
 // Get a widget that shows all log messages:
-QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(tr("Session Log"),true);
+QString log_widget_name = tr("Session Log");
+QDockWidget* session_log_dock = LoggerGui::createLogDockWidget(&log_widget_name);
 mainWindow->addDockWidget(Qt::BottomDockWidgetArea,session_log_dock);
 
+// When creating new logger widgets through the LoggerGui class the name assigned
+// to the log can change if a engine with the same name already exists. Therefore you pass
+// the name to the logger as a pointer which will be updated with the new name if it
+// was changed.
+
+// We can now access the AbstractLoggerEngine instance like this:
+AbstractLoggerEngine* log_engine = Log->loggerEngineReference(log_widget_name);
+Q_ASSERT(log_engine);
+// As an example, lets change the message context to log only messages logged to this engine:
+log_engine->setMessageContexts(Logger::EngineSpecificMessages);
+
 // Get a widget that shows only warning messages:
-QDockWidget* warning_dock = LoggerGui::createLogDockWidget(tr("Warnings"),true,Logger::Warning);
+log_widget_name = tr("Warning Log");
+QDockWidget* warning_dock = LoggerGui::createLogDockWidget(&log_widget_name,log_widget_name,true,Logger::Warning);
 mainWindow->addDockWidget(Qt::TopDockWidgetArea,warning_dock);
 \endcode
 
@@ -242,7 +252,7 @@ LOG_DEBUG_E("HTML File Example","HTML Debug Message");
 LOG_TRACE_E("HTML File Example","HTML Trace Message");
 \endcode
 
-For more advanced logging operations the Qtilities::Logging::Logger::logMessage() function should be used directly. The logger singleton is directly accessible through the Log macro which returns a pointer to the logger. The log message function allows additional parameters to be passed to the logger. See the function documentation for more information.
+For more advanced logging operations the Qtilities::Logging::Logger::logMessage() function should be used directly. The logger singleton is directly accessible through the \p Log macro which returns a pointer to the logger. The log message function allows additional parameters to be passed to the logger. See the function documentation for more information.
 
 \subsection engine_message_contexts Message Contexts
 
