@@ -40,6 +40,8 @@
 
 #include <QResizeEvent>
 #include <QMainWindow>
+#include <QLabel>
+
 #include <Logger>
 
 namespace Ui
@@ -51,6 +53,7 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
         using namespace Qtilities::Logging;
+        class TaskSummaryWidget;
 
         /*!
         \struct QtilitiesMainWindowPrivateData
@@ -124,7 +127,8 @@ int main(int argc, char *argv[])
         Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
         For more information on this see the relevant class documentation.
 
-        It is also possible to show a Qtilities::CoreGui::TaskSummaryWidget automatically using QtilitiesMainWindow through showTaskSummaryWidget().
+        It is also possible to show a Qtilities::CoreGui::TaskSummaryWidget automatically using QtilitiesMainWindow through showTaskSummaryWidget(). You can
+        access the task summary widget shown through taskSummaryWidget().
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
         {
@@ -174,7 +178,7 @@ int main(int argc, char *argv[])
             \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
             \note At present the task summary is only supported with ModesTop and ModesBottom.
 
-            \sa hideTaskSummaryWidget(), taskSummaryWidgetVisible()
+            \sa hideTaskSummaryWidget(), taskSummaryWidgetVisible(), taskSummaryWidget()
             */
             void showTaskSummaryWidget();
             //! Hides a task summary widget next to the mode list widget.
@@ -182,7 +186,7 @@ int main(int argc, char *argv[])
               \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
               \note At present the task summary is only supported with ModesTop and ModesBottom.
 
-              \sa showTaskSummaryWidget(), taskSummaryWidgetVisible()
+              \sa showTaskSummaryWidget(), taskSummaryWidgetVisible(), taskSummaryWidget()
               */
             void hideTaskSummaryWidget();
             //! Hides a task summary widget next to the mode list widget.
@@ -192,9 +196,21 @@ int main(int argc, char *argv[])
               \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
               \note At present the task summary is only supported with ModesTop and ModesBottom.
 
-              \sa setShowTaskSummaryWidget()
+              \sa setShowTaskSummaryWidget(), taskSummaryWidget()
               */
             bool taskSummaryWidgetVisible() const;
+            //! Function which provides access to the label used to display priority messages.
+            /*!
+              Access to the lable allows you to modify it according to your needs. For example, we can
+              enable/disable word wrapping etc.
+
+              \sa showTaskSummaryWidget(), hideTaskSummaryWidget(), taskSummaryWidgetVisible()
+
+              \note At present the task summary is only supported with ModesTop and ModesBottom.
+
+              This function was added in Qtilities v1.1.
+              */
+            TaskSummaryWidget* taskSummaryWidget() const;
 
             // ----------------------------------
             // Functions related to widget setup
@@ -207,14 +223,26 @@ int main(int argc, char *argv[])
             /*!
               Enabled by default.
 
-              \sa disablePriorityMessages();
+              \sa disablePriorityMessages(), priorityMessageLabel()
               */
             void enablePriorityMessages();
             //! Function to disable priority messages in the status bar of the main window.
             /*!
-              \sa enablePriorityMessages();
+              Enabled by default.
+
+              \sa enablePriorityMessages(), priorityMessageLabel()
               */
             void disablePriorityMessages();
+            //! Function which provides access to the label used to display priority messages.
+            /*!
+              Access to the lable allows you to modify it according to your needs. For example, we can
+              enable/disable word wrapping etc.
+
+              \sa enablePriorityMessages(), disablePriorityMessages()
+
+              This function was added in Qtilities v1.1.
+              */
+            QLabel* priorityMessageLabel() const;
 
         public slots:
             //! Slot which received incomming priority messages from the &Qtilities logger.

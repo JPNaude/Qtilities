@@ -105,7 +105,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
     statusBar()->addWidget(&d->priority_messages_widget);
 
     d->priority_messages_icon.setVisible(false);
-    d->priority_messages_text.setVisible(false);
+    d->priority_messages_text.setWordWrap(false);
 
     connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_text, SLOT(clear()));
     connect(&d->priority_message_timer,SIGNAL(timeout()), &d->priority_messages_text, SLOT(hide()));
@@ -163,6 +163,10 @@ void Qtilities::CoreGui::QtilitiesMainWindow::disablePriorityMessages() {
     d->priority_messages_enabled = false;
 }
 
+QLabel *Qtilities::CoreGui::QtilitiesMainWindow::priorityMessageLabel() const {
+    return &d->priority_messages_text;
+}
+
 Qtilities::CoreGui::ModeManager* Qtilities::CoreGui::QtilitiesMainWindow::modeManager() {
     return d->mode_manager;
 }
@@ -173,6 +177,10 @@ Qtilities::CoreGui::QtilitiesMainWindow::ModeLayout Qtilities::CoreGui::Qtilitie
 
 bool Qtilities::CoreGui::QtilitiesMainWindow::taskSummaryWidgetVisible() const {
     return d->task_summary_widget_visible;
+}
+
+Qtilities::CoreGui::TaskSummaryWidget *Qtilities::CoreGui::QtilitiesMainWindow::taskSummaryWidget() const {
+    return d->task_summary_widget;
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::showTaskSummaryWidget() {
