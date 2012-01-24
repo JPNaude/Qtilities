@@ -11,7 +11,9 @@ include(../../Dependencies.pri)
 
 QT       += core
 QT       += gui
-
+CONFIG   += help
+QT += network
+QT += webkit
 TARGET = MainWindowExample
 CONFIG   -= app_bundle
 

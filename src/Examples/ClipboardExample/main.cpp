@@ -56,8 +56,7 @@ int main(int argc, char *argv[])
     ConfigurationWidget* config_widget = new ConfigurationWidget(Qtilities::TreeView);
     QtilitiesApplication::setConfigWidget(config_widget);
 
-    QtilitiesApplication::applicationSessionPath();
-    QtilitiesApplication::applicationSessionPath();
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
     Log->setGlobalLogLevel(Logger::Debug);
 

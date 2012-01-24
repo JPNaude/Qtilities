@@ -49,9 +49,11 @@ int main(int argc, char *argv[])
     QTabWidget* tab_widget = new QTabWidget;
     QtilitiesMainWindow mainWindow;
     mainWindow.enablePriorityMessages();
+    mainWindow.priorityMessageLabel()->setWordWrap(true);
     mainWindow.setCentralWidget(tab_widget);
     QtilitiesApplication::setMainWindow(&mainWindow);
 
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
 
     // ----------------------------------
@@ -87,6 +89,9 @@ int main(int argc, char *argv[])
 
     TreeWidget* uncategorized_widget = new TreeWidget(rootNodeUncategorized);
     tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
+    uncategorized_widget->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    uncategorized_widget->setDragDropCopyButton(Qt::LeftButton);
+    uncategorized_widget->setDragDropMoveButton(Qt::RightButton);
     uncategorized_widget->show();
 
     // ------------------------------------

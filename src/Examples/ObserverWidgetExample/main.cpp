@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     observer_widget->resize(600,250);
     QtilitiesApplication::setMainWindow(observer_widget);
 
-    QtilitiesApplication::applicationSessionPath();
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
 
     // Create a tree using TreeNode, a class inherting Observer:

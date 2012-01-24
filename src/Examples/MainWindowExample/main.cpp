@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setConfigWidget(&config_widget);
 
     // Initialize the logger:
-    QtilitiesApplication::applicationSessionPath();
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
@@ -201,6 +201,9 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
     ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(false);
     OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
+
+    HELP_MANAGER->registerFile("D:/Work/Software/Qt/FirmwareManagementTool/trunk/Application/resources/docs/ScinericWorkspace.qch",false);
+    HELP_MANAGER->initialize();
 
     int result = a.exec();
     exampleMainWindow.writeSettings();

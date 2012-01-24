@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion("1.0");
 
     // Initialize the logger:
+    // When using Qtilities Core as well, we should add this line:
+    // Log->setLoggerSessionConfigPath(QtilitiesCoreApplication::applicationSessionPath());
+    // However for this example we are only using Qtilities Logging.
     LOG_INITIALIZE();
     // We want to capture all messages <= Trace level:
     Log->setGlobalLogLevel(Logger::Trace);

@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Initialize the logger:
-    QtilitiesApplication::applicationSessionPath();
+    Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
