@@ -106,10 +106,11 @@ namespace Qtilities {
                   \param objects The objects which must be moved.
                   \param source_observer_id The source observer ID.
                   \param destination_observer_id The destination observer ID.
+                  \param error_msg When valid it will be populated with any error messages produced during the move operation.
                   \param silent When true the subjects must be moved without showing any dialogs.
                   \return True if all objects were moved successfully, false if some of the objects failed.
                   */
-                virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent = false) = 0;
+                virtual bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, QString* error_msg = 0,bool silent = false) = 0;
                 //! Move subjects by providing the objects as a list with smart pointers.
                 /*!
                   This function will attempt to move subjects from one observer context to another. If any of the subjects
@@ -120,10 +121,11 @@ namespace Qtilities {
                   \param objects The objects which must be moved.
                   \param source_observer_id The source observer ID.
                   \param destination_observer_id The destination observer ID.
+                  \param error_msg When valid it will be populated with any error messages produced during the move operation.
                   \param silent When true the subjects must be moved without showing any dialogs.
                   \return True if all objects were moved successfully, false if some of the objects failed.
                   */
-                virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent = false) = 0;
+                virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_i, QString* error_msg = 0, bool silent = false) = 0;
                 //! Registers an observer in the observer manager.
                 virtual int registerObserver(Observer* observer) = 0;
                 //! Registers an object to be included in the global object pool.

@@ -148,7 +148,7 @@ Qtilities::Core::Observer* Qtilities::Core::ObjectManager::objectPool() {
     return &d->object_pool;
 }
 
-bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, bool silent) {
+bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, QString* error_msg, bool silent) {
     // Get observer references
     Observer* source_observer = observerReference(source_observer_id);
     Observer* destination_observer = observerReference(destination_observer_id);
@@ -161,37 +161,67 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     // For now we discard objects that cause problems during attachment and detachment
     for (int i = 0; i < objects.count(); i++) {
         // Check if the destination observer will accept it
-        Observer::EvaluationResult result = destination_observer->canAttach(objects.at(i),Observer::ManualOwnership,0,silent);
+        Observer::EvaluationResult result = destination_observer->canAttach(objects.at(i),Observer::ManualOwnership,error_msg,silent);
         if (result == Observer::Rejected) {           
             break;
         } else {
             // Detach from source
             result = source_observer->canDetach(objects.at(i));
             if (result == Observer::Rejected) {
-                LOG_ERROR(QString(QObject::tr("The move operation could not be completed. The object you are trying to move was rejected by the destination observer. Check the session log for more details.")));
+                QString error_msg_int = QString(QObject::tr("The move operation could not be completed. Detachment of the object(s) you are trying to move was rejected by the destination observer. Check the session log for more details."));
+                LOG_ERROR(error_msg_int);
+                if (error_msg)
+                    *error_msg = error_msg_int;
                 none_failed = false;
                 break;
-            } else if (result == Observer::IsParentObserver) {
-                LOG_ERROR(QString(QObject::tr("The move operation could not be completed. The object you are trying to move cannot be removed from the source observer which is defined to be its owner.\n\nTry to share this object with the destination observer instead.")));
+            } else if (result == Observer::IsParentObserver) {              
+                QString error_msg_int =QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be removed from the source observer which is defined to be their owner.\n\nTry to share with (copy to) the destination observer instead."));
+                LOG_ERROR(error_msg_int);
+                if (error_msg)
+                    *error_msg = error_msg_int;
                 none_failed = false;
                 break;
             } else if (result == Observer::LastScopedObserver) {
                 destination_observer->setMultiContextPropertyValue(objects.at(i),qti_prop_OWNERSHIP,QVariant(Observer::ManualOwnership));
                 if (!source_observer->detachSubject(objects.at(i))) {
+                    QString error_msg_int =QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be removed from the source observer where LastScopedObserver was detected. Check the session log for more details."));
+                    LOG_ERROR(error_msg_int);
+                    if (error_msg)
+                        *error_msg = error_msg_int;
                     destination_observer->setMultiContextPropertyValue(objects.at(i),qti_prop_OWNERSHIP,QVariant(Observer::ObserverScopeOwnership));
                     none_failed = false;
                     break;
                 } else {
-                    if (!destination_observer->attachSubject(objects.at(i),Observer::ObserverScopeOwnership))
-                        source_observer->attachSubject(objects.at(i),Observer::ObserverScopeOwnership);
+                    if (!destination_observer->attachSubject(objects.at(i),Observer::ObserverScopeOwnership)) {
+                        source_observer->attachSubject(objects.at(i),Observer::ObserverScopeOwnership,error_msg);
+                        QString error_msg_int;
+                        if (error_msg)
+                            error_msg_int = QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be attached to the destination observer. Error message: " ) + *error_msg);
+                        else
+                            error_msg_int = QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be attached to the destination observer. Calling ObjectManager::moveSubjects() with a valid error message argument will add an error message to this message."));
+                        LOG_ERROR(error_msg_int);
+                        if (error_msg)
+                            *error_msg = error_msg_int;
+                    }
                 }
             } else {
                 if (!source_observer->detachSubject(objects.at(i))) {
+                    QString error_msg_int =QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be removed from the source observer. Check the session log for more details."));
+                    LOG_ERROR(error_msg_int);
+                    if (error_msg)
+                        *error_msg = error_msg_int;
                     none_failed = false;
                     break;
                 } else {
-                    if (!destination_observer->attachSubject(objects.at(i)))
+                    if (!destination_observer->attachSubject(objects.at(i))) {
                         source_observer->attachSubject(objects.at(i));
+                        QString error_msg_int;
+                        if (error_msg)
+                            error_msg_int = QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be attached to the destination observer. Error message: " ) + *error_msg);
+                        else
+                            error_msg_int = QString(QObject::tr("The move operation could not be completed. The object(s) you are trying to move cannot be attached to the destination observer. Calling ObjectManager::moveSubjects() with a valid error message argument will add an error message to this message."));
+                        LOG_ERROR(error_msg_int);
+                    }
                 }
             }
         }
@@ -200,11 +230,11 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     return none_failed;
 }
 
-bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, bool silent) {
+bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, QString* error_msg, bool silent) {
     QList<QObject*> simple_objects;
     for (int i = 0; i < objects.count(); i++)
         simple_objects << objects.at(i);
-    return moveSubjects(simple_objects,source_observer_id,destination_observer_id,silent);
+    return moveSubjects(simple_objects,source_observer_id,destination_observer_id,error_msg,silent);
 }
 
 void Qtilities::Core::ObjectManager::registerObject(QObject* obj, QtilitiesCategory category) {
