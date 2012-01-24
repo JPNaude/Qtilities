@@ -3741,7 +3741,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                 return false;
 
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->buttons() == Qt::LeftButton)
+            if (mouseEvent->buttons() == d->button_copy || mouseEvent->buttons() == d->button_move)
                d->startPos = mouseEvent->pos();
             return false;
         } else if (object == d->table_view->viewport() && event->type() == QEvent::MouseMove) {
@@ -3752,15 +3752,15 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
 
             int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
             if (distance >= QApplication::startDragDistance()) {
-                if (mouseEvent->buttons() == Qt::LeftButton || mouseEvent->buttons() == Qt::RightButton) {
+                if (mouseEvent->buttons() == d->button_copy || mouseEvent->buttons() == d->button_move) {
                     if (d->current_selection.size() > 0 && d->initialized && d->table_model) {
                         ObserverMimeData* mimeData;
                         QDrag *drag = new QDrag(this);
-                        if (mouseEvent->buttons() == Qt::LeftButton) {
+                        if (mouseEvent->buttons() == d->button_copy) {
                             mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::CopyAction);
                             drag->setMimeData(mimeData);
                             drag->exec(Qt::CopyAction);
-                        } else if (mouseEvent->buttons() == Qt::RightButton) {
+                        } else if (mouseEvent->buttons() == d->button_move) {
                             mimeData = new ObserverMimeData(d->current_selection,d_observer->observerID(),Qt::MoveAction);
                             drag->setMimeData(mimeData);
                             drag->exec(Qt::MoveAction);
@@ -3820,34 +3820,36 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
             QMouseEvent* mouseEvent = static_cast<QMouseEvent *>(event);
             int distance = (mouseEvent->pos() - d->startPos).manhattanLength();
             if (distance >= QApplication::startDragDistance()) {
-                Observer* obs = selectionParent();
-                if (!obs)
-                    return false;
+                if (mouseEvent->buttons() == d->button_copy || mouseEvent->buttons() == d->button_move) {
+                    Observer* obs = selectionParent();
+                    if (!obs)
+                        return false;
 
-                // Check if all the objects in the current selection supports drag flags,
-                // otherwise we do not start the drag:
-                if (d->tree_view->selectionModel()) {
-                    QModelIndexList index_list = selectedIndexes();
-                    for (int i = 0; i < index_list.count(); i++) {
-                        if (!(d->tree_model->flags(index_list.at(i)) & Qt::ItemIsDragEnabled)) {
-                            return false;
+                    // Check if all the objects in the current selection supports drag flags,
+                    // otherwise we do not start the drag:
+                    if (d->tree_view->selectionModel()) {
+                        QModelIndexList index_list = selectedIndexes();
+                        for (int i = 0; i < index_list.count(); i++) {
+                            if (!(d->tree_model->flags(index_list.at(i)) & Qt::ItemIsDragEnabled)) {
+                                return false;
+                            }
                         }
                     }
-                }
 
-                // We don't start the drag here, we just populate the Qtilities clipboard manager
-                // with our own mime data object.
-                QList<QObject*> simple_objects = selectedObjects();
-                QList<QPointer<QObject> > smart_objects;
-                for (int i = 0; i < simple_objects.count(); i++)
-                    smart_objects << simple_objects.at(i);
-                ObserverMimeData* mimeData = 0;
-                if (mouseEvent->buttons() == d->button_copy)
-                    mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::CopyAction);
-                else if (mouseEvent->buttons() == d->button_move)
-                    mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::MoveAction);
-                CLIPBOARD_MANAGER->setMimeData(mimeData);
-                d->tree_view->setDropIndicatorShown(true);
+                    // We don't start the drag here, we just populate the Qtilities clipboard manager
+                    // with our own mime data object.
+                    QList<QObject*> simple_objects = selectedObjects();
+                    QList<QPointer<QObject> > smart_objects;
+                    for (int i = 0; i < simple_objects.count(); i++)
+                        smart_objects << simple_objects.at(i);
+                    ObserverMimeData* mimeData = 0;
+                    if (mouseEvent->buttons() == d->button_copy)
+                        mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::CopyAction);
+                    else if (mouseEvent->buttons() == d->button_move)
+                        mimeData = new ObserverMimeData(smart_objects,obs->observerID(),Qt::MoveAction);
+                    CLIPBOARD_MANAGER->setMimeData(mimeData);
+                    d->tree_view->setDropIndicatorShown(true);
+                }
             }
 
             return false;

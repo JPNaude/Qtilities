@@ -258,7 +258,9 @@ categorized_widget->show();
 
                 \note Only usefull when displayMode() is Qtilities::TreeView.
 
-                \sa expandNodes);
+                \sa expandNodes()
+
+                This function was added in Qtilities v1.1.
                 */
             QStringList findExpandedItems() const;
 
@@ -277,6 +279,9 @@ categorized_widget->show();
             //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
             void handleTreeModelBuildAboutToStart();
             //! Slot which listens for the expanded() signal on the tree view if in Qtilities::TreeView mode in order to emit the latest expansion details using expandedNodesChanged().
+            /*!
+              This function was added in Qtilities v1.1.
+              */
             void handleExpanded(const QModelIndex & index);
 
         public slots:
@@ -287,6 +292,8 @@ categorized_widget->show();
               \param node_names The node names to expand. When empty, viewExpandAll() will be called.
 
               \sa findExpandedItems();
+
+              This function was added in Qtilities v1.1.
               */
             void expandNodes(const QStringList& node_names);
             //! Expand all nodes specified by the indexes in \p indexes.
@@ -301,6 +308,9 @@ categorized_widget->show();
 
         signals:
             //! Signal which is emitted when the expanded nodes changes.
+            /*!
+              This signal was added in Qtilities v1.1.
+              */
             void expandedNodesChanged(const QStringList& node_names);
             //! Signal which is emitted when the observer context of this widget changes.
             void observerContextChanged(Observer* new_context);
@@ -483,6 +493,8 @@ categorized_widget->show();
             //! Checks if all current selectedObjects() are in the same context.
             /*!
               \sa selectedObjectsChanged(), selectedObjects()
+
+              This function was added in Qtilities v1.1.
               */
             bool selectedObjectsContextMatch() const;
             //! Checks if all current selectedObjects() share the same ObserverHints.
@@ -492,6 +504,8 @@ categorized_widget->show();
               - When the selected objects have observer parents with exactly the same hints.
 
               \sa selectedObjectsChanged(), selectedObjects()
+
+              This function was added in Qtilities v1.1.
               */
             bool selectedObjectsHintsMatch() const;
             //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
@@ -563,6 +577,8 @@ categorized_widget->show();
               \param categories The categories that must be selected. If any categories in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
 
               \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategory()
+
+              This function was added in Qtilities v1.1.
               */
             void selectCategories(QList<QtilitiesCategory> categories);
             //! Selects the specified object in the active item view.
@@ -573,6 +589,8 @@ categorized_widget->show();
               \note This function only does something when displayMode() is Qtilities::TreeView.
 
               \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategories()
+
+              This function was added in Qtilities v1.1.
               */
             void selectCategory(QtilitiesCategory category);
             //! Clears the current selection in the view.
