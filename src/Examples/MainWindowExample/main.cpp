@@ -70,12 +70,14 @@ int main(int argc, char *argv[])
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
     // We show a splash screen in this example:
+    #ifdef QT_NO_DEBUG
     QPixmap pixmap(QTILITIES_LOGO_BT_300x300);
     QSplashScreen *splash = new QSplashScreen(pixmap);
     splash->setWindowFlags(Qt::SplashScreen | Qt::WindowStaysOnTopHint);
     splash->show();
     QObject::connect(EXTENSION_SYSTEM,SIGNAL(newProgressMessage(QString)),splash,SLOT(showMessage(QString)));
     a.processEvents();
+    #endif
 
     // Initialize the clipboard manager:
     CLIPBOARD_MANAGER->initialize();
@@ -99,7 +101,6 @@ int main(int argc, char *argv[])
 
     // Register action place holders for this application. This allows control of your menu structure.
     // File Menu
-    std_context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
     Command* command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_SETTINGS,QObject::tr("Settings"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),&config_widget,SLOT(show()));
     file_menu->addAction(command);
@@ -154,7 +155,9 @@ int main(int argc, char *argv[])
     EXTENSION_SYSTEM->addPluginPath("../../plugins/");
     EXTENSION_SYSTEM->initialize();
     Log->toggleQtMsgEngine(false);
+    #ifdef QT_NO_DEBUG
     splash->clearMessage();
+    #endif
 
     // Create the example file system side widget and add it to the global object pool
     QList<int> modes;
@@ -192,7 +195,9 @@ int main(int argc, char *argv[])
     // Show the main window:
     exampleMainWindow.readSettings();
     exampleMainWindow.show();
+    #ifdef QT_NO_DEBUG
     splash->close();
+    #endif
 
     // Initialize the project manager:
     // PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);

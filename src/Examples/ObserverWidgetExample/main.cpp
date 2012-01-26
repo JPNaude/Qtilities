@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     display_flags |= ObserverHints::ItemView;
     display_flags |= ObserverHints::NavigationBar;
     display_flags |= ObserverHints::ActionToolBar;
-    //display_flags |= ObserverHints::PropertyBrowser;
+    display_flags |= ObserverHints::PropertyBrowser;
     observer_widget->activeHints()->setDisplayFlagsHint(display_flags);
     observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnCategoryHint);
     observer_widget->activeHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);

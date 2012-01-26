@@ -44,11 +44,16 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Console Logging Example");
     QCoreApplication::setApplicationVersion("1.0");
 
+    // Disable logger settings for this example, otherwise the file logger engines below
+    // will be reconstructed in LOG_INITIALIZE() the second the time the application is run:
+    Log->setLoggerSettingsEnabled(false);
+
     // Initialize the logger:
     // When using Qtilities Core as well, we should add this line:
     // Log->setLoggerSessionConfigPath(QtilitiesCoreApplication::applicationSessionPath());
     // However for this example we are only using Qtilities Logging.
     LOG_INITIALIZE();
+
     // We want to capture all messages <= Trace level:
     Log->setGlobalLogLevel(Logger::Trace);
 
@@ -105,7 +110,7 @@ int main(int argc, char *argv[])
     Log->setIsQtMessageHandler(true);
     qDebug() << "Message from the Qt Message System";
     Log->setIsQtMessageHandler(false);
-    qDebug() << "Message from the Qt Message System which will not be catched.";
+    qDebug() << "Message from the Qt Message System which will not be caught.";
 
     // Do some context related logging:
     if (xml_file_engine && plain_file_engine && html_file_engine) {
