@@ -285,11 +285,11 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
 
         public slots:
             //! Sets the active subjects. This function will check the validity of the objects list against the activity policies in the filter.
-            void setActiveSubjects(QList<QObject*> objects, bool broadcast = true);
+            bool setActiveSubjects(QList<QObject*> objects, bool broadcast = true);
             //! Sets the active subjects.
-            void setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast = true);
+            bool setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast = true);
             //! Sets a single active subject.
-            void setActiveSubject(QObject* obj, bool broadcast = true);
+            bool setActiveSubject(QObject* obj, bool broadcast = true);
             //! Toggles the activity of a specific subject.
             /*!
               \param obj The subject to toggle the activity for.

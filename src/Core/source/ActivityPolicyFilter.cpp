@@ -293,10 +293,10 @@ void Qtilities::Core::ActivityPolicyFilter::setModificationState(bool new_state,
     }
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> objects, bool broadcast) {
+bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> objects, bool broadcast) {
     if (!observer) {
         LOG_TRACE("Cannot set active objects in an activity subject filter without an observer context.");
-        return;
+        return false;
     }
 
     // Check if the new set of active subjects is the same as the current active objects, if so return:
@@ -308,23 +308,23 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     for (int i = 0; i < objects.count(); i++) {
         if (!objects.at(i)) {
             LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Null pointer to object detected at list position %1.").arg(i));
-            return;
+            return false;
         }
 
         if (!observer->contains(objects.at(i)) && objects.at(i)) {
             LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context (%2).").arg(objects.at(i)->objectName()).arg(observer->observerName()));
-            return;
+            return false;
         }
     }
 
     // Check the number of objects in the list against the policies of this filter.
     if (objects.count() == 0) {
         if (d->minimum_activity_policy == ActivityPolicyFilter::ProhibitNoneActive)
-            return;
+            return false;
     }
     if (objects.count() > 1) {
         if (d->activity_policy == ActivityPolicyFilter::UniqueActivity)
-            return;
+            return false;
     }
 
     // Now we know that the list is valid, lock the mutex so that property changes will be blocked.
@@ -376,22 +376,23 @@ void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
 
         // - Emit the dataChanged() signal on the observer context:
         observer->refreshViewsData();
-    } else {
+    } else
         setModificationState(true,IModificationNotifier::NotifyNone);
-    }
+
+    return true;
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast) {
+bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QPointer<QObject> > objects, bool broadcast) {
     QList<QObject*> simple_objects;
     for (int i = 0; i < objects.count(); i++)
         simple_objects << objects.at(i);
-    setActiveSubjects(simple_objects,broadcast);
+    return setActiveSubjects(simple_objects,broadcast);
 }
 
-void Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj, bool broadcast) {
+bool Qtilities::Core::ActivityPolicyFilter::setActiveSubject(QObject* obj, bool broadcast) {
     QList<QObject*> objects;
     objects << obj;
-    setActiveSubjects(objects,broadcast);
+    return setActiveSubjects(objects,broadcast);
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::toggleSubjectActivity(QObject* obj) {
@@ -672,7 +673,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
         return true;
 
     if (!filter_mutex.tryLock())
-        return true;
+        return false;
 
     bool single_object_change_only = true;
     bool new_activity = observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool();
