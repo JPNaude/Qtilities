@@ -45,9 +45,12 @@ namespace Ui {
 
 namespace Qtilities {
     using namespace Qtilities::CoreGui::Interfaces;
-
     namespace Plugins {
         namespace Help {
+            /*!
+            \class SearchWidgetFactory
+            \brief The SearchWidgetFactory class makes a QHelpSearchQueryWidget and QHelpSearchResultsWidget available for the \p HELP_MANAGER available as a side viewer widget.
+            */
             class SearchWidgetFactory : public QObject, public ISideViewerWidget
             {
                 Q_OBJECT

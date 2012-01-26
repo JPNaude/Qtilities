@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2011, Jaco Naude
+** Copyright (c) 2009-2012, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -51,7 +51,7 @@ namespace Qtilities {
             //! Namespace containing constants defined in the SessionLogPlugin.
             namespace Constants {
                 // Icons
-                const char * const qti_icon_SESSION_LOG_MODE_48x48    = ":/icons/session_log_48x48.png";
+                const char * const qti_icon_SESSION_LOG_MODE_48x48    = ":/qtilities/plugins/sessionlog/icons/session_log_48x48.png";
             }
         }
     }

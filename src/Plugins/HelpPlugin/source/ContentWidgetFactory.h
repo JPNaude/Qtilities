@@ -48,6 +48,10 @@ using namespace Qtilities::CoreGui::Interfaces;
 namespace Qtilities {
     namespace Plugins {
         namespace Help {
+            /*!
+              \class ContentWidgetFactory
+              \brief The ContentWidgetFactory class makes a QHelpContentWidget widget for the \p HELP_MANAGER available as a side viewer widget.
+             */
             class ContentWidgetFactory : public QObject, public ISideViewerWidget
             {
                 Q_OBJECT

@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2011, Jaco Naude
+# Copyright (c) 2009-2012, Jaco Naude
 #
 # See Dependencies.pri for the licensing requirements of the Debug plugin.
 #

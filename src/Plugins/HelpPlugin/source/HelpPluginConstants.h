@@ -38,15 +38,25 @@
 
 namespace Qtilities {
     namespace Plugins {
-        //! Namespace containing all classes which is part of the Help plugin.
+        //! Namespace containing all classes related to the Help Plugin.
+        /*!
+        This plugin provides a help mode in the %Qtilities main window which allows Qt Assistant help files to be shown.
+
+        \image html plugins_help.jpg "Help Plugin Showing GUI Frontend For The Help Manager"
+
+        In addition, it adds a configuration page for the help system to the user.
+
+        \image html config_page_help.jpg "Help Configuration Page"
+
+        The help plugin works through the help engine provided by the \p HELP_MANAGER (See Qtilities::CoreGui::QtilitiesApplication::helpManager() for more information).
+
+        This plugin was introduced in %Qtilities v1.1.
+        */
         namespace Help {
-            //! Namespace containing all classes related to the Help Plugin.
-            /*!
-              The help plugin was introduced in %Qtilities v1.1.
-              */
+            //! Namespace containing all constants related to the Help Plugin.
             namespace Constants {
                 // Icons
-                const char * const HELP_MODE_ICON_48x48    = ":/icons/help_48x48.png";
+                const char * const HELP_MODE_ICON_48x48    = ":/qtilities/plugins/help/icons/help_48x48.png";
             }
         }
     }

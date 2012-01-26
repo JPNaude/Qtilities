@@ -45,9 +45,12 @@ namespace Ui {
 
 namespace Qtilities {
     using namespace Qtilities::CoreGui::Interfaces;
-
     namespace Plugins {
         namespace Help {
+            /*!
+              \class IndexWidgetFactory
+              \brief The IndexWidgetFactory class makes a QHelpIndexWidget widget for the \p HELP_MANAGER available as a side viewer widget.
+             */
             class IndexWidgetFactory : public QObject, public ISideViewerWidget
             {
                 Q_OBJECT

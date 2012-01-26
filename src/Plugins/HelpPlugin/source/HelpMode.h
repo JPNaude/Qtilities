@@ -52,10 +52,8 @@ class QWebView;
 
 namespace Qtilities {
     namespace Plugins {
-        //! Namespace containing constants defined in the Help plugin.
         namespace Help {
             using namespace Qtilities::CoreGui::Interfaces;
-
 
             class qti_private_HelpNetworkReply : public QNetworkReply
             {
@@ -99,7 +97,7 @@ namespace Qtilities {
 
             /*!
             \class HelpMode
-            \brief An example mode widget which demonstrates the dynamic side widget architecture..
+            \brief An implementation of Qtilities::CoreGui::Interfaces::IMode which make a GUI frontend for the \p HELP_MANAGER available as a mode in an application.
               */
             class HelpMode : public QMainWindow, public IMode {
                 Q_OBJECT
