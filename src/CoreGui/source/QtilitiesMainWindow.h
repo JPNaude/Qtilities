@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
             QLabel* priorityMessageLabel() const;
 
         public slots:
-            //! Slot which received incomming priority messages from the &Qtilities logger.
+            //! Slot which received incomming priority messages from the %Qtilities logger.
             void processPriorityMessage(Logger::MessageType message_type, const QString& message);
 
         private slots:
