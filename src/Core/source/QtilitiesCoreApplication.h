@@ -65,6 +65,8 @@ namespace Qtilities {
           the objectManager(), contextManager() and qtilitiesVersionString() functions. For the rest of the functionality, like the
           settings update requests for example, you should use Qtilities::CoreGui::QtilitiesApplication.
 
+         All functions on QtilitiesCoreApplication are thread safe.
+
           \sa Qtilities::CoreGui::QtilitiesApplication
          */
 
@@ -77,10 +79,19 @@ namespace Qtilities {
             ~QtilitiesCoreApplication();
 
             //! Returns a reference to the observer manager.
+            /*!
+              This function is thread-safe.
+              */
             static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
+            /*!
+              This function is thread-safe.
+              */
             static IContextManager* contextManager();
             //! Returns a reference to the task manager.
+            /*!
+              This function is thread-safe.
+              */
             static TaskManager* taskManager();
 
             //! Returns a reference to the QtilitiesCoreApplication instance.
