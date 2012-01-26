@@ -124,7 +124,7 @@ namespace Qtilities {
             virtual bool exportXml(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const;
             /*!
               \note If \p object_node does not have an \p FactoryTag attribute associated with it,
-              the &Qtilities factory tag is used by default.
+              the %Qtilities factory tag is used by default.
               */
             virtual bool importXml(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version);
 

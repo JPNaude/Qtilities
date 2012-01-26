@@ -31,8 +31,8 @@
 **
 ****************************************************************************/
 
-#ifndef IFACTORY
-#define IFACTORY
+#ifndef IFACTORYPROVIDER
+#define IFACTORYPROVIDER
 
 #include "QtilitiesCore_global.h"
 #include "PointerList.h"
@@ -94,4 +94,4 @@ if (ifactory) {
 
 Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IFactoryProvider,"com.Qtilities.Core.IFactoryProvider/1.0")
 
-#endif // IFACTORY
+#endif // IFACTORYPROVIDER

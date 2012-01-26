@@ -156,7 +156,18 @@ bool Qtilities::Core::SubjectTypeFilter::handleMonitoredPropertyChange(QObject* 
     Q_UNUSED(obj)
     Q_UNUSED(property_name)
     Q_UNUSED(propertyChangeEvent)
-    return false;
+
+    // Lock the filter mutex to make this function thread safe.
+    if (!filter_mutex.tryLock())
+        return false;
+
+    // Handle property changes here...
+    // We can change properties on objects here and the filter_mutex tryLock() above will make sure they are not handled.
+    // When we handled the property, return true.
+
+    // Unlock the mutex.
+    filter_mutex.unlock();
+    return true;
 }
 
 QString Qtilities::Core::SubjectTypeFilter::groupName() const {
