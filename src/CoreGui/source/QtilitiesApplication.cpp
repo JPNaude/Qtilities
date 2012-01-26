@@ -167,22 +167,6 @@ bool Qtilities::CoreGui::QtilitiesApplication::hasInstance(const char *function,
     return instance_exists;
 }
 
-//bool Qtilities::CoreGui::QtilitiesApplication::notify(QObject * object, QEvent * event) {
-//    try
-//    {
-//        return QApplication::notify(object, event);
-//    }
-//    catch (...)
-//    {
-//        QMessageBox msgBox;
-//        msgBox.setWindowTitle(tr("Exception Caught"));
-//        msgBox.setText("The context you are trying to access is locked.");
-//        msgBox.exec();
-//        LOG_FATAL(tr("QtilitiesApplication Caught Exception..."));
-//    }
-//    return false;
-//}
-
 QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
     qti_private_AboutWindow* about_window = new qti_private_AboutWindow();
     if (show)

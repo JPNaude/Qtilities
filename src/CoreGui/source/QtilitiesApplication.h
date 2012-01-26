@@ -82,6 +82,8 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
          - Allows setting of a session path for application information, see applicationSessionPath().
          - Allows you to indicate that your application is busy and cannot be closed. See setApplicationBusy().
 
+         All functions on QtilitiesApplication are thread safe.
+
           \sa Qtilities::Core::QtilitiesCoreApplication
          */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesApplication : public QApplication
@@ -93,18 +95,32 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
             ~QtilitiesApplication();
 
             //! Returns a reference to the object manager.
+            /*!
+              This function is thread-safe.
+              */
             static IObjectManager* objectManager();
             //! Returns a reference to the context manager.
+            /*!
+              This function is thread-safe.
+              */
             static IContextManager* contextManager();
             //! Returns a reference to the help manager.
+            /*!
+              This function is thread-safe.
+              */
             static HelpManager* helpManager();
             //! Returns a reference to the action manager.
             /*!
               If you are using the action manager, you must specify a main window using setMainWindow() for
               the action manager to work correctly.
+
+              This function is thread-safe.
               */
             static IActionManager* actionManager();
             //! Returns a reference to the clipboard manager.
+            /*!
+              This function is thread-safe.
+              */
             static IClipboard* clipboardManager();
             //! Sets the main window reference for the application.
             static void setMainWindow(QWidget* mainWindow);
@@ -157,9 +173,6 @@ QtilitiesApplication::initialize();
               */
             static bool hasInstance(const char *function, bool silent = false);
 
-            //! QCoreApplication::notify() overload. This allows exception handling in GUI applications.
-//            bool notify(QObject * object, QEvent * event);
-
             //! Create a new settings update request.
             /*!
                 This function allows settings update requests to be sent anywhere in an application. This
@@ -176,6 +189,8 @@ QtilitiesApplication::initialize();
               - %Logging configurations. For more information see: Qtilities::Logging::Logger::saveSessionConfig().
               - Plugin configurations. For more information see: Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration().
               - Internal settings saved by %Qtilities classes to a QSettings based ini file. See Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPath() for more information.
+
+              For more information about the way %Qtilities saves session information see \ref configuration_widget_storage_layout.
 
               By default this is QDesktopServices::storageLocation(DataLocation).
 
@@ -213,6 +228,8 @@ QtilitiesApplication::initialize();
 
               If you use Qtilities::CoreGui::QtilitiesMainWindow as your main window, it will automatically block close events when you application is busy and
               present the user with a message box saying that the application is busy.
+
+              This function is thread-safe.
               */
             static void setApplicationBusy(bool is_busy);
             //! Gets if the application is busy, thus it cannot be closed.
