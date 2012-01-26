@@ -54,9 +54,9 @@ namespace Qtilities {
         \brief A help manager which provides functionality to help developers integrate the Qt Help System into their applications.
 
         The help manager allows you to integrate the Qt Help System into your applications. You can access the help manager using the \p HELP_MANAGER macro directly, or
-        through Qtilities::CoreGui::QtilitiesApplication::instance()->helpManager().
+        through Qtilities::CoreGui::QtilitiesApplication::helpManager().
 
-        The helpEngine() function provides a QHelpEngine which you can use throughout your application. To use it is simple, you need to register all \p qch files
+        The helpEngine() function provides a \p QHelpEngine which you can use throughout your application. To use it is simple, you need to register all \p qch files
         that you want to use using either registerFile() or registerFiles() and then initialize the plugin. For example:
 
 \code
@@ -68,7 +68,7 @@ HELP_MANAGER->initialize();
 
 // Now that it was initialized we can use the helpEngine().
 HELP_MANAGER->helpEngine();
-\encode
+\endcode
 
         When initializing the help manager, two tasks will be created:
         - One task for setting up the help manager.
@@ -85,7 +85,7 @@ HELP_MANAGER->helpEngine();
         \image html plugins_help.jpg "Help Plugin Showing GUI Frontend For The Help Manager"
 
         When using the %Qtilities extension system, you can easily let plugins register help files providing help for their functionality. The important thing to remember is to register the files in the
-        initializeDependencies() function of your plugin implementation. For example:
+        \p initializeDependencies() function of your plugin implementation. For example:
 
 \code
 bool MyPlugins::initializeDependencies(QStringList *error_strings) {
