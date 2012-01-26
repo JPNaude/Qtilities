@@ -498,9 +498,9 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
     if (d->task_result == ITask::TaskSuccessful) {
         logMessage(QString(tr("Task \"%1\" completed successfully.")).arg(taskName()));
     } else if (d->task_result == ITask::TaskSuccessfulWithErrors) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged in while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
     } else if (d->task_result == ITask::TaskSuccessfulWithWarnings) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged in while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
     } else if (d->task_result == ITask::TaskFailed) {
         logMessage(QString(tr("Task \"%1\" failed. See the task log for more information.")).arg(taskName()),Logger::Error);
     }
