@@ -47,9 +47,6 @@ Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
 }
 
 void Qtilities::CoreGui::AbstractObserverItemModel::toggleUseObserverHints(bool toggle) {
-    if (toggle == model->use_observer_hints)
-        return;
-
     model->use_observer_hints = toggle;
 }
 
