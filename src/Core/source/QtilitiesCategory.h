@@ -179,7 +179,7 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
               \param category_level_name When this parameter contains a valid string, it will be used as the top level category level.
               \param access_mode The access mode of this category. By default we use Observer::InvalidAccess since the mode is not always going to be used.
               */
-            QtilitiesCategory(const QString& category_level_name = QString(), int access_mode = 3);
+            QtilitiesCategory(const QString& category_level_name = QString());
             //! Constructs a QtilitiesCategory object.
             /*!
               \param category_levels A QString containing a list of categories seperated by the \p seperator parameter.

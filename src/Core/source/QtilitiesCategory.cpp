@@ -96,10 +96,10 @@ Qtilities::Core::IExportable::ExportResultFlags Qtilities::Core::CategoryLevel::
 // QtilitiesCategory
 // -----------------------------------------
 
-Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_level_name, int access_mode)  {
+Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_level_name)  {
     if (!category_level_name.isEmpty())
         addLevel(category_level_name);
-    d_access_mode = access_mode;
+    d_access_mode = 3;
 }
 
 Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) {
