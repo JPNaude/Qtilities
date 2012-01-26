@@ -15,7 +15,8 @@ Alternatively see http://www.qtilities.org/docs/v1_0/page_getting_started.html. 
 More Information
 ----------------
 
-The best place to get updates and general information about the project is to follow Qtilities on twitter: http://twitter.com/#!/qtilities
+The best place to get updates and general information about the project is to follow Qtilities on twitter:
+http://twitter.com/#!/qtilities
 
 For any questions or comments, please use any of the resources below:
 Email: support@qtilities.org
@@ -24,5 +25,9 @@ Source Repo & Bug Tracker: https://github.com/JPNaude/Qtilities
 Blog: http://qtilities.blogspot.com
 Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
 
-Copyright (c) 2009-2012, Jaco Naude
+Licensing
+---------
 See http://www.qtilities.org/licensing.html for licensing details.
+
+Copyright (c) 2009-2012, Jaco Naude
+
