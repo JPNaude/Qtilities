@@ -367,7 +367,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& 
             if (category_variant.isValid()) {
                 QtilitiesCategory old_category = category_variant.value<QtilitiesCategory>();
                 if (old_category == category)
-                    return false;
+                    return true;
             }
 
             // Ok it changed, thus set it again:
