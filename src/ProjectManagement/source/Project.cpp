@@ -431,6 +431,7 @@ void Qtilities::ProjectManagement::Project::setModificationState(bool new_state,
 
     if (!d->modification_mutex.tryLock())
         return;
+
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         for (int i = 0; i < d->project_items.count(); i++)
             d->project_items.at(i)->setModificationState(new_state,notification_targets);
