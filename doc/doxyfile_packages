@@ -1,7 +1,8 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME 		   = ""
+PROJECT_NAME           = "Qtilities"
+PROJECT_NUMBER         = "v1.1"
 DOXYFILE_ENCODING      = UTF-8
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
@@ -116,7 +117,7 @@ FILE_PATTERNS          = *.h \
                          QtilitiesCoreGuiModule \
                          QtilitiesProjectManagementModule \
                          QtilitiesExtensionSystemModule \
-						 QtilitiesTesting
+                         QtilitiesTesting
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
@@ -152,8 +153,8 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html_packages
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = 
-HTML_FOOTER            = "sources/footer.html"
+HTML_FOOTER            = "sources/Header.html"
+HTML_FOOTER            = "sources/Footer.html"
 HTML_STYLESHEET        = 
 HTML_ALIGN_MEMBERS     = YES
 HTML_DYNAMIC_SECTIONS  = NO
@@ -168,9 +169,9 @@ CHM_INDEX_ENCODING     =
 BINARY_TOC             = NO
 TOC_EXPAND             = NO
 GENERATE_QHP           = YES
-QCH_FILE               = Qtilities.qch
-QHP_NAMESPACE          = Qtilities
-QHP_VIRTUAL_FOLDER     = "Qtilities Documentation"
+QCH_FILE               = Qtilities_v1_1.qch
+QHP_NAMESPACE          = Qtilities_v1_1
+QHP_VIRTUAL_FOLDER     = "Qtilities Documentation v1.1"
 DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
 GENERATE_TREEVIEW      = NONE

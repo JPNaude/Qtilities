@@ -74,15 +74,18 @@ Table of contents:
 </tr>
 </table>
 
-\section accessing Accessing the object manager
+\section accessing The Object Manager
 
-The object manager implements the Qtilities::Core::Interfaces::IObjectManager interface and can be accessed directly through the OBJECT_MANAGER macro or directly using Qtilities::Core::QtilitiesCoreApplication::objectManager() 
+The object manager implements the Qtilities::Core::Interfaces::IObjectManager interface and can be accessed directly through the thread safe \p OBJECT_MANAGER macro or directly using Qtilities::Core::QtilitiesCoreApplication::objectManager()
 
 For example:
 
 \code
 QObject* my_object = new QObject();
 OBJECT_MANAGER->registerObject(my_object);
+
+// Internally the global object pool is an observer which can be accessed like this:
+OBJECT_MANAGER->objectPool();
 \endcode
 
 \section features Object Management Features
