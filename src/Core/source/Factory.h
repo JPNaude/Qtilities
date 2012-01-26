@@ -159,14 +159,23 @@ namespace Qtilities {
                   data_ifaces.remove(tag);
               }
               //! Returns a list of registered tags for a given context. By default all contexts are returned.
-              QStringList tags() const {
-                QStringList tags;
-                for (int i = 0; i < data_ifaces.count(); i++) {
-                    tags << data_ifaces.values().at(i).tag;
-                }
-                return tags;
+              /*!
+                \param category_filter When a valid category is provided, only tags in that category are returned.
+
+                \sa tagCategoryMap()
+                */
+              QStringList tags(const QtilitiesCategory& category_filter = QtilitiesCategory()) const {
+                    QStringList tags;
+                    for (int i = 0; i < data_ifaces.count(); i++) {
+                        if (category_filter.isValid()) {
+                            if (data_ifaces.values().at(i).category == category_filter)
+                                tags << data_ifaces.values().at(i).tag;
+                        } else
+                            tags << data_ifaces.values().at(i).tag;
+                    }
+                    return tags;
               }             
-              //! Returns a tag-category map of registered tags for a given context. By default all contexts are returned.
+              //! Returns a tag-category map of registered tags.
               QMap<QString, QtilitiesCategory> tagCategoryMap() const {
                     QMap<QString, QtilitiesCategory> tag_category_map;
                     for (int i = 0; i < data_ifaces.count(); i++) {

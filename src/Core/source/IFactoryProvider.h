@@ -44,6 +44,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QDataStream>
+#include <QtilitiesCategory>
 
 class QDomDocument;
 class QDomElement;
@@ -83,7 +84,7 @@ if (ifactory) {
                 //! Provides the names of all the factories exposed through this interface.
                 virtual QStringList providedFactories() const = 0;
                 //! Provides the tags in a specific factory.
-                virtual QStringList providedFactoryTags(const QString& factory_name) const = 0;
+                virtual QStringList providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter = QtilitiesCategory()) const = 0;
                 //! Constructs an instance in a specified factory and return it.
                 virtual QObject* createInstance(const InstanceFactoryInfo& ifactory_data) = 0;
             };

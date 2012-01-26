@@ -118,9 +118,9 @@ QStringList Qtilities::Core::ObjectManager::providedFactories() const {
     return tags;
 }
 
-QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name) const {
+QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter) const {
     if (factory_name == QString(qti_def_FACTORY_QTILITIES))
-        return d->qtilities_factory.tags();
+        return d->qtilities_factory.tags(category_filter);
     else
         return QStringList();
 }
