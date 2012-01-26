@@ -16,14 +16,14 @@ More Information
 ----------------
 
 The best place to get updates and general information about the project is to follow Qtilities on twitter:
-http://twitter.com/#!/qtilities
+* http://twitter.com/#!/qtilities
 
-For any questions or comments, please use any of the resources below:
-Email: support@qtilities.org
-Website: http://www.qtilities.org
-Source Repo & Bug Tracker: https://github.com/JPNaude/Qtilities
-Blog: http://qtilities.blogspot.com
-Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
+* For any questions or comments, please use any of the resources below:
+* Email: support@qtilities.org
+* Website: http://www.qtilities.org
+* Source Repo & Bug Tracker: https://github.com/JPNaude/Qtilities
+* Blog: http://qtilities.blogspot.com
+* Discussions & Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en
 
 Licensing
 ---------
