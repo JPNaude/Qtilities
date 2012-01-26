@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     // ---------------------------------------------
     // Create and register the tests that we want to use:
     // ---------------------------------------------
-    #ifndef QTILITIES_NO_UNIT_TESTS
+    #ifdef QTILITIES_TESTING
     TestVersionNumber* testVersionNumber = new TestVersionNumber;
     testFrontend.addTest(testVersionNumber,QtilitiesCategory("Qtilities::Core","::"));
 

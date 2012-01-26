@@ -15,4 +15,5 @@ CONFIG     += ordered
 
 # Tools:
 SUBDIRS    += QtilitiesTester
+SUBDIRS    += QtilitiesModelTester
 
