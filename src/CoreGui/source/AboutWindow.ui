@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>327</width>
-    <height>462</height>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../resources/CoreGui.qrc">:/images/blueontrans_300x300.png</pixmap>
+      <pixmap resource="../resources/CoreGui.qrc">:/qtilities/coregui/images/blueontrans_300x300.png</pixmap>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

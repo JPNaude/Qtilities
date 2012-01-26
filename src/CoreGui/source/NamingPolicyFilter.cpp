@@ -512,7 +512,7 @@ QStringList Qtilities::CoreGui::NamingPolicyFilter::reservedProperties() const {
 
 bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
     if (!filter_mutex.tryLock())
-        return true;
+        return false;
 
     if (!strcmp(property_name,qti_prop_NAME)) {
         // If qti_prop_NAME changed and this observer is the object name manager, we need to react to this change.
