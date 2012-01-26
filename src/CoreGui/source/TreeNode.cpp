@@ -305,9 +305,11 @@ Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QStrin
 }
 
 void Qtilities::CoreGui::TreeNode::addItems(const QStringList& items, const QtilitiesCategory& category) {
+    startProcessingCycle();
     foreach (QString item, items) {
         addItem(item,category);
     }
+    endProcessingCycle();
 }
 
 Qtilities::CoreGui::TreeNode* Qtilities::CoreGui::TreeNode::addNode(const QString& name, const QtilitiesCategory& category) {
