@@ -54,7 +54,7 @@ namespace Qtilities {
 
         /*!
         \class Logger
-        \brief The Logger class provides logging functionality to any Qt application.
+        \brief The Logger class provides thread safe logging functionality to any Qt application.
 
         See the \ref page_logging article for more information on how to use the logger.
           */

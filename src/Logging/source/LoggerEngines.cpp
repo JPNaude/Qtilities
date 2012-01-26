@@ -130,6 +130,15 @@ QString Qtilities::Logging::FileLoggerEngine::status() const {
     }
 }
 
+void Qtilities::Logging::FileLoggerEngine::clearLog() {
+    QFile file(file_name);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << tr("Failed to clear file logger engine:") << file_name;
+        return;
+    }
+    file.close();
+}
+
 void Qtilities::Logging::FileLoggerEngine::logMessage(const QString& message) {
     if (!abstractLoggerEngineData->is_initialized)
         return;

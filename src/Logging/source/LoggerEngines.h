@@ -56,8 +56,6 @@ namespace Qtilities {
         \brief A logger engine which stores the logged messages in a file.
 
         A logger engine which stores the logged messages in a file.
-
-        \note Clearing the log through clearLog() is not supported by this logger engine.
           */
         class LOGGING_SHARED_EXPORT FileLoggerEngine : public AbstractLoggerEngine, public ILoggerExportable
         {
@@ -77,6 +75,10 @@ namespace Qtilities {
             QString description() const;
             QString status() const;
             bool isFormattingEngineConstant() const { return true; }
+            /*!
+              Clearing of FileLoggerEngine was introduced in %Qtilities v1.1.
+              */
+            void clearLog();
 
             // --------------------------------
             // ILoggerExportable Implementation
