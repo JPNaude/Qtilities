@@ -9,6 +9,7 @@ Qtilities v1.1 Changes
     QtilitiesLogging:
     ============================
     - FIXED #30: Fixed bug where Logger::newFileEngine() could crash if file could not be created at the location provided.
+    - Don't write any logging settings when settings on the logger is disabled.
 
     ============================
     QtilitiesCore:
@@ -17,6 +18,8 @@ Qtilities v1.1 Changes
     - IExporatble now supports setting a task to which export/import messages should be logged.
     - Fixed problems with backward compatibility in Qtilities internal exports.
     - Added new signals on ITask: taskAboutToPause(), taskAboutToComplete(), taskSubTaskAboutToComplete(), taskAboutToStop(), taskAboutToStart(), taskAboutToResume().
+    - Updated IFactoryProvider and factory to use categories better.
+    - ActivityPolicyFilter::setActiveSubject(s) functions changed to return bool indicating if the new selection was accepted by the filter according to its policies.
 
     ============================
     QtilitiesCoreGui:
@@ -39,6 +42,11 @@ Qtilities v1.1 Changes
     - IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
     - QtilitiesMainWindow makes available the QLabel used to display priority messages.
     - QtilitiesMainWindow makes available the TaskSummaryWidget used to display task summary.
+    - No longer shows a message box when attempting to register actions in the action manager without setting your application main window. This is now just a message logged with qWarning and LOG_WARNING.
+    - TreeNode::addItems now starts a processing cycle on the node before adding.
+    - Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
+    - Observer models now tested and runs without problems through the Qt ModelTest tests.
+    - AbstractTreeItem::setCategory now returns true when the category to be set matches the current category.
 
     ============================
     QtilitiesExtensionSystem:
