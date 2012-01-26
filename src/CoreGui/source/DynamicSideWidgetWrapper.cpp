@@ -46,19 +46,21 @@ using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::DynamicSideWidgetWrapperPrivateData {
     DynamicSideWidgetWrapperPrivateData() : widgetCombo(0),
-    close_action(0),
-    new_action(0),
-    current_widget(0),
-    ignore_combo_box_changes(false) {}
+        close_action(0),
+        new_action(0),
+        current_widget(0),
+        ignore_combo_box_changes(false),
+        is_current_widget_managed(false) {}
 
-    QComboBox* widgetCombo;
-    QAction* close_action;
-    QAction* new_action;
-    QWidget* current_widget;
-    QMap<QString, ISideViewerWidget*> text_iface_map;
-    QList<QAction*> viewer_actions;
-    bool ignore_combo_box_changes;
-    bool is_exclusive;
+    QComboBox*                          widgetCombo;
+    QAction*                            close_action;
+    QAction*                            new_action;
+    QWidget*                            current_widget;
+    QMap<QString, ISideViewerWidget*>   text_iface_map;
+    QList<QAction*>                     viewer_actions;
+    bool                                ignore_combo_box_changes;
+    bool                                is_exclusive;
+    bool                                is_current_widget_managed;
 };
 
 Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, const QString& current_text, const bool is_exclusive, QWidget *parent) :
@@ -99,8 +101,12 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     setObjectName(current_text);
 }
 
-Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper()
-{
+Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper() {
+    if (d->current_widget && !d->is_current_widget_managed) {
+        d->current_widget->hide();
+        d->current_widget->setParent(0);
+    }
+
     delete ui;
     delete d;
 }
@@ -144,7 +150,9 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
 
             setCentralWidget(widget);
             widget->show();
+            widget->setEnabled(true);
             d->current_widget = widget;
+            d->is_current_widget_managed = iface->manageWidgets();
             setObjectName(text);
             emit currentTextChanged(text);
         }
@@ -180,9 +188,8 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleActionClose_triggered()
     if (d->current_widget) {
         QString current_text = d->widgetCombo->currentText();
         ISideViewerWidget* current_iface = d->text_iface_map[current_text];
-        if (current_iface->manageWidgets()) {
+        if (current_iface->manageWidgets())
             delete d->current_widget;
-        }
     }
 
     // Delete this object.
