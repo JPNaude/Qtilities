@@ -578,6 +578,9 @@ void Qtilities::Logging::Logger::writeSettings() const {
 }
 
 void Qtilities::Logging::Logger::readSettings() {
+    if (!d->settings_enabled)
+        return;
+
     // Load logging paramaters using QSettings()
     QSettings settings(d->session_path + QDir::separator() + "qtilities.ini",QSettings::IniFormat);
         settings.beginGroup("Qtilities");
@@ -645,8 +648,7 @@ void Qtilities::Logging::Logger::setIsQtMessageHandler(bool toggle) {
 void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char *msg)
 {
     static QMutex msgMutex;
-    if(!msgMutex.tryLock())
-        return;
+    msgMutex.lock();
 
     switch (type)
     {
@@ -825,7 +827,10 @@ bool Qtilities::Logging::Logger::loadSessionConfig(QString file_name) {
 
     LOG_DEBUG(tr("Logging configuration import started from ") + file_name);
     QFile file(file_name);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+        LOG_INFO(tr("Logging configuration import failed from ") + file_name + tr(". This file could not be opened in read mode."));
+        return false;
+    }
     QDataStream stream(&file);
 
     // ---------------------------------------------------
