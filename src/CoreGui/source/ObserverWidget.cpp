@@ -104,7 +104,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         tree_view(0),
         tree_model(0),
         custom_tree_proxy_model(0),
-        proxy_model(0),
+        tree_proxy_model(0),
+        table_proxy_model(0),
         table_name_column_delegate(0),
         tree_name_column_delegate(0),
         activity_filter(0),
@@ -167,7 +168,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QPointer<QTreeView> tree_view;
     ObserverTreeModel* tree_model;
     QAbstractProxyModel* custom_tree_proxy_model;
-    QAbstractProxyModel* proxy_model;
+    QAbstractProxyModel* tree_proxy_model;
+    QAbstractProxyModel* table_proxy_model;
     NamingPolicyDelegate* table_name_column_delegate;
     NamingPolicyDelegate* tree_name_column_delegate;
     ActivityPolicyFilter* activity_filter;
@@ -241,6 +243,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     Qt::MouseButton button_move;
     //! The mouse button to react to when doing drag and drop copies.
     Qt::MouseButton button_copy;
+
+    QStringList last_expanded_items_result;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -475,7 +479,12 @@ Qtilities::CoreGui::ObserverTreeModel* Qtilities::CoreGui::ObserverWidget::treeM
 }
 
 QAbstractProxyModel* Qtilities::CoreGui::ObserverWidget::proxyModel() const {
-    return d->proxy_model;
+    if (d->display_mode == Qtilities::TreeView)
+        return d->tree_proxy_model;
+    else if (d->display_mode == Qtilities::TableView)
+        return d->table_proxy_model;
+
+    return 0;
 }
 
 void Qtilities::CoreGui::ObserverWidget::setDisplayMode(DisplayMode display_mode) {
@@ -518,21 +527,35 @@ bool Qtilities::CoreGui::ObserverWidget::readOnly() const {
 }
 
 QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
-    if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view) {
+    if (d->display_mode == Qtilities::TreeView && d->tree_model && d->tree_view && d->tree_proxy_model) {
         QStringList expanded_items;
 
-        foreach (QModelIndex index, d->tree_model->getAllIndexes()) {
-            QModelIndex mapped_index;
-            if (d->proxy_model)
-                mapped_index = d->proxy_model->mapFromSource(index);
-            else
-                mapped_index = index;
-
+        QModelIndexList all_indexes = d->tree_model->getAllIndexes();
+        foreach (QModelIndex index, all_indexes) {           
             ObserverTreeItem* item = d->tree_model->getItem(index);
             if (!item)
                 continue;
 
             if (item->itemType() == ObserverTreeItem::CategoryItem || item->itemType() == ObserverTreeItem::TreeNode) {
+                QModelIndex mapped_index;
+                if (d->tree_proxy_model)
+                    mapped_index = d->tree_proxy_model->mapFromSource(index);
+                else
+                    mapped_index = index;
+
+                // For categories we check if the parent observer is already in the list of expanded items before we add it:
+                Observer* obs = d->tree_model->parentOfIndex(index);
+                if (obs) {
+                    if (!expanded_items.contains(obs->observerName())) {
+                        //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent parent is not expanded. Parent: " << obs->observerName();
+                        continue;
+                    } /*else {
+                        qDebug() << "Failed observer parent in list test" << item->objectName();
+                    }*/
+                }/* else {
+                    qDebug() << "Failed observer parent test" << item->objectName();
+                }*/
+
                 if (d->tree_view->isExpanded(mapped_index)) {
                     QString item_text = d->tree_model->data(index,Qt::DisplayRole).toString();
                     if (item_text.endsWith("*"))
@@ -541,10 +564,15 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
                 }
             }
         }
+        d->last_expanded_items_result = expanded_items;
         return expanded_items;
     }
 
     return QStringList();
+}
+
+QStringList Qtilities::CoreGui::ObserverWidget::lastExpandedItemsResults() const {
+    return d->last_expanded_items_result;
 }
 
 void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
@@ -609,6 +637,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             if (!d->tree_view) {
                 d->tree_view = new QTreeView(ui->itemParentWidget);
                 connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)));
+                connect(d->tree_view,SIGNAL(collapsed(QModelIndex)),SLOT(handleCollapsed(QModelIndex)));
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
                 d->tree_view->setRootIsDecorated(true);
                 d->tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -618,8 +647,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setDragEnabled(true);
                 if (!d->tree_model) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
-                    d->tree_model->toggleUseObserverHints(d->use_observer_hints);
-                    d->tree_model->setCustomHints(d->hints_default);
 
                     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
                     connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
@@ -650,6 +677,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
             }
 
+            d->tree_model->toggleUseObserverHints(d->use_observer_hints);
+            d->tree_model->setCustomHints(d->hints_default);
+
             if (ui->itemParentWidget->layout())
                 delete ui->itemParentWidget->layout();
 
@@ -664,22 +694,29 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup proxy model:
             if (!d->custom_tree_proxy_model) {
-                if (!d->proxy_model) {
+                if (!d->tree_proxy_model) {
                     QSortFilterProxyModel* new_model = new ObserverTreeModelProxyFilter(this);
                     new_model->setDynamicSortFilter(true);
                     new_model->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
-                    d->proxy_model = new_model;
+                    d->tree_proxy_model = new_model;
                 }
-            } else
-                d->proxy_model = d->custom_tree_proxy_model;
+            } else {
+                d->tree_proxy_model = d->custom_tree_proxy_model;
 
-            d->proxy_model->setSourceModel(d->tree_model);
-            d->tree_view->setModel(d->proxy_model);
+                QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_tree_proxy_model);
+                if (custom_sort_proxy) {
+                    custom_sort_proxy->setDynamicSortFilter(true);
+                    custom_sort_proxy->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+                }
+            }
+
+            d->tree_proxy_model->setSourceModel(d->tree_model);
+            d->tree_view->setModel(d->tree_proxy_model);
 
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()),Qt::UniqueConnection);
 
-            // The view must always be visible.
+            // The item view must always be visible.
             d->tree_view->setVisible(true);
         } else if (d->display_mode == TableView) {
             // Connect to the current parent observer, in the tree view the model will monitor this for you.
@@ -697,11 +734,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setAcceptDrops(true);
                 d->table_view->setDragEnabled(true);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
-                if (!d->table_model) {
+                if (!d->table_model)
                     d->table_model = new ObserverTableModel(d->table_view);
-                    d->table_model->toggleUseObserverHints(d->use_observer_hints);
-                    d->table_model->setCustomHints(d->hints_default);
-                }
+
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
 
@@ -722,6 +757,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->verticalHeader()->setVisible(false);
             }
 
+            d->table_model->toggleUseObserverHints(d->use_observer_hints);
+            d->table_model->setCustomHints(d->hints_default);
+
             if (ui->itemParentWidget->layout())
                 delete ui->itemParentWidget->layout();
 
@@ -736,17 +774,23 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             // Setup proxy model
             if (!d->custom_table_proxy_model) {
-                if (!d->proxy_model) {
+                if (!d->table_proxy_model) {
                     QSortFilterProxyModel* new_model = new ObserverTableModelCategoryFilter(this);
                     new_model->setDynamicSortFilter(true);
                     new_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
-                    d->proxy_model = new_model;
+                    d->table_proxy_model = new_model;
                 }
-            } else
-                d->proxy_model = d->custom_table_proxy_model;
+            } else {
+                QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_table_proxy_model);
+                if (custom_sort_proxy) {
+                    custom_sort_proxy->setDynamicSortFilter(true);
+                    custom_sort_proxy->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+                }
+                d->table_proxy_model = d->custom_table_proxy_model;
+            }
 
-            d->proxy_model->setSourceModel(d->table_model);
-            d->table_view->setModel(d->proxy_model);
+            d->table_proxy_model->setSourceModel(d->table_model);
+            d->table_view->setModel(d->table_proxy_model);
 
             if (d->table_view->selectionModel()) {
                 d->table_view->selectionModel()->clear();
@@ -936,7 +980,6 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
             connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),
                     SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
     }
-
 }
 
 void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
@@ -982,7 +1025,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->table_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->table_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 1) {
-                    QObject* obj = d->table_model->getObject(d->proxy_model->mapToSource(index));
+                    QObject* obj = d->table_model->getObject(d->table_proxy_model->mapToSource(index));
                     smart_selected_objects << obj;
                     selected_objects << obj;
                 }
@@ -998,8 +1041,8 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
             for (int i = 0; i < d->tree_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->tree_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 0) {
-                    QObject* obj = d->tree_model->getObject(d->proxy_model->mapToSource(index));
-                    ObserverTreeItem* tree_item = d->tree_model->getItem(d->proxy_model->mapToSource(index));
+                    QObject* obj = d->tree_model->getObject(d->tree_proxy_model->mapToSource(index));
+                    ObserverTreeItem* tree_item = d->tree_model->getItem(d->tree_proxy_model->mapToSource(index));
                     if (tree_item->itemType() == ObserverTreeItem::CategoryItem)
                         selected_categories << tree_item->category();
                     else {
@@ -1096,25 +1139,25 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
     QModelIndexList selected_indexes;
 
     if (d->display_mode == TableView) {
-        if (!d->table_view || !d->table_model)
+        if (!d->table_view || !d->table_model || !d->table_proxy_model)
             return selected_indexes;
 
         if (d->table_view->selectionModel()) {
             for (int i = 0; i < d->table_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->table_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 1)
-                    selected_indexes << d->proxy_model->mapToSource(index);
+                    selected_indexes << d->table_proxy_model->mapToSource(index);
             }
         }
     } else if (d->display_mode == TreeView) {
-        if (!d->tree_view || !d->tree_model)
+        if (!d->tree_view || !d->tree_model || !d->tree_proxy_model)
             return selected_indexes;
 
         if (d->tree_view->selectionModel()) {
             for (int i = 0; i < d->tree_view->selectionModel()->selectedIndexes().count(); i++) {
                 QModelIndex index = d->tree_view->selectionModel()->selectedIndexes().at(i);
                 if (index.column() == 0)
-                    selected_indexes << d->proxy_model->mapToSource(index);
+                    selected_indexes << d->tree_proxy_model->mapToSource(index);
             }
         }
     }
@@ -1920,12 +1963,20 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
 
     // If we did not get a valid parent, we revert to the hints set on the widget and log an error message.
     // qDebug() << "Disabling observer hints" << !valid_selection_parent_hints;
-    bool current_uses_observer_hints = usesObserverHints();
-    toggleUseObserverHints(valid_selection_parent_hints);
+    bool change_obs_hints = false;
+    bool current_uses_observer_hints;
+    if (usesObserverHints()) {
+        change_obs_hints = true;
+        current_uses_observer_hints = usesObserverHints();
+        toggleUseObserverHints(valid_selection_parent_hints);
+    }
 
     initialize(true);
-    if (!valid_selection_parent_hints)
-        toggleUseObserverHints(current_uses_observer_hints);
+
+    if (change_obs_hints) {
+        if (!valid_selection_parent_hints)
+            toggleUseObserverHints(current_uses_observer_hints);
+    }
 
     d->update_selection_activity = true;
 
@@ -2327,7 +2378,8 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
     if (!d->initialized || !d_observer)
         return;
 
-    QList<QObject*> current_selection = selectedObjects();
+    // Call selectObjects() in order to update internal d->current_selection.
+    selectedObjects();
     d_observer->refreshViewsLayout(QList<QPointer<QObject> >(),true);
 
     if (activeHints()->activityControlHint() == ObserverHints::FollowSelection && d->activity_filter) {
@@ -2338,7 +2390,7 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
 
     setWindowTitle(d_observer->observerName());
 
-    if (d->navigation_bar)
+    if (d->navigation_bar && d->display_mode == TableView)
         d->navigation_bar->refreshHierarchy();
 }
 
@@ -2606,12 +2658,14 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
 void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
     if (d->tree_view && d->display_mode == TreeView) {
         d->tree_view->expandToDepth(0);
+        //qDebug() << "Collapsing all";
     }
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewExpandAll() {
     if (d->tree_view && d->display_mode == TreeView && isEnabled()) {
         d->tree_view->expandAll();
+        //qDebug() << "Expanding all";
     }
 }
 
@@ -2783,8 +2837,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
     // Only do something in tree view
-    if (d->display_mode == TreeView && d->proxy_model) {
-        ObserverTreeModelProxyFilter* proxy = dynamic_cast<ObserverTreeModelProxyFilter*> (d->proxy_model);
+    if (d->display_mode == TreeView && d->tree_proxy_model) {
+        ObserverTreeModelProxyFilter* proxy = dynamic_cast<ObserverTreeModelProxyFilter*> (d->tree_proxy_model);
         if (proxy) {
             ObserverTreeItem::TreeItemTypeFlags flags = 0;
             if (d->actionFilterNodes->isChecked())
@@ -2904,7 +2958,13 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
             // We only follow selection in table view mode for now.
             if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
                 d->update_selection_activity = false;
-                d->activity_filter->setActiveSubjects(object_list);
+                if (!d->activity_filter->setActiveSubjects(object_list)) {
+                    // We need to do this selection manually:
+                    qDebug() << "Selection rejected by activity policy filter. Rejecting selection change.";
+                    d->update_selection_activity = true;
+                    selectObjects(d->activity_filter->activeSubjects());
+                    d->update_selection_activity = false;
+                }
                 d->update_selection_activity = true;
             }
         }
@@ -2915,7 +2975,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
         // In this case the FollowSelection hint check will happen in the setTreeSelectionParent slot.
     }
 
-    // Emit signals
+    // Emit signals:
     emit selectedObjectsChanged(object_list, selection_parent);
     //qDebug() << "Emitting selectedObjectsChanged() with " << object_list;
 }
@@ -3049,38 +3109,35 @@ void Qtilities::CoreGui::ObserverWidget::selectCategories(QList<QtilitiesCategor
     if (!d->update_selection_activity)
         return;
 
-    if (categories.count() == 0) {
-        if (d->table_view) {
-            if (d->table_view->selectionModel())
-                d->table_view->selectionModel()->clear();
-            emit selectedObjectsChanged(QList<QObject*>());
-        } else if (d->tree_view) {
-            if (d->tree_view->selectionModel())
-                d->tree_view->selectionModel()->clear();
-            emit selectedObjectsChanged(QList<QObject*>());
-        }
-    } else {
+    if (categories.count() > 0) {
         // Handle for the table view
-        if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
+        if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
             d->update_selection_activity = false;
 
-            QModelIndexList indexes;
+            QModelIndexList mapped_indexes;
             QModelIndex index;
             for (int i = 0; i < categories.count(); i++) {
                 index = d->tree_model->findCategory(categories.at(i));
                 if (index.isValid()) {
-                    d->tree_view->scrollTo(d->proxy_model->mapFromSource(index),QAbstractItemView::EnsureVisible);
-                    indexes << index;
+                    QModelIndex mapped_index;
+                    if (d->tree_proxy_model) {
+                        mapped_index = d->tree_proxy_model->mapFromSource(index);
+                    } else
+                        mapped_index = index;
+
+                    if (mapped_index.isValid()) {
+                         mapped_indexes << mapped_index;
+                        d->tree_view->scrollTo(mapped_index,QAbstractItemView::EnsureVisible);
+                    }
                 }
             }
+
 
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < indexes.count(); i++) {
-                    QModelIndex mapped_index = d->proxy_model->mapFromSource(indexes.at(i));
-                    item_selection.select(mapped_index,mapped_index);
-                }
+                for (int i = 0; i < mapped_indexes.count(); i++)
+                    item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
                 selection_model->select(item_selection,QItemSelectionModel::Select);
@@ -3138,88 +3195,79 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
     if (!d->update_selection_activity)
         return;
 
-    if (objects.count() == 0) {
-        if (d->table_view) {
-            if (d->table_view->selectionModel())
-                d->table_view->selectionModel()->clear();
-        } else if (d->tree_view) {
-            if (d->tree_view->selectionModel())
-                d->tree_view->selectionModel()->clear();
-            // Only expand if there are subjects in the observer context.
-            if (d->top_level_observer) {
-                if (d->top_level_observer->subjectCount() > 0)
-                    viewExpandAll();
-            }
-        }
-        d->current_selection.clear();
-        return;
-    }
+    if (objects.count() > 0) {
+        // Handle for the table view
+        if (d->table_view && d->table_model && d->display_mode == TableView && d->table_proxy_model) {
+            d->update_selection_activity = false;
 
-    // Handle for the table view
-    if (d->table_view && d->table_model && d->display_mode == TableView && d->proxy_model) {
-        d->update_selection_activity = false;
-
-        QModelIndexList indexes;
-        QModelIndex index;
-        for (int i = 0; i < objects.count(); i++) {
-            index = d->table_model->getIndex(objects.at(i));
-            if (index.isValid())
-                indexes << index;
-        }
-
-        QItemSelectionModel *selection_model = d->table_view->selectionModel();
-        if (selection_model) {
-            QItemSelection item_selection;
-            for (int i = 0; i < indexes.count(); i++) {
-                d->table_view->selectRow(d->proxy_model->mapFromSource(indexes.at(i)).row());
-                item_selection.merge(d->table_view->selectionModel()->selection(),QItemSelectionModel::Select);
+            QModelIndexList indexes;
+            QModelIndex index;
+            for (int i = 0; i < objects.count(); i++) {
+                index = d->table_model->getIndex(objects.at(i));
+                if (index.isValid())
+                    indexes << index;
             }
 
-            selection_model->clearSelection();
-            selection_model->select(item_selection,QItemSelectionModel::Select);
-            selectedObjects();
-            updateGlobalActiveSubjects();
-        }
+            QItemSelectionModel *selection_model = d->table_view->selectionModel();
+            if (selection_model) {
+                QItemSelection item_selection;
+                for (int i = 0; i < indexes.count(); i++) {
+                    d->table_view->selectRow(d->table_proxy_model->mapFromSource(indexes.at(i)).row());
+                    item_selection.merge(d->table_view->selectionModel()->selection(),QItemSelectionModel::Select);
+                }
 
-        d->update_selection_activity = true;
-
-        // Update the property browser:
-        #ifdef QTILITIES_PROPERTY_BROWSER
-            refreshPropertyBrowser();
-        #endif
-    } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->proxy_model) {
-        d->update_selection_activity = false;
-
-        QModelIndexList indexes;
-        QModelIndex index;
-        for (int i = 0; i < objects.count(); i++) {
-            index = d->tree_model->findObject(objects.at(i));
-            if (index.isValid()) {
-                d->tree_view->scrollTo(d->proxy_model->mapFromSource(index),QAbstractItemView::EnsureVisible);
-                indexes << index;
-            }
-        }
-
-        QItemSelectionModel *selection_model = d->tree_view->selectionModel();
-        if (selection_model) {
-            QItemSelection item_selection;
-            for (int i = 0; i < indexes.count(); i++) {
-                QModelIndex mapped_index = d->proxy_model->mapFromSource(indexes.at(i));
-                item_selection.select(mapped_index,mapped_index);
+                selection_model->clearSelection();
+                selection_model->select(item_selection,QItemSelectionModel::Select);
+                selectedObjects();
+                updateGlobalActiveSubjects();
             }
 
-            selection_model->clearSelection();
-            selection_model->select(item_selection,QItemSelectionModel::Select);
-            selectedObjects();
-            updateGlobalActiveSubjects();
+            d->update_selection_activity = true;
+
+            // Update the property browser:
+            #ifdef QTILITIES_PROPERTY_BROWSER
+                refreshPropertyBrowser();
+            #endif
+        } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
+            d->update_selection_activity = false;
+
+            QModelIndexList mapped_indexes;
+            QModelIndex index;
+            for (int i = 0; i < objects.count(); i++) {
+                index = d->tree_model->findObject(objects.at(i));
+                if (index.isValid()) {
+                    QModelIndex mapped_index;
+                    if (d->tree_proxy_model) {
+                        mapped_index = d->tree_proxy_model->mapFromSource(index);
+                    } else
+                        mapped_index = index;
+
+                    if (mapped_index.isValid()) {
+                         mapped_indexes << mapped_index;
+                        d->tree_view->scrollTo(mapped_index,QAbstractItemView::EnsureVisible);
+                    }
+                }
+            }
+
+            QItemSelectionModel *selection_model = d->tree_view->selectionModel();
+            if (selection_model) {
+                QItemSelection item_selection;
+                for (int i = 0; i < mapped_indexes.count(); i++)
+                    item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
+
+                selection_model->clearSelection();
+                selection_model->select(item_selection,QItemSelectionModel::Select);
+                selectedObjects();
+                updateGlobalActiveSubjects();
+            }
+
+            d->update_selection_activity = true;
+
+            // Update the property browser:
+            #ifdef QTILITIES_PROPERTY_BROWSER
+                refreshPropertyBrowser();
+            #endif
         }
-
-        d->update_selection_activity = true;
-
-        // Update the property browser:
-        #ifdef QTILITIES_PROPERTY_BROWSER
-            refreshPropertyBrowser();
-        #endif
     }
 }
 
@@ -3228,8 +3276,14 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchOptionsChanged() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString& filter_string) {
+    QSortFilterProxyModel* model;
+
+    if (d->table_view && d->table_model && d->display_mode == TableView && d->table_proxy_model)
+         model = qobject_cast<QSortFilterProxyModel*> (d->table_proxy_model);
+    else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model)
+         model = qobject_cast<QSortFilterProxyModel*> (d->tree_proxy_model);
+
     // Check if the installed proxy model is a QSortFilterProxyModel:
-    QSortFilterProxyModel* model = qobject_cast<QSortFilterProxyModel*> (d->proxy_model);
     if (model) {
         Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
         model->setFilterCaseSensitivity(caseSensitivity);
@@ -3340,40 +3394,54 @@ void Qtilities::CoreGui::ObserverWidget::adaptColumns(const QModelIndex & toplef
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleTreeModelBuildAboutToStart() {
-    QStringList expanded_items = findExpandedItems();
+    QStringList expanded_items = lastExpandedItemsResults();
     d->tree_model->setExpandedItems(expanded_items);
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index) {
-    Q_UNUSED(index)
+    if (!index.isValid())
+        return;
+
+    emit expandedNodesChanged(findExpandedItems());
+}
+
+void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &index) {
+    if (!index.isValid())
+        return;
+
     emit expandedNodesChanged(findExpandedItems());
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(const QStringList &node_names) {
-    if (d->tree_view && d->display_mode == Qtilities::TreeView) {
+    if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
         QModelIndexList indexes = d->tree_model->findExpandedNodeIndexes(node_names);
         expandNodes(indexes);
+        //qDebug() << "expandNodes" << node_names;
+
+        if (!node_names.isEmpty())
+            d->last_expanded_items_result = node_names;
     }
 }
 
 void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
-    if (indexes.isEmpty()) {
-        viewExpandAll();
-        return;
-    } else {
-        viewCollapseAll();
-    }
-
-    if (d->tree_view && d->display_mode == Qtilities::TreeView) {
+    if (d->tree_view && d->tree_proxy_model && d->display_mode == Qtilities::TreeView) {
         disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
+
+        if (indexes.isEmpty()) {
+            // For some reason this does not expand the view:
+            viewExpandAll();
+            return;
+        } else {
+            viewCollapseAll();
+        }
+
         foreach (QModelIndex index, indexes) {
-            if (d->proxy_model)
-                d->tree_view->setExpanded(d->proxy_model->mapFromSource(index),true);
+            if (d->tree_proxy_model)
+                d->tree_view->setExpanded(d->tree_proxy_model->mapFromSource(index),true);
             else
                 d->tree_view->setExpanded(index,true);
         }
         connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
-        handleExpanded(QModelIndex());
     }
 }
 

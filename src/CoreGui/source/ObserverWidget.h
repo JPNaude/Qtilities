@@ -224,7 +224,6 @@ categorized_widget->show();
               */
             bool setCustomTreeProxyModel(QAbstractProxyModel* proxy_model);
 
-        protected:
             ObserverTableModel* tableModel() const;
             ObserverTreeModel* treeModel() const;
             QAbstractProxyModel* proxyModel() const;
@@ -254,15 +253,28 @@ categorized_widget->show();
             bool readOnly() const;
             //! Finds all expanded items in the current view.
             /*!
-                This information is set on the tree model and returned as well.
+                It should not be neccesarry to use this function directly, rather use lastExpandedItemsResults() since the internal list of expanded items
+                is automatically updated whenever the expansion state of any item in the view changes.
+
+                Use this function only if you want to force recalculation of the expanded items.
 
                 \note Only usefull when displayMode() is Qtilities::TreeView.
 
-                \sa expandNodes()
+                \sa expandNodes(), lastExpandedItemsResults()
 
                 This function was added in Qtilities v1.1.
                 */
             QStringList findExpandedItems() const;
+            //! Returns the last set of calculated expanded items from the last findExpandedItems() call without calculating them again.
+            /*!
+              When findExpandedItems() is called it stores the results internally. Thus function accesses those results without
+              recalculating them.
+
+              \sa findExpandedItems()
+
+                This function was added in Qtilities v1.1.
+              */
+            QStringList lastExpandedItemsResults() const;
 
         private slots:
             void contextDeleted();
@@ -283,6 +295,11 @@ categorized_widget->show();
               This function was added in Qtilities v1.1.
               */
             void handleExpanded(const QModelIndex & index);
+            //! Slot which listens for the collapsed() signal on the tree view if in Qtilities::TreeView mode in order to emit the latest expansion details using expandedNodesChanged().
+            /*!
+              This function was added in Qtilities v1.1.
+              */
+            void handleCollapsed(const QModelIndex &index);
 
         public slots:
             //! Expand all nodes for which their display names matches the \p node_names parameters.
@@ -556,7 +573,7 @@ categorized_widget->show();
         public slots:
             //! Selects the specified objects in the active item view.
             /*!
-              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
+              \param objects The objects that must be selected. If any objects in the list are not present in the view, they will be ignored. If the list is empty, nothing will happen.
 
               \note This function does not respect the ObserverHints::ActivityControl::FollowSelection hint. You must do this manually.
 
@@ -574,7 +591,7 @@ categorized_widget->show();
             void selectObject(QObject* object);
             //! Selects the specified categories in the active item view.
             /*!
-              \param categories The categories that must be selected. If any categories in the list are not present in the view, they will be ignored. If the list is empty, the current selection will be cleared.
+              \param categories The categories that must be selected. If any categories in the list are not present in the view, they will be ignored. If the list is empty, nothing will happen.
 
               \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategory()
 

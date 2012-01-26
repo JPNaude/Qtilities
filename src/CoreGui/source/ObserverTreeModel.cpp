@@ -63,8 +63,8 @@ using namespace Qtilities::Core::Constants;
 struct Qtilities::CoreGui::ObserverTreeModelData  {
     ObserverTreeModelData() : tree_model_up_to_date(true),
         tree_rebuild_queued(false),
-        tree_building_threading_enabled(false) {}
-
+        tree_building_threading_enabled(false),
+        tree_build_count(0) {}
 
     QPointer<ObserverTreeItem>  rootItem;
     QPointer<Observer>          selection_parent;
@@ -82,6 +82,7 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
     ObserverTreeModelBuilder    tree_builder;
     bool                        tree_rebuild_queued;
     bool                        tree_building_threading_enabled;
+    quint32                     tree_build_count;
 
     //! Nodes to expand in the tree after a rebuild is done.
     QStringList                 expanded_items;
@@ -915,6 +916,8 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                     }
 
                     obs->startProcessingCycle();
+                    bool do_refresh = false;
+
                     // Get all subjects in mime data and change their categories:
                     QList<QPointer<QObject> > subjects = observer_mime_data->subjectList();
                     for (int i = 0; i < subjects.count(); i++) {
@@ -928,12 +931,14 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                                     continue;
 
                                 obs->setMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP,qVariantFromValue(*target_category));
+                                do_refresh= true;
                             }
                         }
                     }
 
                     obs->endProcessingCycle();
-                    obs->refreshViewsLayout(observer_mime_data->subjectList());
+                    if (do_refresh)
+                        obs->refreshViewsLayout(observer_mime_data->subjectList());
                     delete target_category;
                     return true;
                 }
@@ -967,7 +972,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
     return true;
 }
 
-Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () const {
+Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions() const {
     if (!d->tree_model_up_to_date)
         return Qt::IgnoreAction;
 
@@ -977,51 +982,6 @@ Qt::DropActions Qtilities::CoreGui::ObserverTreeModel::supportedDropActions () c
     //drop_actions |= Qt::MoveAction;
     return drop_actions;
 }
-
-/*void Qtilities::CoreGui::ObserverTreeModel::dropEvent(QDropEvent* event) {
-    // This function is called for Qt::MoveAction:
-    if (event->proposedAction() == Qt::MoveAction || event->proposedAction() == Qt::CopyAction) {
-        const ObserverMimeData* observer_mime_data = qobject_cast<const ObserverMimeData*> (event->mimeData());
-        if (observer_mime_data) {
-            if (observer_mime_data->sourceID() == d_observer->observerID()) {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                msgBox.setText(QString(tr("The drop operation could not be completed. The destination and source is the same.")));
-                msgBox.exec();
-                return;
-            }
-
-            if (obs->canAttach(const_cast<ObserverMimeData*> (observer_mime_data)) == Observer::Allowed) {
-                // Now check the proposed action of the event.
-                if (event->proposedAction() == Qt::MoveAction) {
-                    event->accept();
-                    OBJECT_MANAGER->moveSubjects(observer_mime_data->subjectList(),observer_mime_data->sourceID(),obs->observerID());
-                } else if (event->proposedAction() == Qt::CopyAction) {
-                    event->accept();
-
-                    // Attempt to copy the dragged objects
-                    // For now we discard objects that cause problems during attachment and detachment
-                    for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
-                        // Attach to destination
-                        if (!obs->attachSubject(observer_mime_data->subjectList().at(i))) {
-                            QMessageBox msgBox;
-                            msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                            msgBox.setText(QString(tr("Attachment of your object(s) failed in the destination context.")));
-                            msgBox.exec();
-                        }
-                    }
-                }
-            } else {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle(tr("Drop Operation Failed"));
-                msgBox.setText(QString(tr("The drop operation could not be completed. The destination observer cannot accept all the objects in your selection.")));
-                msgBox.exec();
-            }
-        }
-    }
-
-    return;
-}*/
 
 bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_index, const QVariant &value, int role) {
     if (!d->tree_model_up_to_date)
@@ -1201,7 +1161,12 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     #endif
 
     // The view will call setExpandedItems() in its slot.
-    emit treeModelBuildAboutToStart();
+    // Note that the first time we show a context we don't emit the
+    // signal below. This will send an empty list of expanded items
+    // to the view which will cause it to expand all items.
+    if (d->tree_build_count > (quint32) 0)
+        emit treeModelBuildAboutToStart();
+
     // d->expanded_items would have been set in the above code.
     // Now we do the needed replacements:
     for (int i = 0; i < d->expanded_items_replace_map.count(); i++) {
@@ -1225,9 +1190,9 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     columns.push_back(QString(tr("Access")));
     columns.push_back(QString(tr("Type Info")));
     columns.push_back(QString(tr("Object Tree")));
-    d->rootItem = new ObserverTreeItem(0,0,columns);
+    d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
     d->rootItem->setObjectName("Root Item");
-    ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem);
+    ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
     d->rootItem->appendChild(top_level_observer_item);
 
     d->tree_rebuild_queued = false;
@@ -1275,16 +1240,23 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
         new_selection = d->new_selection;
     }
 
-    //emit layoutAboutToBeChanged();
     d->tree_model_up_to_date = true;
 
-    //emit layoutChanged();
     endResetModel();
     emit treeModelBuildEnded();
+    ++d->tree_build_count;
 
     if (d->tree_rebuild_queued) {
         rebuildTreeStructure();
     } else {
+        // From my understanding not needed because we do a proper reset sequence.
+         emit layoutAboutToBeChanged();
+         emit layoutChanged();
+
+        // Restore expanded items:
+        QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
+        emit expandItemsRequest(expanded_indexes);
+
         // Handle item selection after tree has been rebuilt:
         if (new_selection.count() > 0)
             emit selectObjects(new_selection);
@@ -1292,13 +1264,15 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
             emit selectObjects(d->selected_objects);
         else if (d->selected_categories.count() > 0)
             emit selectCategories(d->selected_categories);
-        else
-            emit selectObjects(QList<QPointer<QObject> >());
 
-        // Restore expanded items:
-        QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
-        emit expandItemsRequest(expanded_indexes);
+        // it != source_index_mapping.constEnd() in file c:\ndk_buildrepos\qt-desktop\src\gui\itemviews\qsortfilterproxymodel.cpp, line 192
+        // QSortFilterProxyModel: index from wrong model passed to mapFromSource
     }
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {
+    //qDebug() << "setExpandedItems" << expanded_items;
+    d->expanded_items = expanded_items;
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelectionParent(QModelIndexList index_list) {
@@ -1385,35 +1359,32 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(
     if (!item)
         return 0;
 
-    if (item->itemType() != ObserverTreeItem::CategoryItem) {
-        ObserverTreeItem* item_parent = item->parentItem();
-        if (!item_parent)
-            return 0;
-        if (item_parent->getObject())
-            local_selection_parent = qobject_cast<Observer*> (item_parent->getObject());
-        else
-            return 0;
+    ObserverTreeItem* item_parent = item->parentItem();
+    if (!item_parent)
+        return 0;
+    if (item_parent->getObject())
+        local_selection_parent = qobject_cast<Observer*> (item_parent->getObject());
+    else
+        return 0;
 
+    if (!local_selection_parent) {
+        // Handle the cases where the parent is a category item
+        if (item_parent->itemType() == ObserverTreeItem::CategoryItem) {
+            local_selection_parent = item_parent->containedObserver();
+        }
+
+        // Handle the cases where the parent is an object which has this object's parent observer as its child.
         if (!local_selection_parent) {
-            // Handle the cases where the parent is a category item
-            if (item_parent->itemType() == ObserverTreeItem::CategoryItem) {
-                local_selection_parent = item_parent->containedObserver();
-            }
-
-            // Handle the cases where the parent is an object which has this object's parent observer as its child.
-            if (!local_selection_parent) {
-                if (item_parent->getObject()) {
-                    for (int i = 0; i < item_parent->getObject()->children().count(); i++) {
-                        local_selection_parent = qobject_cast<Observer*> (item_parent->getObject()->children().at(i));
-                        if (local_selection_parent)
-                            break;
-                    }
+            if (item_parent->getObject()) {
+                for (int i = 0; i < item_parent->getObject()->children().count(); i++) {
+                    local_selection_parent = qobject_cast<Observer*> (item_parent->getObject()->children().at(i));
+                    if (local_selection_parent)
+                        break;
                 }
             }
         }
-    } else {
-        local_selection_parent = item->containedObserver();
     }
+
     return local_selection_parent;  
 }
 
@@ -1457,10 +1428,6 @@ bool Qtilities::CoreGui::ObserverTreeModel::readOnly() const {
 
 QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getPersistentIndexList() const {
     return persistentIndexList();
-}
-
-void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {
-    d->expanded_items = expanded_items;
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj) const {
@@ -1600,4 +1567,3 @@ void Qtilities::CoreGui::ObserverTreeModel::handleObserverContextDeleted() {
     clearTreeStructure();
     d->selection_parent = 0;
 }
-
