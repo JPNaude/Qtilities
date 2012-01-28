@@ -45,14 +45,16 @@ HEADERS += source/HelpPlugin.h \
            source/ContentWidgetFactory.h \
            source/IndexWidgetFactory.h \
            source/SearchWidgetFactory.h \
-    source/HelpPluginConfig.h
+           source/HelpPluginConfig.h \
+           source/Browser.h
 
 SOURCES += source/HelpPlugin.cpp \
            source/HelpMode.cpp \
            source/ContentWidgetFactory.cpp \
            source/IndexWidgetFactory.cpp \
            source/SearchWidgetFactory.cpp \
-    source/HelpPluginConfig.cpp
+           source/HelpPluginConfig.cpp \
+           source/Browser.cpp
 
 FORMS   += \
     source/HelpPluginConfig.ui

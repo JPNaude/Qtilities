@@ -36,6 +36,7 @@
 #include "IndexWidgetFactory.h"
 #include "SearchWidgetFactory.h"
 #include "HelpPluginConstants.h"
+#include "Browser.h"
 
 #include <QtilitiesCoreApplication>
 
@@ -127,7 +128,7 @@ struct Qtilities::Plugins::Help::HelpModeData {
         content_widget(0),
         index_widget(0),
         search_widget(0),
-        web_view(0) {}
+        browser(0) {}
 
     bool initialized;
     QDockWidget* side_viewer_dock;
@@ -136,7 +137,7 @@ struct Qtilities::Plugins::Help::HelpModeData {
     ContentWidgetFactory* content_widget;
     IndexWidgetFactory* index_widget;
     SearchWidgetFactory* search_widget;
-    QWebView* web_view;
+    Browser* browser;
 };
 
 HelpMode::HelpMode(QWidget *parent) :
@@ -186,13 +187,13 @@ void HelpMode::initiallize() {
     } else
         view_menu->addAction(command);
 
-    d->web_view = new QWebView(this);
-    setCentralWidget(d->web_view);
+    d->browser = new Browser(QUrl(),this);
+    setCentralWidget(d->browser);
 
-    QNetworkAccessManager *current_manager = d->web_view->page()->networkAccessManager();
+    QNetworkAccessManager *current_manager = d->browser->webView()->page()->networkAccessManager();
     qti_private_HelpNetworkAccessManager* newManager = new qti_private_HelpNetworkAccessManager(HELP_MANAGER->helpEngine(), current_manager, this);
-    d->web_view->page()->setNetworkAccessManager(newManager);
-    d->web_view->page()->setForwardUnsupportedContent(false);
+    d->browser->webView()->page()->setNetworkAccessManager(newManager);
+    d->browser->webView()->page()->setForwardUnsupportedContent(false);
 
     // - Register Contents Widget Factory
     d->content_widget = new ContentWidgetFactory(HELP_MANAGER->helpEngine());
@@ -277,7 +278,5 @@ void HelpMode::handleNewHelpWidget(QWidget* widget) {
 }
 
 void HelpMode::handleUrl(const QUrl& url) {
-    d->web_view->load(url);
+    d->browser->webView()->load(url);
 }
-
-
