@@ -36,6 +36,7 @@
 #include "QtilitiesCoreConstants.h"
 
 #include <QDomElement>
+#include <QApplication>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core::Constants;
@@ -49,7 +50,7 @@ namespace Qtilities {
 Qtilities::CoreGui::TreeFileItem::TreeFileItem(const QString& file_path, const QString& relative_to_path, PathDisplay path_display, QObject* parent) : TreeItemBase(file_path, parent) {
     treeFileItemBase = new TreeFileItemPrivateData;
     d_path_display = path_display;
-    setFile(file_path,relative_to_path);
+    setFileForce(file_path,relative_to_path);
     installEventFilter(this);
 }
 
@@ -106,7 +107,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
         if (data.tagName() == "FileInfo") {
             // Restore the file path/name:
             if (data.hasAttribute("Path")) {
-                setFile(data.attribute("Path"));
+                setFileForce(data.attribute("Path"));
                 result = IExportable::Complete;
             }
             if (data.hasAttribute("RelativeToPath")) {
@@ -133,11 +134,14 @@ void Qtilities::CoreGui::TreeFileItem::setFactoryData(InstanceFactoryInfo instan
 
 bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *event) {
     if (!treeFileItemBase->ignore_events) {
-        if (object == this && event->type() == QEvent::DynamicPropertyChange) {
-            QDynamicPropertyChangeEvent* propertyChangeEvent = static_cast<QDynamicPropertyChangeEvent *>(event);
-            if (propertyChangeEvent) {
-                QString property_name = QString(propertyChangeEvent->propertyName().data());
-                if (property_name == QString(qti_prop_NAME) && !d_queued_file_path.isEmpty()) {
+        if (object == this && event->type() == QEvent::User) {
+            QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
+            if (qtilities_event) {
+                //if (d_queued_file_path.isEmpty())
+                //    qDebug() << "Caught QtilitiesPropertyChangeEvent on design file. Queued file is empty, not updating internal QFileInfo";
+                if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_NAME) && !d_queued_file_path.isEmpty()) {
+                    //qDebug() << "Caught QtilitiesPropertyChangeEvent on design file. Updating internal QFileInfo. Queued file: " << d_queued_file_path;
+
                     // Finish off what was started in setFile():
                     treeFileItemBase->file_info.setFile(d_queued_file_path);
                     if (!d_queued_relative_to_path.isEmpty())
@@ -156,18 +160,13 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
                 }
             }
         }
+    //} else {
+        //qDebug() << "Ignoring DynamicPropertyChange event on object:" << this;
     }
     return false;
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const QString& relative_to_path, bool broadcast) {
-    bool modified = false;
-    if (file_path != filePath() || (relative_to_path != relativeToPath() && !relative_to_path.isEmpty()))
-        modified = true;
-
-    if (!modified)
-        return;
-
     QtilitiesFileInfo fi(file_path,relative_to_path);
 
     // We need to check if an object name exists first:
@@ -177,23 +176,34 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
         d_queued_file_path = file_path;
         d_queued_relative_to_path = relative_to_path;
 
+        //qDebug() << "Not updating internal QFileInfo in TreeFileItem::setFile(). This will happen in event filter and indicated using a debug message. Queued file: " << d_queued_file_path;
         SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
         ObjectManager::setSharedProperty(this,new_subject_name_property);
         setObjectName(fi.actualFilePath());
+
+        QApplication::processEvents();
     } else {
         // Handle cases where there is no naming policy filter:
         setObjectName(fi.actualFilePath());
 
         // In this case we do not need to check in eventFilter() since the object name was correctly updated:
         treeFileItemBase->file_info.setFile(file_path);
-        if (!relative_to_path.isEmpty())
-            treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+        treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
     }
 
     setModificationState(true,IModificationNotifier::NotifyListeners);
 
     if (broadcast)
         emit filePathChanged(fi.actualFilePath());
+}
+
+void CoreGui::TreeFileItem::setFileForce(const QString &file_path, const QString &relative_to_path, bool broadcast) {
+    if (ObjectManager::propertyExists(this,qti_prop_NAME)) {
+        treeFileItemBase->file_info.setFile(file_path);
+        treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+        setFile(file_path,relative_to_path,broadcast);
+    } else
+        setFile(file_path,relative_to_path,broadcast);
 }
 
 QString Qtilities::CoreGui::TreeFileItem::displayName(const QString& file_path) {

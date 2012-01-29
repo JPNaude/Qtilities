@@ -66,10 +66,10 @@ namespace Qtilities {
           in a tree. This functionality includes:
           - A QFile representing the file is stored.
           - Importing/exporting of the file path is done automatically.
-          - It is possible to format the tree item depending on the file. You can for example color files which does not exist
-          red and one that does exist green etc.
+          - It is possible to format the tree item depending on the file. You can for example color files which does not exist red and files that does exist green etc.
 
-          \note This class is meant to be used where the tree item will only be attached to a single observer context.
+          \note This class is meant to be used where the tree item will only be attached to a single observer context since setFile() does not update any qti_prop_ALIAS_MAP. You can
+                however reimplement setFile() and setFileForce() in order to implement this functionality if needed.
 
           <i>This class was added in %Qtilities v0.2.</i>
         */
@@ -107,18 +107,47 @@ namespace Qtilities {
             //! Gets the PathDisplay used for this tree file item.
             inline PathDisplay pathDisplay() const { return d_path_display; }
 
-            //! Sets the file path of this tree file item.
+            //! Sets the file path of this tree file item and only update the internal QFileInfo when the change was validated by any subject filters.
             /*!
-              Does the same as QFileInfo::setFile() except that is also sets the correct property on the object needed to display it in an ObserverWidget.
+              Does the same as QFileInfo::setFile() except that it also sets the correct property on the object needed to display it in an ObserverWidget.
 
-              This function will check if there is an qti_prop_NAME property on this object and set it. If it does not exist it will
+              This function will check if there is a qti_prop_NAME property on this object and set it. If it does not exist it will
               just set objectName(). Note that this does not set the names in the qti_prop_ALIAS_MAP property if it exists.
+
+              Important: If the qti_prop_NAME property exists this function will set the property, but not the path on the internal QFileInfo. When a QtilitiesPropertyChangeEvent
+              is recieved it will update the internal QFileInfo. This is usefull in cases where the name change can be rejected (for example when a NamingPolicyFilter detects a duplicate). Thus
+              the internal QFileInfo will only be changed when the new paths are valid. The important thing to remember here is that in order for a QtilitiesPropertyChangeEvent to be
+              delivered, the observer to which the TreeFileItem is attached needs to have delivery of QtilitiesPropertyChangeEvent events enabled.
+
+              An alternative is to call setFileForce() which will update the internal QFileInfo without waiting for a QtilitiesPropertyChangeEvent. Make sure you understand when to use
+              setFileForce() since the internal QFileInfo can get out of sync with the object name if the object name property is rejected by any subject filters. However if you are sure
+              that it won't be rejected, setFileForce() should be used instead of setFile().
 
               \param file_path The new file path.
               \param relative_to_path The relative to path to use.
               \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
+
+              \sa setFileForce()
               */
             virtual void setFile(const QString& file_path, const QString& relative_to_path = QString(), bool broadcast = true);
+            //! Sets the file path of this tree file item and update the internal QFileInfo without waiting for the change to be validated.
+            /*!
+              Does the same as setFile() except that it updates the internal QFileInfo immediately.
+
+              This function will check if there is a qti_prop_NAME property on this object and set it. If it does not exist it will
+              just set objectName(). Note that this does not set the names in the qti_prop_ALIAS_MAP property if it exists.
+
+              Important: See the documentation of setFile() in order to understand when to use setFile() and when to use setFileForce().
+
+              \param file_path The new file path.
+              \param relative_to_path The relative to path to use.
+              \param broadcast Indicates if the file model must broadcast that it was changed. This also hold for the modification state status of the file model.
+
+              \sa setFile()
+
+              This function was added in Qtilities v1.1.
+              */
+            virtual void setFileForce(const QString& file_path, const QString& relative_to_path = QString(), bool broadcast = true);
 
             //! See QFileInfo::isRelative().
             bool isRelative() const;
