@@ -1244,14 +1244,13 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
 
     endResetModel();
     emit treeModelBuildEnded();
-    ++d->tree_build_count;
 
     if (d->tree_rebuild_queued) {
         rebuildTreeStructure();
     } else {
         // From my understanding not needed because we do a proper reset sequence.
-         emit layoutAboutToBeChanged();
-         emit layoutChanged();
+        emit layoutAboutToBeChanged();
+        emit layoutChanged();
 
         // Restore expanded items:
         QModelIndexList expanded_indexes = findExpandedNodeIndexes(d->expanded_items);
@@ -1265,8 +1264,7 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
         else if (d->selected_categories.count() > 0)
             emit selectCategories(d->selected_categories);
 
-        // it != source_index_mapping.constEnd() in file c:\ndk_buildrepos\qt-desktop\src\gui\itemviews\qsortfilterproxymodel.cpp, line 192
-        // QSortFilterProxyModel: index from wrong model passed to mapFromSource
+        ++d->tree_build_count;
     }
 }
 

@@ -677,9 +677,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
             }
 
-            d->tree_model->toggleUseObserverHints(d->use_observer_hints);
-            d->tree_model->setCustomHints(d->hints_default);
-
             if (ui->itemParentWidget->layout())
                 delete ui->itemParentWidget->layout();
 
@@ -689,7 +686,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setEnabled(true);
 
             d->tree_model->setObjectName(d->top_level_observer->observerName());
-            d->tree_model->setObserverContext(d->top_level_observer);
             d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
 
             // Setup proxy model:
@@ -712,6 +708,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
             d->tree_proxy_model->setSourceModel(d->tree_model);
             d->tree_view->setModel(d->tree_proxy_model);
+
+            d->tree_model->setObserverContext(d->top_level_observer);
 
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()),Qt::UniqueConnection);
@@ -757,9 +755,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->verticalHeader()->setVisible(false);
             }
 
-            d->table_model->toggleUseObserverHints(d->use_observer_hints);
-            d->table_model->setCustomHints(d->hints_default);
-
             if (ui->itemParentWidget->layout())
                 delete ui->itemParentWidget->layout();
 
@@ -800,6 +795,15 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             // The view must always be visible.
             d->table_view->setVisible(true);
         }
+    }
+
+    // Toggle use observer hints on custom models and set custom hints everytime initialize() is called.
+    if (d->display_mode == TreeView && d->tree_model) {
+        d->tree_model->toggleUseObserverHints(d->use_observer_hints);
+        d->tree_model->setCustomHints(d->hints_default);
+    } else if (d->display_mode == TableView && d->table_model) {
+        d->table_model->toggleUseObserverHints(d->use_observer_hints);
+        d->table_model->setCustomHints(d->hints_default);
     }
 
     // Check if the hierarchy navigation bar should be visible:
@@ -2960,7 +2964,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
                 d->update_selection_activity = false;
                 if (!d->activity_filter->setActiveSubjects(object_list)) {
                     // We need to do this selection manually:
-                    qDebug() << "Selection rejected by activity policy filter. Rejecting selection change.";
+                    //qDebug() << "Selection rejected by activity policy filter. Rejecting selection change.";
                     d->update_selection_activity = true;
                     selectObjects(d->activity_filter->activeSubjects());
                     d->update_selection_activity = false;
@@ -2968,7 +2972,6 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
                 d->update_selection_activity = true;
             }
         }
-
     } else if (d->display_mode == TreeView) {
         if (d->update_selection_activity)
             selection_parent = d->tree_model->calculateSelectionParent(selectedIndexes());
@@ -3428,7 +3431,6 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
         disconnect(d->tree_view,SIGNAL(expanded(QModelIndex)),this,SLOT(handleExpanded(QModelIndex)));
 
         if (indexes.isEmpty()) {
-            // For some reason this does not expand the view:
             viewExpandAll();
             return;
         } else {

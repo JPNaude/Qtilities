@@ -914,4 +914,3 @@ categorized_widget->show();
 }
 
 #endif // OBSERVERWIDGET_H
-
