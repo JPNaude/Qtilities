@@ -474,7 +474,7 @@ void MyObject::doSomething(ITask* task) {
         Log->logMessage(QString(),Logger::Info,"Message");
 
     // We can just do this:
-    ITask::logMessage("Message",task,Logger::Info);
+    ITask::logMessageToTask("Message",task,Logger::Info);
 
     // Macros makes this even easier and allows us to do things like:
     LOG_TASK_INFO("Message",task);
@@ -484,9 +484,9 @@ void MyObject::doSomething(ITask* task) {
                     If no task was passed to the function, the messages will be logged as system wide messages to the logger. If a valid task was
                     received the message will be logged to the task.
 
-                    \sa logPriorityMessage
+                    \sa logPriorityMessageToTask
                   */
-                static void logMessage(const QString& message, ITask* task = 0, Logger::MessageType type = Logger::Info) {
+                static void logMessageToTask(const QString& message, ITask* task = 0, Logger::MessageType type = Logger::Info) {
                     if (task)
                         task->logMessage(message,type);
                     else
@@ -508,16 +508,16 @@ void MyObject::doSomething(ITask* task) {
     Log->logPriorityMessage(QString(),Logger::Info,"Message");
 
     // We can just do this:
-    ITask::logPriorityMessage("Message",task,Logger::Info);
+    ITask::logPriorityMessageToTask("Message",task,Logger::Info);
 
     // Macros makes this even easier and allows us to do things like:
     LOG_TASK_INFO_P("Message",task);
 }
 \endcode
 
-                    \sa logMessage()
+                    \sa logMessageToTask()
                   */
-                static void logPriorityMessage(const QString& message, ITask* task = 0, Logger::MessageType type = Logger::Info) {
+                static void logPriorityMessageToTask(const QString& message, ITask* task = 0, Logger::MessageType type = Logger::Info) {
                     if (task)
                         task->logMessage(message,type);
                     else
@@ -545,36 +545,36 @@ void MyObject::doSomething(ITask* task) {
 /*!
     \note Trace messages are not part of release mode builds.
 
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_TRACE(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(Msg,task,Qtilities::Logging::Logger::Trace)
+#define LOG_TASK_TRACE(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(Msg,task,Qtilities::Logging::Logger::Trace)
 //! Logs a debug message directed at a task.
 /*!
     \note Trace messages are not part of release mode builds.
 
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_DEBUG(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(Msg,task,Qtilities::Logging::Logger::Debug)
+#define LOG_TASK_DEBUG(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(Msg,task,Qtilities::Logging::Logger::Debug)
 //! Logs an error message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_ERROR(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(Msg,task,Qtilities::Logging::Logger::Error)
+#define LOG_TASK_ERROR(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(Msg,task,Qtilities::Logging::Logger::Error)
 //! Logs a warning message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_WARNING(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(Msg,task,Qtilities::Logging::Logger::Warning)
+#define LOG_TASK_WARNING(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(Msg,task,Qtilities::Logging::Logger::Warning)
 //! Logs a fatal message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_FATAL(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(QMsg,task,Qtilities::Logging::Logger::Fatal)
+#define LOG_TASK_FATAL(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(QMsg,task,Qtilities::Logging::Logger::Fatal)
 //! Logs an information message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logMessageToTask()
   */
-#define LOG_TASK_INFO(Msg,task) Qtilities::Core::Interfaces::ITask::logMessage(Msg,task,Qtilities::Logging::Logger::Info)
+#define LOG_TASK_INFO(Msg,task) Qtilities::Core::Interfaces::ITask::logMessageToTask(Msg,task,Qtilities::Logging::Logger::Info)
 
 // -----------------------------------
 // Priority Task Logging Macros
@@ -583,36 +583,36 @@ void MyObject::doSomething(ITask* task) {
 /*!
     \note Trace messages are not part of release mode builds.
 
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_TRACE_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Trace)
+#define LOG_TASK_TRACE_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTaskToTask(Msg,task,Qtilities::Logging::Logger::Trace)
 //! Logs a priority debug message directed at a task.
 /*!
     \note Trace messages are not part of release mode builds.
 
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_DEBUG_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Debug)
+#define LOG_TASK_DEBUG_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask(Msg,task,Qtilities::Logging::Logger::Debug)
 //! Logs a priority error message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_ERROR_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Error)
+#define LOG_TASK_ERROR_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask(Msg,task,Qtilities::Logging::Logger::Error)
 //! Logs a priority warning message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_WARNING_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Warning)
+#define LOG_TASK_WARNING_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask(Msg,task,Qtilities::Logging::Logger::Warning)
 //! Logs a priority fatal message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_FATAL_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Fatal)
+#define LOG_TASK_FATAL_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask(Msg,task,Qtilities::Logging::Logger::Fatal)
 //! Logs a priority information message directed at a task.
 /*!
-    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessage()
+    \sa Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
   */
-#define LOG_TASK_INFO_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessage(Msg,task,Qtilities::Logging::Logger::Info)
+#define LOG_TASK_INFO_P(Msg,task) Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask(Msg,task,Qtilities::Logging::Logger::Info)
 
 
 Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::ITask,"com.Qtilities.Core.ITask/1.0")
