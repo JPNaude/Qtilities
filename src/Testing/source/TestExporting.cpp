@@ -675,7 +675,7 @@ void Qtilities::Testing::TestExporting::testTreeFileItem_w1_0_r1_0() {
     TreeFileItem* obj_import_binary = new TreeFileItem;
     TreeFileItem* obj_import_xml = new TreeFileItem;
 
-    obj_source->setFile("TestFileName.txt","/RelativeToPath");
+    obj_source->setFileForce("TestFileName.txt","/RelativeToPath");
     obj_source->setForegroundRole(QBrush(Qt::darkRed));
     obj_source->setFont(QFont("Helvetica [Cronyx]",20));
     obj_source->setAlignment(Qt::AlignCenter);

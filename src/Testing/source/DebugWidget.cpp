@@ -97,7 +97,6 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     // Global Object Pool:
     d->object_pool_widget = new ObserverWidget(Qtilities::TreeView);
     d->object_pool_widget->setObserverContext(OBJECT_MANAGER->objectPool());
-    OBJECT_MANAGER->objectPool()->endProcessingCycle();
 
     if (ui->widgetObjectPoolHolder->layout())
         delete ui->widgetObjectPoolHolder->layout();
@@ -125,6 +124,8 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     d->object_pool_widget->toggleSearchBox();
     connect(d->object_pool_widget,SIGNAL(doubleClickRequest(QObject*)),SLOT(handle_objectPoolDoubleClick(QObject*)));
     connect(d->object_pool_widget,SIGNAL(selectedObjectsChanged(QList<QObject*>)),SLOT(handle_objectPoolSelectionChanged(QList<QObject*>)));
+
+    OBJECT_MANAGER->objectPool()->endProcessingCycle();
 
     // Conan Widgets:
     ui->lblConanLabel->setText("Signal and slot analysis is done using the <a href=\"http://sourceforge.net/projects/conanforqt\">Conan</a> library.");

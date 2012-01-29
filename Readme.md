@@ -11,7 +11,7 @@ This archive contains files which will guide you through the process of building
 * On Windows see "Building on Windows.txt"
 * On Linux see "Building on Linux.txt"
 
-Alternatively see http://www.qtilities.org/docs/v1_0/page_getting_started.html. The documentation can be compiled by providing Doxygen with the /doc/doxyfile_website input file. On Windows you can run the /doc/win32_website.bat file directly if doxygen is in your path. Note that Doxygen versions prior to v1.7.4 generates garbage in some parts of the documentation.
+Alternatively see http://www.qtilities.org/docs/master/page_getting_started.html. The documentation can be compiled by providing Doxygen with the /doc/doxyfile_website input file. On Windows you can run the /doc/win32_website.bat file directly if doxygen is in your path. Note that Doxygen versions prior to v1.7.4 generates garbage in some parts of the documentation.
 
 More Information
 ----------------

@@ -20,6 +20,8 @@ Qtilities v1.1 Changes
     - Added new signals on ITask: taskAboutToPause(), taskAboutToComplete(), taskSubTaskAboutToComplete(), taskAboutToStop(), taskAboutToStart(), taskAboutToResume().
     - Updated IFactoryProvider and factory to use categories better.
     - ActivityPolicyFilter::setActiveSubject(s) functions changed to return bool indicating if the new selection was accepted by the filter according to its policies.
+    - TreeIterator can now iterate trees with subjects attached to multiple nodes in the tree without problems. See the updated TreeItereator documentation for details.
+    - Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
 
     ============================
     QtilitiesCoreGui:
@@ -47,6 +49,9 @@ Qtilities v1.1 Changes
     - Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
     - Observer models now tested and runs without problems through the Qt ModelTest tests.
     - AbstractTreeItem::setCategory now returns true when the category to be set matches the current category.
+    - ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called. Previously it only happened when the "hints_only" parameter was false.
+    - Added new setFileForce() function to TreeFileItem.
+    - Updated dependency graph in documentation to show CoreGui dependency on QtHelp unless QTILITIES_NO_HELP is defined.
 
     ============================
     QtilitiesExtensionSystem:

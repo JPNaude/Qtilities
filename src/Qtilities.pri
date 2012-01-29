@@ -40,6 +40,9 @@ include(Dependencies.pri)
 #   When defined, basic benchmarking of potentially long operations in
 #   Qtilities is done by logging execution times as debug messages.
 #   DEFINES += QTILITIES_BENCHMARKING
+#   When defined, the Core library does not contain the HELP_MANAGER,
+#   removing the dependency on QtHelp.
+#   DEFINES += QTILITIES_NO_HELP
 #****************************************************************************
 
 #****************************************************************************
