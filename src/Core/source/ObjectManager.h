@@ -191,6 +191,20 @@ namespace Qtilities {
             void setMetaTypeActiveObjects(QList<QPointer<QObject> > objects, const QString& meta_type);
 
             // --------------------------------
+            // Conversion Functions
+            // --------------------------------
+            //! Converts a QList<QPointer<QObject> > object list to a QList<QObject*> list.
+            /*!
+              This function was added in %Qtilities v1.1.
+              */
+            static QList<QObject*> convSafeObjectsToNormal(QList<QPointer<QObject> > safe_list);
+            //! Converts a QList<QObject*> object list to a QList<QPointer<QObject> > list.
+            /*!
+              This function was added in %Qtilities v1.1.
+              */
+            static QList<QPointer<QObject> > convNormalObjectsToSafe(QList<QObject*> normal_list);
+
+            // --------------------------------
             // Static Dynamic Property Functions
             // --------------------------------
             //! Streams exportable dynamic properties about the object to the given QDataStream.

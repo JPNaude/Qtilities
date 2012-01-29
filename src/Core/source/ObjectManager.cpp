@@ -328,7 +328,6 @@ QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QStri
     return d->object_pool.subjectReferences(iface);
 }
 
-// TODO: Remove this:
 void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type) {
     QList<QPointer<QObject> > smart_objects;
     for (int i = 0; i < objects.count(); i++)
@@ -345,6 +344,23 @@ void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QPointer<QOb
 
 QList<QPointer<QObject> > Qtilities::Core::ObjectManager::metaTypeActiveObjects(const QString& meta_type) const {
     return d->meta_type_map[meta_type];
+}
+
+// --------------------------------
+// Conversion Functions
+// --------------------------------
+QList<QObject*> Qtilities::Core::ObjectManager::convSafeObjectsToNormal(QList<QPointer<QObject> > safe_list) {
+    QList<QObject*> normal_objects;
+    for (int i = 0; i < safe_list.count(); i++)
+        normal_objects << safe_list.at(i);
+    return normal_objects;
+}
+
+QList<QPointer<QObject> > Qtilities::Core::ObjectManager::convNormalObjectsToSafe(QList<QObject*> normal_list) {
+    QList<QPointer<QObject> > smart_objects;
+    for (int i = 0; i < normal_list.count(); i++)
+        smart_objects << normal_list.at(i);
+    return smart_objects;
 }
 
 // --------------------------------
