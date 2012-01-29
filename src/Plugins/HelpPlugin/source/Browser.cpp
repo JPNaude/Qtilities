@@ -169,12 +169,12 @@ void Qtilities::Plugins::Help::Browser::handle_finished(bool ok){
         return;
 
     if (!ok) {
-        d->web_view->setHtml(d->errorMsg);
-        if (!d->web_view->url().toString().isEmpty() && (d->web_view->url().toString() != "about:blank"))
-            LOG_ERROR(tr("Error while loading page at ") + d->web_view->url().toString());
+        //d->web_view->setHtml(d->errorMsg);
+        //if (!d->web_view->url().toString().isEmpty() && (d->web_view->url().toString() != "about:blank"))
+        LOG_ERROR(tr("Error while loading page at ") + d->web_view->url().toString());
     } else {
         //if (QDir::toNativeSeparators(QUrl::toLocalFile(d->web_view->url().toString())) != QDir::toNativeSeparators(QApplication::applicationDirPath() + PATH_FILE_NO_DOCS))
-        LOG_INFO_P(tr("Successfully loaded page at ") + d->web_view->url().toString());
+        //LOG_INFO(tr("Successfully loaded page at ") + d->web_view->url().toString());
     }
 
     d->locationBar->setEnabled(true);
@@ -229,6 +229,7 @@ void Qtilities::Plugins::Help::Browser::handleSearchClose() {
 }
 
 void Qtilities::Plugins::Help::Browser::handleLoadProgress(int value) {
-    if (value < 100 && d->web_view->url().scheme() == "http")
-        LOG_INFO_P(tr("Loading page at ") + d->web_view->url().toString() + ": " + QString::number(value) + "%");
+    Q_UNUSED(value);
+    //if (value < 100 && d->web_view->url().scheme() == "http")
+    //    LOG_INFO(tr("Loading page at ") + d->web_view->url().toString() + ": " + QString::number(value) + "%");
 }
