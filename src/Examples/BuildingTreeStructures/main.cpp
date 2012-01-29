@@ -165,12 +165,12 @@ int main(int argc, char *argv[])
 
     // TODO: This breaks the toolbar for some reason... Looks like a display issue since it only happens in QTabWidget:
     //rootNodeMinimumSelection->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
-    rootNodeMinimumSelection->displayHints()->setActionHints(ObserverHints::ActionRefreshView);
+    //rootNodeMinimumSelection->displayHints()->setActionHints(ObserverHints::ActionRefreshView | ObserverHints::ActionDeleteItem);
     rootNodeMinimumSelection->addItem("Child 1");
     rootNodeMinimumSelection->addItem("Child 2");
     rootNodeMinimumSelection->addItem("Child 3");
     rootNodeMinimumSelection->addItem("Child 4");
-    TreeWidget* minimum_selection_widget = new TreeWidget(Qtilities::TableView);
+    ObserverWidget* minimum_selection_widget = new ObserverWidget(Qtilities::TableView);
     minimum_selection_widget->setObserverContext(rootNodeMinimumSelection);
     minimum_selection_widget->initialize();
     tab_widget->addTab(minimum_selection_widget,QIcon(),"Forcing Minimum Selection In Table");
