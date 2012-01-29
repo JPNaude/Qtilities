@@ -93,7 +93,7 @@ while (itr.hasNext()) {
 // >> 4
 \endcode
 
-            In this simple examples above we didn't need to worry about cases where tree items can have multiple parents. If they do have multiple parents, we must specify the Observer that we are interested in:
+            In the simple examples above we didn't need to worry about cases where tree items can have multiple parents. If they do have multiple parents, we must specify the Observer that we are interested in:
 
 \code
 TreeNode node;
@@ -110,7 +110,7 @@ nodeB->addItem("6");
 // If we want to iterate through the subjects in nodeA:
 SubjectIterator<QObject> itrA(nodeA,SubjectIterator<QObject>::IterateChildren);
 
-// In this case item1 will be skipped (approach 1):
+// In this case item1 will not be skipped (approach 1):
 while (itrA.hasNext()) {
     qDebug() << itrA.current()->objectName();
     itrA.next();
@@ -254,8 +254,22 @@ while (itrB.hasNext()) {
                 if (parents.count() > 1) {
                     if (d_parent_observer)
                         return d_parent_observer;
-                    else
-                        return parents.front();
+                    else {
+                        // In here we set the observer ID of obs on the last and the first subjects in the observer context.
+                        SharedProperty prop = ObjectManager::getSharedProperty(d_root,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                        if (prop.isValid()) {
+                            int obs_id = prop.value().toInt();
+                            Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                            if (parent_obs) {
+                                return parent_obs;
+                            } else {
+                                qWarning() << "SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
+                                LOG_FATAL("SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
+                                Q_ASSERT(parent_obs);
+                            }
+                        }
+                    }
+                    return 0;
                 } else if (parents.count() == 1)
                     return parents.front();
                 else

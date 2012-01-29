@@ -194,6 +194,20 @@ Qtilities::Core::ObserverRelationalTable.
 */
 const char * const qti_prop_VISITOR_ID    = "qti.core.VisitorID";
 
+//! Source %Observer During Tree Iteration.
+/*!
+This is an internal property which is used during iteration of trees
+where subjects are attached multiple times within the same tree.
+
+<b>Permission:</b> Reserved<br>
+<b>Data Type:</b> int<br>
+<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
+<b>Is Exportable:</b> No<br>
+<b>Change Notifications:</b> No<br>
+<b>Removable:</b> No
+*/
+const char * const qti_prop_TREE_ITERATOR_SOURCE_OBS    = "qti.core.TreeIteratorSourceObs";
+
 //! Object Limited Exports Property
 /*!
 This is an internal property which is used during observer exporting in order

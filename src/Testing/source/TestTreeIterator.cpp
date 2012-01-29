@@ -135,7 +135,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
     }
 }
 
-void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents() {
+void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParentsA() {
     TreeNode* rootTop = new TreeNode("Root Node");
 
     // This is the first tree (A):
@@ -161,10 +161,8 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents()
     rootTop->attachSubject(rootNodeB);
 
     ObserverDotWriter writer(rootTop);
-    // This line hangs the writer, bug somewhere:
-    //writer.addNodeAttribute(shared_item,"color","red");
-    bool created_dot_file = writer.saveToFile(QtilitiesApplication::applicationSessionPath() + "/testIterationForwardMultipleParents.gv");
-    qDebug() << created_dot_file;
+    writer.addNodeAttribute(shared_item,"color","red");
+    writer.saveToFile(QtilitiesApplication::applicationSessionPath() + "/testIterationForwardMultipleParents.gv");
 
     // Now try to iterate through tree A:
     TreeIterator itr(rootNodeA);
@@ -189,6 +187,93 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParents()
     for (int i = 0; i < testList.count(); i++) {
         QVERIFY(testList.at(i).compare("A" + QString::number(i+1)) == 0);
     }
+}
+
+void Testing::TestTreeIterator::testIterationForwardMultipleParentsB() {
+    TreeNode* rootNodeA = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNodeA->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNodeA->addNode("Parent 2");
+    TreeNode* parentNode3 = rootNodeA->addNode("Parent 3");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode1->addItem("Child 3");
+    parentNode1->addItem("Child 4");
+    parentNode1->addItem("Child 5");
+    parentNode2->addItem("Child 6");
+    parentNode2->addItem("Child 7");
+    parentNode2->addItem("Child 8");
+    parentNode2->addItem("Child 9");
+    parentNode2->addItem("Child 10");
+    parentNode3->addItem("Child 11");
+    parentNode3->addItem("Child 12");
+    parentNode3->addItem("Child 13");
+    TreeItem* shared_item = parentNode3->addItem("Shared");
+    TreeItem* last = parentNode3->addItem("Child 15");
+
+    // Add the shared item as the LAST item under parentNode1:
+    parentNode1->attachSubject(shared_item);
+
+    // Now try to iterate through tree A:
+    TreeIterator itr(rootNodeA);
+    QStringList testList;
+    QVERIFY(itr.current() == rootNodeA);
+    testList << itr.current()->objectName();
+    while (itr.hasNext()) {
+        QObject* obj = itr.next();
+        QVERIFY(obj);
+        testList << obj->objectName();
+        if (itr.hasNext()) {
+            obj = itr.next();
+            obj = itr.previous();
+        }
+    }
+
+    QVERIFY(itr.first() == rootNodeA);
+    QVERIFY(itr.last() == last);
+    QVERIFY(itr.hasNext() == false);
+    QVERIFY(itr.hasPrevious() == true);
+    QVERIFY(testList.count() == 20);
+}
+
+void Testing::TestTreeIterator::testIterationBackwardsMultipleParentsB() {
+    TreeNode* rootNodeA = new TreeNode("Root");
+    TreeNode* parentNode1 = rootNodeA->addNode("Parent 1");
+    TreeNode* parentNode2 = rootNodeA->addNode("Parent 2");
+    TreeNode* parentNode3 = rootNodeA->addNode("Parent 3");
+    parentNode1->addItem("Child 1");
+    parentNode1->addItem("Child 2");
+    parentNode1->addItem("Child 3");
+    parentNode1->addItem("Child 4");
+    parentNode1->addItem("Child 5");
+    parentNode2->addItem("Child 6");
+    parentNode2->addItem("Child 7");
+    parentNode2->addItem("Child 8");
+    parentNode2->addItem("Child 9");
+    parentNode2->addItem("Child 10");
+    parentNode3->addItem("Child 11");
+    parentNode3->addItem("Child 12");
+    parentNode3->addItem("Child 13");
+    TreeItem* shared_item = parentNode3->addItem("Shared");
+    TreeItem* last = parentNode3->addItem("Child 15");
+
+    // Add the shared item as the LAST item under parentNode1:
+    parentNode1->attachSubject(shared_item);
+
+    // Now try to iterate through tree A:
+    TreeIterator itr(rootNodeA);
+    QStringList testList;
+    QVERIFY(itr.last() == last);
+    testList << itr.current()->objectName();
+    while (itr.hasPrevious()) {
+        QObject* obj = itr.previous();
+        QVERIFY(obj);
+        testList << obj->objectName();
+    }
+
+    QVERIFY(itr.first() == rootNodeA);
+    QVERIFY(itr.hasNext() == true);
+    QVERIFY(itr.hasPrevious() == false);
+    QVERIFY(testList.count() == 20);
 }
 
 void Qtilities::Testing::TestTreeIterator::testIterationBackwardSimple() {

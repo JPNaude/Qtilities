@@ -50,7 +50,7 @@ namespace Qtilities {
         \class TreeIterator
         \brief An iterator which iterates throught an Observer tree (thus also Qtilities::CoreGui::TreeNode).
 
-        The TreeIterator allows you to easily iterate over the items in a tree as shown below.
+        The TreeIterator allows you to easily iterate over the items in a tree. Take the tree shown below as an example:
 
         \image html trees_full_iteration.jpg "Tree Iteration Order"
 
@@ -98,8 +98,7 @@ while (itr.hasPrevious()) {
 
         \section tree_iterator_multiple_parents When subjects are attached to multiple parents
 
-        Because %Qtilities allows tree items to be attached to multiple trees, care should be taken when iterating through trees in which subjects are attached to multiple trees. To explain this,
-        take the following tree as an example:
+        Because %Qtilities allows tree items to be attached to multiple trees, TreeIterator needs the ability to iterate through trees where subjects can appear more than once. Lets look at an example:
 
         \image html trees_multiple_parent_iteration.jpg "Advanced Tree Iteration"
 
@@ -127,14 +126,12 @@ rootTop->attachSubject(rootNodeA);
 rootTop->attachSubject(rootNodeB);
 \endcode
 
-        When TreeIterator iterates through this tree and it gets to the point where it must find the parent of the shared item ("A3" indicated in red), there are two parents to choose from. The way
-        that TreeIterator handles cases such as this it to check for the observer to which it is attached with Observer::SpecificObserverOwnership. If you build a tree using the
-        Qtilities::CoreGui::TreeNode class's \p addItem() and \p addNode() functions this is done for you automatically. When you attach a tree item to a node using Observer::SpecificObserverOwnership
-        the item's \p parent() will be set to be the observer it is attached to.
-
-        Thus in the above tree, the parent called "A1" will be used since it is the \p parent() of the item. When iterating through the other tree, the iteration will produce the wrong results.
-
-        To summarize, take care when using trees like the one shown above and make sure you understand how the iterator will iterate through the tree.
+        When TreeIterator iterates through this tree two things can happen:
+        - When you iterate forward in the tree it will remember the path it has taken to get to any point and you don't have to worry about it. TreeIterator will be able
+          to iterate through the tree regardless of any multiple parents that it might find on its way.
+        - When iterating backwards through the tree, the iterator will always iterate through the tree from front to back to get to the last value which you want to start
+          with. Thus, the path information will also be stored for you and TreeIterator will be able to iterate through the tree regardless of any multiple parents that
+          it might find on its way.
 
         \sa SubjectIterator, ConstSubjectIterator
 
@@ -177,6 +174,24 @@ rootTop->attachSubject(rootNodeB);
                 if (obs) {
                     if (obs->subjectCount() > 0) {
                         d_current = obs->subjectAt(0);
+
+                        // Check if any subjects under this observer has multiple parents. If so, we need to set the qti_prop_TREE_ITERATOR_SOURCE_OBS on all
+                        // subjects in this context since SubjectIterator needs it on all subjects. TreeIterator only needs it on the first and last subject.
+                        bool add_prop = false;
+                        for (int i = 0; i < obs->subjectCount(); i++) {
+                            if (Observer::parentCount(obs->subjectAt(i)) > 1) {
+                                add_prop = true;
+                                continue;
+                            }
+                        }
+
+                        if (add_prop) {
+                            for (int i = 0; i < obs->subjectCount(); i++) {
+                                ObjectManager::setSharedProperty(obs->subjectAt(i),qti_prop_TREE_ITERATOR_SOURCE_OBS,obs->observerID());
+                                //qDebug() << "TreeIterator: Setting qti_prop_TREE_ITERATOR_SOURCE_OBS on subject" << obs->subjectAt(i) << "with ID of parent" << obs->observerName();
+                            }
+                        }
+
                         return const_cast<QObject*> (d_current);
                     } else {
                         if (d_current == d_top_node)
@@ -222,11 +237,29 @@ rootTop->attachSubject(rootNodeB);
                     SubjectIterator<Observer> sibling_itr(obs,SubjectIterator<Observer>::IterateSiblings);
                     if (sibling_itr.hasPrevious()) {
                         Observer* previous_obs = sibling_itr.previous();
+
                         // If previous observer has children, take the last child, otherwise
                         // take previous observer.
                         QList<QObject*> previous_obs_children = previous_obs->treeChildren();
                         if (previous_obs_children.count() > 0) {
                             d_current = previous_obs_children.last();
+
+                            // Check if any subjects under this observer has multiple parents. If so, we need to set the qti_prop_TREE_ITERATOR_SOURCE_OBS on all
+                            // subjects in this context since SubjectIterator needs it on all subjects. TreeIterator only needs it on the first and last subject.
+                            bool add_prop = false;
+                            for (int i = 0; i < previous_obs->subjectCount(); i++) {
+                                if (Observer::parentCount(previous_obs->subjectAt(i)) > 1) {
+                                    add_prop = true;
+                                    continue;
+                                }
+                            }
+                            if (add_prop) {
+                                for (int i = 0; i < previous_obs->subjectCount(); i++) {
+                                    ObjectManager::setSharedProperty(previous_obs->subjectAt(i),qti_prop_TREE_ITERATOR_SOURCE_OBS,previous_obs->observerID());
+                                    //qDebug() << "TreeIterator: Setting qti_prop_TREE_ITERATOR_SOURCE_OBS in previous() on subject" << previous_obs->subjectAt(i) << "with ID of parent" << previous_obs->observerName();
+                                }
+                            }
+
                             return const_cast<QObject*> (d_current);
                         } else {
                             d_current = previous_obs;
@@ -279,23 +312,31 @@ rootTop->attachSubject(rootNodeB);
                         }
                     }
                 } else if (parents.count() > 1) {
-                    // If we have more than one parent, we search for a specific parent and use that route. If it does not have a specific parent, we assert:
-                    Observer* parent_observer = qobject_cast<Observer*> (obj->parent());
-                    if (!parent_observer) {
-                        qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
-                        LOG_FATAL("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
-                        Q_ASSERT(parent_observer);
-                        return parent_observer;
-                    } else {
-                        SubjectIterator<QObject> parent_itr(parent_observer,SubjectIterator<QObject>::IterateSiblings);
-                        if (parent_itr.hasNext()) {
-                            return parent_itr.next();
+                    // In here we set the observer ID of obs on the last and the first subjects in the observer context.
+                    SharedProperty prop = ObjectManager::getSharedProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+//                    QObject* non_const_obj = const_cast<QObject*> (obj);
+//                    non_const_obj->setProperty(qti_prop_TREE_ITERATOR_SOURCE_OBS,QVariant());
+                    if (prop.isValid()) {
+                        int obs_id = prop.value().toInt();
+                        Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                        if (parent_obs) {
+                            if (parent_obs == d_top_node)
+                                return 0;
+
+                            SubjectIterator<QObject> parent_itr(parent_obs,SubjectIterator<QObject>::IterateSiblings);
+                            if (parent_itr.hasNext()) {
+                                return parent_itr.next();
+                            } else {
+                                return findParentNext(parents.front());
+                            }
                         } else {
-                            return findParentNext(parents.front());
+                            qWarning() << "TreeIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
+                            LOG_FATAL("TreeIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
+                            Q_ASSERT(parent_obs);
                         }
                     }
-                } else
-                    return 0;
+                }
+                return 0;
             }
             //! Finds the previous parent of an object.
             const QObject* findParentPrevious(const QObject* obj) {
@@ -303,16 +344,23 @@ rootTop->attachSubject(rootNodeB);
                 if (parents.count() == 1)
                     return parents.front();
                 else if (parents.count() > 1) {
-                    // If we have more than one parent, we search for a specific parent and use that route. If it does not have a specific parent, we assert:
-                    Observer* parent_observer = qobject_cast<Observer*> (obj->parent());
-                    if (!parent_observer) {
-                        qDebug() << QString("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Make sure you understand how trees are iterated when objects are attached to multiple parents. See the TreeIterator documentation for more details.");
-                        LOG_FATAL("Cannot find specific parent for object \"" + obj->objectName() + " during tree iteration. Tree iteration does could not figure our which parent to use, thus tree will not be parsed completely.");
+                    // In here we set the observer ID of obs on the last and the first subjects in the observer context.
+                    SharedProperty prop = ObjectManager::getSharedProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+//                    QObject* non_const_obj = const_cast<QObject*> (obj);
+//                    non_const_obj->setProperty(qti_prop_TREE_ITERATOR_SOURCE_OBS,QVariant());
+                    if (prop.isValid()) {
+                        int obs_id = prop.value().toInt();
+                        Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                        if (parent_obs) {
+                            return parent_obs;
+                        } else {
+                            qWarning() << "TreeIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
+                            LOG_FATAL("TreeIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
+                            Q_ASSERT(parent_obs);
+                        }
                     }
-                    Q_ASSERT(parent_observer);
-                    return parent_observer;
-                } else
-                    return 0;
+                }
+                return 0;
             }
 
         private:
