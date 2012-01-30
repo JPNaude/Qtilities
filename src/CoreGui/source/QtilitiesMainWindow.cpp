@@ -120,6 +120,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
     delete ui;
     delete d;
+    emit aboutToBeDestroyed(this);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {

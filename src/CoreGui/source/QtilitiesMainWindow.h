@@ -254,6 +254,10 @@ int main(int argc, char *argv[])
             //! Updates sizes of itesm in the main windows when modes are added to the application:
             void updateItemSizes();
 
+        signals:
+            //! Signal which is emitted at the end of the QtilitiesMainWindow destructor.
+            void aboutToBeDestroyed(QObject* object);
+
         private:
             //! Do the layout required in the main widget.
             void doLayout();
