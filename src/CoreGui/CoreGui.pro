@@ -98,8 +98,7 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModelBuilder.h \
     source/TaskManagerGui.h \
     source/SingleTaskWidget.h \
-    source/TaskSummaryWidget.h \
-    source/HelpManager.h
+    source/TaskSummaryWidget.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -148,8 +147,7 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTreeModelBuilder.cpp \
     source/TaskManagerGui.cpp \
     source/SingleTaskWidget.cpp \
-    source/TaskSummaryWidget.cpp \
-    source/HelpManager.cpp
+    source/TaskSummaryWidget.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
@@ -171,13 +169,12 @@ FORMS += source/ObserverWidget.ui \
     source/TaskSummaryWidget.ui
 
 
-
-
-
-
-
-
-
-
-
-
+# --------------------------
+# Files only included when Qtilities help is defined to be present.
+# --------------------------
+contains(DEFINES, QTILITIES_NO_HELP) {
+    # Do nothing here for now.
+} else {
+    HEADERS += source/source/HelpManager.h
+    SOURCES += source/source/HelpManager.cpp
+}

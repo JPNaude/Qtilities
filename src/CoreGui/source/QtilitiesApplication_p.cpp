@@ -71,8 +71,10 @@ Qtilities::CoreGui::QtilitiesApplicationPrivate::QtilitiesApplicationPrivate() {
     QObject* clipboardManagerQ = qobject_cast<QObject*> (d_clipboardManager);
     d_clipboardManagerIFace = qobject_cast<IClipboard*> (clipboardManagerQ);
 
+    #ifndef QTILITIES_NO_HELP
     // Help Manager
     d_helpManager = new HelpManager;
+    #endif
 }
 
 Qtilities::CoreGui::QtilitiesApplicationPrivate::~QtilitiesApplicationPrivate() {
@@ -87,9 +89,11 @@ Qtilities::CoreGui::Interfaces::IClipboard* Qtilities::CoreGui::QtilitiesApplica
     return d_clipboardManagerIFace;
 }
 
+#ifndef QTILITIES_NO_HELP
 Qtilities::CoreGui::HelpManager* Qtilities::CoreGui::QtilitiesApplicationPrivate::helpManager() const {
     return d_helpManager;
 }
+#endif
 
 void Qtilities::CoreGui::QtilitiesApplicationPrivate::setMainWindow(QWidget* mainWindow) {
     d_mainWindow = mainWindow;

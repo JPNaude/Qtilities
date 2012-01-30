@@ -104,11 +104,13 @@ QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersi
               This function is thread-safe.
               */
             static IContextManager* contextManager();
+            #ifndef QTILITIES_NO_HELP
             //! Returns a reference to the help manager.
             /*!
               This function is thread-safe.
               */
             static HelpManager* helpManager();
+            #endif
             //! Returns a reference to the action manager.
             /*!
               If you are using the action manager, you must specify a main window using setMainWindow() for

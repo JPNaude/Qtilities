@@ -38,6 +38,9 @@ UI_DIR          = $$QTILITIES_TEMP/HelpPlugin
 # --------------------------
 # Library Files
 # --------------------------
+contains(DEFINES, QTILITIES_NO_HELP) {
+    # Do nothing here for now.
+} else {
 HEADERS += source/HelpPlugin.h \
            source/HelpPlugin_global.h \
            source/HelpPluginConstants.h \
@@ -56,7 +59,9 @@ SOURCES += source/HelpPlugin.cpp \
            source/HelpPluginConfig.cpp \
            source/Browser.cpp
 
-FORMS   += \
-    source/HelpPluginConfig.ui
+FORMS   += source/HelpPluginConfig.ui
 
 RESOURCES += resources/resources.qrc
+}
+
+

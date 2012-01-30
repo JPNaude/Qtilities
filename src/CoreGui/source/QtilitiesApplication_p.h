@@ -37,7 +37,10 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+
+#ifndef QTILITIES_NO_HELP
 #include "HelpManager.h"
+#endif
 
 #include <QMainWindow>
 #include <QPointer>
@@ -59,8 +62,11 @@ namespace Qtilities {
             Qtilities::CoreGui::Interfaces::IActionManager* actionManager() const;
             //! Function to access clipboard manager pointer.
             Qtilities::CoreGui::Interfaces::IClipboard* clipboardManager() const;
+
+            #ifndef QTILITIES_NO_HELP
             //! Function to access help manager pointer.
             HelpManager *helpManager() const;
+            #endif
 
             //! Sets the main window reference for the application.
             void setMainWindow(QWidget* mainWindow);
@@ -81,7 +87,9 @@ namespace Qtilities {
             IActionManager*         d_actionManagerIFace;
             ClipboardManager*       d_clipboardManager;
             IClipboard*             d_clipboardManagerIFace;
+            #ifndef QTILITIES_NO_HELP
             HelpManager*            d_helpManager;
+            #endif
         };
     }
 }

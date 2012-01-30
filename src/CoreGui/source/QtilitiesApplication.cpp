@@ -77,7 +77,7 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
 
         connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
 
-        //QCoreApplication::instance()->installEventFilter(this);        
+        applicationSessionPath();
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }
@@ -95,9 +95,11 @@ Qtilities::Core::Interfaces::IContextManager* Qtilities::CoreGui::QtilitiesAppli
     return QtilitiesCoreApplicationPrivate::instance()->contextManager();
 }
 
+#ifndef QTILITIES_NO_HELP
 Qtilities::CoreGui::HelpManager* Qtilities::CoreGui::QtilitiesApplication::helpManager() {
     return QtilitiesApplicationPrivate::instance()->helpManager();
 }
+#endif
 
 Qtilities::CoreGui::Interfaces::IActionManager* Qtilities::CoreGui::QtilitiesApplication::actionManager() {
     return QtilitiesApplicationPrivate::instance()->actionManager();
