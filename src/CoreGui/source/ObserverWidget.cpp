@@ -2189,6 +2189,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemoveItems(bool delete_items)
         }
     }
 
+    selectedObjects();
     refreshActions();
 }
 
@@ -2248,6 +2249,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemoveAll(bool delete_all) {
             }
         }
     }
+
+    selectedObjects();
     refreshActions();
 }
 
