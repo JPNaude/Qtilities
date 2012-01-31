@@ -2457,7 +2457,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
         return;
 
     if (d->display_mode == TableView) {
-        if (d->current_selection.count() != 0)
+        if (d->current_selection.count() == 0)
             return;
 
         // Set up new observer
@@ -2531,7 +2531,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDownNew() {
     ObserverWidget* new_child_widget = 0;
 
     if (d->display_mode == TableView) {
-        if (d->current_selection.count() != 0)
+        if (d->current_selection.count() == 0)
             return;
 
         // Set up new observer
@@ -3282,7 +3282,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchOptionsChanged() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString& filter_string) {
-    QSortFilterProxyModel* model;
+    QSortFilterProxyModel* model = 0;
 
     if (d->table_view && d->table_model && d->display_mode == TableView && d->table_proxy_model)
          model = qobject_cast<QSortFilterProxyModel*> (d->table_proxy_model);
