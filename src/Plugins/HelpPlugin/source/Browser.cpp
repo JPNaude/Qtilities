@@ -169,12 +169,8 @@ void Qtilities::Plugins::Help::Browser::handle_finished(bool ok){
         return;
 
     if (!ok) {
-        //d->web_view->setHtml(d->errorMsg);
-        //if (!d->web_view->url().toString().isEmpty() && (d->web_view->url().toString() != "about:blank"))
-        LOG_ERROR(tr("Error while loading page at ") + d->web_view->url().toString());
-    } else {
-        //if (QDir::toNativeSeparators(QUrl::toLocalFile(d->web_view->url().toString())) != QDir::toNativeSeparators(QApplication::applicationDirPath() + PATH_FILE_NO_DOCS))
-        //LOG_INFO(tr("Successfully loaded page at ") + d->web_view->url().toString());
+        if (!d->web_view->url().toString().isEmpty())
+            LOG_ERROR(tr("Error while loading page at ") + d->web_view->url().toString());
     }
 
     d->locationBar->setEnabled(true);

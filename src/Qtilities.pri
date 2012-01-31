@@ -34,14 +34,18 @@ include(Dependencies.pri)
 #   *************************************************************************
 #   When defined, verbose action management messages are printed.
 #   DEFINES += QTILITIES_VERBOSE_ACTION_DEBUGGING
+#
 #   When defined, the Testing library contains the Qtilities
 #   unit tests in it.
 #   DEFINES += QTILITIES_TESTING
+#
 #   When defined, basic benchmarking of potentially long operations in
 #   Qtilities is done by logging execution times as debug messages.
 #   DEFINES += QTILITIES_BENCHMARKING
-#   When defined, the Core library does not contain the HELP_MANAGER,
-#   removing the dependency on QtHelp.
+#
+#   When defined, the CoreGui library does not contain the HELP_MANAGER,
+#   removing the dependency on QtHelp. Also, the Help Plugin does not
+#   contain anything when defined.
 #   DEFINES += QTILITIES_NO_HELP
 #****************************************************************************
 

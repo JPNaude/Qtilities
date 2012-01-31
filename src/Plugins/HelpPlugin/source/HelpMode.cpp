@@ -255,7 +255,7 @@ QIcon HelpMode::modeIcon() const {
 }
 
 QString HelpMode::modeName() const {
-    return tr("Documentation");
+    return tr("Help");
 }
 
 void HelpMode::handleNewHelpWidget(QWidget* widget) {
