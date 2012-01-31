@@ -524,12 +524,16 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
                 return false;
             }
 
+            QPointer<QObject> safe_obj;
+            safe_obj = obj;
+
             bool return_value = validateNamePropertyChange(obj,qti_prop_NAME);
             if (return_value) {
                 // Important: If d->conflicting_object is an object when we get here, we delete it. Replace policies
                 // would have set it during initialization:
                 bool layout_changed = false;
                 if (d->conflicting_object) {
+                    Q_ASSERT(d->conflicting_object != obj);
                     delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
                     layout_changed = true;
                 }

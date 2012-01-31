@@ -176,7 +176,7 @@ bool Qtilities::CoreGui::NamingPolicyInputDialog::initialize(NamingPolicyFilter:
     } else if (validity_result & NamingPolicyFilter::Duplicate) {
         // We only show the Replace option to users when the conflicting object is only attached to the
         // observer context which the naming policy filter uses (thus has only the one parent).
-        conflicting_object = subject_filter->getConflictingObject(subject_filter->getName(object));
+        conflicting_object = subject_filter->getConflictingObject(getName());
         if (conflicting_object) {
             int parent_count = Observer::parentCount(conflicting_object);
             if (parent_count > 1)
