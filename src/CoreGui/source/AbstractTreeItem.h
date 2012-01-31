@@ -126,7 +126,7 @@ namespace Qtilities {
 
               If none of the above conditions were met the function will print an error message in release mode and assert in debug mode.
 
-              \returns True if the category was successfully set. False otherwise. Note that false will be returned when the category is the same as the current
+              \returns True if the category was successfully set. False otherwise. Note that true will be returned when the category is the same as the current
               category and therefore will not be changed.
 
               \note If this tree item is not attached to any tree node, this function does nothing and
