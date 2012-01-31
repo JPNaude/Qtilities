@@ -118,9 +118,13 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
 }
 
 Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
+    if (d->current_widget)
+        d->current_widget->setParent(0);
+
+    emit aboutToBeDestroyed(this);
+
     delete ui;
     delete d;
-    emit aboutToBeDestroyed(this);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
@@ -328,8 +332,10 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
     }
 
     // Hide current widget
-    if (d->current_widget)
+    if (d->current_widget) {
         d->current_widget->hide();
+        d->current_widget->setParent(0);
+    }
 
     d->current_widget = new_central_widget;
 

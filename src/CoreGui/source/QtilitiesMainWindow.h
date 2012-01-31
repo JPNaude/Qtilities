@@ -255,7 +255,11 @@ int main(int argc, char *argv[])
             void updateItemSizes();
 
         signals:
-            //! Signal which is emitted at the end of the QtilitiesMainWindow destructor.
+            //! Signal which is emitted at the beginning of the QtilitiesMainWindow destructor.
+            /*!
+              Slots connected to this signal can get hold of information about all IMode interfaces shown in the QtilitiesMainWindow
+              before the window itself is destroyed.
+              */
             void aboutToBeDestroyed(QObject* object);
 
         private:
