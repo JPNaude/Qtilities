@@ -175,6 +175,6 @@ FORMS += source/ObserverWidget.ui \
 contains(DEFINES, QTILITIES_NO_HELP) {
     # Do nothing here for now.
 } else {
-    HEADERS += source/source/HelpManager.h
-    SOURCES += source/source/HelpManager.cpp
+    HEADERS += source/HelpManager.h
+    SOURCES += source/HelpManager.cpp
 }
