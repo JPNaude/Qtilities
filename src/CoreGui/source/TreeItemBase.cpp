@@ -62,16 +62,20 @@ void Qtilities::CoreGui::TreeItemBase::setModificationState(bool new_state, IMod
 }
 
 bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
+    QtilitiesCategory previous_category = AbstractTreeItem::getCategory();
     if (AbstractTreeItem::setCategory(category,tree_node)) {
-        setModificationState(true);
+        if (previous_category != AbstractTreeItem::getCategory())
+            setModificationState(true);
         return true;
     } else
         return false;
 }
 
 bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& category, int observer_id) {
+    QtilitiesCategory previous_category = AbstractTreeItem::getCategory();
     if (AbstractTreeItem::setCategory(category,observer_id)) {
-        setModificationState(true);
+        if (previous_category != AbstractTreeItem::getCategory())
+            setModificationState(true);
         return true;
     } else
         return false;
@@ -90,8 +94,10 @@ QString Qtilities::CoreGui::TreeItemBase::getCategoryString(const QString& sep, 
 }
 
 bool Qtilities::CoreGui::TreeItemBase::setCategoryString(const QString& category_string, const QString& sep) {
+    QtilitiesCategory previous_category = AbstractTreeItem::getCategory();
     if (AbstractTreeItem::setCategoryString(category_string,sep)) {
-        setModificationState(true);
+        if (previous_category != AbstractTreeItem::getCategory())
+            setModificationState(true);
         return true;
     } else
         return false;

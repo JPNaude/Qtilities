@@ -52,7 +52,7 @@ namespace Qtilities {
 
         /*!
           \class TreeItemBase
-          \brief The TreeItemBase class is the base class for all tree items, that is items which can be attached to TreeNode instancess.
+          \brief The TreeItemBase class is the base class for all tree items, that is items which can be attached to TreeNode instances.
 
           <i>This class was added in %Qtilities v0.2.</i>
         */
@@ -74,13 +74,25 @@ namespace Qtilities {
             // --------------------------------
             // AbstractTreeItem virtual overwrites for category functions:
             // --------------------------------
+            /*!
+              This function will automatically call setModificationState(true) when needed.
+              */
             virtual bool setCategory(const QtilitiesCategory& category, TreeNode* tree_node);
+            /*!
+              This function will automatically call setModificationState(true) when needed.
+              */
             virtual bool setCategory(const QtilitiesCategory& category, int observer_id = -1);
+            /*!
+              This function will automatically call setModificationState(true) when needed.
+              */
+            virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             virtual QtilitiesCategory getCategory(TreeNode* tree_node) const;
             virtual QtilitiesCategory getCategory(int observer_id = -1) const;
             virtual QString getCategoryString(const QString& sep = "::",int observer_id = -1) const;
-            virtual bool setCategoryString(const QString& category_string, const QString& sep = "::");
             virtual bool hasCategory() const;
+            /*!
+              This function will automatically call setModificationState(true) when needed.
+              */
             virtual bool removeCategory(int observer_id = -1);
 
             // --------------------------------
