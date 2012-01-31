@@ -56,7 +56,8 @@ using namespace Qtilities::Logging;
 using namespace Qtilities::Logging::Constants;
 
 struct Qtilities::CoreGui::LoggerConfigWidgetPrivateData {
-    LoggerConfigWidgetPrivateData() : active_engine(0),proxyModel(0) {}
+    LoggerConfigWidgetPrivateData() : active_engine(0),
+        proxyModel(0) {}
 
     qti_private_LoggerEnginesTableModel logger_engine_model;
     AbstractLoggerEngine* active_engine;
@@ -99,9 +100,7 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     ui->tableViewLoggerEngines->horizontalHeader()->setStretchLastSection(true);
     if (Log->attachedLoggerEngineCount() >= 1) {
-        ui->tableViewLoggerEngines->setCurrentIndex(d->logger_engine_model.index(0,0));
-        d->active_engine = Log->loggerEngineReferenceAt(0);
-        refreshLoggerEngineInformation();
+        ui->tableViewLoggerEngines->setCurrentIndex(d->proxyModel->mapFromSource(d->logger_engine_model.index(0,0)));
     }
 
     // Add formatting engines:
@@ -113,6 +112,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
 
     connect(ui->comboGlobalLogLevel,SIGNAL(currentIndexChanged(QString)),SLOT(handle_ComboBoxGlobalLogLevelCurrentIndexChange(QString)));
     connect(ui->checkBoxRememberSession,SIGNAL(clicked(bool)),SLOT(handle_CheckBoxRememberSessionConfigClicked(bool)));
+
+    updateActiveEngine();
 }
 
 Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
@@ -341,42 +342,64 @@ void Qtilities::CoreGui::LoggerConfigWidget::readSettings() {
 
 void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
     if (!d->active_engine) {
-        ui->txtLoggerEngineStatus->setPlainText(QString());
-        ui->txtLoggerEngineDescription->setPlainText(QString());
+        ui->txtLoggerEngineStatus->setPlainText(tr("No Engine Selected"));
+        ui->txtLoggerEngineDescription->setPlainText(tr("No Engine Selected"));
         ui->comboBoxLoggerFormattingEngine->setEnabled(false);
         ui->txtMessageContexts->setEnabled(false);
         ui->btnRemoveLoggerEngine->setEnabled(false);
+        ui->groupBoxEngineDetails->setEnabled(false);
+    } else {
+        // Status:
+        ui->txtLoggerEngineStatus->setPlainText(d->active_engine->status());
+
+        // Description:
+        ui->txtLoggerEngineDescription->setPlainText(d->active_engine->description());
+
+        // Formatting Engine:
+        ui->comboBoxLoggerFormattingEngine->setCurrentIndex(ui->comboBoxLoggerFormattingEngine->findText(d->active_engine->formattingEngineName()));
+        if (d->active_engine->isFormattingEngineConstant())
+            ui->comboBoxLoggerFormattingEngine->setEnabled(false);
+        else
+            ui->comboBoxLoggerFormattingEngine->setEnabled(true);
+
+        // Message Contexts:
+        QString contexts_string = Log->messageContextsToString(d->active_engine->messageContexts());
+        ui->txtMessageContexts->setText(contexts_string);
+        ui->txtMessageContexts->setToolTip(contexts_string);
+        ui->txtMessageContexts->setEnabled(true);
+
+        // Remove Button:
+        if (d->active_engine->removable())
+            ui->btnRemoveLoggerEngine->setEnabled(true);
+        else
+            ui->btnRemoveLoggerEngine->setEnabled(false);
+
+        // Make all rows the same height:
+        for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
+            ui->tableViewLoggerEngines->setRowHeight(i,17);
+
+        ui->groupBoxEngineDetails->setEnabled(true);
+    }
+}
+
+void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
+    if (!d->proxyModel)
         return;
+
+    QModelIndexList selected_indexes;
+    if (ui->tableViewLoggerEngines->selectionModel()) {
+        for (int i = 0; i < ui->tableViewLoggerEngines->selectionModel()->selectedIndexes().count(); i++) {
+            QModelIndex index = ui->tableViewLoggerEngines->selectionModel()->selectedIndexes().at(i);
+            if (index.column() == 0)
+                selected_indexes << d->proxyModel->mapToSource(index);
+        }
     }
 
-    // Status:
-    ui->txtLoggerEngineStatus->setPlainText(d->active_engine->status());
-
-    // Description:
-    ui->txtLoggerEngineDescription->setPlainText(d->active_engine->description());
-
-    // Formatting Engine:
-    ui->comboBoxLoggerFormattingEngine->setCurrentIndex(ui->comboBoxLoggerFormattingEngine->findText(d->active_engine->formattingEngineName()));
-    if (d->active_engine->isFormattingEngineConstant())
-        ui->comboBoxLoggerFormattingEngine->setEnabled(false);
-    else
-        ui->comboBoxLoggerFormattingEngine->setEnabled(true);
-
-    // Message Contexts:
-    QString contexts_string = Log->messageContextsToString(d->active_engine->messageContexts());
-    ui->txtMessageContexts->setText(contexts_string);
-    ui->txtMessageContexts->setToolTip(contexts_string);
-    ui->txtMessageContexts->setEnabled(true);
-
-    // Remove Button:
-    if (d->active_engine->removable())
-        ui->btnRemoveLoggerEngine->setEnabled(true);
-    else
-        ui->btnRemoveLoggerEngine->setEnabled(false);
-
-    // Make all rows the same height:
-    for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
-        ui->tableViewLoggerEngines->setRowHeight(i,17);
+    if (selected_indexes.count() == 1) {
+        // The index in the source model is the same as in the list of engines.
+        d->active_engine = Log->loggerEngineReferenceAt(selected_indexes.front().row());
+        refreshLoggerEngineInformation();
+    }
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::changeEvent(QEvent *e) {
@@ -426,3 +449,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::on_btnViewLog_clicked() {
     msgBox.exec();
 }
 
+
+void Qtilities::CoreGui::LoggerConfigWidget::on_tableViewLoggerEngines_doubleClicked(const QModelIndex &index) {
+    Q_UNUSED(index)
+    on_btnViewLog_clicked();
+}

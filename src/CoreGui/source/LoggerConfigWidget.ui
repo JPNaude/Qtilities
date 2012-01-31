@@ -92,7 +92,10 @@
            </widget>
           </item>
           <item row="0" column="4" rowspan="4" colspan="4">
-           <widget class="QGroupBox" name="groupBox_2">
+           <widget class="QGroupBox" name="groupBoxEngineDetails">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="title">
              <string>Engine Details:</string>
             </property>
