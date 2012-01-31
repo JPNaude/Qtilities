@@ -31,8 +31,8 @@
 **
 ****************************************************************************/
 
-#ifndef TOPTOBOTTOMLIST_H
-#define TOPTOBOTTOMLIST_H
+#ifndef MODE_LIST_WIDGET_H
+#define MODE_LIST_WIDGET_H
 
 #include <QListWidget>
 
@@ -45,10 +45,9 @@ class ModeListWidget : public QListWidget
 public:
     ModeListWidget(Qt::Orientation orientation, QWidget* parent = 0);
     virtual QSize sizeHint() const;
-    QSize itemSizeHint() const;
 
 private:
     Qt::Orientation d_orientation;
 };
 
-#endif // TOPTOBOTTOMLIST_H
+#endif // MODE_LIST_WIDGET_H

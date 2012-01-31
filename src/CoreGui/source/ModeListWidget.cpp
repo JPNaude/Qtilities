@@ -53,19 +53,6 @@ QSize ModeListWidget::sizeHint() const {
     }
 
     return QSize(maxSize.width() + rect().width() - contentsRect().width(), maxSize.height() + rect().height() - contentsRect().height());
+//    return QSize(QListWidget::sizeHint().width(), maxSize.height() + rect().height() - contentsRect().height());
 }
 
-QSize ModeListWidget::itemSizeHint() const {
-    QSize maxSize = QSize(0,0);
-    for (int i = 0; i < this->count(); i++) {
-        const QModelIndex index = model()->index(i, 0);
-        const QSize tmpSize = this->sizeHintForIndex(index);
-
-        if (tmpSize.width() > maxSize.width())
-            maxSize.setWidth(tmpSize.width());
-        if (tmpSize.height() > maxSize.height())
-            maxSize.setHeight(tmpSize.height());
-    }
-
-    return QSize(maxSize.width(), maxSize.height());
-}

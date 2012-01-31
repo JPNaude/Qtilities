@@ -79,6 +79,9 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
     d->mode_list_widget->setMovement(QListView::Static);
     d->mode_list_widget->setViewMode(QListView::IconMode);
     d->mode_list_widget->setIconSize(QSize(48,48));
+    d->mode_list_widget->setWrapping(true);
+    d->mode_list_widget->setUniformItemSizes(true);
+
     d->mode_list_widget->setSelectionRectVisible(true);
     // No border around the selected item's text:
     d->mode_list_widget->setFocusPolicy(Qt::NoFocus);
@@ -405,9 +408,8 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
         }
 
         // Set size hint for all items:
-        for (int i = 0; i < added_items.count(); i++) {
-            added_items.values().at(i)->setSizeHint(d->mode_list_widget->itemSizeHint());
-        }
+        for (int i = 0; i < d->mode_list_widget->count(); i++)
+            d->mode_list_widget->item(i)->setSizeHint(d->mode_list_widget->sizeHint());
     }
 }
 
