@@ -61,7 +61,7 @@ namespace Qtilities {
         {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Logging::Interfaces::ILoggerExportable)
-            Q_PROPERTY(QString FileName READ getFileName);
+            Q_PROPERTY(QString FileName READ getFileName)
 
         public:
             FileLoggerEngine();

@@ -207,7 +207,6 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(false);
     OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
-    HELP_MANAGER->registerFile("D:/Work/Software/Qt/FirmwareManagementTool/trunk/Application/resources/docs/ScinericWorkspace.qch",false);
     HELP_MANAGER->initialize();
 
     int result = a.exec();

@@ -219,7 +219,7 @@ void Qtilities::Logging::QtMsgLoggerEngine::finalize() {
 }
 
 QString Qtilities::Logging::QtMsgLoggerEngine::description() const {
-    return QObject::tr("Writes log messages to the Qt message system..");
+    return QObject::tr("Writes log messages to the Qt message system.");
 }
 
 QString Qtilities::Logging::QtMsgLoggerEngine::status() const {

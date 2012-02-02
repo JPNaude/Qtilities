@@ -68,9 +68,9 @@ namespace Qtilities {
         namespace MainWindow {
             using namespace Qtilities::CoreGui::Interfaces;
 
-            // Object Management Mode Parameters
+            // Example Mode Parameters
             #define MODE_EXAMPLE_ID                   998
-            const char * const CONTEXT_EXAMPLE_MODE   = "Context.ObjectManagementMode";
+            const char * const CONTEXT_EXAMPLE_MODE   = "Context.ExampleMode";
 
             /*!
               \struct ExampleModePrivateData

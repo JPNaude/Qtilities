@@ -527,6 +527,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (d->action_flags & ActionSaveFile) {
         d->actionSave = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),tr("Save"),this);
         d->actionSave->setEnabled(false);
+        d->actionSave->setShortcut(QKeySequence(QKeySequence::Save));
         d->action_provider->addAction(d->actionSave,QtilitiesCategory(tr("File")));
         connect(d->actionSave,SIGNAL(triggered()),SLOT(actionSave()));
         command = ACTION_MANAGER->registerAction(qti_action_FILE_SAVE,d->actionSave,context);
@@ -537,6 +538,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     // ---------------------------
     if (d->action_flags & ActionSaveFileAs) {
         d->actionSaveAs = new QAction(QIcon(qti_icon_FILE_SAVEAS_16x16),tr("Save As"),this);
+        d->actionSaveAs->setShortcut(QKeySequence(QKeySequence::SaveAs));
         d->action_provider->addAction(d->actionSaveAs,QtilitiesCategory(tr("File")));
         connect(d->actionSaveAs,SIGNAL(triggered()),SLOT(actionSaveAs()));
         command = ACTION_MANAGER->registerAction(qti_action_FILE_SAVE_AS,d->actionSaveAs,context);

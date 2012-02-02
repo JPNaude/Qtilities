@@ -60,10 +60,12 @@ int main(int argc, char *argv[])
     TreeNode* rootNode = new TreeNode("Root");
     rootNode->toggleQtilitiesPropertyChangeEvents(true);
     rootNode->enableNamingControl(ObserverHints::EditableNames,NamingPolicyFilter::ProhibitDuplicateNames);
+    rootNode->displayHints()->setItemViewColumnHint(ObserverHints::ColumnAllHints);
     rootNode->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered,ActivityPolicyFilter::MultipleActivity);
     TreeNode* nodeA = rootNode->addNode("Node A");
     nodeA->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered,ActivityPolicyFilter::MultipleActivity,ActivityPolicyFilter::ParentFollowActivity);
     TreeNode* nodeB = rootNode->addNode("Node B");
+    nodeB->copyHints(rootNode->displayHints());
     nodeB->enableCategorizedDisplay();
     rootNode->addItem("Child 1");
     rootNode->addItem("Child 2");
@@ -74,7 +76,7 @@ int main(int argc, char *argv[])
     nodeB->addItem("Child 7",QtilitiesCategory("Category 2"));
 
     // First Set Of Hints:
-    observer_widget->toggleUseObserverHints(false);
+    observer_widget->toggleUseObserverHints(true);
     ObserverHints::ActionHints action_hints = 0;
     action_hints |= ObserverHints::ActionPushDown;
     action_hints |= ObserverHints::ActionPushUp;
