@@ -294,7 +294,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             ObserverTreeItem* item = getItem(index);
             if (!item)
-                return "Invalid Item";
+                return tr("Invalid Item");
             QObject* obj = item->getObject();
             if (obj) {
                 // If this is a category item we just use objectName:
@@ -401,7 +401,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 // If this is a category item we just use objectName:
                 if (item->itemType() == ObserverTreeItem::CategoryItem)
@@ -421,7 +421,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_WHATS_THIS);
                 if (icon_property.isValid())
@@ -436,7 +436,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
                 if (icon_property.isValid())
@@ -451,7 +451,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_STATUSTIP);
                 if (icon_property.isValid())
@@ -466,7 +466,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FONT);
                 if (icon_property.isValid())
@@ -481,7 +481,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_TEXT_ALIGNMENT);
                 if (icon_property.isValid())
@@ -496,7 +496,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_BACKGROUND);
                 if (icon_property.isValid())
@@ -511,7 +511,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 return QVariant();
             QObject* obj = item->getObject();
 
-            // Check if it has the OBJECT_ICON shared property set.
+            // Check if it has the role shared property set.
             if (obj) {
                 SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_FOREGROUND);
                 if (icon_property.isValid())
@@ -823,7 +823,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orie
         return tr("Access");
     }
 
-     return QVariant();
+     return QAbstractItemModel::headerData(section,orientation,role);
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::index(int row, int column, const QModelIndex &parent) const {
@@ -1243,7 +1243,6 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
     d->tree_model_up_to_date = true;
 
     endResetModel();
-    emit treeModelBuildEnded();
 
     if (d->tree_rebuild_queued) {
         rebuildTreeStructure();
@@ -1266,6 +1265,8 @@ void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(Observe
 
         ++d->tree_build_count;
     }
+
+    emit treeModelBuildEnded();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::setExpandedItems(QStringList expanded_items) {

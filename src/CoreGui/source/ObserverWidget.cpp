@@ -3342,6 +3342,14 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
     if (d->searchBoxWidget)
         ui->widgetSearchBox->show();
 
+    resizeColumns();
+
+    if (emit_tree_build_completed)
+        emit treeModelBuildEnded();
+    QApplication::processEvents();
+}
+
+void Qtilities::CoreGui::ObserverWidget::resizeColumns() {
     if (d->do_column_resizing) {
         if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
             resizeTableViewRows();
@@ -3357,46 +3365,25 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
                 for (int i = 0; i < tree_header->count(); i++) {
                     if (!tree_header->isSectionHidden(i)) {
                         int logical_index = tree_header->logicalIndex(i);
-
-                        // TODO: This does not work! Returns wrong size hint...
-                        //d->tree_view->resizeColumnToContents(logical_index);
-
-                        // This is a bad workaround for now:
-                        // --------------------------------
-                        bool resize_name = true;
-                        if (tree_header->hiddenSectionCount() == tree_header->count()-1)
-                            resize_name = false;
-
-                        if (i == d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) {
-                            tree_header->setResizeMode(logical_index,QHeaderView::Interactive);
-                            if (resize_name)
-                                d->tree_view->setColumnWidth(i,600);
-                        } else {
-                            tree_header->setResizeMode(logical_index,QHeaderView::Interactive);
-                            d->tree_view->resizeColumnToContents(logical_index);
-                        }
+                        d->tree_view->resizeColumnToContents(logical_index);
                     }
                 }
             }
         }
     }
-
-    if (emit_tree_build_completed)
-        emit treeModelBuildEnded();
-    QApplication::processEvents();
 }
 
 void Qtilities::CoreGui::ObserverWidget::adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight) {
-//    if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
-//        int firstColumn= topleft.column();
-//        int lastColumn = bottomRight.column();
-//        // Resize the column to the size of its contents
-//        qDebug() << "adaptColumns()";
-//        do {
-//            d->tree_view->resizeColumnToContents(firstColumn);
-//            firstColumn++;
-//        } while (firstColumn < lastColumn);
-//    }
+    if (d->do_column_resizing) {
+        if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
+            int firstColumn= topleft.column();
+            int lastColumn = bottomRight.column();
+            do {
+                d->tree_view->resizeColumnToContents(firstColumn);
+                firstColumn++;
+            } while (firstColumn < lastColumn);
+        }
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleTreeModelBuildAboutToStart() {
