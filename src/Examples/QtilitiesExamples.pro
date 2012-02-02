@@ -23,3 +23,4 @@ SUBDIRS	   += ClipboardExample
 SUBDIRS	   += TheBasicsExample
 SUBDIRS	   += ExportingExample
 SUBDIRS	   += TasksExample
+SUBDIRS    += TclScriptingExample
