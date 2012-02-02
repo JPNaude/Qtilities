@@ -34,6 +34,8 @@
 #include "SideWidgetFileSystem.h"
 #include "ui_SideWidgetFileSystem.h"
 
+#include <QtilitiesApplication>
+
 #include <QFileSystemModel>
 #include <QTreeView>
 #include <QFileDialog>
@@ -46,10 +48,12 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::SideWidgetFileSystemPrivateData {
-    SideWidgetFileSystemPrivateData(): model(0) {}
+    SideWidgetFileSystemPrivateData(): model(0),
+        open_file_on_double_click(true) {}
 
-    QFileSystemModel *model;
-    QPoint drag_start_position;
+    QFileSystemModel*       model;
+    QPoint                  drag_start_position;
+    bool                    open_file_on_double_click;
 };
 
 Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& start_path, QWidget *parent) :
@@ -67,16 +71,16 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
 
     // Set up model etc.:
     QDir dir(start_path);
-    if (start_path.isEmpty() || !dir.exists(start_path))
-        d->model->setRootPath(QDir::currentPath());
+    if (start_path.isEmpty() || !dir.exists())
+        d->model->setRootPath(QtilitiesApplication::applicationSessionPath());
     else
         d->model->setRootPath(start_path);
     ui->treeView->setModel(d->model);
     ui->treeView->hideColumn(1);
     ui->treeView->hideColumn(2);
     ui->treeView->hideColumn(3);
-    ui->txtCurrentPath->setText(QDir::currentPath());
-    ui->treeView->setRootIndex(d->model->index(QDir::currentPath()));
+    ui->txtCurrentPath->setText(QtilitiesApplication::applicationSessionPath());
+    ui->treeView->setRootIndex(d->model->index(QtilitiesApplication::applicationSessionPath()));
 
     // Make neccesarry connections:
     connect(d->model,SIGNAL(rootPathChanged(QString)),SLOT(handleRootPathChanged(QString)));
@@ -101,7 +105,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
 
     // Set up drag ability:
     d->model->setSupportedDragActions(Qt::CopyAction);
-    d->model->setRootPath(QApplication::applicationDirPath());
+    d->model->setRootPath(QtilitiesApplication::applicationSessionPath());
     ui->treeView->setModel(d->model);
     ui->txtCurrentPath->setText(d->model->rootPath());
     ui->treeView->setEnabled(false);
@@ -202,6 +206,10 @@ QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
     return ui->txtCurrentPath->text();
 }
 
+void Qtilities::CoreGui::SideWidgetFileSystem::toggleDoubleClickFileOpen(bool open_file) {
+    d->open_file_on_double_click = open_file;
+}
+
 void Qtilities::CoreGui::SideWidgetFileSystem::on_btnCdUp_clicked() {
     QDir dir(ui->txtCurrentPath->text());
     dir.cdUp();
@@ -263,6 +271,9 @@ bool Qtilities::CoreGui::SideWidgetFileSystem::eventFilter(QObject *object, QEve
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::on_treeView_doubleClicked(QModelIndex index) {
+    if (!d->open_file_on_double_click)
+        return;
+
     if (!index.isValid())
         return;
 

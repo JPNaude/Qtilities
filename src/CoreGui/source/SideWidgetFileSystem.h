@@ -106,6 +106,14 @@ side_viewer_widget->show();
             //! Function to get the path of this side viewer widget.
             QString path() const;
 
+            //! Function which enables/disables opening of files when double clicking on them
+            /*!
+              This is enabled by default.
+
+              This function was added in Qtilities v1.1.
+              */
+            void toggleDoubleClickFileOpen(bool open_file);
+
             //! Reconstructs the QFileSystemModel used inside the widget.
             /*!
               There is known problem with QFileSystemWatcher/QFileSystemModel which causes directories to not be deleted property when they
