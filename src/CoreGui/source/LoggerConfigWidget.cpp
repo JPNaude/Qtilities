@@ -177,8 +177,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
 void Qtilities::CoreGui::LoggerConfigWidget::handle_RemoveLoggerEngineRequest() {
     if (Log->detachLoggerEngine(d->active_engine)) {
         if (Log->attachedLoggerEngineCount() >= 1) {
-            ui->tableViewLoggerEngines->setCurrentIndex(d->logger_engine_model.index(0,0));
-            d->active_engine = Log->loggerEngineReferenceAt(0);
+            ui->tableViewLoggerEngines->setCurrentIndex(d->proxyModel->mapFromSource(d->logger_engine_model.index(0,0)));
+            updateActiveEngine();
             refreshLoggerEngineInformation();
         }
     }
@@ -299,7 +299,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
     }
 
     // We also sort in here:
-    ui->tableViewLoggerEngines->sortByColumn(qti_private_LoggerEnginesTableModel::NameColumn,Qt::AscendingOrder);
+    //ui->tableViewLoggerEngines->sortByColumn(qti_private_LoggerEnginesTableModel::NameColumn,Qt::AscendingOrder);
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
