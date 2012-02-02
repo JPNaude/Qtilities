@@ -213,6 +213,10 @@ void HelpMode::initiallize() {
     d->search_widget->setObjectName("Help Plugin: Search Engine Widget");
     connect(d->search_widget,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewHelpWidget(QWidget*)));
     OBJECT_MANAGER->registerObject(d->search_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
+
+    // Load the home page:
+    if (HELP_MANAGER->homePage().isValid())
+        d->browser->webView()->load(HELP_MANAGER->homePage());
 }
 
 void HelpMode::toggleDock(bool toggle) {

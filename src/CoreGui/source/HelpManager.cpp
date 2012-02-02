@@ -53,6 +53,9 @@ struct Qtilities::CoreGui::HelpManagerPrivateData {
     QPointer<Task>          setup_task;
     QPointer<Task>          indexing_task;
     QMap<QString,QString>   file_namespace_map;
+
+    // Settings
+    QUrl                    home_page;
 };
 
 HelpManager::HelpManager(QObject* parent) : QObject(parent) {
@@ -127,6 +130,14 @@ void HelpManager::initialize() {
         connect(d->helpEngine->searchEngine(),SIGNAL(indexingFinished()),d->indexing_task,SLOT(completeTask()));
     }
     d->helpEngine->searchEngine()->reindexDocumentation();
+}
+
+void HelpManager::setHomePage(const QUrl& home_page) {
+    d->home_page = home_page;
+}
+
+QUrl HelpManager::homePage() const {
+    return d->home_page;
 }
 
 void HelpManager::clearRegisteredFiles(bool initialize_after_change) {

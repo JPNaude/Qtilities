@@ -35,6 +35,7 @@
 #define HELP_MANAGER_H
 
 #include <QObject>
+#include <QUrl>
 
 class QHelpEngine;
 
@@ -115,6 +116,10 @@ bool MyPlugins::initializeDependencies(QStringList *error_strings) {
               Initialize will set up the internal help engine and start indexing of all documentation registered in the manager.
               */
             void initialize();
+            //! Sets the home page for your application.
+            void setHomePage(const QUrl& home_page);
+            //! Gets the home page of your application.
+            QUrl homePage() const;
 
             //! Register files in the help engine.
             /*!
