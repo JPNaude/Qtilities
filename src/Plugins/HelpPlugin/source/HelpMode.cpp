@@ -165,7 +165,7 @@ void HelpMode::initiallize() {
     allowed_areas |= Qt::LeftDockWidgetArea;
     allowed_areas |= Qt::RightDockWidgetArea;
     d->side_viewer_dock->setAllowedAreas(allowed_areas);
-    addDockWidget(Qt::RightDockWidgetArea,d->side_viewer_dock);
+    addDockWidget(Qt::LeftDockWidgetArea,d->side_viewer_dock);
     d->side_viewer_dock->installEventFilter(this);
 
     // Actions

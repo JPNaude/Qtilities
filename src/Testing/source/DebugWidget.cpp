@@ -287,7 +287,7 @@ QIcon Qtilities::Testing::DebugWidget::modeIcon() const {
 }
 
 QString Qtilities::Testing::DebugWidget::modeName() const {
-    return tr("Qtilities Debugging");
+    return tr("Debugging");
 }
 
 void Qtilities::Testing::DebugWidget::aboutToBeActivated() {

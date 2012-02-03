@@ -90,6 +90,28 @@ namespace Qtilities {
               */
             SingleTaskWidget* singleTaskWidget(int task_id);
 
+            //! Disables updating of task progress bars throughout the application.
+            /*!
+              Enabled by default.
+
+              This function was added in Qtilities v1.1.
+              */
+            void disableTaskProgressUpdating();
+            //! Enables updating of task progress bars throughout the application.
+            /*!
+              Enabled by default.
+
+              This function was added in Qtilities v1.1.
+              */
+            void enableTaskProgressUpdating();
+            //! Gets if updating of task progress bars throughout the application is enabled.
+            /*!
+              Enabled by default.
+
+              This function was added in Qtilities v1.1.
+              */
+            bool taskProgressUpdatingEnabled() const;
+
         private:
             TaskManagerGui();
 

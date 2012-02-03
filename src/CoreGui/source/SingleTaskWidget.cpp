@@ -35,6 +35,7 @@
 #include "ui_SingleTaskWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "WidgetLoggerEngine.h"
+#include "TaskManagerGui.h"
 
 #include <TaskManager>
 #include <QtilitiesCoreApplication>
@@ -236,19 +237,26 @@ void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
     setDisplayedName(d->task->displayName());
 }
 
-void Qtilities::CoreGui::SingleTaskWidget::update() {
+void Qtilities::CoreGui::SingleTaskWidget::update() {  
+    bool show_progress = TaskManagerGui::instance()->taskProgressUpdatingEnabled();
+
     setDisplayedName(d->task->displayName());
 
     if (d->task->state() == ITask::TaskBusy) {
-        if (d->task->numberOfSubTasks() == -1) {
-            ui->progressBar->setMinimum(0);
-            ui->progressBar->setMaximum(0);
-            ui->progressBar->setValue(0);
+        if (show_progress) {
+            ui->progressBar->setEnabled(true);
+            if (d->task->numberOfSubTasks() == -1) {
+                ui->progressBar->setMinimum(0);
+                ui->progressBar->setMaximum(0);
+                ui->progressBar->setValue(0);
+            } else {
+                ui->progressBar->setMinimum(0);
+                //qDebug() << "Current progress on task " << d->task->taskName() << " is " << d->task->currentProgress() << "/" << d->task->numberOfSubTasks();
+                ui->progressBar->setValue(d->task->currentProgress());
+                ui->progressBar->setMaximum(d->task->numberOfSubTasks());
+            }
         } else {
-            ui->progressBar->setMinimum(0);
-            //qDebug() << "Current progress on task " << d->task->taskName() << " is " << d->task->currentProgress() << "/" << d->task->numberOfSubTasks();
-            ui->progressBar->setValue(d->task->currentProgress());
-            ui->progressBar->setMaximum(d->task->numberOfSubTasks());
+            ui->progressBar->setEnabled(false);
         }
 
         ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_BUSY_22x22));
@@ -267,8 +275,14 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
 
         ui->btnStart->setVisible(false);
     } else if (d->task->state() == ITask::TaskNotStarted) {
-        ui->progressBar->setMinimum(0);
-        ui->progressBar->setMaximum(100);
+        if (show_progress) {
+            ui->progressBar->setEnabled(true);
+            ui->progressBar->setMinimum(0);
+            ui->progressBar->setMaximum(100);
+        } else {
+            ui->progressBar->setEnabled(false);
+        }
+
         ui->btnStop->setEnabled(false);
         ui->btnStop->setToolTip("Cancel Task");
         ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_NOT_STARTED_22x22));
@@ -303,16 +317,21 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnStop->setToolTip("Remove Task");
         ui->btnStart->setVisible(d->task->canStart());
     } else if (d->task->state() == ITask::TaskCompleted) {
-        if (d->task->numberOfSubTasks() == -1) {
-            // Handle progress bars acting as busy indicators:
-            ui->progressBar->setMinimum(0);
-            ui->progressBar->setMaximum(100);
-            ui->progressBar->setValue(100);
+        if (show_progress) {
+            ui->progressBar->setEnabled(true);
+            if (d->task->numberOfSubTasks() == -1) {
+                // Handle progress bars acting as busy indicators:
+                ui->progressBar->setMinimum(0);
+                ui->progressBar->setMaximum(100);
+                ui->progressBar->setValue(100);
+            } else {
+                // Handle progress bars showing progress:
+                ui->progressBar->setMinimum(0);
+                ui->progressBar->setMaximum(100);
+                ui->progressBar->setValue(100);
+            }
         } else {
-            // Handle progress bars showing progress:
-            ui->progressBar->setMinimum(0);
-            ui->progressBar->setMaximum(100);
-            ui->progressBar->setValue(100);
+            ui->progressBar->setEnabled(false);
         }
 
         setPauseButtonVisible(d->task->canPause());

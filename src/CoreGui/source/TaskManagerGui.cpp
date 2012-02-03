@@ -29,10 +29,12 @@ using namespace Qtilities::CoreGui;
 using namespace Qtilities::Logging;
 
 struct Qtilities::CoreGui::TaskManagerGuiPrivateData {
-    TaskManagerGuiPrivateData() : log_initialization(TaskManagerGui::TaskLogLazyInitialization){}
+    TaskManagerGuiPrivateData() : log_initialization(TaskManagerGui::TaskLogLazyInitialization),
+            task_progress_updating_enabled(true) {}
 
     QList<QPointer<SingleTaskWidget> >      task_widgets;
     TaskManagerGui::TaskLogInitialization   log_initialization;
+    bool                                    task_progress_updating_enabled;
 };
 
 Qtilities::CoreGui::TaskManagerGui* TaskManagerGui::m_Instance = 0;
@@ -81,6 +83,18 @@ SingleTaskWidget* TaskManagerGui::singleTaskWidget(int task_id) {
     SingleTaskWidget* single_task_widget = new SingleTaskWidget(task_id);
     d->task_widgets << single_task_widget;
     return single_task_widget;
+}
+
+void TaskManagerGui::disableTaskProgressUpdating() {
+    d->task_progress_updating_enabled = false;
+}
+
+void TaskManagerGui::enableTaskProgressUpdating() {
+    d->task_progress_updating_enabled = true;
+}
+
+bool TaskManagerGui::taskProgressUpdatingEnabled() const {
+    return d->task_progress_updating_enabled;
 }
 
 TaskManagerGui::TaskLogInitialization TaskManagerGui::getTaskLogInitializationMode() const {

@@ -72,6 +72,8 @@ struct Qtilities::Plugins::ProjectManagement::ProjectManagementPluginPrivateData
     QAction*        actionProjectSave;
     QAction*        actionProjectSaveAs;
     QString         appended_project_name;
+    QMenu*          menuRecentProjects;
+    QList<QAction*> actionsRecentProjects;
     bool            is_initialized;
 };
 

@@ -484,6 +484,8 @@ void MyObject::doSomething(ITask* task) {
                     If no task was passed to the function, the messages will be logged as system wide messages to the logger. If a valid task was
                     received the message will be logged to the task.
 
+                    This function was added in Qtilities v1.1.
+
                     \sa logPriorityMessageToTask
                   */
                 static void logMessageToTask(const QString& message, ITask* task = 0, Logger::MessageType type = Logger::Info) {
@@ -514,6 +516,8 @@ void MyObject::doSomething(ITask* task) {
     LOG_TASK_INFO_P("Message",task);
 }
 \endcode
+
+                    This function was added in Qtilities v1.1.
 
                     \sa logMessageToTask()
                   */
