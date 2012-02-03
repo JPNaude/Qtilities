@@ -59,7 +59,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
         is_initialized(false),
         project_types(IExportable::Binary | IExportable::XML),
         default_project_type(IExportable::XML),
-        project_changed_during_load(false) {}
+        project_changed_during_load(false),
+        exec_style(ProjectManager::ExecNormal) {}
 
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;
@@ -79,6 +80,7 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     IExportable::ExportMode                 default_project_type;
     QMap<IExportable::ExportMode,QString>   suffices;
     bool                                    project_changed_during_load;
+    ProjectManager::ExecStyle               exec_style;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -200,12 +202,18 @@ bool Qtilities::ProjectManagement::ProjectManager::newProject() {
 
 bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
     if (d->current_project) {
-        if (activeProjectBusy()) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle("Project Busy");
-            msgBox.setIcon(QMessageBox::Information);
-            msgBox.setText("You cannot close the current project while it is busy.<br>Wait for it to become idle and try again.");
-            msgBox.exec();
+        if (activeProjectBusy()) {          
+            QString msg = tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
+            if (d->exec_style != ExecSilent) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Project Busy");
+                msgBox.setIcon(QMessageBox::Information);
+                msgBox.setText(msg);
+                msgBox.exec();
+            } else {
+                LOG_ERROR_P(msg);
+            }
+
             return false;
         }
 
@@ -305,11 +313,17 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
         return false; 
 
     if (activeProjectBusy() && respect_project_busy) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Project Busy");
-        msgBox.setIcon(QMessageBox::Information);
-        msgBox.setText("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
-        msgBox.exec();
+        QString msg = tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
+        if (d->exec_style != ExecSilent) {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Project Busy");
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.setText(msg);
+            msgBox.exec();
+        } else {
+            LOG_ERROR_P(msg);
+        }
+
         return false;
     }
 
@@ -322,7 +336,10 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
                 project_path = PROJECT_MANAGER->customProjectsPath();
             else
                 project_path = QCoreApplication::applicationDirPath() + "/Projects";
-            file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
+
+            if (d->exec_style != ExecSilent)
+                file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
+
             if (file_name.isEmpty()) {
                 QApplication::restoreOverrideCursor();
                 return false;
@@ -627,14 +644,19 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
     if (d->current_project) {
         if (d->check_modified_projects && d->current_project->isModified()) {
             if (d->modified_projects_handling_policy == PromptUser) {
-                QMessageBox msgBox;
-                msgBox.setWindowTitle("Project Manager");
-                msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("Do you want to save your current project before you exit?");
-                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-                msgBox.setDefaultButton(QMessageBox::Yes);
-                int ret = msgBox.exec();
-                if (ret == QMessageBox::Yes) {
+                if (d->exec_style != ExecSilent) {
+                    QMessageBox msgBox;
+                    msgBox.setWindowTitle("Project Manager");
+                    msgBox.setIcon(QMessageBox::Question);
+                    msgBox.setText("Do you want to save your current project before you exit?");
+                    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                    msgBox.setDefaultButton(QMessageBox::Yes);
+                    int ret = msgBox.exec();
+                    if (ret == QMessageBox::Yes) {
+                        saveProject();
+                    }
+                } else {
+                    LOG_INFO(tr("Project manager is in silent execution mode. Auto-saving instead of prompting user"));
                     saveProject();
                 }
             } else if (d->modified_projects_handling_policy == AutoSave) {
@@ -652,6 +674,14 @@ void Qtilities::ProjectManagement::ProjectManager::markProjectAsChangedDuringLoa
 
 bool Qtilities::ProjectManagement::ProjectManager::projectChangedDuringLoad() {
     return d->project_changed_during_load;
+}
+
+ProjectManagement::ProjectManager::ExecStyle ProjectManagement::ProjectManager::executionStyle() const {
+    return d->exec_style;
+}
+
+void ProjectManagement::ProjectManager::setExecutionStyle(ProjectManagement::ProjectManager::ExecStyle exec_style) {
+    d->exec_style = exec_style;
 }
 
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {

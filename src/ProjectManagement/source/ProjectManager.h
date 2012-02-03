@@ -89,6 +89,12 @@ namespace Qtilities {
                 return "";
             }
 
+            //! Defines the execution mode of the project manager.
+            enum ExecStyle {
+                ExecNormal   = 0,       /*!< Normal operation, prompt user when feedback or input action is required. */
+                ExecSilent   = 1        /*!< Silent, do not prompt user when feedback or input action is required. Operate on defaults and if no defaults exists, fails. */
+            };
+
             static ProjectManager* instance();
             ~ProjectManager();
 
@@ -312,6 +318,21 @@ namespace Qtilities {
               \sa markProjectAsChangedDuringLoad()
               */
             bool projectChangedDuringLoad();
+
+            //! Gets the execution style of the project manager.
+            /*!
+              Default is ExecNormal.
+
+              This function was added in Qtilities v1.1.
+              */
+            ExecStyle executionStyle() const;
+            //! Sets the execution style of the project manager.
+            /*!
+              Default is ExecNormal.
+
+              This function was added in Qtilities v1.1.
+              */
+            void setExecutionStyle(ExecStyle exec_style);
 
             // --------------------------------
             // IObjectBase Implemenation
