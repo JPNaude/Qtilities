@@ -65,7 +65,8 @@ struct Qtilities::CoreGui::CodeEditorWidgetPrivateData {
         codeEditor(0),
         syntax_highlighter(0),
         searchBoxWidget(0),
-        action_provider(0) {}
+        action_provider(0),
+        removed_outside_policy(CodeEditorWidget::CloseFile){}
     ~CodeEditorWidgetPrivateData() {
         if (syntax_highlighter)
             delete syntax_highlighter;
@@ -87,8 +88,10 @@ struct Qtilities::CoreGui::CodeEditorWidgetPrivateData {
     QAction* actionFind;
     QAction* actionSettings;
 
-    //! The file name linked to the contents of the code editor. \sa loadFile()
+    //! The file name linked to the contents of the code editor. \sa handleNewSideWidget()
     QString current_file;
+    //! The default path used by file dialogs in this editor.
+    QString default_path;
     //! The global meta type string used for this editor.
     QString global_meta_type;
 
@@ -112,6 +115,14 @@ struct Qtilities::CoreGui::CodeEditorWidgetPrivateData {
 
     //! The central widget layout.
     QBoxLayout* central_widget_layout;
+
+    //! A file system watcher monitoring the open file.
+    QFileSystemWatcher watcher;
+    //! Mutex on watcher hanlders.
+    QMutex watcher_mutex;
+    //! FileRemovedOutsideHandlingPolicy
+    CodeEditorWidget::FileRemovedOutsideHandlingPolicy removed_outside_policy;
+
 };
 
 Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags, DisplayFlags display_flags, QWidget* parent) :
@@ -124,12 +135,21 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     d->display_flags = display_flags;
     d->central_widget = new QWidget();
     setCentralWidget(d->central_widget);
+    d->default_path = QtilitiesApplication::applicationSessionPath();
+
+    connect(&d->watcher,SIGNAL(fileChanged(QString)),SLOT(handleFileChangedNotification(QString)));
 
     // Create the code editor:
     d->codeEditor = new CodeEditor();
     d->codeEditor->installEventFilter(this);
     d->codeEditor->viewport()->installEventFilter(this);
     connect(d->codeEditor,SIGNAL(modificationChanged(bool)),SLOT(setModificationState(bool)));
+
+    // Set the tab width:
+    QString tab_width_text = "tabs";
+    QFontMetrics fm(d->codeEditor->font());
+    d->codeEditor->setTabStopWidth(fm.tightBoundingRect(tab_width_text).width());
+    //qDebug() << "fm.tightBoundingRect(tab_width_text).width()" << fm.tightBoundingRect(tab_width_text).width();
 
     // Read the settings for this editor:
     handleSettingsUpdateRequest(d->global_meta_type);
@@ -159,34 +179,6 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     CONTEXT_MANAGER->registerContext(context_string);
     d->global_meta_type = context_string;
     setObjectName(context_string);
-
-    // Create actions only after global meta type was set.
-    constructActions();
-
-    // Action toolbars construction:
-    if (d->display_flags & ActionToolBar) {
-        QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
-        for (int i = 0; i < categories.count(); i++) {
-            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
-            if (action_list.count() > 0) {
-                QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
-                d->action_toolbars << new_toolbar;
-                new_toolbar->addActions(action_list);
-            }
-        }
-    }
-
-    // Check if we must connect to the paste action for the new hints:
-    Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
-    if (command) {
-        if (command->action()) {
-            if (d->action_flags & ActionPaste)
-                connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
-            else
-                command->action()->disconnect();
-        }
-    }
-
 }
 
 Qtilities::CoreGui::CodeEditorWidget::~CodeEditorWidget() {
@@ -241,6 +233,14 @@ bool Qtilities::CoreGui::CodeEditorWidget::eventFilter(QObject *object, QEvent *
     return false;
 }
 
+Qtilities::CoreGui::CodeEditorWidget::FileRemovedOutsideHandlingPolicy Qtilities::CoreGui::CodeEditorWidget::fileRemovedOutsideHandlingPolicy() const {
+    return d->removed_outside_policy;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setFileRemovedOutsideHandlingPolicy(Qtilities::CoreGui::CodeEditorWidget::FileRemovedOutsideHandlingPolicy policy) {
+    d->removed_outside_policy = policy;
+}
+
 QString Qtilities::CoreGui::CodeEditorWidget::contextString() const {
     return d->global_meta_type;
 }
@@ -262,10 +262,10 @@ void Qtilities::CoreGui::CodeEditorWidget::setModificationState(bool new_state, 
     if (!d->codeEditor)
         return;
 
+    d->codeEditor->document()->setModified(new_state);
+
     if (notification_targets & IModificationNotifier::NotifyListeners)
         emit modificationStateChanged(new_state);
-    if (notification_targets & IModificationNotifier::NotifySubjects)
-        d->codeEditor->document()->setModified(new_state);
 }
 
 Qtilities::CoreGui::CodeEditor* Qtilities::CoreGui::CodeEditorWidget::codeEditor() {
@@ -294,6 +294,9 @@ Qtilities::CoreGui::SearchBoxWidget* Qtilities::CoreGui::CodeEditorWidget::searc
 bool Qtilities::CoreGui::CodeEditorWidget::loadFile(const QString &file_name) {
     maybeSave();
 
+    if (file_name.isEmpty())
+        return false;
+
     // Read everything from the file
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -304,23 +307,50 @@ bool Qtilities::CoreGui::CodeEditorWidget::loadFile(const QString &file_name) {
     d->codeEditor->document()->setModified(false);
     d->codeEditor->setPlainText(contents);
     setWindowModified(false);
+
+    QString prev_file = d->current_file;
     d->current_file = file_name;
+    emit fileNameChanged(d->current_file);
+
+    if (d->watcher.files().contains(prev_file))
+        d->watcher.removePath(prev_file);
+    d->watcher.addPath(d->current_file);
 
     return true;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::closeFile() {
+    if (d->watcher.files().contains(d->current_file))
+        d->watcher.removePath(d->current_file);
+
+    d->current_file.clear();
+    emit fileNameChanged("Untitled");
+
+    d->codeEditor->clear();
+    refreshActions();
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
     if (file_name.isEmpty())
         file_name = d->current_file;
 
+    if (d->watcher.files().contains(d->current_file))
+        d->watcher.removePath(d->current_file);
+
     QFile file(file_name);
-    if (!file.open(QFile::WriteOnly))
+    if (!file.open(QFile::WriteOnly)) {
         return false;
+    }
 
     file.write(d->codeEditor->toPlainText().toLocal8Bit());
     file.close();
 
     d->codeEditor->document()->setModified(false);
+
+    d->current_file = file_name;
+    emit fileNameChanged(d->current_file);
+
+    d->watcher.addPath(d->current_file);
 
     updateSaveAction();
     return true;
@@ -328,6 +358,14 @@ bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
 
 QString Qtilities::CoreGui::CodeEditorWidget::fileName() const {
     return d->current_file;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setDefaultPath(const QString &file_path) {
+    d->default_path = file_path;
+}
+
+QString Qtilities::CoreGui::CodeEditorWidget::defaultPath() const {
+    return d->default_path;
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::maybeSave() {
@@ -345,7 +383,6 @@ bool Qtilities::CoreGui::CodeEditorWidget::maybeSave() {
     return true;
 }
 
-
 Qtilities::CoreGui::Interfaces::IActionProvider* Qtilities::CoreGui::CodeEditorWidget::actionProvider() {
     return d->action_provider;
 }
@@ -357,8 +394,15 @@ void Qtilities::CoreGui::CodeEditorWidget::actionNew() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::actionOpen() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File..."),
-                                              QString(), tr("All Files (*)"));
+    QString start_path = d->default_path;
+
+    // If there already a file we open in its path:
+    if (!d->current_file.isEmpty()) {
+        QFileInfo fi(d->current_file);
+        start_path = fi.filePath();
+    }
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File..."), start_path, tr("All Files (*)"));
     if (!fileName.isEmpty())
         loadFile(fileName);
 }
@@ -371,8 +415,15 @@ bool Qtilities::CoreGui::CodeEditorWidget::actionSave() {
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::actionSaveAs() {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save as..."),
-                                              QString(), tr("All Files (*)"));
+    QString start_path = d->default_path;
+
+    // If there already a file we open in its path:
+    if (!d->current_file.isEmpty()) {
+        QFileInfo fi(d->current_file);
+        start_path = fi.filePath();
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As..."), start_path, tr("All Files (*)"));
     if (fileName.isEmpty())
         return false;
 
@@ -413,7 +464,15 @@ void Qtilities::CoreGui::CodeEditorWidget::printPreview(QPrinter *printer)
 
 void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 #ifndef QT_NO_PRINTER
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
+    QString start_path = d->default_path;
+
+    // If there already a file we open in its path:
+    if (!d->current_file.isEmpty()) {
+        QFileInfo fi(d->current_file);
+        start_path = fi.filePath();
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), start_path, "*.pdf");
     if (!fileName.isEmpty()) {
         if (QFileInfo(fileName).completeSuffix().isEmpty())
             fileName.append(".pdf");
@@ -486,6 +545,68 @@ void Qtilities::CoreGui::CodeEditorWidget::updateSaveAction() {
         d->actionSave->setEnabled(true);
     else
         d->actionSave->setEnabled(false);
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const QString &path) {
+    if (!d->watcher_mutex.tryLock())
+        return;
+
+    if (d->current_file == path) {
+        // Detect the change that happened:
+        // Check if it still exists:
+        QFile file(path);
+        if (file.exists()) {
+            // The contents was modified:
+            QMessageBox msgBox;
+            msgBox.setText("Your file has changed outside of the editor:<br><br>" + d->current_file);
+            msgBox.setInformativeText("Do you want to reload the file?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            int ret = msgBox.exec();
+            switch (ret) {
+                case QMessageBox::Yes:
+                    loadFile(d->current_file);
+                    break;
+                case QMessageBox::No:
+                    // Since the file is not the same as the saved file anymore, we set it as modified.
+                    setModificationState(true);
+                    break;
+                default:
+                    // should never be reached
+                    break;
+            }
+        } else {
+            // The file was removed:
+            QMessageBox msgBox;
+            msgBox.setText("Your file has been removed outside of the editor:<br><br>" + d->current_file);
+            msgBox.setInformativeText("What do you want to keep this file open in the editor?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            int ret = msgBox.exec();
+            switch (ret) {
+                case QMessageBox::Yes:
+                    // Since the file does not exist anymore, we set it as modified.
+                    setModificationState(true);
+                    break;
+                case QMessageBox::No:
+                    // We need to either delete the editor or just close the file.
+                    if (d->removed_outside_policy == CloseFile) {
+                        closeFile();
+                    } else if (d->removed_outside_policy == DeleteEditor) {
+                        deleteLater();
+                    }
+                    break;
+                default:
+                    // should never be reached
+                    break;
+            }
+        }
+
+    } else {
+        qDebug() << "Found notification on file not used in editor. Current:" << d->current_file << ", Notification for file" << path;
+    }
+
+    d->watcher_mutex.unlock();
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
@@ -701,5 +822,134 @@ void Qtilities::CoreGui::CodeEditorWidget::showEditorSettings() {
     if (config_widget) {
         config_widget->setActivePage(tr("Code Editors"));
         config_widget->show();
+    }
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setDisplayFlagsHint(DisplayFlags display_flags) {
+    d->display_flags = display_flags;
+    initialize();
+}
+
+Qtilities::CoreGui::CodeEditorWidget::ActionFlags Qtilities::CoreGui::CodeEditorWidget::actionFlagsHint() const {
+    return d->action_flags;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setActionFlagsHint(ActionFlags action_flags) {
+    d->action_flags = action_flags;
+    initialize();
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::initialize() {
+    // Create actions only after global meta type was set.
+    constructActions();
+    refreshActionToolBar(true);
+
+    // Check if we must connect to the paste action for the new hints:
+    Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
+    if (command) {
+        if (command->action()) {
+            if (d->action_flags & ActionPaste)
+                connect(command->action(),SIGNAL(triggered()),d->codeEditor,SLOT(paste()));
+            else
+                command->action()->disconnect();
+        }
+    }
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_refresh) {
+    // Check if an action toolbar should be created:
+    if (d->display_flags & ActionToolBar && d->action_provider) {
+        if (!force_full_refresh) {
+            // Here we need to hide all toolbars that does not contain any actions:
+            // Now create all toolbars:
+            for (int i = 0; i < d->action_toolbars.count(); i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+                bool has_visible_action = false;
+                foreach (QAction* action, toolbar->actions()) {
+                    if (action->isVisible()) {
+                        has_visible_action = true;
+                        break;
+                    }
+                }
+                if (!has_visible_action)
+                    toolbar->hide();
+                else
+                    toolbar->show();
+            }
+            return;
+        }
+
+        // First delete all toolbars:
+        int toolbar_count = d->action_toolbars.count();
+        if (toolbar_count > 0) {
+            for (int i = 0; i < toolbar_count; i++) {
+                QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
+                removeToolBar(toolbar);
+                if (toolbar) {
+                    d->action_toolbars.removeOne(toolbar);
+                    delete toolbar;
+                }
+            }
+        }
+
+        // Now create all toolbars:
+        QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
+        for (int i = 0; i < categories.count(); i++) {
+            QList<QAction*> action_list = d->action_provider->actions(IActionProvider::NoFilter,categories.at(i));
+            if (action_list.count() > 0) {
+                QToolBar* new_toolbar = 0;
+
+                QList<QToolBar *> toolbars = findChildren<QToolBar *>();
+                foreach (QToolBar* toolbar, toolbars) {
+                    if (toolbar->objectName() == categories.at(i).toString()) {
+                        new_toolbar = toolbar;
+                        break;
+                    }
+                }
+
+                if (!new_toolbar) {
+                    new_toolbar = addToolBar(categories.at(i).toString());
+                    d->action_toolbars << new_toolbar;
+                }
+                new_toolbar->setObjectName(categories.at(i).toString());
+                new_toolbar->addActions(action_list);
+            }
+        }
+
+        // Here we need to hide all toolbars that does not contain any actions:
+        // This implementation will only hide empty toolbars, they will still be there when right clicking on the toolbar.
+        // However, this is the best solution I believe since the user can still see which toolbars are available, and
+        // then realize that no actions are available for the current selection in hidden toolbars.
+        for (int i = 0; i < d->action_toolbars.count(); i++) {
+            QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
+            bool has_visible_action = false;
+            foreach (QAction* action, toolbar->actions()) {
+                if (action->isVisible()) {
+                    has_visible_action = true;
+                    break;
+                }
+            }
+            if (!has_visible_action)
+                toolbar->hide();
+            else
+                toolbar->show();
+        }
+    } else {
+        d->display_flags = CodeEditorWidget::NoDisplayFlagsHint;
+        deleteActionToolBars();
+    }
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::deleteActionToolBars() {
+    int toolbar_count = d->action_toolbars.count();
+    if (toolbar_count > 0) {
+        for (int i = 0; i < toolbar_count; i++) {
+            QPointer<QToolBar> toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
+            removeToolBar(toolbar);
+            if (toolbar) {
+                d->action_toolbars.removeOne(toolbar);
+                delete toolbar;
+            }
+        }
     }
 }

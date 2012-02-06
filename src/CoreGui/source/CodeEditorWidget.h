@@ -149,8 +149,12 @@ code_editor.codeEditor()->setReadOnly(true);
             };
             Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
             Q_FLAGS(DisplayFlags);
-            //! Function to get current display flags hint.
-            DisplayFlags displayFlagsHint() const;
+
+            //! Defines how the editor should handle a situation where the open file is removed outside of the editor.
+            enum FileRemovedOutsideHandlingPolicy {
+                CloseFile      = 0,      /*!< Just close the file in the editor but keep the editor open. */
+                DeleteEditor   = 1       /*!< Call deleteLater() on the editor. */
+            };
 
             // --------------------------------
             // Construction / Destruction
@@ -161,6 +165,62 @@ code_editor.codeEditor()->setReadOnly(true);
             CodeEditorWidget(ActionFlags action_flags = ActionAllHints, DisplayFlags display_flags = AllDisplayFlagHint, QWidget* parent = 0);
             virtual ~CodeEditorWidget();
             bool eventFilter(QObject *object, QEvent *event);
+
+            // --------------------------------
+            // Init, Hints etc.
+            // --------------------------------
+            //! Gets the FileRemovedOutsideHandlingPolicy of the editor widget.
+            /*!
+              Default is CloseFile.
+
+              This function was added in Qtilities v1.1.
+              */
+            FileRemovedOutsideHandlingPolicy fileRemovedOutsideHandlingPolicy() const;
+            //! Sets the FileRemovedOutsideHandlingPolicy of the editor widget.
+            /*!
+              Default is CloseFile.
+
+              This function was added in Qtilities v1.1.
+              */
+            void setFileRemovedOutsideHandlingPolicy(FileRemovedOutsideHandlingPolicy policy);
+
+            //! Gets the  current display flags hint.
+            /*!
+              \sa setDisplayFlagsHint()
+              */
+            DisplayFlags displayFlagsHint() const;
+            //! Sets the current display flags hints.
+            /*!
+              \note This function will call initialize for you to update your display.
+
+              \sa displayFlagsHint()
+
+              This function was added in Qtilities v1.1.
+              */
+            void setDisplayFlagsHint(DisplayFlags display_flags);
+            //! Gets the action display flags hint.
+            /*!
+              \sa setActionFlagsHint()
+
+              This function was added in Qtilities v1.1.
+              */
+            ActionFlags actionFlagsHint() const;
+            //! Sets the current action flags hints.
+            /*!
+              \note This function will call initialize for you to update your display.
+
+              \sa actionFlagsHint()
+
+              This function was added in Qtilities v1.1.
+              */
+            void setActionFlagsHint(ActionFlags action_flags);
+            //! Initializes the window according to the current flags.
+            /*!
+              \sa displayFlagsHint(), actionFlagsHint()
+
+              This function was added in Qtilities v1.1.
+              */
+            void initialize();
 
             // --------------------------------
             // IContext Implementation
@@ -205,10 +265,18 @@ code_editor.codeEditor()->setReadOnly(true);
 
         private slots:
             void updateSaveAction();
+            void handleFileChangedNotification(const QString& path);
 
         protected:
             void constructActions();
             void refreshActions();
+
+        signals:
+            //! Signal which is emitted as soon as the file shown in the editor changed.
+            /*!
+              This function was added in Qtilities v1.1.
+              */
+            void fileNameChanged(const QString& new_file_name);
 
         public:
             // --------------------------------
@@ -219,6 +287,11 @@ code_editor.codeEditor()->setReadOnly(true);
               \returns True if the file was loaded successfully, false otherwise.
               */
             bool loadFile(const QString& file_name);
+            //! Closes the current file being edited, if any.
+            /*!
+               This function was added in Qtilities v1.1.
+              */
+            void closeFile();
             //! Saves the content of the editor to a file.
             /*!
               \param file_name The file name to which the contents must be saved. If loadFile() was already called, the file name does not need to be specified.
@@ -229,6 +302,24 @@ code_editor.codeEditor()->setReadOnly(true);
               This name will only be valid if loadFile() has been called.
               */
             QString fileName() const;
+            //! Sets the default path used by the code editor widget when using file dialogs.
+            /*!
+              By default QtilitiesApplication::applicationSessionPath().
+
+              \sa defaultPath()
+
+              This function was added in Qtilities v1.1.
+              */
+            void setDefaultPath(const QString& file_path);
+            //! Gets the default path used by the code editor widget when using file dialogs.
+            /*!
+              By default QtilitiesApplication::applicationSessionPath().
+
+              \sa setDefaultPath()
+
+              This function was added in Qtilities v1.1.
+              */
+            QString defaultPath() const;
 
             // --------------------------------
             // Access To Contained Elements
@@ -245,6 +336,8 @@ code_editor.codeEditor()->setReadOnly(true);
             //! Returns the search box widget of this code editor if it was constructed.
             SearchBoxWidget* searchBoxWidget() const;
 
+            void deleteActionToolBars();
+            void refreshActionToolBar(bool force_full_refresh);
         private:
             bool maybeSave();
 
