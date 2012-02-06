@@ -46,13 +46,14 @@ using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
 
 struct Qtilities::CoreGui::TaskSummaryWidgetPrivateData {
-    TaskSummaryWidgetPrivateData()  {}
+    TaskSummaryWidgetPrivateData() : task_summary_enabled(true)  {}
 
     QMap<int,QPointer<SingleTaskWidget> >           id_widget_map;
     TaskSummaryWidget::TaskDisplayOptions           display_options;
     TaskSummaryWidget::TaskRemoveOptionFlags        remove_options;
     TaskSummaryWidget::NoActiveTaskHandling         no_active_task_handling;
     QVBoxLayout*                                    layout;
+    bool                                            task_summary_enabled;
 };
 
 Qtilities::CoreGui::TaskSummaryWidget::TaskSummaryWidget(TaskRemoveOption remove_options, TaskDisplayOptions display_options, QWidget* parent) :
@@ -117,7 +118,18 @@ void Qtilities::CoreGui::TaskSummaryWidget::setTaskRemoveOptionFlags(TaskRemoveO
     }
 }
 
+bool Qtilities::CoreGui::TaskSummaryWidget::taskSummaryEnabled() const {
+    return d->task_summary_enabled;
+}
+
+void Qtilities::CoreGui::TaskSummaryWidget::setTaskSummaryEnabled(bool enable) {
+    d->task_summary_enabled = enable;
+}
+
 void Qtilities::CoreGui::TaskSummaryWidget::findCurrentTasks() {
+    if (!d->task_summary_enabled)
+        return;
+
     QList<QObject*> iface_list = OBJECT_MANAGER->registeredInterfaces("ITask");
     foreach (QObject* obj, iface_list) {
         addTask(obj);
@@ -139,6 +151,9 @@ void Qtilities::CoreGui::TaskSummaryWidget::clear() {
 }
 
 void Qtilities::CoreGui::TaskSummaryWidget::addTask(QObject* obj) {
+    if (!d->task_summary_enabled)
+        return;
+
     ITask* task = qobject_cast<ITask*> (obj);
     if (task) {
         if (d->id_widget_map.keys().contains(task->taskID()))

@@ -144,6 +144,17 @@ task_summary_widget.findCurrentTasks();
             //! Sets the TaskRemoveOptionFlags for this summary widget.
             void setTaskRemoveOptionFlags(TaskRemoveOptionFlags task_remove_option_flags);
 
+            //! Gets if this task summary widget is enabled.
+            /*!
+              This function was added in Qtilities v1.1.
+              */
+            bool taskSummaryEnabled() const;
+            //! Sets if this task summary widget is enabled.
+            /*!
+              This function was added in Qtilities v1.1.
+              */
+            void setTaskSummaryEnabled(bool enable);
+
             //! Function which will search for all tasks in the global object pool and show them according to how the widget is set up.
             void findCurrentTasks();
             //! Function which will clear all current tasks shown by the summary widget.
