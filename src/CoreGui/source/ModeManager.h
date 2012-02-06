@@ -161,7 +161,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               More modes can be added at a later stage using the addMode() and addModes() functions. A list of modes can be found using modes().
               */
-            void initialize();
+            void initialize(bool refresh_list = true);
             //! Adds a mode to the mode widget.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
@@ -182,7 +182,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \note Only modes which specify this manager as one of their manager IDs will be added.
               */
-            void addModes(QList<IMode*> modes, bool initialize_modes = true);
+            void addModes(QList<IMode*> modes, bool initialize_modes = true, bool refresh_list = true);
             //! Adds a list of modes to the main window. This call will attempt to cast each object in the list to IMode* and add the Successful interfaces to the main window.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
@@ -192,7 +192,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \note Only modes which specify this manager as one of their manager IDs will be added.
               */
-            void addModes(QList<QObject*> modes, bool initialize_modes = true);
+            void addModes(QList<QObject*> modes, bool initialize_modes = true, bool refresh_list = true);
             //! A list of the modes in this mode widget.
             /*!
               \sa addMode(), addModes()
@@ -261,7 +261,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \note This function will automatically refresh the view if modes are already present at the time the function is called.
               */
-            void setPreferredModeOrder(const QStringList& preferred_order);
+            void setPreferredModeOrder(const QStringList& preferred_order, bool refresh_list = true);
             //! Sets the preferred order of modes in the mode widget using the unique IDs of the modes.
             /*!
               An integer list with the ids of the modes in the order in which they should appear. The first item in the list will appear first, the last item last.
@@ -270,7 +270,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \note This function will automatically refresh the view if modes are already present at the time the function is called.
               */
-            void setPreferredModeOrder(QList<int> preferred_order);
+            void setPreferredModeOrder(QList<int> preferred_order, bool refresh_list = true);
             //! Sets the preferred order of modes in the mode widget using the IMode interfaces of the modes.
             /*!
               A QStringList with the names of the modes in the order in which they should appear. The first item in the list will appear first, the last item last.
@@ -281,7 +281,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \note This function will automatically refresh the view if modes are already present at the time the function is called.
               */
-            void setPreferredModeOrder(QList<IMode*> preferred_order);
+            void setPreferredModeOrder(QList<IMode*> preferred_order, bool refresh_list = true);
             //! Gets the preferred mode order's mode names where the first items in the list will appear first.
             /*!
               \sa setPreferredModeOrder()
@@ -339,6 +339,22 @@ modeListWidget()->setStyleSheet(stylesheet);
             QList<int> disabledModeIDs() const;
             //! Checks if a mode is valid, that is it a mode with the same ID is not yet registered in the mode manager.
             bool isValidModeID(int mode_id) const;
+            //! Gets if the mode manager registers application wide shortcuts for the modes shown.
+            /*!
+              True by default.
+
+              \sa setRegisterModeShortcuts()
+              */
+            bool registerModeShortcuts() const;
+            //! Sets if the mode manager registers application wide shortcuts for the modes shown.
+            /*!
+              True by default.
+
+              \note This function must be called before initializing the design the first time.
+
+              \sa registerModeShortcuts()
+              */
+            void setRegisterModeShortcuts(bool register_shortcuts);
 
         private slots:
             //! Handles selection changes in the top to bottom mode widget.
@@ -369,6 +385,8 @@ modeListWidget()->setStyleSheet(stylesheet);
             QStringList modeIDsToNames(QList<int> mode_ids) const;
             //! Converts a list of mode interfaces to a list of corresponding mode interfaces.
             QList<IMode*> modeIDsToIFaces(QList<int> mode_ids) const;
+            //! Gets the QListWidgetItem corresponding to a specific mode_id.
+            QListWidgetItem* listWidgetItemForID(int id) const;
 
             ModeManagerPrivateData* d;
         };

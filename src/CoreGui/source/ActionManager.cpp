@@ -80,7 +80,7 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
 
     // Set up the observers:
     d->observer_commands.enableCategorizedDisplay();
-    d->observer_commands.displayHints()->setActionHints(ObserverHints::ActionFindItem);
+    d->observer_commands.displayHints()->setActionHints(ObserverHints::ActionFindItem | ObserverHints::ActionRefreshView);
     d->observer_commands.displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
 }
 

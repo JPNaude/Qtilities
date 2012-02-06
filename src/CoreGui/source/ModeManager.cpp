@@ -46,19 +46,22 @@ using namespace Qtilities::CoreGui::Interfaces;
 struct Qtilities::CoreGui::ModeManagerPrivateData {
     ModeManagerPrivateData() : mode_list_widget(0),
         active_mode(-1),
-        mode_id_counter(1000) {}
+        mode_id_counter(1000),
+        register_shortcuts(true) {}
 
     // All int values in here reffers to the modeID()s of the modes.
-    ModeListWidget*         mode_list_widget;
-    int                     active_mode;
-    QMap<int, IMode*>       id_iface_map;
-    QList<int>              mode_order;
-    Qt::Orientation         orientation;
-    QList<int>              disabled_modes;
-    int                     mode_id_counter;
-    int                     manager_id;
+    ModeListWidget*             mode_list_widget;
+    int                         active_mode;
+    QMap<int, IMode*>           id_iface_map;
+    QList<int>                  mode_order;
+    Qt::Orientation             orientation;
+    QList<int>                  disabled_modes;
+    int                         mode_id_counter;
+    int                         manager_id;
     //! ModeID & Shortcut pair
-    QMap<int, QShortcut*>   mode_shortcuts;
+    QMap<int, QShortcut*>       mode_shortcuts;
+    QMap<QShortcut*,Command*>   command_shortcut_map;
+    bool                        register_shortcuts;
 };
 
 Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent) :
@@ -72,12 +75,19 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
     d->mode_list_widget = new ModeListWidget(orientation);
     connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
 
-    if (d->orientation == Qt::Horizontal)
+    if (d->orientation == Qt::Horizontal) {
         d->mode_list_widget->setFlow(QListWidget::TopToBottom);
-    else
+        d->mode_list_widget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        d->mode_list_widget->setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded);
+    } else {
+        d->mode_list_widget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        d->mode_list_widget->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded);
         d->mode_list_widget->setFlow(QListWidget::LeftToRight);
+
+    }
     d->mode_list_widget->setMovement(QListView::Static);
     d->mode_list_widget->setViewMode(QListView::IconMode);
+    d->mode_list_widget->setResizeMode(QListView::Adjust);
     d->mode_list_widget->setIconSize(QSize(48,48));
     d->mode_list_widget->setWrapping(true);
     d->mode_list_widget->setUniformItemSizes(true);
@@ -164,19 +174,6 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
             // Add the mode to our ID IFace map:
             d->id_iface_map[mode->modeID()] = mode;
 
-            // Create a shortcut for the mode:
-            QString shortcut_id = QString("ApplicationMode.%1").arg(mode->modeID());
-            Command* command = ACTION_MANAGER->command(shortcut_id);
-            if (!command) {
-                QShortcut* shortcut = new QShortcut(QKeySequence(QString("Ctrl+%1").arg(d->mode_shortcuts.count()+1)),QtilitiesApplication::mainWindow());
-                d->mode_shortcuts[mode->modeID()] = shortcut;
-                shortcut->setContext(Qt::ApplicationShortcut);
-                Command* command = ACTION_MANAGER->registerShortcut(QString("ApplicationMode.%1").arg(mode->modeID()),mode->modeName(),shortcut);
-                command->setCategory(QtilitiesCategory("Application Modes"));
-                connect(shortcut,SIGNAL(activated()),SLOT(handleModeShortcutActivated()));
-            }
-
-            // Refresh the list:
             if (refresh_list)
                 refreshList();
         } else {
@@ -185,31 +182,33 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
     }
 }
 
-void Qtilities::CoreGui::ModeManager::addModes(QList<IMode*> modes, bool initialize_modes) {
-    for (int i = 0; i < modes.count(); i++) {
-        addMode(modes.at(i), initialize_modes, false);
-    }
+void Qtilities::CoreGui::ModeManager::addModes(QList<IMode*> modes, bool initialize_modes, bool refresh_list) {
+    for (int i = 0; i < modes.count(); i++)
+        addMode(modes.at(i), initialize_modes,false);
 
-    refreshList();
+    if (refresh_list)
+        refreshList();
 }
 
-void Qtilities::CoreGui::ModeManager::initialize() {
+void Qtilities::CoreGui::ModeManager::initialize(bool refresh_list) {
     d->id_iface_map.clear();
-    d->active_mode = -1;
-
     QList<QObject*> modes = OBJECT_MANAGER->registeredInterfaces("IMode");
-    LOG_DEBUG(QString("%1 mode(s) found.").arg(modes.count()));
-    addModes(modes);
+    LOG_DEBUG(QString("Mode manager \"%1\" found %2 mode(s) during initialization.").arg(objectName()).arg(modes.count()));
+    addModes(modes,true,false);
+
+    if (refresh_list)
+        refreshList();
 }
 
-void Qtilities::CoreGui::ModeManager::addModes(QList<QObject*> modes, bool initialize_modes) {
+void Qtilities::CoreGui::ModeManager::addModes(QList<QObject*> modes, bool initialize_modes, bool refresh_list) {
     for (int i = 0; i < modes.count(); i++) {
         IMode* mode = qobject_cast<IMode*> (modes.at(i));
         if (mode)
-            addMode(mode, initialize_modes, false);
+            addMode(mode, initialize_modes,false);
     }
 
-    refreshList();
+    if (refresh_list)
+        refreshList();
 }
 
 QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeManager::modes() const {
@@ -232,30 +231,45 @@ void Qtilities::CoreGui::ModeManager::setManagerID(int manager_id) {
 }
 
 Qtilities::CoreGui::Interfaces::IMode* Qtilities::CoreGui::ModeManager::activeModeIFace() const {
-    return d->id_iface_map[d->active_mode];
+    if (d->id_iface_map.contains(d->active_mode))
+        return d->id_iface_map[d->active_mode];
+    else
+        return 0;
 }
 
 int Qtilities::CoreGui::ModeManager::activeModeID() const {
-    return d->id_iface_map[d->active_mode]->modeID();
+    if (d->id_iface_map.contains(d->active_mode))
+        return d->id_iface_map[d->active_mode]->modeID();
+    else
+        return -1;
 }
 
-QString Qtilities::CoreGui::ModeManager::activeModeName() const {
-    return d->id_iface_map[d->active_mode]->modeName();
+QString Qtilities::CoreGui::ModeManager::activeModeName() const {   
+    if (d->id_iface_map.contains(d->active_mode))
+        return d->id_iface_map[d->active_mode]->modeName();
+    else
+        return QString();
 }
 
-void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(const QStringList& preferred_order) {
+void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(const QStringList& preferred_order, bool refresh_list) {
     d->mode_order = modeNamesToIDs(preferred_order);  
-    refreshList();
+
+    if (refresh_list)
+        refreshList();
 }
 
-void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(QList<int> preferred_order) {
+void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(QList<int> preferred_order, bool refresh_list) {
     d->mode_order = preferred_order;
-    refreshList();
+
+    if (refresh_list)
+        refreshList();
 }
 
-void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(QList<IMode*> preferred_order) {
+void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(QList<IMode*> preferred_order, bool refresh_list) {
     d->mode_order = modeIFacesToIDs(preferred_order);
-    refreshList();
+
+    if (refresh_list)
+        refreshList();
 }
 
 QStringList Qtilities::CoreGui::ModeManager::preferredModeOrderNames() const {
@@ -301,14 +315,18 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     // to the preferred order etc.
 
     // Clear all lists:
+    disconnect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),this,SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
     d->mode_list_widget->clear();
+    connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)),Qt::UniqueConnection);
 
     // Will indicate if an item has been set as active in the loops below:
     bool set_active_done = false;
 
     // Now add them in the correct order:
     QList<int> added_ids;
-    QMap<int, QListWidgetItem*> added_items;
+    QList<QString> added_names;
+
+    QMap<int,QListWidgetItem*> added_items;
     foreach(int id, d->mode_order) {
         // Get the item with the mode id:
         IMode* mode = d->id_iface_map[id];
@@ -320,6 +338,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                 flags &= ~Qt::ItemIsEnabled;
                 new_item->setFlags(flags);
             }
+            new_item->setSizeHint(d->mode_list_widget->sizeHint());
             new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
 
             d->mode_list_widget->addItem(new_item);
@@ -338,6 +357,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                 ObjectManager::setSharedProperty(mode->objectBase(),icon_property);
             }
             added_ids << id;
+            added_names << mode->modeName();
             added_items[id] = new_item;
         }
     }
@@ -353,6 +373,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                     new_item->setFlags(flags);
                 }
                 new_item->setToolTip(QString(tr("Go to <b>%1</b> mode ")).arg(mode->modeName()));
+                new_item->setSizeHint(d->mode_list_widget->sizeHint());
 
                 d->mode_list_widget->addItem(new_item);
 
@@ -371,7 +392,61 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
                 }
 
                 added_ids << mode->modeID();
+                added_names << mode->modeName();
                 added_items[mode->modeID()] = new_item;
+            }
+        }
+    }
+
+    // Assign shortcuts for modes in this window:
+    // Delete all shortcut commands:
+    foreach (Command* command, d->command_shortcut_map.values())
+        delete command;
+
+    d->mode_shortcuts.clear();
+    d->command_shortcut_map.clear();
+
+    // Now assign correct shortcuts for all modes:
+    if (d->register_shortcuts) {
+        int id_num = 0;
+        for (int i = 0; i < added_ids.count(); i++) {
+            QString shortcut_id = QString("%1.Mode.%2").arg(objectName()).arg(added_ids.at(i));
+            Command* command = ACTION_MANAGER->command(shortcut_id);
+            if (!command) {
+                // Determine a valid shortcut that we can use:
+                ++id_num;
+                QKeySequence key_sequence = QKeySequence(QString("Ctrl+%1").arg(id_num));
+                while (ACTION_MANAGER->commandsWithKeySequence(key_sequence).count() > 0) {
+                    ++id_num;
+                    key_sequence = QKeySequence(QString("Ctrl+%1").arg(id_num));
+                }
+
+                ACTION_MANAGER->commandObserver()->startProcessingCycle();
+
+                // Create the shortcut
+                QShortcut* shortcut = new QShortcut(key_sequence,QtilitiesApplication::mainWindow());
+                d->mode_shortcuts[added_ids.at(i)] = shortcut;
+                shortcut->setContext(Qt::ApplicationShortcut);
+
+                // Register the command:
+                command = ACTION_MANAGER->registerShortcut(shortcut_id,added_names.at(i),shortcut);
+                command->setCategory(QtilitiesCategory("Application Modes"));
+                command->setKeySequence(key_sequence);
+                d->command_shortcut_map[shortcut] = command;
+                connect(shortcut,SIGNAL(activated()),SLOT(handleModeShortcutActivated()));
+
+                ACTION_MANAGER->commandObserver()->endProcessingCycle();
+            }
+
+            // We need to set the tootip on the QListWidgetItem every time that refresh is called since the list widget
+            // items are constructed everytime:
+            QKeySequence sequence = command->keySequence();
+            QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(sequence.toString());
+
+            QListWidgetItem* item = added_items[added_ids.at(i)];
+            if (item) {
+                QString tooltip = QString(item->toolTip() + new_key_tooltip);
+                item->setToolTip(tooltip);
             }
         }
     }
@@ -396,37 +471,31 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     }
 
     // If we still don't have an active item it means no modes are present. We don't have to do anything in that case.
-    if (!set_active_done) {       
+    if (!set_active_done || d->mode_list_widget->count() == 0) {
         emit changeCentralWidget(0);
         emit modeListItemSizesChanged();
     } else {
-        // Now assign correct shortcuts for all modes:
-        for (int i = 0; i < added_ids.count(); i++) {
-            QString shortcut_id = QString("ApplicationMode.%1").arg(added_ids.at(i));
-            Command* command = ACTION_MANAGER->command(shortcut_id);
-            if (command) {
-                command->setKeySequence(QKeySequence(QString("Ctrl+%1").arg(i+1)));
-                QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">Ctrl+%1</span>").arg(i+1);
-                QString tooltip = QString(added_items[added_ids.at(i)]->toolTip() + new_key_tooltip);
-                added_items[added_ids.at(i)]->setToolTip(tooltip);
-            }
-        }
-
+        QSize hint = d->mode_list_widget->sizeHint();
         // Set the min & max widths and heigths:
         if (d->orientation == Qt::Horizontal) {
-            d->mode_list_widget->setMinimumWidth(d->mode_list_widget->sizeHint().width());
-            d->mode_list_widget->setMaximumWidth(d->mode_list_widget->sizeHint().width());
+            d->mode_list_widget->setMinimumWidth(hint.width());
+            d->mode_list_widget->setMaximumWidth(hint.width());
             emit modeListItemSizesChanged();
         } else {
-            d->mode_list_widget->setMinimumHeight(d->mode_list_widget->sizeHint().height());
-            d->mode_list_widget->setMaximumHeight(d->mode_list_widget->sizeHint().height());
+            d->mode_list_widget->setMinimumHeight(hint.height());
+            d->mode_list_widget->setMaximumHeight(hint.height());
             emit modeListItemSizesChanged();
         }
 
         // Set size hint for all items:
-        for (int i = 0; i < d->mode_list_widget->count(); i++)
-            d->mode_list_widget->item(i)->setSizeHint(d->mode_list_widget->sizeHint());
+        for (int i = 0; i < added_items.values().count(); i++) {
+            if (added_items.values().at(i))
+                added_items.values().at(i)->setSizeHint(hint);
+        }
     }
+
+    if ((d->mode_list_widget->count() > 0) && (d->active_mode == -1))
+        qWarning() << "Failed to make selection in mode manager" << objectName();
 }
 
 QList<int> Qtilities::CoreGui::ModeManager::modeNamesToIDs(QStringList name_list) const {
@@ -481,16 +550,46 @@ QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeManager::m
     return iface_list;
 }
 
+QListWidgetItem* Qtilities::CoreGui::ModeManager::listWidgetItemForID(int id) const {
+    for (int i = 0; d->mode_list_widget->count(); i++) {
+        QListWidgetItem* current = d->mode_list_widget->item(i);
+        if (current->type() == id)
+            return current;
+    }
+
+    return 0;
+}
+
 bool Qtilities::CoreGui::ModeManager::isValidModeID(int mode_id) const {
     return !(d->id_iface_map.keys().contains(mode_id));
 }
 
-void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidgetItem * item) {
-    if (!item)
-        return;
+bool CoreGui::ModeManager::registerModeShortcuts() const {
+    return d->register_shortcuts;
+}
 
-    if (!d->id_iface_map[item->type()])
+void CoreGui::ModeManager::setRegisterModeShortcuts(bool register_shortcuts) {
+    d->register_shortcuts = register_shortcuts;
+}
+
+void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidgetItem * item) {
+    if (!item) {
+        if (d->mode_list_widget->count()) {
+            d->mode_list_widget->setCurrentRow(0);
+            return;
+        } else {
+            emit changeCentralWidget(0);
+            d->active_mode = -1;
+            return;
+        }
+    }
+
+    if (!d->id_iface_map[item->type()]) {
+        qDebug() << "2";
+        emit changeCentralWidget(0);
+        d->active_mode = -1;
         return;
+    }
 
     if (d->id_iface_map.keys().contains(item->type())) {
         d->id_iface_map[item->type()]->aboutToBeActivated();
@@ -520,7 +619,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id) {
         return;
 
     d->active_mode = mode_id;
-    refreshList();
+    d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
 }
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name) {
@@ -534,7 +633,8 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name) {
             break;
         }
     }
-    refreshList();
+
+    d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
 }
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(IMode* mode_iface) {
@@ -548,5 +648,6 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(IMode* mode_iface) {
             break;
         }
     }
-    refreshList();
+
+    d->mode_list_widget->setCurrentItem(listWidgetItemForID(d->active_mode));
 }

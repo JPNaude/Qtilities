@@ -50,7 +50,6 @@ using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
     QtilitiesMainWindowPrivateData() : initialized(false),
-        current_widget(0),
         mode_manager(0),
         central_widget(0),
         priority_messages_enabled(true),
@@ -58,10 +57,11 @@ struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
         task_summary_widget(0) {}
 
     bool                            initialized;
-    QWidget*                        current_widget;
+    QPointer<QWidget>               current_widget;
     QWidget*                        current_widget_holder;
     ModeManager*                    mode_manager;
     QWidget*                        central_widget;
+    QPointer<QWidget>               empty_central_widget;
     bool                            priority_messages_enabled;
     QWidget                         priority_messages_widget;
     QLabel                          priority_messages_icon;
@@ -82,8 +82,10 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
     if (modeLayout != ModesNone) {
         d->current_widget_holder = new QWidget;
         d->central_widget = new QWidget;
-        d->current_widget = new QWidget;
-        changeCurrentWidget(d->current_widget);
+        QWidget* widget = new QWidget;
+        d->empty_central_widget = widget;
+        d->empty_central_widget->setObjectName("Empty Central Widget");
+        d->empty_central_widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     }
 
     readSettings();
@@ -122,6 +124,9 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
         d->current_widget->setParent(0);
 
     emit aboutToBeDestroyed(this);
+
+    if (d->empty_central_widget)
+        delete d->empty_central_widget;
 
     delete ui;
     delete d;
@@ -233,7 +238,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
             //d->task_summary_widget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Minimum);
             d->task_summary_widget->setTaskSummaryEnabled(d->task_summary_widget_visible);
         }
-        horizontal_layout->addWidget(d->task_summary_widget);
+        horizontal_layout->addWidget(d->task_summary_widget);    
 
         QVBoxLayout* layout = new QVBoxLayout(d->central_widget);
         if (d->mode_layout == ModesTop) {
@@ -247,6 +252,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
 
         setCentralWidget(d->central_widget);
         d->central_widget->show();
+        d->current_widget_holder->show();
         if (d->task_summary_widget_visible)
             d->task_summary_widget->show();
 
@@ -301,6 +307,9 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
     if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
         int max_height = d->mode_manager->modeListWidget()->sizeHint().height();
 
+        if (max_height == 0)
+            max_height = 78;
+
         d->mode_manager->modeListWidget()->setMinimumHeight(max_height);
         d->mode_manager->modeListWidget()->setMaximumHeight(max_height);
 
@@ -310,6 +319,9 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
         }
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
         int max_width = d->mode_manager->modeListWidget()->sizeHint().width();
+
+        if (max_width == 0)
+            max_width = 78;
 
         d->mode_manager->modeListWidget()->setMinimumWidth(max_width);
         d->mode_manager->modeListWidget()->setMaximumWidth(max_width);
@@ -322,10 +334,8 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_central_widget) {
-    if (!new_central_widget) {
-        new_central_widget = new QWidget(this);
-        new_central_widget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-    }
+    if (!new_central_widget) 
+        new_central_widget = d->empty_central_widget;
 
     // Hide current widget
     if (d->current_widget) {
@@ -334,6 +344,10 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
     }
 
     d->current_widget = new_central_widget;
+    if (!d->current_widget) {
+        d->current_widget = d->empty_central_widget;
+        qWarning() << "Invalid mode widget found. Can't display it. Reverting to the empty widget in order to respect layout.";
+    }
 
     if (d->current_widget_holder->layout())
         delete d->current_widget_holder->layout();
@@ -342,8 +356,8 @@ void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_c
     layout->setMargin(0);
     layout->addWidget(d->current_widget);
 
-    d->current_widget_holder->show();
-    d->current_widget->show();
+    if (d->current_widget)
+        d->current_widget->show();
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::processPriorityMessage(Logger::MessageType message_type, const QString& message) {

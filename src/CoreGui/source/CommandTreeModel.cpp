@@ -43,7 +43,7 @@ Qtilities::CoreGui::qti_private_CommandTreeModel::qti_private_CommandTreeModel(Q
 }
 
 QVariant Qtilities::CoreGui::qti_private_CommandTreeModel::data(const QModelIndex &index, int role) const {
-    if ((index.column() == columnCount() - 2) && (role == Qt::DisplayRole)) {
+    if ((index.column() == columnCount() - 2) && (role == Qt::DisplayRole || role == Qt::ToolTipRole)) {
         QObject* obj = getObject(index);
         if (obj) {
             Command* command = qobject_cast<Command*> (obj);
@@ -52,7 +52,7 @@ QVariant Qtilities::CoreGui::qti_private_CommandTreeModel::data(const QModelInde
             }
         }
         return QVariant();
-    } else if ((index.column() == columnCount() - 1) && (role == Qt::DisplayRole || role == Qt::EditRole)) {
+    } else if ((index.column() == columnCount() - 1) && (role == Qt::DisplayRole || role == Qt::EditRole || role == Qt::ToolTipRole)) {
         QObject* obj = getObject(index);
         if (obj) {
             Command* command = qobject_cast<Command*> (obj);
