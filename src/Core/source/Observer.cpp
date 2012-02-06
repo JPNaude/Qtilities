@@ -714,10 +714,13 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         LOG_TRACE(QString("Object \"%1\" is now visible in the global object pool.").arg(obj->objectName()));
     }
 
+    observerData->observer_mutex.tryLock();
     // Finalize the attachment in all subject filters, indicating that the attachment was succesfull.
+    QPointer<QObject> safe_obj = obj;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         observerData->subject_filters.at(i)->finalizeAttachment(obj,true,import_cycle);
     }
+    observerData->observer_mutex.unlock();
 
     return true;
 }
@@ -896,6 +899,9 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
             return;
     #endif
 
+    if (!observerData->observer_mutex.tryLock())
+        return;
+
     // Pass object through all installed subject filters
     bool passed_filters = true;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
@@ -922,6 +928,8 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
         emit numberOfSubjectsChanged(SubjectRemoved, objects);
         emit layoutChanged(QList<QPointer<QObject> >());
     }
+
+    observerData->observer_mutex.unlock();
 }
 
 bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
