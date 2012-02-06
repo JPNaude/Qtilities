@@ -99,9 +99,6 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     ui->tableViewLoggerEngines->horizontalHeader()->setStretchLastSection(true);
-    if (Log->attachedLoggerEngineCount() >= 1) {
-        ui->tableViewLoggerEngines->setCurrentIndex(d->proxyModel->mapFromSource(d->logger_engine_model.index(0,0)));
-    }
 
     // Add formatting engines:
     ui->listWidgetFormattingEngines->addItems(Log->availableFormattingEnginesInFactory());
@@ -185,19 +182,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_RemoveLoggerEngineRequest() 
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_LoggerEngineTableClicked(const QModelIndex& index) {
-    // Get the engine at the position:
-    if (index.row() < 0 || index.row() >= Log->attachedLoggerEngineCount()) {
-        d->active_engine = 0;
-    } else {
-        QItemSelection selection = d->proxyModel->mapSelectionToSource(ui->tableViewLoggerEngines->selectionModel()->selection());
-        if (selection.count() > 0) {
-            d->active_engine = Log->loggerEngineReferenceAt(selection.indexes().front().row());
-        } else {
-            d->active_engine = 0;
-        }
-    }
-
-    refreshLoggerEngineInformation();
+    updateActiveEngine();
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_FormattingEnginesCurrentRowChanged(int currentRow) {
@@ -299,7 +284,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
     }
 
     // We also sort in here:
-    //ui->tableViewLoggerEngines->sortByColumn(qti_private_LoggerEnginesTableModel::NameColumn,Qt::AscendingOrder);
+    ui->tableViewLoggerEngines->sortByColumn(qti_private_LoggerEnginesTableModel::NameColumn,Qt::AscendingOrder);
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
@@ -386,20 +371,17 @@ void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
     if (!d->proxyModel)
         return;
 
-    QModelIndexList selected_indexes;
-    if (ui->tableViewLoggerEngines->selectionModel()) {
-        for (int i = 0; i < ui->tableViewLoggerEngines->selectionModel()->selectedIndexes().count(); i++) {
-            QModelIndex index = ui->tableViewLoggerEngines->selectionModel()->selectedIndexes().at(i);
-            if (index.column() == 0)
-                selected_indexes << d->proxyModel->mapToSource(index);
-        }
-    }
+    // Get the engine at the position:
+    QItemSelection selection = d->proxyModel->mapSelectionToSource(ui->tableViewLoggerEngines->selectionModel()->selection());
+    if (selection.count() > 0) {
+        if (selection.indexes().front().row() < 0 || selection.indexes().front().row() >= Log->attachedLoggerEngineCount())
+            d->active_engine = 0;
+        else
+            d->active_engine = Log->loggerEngineReferenceAt(selection.indexes().front().row());
+    } else
+        d->active_engine = 0;
 
-    if (selected_indexes.count() == 1) {
-        // The index in the source model is the same as in the list of engines.
-        d->active_engine = Log->loggerEngineReferenceAt(selected_indexes.front().row());
-        refreshLoggerEngineInformation();
-    }
+    refreshLoggerEngineInformation();
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::changeEvent(QEvent *e) {
