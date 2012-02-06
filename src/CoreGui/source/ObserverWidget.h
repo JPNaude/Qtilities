@@ -276,6 +276,11 @@ categorized_widget->show();
               */
             QStringList lastExpandedItemsResults() const;
 
+            // --------------------------------
+            // Factory Interface Implemenation
+            // --------------------------------
+            static FactoryItem<QWidget, ObserverWidget> factory;
+
         private slots:
             void contextDeleted();
             //! The context detach handler check if any observer in the current context's parent hierarchy is deleted. If so, contextDeleted() is called.

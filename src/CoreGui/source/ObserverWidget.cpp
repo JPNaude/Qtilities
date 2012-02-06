@@ -82,6 +82,12 @@ using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 using namespace Qtilities::Core::Properties;
 
+namespace Qtilities {
+    namespace CoreGui {
+        FactoryItem<QWidget, ObserverWidget> ObserverWidget::factory;
+    }
+}
+
 struct Qtilities::CoreGui::ObserverWidgetData {
     ObserverWidgetData() : actionRemoveItem(0),
         actionRemoveAll(0),
