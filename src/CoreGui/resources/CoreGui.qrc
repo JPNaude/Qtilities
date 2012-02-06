@@ -103,5 +103,7 @@
         <file>qtilities/coregui/icons/task_resume_22x22.png</file>
         <file>qtilities/coregui/icons/task_pause_22x22.png</file>
         <file>qtilities/coregui/icons/task_failed_22x22.png</file>
+        <file>qtilities/coregui/icons/file_save_all_16x16.png</file>
+        <file>qtilities/coregui/icons/file_save_all_22x22.png</file>
     </qresource>
 </RCC>

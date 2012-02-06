@@ -226,10 +226,14 @@ namespace Qtilities {
             const char * const qti_icon_FILE_SAVE_16x16         = ":/qtilities/coregui/icons/file_save_16x16.png";
             //! File Save icon (22x22).
             const char * const qti_icon_FILE_SAVE_22x22         = ":/qtilities/coregui/icons/file_save_22x22.png";
-            //! File SaveAs icon (16x16).
+            //! File Save As icon (16x16).
             const char * const qti_icon_FILE_SAVEAS_16x16       = ":/qtilities/coregui/icons/file_saveas_16x16.png";
-            //! File SaveAs icon (22x22).
+            //! File Save As icon (22x22).
             const char * const qti_icon_FILE_SAVEAS_22x22       = ":/qtilities/coregui/icons/file_saveas_22x22.png";
+            //! File Save All icon (16x16).
+            const char * const qti_icon_FILE_SAVE_ALL_16x16     = ":/qtilities/coregui/icons/file_save_all_16x16.png";
+            //! File Save All icon (22x22).
+            const char * const qti_icon_FILE_SAVE_ALL_22x22     = ":/qtilities/coregui/icons/file_save_all_22x22.png";
 
             // --------------------------------
             // Task Icons
