@@ -53,7 +53,6 @@ int main(int argc, char *argv[])
 
     // Create a QtilitiesMainWindow to show our different modes:
     QtilitiesMainWindow exampleMainWindow(QtilitiesMainWindow::ModesTop);
-    exampleMainWindow.showTaskSummaryWidget();
     QtilitiesApplication::setMainWindow(&exampleMainWindow);
 
     // Create the configuration widget:
