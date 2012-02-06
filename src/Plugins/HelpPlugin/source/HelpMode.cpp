@@ -157,7 +157,7 @@ bool HelpMode::eventFilter(QObject *object, QEvent *event) {
 
 void HelpMode::initiallize() {
     // Create and dock the dynamic side widget viewer
-    d->side_viewer_dock = new QDockWidget(tr("Dynamic Help Widgets"));
+    d->side_viewer_dock = new QDockWidget(tr("Help Widgets"));
     d->side_viewer_widget = new DynamicSideWidgetViewer(MODE_HELP_ID);
     connect(d->side_viewer_widget,SIGNAL(toggleVisibility(bool)),SLOT(toggleDock(bool)));
     d->side_viewer_dock->setWidget(d->side_viewer_widget);
@@ -169,7 +169,7 @@ void HelpMode::initiallize() {
     d->side_viewer_dock->installEventFilter(this);
 
     // Actions
-    d->actionShowDock = new QAction(QIcon(),tr("Dynamic Help Widgets"),this);
+    d->actionShowDock = new QAction(QIcon(),tr("Help Widgets"),this);
     d->actionShowDock->setCheckable(true);
     d->actionShowDock->setChecked(true);
     connect(d->side_viewer_widget,SIGNAL(toggleVisibility(bool)),d->actionShowDock,SLOT(setChecked(bool)));
@@ -182,8 +182,8 @@ void HelpMode::initiallize() {
     ActionContainer* view_menu = ACTION_MANAGER->createMenu(qti_action_VIEW,existed);
     if (!existed) {
         ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
-        menu_bar->addMenu(view_menu);
-        view_menu->addAction(command,"Help");
+        menu_bar->addMenu(view_menu,qti_action_ABOUT);
+        view_menu->addAction(command);
     } else
         view_menu->addAction(command);
 

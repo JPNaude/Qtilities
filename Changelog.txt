@@ -23,6 +23,7 @@ Qtilities v1.1 Changes
     - ActivityPolicyFilter::setActiveSubject(s) functions changed to return bool indicating if the new selection was accepted by the filter according to its policies.
     - TreeIterator can now iterate trees with subjects attached to multiple nodes in the tree without problems. See the updated TreeItereator documentation for details.
     - Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
+    - Fixed crash in Observer when a subject filter deletes a subject during finalizeAttachment().
 
     ============================
     QtilitiesCoreGui:
@@ -63,6 +64,12 @@ Qtilities v1.1 Changes
     - TreeItemBase now automatically handles the modification state updates when setting categories.
     - Fixed problem with size of first column in ObserverWidget when tree has multiple columns.
     - Added SideWidgetFileSystem::toggleDoubleClickFileOpen().
+    - QtilitiesMainWindow shows the task summary widget by default now. This is the intended behavior as in the v1.0 docs.
+    - Added the ability to specify min and max sizes for mode items in the mode manager's list widget.
+    - The mode manger now allows you to disable registration of shortcuts for application modes.
+    - Fixed layout issue in mode manager list widget.
+    - Improved mode manager list widget's setting of active modes.
+    - Improved display of the mode manager's list widget on small screens.
 
     ============================
     QtilitiesExtensionSystem:

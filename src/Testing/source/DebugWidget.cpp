@@ -605,6 +605,8 @@ void Qtilities::Testing::DebugWidget::refreshModes() {
             ui->tableModes->setRowCount(mainWindow->modeManager()->modes().count());
             for (int i = 0; i < mainWindow->modeManager()->modes().count(); i++) {
                 IMode* mode = mainWindow->modeManager()->modes().at(i);
+                if (!mode)
+                    continue;
 
                 // Mode Name
                 QTableWidgetItem *newItem = new QTableWidgetItem(mode->modeName());
