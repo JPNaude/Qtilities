@@ -198,7 +198,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleClicked(const QModelIndex& 
 
 void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
     ui->treeView->setRootIndex(d->model->index(path));
-    ui->txtCurrentPath->setText(path);
+    ui->txtCurrentPath->setText(QDir::toNativeSeparators(path));
     ui->treeView->setEnabled(true);
 }
 
