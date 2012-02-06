@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
         Each side viewer is wrapped using the Qtilities::CoreGui::DynamicSideWidgetWrapper class which provides actions to remove the side viewer or to duplicate the side viewer.
         For more information on this see the relevant class documentation.
 
-        It is also possible to show a Qtilities::CoreGui::TaskSummaryWidget automatically using QtilitiesMainWindow through showTaskSummaryWidget(). You can
+        By default a Qtilities::CoreGui::TaskSummaryWidget is shown. You can disable this through showTaskSummaryWidget() & hideTaskSummaryWidget(). You can
         access the task summary widget shown through taskSummaryWidget().
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT QtilitiesMainWindow : public QMainWindow
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
             void hideTaskSummaryWidget();
             //! Hides a task summary widget next to the mode list widget.
             /*!
-              False by default.
+              True by default.
 
               \note The task summary widget is only available when the ModeLayout() is set up to actually show modes.
               \note At present the task summary is only supported with ModesTop and ModesBottom.

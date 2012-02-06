@@ -54,7 +54,7 @@ struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
         mode_manager(0),
         central_widget(0),
         priority_messages_enabled(true),
-        task_summary_widget_visible(false),
+        task_summary_widget_visible(true),
         task_summary_widget(0) {}
 
     bool                            initialized;
@@ -72,7 +72,7 @@ struct Qtilities::CoreGui::QtilitiesMainWindowPrivateData {
     QPointer<TaskSummaryWidget>     task_summary_widget;
 };
 
-Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayout, QWidget* parent, Qt::WindowFlags flags) :
+Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayout, QWidget *parent, Qt::WindowFlags flags) :
         QMainWindow(parent, flags), ui(new Ui::QtilitiesMainWindow)
 {
     ui->setupUi(this);
@@ -189,17 +189,17 @@ Qtilities::CoreGui::TaskSummaryWidget *Qtilities::CoreGui::QtilitiesMainWindow::
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::showTaskSummaryWidget() {
-    if (!d->task_summary_widget_visible) {
-         d->task_summary_widget_visible = true;
-         d->task_summary_widget->show();
-    }
+    d->task_summary_widget_visible = true;
+     if (d->task_summary_widget)
+        d->task_summary_widget->show();
+    d->task_summary_widget->setTaskSummaryEnabled(d->task_summary_widget_visible);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::hideTaskSummaryWidget() {
-    if (d->task_summary_widget_visible) {
-         d->task_summary_widget_visible = false;
-         d->task_summary_widget->hide();
-    }
+    d->task_summary_widget_visible = false;
+    if (d->task_summary_widget)
+        d->task_summary_widget->hide();
+    d->task_summary_widget->setTaskSummaryEnabled(d->task_summary_widget_visible);
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
@@ -231,6 +231,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
             d->task_summary_widget->setMinimumWidth(350);
             d->task_summary_widget->findCurrentTasks();
             //d->task_summary_widget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Minimum);
+            d->task_summary_widget->setTaskSummaryEnabled(d->task_summary_widget_visible);
         }
         horizontal_layout->addWidget(d->task_summary_widget);
 
@@ -276,6 +277,7 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
             d->task_summary_widget->setMaximumWidth(0);
             d->task_summary_widget->findCurrentTasks();
             d->task_summary_widget->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Minimum);
+            d->task_summary_widget->setTaskSummaryEnabled(d->task_summary_widget_visible);
         }
         vertical_layout->addWidget(d->task_summary_widget);
 
@@ -299,9 +301,6 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
     if (d->mode_layout == ModesTop || d->mode_layout == ModesBottom) {
         int max_height = d->mode_manager->modeListWidget()->sizeHint().height();
 
-        if (max_height == 0)
-            max_height = 96;
-
         d->mode_manager->modeListWidget()->setMinimumHeight(max_height);
         d->mode_manager->modeListWidget()->setMaximumHeight(max_height);
 
@@ -311,9 +310,6 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
         }
     } else if (d->mode_layout == ModesLeft || d->mode_layout == ModesRight) {
         int max_width = d->mode_manager->modeListWidget()->sizeHint().width();
-
-        if (max_width == 0)
-            max_width = 96;
 
         d->mode_manager->modeListWidget()->setMinimumWidth(max_width);
         d->mode_manager->modeListWidget()->setMaximumWidth(max_width);
@@ -390,7 +386,7 @@ bool Qtilities::CoreGui::QtilitiesMainWindow::eventFilter(QObject *object, QEven
             msgBox.exec();
             event->ignore();
             return true;
-            // TODO: We possibly allow setting a custom message on QtilitiesApplication (not QtilitiesCoreApplication)
+            // TODO: We possibly want allow setting a custom message on QtilitiesApplication (not QtilitiesCoreApplication)
         }
     }
 
