@@ -637,12 +637,6 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
                     set_0_index_active = true;
             }
         }
-
-        if (!observer->isProcessingCycleActive())
-            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
-    } else {
-        if (!observer->isProcessingCycleActive())
-            emit activeSubjectsChanged(QList<QObject*>(),QList<QObject*>());
     }
 
     // Unlock the filter mutex.
@@ -654,9 +648,13 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeDetachment(QObject* obj, boo
         setActiveSubject(observer->subjectAt(0));
     }
 
-    if (!observer->isProcessingCycleActive())
-        setModificationState(true);
-    else
+    if (!observer->isProcessingCycleActive()) {
+        if (observer->subjectCount() >= 1)
+            emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+        else
+            emit activeSubjectsChanged(QList<QObject*>(),QList<QObject*>());
+         setModificationState(true);
+    } else
         setModificationState(true,IModificationNotifier::NotifyNone);
 }
 
