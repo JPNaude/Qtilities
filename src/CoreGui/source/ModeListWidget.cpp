@@ -38,21 +38,42 @@
 
 ModeListWidget::ModeListWidget(Qt::Orientation orientation, QWidget* parent) : QListWidget(parent) {
     d_orientation = orientation;
+    min_size = QSize();
+    max_size = QSize();
 }
 
 QSize ModeListWidget::sizeHint() const {
-    QSize maxSize = QSize(0,0);
+    int min_w = 0;
+    int min_h = 0;
+    if (min_size.width() >= 0)
+        min_w = min_size.width();
+    if (min_size.height() >= 0)
+        min_h = min_size.height();
+
+    int max_w;
+    int max_h;
+    if (max_size.width() >= 0)
+        max_w = min_size.width();
+    else
+        max_w = 1000;
+    if (max_size.height() >= 0)
+        max_h = min_size.height();
+    else
+        max_h = 1000;
+
+    QSize maxSize = QSize(min_w,min_h);
     for (int i = 0; i < count(); i++) {
         const QModelIndex index = model()->index(i,0);
         const QSize tmpSize = sizeHintForIndex(index);
 
-        if (tmpSize.width() > maxSize.width())
+        if (tmpSize.width() > maxSize.width() && tmpSize.width() < max_w)
             maxSize.setWidth(tmpSize.width());
-        if (tmpSize.height() > maxSize.height())
+        if (tmpSize.height() > maxSize.height() && tmpSize.height() < max_h)
             maxSize.setHeight(tmpSize.height());
     }
 
     return QSize(maxSize.width() + rect().width() - contentsRect().width(), maxSize.height() + rect().height() - contentsRect().height());
-//    return QSize(QListWidget::sizeHint().width(), maxSize.height() + rect().height() - contentsRect().height());
+    //    return QSize(QListWidget::sizeHint().width(), maxSize.height() + rect().height() - contentsRect().height());
 }
+
 

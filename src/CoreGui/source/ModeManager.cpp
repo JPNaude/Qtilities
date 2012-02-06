@@ -111,6 +111,22 @@ Qtilities::CoreGui::ModeManager::~ModeManager() {
     delete d;
 }
 
+void CoreGui::ModeManager::setMinimumItemSize(QSize size) {
+    d->mode_list_widget->setMinimumItemSize(size);
+}
+
+void CoreGui::ModeManager::setMaximumItemSize(QSize size) {
+    d->mode_list_widget->setMaximumItemSize(size);
+}
+
+QSize CoreGui::ModeManager::minimumItemSize() const {
+    return d->mode_list_widget->minimumItemSize();
+}
+
+QSize CoreGui::ModeManager::maximumItemSize() const {
+    return d->mode_list_widget->maximumItemSize();
+}
+
 QListWidget* Qtilities::CoreGui::ModeManager::modeListWidget() {
     return d->mode_list_widget;
 }

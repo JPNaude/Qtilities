@@ -111,7 +111,45 @@ modeListWidget()->setStyleSheet(stylesheet);
 
             // ----------------------------------
             // QListWidget access functions
-            // ----------------------------------
+            // ----------------------------------           
+            //! Sets the minimum items size of mode items in the list widget.
+            /*!
+              \param size The minimum size. Dimensions < 0 will be ignored.
+
+              \sa setMaximumItemSize(), maximumItemSize(), minimumItemSize()
+
+              This function was introduced in Qtilities v1.1.
+              */
+            void setMinimumItemSize(QSize size);
+            //! Sets the maximum items size of mode items in the list widget.
+            /*!
+              \returns The maximum size. Dimensions < 0 will be ignored.
+
+              \sa setMinimumItemSize(), maximumItemSize(), minimumItemSize()
+
+              This function was introduced in Qtilities v1.1.
+              */
+            void setMaximumItemSize(QSize size);
+            //! Gets the minimum items size of mode items in the list widget.
+            /*!
+              \param size The minimum size. Dimensions < 0 will be ignored.
+
+              \sa setMaximumItemSize(), setMinimumItemSize(), maximumItemSize();
+
+              This function was introduced in Qtilities v1.1.
+              */
+            QSize minimumItemSize() const;
+            //! Gets the maximum items size of mode items in the list widget.
+            /*!
+              \returns The maximum size. Dimensions < 0 will be ignored.
+
+              \sa minimumItemSize(), setMinimumItemSize(), setMaximumItemSize()
+
+              This function was introduced in Qtilities v1.1.
+              */
+            QSize maximumItemSize() const;
+
+            //! Gets access to the QListWidget which is used to represent the modes.
             QListWidget* modeListWidget();
 
             // ----------------------------------
