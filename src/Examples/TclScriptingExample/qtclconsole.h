@@ -39,7 +39,7 @@ public:
 		//callback method that implements the history command
 		int showHistory( ClientData client_data, Tcl_Interp* interp, int argc, const char *argv[]);
 		//callback method that implements the set_prompt command
-		int setPrompt( ClientData client_data, Tcl_Interp* interp, int argc, const char *argv[]);
+        int setPromptCall( ClientData client_data, Tcl_Interp* interp, int argc, const char *argv[]);
 		//callback method that calls the saveScript() method
 		int saveScript( ClientData client_data, Tcl_Interp* interp, int argc, const char *argv[]);
 		//get the QtclConsole instance

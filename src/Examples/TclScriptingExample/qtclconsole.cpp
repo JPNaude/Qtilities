@@ -143,7 +143,7 @@ int QtclConsole::showHistory(ClientData, Tcl_Interp* interp, int argc, const cha
 }
 
 //callback method that implements the set_prompt command
-int QtclConsole::setPrompt(ClientData, Tcl_Interp* interp, int argc, const char *argv[])
+int QtclConsole::setPromptCall(ClientData, Tcl_Interp* interp, int argc, const char *argv[])
 {
 		QString usageMsg = QString("Usage: %1 new_prompt\n").arg(argv[0]);
 		// Reset result data
@@ -198,7 +198,7 @@ QtclConsole::QtclConsole(QWidget *parent, const QString &welcomeText) : QConsole
 			 (char*)"Shows the commands history");
 
 		//Register the set_prompt command
-		TclCallBack<QtclConsole>::registerMethod(this, (char*)"set_prompt", &QtclConsole::setPrompt,
+        TclCallBack<QtclConsole>::registerMethod(this, (char*)"set_prompt", &QtclConsole::setPromptCall,
 			 (char*)"Set a new prompt");
 
 		//Register the set_prompt command

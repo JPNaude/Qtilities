@@ -38,9 +38,6 @@
 
 #include <QMainWindow>
 
-#include "qtclconsole.h"
-#include "tclnotify.h"
-
 namespace Ui {
     class TclScriptingMode;
 }
@@ -72,8 +69,10 @@ namespace Qtilities {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::CoreGui::Interfaces::IMode)
             public:
-                TclScriptingMode(Tcl_Interp* tcl_interp, QWidget *parent = 0);
+                TclScriptingMode(QWidget* parent = 0);
                 ~TclScriptingMode();
+
+                QWidget* dock();
 
                 // --------------------------------
                 // IObjectBase Implementation

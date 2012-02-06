@@ -20,7 +20,7 @@
 
 #include <tcl.h>
 
-int CallShowWidget( ClientData client_data, Tcl_Interp* interp, int argc, char *argv[]);
+int CallQMessageBox( ClientData client_data, Tcl_Interp* interp, int argc, char *argv[]);
 int LogQtiMessage( ClientData client_data, Tcl_Interp* interp, int argc, char *argv[]);
 int LogQtiPriorityMessage( ClientData client_data, Tcl_Interp* interp, int argc, char *argv[]);
 

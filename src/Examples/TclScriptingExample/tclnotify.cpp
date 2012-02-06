@@ -21,6 +21,8 @@
 #include <qsocketnotifier.h>
 #include <qtimer.h>
 
+#include <QtDebug>
+
 /*
  * The following structure is what is added to the Tcl event queue when
  * file handlers are ready to fire.
@@ -402,6 +404,7 @@ ClientData clientData)			 /* Arbitrary data to pass to proc. */
         Q_ASSERT(notifier);
         TclFileHandler *filePtr;
 
+        qDebug() << "test";
         for (filePtr = notifier->firstFileHandlerPtr; filePtr != NULL;
         filePtr = filePtr->nextPtr) {
                 if (filePtr->fd == fd) {

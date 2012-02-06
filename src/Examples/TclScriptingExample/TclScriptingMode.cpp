@@ -43,21 +43,18 @@ using namespace QtilitiesCoreGui;
 #include "commandsManager.h"
 
 struct Qtilities::Examples::TclScripting::TclScriptingModePrivateData {
-    TclScriptingModePrivateData() : initialized(false),
-        interp(0) {}
+    TclScriptingModePrivateData() : initialized(false)  {}
 
-    Tcl_Interp*     interp;
     bool            initialized;
     QDockWidget*    log_widget;
 };
 
-Qtilities::Examples::TclScripting::TclScriptingMode::TclScriptingMode(Tcl_Interp *tcl_interp, QWidget *parent) :
+Qtilities::Examples::TclScripting::TclScriptingMode::TclScriptingMode(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::TclScriptingMode)
 {
     ui->setupUi(this);
     d = new TclScriptingModePrivateData;
-    d->interp = tcl_interp;
 
     QString name = "Test Log";
     d->log_widget = LoggerGui::createLogDockWidget(&name);
@@ -70,6 +67,10 @@ Qtilities::Examples::TclScripting::TclScriptingMode::~TclScriptingMode()
     delete d;
 }
 
+QWidget *Examples::TclScripting::TclScriptingMode::dock() {
+    return d->log_widget;
+}
+
 QWidget* Qtilities::Examples::TclScripting::TclScriptingMode::modeWidget() {
     return this;
 }
@@ -77,15 +78,6 @@ QWidget* Qtilities::Examples::TclScripting::TclScriptingMode::modeWidget() {
 void Qtilities::Examples::TclScripting::TclScriptingMode::initializeMode() {
     if (d->initialized)
         return;
-
-    commandsManager::getInstance(d->interp)->registerFunction("widget" , (commandsManager::commandType) CallShowWidget, "Shows an example QWidget");
-    commandsManager::getInstance(d->interp)->registerFunction("log" , (commandsManager::commandType) LogQtiMessage, "Logs a system wide message");
-    commandsManager::getInstance(d->interp)->registerFunction("logp" , (commandsManager::commandType) LogQtiPriorityMessage, "Logs a priority message");
-
-    //Instantiate and set the focus to the QtclConsole
-    QtclConsole *console = QtclConsole::getInstance(this,"Qtilities Tcl Scripting Example\n\nThis example shows you how to integrate Tcl scripting into a Qtilities application. It allows you to log messages to the logger.\nType \"help\" to start.\n\n");
-    setFocusProxy((QWidget*)console);
-    setCentralWidget((QWidget*)console);
 
     d->initialized = true;
 }

@@ -20,10 +20,13 @@ email                : houssem@localhost
 #include <qstringlist.h>
 #include <qmessagebox.h>
 
+#include <QtilitiesApplication>
+using namespace Qtilities::CoreGui;
+
 #include <Logger>
 using namespace Qtilities::Logging;
 
-int CallShowWidget( ClientData, Tcl_Interp* interp, int argc, char *argv[]) {
+int CallQMessageBox( ClientData, Tcl_Interp* interp, int argc, char *argv[]) {
     QString usageMsg = QString("Usage: %1 title text\n").arg(argv[0]);
     // Reset result data
     Tcl_ResetResult(interp);
@@ -35,14 +38,14 @@ int CallShowWidget( ClientData, Tcl_Interp* interp, int argc, char *argv[]) {
             return TCL_ERROR;
     }
 
-    LOG_INFO_P("In handler");
-    QWidget* widget = new QWidget();
-    widget->show();
-
     //calls the messagebox with the parameters
-    int result = 0;
+    int result = -1;
+    // = QMessageBox::warning(0, argv[1] , argv[2], QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel);
 
-    //result = QMessageBox::warning(0, argv[1] , argv[2], QMessageBox::Yes, QMessageBox::No, QMessageBox::Cancel);
+    qDebug() << "Before show";
+    QPointer<QDialog> dialog = new QDialog(QtilitiesApplication::mainWindow());
+    dialog->exec();
+    qDebug() << "After show";
 
     //displays the return value
     Tcl_AppendResult(interp, qPrintable(QString("QMessageBox exited with result: %1\n").arg(result)), (char*) NULL);
@@ -61,9 +64,6 @@ int LogQtiMessage( ClientData, Tcl_Interp* interp, int argc, char *argv[]) {
         return TCL_ERROR;
     }
 
-    qDebug() << argv[0];
-    qDebug() << argv[1];
-    qDebug() << argv[2];
     if (QString(argv[2]) == "info")
         LOG_INFO(argv[1]);
     else if (QString(argv[2]) == "warning")
@@ -77,7 +77,6 @@ int LogQtiMessage( ClientData, Tcl_Interp* interp, int argc, char *argv[]) {
 
     //displays the return value
     Tcl_AppendResult(interp, qPrintable(QString("Message logged")), (char*) NULL);
-
     return TCL_OK;
 }
 

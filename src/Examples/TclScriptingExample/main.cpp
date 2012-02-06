@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QMessageBox>
 
 #include <QtilitiesCoreGui>
 using namespace QtilitiesCoreGui;
@@ -41,6 +42,8 @@ using namespace Qtilities::Examples::TclScripting;
 
 #include "qtclconsole.h"
 #include "tclnotify.h"
+#include "commandsManager.h"
+#include "commands.h"
 
 extern void Qtk_InitNotifier( QApplication * );
 
@@ -50,12 +53,13 @@ int main(int argc, char ** argv) {
     Tcl_Interp * interp = Tcl_CreateInterp();
     Tcl_Init( interp );
 
-    //Qt application
-    QtilitiesApplication a( argc, argv );
+    QApplication a( argc, argv );
+
     Tcl_SetServiceMode (TCL_SERVICE_ALL);
-    Qtk_InitNotifier( qApp );
+    Qtk_InitNotifier( &a );
 
     // Now do normal app stuff:
+    QtilitiesApplication::initialize();
     QtilitiesApplication::setOrganizationName("Jaco Naude");
     QtilitiesApplication::setOrganizationDomain("Qtilities");
     QtilitiesApplication::setApplicationName("Tcl Scripting Example");
@@ -74,10 +78,20 @@ int main(int argc, char ** argv) {
     Log->setLoggerSettingsEnabled(false);
     LOG_INITIALIZE();
 
-    // Make the TCL scripting mode:
-    TclScriptingMode* tcl_scripting_mode = new TclScriptingMode(interp,exampleMainWindow);
-    OBJECT_MANAGER->registerObject(tcl_scripting_mode);
+    commandsManager::getInstance(interp)->registerFunction("msgbox" , (commandsManager::commandType) CallQMessageBox, "Shows the Qt message box");
 
+    // Make the TCL scripting mode:
+    TclScriptingMode* tcl_scripting_mode = new TclScriptingMode;
+    //QMainWindow* tcl_scripting_mode = new QMainWindow;
+
+    //Instantiate and set the focus to the QtclConsole
+    QtclConsole *console = QtclConsole::getInstance((QMainWindow*)tcl_scripting_mode,"Tcl Console");
+    tcl_scripting_mode->setFocusProxy((QWidget*)console);
+    tcl_scripting_mode->dock()->setFocusProxy((QWidget*)console);
+    tcl_scripting_mode->setCentralWidget((QWidget*)console);
+    tcl_scripting_mode->show();
+
+    //OBJECT_MANAGER->registerObject(tcl_scripting_mode);
     OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget(false));
 
     // Create menu related things.
@@ -85,9 +99,7 @@ int main(int argc, char ** argv) {
     ActionContainer* menu_bar = ACTION_MANAGER->createMenuBar(qti_action_MENUBAR_STANDARD,existed);
     exampleMainWindow->setMenuBar(menu_bar->menuBar());
     ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
-    ActionContainer* about_menu = ACTION_MANAGER->createMenu(qti_action_ABOUT,existed);
     menu_bar->addMenu(file_menu);
-    menu_bar->addMenu(about_menu);
 
     // Get the standard context.
     QList<int> std_context;
@@ -102,15 +114,11 @@ int main(int argc, char ** argv) {
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_FILE_EXIT,QObject::tr("Exit"),QKeySequence(QKeySequence::Close),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QCoreApplication::instance(),SLOT(quit()));
     file_menu->addAction(command);
-    // About Menu
-    command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
-    QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
-    about_menu->addAction(command);
 
     config_widget.initialize();
-    exampleMainWindow->modeManager()->initialize();
-    exampleMainWindow->readSettings();
-    exampleMainWindow->show();
+//    exampleMainWindow->modeManager()->initialize();
+//    exampleMainWindow->readSettings();
+//    exampleMainWindow->show();
 
     int result = a.exec();
     exampleMainWindow->writeSettings();
