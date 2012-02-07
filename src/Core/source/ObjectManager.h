@@ -140,10 +140,10 @@ namespace Qtilities {
         };
 
         /*!
-          \class ObjectManagerPrivateData
-          \brief The ObjectManagerPrivateData class stores data used by the ObjectManager class.
+          \struct ObjectManagerPrivateData
+          \brief The ObjectManagerPrivateData struct stores data used by the ObjectManager class.
          */
-        class ObjectManagerPrivateData;
+        struct ObjectManagerPrivateData;
 
         /*!
           \class ObjectManager
