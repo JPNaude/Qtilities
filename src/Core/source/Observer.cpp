@@ -54,6 +54,7 @@
 #include <QDomDocument>
 
 using namespace Qtilities::Core::Constants;
+using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core::Properties;
 
 namespace Qtilities {
