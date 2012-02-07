@@ -241,7 +241,7 @@ QString Qtilities::Core::VersionNumber::toString(const QString& seperator) const
     if (d->is_version_minor_used && d->is_version_revision_used) {
         if (d->field_width_minor == -1 && d->field_width_revision == -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor) + seperator + QString("%1").arg(d->version_revision);
-        else if (d->field_width_minor == -1 && !d->field_width_revision == -1)
+        else if (d->field_width_minor == -1 && !(d->field_width_revision == -1))
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor) + seperator + QString("%1").arg(d->version_revision,d->field_width_revision,10,QChar('0'));
         else if (d->field_width_minor != -1 && d->field_width_revision == -1)
             version = QString::number(d->version_major) + seperator + QString("%1").arg(d->version_minor,d->field_width_minor,10,QChar('0')) + seperator + QString("%1").arg(d->version_revision);
