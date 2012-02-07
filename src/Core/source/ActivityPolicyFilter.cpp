@@ -204,7 +204,7 @@ void Qtilities::Core::ActivityPolicyFilter::setParentTrackingPolicy(ActivityPoli
     }
 }
 
-Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter::ParentTrackingPolicy Qtilities::Core::ActivityPolicyFilter::parentTrackingPolicy() const {
+Qtilities::Core::ActivityPolicyFilter::ParentTrackingPolicy Qtilities::Core::ActivityPolicyFilter::parentTrackingPolicy() const {
     return d->parent_tracking_policy;
 }
 
