@@ -76,7 +76,7 @@ namespace Qtilities {
                 enum TaskBusyState {
                     TaskBusyClean                   = 0,  /*!< No error or warning messages have been logged since the task was started. */
                     TaskBusyWithWarnings            = 1,  /*!< Some warning messages have been logged since the task was started. */
-                    TaskBusyWithErrors              = 2,  /*!< Some error messages (and possibly warnings as well) have been logged since the task was started. */
+                    TaskBusyWithErrors              = 2   /*!< Some error messages (and possibly warnings as well) have been logged since the task was started. */
                 };
 
                 //! The possible states in which a task might find itself.
