@@ -47,10 +47,10 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::Core;
         /*!
-        \class qti_private_ObjectInfoTreeWidgetPrivateData
-        \brief The qti_private_ObjectInfoTreeWidgetPrivateData stores private data used by the qti_private_ObjectInfoTreeWidget class.
+        \struct qti_private_ObjectInfoTreeWidgetPrivateData
+        \brief The qti_private_ObjectInfoTreeWidgetPrivateData struct stores private data used by the qti_private_ObjectInfoTreeWidget class.
           */
-        class qti_private_ObjectInfoTreeWidgetPrivateData;
+        struct qti_private_ObjectInfoTreeWidgetPrivateData;
 
         /*!
         \class qti_private_ObjectInfoTreeWidget
