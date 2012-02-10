@@ -199,8 +199,6 @@ settings.endGroup();
         private:
             Ui::ConfigurationWidget* ui;
             ConfigurationWidgetPrivateData* d;
-
-        signals:
         };
     }
 }

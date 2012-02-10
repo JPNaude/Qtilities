@@ -202,7 +202,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> config_pages) {
     if (config_pages.isEmpty()) {
-        config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
+        config_pages = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IConfigPage/1.0");
         LOG_DEBUG(QString("%1 configuration page(s) found.").arg(config_pages.count()));
     }
 
