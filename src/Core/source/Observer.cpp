@@ -426,6 +426,15 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
     }
 }
 
+int Observer::processingCycleCount() const {
+    return observerData->start_processing_cycle_count;
+}
+
+void Observer::resetProcessingCycleCount(bool broadcast) {
+    observerData->start_processing_cycle_count = 1;
+    endProcessingCycle(broadcast);
+}
+
 bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
@@ -678,13 +687,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         }
 
         // Emit neccesarry signals
-        QList<QPointer<QObject> > objects;
-        objects << obj;
         setModificationState(true);
-        if (!observerData->process_cycle_active) {
-            emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
-            emit layoutChanged(objects);
-        }
 
         #ifndef QT_NO_DEBUG
         if (!observerData->process_cycle_active) {
@@ -722,6 +725,18 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         observerData->subject_filters.at(i)->finalizeAttachment(obj,true,import_cycle);
     }
     observerData->observer_mutex.unlock();
+
+    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
+        QList<QPointer<QObject> > objects;
+        objects << obj;
+
+        // Change layout only after finalzeAttachment() in all filters since they might add properties
+        // used by views (activity policy filter for example)
+        if (!observerData->process_cycle_active) {
+            emit numberOfSubjectsChanged(Observer::SubjectAdded, objects);
+            emit layoutChanged(objects);
+        }
+    }
 
     return true;
 }

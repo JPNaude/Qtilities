@@ -155,6 +155,7 @@ observerWidget.show();
             Q_PROPERTY(AccessMode Access READ accessMode);
             Q_PROPERTY(int ID READ observerID);
             Q_PROPERTY(bool Modified READ isModified());
+            Q_PROPERTY(int ProcCycleCount READ processingCycleCount());
 
         public:
             // --------------------------------
@@ -645,6 +646,10 @@ obs.endProcessingCycle(); // Internal count = 0;
               \sa startProcessingCycle(), isProcessingCycleActive(), processingCycleEnded(), endTreeProcessingCycle()
               */
             virtual void endProcessingCycle(bool broadcast = true);
+            //! Function which returns the number of times processing cycles has been started.
+            int processingCycleCount() const;
+            //! Function which resets the proccesing cycle count on the observer.
+            void resetProcessingCycleCount(bool broadcast = true);
             //! Indicates if a processing cycle is active.
             /*!
               \sa startProcessingCycle(), endProcessingCycle()
