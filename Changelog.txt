@@ -5,6 +5,7 @@ Qtilities v1.1 Changes
     ============================
     - Extended the object management article with details about functionality to work with QObject properties offered by Qtilities.
 	- Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications. This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff and you don't need to link against QtHelp when it is defined.
+    - All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
 
     ============================
     QtilitiesLogging:
@@ -24,6 +25,7 @@ Qtilities v1.1 Changes
     - TreeIterator can now iterate trees with subjects attached to multiple nodes in the tree without problems. See the updated TreeItereator documentation for details.
     - Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
     - Fixed crash in Observer when a subject filter deletes a subject during finalizeAttachment().
+    - Observer got new processingCycleCount() and resetProcessingCycleCount() functions.
 
     ============================
     QtilitiesCoreGui:
@@ -37,7 +39,7 @@ Qtilities v1.1 Changes
     - Fixed ObserverWidget not remembering its expansion state in some cases.
     - ObserverWidget will now remember category selections when rebuilding tree views.
     - ObserverWidget got new setDragDropCopyButton() and setDragDropMoveButton() functions.
-    - TreeNode::enableCategorizedDisplay got new CategoryEditingFlags property.
+    - TreeNode::enableCategorizedDisplay() got new CategoryEditingFlags property.
     - The LoggerConfigWidget now allows sorting of engines.
     - TaskManagerGui now allows different ways of initializing task logger engines.
     - ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
@@ -70,6 +72,7 @@ Qtilities v1.1 Changes
     - Fixed layout issue in mode manager list widget.
     - Improved mode manager list widget's setting of active modes.
     - Improved display of the mode manager's list widget on small screens.
+    - Added propertyAdded() and propertyRemoved() signals on ObjectDynamicPropertyBrowser.
 
     ============================
     QtilitiesExtensionSystem:
@@ -84,6 +87,9 @@ Qtilities v1.1 Changes
     - IProject now has the ability to receive a task to which open, close and save operations should log their messages.
     - Project related tasks now have proper logs.
     - The execution style of the project manager can now be defined to be either normal or silent. See ProjectManager::ExecStyle.
+    - Project manager got a new recentProjectsChanged() signal providing notifications when the recent projects change.
+    - Fixed recentProjectNames() and recentProjectPaths() on project manager not returning items in the correct order.
+    - Added removeRecentProject() on project manager.
 
     ============================
     QtilitiesTesting:
@@ -94,6 +100,7 @@ Qtilities v1.1 Changes
     Plugins:
     ============================
     - Added Help plugin.
+    - Project management plugin now provides actions for opening of previous projects.
 
     ============================
     Examples:
@@ -102,7 +109,6 @@ Qtilities v1.1 Changes
         - Fixed the object management mode not showing anymore.
     - Tree Building Example:
         - Much improved, now shows different trees under seperate tabs.
-
 
 ================================
 Qtilities v1.0 Changes
