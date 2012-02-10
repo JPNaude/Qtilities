@@ -150,11 +150,11 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
             d->model.setStringList(list);
             emit stringListChanged(list);
         }
-    } else if (d->list_type == FilePaths) {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),d->open_dialog_path,d->open_dialog_filter);
-        if (!fileName.isEmpty()) {
+    } else if (d->list_type == FilePaths) {            
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),QDir::cleanPath(d->open_dialog_path),d->open_dialog_filter);
+        foreach (QString file_name, fileNames) {
             QStringList list = d->model.stringList();
-            list << QDir::toNativeSeparators(fileName);
+            list << QDir::toNativeSeparators(file_name);
             list.removeDuplicates();
             d->model.setStringList(list);
             emit stringListChanged(list);
