@@ -150,12 +150,24 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     command->setCategory(QtilitiesCategory("Projects"));
     file_menu->addAction(command,qti_action_FILE_SETTINGS);
     file_menu->addSeperator(qti_action_FILE_SETTINGS);
+    // ---------------------------
+    // Recent Projects Menu
+    // ---------------------------
+    ActionContainer* recent_projects_menu = ACTION_MANAGER->createMenu("Recent Projects",existed);
+    file_menu->addMenu(recent_projects_menu,qti_action_FILE_SETTINGS);
+    file_menu->addSeperator(qti_action_FILE_SETTINGS);
+    d->menuRecentProjects = recent_projects_menu->menu();
 
     // Register project management config page.
     OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget(),QtilitiesCategory("GUI::Configuration Pages (IConfigPage)","::"));
 
     if (!current_processing_cycle_active)
         ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+
+    handleRecentProjectChanged();
+    connect(PROJECT_MANAGER,SIGNAL(recentProjectsChanged(QStringList,QStringList)),SLOT(handleRecentProjectChanged()));
+    connect(PROJECT_MANAGER,SIGNAL(projectClosingFinished(bool)),SLOT(handleRecentProjectChanged()));
+    connect(PROJECT_MANAGER,SIGNAL(projectLoadingFinished(QString,bool)),SLOT(handleRecentProjectChanged()));
 
     d->is_initialized = true;
     return true;
@@ -350,6 +362,63 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_proj
                 main_window->setWindowTitle(new_title);
                 d->appended_project_name.clear();
             }
+        }
+    }
+}
+
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecentProjectChanged() {
+    QStringList names = PROJECT_MANAGER->recentProjectNames();
+    QStringList paths = PROJECT_MANAGER->recentProjectPaths();
+
+    if (names.count() != paths.count()) {
+        qWarning() << "ProjectManagementPlugin::handleRecentProjectChanged received invalid parameters.";
+        return;
+    }
+
+    // Delete all current actions:
+    d->menuRecentProjects->clear();
+    foreach (QAction* action, d->actionsRecentProjects) {
+        delete action;
+    }
+
+    d->actionsRecentProjects.clear();
+
+    //qDebug() << "Updating recent projects menu:" << names << paths;
+
+    for (int i = 0; i < names.count(); i++) {
+        // Skip the first project if it is the current open project:
+        if (names.at(i) == PROJECT_MANAGER->currentProjectName())
+            continue;
+
+        if (names.at(i).isEmpty())
+            continue;
+
+        QAction* prev_action = new QAction(names.at(i),this);
+        prev_action->setToolTip(paths.at(i));
+        prev_action->setObjectName(paths.at(i));
+        d->actionsRecentProjects << prev_action;
+        d->menuRecentProjects->addAction(prev_action);
+        connect(prev_action,SIGNAL(triggered()),SLOT(handleRecentProjectActionTriggered()));
+    }
+}
+
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecentProjectActionTriggered() {
+    QAction* action = qobject_cast<QAction*> (sender());
+    if (action) {
+        // Check if this file exists:
+        QFileInfo fi(action->objectName());
+        if (!fi.exists()) {
+            LOG_ERROR(tr("Previous project file does not exist anymore. Will not attempt to open it at: ") + action->objectName());
+            QMessageBox msgBox;
+            msgBox.setWindowTitle(tr("Cannot Find Previous Project File"));
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(tr("The recent project you are trying to open does not exist anymore at path:<br><br>") + action->objectName() + tr("<br><br>This project will be removed from your list of previous project paths."));
+            msgBox.exec();
+            PROJECT_MANAGER->removeRecentProject(action->objectName());
+            handleRecentProjectChanged();
+        } else {
+            // The path to open is the object name:
+            PROJECT_MANAGER->openProject(action->objectName());
         }
     }
 }

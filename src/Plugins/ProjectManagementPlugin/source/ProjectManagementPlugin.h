@@ -96,6 +96,10 @@ namespace Qtilities {
                 void handle_actionProjectSave();
                 void handle_actionProjectSaveAs();
                 void handle_projectStateChanged();
+                void handleRecentProjectChanged();
+
+            private slots:
+                void handleRecentProjectActionTriggered();
 
             private:
                 ProjectManagementPluginPrivateData* d;

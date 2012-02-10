@@ -334,6 +334,12 @@ namespace Qtilities {
               */
             void setExecutionStyle(ExecStyle exec_style);
 
+            //! Removes a recent project path from the list of recent projects.
+            /*!
+              This function was added in Qtilities v1.1.
+              */
+            void removeRecentProject(const QString& path);
+
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
@@ -382,10 +388,15 @@ namespace Qtilities {
               \param success If the project was successfully closed, success will be true. False otherwise.
               */
             void projectClosingFinished(bool success);
+            //! Signal which is emitted whenever the recent projects list changes.
+            /*!
+                This signal was added in Qtilities v1.1.
+              */
+            void recentProjectsChanged(const QStringList& names, const QStringList& paths);
 
         private:
             //! Add a project to the recent project list.
-            void addRecentProject(IProject* project);
+            void addRecentProject(IProject* project);         
 
             ProjectManager(QObject* parent = 0);
             static ProjectManager* m_Instance;

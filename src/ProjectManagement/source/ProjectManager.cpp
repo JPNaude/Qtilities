@@ -65,6 +65,7 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;
     QList<IProjectItem*>                    item_list;
+    // Keys = Paths, Values = Names
     QMap<QString, QVariant>                 recent_project_names;
     QStringList                             recent_project_stack;
     int                                     recent_projects_size;
@@ -410,7 +411,7 @@ Qtilities::ProjectManagement::IProject* Qtilities::ProjectManagement::ProjectMan
 
 void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
     // Get a list of all the project items in the system.
-    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
+    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.ProjectManagement.IProjectItem/1.0");
     QList<IProjectItem*> projectItems;
     QStringList itemNames;
     bool success = true;
@@ -464,13 +465,14 @@ bool Qtilities::ProjectManagement::ProjectManager::activeProjectBusy() const {
 
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() const {
     QStringList recent_project_names;
-    for (int i = 0; i < d->recent_project_names.values().count();i++)
-        recent_project_names << d->recent_project_names.values().at(i).toString();
+    foreach (QString stack_name, d->recent_project_stack) {
+        recent_project_names << d->recent_project_names[QDir::toNativeSeparators(stack_name)].toString();
+    }
     return recent_project_names;
 }
 
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectPaths() const {
-    return d->recent_project_names.keys();
+    return d->recent_project_stack;
 }
 
 QString Qtilities::ProjectManagement::ProjectManager::recentProjectPath(const QString& recent_project_name) const {
@@ -484,6 +486,7 @@ QString Qtilities::ProjectManagement::ProjectManager::recentProjectPath(const QS
 void Qtilities::ProjectManagement::ProjectManager::clearRecentProjects() {
     d->recent_project_names.clear();
     d->recent_project_stack.clear();
+    emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
     LOG_INFO(tr("Successfully cleared recent project list."));
 }
 
@@ -555,7 +558,6 @@ Qtilities::ProjectManagement::ProjectManager::ModifiedProjectsHandlingPolicy Qti
 
 void Qtilities::ProjectManagement::ProjectManager::setModifiedProjectsHandlingPolicy(ModifiedProjectsHandlingPolicy handling_policy) {
     d->modified_projects_handling_policy = handling_policy;
-
 }
 
 void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
@@ -684,6 +686,15 @@ void ProjectManagement::ProjectManager::setExecutionStyle(ProjectManagement::Pro
     d->exec_style = exec_style;
 }
 
+void ProjectManagement::ProjectManager::removeRecentProject(const QString &path) {
+    // Remove it from the stack if its in there:
+    QString clean_path = QDir::toNativeSeparators(QDir::cleanPath(path));
+    if (d->recent_project_stack.contains(clean_path)) {
+        d->recent_project_stack.removeOne(clean_path);
+        d->recent_project_names.remove(clean_path);
+    }
+}
+
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {
     if (!project)
         return;
@@ -695,18 +706,19 @@ void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* pr
         d->recent_project_stack.removeOne(project->projectFile());
         // Add again in new position.
         d->recent_project_stack.push_front(project->projectFile());
-        return;
+    } else {
+        // Check the required size of the recent projects list.
+        if (d->recent_project_stack.count() == d->recent_projects_size) {
+            d->recent_project_names.remove(d->recent_project_stack.last());
+            d->recent_project_stack.removeLast();
+        }
+
+        // Now add the new project.
+        d->recent_project_names[QDir::toNativeSeparators(project->projectFile())] = project->projectName();
+        d->recent_project_stack.push_front(project->projectFile());
     }
 
-    // Check the required size of the recent projects list.
-    if (d->recent_project_stack.count() == d->recent_projects_size) {
-        d->recent_project_names.remove(d->recent_project_stack.last());
-        d->recent_project_stack.removeLast();
-    }
-
-    // Now add the new project.
-    d->recent_project_names[project->projectFile()] = project->projectName();
-    d->recent_project_stack.push_front(project->projectFile());
+    emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::isModified() const {
