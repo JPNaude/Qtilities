@@ -47,7 +47,7 @@ namespace Qtilities {
 }
 
 struct Qtilities::CoreGui::qti_private_MultiContextPropertyData {
-    qti_private_MultiContextPropertyData() {}
+    qti_private_MultiContextPropertyData() : observer_id(-1) {}
     qti_private_MultiContextPropertyData(const qti_private_MultiContextPropertyData& other) {
         type = other.type;
         name = other.name;
@@ -521,6 +521,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
                 success = true;
             }
         } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
+            // FIX THIS... Why can't we set it?
             if (d->obj->setProperty(char_property_name,QVariant(selected_type))) {
                 refresh();
                 success = true;
@@ -537,6 +538,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
             if (mod_iface)
                 mod_iface->setModificationState(true);
+
+            emit propertyAdded(item);
         }
     }
 }
@@ -577,6 +580,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());
                 refresh();
+                emit propertyRemoved(property->propertyName());
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
             MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(d->obj,prop_data.name);
@@ -595,12 +599,14 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
             } else {
                 d->obj->setProperty(prop_data.name,QVariant());
                 refresh();
+                emit propertyRemoved(property->propertyName());
             }
         }
     } else {
         // This is a normal property on the object:
         d->obj->setProperty(property_name,QVariant());
         refresh();
+        emit propertyRemoved(property->propertyName());
     }
 }
 

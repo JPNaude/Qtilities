@@ -170,6 +170,10 @@ namespace Qtilities {
             void handleAddProperty();
             void handleRemoveProperty();
 
+        signals:
+            void propertyAdded(const QString& property_name);
+            void propertyRemoved(const QString& property_name);
+
         private:
             //! Inspect the dynamic properties of an object and add these properties to the property browser.
             void inspectObject(const QObject* obj);
