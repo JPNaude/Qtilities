@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
   OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
 
   // Report on the number of config pages found:
-  QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("IConfigPage");
+  QList<QObject*> registered_config_pages = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IConfigPage/1.0");
   LOG_INFO(QString("%1 configuration page(s) found in set of loaded plugins.").arg(registered_config_pages.count()));
 
   // Create a config widget for this example:
@@ -270,7 +270,7 @@ bool ProjectPartFinderPlugin::initializeDependencies(QStringList *error_strings)
     Q_UNUSED(error_strings)
 
     // Get a list of all the project items in the object pool:
-    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
+    QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.ProjectManagement.IProjectItem/1.0");
     QList<IProjectItem*> projectItems;
 
     // Cast all items:
