@@ -169,7 +169,7 @@ if (observer_mime_data) {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IClipboard,"com.qtilities.ObjManagement.IClipboard/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IClipboard,"com.Qtilities.ObjManagement.IClipboard/1.0");
 
 #endif // ICLIPBOARD
 

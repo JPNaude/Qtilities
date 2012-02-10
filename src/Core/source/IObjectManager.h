@@ -148,7 +148,7 @@ For example:
 \code
 // Get a list of all the project items in the object pool, that is objects
 // implementing the IProjectItem interface:
-QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("IProjectItem");
+QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.ProjectManagement.IProjectItem/1.0");
 QList<IProjectItem*> projectItems;
 
 // Cast all items:
@@ -227,6 +227,6 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IObjectManager,"com.qtilities.Core.IObjectManager/1.0");
+Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IObjectManager,"com.Qtilities.Core.IObjectManager/1.0");
 
 #endif // IOBJECTMANAGER_H

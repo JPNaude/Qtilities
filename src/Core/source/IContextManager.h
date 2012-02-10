@@ -133,6 +133,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContextManager,"com.qtilities.Core.IContextManager/1.0");
+Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContextManager,"com.Qtilities.Core.IContextManager/1.0");
 
 #endif // ICONTEXTMANAGER_H

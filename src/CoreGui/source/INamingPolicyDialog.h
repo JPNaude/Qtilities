@@ -82,6 +82,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::INamingPolicyDialog,"com.qtilities.CoreGui.INamingPolicyDialog/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::INamingPolicyDialog,"com.Qtilities.CoreGui.INamingPolicyDialog/1.0");
 
 #endif // INAMINGPOLICYDIALOG_H

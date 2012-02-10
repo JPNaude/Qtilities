@@ -148,6 +148,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IMode,"com.qtilities.CoreGui.IMode/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IMode,"com.Qtilities.CoreGui.IMode/1.0");
 
 #endif // IMODE_H

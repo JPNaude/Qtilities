@@ -69,6 +69,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::ProjectManagement::Interfaces::IProjectItem,"com.ProjectManagement.IProjectItem/1.0");
+Q_DECLARE_INTERFACE(Qtilities::ProjectManagement::Interfaces::IProjectItem,"com.Qtilities.ProjectManagement.IProjectItem/1.0");
 
 #endif // IPROJECTITEM_H

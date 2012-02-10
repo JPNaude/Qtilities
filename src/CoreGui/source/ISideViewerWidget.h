@@ -87,6 +87,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::ISideViewerWidget,"com.qtilities.CoreGui.ISideViewerWidget/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::ISideViewerWidget,"com.Qtilities.CoreGui.ISideViewerWidget/1.0");
 
 #endif // ISIDEVIEWERWIDGET_H
