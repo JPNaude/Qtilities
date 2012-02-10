@@ -334,13 +334,19 @@ void Qtilities::CoreGui::QtilitiesMainWindow::updateItemSizes() {
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::changeCurrentWidget(QWidget* new_central_widget) {
-    if (!new_central_widget) 
-        new_central_widget = d->empty_central_widget;
-
     // Hide current widget
     if (d->current_widget) {
-        d->current_widget->hide();
-        d->current_widget->setParent(0);
+        // Its not shown anywhere else yet:
+        if (d->current_widget->parent() == d->current_widget_holder) {
+            d->current_widget->hide();
+            d->current_widget->setParent(0);
+        }
+        //} else {
+            // Its shown so
+//            d->current_widget->hide();
+//            d->current_widget->setParent(0);
+        //}
+
     }
 
     d->current_widget = new_central_widget;

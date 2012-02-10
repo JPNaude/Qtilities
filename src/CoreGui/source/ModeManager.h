@@ -155,13 +155,25 @@ modeListWidget()->setStyleSheet(stylesheet);
             // ----------------------------------
             // Functions related to adding/removing modes
             // ----------------------------------
-            //! Initializes the mode widget with all modes found in the global object pool.
+            //! Refreshes the list of modes in this mode manager by doing a search through the global object pool.
             /*!
               This function will search the global object pool and automatically add all found modes. A debug message with information about the found pages will be created. All found modes will automatically be initialized.
 
               More modes can be added at a later stage using the addMode() and addModes() functions. A list of modes can be found using modes().
+
+              \note This function only refreshes all modes, it does not populate the mode list widget. To do that, call initialize().
               */
-            void initialize(bool refresh_list = true);
+            void refreshModeList();
+            //! Initializes the mode widget by displaying all current modes.
+            /*!
+              If there are no modes present in the mode manager, refreshModeList() will be called first. However if modes
+              are present this step will be skipped.
+
+              Initialization will update the list widget displaying modes.
+
+              \sa refreshModeList()
+              */
+            void initialize();
             //! Adds a mode to the mode widget.
             /*!
               This function can be called at any time and will cause the mode list to be refreshed.
@@ -179,6 +191,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \param modes A list of modes to be added.
               \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
+              \param refresh_list When true, the mode list widget will be refreshed.
 
               \note Only modes which specify this manager as one of their manager IDs will be added.
               */
@@ -189,6 +202,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \param modes A list of modes to be added.
               \param initialize_mode When true, each mode will be initialized and its context will be added to the context manager if it is not empty.
+              \param refresh_list When true, the mode list widget will be refreshed.
 
               \note Only modes which specify this manager as one of their manager IDs will be added.
               */
@@ -230,22 +244,25 @@ modeListWidget()->setStyleSheet(stylesheet);
             //! Slot through which a new mode can be set by specifying the mode ID.
             /*!
               \param mode_id The mode ID of the mode. \sa IMode::modeID().
+              \param refresh_list When true, the mode list widget will be refreshed.
 
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
               */
-            void setActiveMode(int mode_id);
+            void setActiveMode(int mode_id, bool refresh_list = true);
             //! Slot through which a new mode can be set by specifying the mode name.
             /*!
               \param mode_name The name of the mode. \sa IMode::text().
+              \param refresh_list When true, the mode list widget will be refreshed.
 
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
               */
-            void setActiveMode(const QString& mode_name);
+            void setActiveMode(const QString& mode_name, bool refresh_list = true);
             //! Slot through which a new mode can be set by specifying the mode interface.
             /*!
               \note If \p mode_id appears in the list of disabled modes, this function does nothing.
+              \param refresh_list When true, the mode list widget will be refreshed.
               */
-            void setActiveMode(IMode* mode_iface);
+            void setActiveMode(IMode* mode_iface, bool refresh_list = true);
 
             // ----------------------------------
             // Functions related to preferred mode order
