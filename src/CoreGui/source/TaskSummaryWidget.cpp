@@ -130,7 +130,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::findCurrentTasks() {
     if (!d->task_summary_enabled)
         return;
 
-    QList<QObject*> iface_list = OBJECT_MANAGER->registeredInterfaces("ITask");
+    QList<QObject*> iface_list = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.ITask/1.0");
     foreach (QObject* obj, iface_list) {
         addTask(obj);
     }
