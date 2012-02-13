@@ -202,7 +202,7 @@ categorized_widget->show();
             bool setCustomTreeModel(ObserverTreeModel* tree_model);
             //! Function which sets a custom table proxy model to be used in this widget when its in TableView mode.
             /*!
-              By default the observer widget uses the Qtilities::CoreGui::ObserverTableModelCategoryFilter as the proxy model for the table view.
+              By default the observer widget uses the Qtilities::CoreGui::ObserverTableModelProxyFilter as the proxy model for the table view.
               It is possible to use custom proxy models which allows you to extend the default proxy model.
 
               The observer widget will manage the lifetime of the custom model.
@@ -652,6 +652,8 @@ categorized_widget->show();
               */
             void handleSelectionModelChange();
         signals:
+            //! Signal which is emitted when the display mode of this widget is toggled.
+            void displayModeChanged(Qtilities::DisplayMode display_mode);
             //! Signal which is emitted when object selection changes.
             void selectedObjectsChanged(QList<QObject*> selected_objects, Observer* selection_parent = 0);
 

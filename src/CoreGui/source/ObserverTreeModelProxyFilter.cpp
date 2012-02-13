@@ -73,3 +73,36 @@ void Qtilities::CoreGui::ObserverTreeModelProxyFilter::setRowFilterTypes(Observe
 Qtilities::CoreGui::ObserverTreeItem::TreeItemTypeFlags Qtilities::CoreGui::ObserverTreeModelProxyFilter::rowFilterTypes() const {
     return row_filter_types;
 }
+
+bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::lessThan(const QModelIndex &left, const QModelIndex &right) const {
+    ObserverTreeModel* tree_model = dynamic_cast<ObserverTreeModel*> (sourceModel());
+
+    if (tree_model) {
+        QModelIndex left_name_index = sourceModel()->index(left.row(), tree_model->columnPosition(AbstractObserverItemModel::ColumnName), left.parent());
+        QModelIndex right_name_index = sourceModel()->index(right.row(), tree_model->columnPosition(AbstractObserverItemModel::ColumnName), right.parent());
+        ObserverTreeItem* left_item = tree_model->getItem(left_name_index);
+        ObserverTreeItem* right_item = tree_model->getItem(right_name_index);
+
+        if (left_item && right_item) {
+            // We check according to the following criteria:
+            // Categories are smaller than normal items:
+            if (left_item->itemType() == ObserverTreeItem::CategoryItem && right_item->itemType() == ObserverTreeItem::CategoryItem) {
+                // Check the names of the category
+                return QString::localeAwareCompare(left_item->category().categoryTop(), right_item->category().categoryTop()) < 0;;
+            } else if (left_item->itemType() == ObserverTreeItem::CategoryItem && right_item->itemType() == ObserverTreeItem::TreeItem)
+                return true;
+            else if (left_item->itemType() == ObserverTreeItem::TreeItem && right_item->itemType() == ObserverTreeItem::CategoryItem)
+                return false;
+            else if (left_item->itemType() == ObserverTreeItem::TreeNode && right_item->itemType() == ObserverTreeItem::CategoryItem)
+                return true;
+            else if (left_item->itemType() == ObserverTreeItem::CategoryItem && right_item->itemType() == ObserverTreeItem::TreeNode)
+                return false;
+            else if (left_item->itemType() == ObserverTreeItem::TreeNode && right_item->itemType() == ObserverTreeItem::TreeItem)
+                return true;
+            else if (left_item->itemType() == ObserverTreeItem::TreeItem && right_item->itemType() == ObserverTreeItem::TreeNode)
+                return false;
+        }
+    }
+
+    return QSortFilterProxyModel::lessThan(left,right);
+}

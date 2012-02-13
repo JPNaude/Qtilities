@@ -43,7 +43,7 @@
 #include "ObjectPropertyBrowser.h"
 #include "QtilitiesPropertyChangeEvent.h"
 #include "SearchBoxWidget.h"
-#include "ObserverTableModelCategoryFilter.h"
+#include "ObserverTableModelProxyFilter.h"
 #include "ObserverTreeModelProxyFilter.h"
 #include "ActionProvider.h"
 #include "ObserverTreeItem.h"
@@ -599,6 +599,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         return;
     }
 
+    if (d->display_mode == Qtilities::TableView)
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
     // Set the title and name of the observer widget.
     // Here we need to check if we must use d_observer inside a specific context
     setWindowTitle(d_observer->observerName());
@@ -743,6 +746,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
 
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
+                connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeColumns()));
 
                 d->table_view->viewport()->installEventFilter(this);
                 d->table_view->installEventFilter(this);
@@ -776,7 +780,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             // Setup proxy model
             if (!d->custom_table_proxy_model) {
                 if (!d->table_proxy_model) {
-                    QSortFilterProxyModel* new_model = new ObserverTableModelCategoryFilter(this);
+                    QSortFilterProxyModel* new_model = new ObserverTableModelProxyFilter(this);
                     new_model->setDynamicSortFilter(true);
                     new_model->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
                     d->table_proxy_model = new_model;
@@ -785,7 +789,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 QSortFilterProxyModel* custom_sort_proxy = qobject_cast<QSortFilterProxyModel*> (d->custom_table_proxy_model);
                 if (custom_sort_proxy) {
                     custom_sort_proxy->setDynamicSortFilter(true);
-                    custom_sort_proxy->setFilterKeyColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName));
+                    custom_sort_proxy->setFilterKeyColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName));
                 }
                 d->table_proxy_model = d->custom_table_proxy_model;
             }
@@ -957,6 +961,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Resize view:
     if (!hints_only)
         hideProgressInfo(false);
+
+    if (d->display_mode == Qtilities::TableView)
+        QApplication::restoreOverrideCursor();
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -1519,7 +1526,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDebug() const {
         QtilitiesMainWindow* main_window = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
         if (main_window) {
             if (main_window->modeManager()) {
-                main_window->modeManager()->setActiveMode("Qtilities Debugging");
+                main_window->modeManager()->setActiveMode("Debugging");
             }
         }
     }
@@ -1556,10 +1563,13 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     else
         d->actionDeleteAll->setVisible(false);
 
-    if (activeHints()->actionHints() & ObserverHints::ActionPushDown)
+    if (activeHints()->actionHints() & ObserverHints::ActionPushDown) {
         d->actionPushDown->setVisible(true);
-    else
+        connect(this,SIGNAL(doubleClickRequest(QObject*)),SLOT(selectionPushDown()),Qt::UniqueConnection);
+    } else {
         d->actionPushDown->setVisible(false);
+        disconnect(this,SIGNAL(doubleClickRequest(QObject*)),this,SLOT(selectionPushDown()));
+    }
 
     if (activeHints()->actionHints() & ObserverHints::ActionPushDownNew)
         d->actionPushDownNew->setVisible(true);
@@ -2403,8 +2413,10 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
 
     setWindowTitle(d_observer->observerName());
 
-    if (d->navigation_bar && d->display_mode == TableView)
+    if (d->navigation_bar && d->display_mode == TableView) {
         d->navigation_bar->refreshHierarchy();
+        resizeColumns();
+    }
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionPushUp() {
@@ -2419,12 +2431,16 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushUp() {
     d_observer->disconnect(this);
     d_observer->disconnect(d->navigation_bar);
 
+    // Get the current observer in order to select it after we pushed up:
+    QObject* new_selection = d_observer;
+
     // Setup new observer
     Observer* observer = OBJECT_MANAGER->observerReference(d->navigation_stack.pop());
     Q_ASSERT(observer);
 
     setObserverContext(observer);
     initialize();
+    selectObject(new_selection);
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionPushUpNew() {
@@ -2453,7 +2469,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushUpNew() {
     }
     new_child_widget->setSizePolicy(sizePolicy());
     new_child_widget->show();
-    new_child_widget->selectObjects(selectedObjects());
+    new_child_widget->selectObject(this);
 
     newObserverWidgetCreated(new_child_widget);
 }
@@ -2506,6 +2522,9 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
         connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
         setObserverContext(observer);
         initialize();
+
+        if (observer->subjectCount() > 0)
+            selectObject(observer->subjectAt(0));
     } /*else if (d->display_mode == TreeView) {
         if (d->current_selection.count() == 1) {
             Observer* observer = qobject_cast<Observer*> (d->current_selection.front());
@@ -2576,7 +2595,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDownNew() {
         new_child_widget->setNavigationStack(d->navigation_stack);
 
         // Pop the new ID here since this window stays the same
-        d->navigation_stack.pop();
+        d->navigation_stack.pop();  
     } /*else if (d->display_mode == TreeView) {
         if (d->current_selection.count() == 1) {
             observer = qobject_cast<Observer*> (d->current_selection.front());
@@ -2609,15 +2628,15 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDownNew() {
     new_child_widget->setSizePolicy(sizePolicy());
     new_child_widget->show();
     new_child_widget->selectObjects(selectedObjects());
-    newObserverWidgetCreated(new_child_widget);
+    newObserverWidgetCreated(new_child_widget);   
 }
 
 void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
     if (!d->initialized)
         return;
 
-    if (d->display_mode == TableView) {
-        QList<QObject*> selected_objects = selectedObjects();
+    QList<QObject*> selected_objects = selectedObjects();
+    if (d->display_mode == TableView) {        
         d->display_mode = TreeView;
         // We need to clear the navigation stack if we move to tree view. The tree view will set the stack
         // automatically depending on what is selected when switching back to table view.
@@ -2633,6 +2652,12 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
     } else if (d->display_mode == TreeView && d->tree_model) {
         if (selectedIndexes().count() > 0) {
             d->navigation_stack = d->tree_model->getParentHierarchy(selectedIndexes().front());
+//            qDebug() << "After toggle" << d->navigation_stack;
+//            foreach (int id, d->navigation_stack) {
+//                Observer* tmp = OBJECT_MANAGER->observerReference(id);
+//                if (tmp)
+//                    qDebug() << tmp->observerName();
+//            }
 
             bool pop_back = true;
             Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
@@ -2657,15 +2682,22 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
 
             if (d->navigation_stack.count() > 0 && pop_back)
                 d->navigation_stack.pop_back();
+        } else {
+            d->navigation_stack.clear();
         }
+
         d->display_mode = TableView;
         initialize();
         d->table_view->setFocus();
+
         if (d->searchBoxWidget)
             handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
+
+        selectObjects(selected_objects);
     }
 
     refreshActions();
+    emit displayModeChanged(d->display_mode);
 }
 
 void Qtilities::CoreGui::ObserverWidget::viewCollapseAll() {
@@ -3360,10 +3392,16 @@ void Qtilities::CoreGui::ObserverWidget::resizeColumns() {
         if (d->display_mode == Qtilities::TableView && d->table_model && d->table_view) {
             resizeTableViewRows();
 
-            d->table_view->resizeColumnsToContents();
             QHeaderView* table_header = d->table_view->horizontalHeader();
-            if (table_header->visualIndex(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName)) != -1)
-                table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
+            if (table_header) {
+                table_header->setMovable(true);
+                d->table_view->resizeColumnsToContents();
+                table_header->setStretchLastSection(true);
+            }
+
+            // Implementation if we want to stretch the name column, however the above implementation proved to be more practical:
+//            if (table_header->visualIndex(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName)) != -1)
+//                table_header->setResizeMode(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),QHeaderView::Stretch);
         } else if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
             QHeaderView* tree_header = d->tree_view->header();
             if (tree_header) {

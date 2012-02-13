@@ -61,6 +61,7 @@ namespace Qtilities {
 
         protected:
             virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
+            virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
         private:
             ObserverTreeItem::TreeItemTypeFlags row_filter_types;
