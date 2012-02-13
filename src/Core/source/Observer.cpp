@@ -1452,7 +1452,7 @@ QString Qtilities::Core::Observer::observerName(int parent_id) const {
             if (obs->contains(obs))
                 return obs->subjectNameInContext(this);
             else
-                return obs->subjectNameInContext(parent());
+                return objectName();
         } else {
             return objectName();
         }
@@ -1530,8 +1530,32 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
     return ManualOwnership;
 }
 
-int Qtilities::Core::Observer::treeCount(const QString& base_class_name) const {
-    return treeChildren(base_class_name).count();
+int Qtilities::Core::Observer::treeCount(const QString& base_class_name, bool force_recount) {
+    if (force_recount) {
+        observerData->last_tree_count_base_class = base_class_name;
+        observerData->last_tree_count = treeChildren(base_class_name).count();
+        //qDebug() << "Observer tree forced recount, recounting children";
+        return observerData->last_tree_count;
+    } else {
+        // Try to optimize this function:
+        if (observerData->last_tree_count_base_class != base_class_name) {
+            //qDebug() << "Observer treeCount() called with different base class last time, recounting children" << observerData->last_tree_count_base_class << base_class_name;
+            observerData->last_tree_count_base_class = base_class_name;
+            observerData->last_tree_count = treeChildren(base_class_name).count();
+            return observerData->last_tree_count;
+        } else {
+            // Only recount if the observer is modified:
+            if (isModified()) {
+                //qDebug() << "Observer tree changed, recounting children";
+                observerData->last_tree_count = treeChildren(base_class_name).count();
+                return observerData->last_tree_count;
+            } else {
+                // We don't need to count again.
+                //qDebug() << "Observer tree did not change, using old count" << observerData->last_tree_count;
+                return observerData->last_tree_count;
+            }
+        }
+    }
 }
 
 int Qtilities::Core::Observer::subjectCount(const QString& base_class_name) const {
@@ -1707,8 +1731,10 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const Qtilit
         }
     }
     endProcessingCycle(false);
-    if (renamed_list.count() > 0)
+    if (renamed_list.count() > 0) {
+        setModificationState(true);
         refreshViewsLayout();
+    }
 
     return renamed_list;
 }
@@ -1810,7 +1836,6 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
 
     return list;
 }
-
 
 QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
     QMap<QPointer<QObject>, QString> subject_map;

@@ -869,16 +869,20 @@ obs.endProcessingCycle(); // Internal count = 0;
             inline int observerID() const { return observerData->observer_id; }
             //! Returns the number of subjects currently observed by the observer.
             /*!
-                This function is different from treeChildCount() which gets all the children underneath an observer (Thus, children of children etc.).
+                This function is different from treeCount() which gets all the children underneath an observer (Thus, children of children etc.).
                 */
             int subjectCount(const QString& base_class_name = "QObject") const;
             //! Function to get the number of children under the specified observer.
             /*!
                 This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
 
+                By default this function will not do a recount everytime. It will only recount when \p base_class_name changed
+                from the last time it was called, or if isModified() returns true. You can however force a full
+                recount using \p force_recount.
+
                 \note This observer itself is not counted.
                 */
-            int treeCount(const QString& base_class_name = "QObject") const;
+            int treeCount(const QString& base_class_name = "QObject", bool force_recount = false);
             //! Function to get a QObject reference at a specific location in the tree underneath this observer.
             /*!
               If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
