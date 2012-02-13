@@ -302,9 +302,6 @@ bool Qtilities::CoreGui::AbstractTreeItem::removeCategory(int observer_id) {
 }
 
 bool Qtilities::CoreGui::AbstractTreeItem::setCategory(const QtilitiesCategory& category, int observer_id) {
-    if (!category.isValid())
-        return false;
-
     // When observer_id = -1, the function will find the parent in the following way:t in the following way:
     // - It will check if the item has only one parent. If that is the case, the category in this parent will be used. that the item only has 1 parent and it will check if it has only one
     //   parent and if so, return the category for that parent.
