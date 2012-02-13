@@ -52,10 +52,12 @@ using namespace Qtilities::Core::Constants;
 
 struct Qtilities::CoreGui::ObserverTableModelData {
     ObserverTableModelData() : type_grouping_name(QString()),
-        read_only(false) { }
+        read_only(false),
+        fetch_count(0) { }
 
-    QString type_grouping_name;
-    bool read_only;
+    QString     type_grouping_name;
+    bool        read_only;
+    int         fetch_count;
 };
 
 Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
@@ -83,6 +85,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     if (!AbstractObserverItemModel::setObserverContext(observer))
         return false;
 
+    d->fetch_count = 0;
     connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
@@ -108,9 +111,9 @@ int Qtilities::CoreGui::ObserverTableModel::columnPosition(AbstractObserverItemM
     } else if (column_id == AbstractObserverItemModel::ColumnName) {
         return 1;
     } else if (column_id == AbstractObserverItemModel::ColumnCategory) {
-        return 2;
-    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
         return 3;
+    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
+        return 2;
     } else if (column_id == AbstractObserverItemModel::ColumnAccess) {
         return 4;
     } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
@@ -128,9 +131,9 @@ int Qtilities::CoreGui::ObserverTableModel::columnVisiblePosition(AbstractObserv
     } else if (column_id == AbstractObserverItemModel::ColumnName) {
         start = 1;
     } else if (column_id == AbstractObserverItemModel::ColumnCategory) {
-        start = 2;
-    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
         start = 3;
+    } else if (column_id == AbstractObserverItemModel::ColumnChildCount) {
+        start = 2;
     } else if (column_id == AbstractObserverItemModel::ColumnAccess) {
         start = 4;
     } else if (column_id == AbstractObserverItemModel::ColumnTypeInfo) {
@@ -181,13 +184,16 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
     if (!d_observer)
         return QVariant();
 
+    if (index.row() >= d_observer->subjectCount() || index.row() < 0)
+        return QVariant();
+
     // ------------------------------------
     // Handle Subject ID Column
     // ------------------------------------
     if (index.column() == columnPosition(ColumnSubjectID)) {
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        // We need EditRole here, its used in subjectID()
+        if (role == Qt::DisplayRole || role == Qt::EditRole)
             return d_observer->subjectID(index.row());
-        }
     // ------------------------------------
     // Handle Name Column: We need to inspect all role properties here:
     // ------------------------------------
@@ -437,14 +443,20 @@ QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Ori
         return QIcon(qti_icon_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Child Count");
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         return QIcon(qti_icon_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Type");
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         return QIcon(qti_icon_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Access");
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     }
 
     return QVariant();
@@ -494,13 +506,37 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
     return false;
 }
 
+bool Qtilities::CoreGui::ObserverTableModel::canFetchMore(const QModelIndex &parent) const {
+    if (!d_observer)
+        return false;
+
+    if (d->fetch_count < d_observer->subjectCount())
+        return true;
+    else
+        return false;
+}
+
+void Qtilities::CoreGui::ObserverTableModel::fetchMore(const QModelIndex &parent) {
+    Q_UNUSED(parent)
+
+    int remainder = d_observer->subjectCount() - d->fetch_count;
+    //qDebug() << "remainder" << remainder;
+    int itemsToFetch = qMin(100, remainder);
+
+    beginInsertRows(QModelIndex(), d->fetch_count, d->fetch_count+itemsToFetch-1);
+
+    d->fetch_count += itemsToFetch;
+
+    endInsertRows();
+}
+
 int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
 
     if (!d_observer)
         return 0;
     else {
-        return d_observer->subjectCount();
+        return d->fetch_count;
     }
 }
 

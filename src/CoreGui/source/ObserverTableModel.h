@@ -90,9 +90,14 @@ namespace Qtilities {
             virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
+        protected:
+            bool canFetchMore(const QModelIndex &parent) const;
+            void fetchMore(const QModelIndex &parent);
+
             // --------------------------------
             // AbstractObserverItemModel Implementation
             // --------------------------------
+        public:
             virtual bool setObserverContext(Observer* observer);
             int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
