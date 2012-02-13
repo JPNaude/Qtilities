@@ -813,14 +813,20 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orie
         return QIcon(qti_icon_CHILD_COUNT_22x22);
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Child Count");
+    } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         return QIcon(qti_icon_TYPE_INFO_22x22);
     } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Type");
+    } else if ((section == columnPosition(ColumnTypeInfo)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
         return QIcon(qti_icon_ACCESS_16x16);
     } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::ToolTipRole)) {
         return tr("Access");
+    } else if ((section == columnPosition(ColumnAccess)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
+        return "";
     }
 
      return QAbstractItemModel::headerData(section,orientation,role);
