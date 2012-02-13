@@ -54,7 +54,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeItem.h \
     source/SearchBoxWidget.h \
     source/ObjectInfoTreeWidget.h \
-    source/ObserverTableModelCategoryFilter.h \
     source/IActionProvider.h \
     source/ActionProvider.h \
     source/LoggerConfigWidget.h \
@@ -98,7 +97,8 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTreeModelBuilder.h \
     source/TaskManagerGui.h \
     source/SingleTaskWidget.h \
-    source/TaskSummaryWidget.h
+    source/TaskSummaryWidget.h \
+    source/ObserverTableModelProxyFilter.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -111,7 +111,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTreeItem.cpp \
     source/SearchBoxWidget.cpp \
     source/ObjectInfoTreeWidget.cpp \
-    source/ObserverTableModelCategoryFilter.cpp \
     source/ActionProvider.cpp \
     source/LoggerConfigWidget.cpp \
     source/WidgetLoggerEngine.cpp \
@@ -147,7 +146,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObserverTreeModelBuilder.cpp \
     source/TaskManagerGui.cpp \
     source/SingleTaskWidget.cpp \
-    source/TaskSummaryWidget.cpp
+    source/TaskSummaryWidget.cpp \
+    source/ObserverTableModelProxyFilter.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \
