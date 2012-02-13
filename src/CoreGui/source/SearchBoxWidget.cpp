@@ -137,6 +137,14 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     setButtonFlags(buttons);
     setSearchOptions(search_options);
     setWidgetMode(mode);
+
+    QFont normal_font = ui->txtSearchString->font();
+    normal_font.setWeight(QFont::Normal);
+    ui->txtSearchString->setFont(normal_font);
+
+    normal_font = ui->txtReplaceString->font();
+    normal_font.setWeight(QFont::Normal);
+    ui->txtReplaceString->setFont(normal_font);
 }
 
 Qtilities::CoreGui::SearchBoxWidget::~SearchBoxWidget()
@@ -521,6 +529,10 @@ QTextDocument::FindFlags Qtilities::CoreGui::SearchBoxWidget::findFlags() const 
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::setInfoText(const QString& info_text) {
+    QFont live_preview_label_font = ui->txtInfoMessage->font();
+    live_preview_label_font.setWeight(QFont::Normal);
+    ui->txtInfoMessage->setFont(live_preview_label_font);
+
     ui->txtInfoMessage->setText(info_text);
 }
 
