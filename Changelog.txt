@@ -26,6 +26,9 @@ Qtilities v1.1 Changes
     - Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
     - Fixed crash in Observer when a subject filter deletes a subject during finalizeAttachment().
     - Observer got new processingCycleCount() and resetProcessingCycleCount() functions.
+    - Observer::treeCount() optimized to only do a recount of the tree when the tree was modified. Its not const anymore, and
+      you can can force a rebuild using the new force_recount parameter.
+    - Fixed bug where Observer::observerName() could return the wrong name in some cases.
 
     ============================
     QtilitiesCoreGui:
@@ -52,7 +55,6 @@ Qtilities v1.1 Changes
     - TreeNode::addItems now starts a processing cycle on the node before adding.
     - Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
     - Observer models now tested with, and runs without problems through the Qt ModelTest tests.
-    - AbstractTreeItem::setCategory now returns true when the category to be set matches the current category.
     - ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called. Previously it only happened when the "hints_only" parameter was false.
     - Added new setFileForce() function to TreeFileItem.
     - Updated dependency graph in documentation to show CoreGui dependency on QtHelp unless QTILITIES_NO_HELP is defined.
@@ -73,6 +75,15 @@ Qtilities v1.1 Changes
     - Improved mode manager list widget's setting of active modes.
     - Improved display of the mode manager's list widget on small screens.
     - Added propertyAdded() and propertyRemoved() signals on ObjectDynamicPropertyBrowser.
+    - Observer widget in tree view mode now shows folders first in a context and then all uncategorized items. Like in any file explorer.
+    - Added ObserverWidget::displayModeChanged() signal.
+    - Improved pushing up and down in table view mode in observer widget.
+    - Fixed bug in with navigation stack when switching from observer widget in tree view mode to table mode when there was no selection in the tree view.
+    - Fixed wrong headerData() for some observer widget columns.
+    - ObserverTableModel now implements fetchMore and canFetchMore which allows showing of large observer contexts in batches.
+    - The column ordering in ObserverTableModel changed: The category column is now shown before the name column.
+    - Double click on node in ObserverWidget table mode now pushes into it if ObserverHints::ActionPushDown is part of the active hints.
+    - AbstractTreeItem::setCategory() no longer returns false when attempting to set an empty category.
 
     ============================
     QtilitiesExtensionSystem:
