@@ -87,6 +87,9 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
     bool read_only = false;
     for (int i = d_navigation_stack.count()-1; i >= 0; i--) {
         observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(i));
+        if (!observer)
+            return;
+
         Q_ASSERT(observer);
         if (observer) {
             if (observer->accessMode() == Observer::ReadOnlyAccess)
@@ -96,8 +99,10 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::refreshHierarchy() {
         if (i > 0) {
             if (read_only)
                 label_text.prepend(QString("<font color = 'red'>%1</color> :: ").arg(observer->observerName(d_navigation_stack.at(i-1))));
-            else
+            else {
+                // TODO: This is a bug, the navigation stack is not used correctly, since observer is not contained in the ID used.
                 label_text.prepend(QString("%1 :: ").arg(observer->observerName(d_navigation_stack.at(i-1))));
+            }
         } else {
             if (read_only)
                 label_text.prepend(QString("<font color = 'red'>%1</color> :: ").arg(observer->observerName()));
