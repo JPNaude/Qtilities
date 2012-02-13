@@ -95,11 +95,13 @@ namespace Qtilities {
                the ITask interface implementation provided by the TaskFindFilesUnderDir task.
 
 \code
+FileUtils fu;
+
 // All non-system and non-hidden files:
-QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path");
+QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
 
 // All system and hidden files as well:
-QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path",QDir::System | QDir::Hidden);
+QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hidden);
 \endcode
 
                \param dirName Path of directory to search under.
@@ -119,7 +121,7 @@ QFileInfoList files = FileUtils::findFilesUnderDir("c:/my_path",QDir::System | Q
             /*!
               This function uses parameters set through setFindFilesUnderDirParams().
               */
-            QFileInfoList findFilesUnderDir();
+            QFileInfoList findFilesUnderDirLauncher();
 
         public:
             // --------------------------------

@@ -64,7 +64,7 @@ Qtilities::Core::FileUtils::FileUtils(QObject* parent) : QObject(parent) {
     // Create TaskFindFilesUnderDir:
     Task* taskFindFileUnderDir = new Task(taskNameToString(TaskFindFilesUnderDir),true,this);
     taskFindFileUnderDir->setCanStart(true);
-    connect(taskFindFileUnderDir,SIGNAL(startTaskRequest()),SLOT(findFilesUnderDir()));
+    connect(taskFindFileUnderDir,SIGNAL(startTaskRequest()),SLOT(findFilesUnderDirLauncher()));
     registerTask(taskFindFileUnderDir,taskNameToString(TaskFindFilesUnderDir));
 }
 
@@ -197,7 +197,7 @@ void Qtilities::Core::FileUtils::setFindFilesUnderDirParams(const QString &dirNa
     d->sort = sort;
 }
 
-QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir() {
+QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDirLauncher() {
     int task_id = findTaskID(taskNameToString(TaskFindFilesUnderDir));
     Task* task_ref = 0;
     if (isTaskActive(task_id)) {
