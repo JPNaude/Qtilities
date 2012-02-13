@@ -34,7 +34,6 @@
 #include "ObjectPropertyBrowser.h"
 #include "ObjectScopeWidget.h"
 #include "ObserverTableModel.h"
-#include "ObserverTableModelCategoryFilter.h"
 #include "ObserverTreeItem.h"
 #include "ObserverTreeModel.h"
 #include "ObserverTreeModelProxyFilter.h"
@@ -64,6 +63,7 @@
 #include "SingleTaskWidget.h"
 #include "TaskSummaryWidget.h"
 #include "HelpManager.h"
+#include "ObserverTableModelProxyFilter.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
