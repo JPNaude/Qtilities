@@ -132,10 +132,14 @@ void Qtilities::Examples::TasksExample::ExampleMode::on_btnShortTask_clicked() {
     task->setCanStop(true);
     task->setTaskLifeTimeFlags(Task::LifeTimeDestroyWhenSuccessful | Task::LifeTimeDestroyWhenStopped);
     OBJECT_MANAGER->registerObject(task);
+
     QTimer* timer = new QTimer(task);
+    timer->setSingleShot(true);
     connect(timer,SIGNAL(timeout()),task,SLOT(completeTask()));
     connect(task,SIGNAL(stopTaskRequest()),timer,SLOT(stop()));
+    connect(task,SIGNAL(stopTaskRequest()),task,SLOT(stopTask()));
     timer->setInterval(3000);
+
     timer->start();
     task->startTask();
 }
@@ -145,10 +149,14 @@ void Qtilities::Examples::TasksExample::ExampleMode::on_btnLongTask_clicked() {
     task->setCanStop(true);
     task->setTaskLifeTimeFlags(Task::LifeTimeDestroyWhenSuccessful | Task::LifeTimeDestroyWhenStopped);
     OBJECT_MANAGER->registerObject(task);
+
     QTimer* timer = new QTimer(task);
+    timer->setSingleShot(true);
     connect(timer,SIGNAL(timeout()),task,SLOT(completeTask()));
     connect(task,SIGNAL(stopTaskRequest()),timer,SLOT(stop()));
+    connect(task,SIGNAL(stopTaskRequest()),task,SLOT(stopTask()));
     timer->setInterval(10000);
+
     timer->start();
     task->startTask();
 }
