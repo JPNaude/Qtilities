@@ -125,7 +125,7 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
     if (d->text_iface_map.contains(text)) {
         if (d->current_widget) {
             for (int i = 0; i < d->viewer_actions.count(); i++)
-                ui->toolBar->removeAction(d->viewer_actions.at(0));
+                ui->toolBar->removeAction(d->viewer_actions.at(i));
 
             d->viewer_actions.clear();
             d->current_widget->setParent(0);
