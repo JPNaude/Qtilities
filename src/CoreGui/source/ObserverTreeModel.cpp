@@ -1331,10 +1331,14 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::calculateSelec
             return 0;
         }
     } else {
-        d->selection_parent = 0;
-        model->hints_selection_parent = 0;
-        emit selectionParentChanged(0);
-        return 0;
+        d->selection_parent = d_observer;
+        // Get the hints from the observer:
+        if (d->selection_parent) {
+            model->hints_selection_parent = d->selection_parent->displayHints();
+        }
+
+        emit selectionParentChanged(d->selection_parent);
+        return d->selection_parent;
     }
 }
 

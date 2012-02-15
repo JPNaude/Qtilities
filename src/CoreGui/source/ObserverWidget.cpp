@@ -675,14 +675,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
 
-                // Initialize naming control delegate
-                if (!d->tree_name_column_delegate) {
-                    d->tree_name_column_delegate = new NamingPolicyDelegate(this);
-                }
-
-                d->tree_name_column_delegate->setObserverContext(d_observer);
-                connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->tree_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
-
                 // Setup tree selection:
                 d->tree_view->setSelectionMode(QAbstractItemView::SingleSelection);
                 d->tree_view->setSelectionBehavior(QAbstractItemView::SelectItems);
@@ -697,6 +689,14 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->setEnabled(true);
 
             d->tree_model->setObjectName(d->top_level_observer->observerName());
+
+            // Initialize naming control delegate
+            if (!d->tree_name_column_delegate) {
+                d->tree_name_column_delegate = new NamingPolicyDelegate(this);
+                connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->tree_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
+            }
+
+            d->tree_name_column_delegate->setObserverContext(d_observer);
             d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
 
             // Setup proxy model:
@@ -753,13 +753,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->viewport()->installEventFilter(this);
                 d->table_view->installEventFilter(this);
 
-                // Initialize naming control delegate
-                if (!d->table_name_column_delegate) {
-                    d->table_name_column_delegate = new NamingPolicyDelegate(this);
-                }
-
-                connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->table_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
-
                 // Setup the table view to look nice
                 d->table_view->setSelectionBehavior(QAbstractItemView::SelectItems);
                 d->table_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -774,9 +767,15 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             layout->addWidget(d->table_view);
             d->table_view->setEnabled(true);
 
-            d->table_view->setItemDelegateForColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),d->table_name_column_delegate);
             d->table_model->setObjectName(d_observer->observerName());
             d->table_model->setObserverContext(d_observer);
+
+            // Initialize naming control delegate
+            if (!d->table_name_column_delegate) {
+                d->table_name_column_delegate = new NamingPolicyDelegate(this);
+                connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->table_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
+            }
+            d->table_view->setItemDelegateForColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),d->table_name_column_delegate);
             d->table_name_column_delegate->setObserverContext(d_observer);
 
             // Setup proxy model
@@ -944,6 +943,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
                     selectObjects(active_subjects);
                     create_default_selection = false;
+                    continue;
                 }
             }
         } else {
@@ -958,7 +958,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     }
 
     // Init all actions happens in here:
+    // Don't update selection activity, already happened in the above code:
+    d->update_selection_activity = false;
     handleSelectionModelChange();
+    d->update_selection_activity = true;
 
     // Resize view:
     if (!hints_only)
@@ -2657,8 +2660,15 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
         setObserverContext(d->top_level_observer);
         d->update_selection_activity = false;
         initialize();
+
         d->update_selection_activity = true;
         selectObjects(selected_objects);
+
+        // Update the selection parent:
+        // calculateSelectionParent() will update the parent and set the hints according to the parent.
+        if (d->tree_model)
+            d->tree_model->calculateSelectionParent(selectedIndexes());
+
         d->tree_view->setFocus();
         if (d->searchBoxWidget)
             handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
