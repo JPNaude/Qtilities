@@ -101,7 +101,7 @@ namespace Qtilities {
             virtual bool setObserverContext(Observer* observer);
             int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
-             QObject* getObject(const QModelIndex &index) const;
+            QObject* getObject(const QModelIndex &index) const;
 
             // --------------------------------
             // ObserverTableModel Implementation
@@ -110,9 +110,11 @@ namespace Qtilities {
             int columnVisiblePosition(AbstractObserverItemModel::ColumnID column_id) const;
             //! Convenience function to get the QModelIndex of an object in the table.
             /*!
-               \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
+              \param obj The object to find.
+              \param column The colum requested.
+              \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
              */
-            QModelIndex getIndex(QObject* obj) const;
+            QModelIndex getIndex(QObject* obj, int column = -1) const;
             //! Convenience function to get the QObject at a specific row.
             /*!
                \returns The the object at the specified row. If the row is invalid, 0 is returned.
@@ -146,6 +148,13 @@ namespace Qtilities {
               This slot will automatically be connected to the layoutChanged() signal on the observer context displayed.
               */
             virtual void handleLayoutChanged();
+
+        signals:
+            //! Signal which is emitted when more data is fetched from the model.
+            /*!
+              \param number The number of items fetched.
+              */
+            void moreDataFetched(int number);
 
         protected:
             ObserverTableModelData* d;

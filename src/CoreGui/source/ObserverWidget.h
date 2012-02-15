@@ -291,8 +291,6 @@ categorized_widget->show();
             void showProgressInfo(int task_id);
             //! Hides the single task widget for the tree model rebuilding task.
             void hideProgressInfo(bool emit_tree_build_completed = true);
-            //! Resizes columns to their match their contents.
-            void resizeColumns();
             //! Adapts the size of columns when data changes.
             void adaptColumns(const QModelIndex & topleft, const QModelIndex& bottomRight);
             //! Slot which listens for treeModelBuildAboutToStart() on tree models in order to set the expanded items on them.
@@ -309,6 +307,8 @@ categorized_widget->show();
             void handleCollapsed(const QModelIndex &index);
 
         public slots:
+            //! Resizes columns to their match their contents.
+            void resizeColumns();
             //! Expand all nodes for which their display names matches the \p node_names parameters.
             /*!
               If any name in node_names does not exist in the tree it is ignored.

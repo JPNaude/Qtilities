@@ -126,7 +126,23 @@ namespace Qtilities {
               */
             ObserverTreeItem* getItem(const QModelIndex &index) const;
             //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
-            QModelIndex findObject(QObject* obj) const;
+            /*!
+              \param obj The object to find.
+              \param column The colum requested.
+              \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
+
+              \note This function does exactly the same as getIndex()
+             */
+            QModelIndex findObject(QObject* obj, int column = -1) const;
+            //! Function to get the model index of an object in the tree. If the object does not exist, QModelIndex() is returned.
+            /*!
+              \param obj The object to find.
+              \param column The colum requested.
+              \returns The QModelIndex of the specified object. If the object was not found QModelIndex() is returned.
+
+              \note This function does exactly the same as findObject()
+             */
+            QModelIndex getIndex(QObject* obj, int column = -1) const;
             //! Function to get the model index of a category. If the category does not exist, QModelIndex() is returned.
             QModelIndex findCategory(QtilitiesCategory category) const;
             //! Finds the matching QModelIndex indexes for all nodes with display names specified by \p node_names.
@@ -224,7 +240,7 @@ namespace Qtilities {
 
         protected:
             //! Recursive function used by findObject() to traverse through the tree trying to find an object.
-            QModelIndex findObject(const QModelIndex& index, QObject* obj) const;
+            QModelIndex findObject(const QModelIndex& index, QObject* obj, int column = -1) const;
             //! Recursive function to get the ObserverTreeItem associacted with an object.
             ObserverTreeItem* findObject(ObserverTreeItem* item, QObject* obj) const;
 

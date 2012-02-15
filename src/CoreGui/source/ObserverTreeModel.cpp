@@ -1435,9 +1435,13 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getPersistentIndexList() 
     return persistentIndexList();
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj) const {
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(QObject* obj, int column) const {
     QModelIndex root = index(0,0);
-    return findObject(root,obj);
+    return findObject(root,obj,column);
+}
+
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::getIndex(QObject *obj, int column) const {
+    return findObject(obj,column);
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTreeModel::findCategory(QtilitiesCategory category) const {
@@ -1445,7 +1449,7 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findCategory(QtilitiesCategor
     return findCategory(root,category);
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex& current_index, QObject* obj) const {
+QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex& current_index, QObject* obj, int column) const {
     QModelIndex correct_index;
     if (current_index.isValid()) {
         // Check this index:
@@ -1455,9 +1459,12 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex&
                 return current_index;
             }
 
+            if (column == -1)
+                column = columnPosition(ObserverTreeModel::ColumnName);
+
             // Ok it was not this index, loop through all children under this index:
             for (int i = 0; i < item->childCount(); i++) {
-                QModelIndex child_index = index(i,0,current_index);
+                QModelIndex child_index = index(i,column,current_index);
                 correct_index = findObject(child_index,obj);
                 if (correct_index.isValid()) {
                     return correct_index;

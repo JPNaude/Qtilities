@@ -528,6 +528,8 @@ void Qtilities::CoreGui::ObserverTableModel::fetchMore(const QModelIndex &parent
     d->fetch_count += itemsToFetch;
 
     endInsertRows();
+
+    emit moreDataFetched(itemsToFetch);
 }
 
 int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) const {
@@ -536,7 +538,13 @@ int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) 
     if (!d_observer)
         return 0;
     else {
-        return d->fetch_count;
+        if (d->fetch_count == 0) {
+            // First time:
+            d->fetch_count = qMin(100, d_observer->subjectCount());
+            return d->fetch_count;
+        } else {
+            return d->fetch_count;
+        }
     }
 }
 
@@ -551,10 +559,11 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
-    emit dataChanged(index(0,0),index(rowCount(),columnCount()));
+    emit dataChanged(createIndex(0,0),createIndex(rowCount(),columnCount()));
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
+    d->fetch_count = qMin(100, d_observer->subjectCount());
     emit layoutAboutToBeChanged();
     emit layoutChanged();
 }
@@ -610,9 +619,12 @@ QObject* Qtilities::CoreGui::ObserverTableModel::getObject(int row) const {
         return 0;
 }
 
-QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj) const {
+QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj, int column) const {
     if (!obj)
         return QModelIndex();
+
+    if (column == -1)
+        column = columnPosition(ColumnName);
 
     // Get the subject id of the obj
     int id = -1;
@@ -628,7 +640,7 @@ QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj) const
     // Now look for the id in the ID_COLUMN of the table model
     for (int i = 0; i < rowCount(); i++) {
         if (data(index(i,columnPosition(ColumnSubjectID)),Qt::DisplayRole).toInt() == id) {
-            return index(i,columnPosition(ColumnSubjectID));
+            return index(i,column);
         }
     }
 
