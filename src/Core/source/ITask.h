@@ -99,7 +99,7 @@ namespace Qtilities {
                 enum TaskStopAction {
                     TaskDeleteWhenStopped           = 0,  /*!< Delete the task when it is stopped while it was running. */
                     TaskHideWhenStopped             = 1,  /*!< Hide the task's Qtilities::CoreGui::SingleTaskWidget when the task when it is stopped while it was running. */
-                    TaskDoNothingWhenStopped        = 2   /*!< Do nothing when it is stopped. This will give the user the chance to review the task log. The fate of the task will then be determined by TaskReviewedAction. */
+                    TaskDoNothingWhenStopped        = 2   /*!< Do nothing when it is stopped. This will give the user the chance to review the task log. */
                 };
 
                 //! Indicates what should happen to the task when the user click's on the "Remove Task" button in a Qtilities::CoreGui::SingleTaskWidget. The "Stop Task" becomes the "Remove Task" button when the task was stopped or completed.
@@ -325,7 +325,7 @@ namespace Qtilities {
                 }
                 //! Stops the task from the user interface.
                 /*!
-                  In Qtilities::Core::Task, the task will emit stopTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+                  In Qtilities::Core::Task, the task will emit stopTaskRequest() which must be handled by the process represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
 
                   \note This function must be a slot in your interface implementation and will only do something when canStop() is true.
 
@@ -338,9 +338,10 @@ namespace Qtilities {
                 }
                 //! Pauses the task from the user interface.
                 /*!
-                  In Qtilities::Core::Task, the task will emit pauseTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+                  In Qtilities::Core::Task, the task will emit pauseTaskRequest() which must be handled by the process represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
 
                   The task can be resumed through resume().
+
                   \note This function must be a slot in your interface implementation and will only do something when canPause() is true.
 
                   The default implementation of ITask does nothing.
@@ -348,13 +349,13 @@ namespace Qtilities {
                 virtual void pause() {}
                 //! Resumes the task after it has been paused.
                 /*!
-                  In Qtilities::Core::Task, the task will emit resumeTaskRequest() which must be handled by the task represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
+                  In Qtilities::Core::Task, the task will emit resumeTaskRequest() which must be handled by the process represented by Task. Qtilities::Core::QtilitiesProcess is a good example of this.
 
                   \note This function must be a slot in your interface implementation and will only do something if the task is in the paused state.
 
                   The default implementation of ITask does nothing.
                   */
-                virtual void resume() {}
+                virtual void resume() {}              
 
                 // --------------------------------------------------
                 // Progress Information

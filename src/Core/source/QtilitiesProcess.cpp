@@ -24,7 +24,7 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
     d->process = new QProcess;
 
     connect(d->process, SIGNAL(started()), this, SLOT(procStarted()));
-    connect(this, SIGNAL(taskStopped()), this, SLOT(stopProcess()));
+    connect(this, SIGNAL(stopTaskRequest()), this, SLOT(stopProcess()));
 
     connect(d->process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(procError(QProcess::ProcessError)));
     connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(procFinished(int, QProcess::ExitStatus)));
@@ -63,7 +63,6 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
     d->process->kill();
-    Task::stop();
 }
 
 void Qtilities::Core::QtilitiesProcess::procStarted() {

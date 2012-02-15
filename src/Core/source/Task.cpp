@@ -338,25 +338,7 @@ void Qtilities::Core::Task::start() {
 void Qtilities::Core::Task::stop() {
     if (d->can_stop) {
         if (d->task_state == ITask::TaskBusy) {
-//            ITask::TaskState current_state = state();
-
-//            emit taskAboutToStop();
             emit stopTaskRequest();
-
-            // Check if the task was stopped:
-//            if (current_state != state()) {
-//                time(&d->timer_end);
-//                double diff = difftime(d->timer_end,d->timer_start);
-//                logMessage(QString(tr("Task stopped after %1 second(s).")).arg(QString::number(diff)));
-
-//                d->task_busy_state = ITask::TaskBusyClean;
-//                emit taskStopped();
-//                emit stateChanged(state(),current_state);
-
-//                // Now we check if we must destroy the task:
-//                if (d->task_lifetime_flags & Task::LifeTimeDestroyWhenStopped)
-//                    deleteLater();
-//            }
         }
     }
 }
@@ -364,21 +346,7 @@ void Qtilities::Core::Task::stop() {
 void Qtilities::Core::Task::pause() {
     if (d->can_pause) {
         if (d->task_state == ITask::TaskBusy) {
-//            ITask::TaskState current_state = state();
-
-//            emit taskAboutToPause();
             emit pauseTaskRequest();
-
-            // Check if the task was paused:
-//            if (current_state != state()) {
-//                time(&d->timer_end);
-//                double diff = difftime(d->timer_end,d->timer_start);
-//                logMessage(QString(tr("Task paused after %1 second(s).")).arg(QString::number(diff)));
-
-//                emit taskPaused();
-//                emit stateChanged(state(),current_state);
-//                //qDebug() << "In pause(): " << taskName() << ", state: " << d->task_state;
-//            }
         }
     }
 }
@@ -386,17 +354,7 @@ void Qtilities::Core::Task::pause() {
 void Qtilities::Core::Task::resume() {
     if (d->can_pause) {
         if (d->task_state == ITask::TaskPaused) {
-//            ITask::TaskState current_state = state();
-
-//            emit taskAboutToResume();
             emit resumeTaskRequest();
-
-            // Check if the task was resumed:
-//            if (current_state != state()) {
-//                emit taskResumed();
-//                emit stateChanged(state(),current_state);
-//                //qDebug() << "In resume(): " << taskName() << ", state: " << d->task_state;
-//            }
         }
     }
 }
@@ -429,6 +387,51 @@ bool Qtilities::Core::Task::startTask(int expected_subtasks, const QString& mess
     emit taskStarted(d->number_of_sub_tasks,message,type);
     emit stateChanged(ITask::TaskBusy,old_state);
 
+    return true;
+}
+
+bool Task::stopTask(const QString &message, Logger::MessageType type) {
+    emit taskAboutToStop();
+
+    if (!message.isEmpty())
+        logMessage(message,type);
+
+    completeTask(ITask::TaskFailed,"Task Stopped");
+    emit taskStopped();
+    return true;
+}
+
+bool Task::pauseTask(const QString &message, Logger::MessageType type) {
+    ITask::TaskState current_state = state();
+
+    emit taskAboutToPause();
+
+    if (!message.isEmpty())
+        logMessage(message,type);
+
+    d->task_state = Task::TaskPaused;
+
+    time(&d->timer_end);
+    double diff = difftime(d->timer_end,d->timer_start);
+    logMessage(QString(tr("Task paused after %1 second(s).")).arg(QString::number(diff)));
+
+    emit taskPaused();
+    emit stateChanged(state(),current_state);
+    return true;
+}
+
+bool Task::resumeTask(const QString &message, Logger::MessageType type) {
+    ITask::TaskState current_state = state();
+
+    emit taskAboutToResume();
+
+    if (!message.isEmpty())
+        logMessage(message,type);
+
+    d->task_state = Task::TaskBusy;
+
+    emit taskResumed();
+    emit stateChanged(state(),current_state);
     return true;
 }
 

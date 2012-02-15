@@ -118,6 +118,8 @@ namespace Qtilities {
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
+            //! Sets if this task depends on a backend process to handle requests to start, stop the task etc.
+
             // -------------------------------------------------------------------------
             // ITask Implementation
             // -------------------------------------------------------------------------
@@ -202,6 +204,12 @@ namespace Qtilities {
 
             //! Function which should be used to start tasks from the process's side.
             bool startTask(int expected_subtasks = -1, const QString& message = QString(), Logger::MessageType type = Logger::Info);
+            //! Function which should be used to stop tasks from the process's side.
+            bool stopTask(const QString& message = QString(), Logger::MessageType type = Logger::Info);
+            //! Function which should be used to stop tasks from the process's side.
+            bool pauseTask(const QString& message = QString(), Logger::MessageType type = Logger::Info);
+            //! Function which should be used to stop tasks from the process's side.
+            bool resumeTask(const QString& message = QString(), Logger::MessageType type = Logger::Info);
             //! Function which should be used to add completed tasks from the process's side.
             void addCompletedSubTasks(int number_of_sub_tasks = 1, const QString& message = QString(), Logger::MessageType type = Logger::Info);
             //! Function which should be used to complete the task from the process's side.
