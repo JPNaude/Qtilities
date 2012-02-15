@@ -518,15 +518,15 @@ bool Qtilities::CoreGui::ObserverTableModel::canFetchMore(const QModelIndex &par
 
 void Qtilities::CoreGui::ObserverTableModel::fetchMore(const QModelIndex &parent) {
     Q_UNUSED(parent)
+    if (!d_observer)
+        return;
 
     int remainder = d_observer->subjectCount() - d->fetch_count;
     //qDebug() << "remainder" << remainder;
     int itemsToFetch = qMin(100, remainder);
 
     beginInsertRows(QModelIndex(), d->fetch_count, d->fetch_count+itemsToFetch-1);
-
     d->fetch_count += itemsToFetch;
-
     endInsertRows();
 
     emit moreDataFetched(itemsToFetch);
@@ -559,10 +559,19 @@ int Qtilities::CoreGui::ObserverTableModel::columnCount(const QModelIndex &paren
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
-    emit dataChanged(createIndex(0,0),createIndex(rowCount(),columnCount()));
+    if (!d_observer)
+        return;
+
+    //emit dataChanged(createIndex(0,0),createIndex(rowCount(),columnCount()));
+    // This is a workaround, needs to be fixed. Above code is what is needed, but crashes in proxy filter in some scenarios:
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
+    if (!d_observer)
+        return;
+
     d->fetch_count = qMin(100, d_observer->subjectCount());
     emit layoutAboutToBeChanged();
     emit layoutChanged();
@@ -620,6 +629,9 @@ QObject* Qtilities::CoreGui::ObserverTableModel::getObject(int row) const {
 }
 
 QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj, int column) const {
+    if (!d_observer)
+        return QModelIndex();
+
     if (!obj)
         return QModelIndex();
 
