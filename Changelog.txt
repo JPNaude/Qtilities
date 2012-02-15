@@ -84,6 +84,13 @@ Qtilities v1.1 Changes
     - The column ordering in ObserverTableModel changed: The category column is now shown before the name column.
     - Double click on node in ObserverWidget table mode now pushes into it if ObserverHints::ActionPushDown is part of the active hints.
     - AbstractTreeItem::setCategory() no longer returns false when attempting to set an empty category.
+    - Fixed #7: ObserverWidget::selectObjects() must respect current view's selection mode
+    - Performance improvements in ObserverWidget.
+    - Fixed problem where item delegate was not set correctly when using a custom table model.
+    - Fixed problem where selection was not kept when refreshing observer wigdet in table mode.
+    - Now correctly resizes columns when pushing down into a context.
+    - Fixed issue with ObserverTableModel dataChanged() not passing the correct indexes to the view, and thus not updating it.
+    - Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with the same functionilty on ObserverTableModel.
 
     ============================
     QtilitiesExtensionSystem:
