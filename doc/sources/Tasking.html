@@ -25,11 +25,15 @@ handle tasking and shows you how to use it in your applications.
 Table of contents:
 - \ref tasks_classes
 - \ref tasks_introduction
+    - \ref tasks_architecture
+    - \ref tasks_creating_simple_backend
+    - \ref tasks_simple_sub_tasks
+    .
 - \ref tasks_gui_classes
 - \ref tasks_examples
-  - \ref tasks_simple_example
-  - \ref tasks_simple_qprocess
-  .
+    - \ref tasks_simple_example
+    - \ref tasks_simple_qprocess
+    .
 
 </td>
 
@@ -101,12 +105,37 @@ The <a class="el" href="namespace_qtilities_1_1_examples_1_1_tasks_example.html"
 
 \section tasks_introduction Introduction To Tasking
 
-In %Qtilities all tasks must implement Qtilities::Core::Interfaces::ITask which serves as a standard status and control interface on a task. You can either create your own implementation of the interface or use the ready to
-use Qtilities::Core::Task implementation.
+In %Qtilities all tasks must implement Qtilities::Core::Interfaces::ITask which serves as a standard status and control interface on a task. You can either create your own
+implementation of the interface or use the ready to use Qtilities::Core::Task implementation.
 
 For the rest of this article we will focus on the ready to use implementation: Qtilities::Core::Task
 
-First lets create a simple task:
+\subsection tasks_architecture Tasking Architecture
+
+There are basically two directions that can be used to communicate with a task:
+- From the application logic, for example Qtilities::CoreGui::SingleTaskWidget.
+- From the working backend process, for example Qtilities::Core::QtilitiesProcess.
+
+This is illustrated in the diagram below:
+
+\image html tasking.jpg "Tasking Architecture"
+
+From the application side Qtilities::Core::Interfaces::ITask provides functionality to control the task through the \p start(), \p stop(), \p pause(), \p resume()
+slots. Notice that you cannot complete the task from the application's side, since that is the responsibility of the working backend process. The application side
+can listen to signals indicating that the status of the task changed. These are \p taskStarted(), \p taskAboutToStart() etc.
+
+The working backend process is responsible to control the task and keep it in sync with the work that the process is doing. The backend process sets up the
+task to match its own capabilities. For example, if the user can stop the task the backend process calls \p setCanStop(true) on the task before it is started.
+When the user stops the task the backend process needs to respond to this request by connecting an appropriate slot to the \p stopTaskRequest() signal. This will
+be demonstrated in the examples that follow.
+
+Lastly, the backend process keeps the task in sync with its progress through functions like \p completeSubTasks(), \p completeTask() etc. The
+Qtilities::Core::QtilitiesProcess class is a good example of how to implement a more complex backend process. However, in most cases hooking up a
+backend process to a task is very simple. The next section demonstrates this by using a \p QTimer as a backend process.
+
+\subsection tasks_creating_simple_backend A Simple Backend: QTimer
+
+Before looking at the timer, lets just create a simple task to show how to create, start and complete a task:
 \code
 Task* task = new Task("My Task");
 
@@ -118,14 +147,14 @@ task->completeTask();
 delete task;
 \endcode
 
-In the above example you simply create a task and change its state by starting it an then completing it. The task provides a set of control and information related
+In the above example you simply create a task and change its state by starting it an then completing it. The task provides a set of control and information
 functions which you would expect on a task. The example won't do anything usefull since the task does not represent anything at this stage.
 
 This brings us to the most important thing to remember when working with Qtilities::Core::Task: It is used to represent a task, it does not do any work itself. Thus, you need to first have some
 function/code which does some work and then let it communicate with your task while its working. Also, you need to set up your task to provide the correct set of capabilities that match the work you
 are doing.
 
-Lets look at an example where we represent the work done by a QTimer. Thus we will create a task as well as a QTimer and link them up.
+Now lets look at the using a \p QTimer as a backend working process. Thus we will create a task as well as a \p QTimer and link them up.
 
 \code
 // Create the task:
@@ -135,7 +164,13 @@ QTimer* timer = new QTimer(task);
 
 // Tell the task that it can be stopped:
 task->setCanStop(true);
+
+// We connect the the stop request to the stop() function on the timer:
 connect(task,SIGNAL(stopTaskRequest()),timer,SLOT(stop()));
+// We also need to connect the stop request to the task's own stop function.
+// If more things need to happen when stopping the task, connect the request
+// to your own function which will call stopTask() at the appropriate time.
+connect(task,SIGNAL(stopTaskRequest()),task,SLOT(stopTask()));
 
 // Tell the task how it should manage its own lifetime:
 // Thus: When the above timer times out, the task will automatically be destroyed.
@@ -156,7 +191,9 @@ timer->start();
 task->startTask();
 \endcode
 
-The above example shows a very basic usage example of some of the tasking classes provided. In lots of cases it is possible to calculate the number of steps
+\subsection tasks_simple_sub_tasks Intermediate Steps: Sub Tasks
+
+The above example shows a very basic usage example of some of the tasking classes provided. In many cases it is possible to calculate the number of steps
 which will be needed in order to complete a task. In such cases you can provide this information to the task representation class. For example:
 
 \code
@@ -178,7 +215,7 @@ delete task;
 \endcode
 
 Note that we log a message with each completed subtask. Without going into too much detail on task logging here, it is worth mentioning that
-each task can have a log associated with it (the case by default).
+each task can have a log associated with it (the case by default), however this can be disabled through the constructor of the \p Task class.
 
 \section tasks_gui_classes Tasking GUIs
 
