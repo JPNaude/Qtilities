@@ -340,7 +340,10 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     QMap<int,QListWidgetItem*> added_items;
     foreach(int id, d->mode_order) {
         // Get the item with the mode id:
-        IMode* mode = d->id_iface_map[id];
+        IMode* mode = 0;
+
+        if(d->id_iface_map.contains(id))
+            mode = d->id_iface_map[id];
 
         if (mode) {
             QListWidgetItem* new_item = new QListWidgetItem(mode->modeIcon(),mode->modeName(),d->mode_list_widget,mode->modeID());
@@ -595,7 +598,7 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
         }
     }
 
-    if (!d->id_iface_map[item->type()]) {
+    if (!d->id_iface_map.contains(item->type())) {
         emit changeCentralWidget(0);
         d->active_mode = -1;
         return;
