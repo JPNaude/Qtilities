@@ -375,7 +375,7 @@ bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
         setModificationState(true);
 
         // - Emit the dataChanged() signal on the observer context:
-        observer->refreshViewsData();
+        //observer->refreshViewsData();
     } else
         setModificationState(true,IModificationNotifier::NotifyNone);
 
@@ -598,8 +598,9 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
                 // 4. Change the modification state of the filter:
                 setModificationState(true);
 
-                // 5. Emit the dataChanged() signal on the observer context:
-                observer->refreshViewsData();
+                // 5. We don't emit the dataChanged() signal on the observer context.
+                //    It will be done automatically in the observer's attach function
+                //    using layoutChanged().
             } else {
                 setModificationState(true,IModificationNotifier::NotifyNone);
             }
