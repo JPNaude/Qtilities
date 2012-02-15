@@ -3,8 +3,10 @@ Qtilities v1.1 Changes
 ================================
     General:
     ============================
-    - Extended the object management article with details about functionality to work with QObject properties offered by Qtilities.
-	- Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications. This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff and you don't need to link against QtHelp when it is defined.
+    - Extended the object management article with details about functionality offered by Qtilities to work with QObject properties.
+    - Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications.
+      This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff
+      and you don't need to link against QtHelp when it is defined.
     - All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
 
     ============================
@@ -47,21 +49,26 @@ Qtilities v1.1 Changes
     - TaskManagerGui now allows different ways of initializing task logger engines.
     - ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
     - ObserverWidget can now be used under the name TreeWidget as well.
-    - IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
+    - IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for
+      IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
     - IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
     - QtilitiesMainWindow makes available the QLabel used to display priority messages.
     - QtilitiesMainWindow makes available the TaskSummaryWidget used to display task summary.
-    - No longer shows a message box when attempting to register actions in the action manager without setting your application main window. This is now just a message logged with qWarning and LOG_WARNING.
+    - No longer shows a message box when attempting to register actions in the action manager without setting your application main window.
+      This is now just a message logged with qWarning and LOG_WARNING.
     - TreeNode::addItems now starts a processing cycle on the node before adding.
     - Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
     - Observer models now tested with, and runs without problems through the Qt ModelTest tests.
-    - ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called. Previously it only happened when the "hints_only" parameter was false.
+    - ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called.
+      Previously it only happened when the "hints_only" parameter was false.
     - Added new setFileForce() function to TreeFileItem.
     - Updated dependency graph in documentation to show CoreGui dependency on QtHelp unless QTILITIES_NO_HELP is defined.
-    - Fixed bug on ObserverWidget where the internal current selection was not updated when removing items. This caused crashes whenever the internal selection was used before the user made a new selection.
+    - Fixed bug on ObserverWidget where the internal current selection was not updated when removing items. This caused crashes whenever
+      the internal selection was used before the user made a new selection.
     - Added new aboutToBeDestroyed() signal on QtilitiesMainWindow.
     - NamingPolicyFilter: Fixed wrong calculation of conflicting object in NamingPolicyInputDialog.
-    - Changed return value of AbstractTreeItem::setCategory() when the new category is the same as the current category. It now returns true in this case, previously it returned false.
+    - Changed return value of AbstractTreeItem::setCategory() when the new category is the same as the current category. It now returns true
+      in this case, previously it returned false.
     - LoggerConfigWidget now opens logs when you double click on them.
     - LoggerConfigWidget now displays the correct information for the selected engine when opened the first time.
     - Fixed bug where QtilitiesMainWindow managed the lifetime of all mode widgets in it. It no longer does that.
@@ -90,7 +97,8 @@ Qtilities v1.1 Changes
     - Fixed problem where selection was not kept when refreshing observer wigdet in table mode.
     - Now correctly resizes columns when pushing down into a context.
     - Fixed issue with ObserverTableModel dataChanged() not passing the correct indexes to the view, and thus not updating it.
-    - Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with the same functionilty on ObserverTableModel.
+    - Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with
+      the same functionilty on ObserverTableModel.
 
     ============================
     QtilitiesExtensionSystem:
