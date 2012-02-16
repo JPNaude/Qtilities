@@ -3318,21 +3318,19 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             QItemSelectionModel *selection_model = d->table_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < mapped_indexes.count(); i++) {
-                    //if (i > 0)
-                        item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
-                }
+                for (int i = 0; i < mapped_indexes.count(); i++)
+                    item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
                 if (d->table_view->selectionBehavior() == QTableView::SelectRows) {
-                    selection_model->select(item_selection,QItemSelectionModel::Rows | QItemSelectionModel::SelectCurrent);
+                    selection_model->select(item_selection,QItemSelectionModel::Rows | QItemSelectionModel::Select);
                 } else if (d->table_view->selectionBehavior() == QTableView::SelectItems) {
-                    selection_model->select(item_selection,QItemSelectionModel::SelectCurrent);
-//                    if (mapped_indexes.count() > 0)
-//                        selection_model->select(mapped_indexes.at(0),QItemSelectionModel::SelectCurrent);
+                    selection_model->select(item_selection,QItemSelectionModel::Select);
                 }
                 selectedObjects();
                 updateGlobalActiveSubjects();
+                if (mapped_indexes.count() > 0)
+                    d->table_view->setCurrentIndex(mapped_indexes.front());
             }
 
             d->update_selection_activity = true;
@@ -3368,21 +3366,17 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < mapped_indexes.count(); i++) {
-//                    if (i > 0)
-                        item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
-                }
+                for (int i = 0; i < mapped_indexes.count(); i++)
+                    item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
                 if (d->tree_view->selectionBehavior() == QTableView::SelectRows) {
-                    selection_model->select(item_selection,QItemSelectionModel::Rows | QItemSelectionModel::SelectCurrent);
-//                    if (mapped_indexes.count() > 0)
-//                        selection_model->select(mapped_indexes.at(0),QItemSelectionModel::Rows | QItemSelectionModel::Select | QItemSelectionModel::Current);
+                    selection_model->select(item_selection,QItemSelectionModel::Rows | QItemSelectionModel::Select);
                 } else if (d->tree_view->selectionBehavior() == QTableView::SelectItems) {
-                    selection_model->select(item_selection,QItemSelectionModel::SelectCurrent);
-//                    if (mapped_indexes.count() > 0)
-//                        selection_model->select(mapped_indexes.at(0),QItemSelectionModel::Select | QItemSelectionModel::Current);
+                    selection_model->select(item_selection,QItemSelectionModel::Select);
                 }
+                if (mapped_indexes.count() > 0)
+                    d->tree_view->setCurrentIndex(mapped_indexes.front());
                 selectedObjects();
                 updateGlobalActiveSubjects();
             }
