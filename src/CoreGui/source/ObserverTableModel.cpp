@@ -562,10 +562,7 @@ void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
     if (!d_observer)
         return;
 
-    //emit dataChanged(createIndex(0,0),createIndex(rowCount(),columnCount()));
-    // This is a workaround, needs to be fixed. Above code is what is needed, but crashes in proxy filter in some scenarios:
-    emit layoutAboutToBeChanged();
-    emit layoutChanged();
+    emit dataChanged(createIndex(0,0),createIndex(rowCount()-1,columnCount()-1));
 }
 
 void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
