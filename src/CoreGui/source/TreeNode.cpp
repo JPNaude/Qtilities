@@ -452,6 +452,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
         read_version = (Qtilities::ExportVersion) root.attribute("ExportVersion").toInt();
         LOG_INFO(QString(tr("Inspecting tree node file format: Qtilities export format version: %1")).arg(read_version));
     } else {
+        if (errorMsg)
+            *errorMsg = QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed."));
         LOG_ERROR(QString(tr("The export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
         //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
@@ -463,6 +465,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
         application_read_version = root.attribute("ApplicationExportVersion").toInt();
         LOG_INFO(QString(tr("Inspecting tree node file format: Application export format version: %1")).arg(application_read_version));
     } else {
+        if (errorMsg)
+            *errorMsg = QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed."));
         LOG_ERROR(QString(tr("The application export version of the input file could not be determined. This might indicate that the input file is in the wrong format. The tree node file will not be parsed.")));
         //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
@@ -478,6 +482,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
         is_supported_format = true;
 
     if (!is_supported_format) {
+        if (errorMsg)
+            *errorMsg = QString(tr("Unsupported tree node file found with export version: %1. The file will not be parsed.")).arg(read_version);
         LOG_ERROR(QString(tr("Unsupported tree node file found with export version: %1. The file will not be parsed.")).arg(read_version));
         //QApplication::restoreOverrideCursor();
         return IExportable::Failed;
