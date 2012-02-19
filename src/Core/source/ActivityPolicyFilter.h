@@ -129,6 +129,8 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
               This policy allows developers to implement the functionality where clicking on a node in a tree will
               enable/disabled (check/uncheck) all items underneath the node.
 
+              For an example of this behaviour see the <b>Parent Tracking Activity</b> tab in the \p BuildingTreesExample.
+
               \note To track the activity of the observer parent, the observer parent must have only one parent itself (othwerise
               it won't be possible to know in which context the activity must be tracked) and the parent must have an activity
               policy filter installed.

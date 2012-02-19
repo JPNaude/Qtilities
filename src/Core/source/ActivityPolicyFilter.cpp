@@ -53,10 +53,14 @@ namespace Qtilities {
 
 struct Qtilities::Core::ActivityPolicyFilterPrivateData {
     ActivityPolicyFilterPrivateData() : is_modified(false),
-        enforce_activity_policy(true) { }
+        enforce_activity_policy(true),
+        ignore_parent_tracking_changes(false),
+        ignore_subject_tracking_changes(false) { }
 
     bool                                            is_modified;
     bool                                            enforce_activity_policy;
+    bool                                            ignore_parent_tracking_changes;
+    bool                                            ignore_subject_tracking_changes;
     ActivityPolicyFilter::ActivityPolicy            activity_policy;
     ActivityPolicyFilter::MinimumActivityPolicy     minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy  new_subject_activity_policy;
@@ -375,7 +379,7 @@ bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
         setModificationState(true);
 
         // - Emit the dataChanged() signal on the observer context:
-        //observer->refreshViewsData();
+        observer->refreshViewsData();
     } else
         setModificationState(true,IModificationNotifier::NotifyNone);
 
@@ -565,6 +569,12 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             obj->blockSignals(true);
             ObjectManager::setMultiContextProperty(obj,new_subject_activity_property);
             obj->blockSignals(false);
+        }
+
+        // When tracking parent activity, we need to listen to activity changes on the subjects
+        // in order to make parent partially checked if needed to:
+        if (d->parent_tracking_policy == ActivityPolicyFilter::ParentFollowActivity) {
+            obj->installEventFilter(this);
         }
 
         if (new_activity) {
@@ -827,22 +837,59 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Act
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent *event) {
+    if (!observer)
+        return false;
+
     if (object == observer && event->type() == QEvent::User) {
+        // TODO: We get in here twice, which means views will also be updated twice...
         QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
         if (qtilities_event) {
             if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_ACTIVITY_MAP)) {
-                // Now we need to check the following:
-                // 1. Observer can only have one parent.
-                if (Observer::parentCount(observer) == 1) {
-                    MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(observer,qti_prop_ACTIVITY_MAP);
-                    if (observer_property.isValid()) {
-                        if (observer_property.contextMap().count() > 0) {
-                            bool activity = observer_property.contextMap().values().at(0).toBool();
+                if (d->parent_tracking_policy == ActivityPolicyFilter::ParentFollowActivity && !d->ignore_parent_tracking_changes) {
+                    // Now we need to check the following:
+                    // 1. Observer can only have one parent.
+                    if (Observer::parentCount(observer) == 1) {
+                        MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(observer,qti_prop_ACTIVITY_MAP);
+                        if (observer_property.isValid()) {
+                            if (observer_property.contextMap().count() > 0) {
+                                bool activity = observer_property.contextMap().values().at(0).toBool();
 
-                            if (activity) {
-                                setActiveSubjects(observer->subjectReferences());
-                            } else {
-                                setActiveSubjects(QList<QObject*>());
+                                d->ignore_subject_tracking_changes = true;
+                                //qDebug() << "setting activity on subjects" << observer;
+                                if (activity) {
+                                    setActiveSubjects(observer->subjectReferences());
+                                } else {
+                                    setActiveSubjects(QList<QObject*>());
+                                }
+                                d->ignore_subject_tracking_changes = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else if (observer->contains(object) && event->type() == QEvent::User) {
+        QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
+        if (qtilities_event) {
+            if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_ACTIVITY_MAP)) {
+                if (d->parent_tracking_policy == ActivityPolicyFilter::ParentFollowActivity && !d->ignore_subject_tracking_changes) {
+                    // Check if partial subjects are active:
+                    if (Observer::parentCount(object) == 1) {
+                        //qDebug() << "## 1" << object << d->ignore_subject_tracking_changes;
+                        MultiContextProperty observer_property = ObjectManager::getMultiContextProperty(object,qti_prop_ACTIVITY_MAP);
+                        if (observer_property.isValid()) {
+                            //qDebug() << "## 2";
+                            if (observer_property.contextMap().count() > 0) {
+                               // qDebug() << "## 3";
+                                bool activity = observer_property.value(observer->observerID()).toBool();
+                                // Only when its inactive we must set the parent to be partially active.
+                                if (!activity) {
+                                    d->ignore_parent_tracking_changes = true;
+                                    // Needs to be done
+                                    // TODO: Fix, we don't get in here for sub node 1 in Parent Tracking Activity tree example...
+                                    qDebug() << Q_FUNC_INFO <<  ": Need to set parent as partially active still";
+                                    d->ignore_parent_tracking_changes = false;
+                                }
                             }
                         }
                     }
