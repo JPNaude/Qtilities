@@ -52,7 +52,9 @@ namespace Qtilities {
         \brief Structure used by AbstractObserverItemModel to store private data.
           */
         struct AbstractObserverItemModelData {
-            AbstractObserverItemModelData() { }
+            AbstractObserverItemModelData() : respond_to_observer_changes(true),
+                child_count_base("QObject"),
+                child_count_limit(51) { }
 
             //! Used to store default observer hints to be used with this widget.
             QPointer<ObserverHints>         hints_default;
@@ -67,6 +69,15 @@ namespace Qtilities {
             QPointer<ActivityPolicyFilter>  activity_filter;
             //! The naming policy filter of the current observer context, if present.
             QPointer<NamingPolicyFilter>    naming_filter;
+
+            //! Indicates if this model responds to changes to the observer context.
+            bool                            respond_to_observer_changes;
+            //! Indicates if this model is read only.
+            bool                            read_only;
+            //! The base class name used to count items in ColumnChildCount if it is shown.
+            QString                         child_count_base;
+            //! The limit for the counter counting tree children in the ColumnChildCount if it is shown.
+            int                             child_count_limit;
         };
 
         /*!
@@ -127,6 +138,53 @@ namespace Qtilities {
 
             //! Implement the virtual function to get references to known filters.
             virtual bool setObserverContext(Observer* observer);
+
+            //! Sets if this model responds to changes from the observer context displayed.
+            void setRespondToObserverChanges(bool respond_to_observer_changes);
+            //! Gets if this model responds to changes from the observer context displayed.
+            bool respondToObserverChanges() const;
+
+            //! Sets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa readOnly()
+              */
+            virtual void setReadOnly(bool read_only);
+            //! Gets if this model must be read only, thus its actions and property editor will be read only.
+            /*!
+              \sa setReadOnly()
+              */
+            bool readOnly() const;
+
+            //! Sets the base class to use for tree count operations in the ColumnChildCount column if shown.
+            /*!
+              This base_class_name parameter will be passed on to Qtilities::Core::Observer::treeCount().
+
+              \note This function not refresh the view.
+
+              \sa columnChildCountBaseClass()
+              */
+            void setColumnChildCountBaseClass(const QString& base_class_name);
+            //! Gets the base class to use for tree count operations in the ColumnChildCount column if shown.
+            /*!
+              \sa setColumnChildCountBaseClass()
+              */
+            QString columnChildCountBaseClass() const;
+            //! Sets the upper limit tree count operations in the ColumnChildCount column if shown.
+            /*!
+              This base_class_name parameter will be passed on to Qtilities::Core::Observer::treeCount().
+
+              The default is 51.
+
+              \note This function not refresh the view.
+
+              \sa columnChildCountLimit()
+              */
+            void setColumnChildLimit(int limit);
+            //! Gets the upper limit to use for tree count operations in the ColumnChildCount column if shown.
+            /*!
+              \sa setColumnChildLimit()
+              */
+            int columnChildCountLimit() const;
 
         protected:
             AbstractObserverItemModelData* model;

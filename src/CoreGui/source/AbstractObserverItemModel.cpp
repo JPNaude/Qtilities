@@ -94,4 +94,35 @@ bool Qtilities::CoreGui::AbstractObserverItemModel::setObserverContext(Observer*
     return true;
 }
 
+void Qtilities::CoreGui::AbstractObserverItemModel::setRespondToObserverChanges(bool respond_to_observer_changes) {
+    //qDebug() << "Changing responding to observer changes in model";
+    model->respond_to_observer_changes = respond_to_observer_changes;
+}
 
+bool Qtilities::CoreGui::AbstractObserverItemModel::respondToObserverChanges() const {
+    return model->respond_to_observer_changes;
+}
+
+void Qtilities::CoreGui::AbstractObserverItemModel::setReadOnly(bool read_only) {
+    model->read_only = read_only;
+}
+
+bool Qtilities::CoreGui::AbstractObserverItemModel::readOnly() const {
+    return model->read_only;
+}
+
+void Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildCountBaseClass(const QString &base_class_name) {
+    model->child_count_base = base_class_name;
+}
+
+QString Qtilities::CoreGui::AbstractObserverItemModel::columnChildCountBaseClass() const {
+    return model->child_count_base;
+}
+
+void Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildLimit(int limit) {
+    model->child_count_limit = limit;
+}
+
+int Qtilities::CoreGui::AbstractObserverItemModel::columnChildCountLimit() const {
+    return model->child_count_limit;
+}
