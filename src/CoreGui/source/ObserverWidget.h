@@ -750,6 +750,8 @@ categorized_widget->show();
             void selectionRemoveAll(bool delete_all);
 
         public slots:
+            //! Handle post layout changed actions in table view mode.
+            void handleLayoutChangeCompleted();
             //! This function is triggered by the Qtilities::Core::ObserverHints::ActionNewItem action.
             virtual void handle_actionNewItem_triggered();
             //! Refreshes the current item view.
