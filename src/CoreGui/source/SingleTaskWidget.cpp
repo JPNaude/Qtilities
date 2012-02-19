@@ -196,7 +196,7 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
             if (d->task->taskStopAction() == ITask::TaskDeleteWhenStopped)
                 d->task->objectBase()->deleteLater();
             else if (d->task->taskStopAction() == ITask::TaskHideWhenStopped)
-                hide();
+                setVisible(false);
 
             // ITask::TaskDoNothingWhenStopped does not need to do anything.
         }
@@ -204,7 +204,7 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
         if (d->task->taskRemoveAction() == ITask::TaskDeleteWhenRemoved)
             d->task->objectBase()->deleteLater();
         else if (d->task->taskRemoveAction() == ITask::TaskHideWhenRemoved)
-            hide();
+            setVisible(false);
     }
 }
 
@@ -235,6 +235,7 @@ void Qtilities::CoreGui::SingleTaskWidget::updateBusyState(ITask::TaskBusyState 
 void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
     Q_UNUSED(event)
     setDisplayedName(d->task->displayName());
+    QWidget::resizeEvent(event);
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::update() {  
