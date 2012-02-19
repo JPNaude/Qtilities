@@ -880,9 +880,11 @@ obs.endProcessingCycle(); // Internal count = 0;
                 from the last time it was called, or if isModified() returns true. You can however force a full
                 recount using \p force_recount.
 
+                \param limit When defined, the counting will stop when the limit count is reached. This allows you to stop when a tree gets too big. By default all children are counted.
+
                 \note This observer itself is not counted.
                 */
-            int treeCount(const QString& base_class_name = "QObject", bool force_recount = false);
+            int treeCount(const QString& base_class_name = "QObject", bool force_recount = false, int limit = -1);
             //! Function to get a QObject reference at a specific location in the tree underneath this observer.
             /*!
               If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
@@ -895,6 +897,7 @@ obs.endProcessingCycle(); // Internal count = 0;
               Returns a list of QObjects* in tree underneath this observer where the list is populated in the same order in which Qtilities::Core::TreeIterator iterates through the tree.
 
               \param base_class_name The name of the base class of children you are looking for. By default, all children underneath this observer is returned.
+              \param limit When defined, the tree children will be search up until the limit count is reached. This allows you to stop when a tree gets too big. By default all children are returned.
 
               For example:
 
@@ -918,7 +921,7 @@ QVERIFY(items_verify.count() == 5);
 
               \note This observer itself is not part of the list.
               */
-            QList<QObject*> treeChildren(const QString& base_class_name = "QObject") const;
+            QList<QObject*> treeChildren(const QString& base_class_name = "QObject", int limit = -1) const;
             //! Returns a list with the names of all the current observed subjects which inherits a specific base class. By default all subjects' names are returned.
             QStringList subjectNames(const QString& base_class_name = "QObject") const;
             //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.
@@ -1131,7 +1134,7 @@ QVERIFY(items_verify.count() == 5);
               the number of subjects changed during the processing cycle. See endProcessingCycle() for more information.
               */
             void numberOfSubjectsChanged(Observer::SubjectChangeIndication change_indication, QList<QPointer<QObject> > objects = QList<QPointer<QObject> >());
-        signals:
+
             //! A signal which is emitted when the layout of the observer or the tree underneath it changes.
             /*!
               This signal will be emitted whenever the layout of an observer or the tree underneath it changes.

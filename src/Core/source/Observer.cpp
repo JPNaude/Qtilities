@@ -1530,10 +1530,10 @@ Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::subjectOwn
     return ManualOwnership;
 }
 
-int Qtilities::Core::Observer::treeCount(const QString& base_class_name, bool force_recount) {
+int Qtilities::Core::Observer::treeCount(const QString& base_class_name, bool force_recount, int limit) {
     if (force_recount) {
         observerData->last_tree_count_base_class = base_class_name;
-        observerData->last_tree_count = treeChildren(base_class_name).count();
+        observerData->last_tree_count = treeChildren(base_class_name,limit).count();
         //qDebug() << "Observer tree forced recount, recounting children";
         return observerData->last_tree_count;
     } else {
@@ -1541,18 +1541,24 @@ int Qtilities::Core::Observer::treeCount(const QString& base_class_name, bool fo
         if (observerData->last_tree_count_base_class != base_class_name) {
             //qDebug() << "Observer treeCount() called with different base class last time, recounting children" << observerData->last_tree_count_base_class << base_class_name;
             observerData->last_tree_count_base_class = base_class_name;
-            observerData->last_tree_count = treeChildren(base_class_name).count();
+            observerData->last_tree_count = treeChildren(base_class_name,limit).count();
             return observerData->last_tree_count;
         } else {
             // Only recount if the observer is modified:
             if (isModified()) {
                 //qDebug() << "Observer tree changed, recounting children";
-                observerData->last_tree_count = treeChildren(base_class_name).count();
+                observerData->last_tree_count = treeChildren(base_class_name,limit).count();
                 return observerData->last_tree_count;
             } else {
                 // We don't need to count again.
                 //qDebug() << "Observer tree did not change, using old count" << observerData->last_tree_count;
-                return observerData->last_tree_count;
+                if (limit != 1) {
+                    if (observerData->last_tree_count > limit)
+                        return limit;
+                    else
+                        return observerData->last_tree_count;
+                } else
+                    return observerData->last_tree_count;
             }
         }
     }
@@ -1577,17 +1583,29 @@ bool Qtilities::Core::Observer::treeContains(QObject* tree_item) const {
      return treeChildren().contains(tree_item);
 }
 
-QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface) const {
+QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface, int limit) const {
     QList<QObject*> children;
+    int count = 0;
 
     TreeIterator itr(this);
     while (itr.hasNext()) {
         QObject* obj = itr.next();
-        if (iface.isEmpty())
+        if (iface.isEmpty()) {
             children << obj;
-        else {
-            if (obj->inherits(iface.toAscii().data()))
+            if (limit != -1) {
+                ++count;
+                if (count > limit)
+                    break;
+            }
+        } else {
+            if (obj->inherits(iface.toAscii().data())) {
                 children << obj;
+                if (limit != -1) {
+                    ++count;
+                    if (count > limit)
+                        break;
+                }
+            }
         }
     }
 
