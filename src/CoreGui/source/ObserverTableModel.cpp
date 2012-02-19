@@ -334,8 +334,12 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
 
             Observer* observer = qobject_cast<Observer*> (obj);
             if (observer) {
-                return observer->treeCount();
-            } else {
+                int count = observer->treeCount(columnChildCountBaseClass(),false,columnChildCountLimit());
+                if (count > columnChildCountLimit())
+                    return QString("> %1").arg(columnChildCountLimit() -1);
+                else
+                    return count;
+            }/* DROP CONTAINMENT SUPPORT else {
                 // Handle the case where the child is the parent of an observer
                 int count = 0;
                 foreach (QObject* child, obj->children()) {
@@ -348,8 +352,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                     return QVariant();
                 else
                     return count;
-            }
-
+            }*/
         }
     // ------------------------------------
     // Handle Subject Type Info Column
@@ -562,6 +565,11 @@ void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
     if (!d_observer)
         return;
 
+    if (!respondToObserverChanges()) {
+        qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in table model";
+        return;
+    }
+
     emit dataChanged(createIndex(0,0),createIndex(rowCount()-1,columnCount()-1));
 }
 
@@ -569,9 +577,15 @@ void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
     if (!d_observer)
         return;
 
+    if (!respondToObserverChanges()) {
+        qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in table model";
+        return;
+    }
+
     d->fetch_count = qMin(100, d_observer->subjectCount());
     emit layoutAboutToBeChanged();
     emit layoutChanged();
+    emit layoutChangeCompleted();
 }
 
 int Qtilities::CoreGui::ObserverTableModel::getSubjectID(const QModelIndex &index) const {
@@ -592,17 +606,6 @@ int Qtilities::CoreGui::ObserverTableModel::getSubjectID(int row) const {
         return id;
     else
         return -1;
-}
-
-void Qtilities::CoreGui::ObserverTableModel::setReadOnly(bool read_only) {
-    if (d->read_only == read_only)
-        return;
-
-    d->read_only = read_only;
-}
-
-bool Qtilities::CoreGui::ObserverTableModel::readOnly() const {
-    return d->read_only;
 }
 
 QObject* Qtilities::CoreGui::ObserverTableModel::getObject(const QModelIndex &index) const {

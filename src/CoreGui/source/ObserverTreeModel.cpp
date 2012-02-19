@@ -541,31 +541,25 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it is an observer, in that case we return treeCount() on the observer
             Observer* observer = qobject_cast<Observer*> (getItem(index)->getObject());
             if (observer) {
-                return observer->treeCount();
-            } else {
-                QObject* obj = getItem(index)->getObject();
+                int count = observer->treeCount(columnChildCountBaseClass(),false,columnChildCountLimit());
+                if (count > columnChildCountLimit())
+                    return QString("> %1").arg(columnChildCountLimit() -1);
+                else
+                    return count;
+            }/* else {
                 // Handle the case where the child is the parent of an observer
                 int count = 0;
-                if (obj){
-                    foreach (QObject* child, obj->children()) {
-                        Observer* child_observer = qobject_cast<Observer*> (child);
-                        if (child_observer)
-                            count += child_observer->treeCount();
-                    }
+                foreach (QObject* child, obj->children()) {
+                    Observer* child_observer = qobject_cast<Observer*> (child);
+                    if (child_observer)
+                        count += child_observer->treeCount();
                 }
 
-                if (count == 0) {
-                    if (getItem(index)->itemType() == ObserverTreeItem::CategoryItem) {
-                        Observer* parent_observer = qobject_cast<Observer*> (getItem(index)->containedObserver());
-                        if (parent_observer)
-                            return parent_observer->subjectReferencesByCategory(getItem(index)->category()).count();
-                        else
-                            return QVariant();
-                    } else
-                        return QVariant();
-                } else
+                if (count == 0)
+                    return QVariant();
+                else
                     return count;
-            }
+            }*/
         }
     // ------------------------------------
     // Handle Subject Type Info Column
@@ -1130,6 +1124,11 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<QObject> > new_selection) {
+    if (!respondToObserverChanges()) {
+        qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in tree model.";
+        return;
+    }
+
     if (d->tree_model_up_to_date) {
         d->new_selection = new_selection;
         //qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
@@ -1400,6 +1399,11 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(
 void Qtilities::CoreGui::ObserverTreeModel::handleContextDataChanged(Observer* observer) {
     if (!observer)
         return;
+
+    if (!respondToObserverChanges()) {
+        qDebug() << "Ignoring data changes to observer" << observer->observerName() << "in tree model.";
+        return;
+    }
 
     handleContextDataChanged(findObject(observer));
 }
