@@ -259,37 +259,19 @@ void Qtilities::CoreGui::TreeNode::endProcessingCycle(bool broadcast) {
 }
 
 void Qtilities::CoreGui::TreeNode::startTreeProcessingCycle() {
-    QList<QObject*> obj_list = treeChildren();
-    for (int i = 0; i < obj_list.count(); i++) {
-        TreeNode* tree_node = qobject_cast<TreeNode*> (obj_list.at(i));
-        if (tree_node) {
-            tree_node->startProcessingCycle();
-            continue;
-        }
-        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
-        if (obs) {
-            obs->startProcessingCycle();
-        }
+    Observer::startTreeProcessingCycle();
+    if (isProcessingCycleActive()) {
+        if (nodeData->naming_policy_filter)
+            nodeData->naming_policy_filter->startValidationCycle();
     }
-
-    startProcessingCycle();
 }
 
 void Qtilities::CoreGui::TreeNode::endTreeProcessingCycle(bool broadcast) {
-    QList<QObject*> obj_list = treeChildren();
-    for (int i = 0; i < obj_list.count(); i++) {
-        TreeNode* tree_node = qobject_cast<TreeNode*> (obj_list.at(i));
-        if (tree_node) {
-            tree_node->endProcessingCycle(false);
-            continue;
-        }
-        Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
-        if (obs) {
-            obs->endProcessingCycle(false);
-        }
+    Observer::endTreeProcessingCycle(broadcast);
+    if (!isProcessingCycleActive()) {
+        if (nodeData->naming_policy_filter)
+            nodeData->naming_policy_filter->endValidationCycle();
     }
-
-    endProcessingCycle(broadcast);
 }
 
 Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QString& name, const QtilitiesCategory& category) {
