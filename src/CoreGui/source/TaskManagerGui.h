@@ -115,11 +115,13 @@ namespace Qtilities {
         private:
             TaskManagerGui();
 
+        public slots:
+            //! Slot which will check if obj is a task and assign a logger engine to it if needed.
+            AbstractLoggerEngine* assignLoggerEngineToTask(ITask *task);
+
         private slots:
             //! Slot which will inspect all objects registered in the object pool, and assign task logs to tasks according to TaskLogLazyInitialization.
             void handleObjectPoolAddition(QObject* obj);
-            //! Slot which will check if obj is a task and assign a logger engine to it if needed.
-            AbstractLoggerEngine* assignLoggerEngineToTask(ITask *task);
             //! Slot which will check is connected to the taskAboutToStart() signal on the task.
             /*!
               This function inspects the sender() to get the task to assign the logger engine to.
