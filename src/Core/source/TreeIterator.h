@@ -117,9 +117,6 @@ QObject* lastA = rootNodeA->addItem("A4");
 TreeNode* rootNodeB = new TreeNode("B1");
 rootNodeB->addItem("B2");
 rootNodeB->attachSubject(shared_item); // Here we attach the shared item to another tree's node.
-// Because we use ManualOwnership above, shared_item's ownership will stay set to SpecificObserverOwnership where
-// nodeA5 is the parent() of the item. Therefore, this iterator will work: When it gets to shared_item and
-// sees there are two parents, it automatically takes the path of the parent() which will be nodeA5.
 rootNodeB->addItem("B3");
 
 rootTop->attachSubject(rootNodeA);
