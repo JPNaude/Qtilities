@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
 
     Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
+    Log->setIsQtMessageHandler(false);
 
     // ----------------------------------
     // Uncategorized Tree
@@ -88,11 +89,11 @@ int main(int argc, char *argv[])
     parentNode3->addItem("Child 15");
 
     TreeWidget* uncategorized_widget = new TreeWidget(rootNodeUncategorized);
-    tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
     uncategorized_widget->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
     uncategorized_widget->setDragDropCopyButton(Qt::LeftButton);
     uncategorized_widget->setDragDropMoveButton(Qt::RightButton);
     uncategorized_widget->show();
+    tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
 
     // ------------------------------------
     // Categorized Tree
@@ -112,8 +113,52 @@ int main(int argc, char *argv[])
     rootNodeCategorized->displayHints()->setModificationStateDisplayHint(ObserverHints::CharacterModificationStateDisplay);
     modified_item->setModificationState(true);
     TreeWidget* categorized_widget = new TreeWidget(rootNodeCategorized);
-    tab_widget->addTab(categorized_widget,QIcon(),"Categorized Tree");
     categorized_widget->show();
+    tab_widget->addTab(categorized_widget,QIcon(),"Categorized Tree");
+
+    // ----------------------------------
+    // Parent Tracking Activity
+    // ----------------------------------
+    TreeNode* rootNodeParentTracking = new TreeNode("Root");
+    rootNodeParentTracking->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+    rootNodeParentTracking->displayHints()->setActionHints(ObserverHints::ActionSwitchView | ObserverHints::ActionPushDown | ObserverHints::ActionPushUp);
+    rootNodeParentTracking->toggleQtilitiesPropertyChangeEvents(true);
+    rootNodeParentTracking->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
+                                                  ObserverHints::CheckboxTriggered);
+
+    TreeNode* nodeTracking1 = rootNodeParentTracking->addNode("Node 1");
+    nodeTracking1->toggleQtilitiesPropertyChangeEvents(true);
+    nodeTracking1->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
+                                               ObserverHints::CheckboxTriggered,
+                                               ActivityPolicyFilter::MultipleActivity,
+                                               ActivityPolicyFilter::ParentFollowActivity);
+    nodeTracking1->copyHints(rootNodeParentTracking->displayHints());
+    QStringList test_items;
+    test_items << "Item 1";
+    test_items << "Item 2";
+    test_items << "Item 3";
+    test_items << "Item 4";
+    nodeTracking1->addItems(test_items);
+
+    TreeNode* nodeTrackingSub1 = nodeTracking1->addNode("Sub Node 1");
+    nodeTrackingSub1->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
+                                               ObserverHints::CheckboxTriggered,
+                                               ActivityPolicyFilter::MultipleActivity,
+                                               ActivityPolicyFilter::ParentFollowActivity);
+    nodeTrackingSub1->copyHints(rootNodeParentTracking->displayHints());
+    nodeTrackingSub1->addItems(test_items);
+
+    TreeNode* nodeTracking2 = rootNodeParentTracking->addNode("Node 2");
+    nodeTracking2->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
+                                               ObserverHints::CheckboxTriggered,
+                                               ActivityPolicyFilter::MultipleActivity,
+                                               ActivityPolicyFilter::ParentIgnoreActivity);
+    nodeTracking2->copyHints(rootNodeParentTracking->displayHints());
+    nodeTracking2->addItems(test_items);
+
+    TreeWidget* parent_tracking_widget = new TreeWidget(rootNodeParentTracking);
+    parent_tracking_widget->show();
+    tab_widget->addTab(parent_tracking_widget,QIcon(),"Parent Tracking Activity");
 
     // ----------------------------------
     // Tree With Subject Filters
@@ -130,8 +175,8 @@ int main(int argc, char *argv[])
     parentNode2WithSubjectFilters->addItem("Child 4");
 
     TreeWidget* subject_filters_widget = new TreeWidget(rootNodeWithSubjectFilters);
-    tab_widget->addTab(subject_filters_widget,QIcon(),"Tree With Subject Filters");
     subject_filters_widget->show();
+    tab_widget->addTab(subject_filters_widget,QIcon(),"Tree With Subject Filters");
 
     /*rootNode->saveToFile(QtilitiesApplication::applicationSessionPath() + "/example_tree.xml");
     TreeWidget* uncategorized_widget = new TreeWidget(rootNode);
@@ -161,7 +206,7 @@ int main(int argc, char *argv[])
                                                     ActivityPolicyFilter::UniqueActivity,
                                                     ActivityPolicyFilter::ParentIgnoreActivity,
                                                     ActivityPolicyFilter::ProhibitNoneActive,
-                                                    ActivityPolicyFilter::SetNewActive);
+                                                    ActivityPolicyFilter::SetNewInactive);
 
     // TODO: This breaks the toolbar for some reason... Looks like a display issue since it only happens in QTabWidget:
     //rootNodeMinimumSelection->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
@@ -173,8 +218,9 @@ int main(int argc, char *argv[])
     ObserverWidget* minimum_selection_widget = new ObserverWidget(Qtilities::TableView);
     minimum_selection_widget->setObserverContext(rootNodeMinimumSelection);
     minimum_selection_widget->initialize();
-    tab_widget->addTab(minimum_selection_widget,QIcon(),"Forcing Minimum Selection In Table");
     minimum_selection_widget->show();
+    tab_widget->addTab(minimum_selection_widget,QIcon(),"Forcing Minimum Selection In Table");
+    rootNodeMinimumSelection->addItem("Child 5");
 
     // ------------------------------------
     // Big Table Shown Using Fetch More Implementation
@@ -187,8 +233,8 @@ int main(int argc, char *argv[])
     ObserverWidget* big_table_widget = new ObserverWidget(Qtilities::TableView);
     big_table_widget->setObserverContext(bigTableObserver);
     big_table_widget->initialize();
-    tab_widget->addTab(big_table_widget,QIcon(),"Big Table");
     big_table_widget->show();
+    tab_widget->addTab(big_table_widget,QIcon(),"Big Table");
 
     // ----------------------------------
     // Tree With Formatting
@@ -247,12 +293,12 @@ int main(int argc, char *argv[])
     nodeAFormatting->addNodeFromFile(path_test);*/
 
     TreeWidget* formatted_widget = new TreeWidget(nodeAFormatting);
-    tab_widget->addTab(formatted_widget,QIcon(),"Tree With Formatting");
     formatted_widget->show();
+    tab_widget->addTab(formatted_widget,QIcon(),"Tree With Formatting");
 
     tab_widget->show();
 
-    mainWindow.resize(600,500);
+    mainWindow.resize(800,500);
     mainWindow.show();
     return a.exec();
 }
