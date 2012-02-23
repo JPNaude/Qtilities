@@ -77,8 +77,12 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
     // Register this observer with the observer manager
     if (observer_name != QString(qti_def_GLOBAL_OBJECT_POOL))
         observerData->observer_id = OBJECT_MANAGER->registerObserver(this);
-    else
+    else {
         observerData->observer_id = 0;
+        observerData->broadcast_modification_state_changes = false;
+        observerData->deliver_qtilities_property_changed_events = false;
+        observerData->filter_subject_events_enabled = false;
+    }
 }
 
 Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.parent()) {
@@ -120,7 +124,6 @@ Qtilities::Core::Observer::~Observer() {
             Observer* obs = qobject_cast<Observer*> (obj);
             if (obs)
                 obs->startProcessingCycle();
-            // TODO handle containment approach here as well, thus if contained, set processing cycle on contained observer as well.
 
             subject_ownership_variant = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
             parent_observer_variant = getMultiContextPropertyValue(obj,qti_prop_PARENT_ID);
@@ -216,6 +219,7 @@ QStringList Qtilities::Core::Observer::reservedProperties() const {
 }
 
 void Qtilities::Core::Observer::toggleSubjectEventFiltering(bool toggle) {
+    //qDebug() << "toggleSubjectEventFiltering on observer" << observerName() << "set to" << toggle;
     observerData->filter_subject_events_enabled = toggle;
 }
 
@@ -359,12 +363,14 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
     // For observers we only notify targets if the actual state changed:
     if (observerData->is_modified != new_state || force_notifications) {
         observerData->is_modified = new_state;
-        if (notification_targets & IModificationNotifier::NotifyListeners)
-            emit modificationStateChanged(new_state);
+        if (!observerData->process_cycle_active) {
+            if (notification_targets & IModificationNotifier::NotifyListeners)
+                emit modificationStateChanged(new_state);
 
-        if (observerData->display_hints) {
-            if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint)
-                refreshViewsData(); // Processing cycle checked inside refreshViewsData():
+            if (observerData->display_hints) {
+                if (observerData->display_hints->modificationStateDisplayHint() != ObserverHints::NoModificationStateDisplayHint)
+                    refreshViewsData(); // Processing cycle checked inside refreshViewsData():
+            }
         }
     }
 }
@@ -406,12 +412,12 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
 //        qDebug() << "endProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
 
     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
+        if (isModified())
+            emit modificationStateChanged(true);
+
         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
-            if (isModified())
-                emit modificationStateChanged(true);
-
-            if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
+             if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
                 emit numberOfSubjectsChanged(Observer::SubjectRemoved);
                 emit layoutChanged();
             }  else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
@@ -478,6 +484,8 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     }
     #endif
     
+    QPointer<QObject> safe_obj = obj;
+
     if (canAttach(obj,object_ownership,rejectMsg) == Rejected)
         return false;
 
@@ -490,11 +498,18 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     }
 
     if (!passed_filters) {
+        if (!safe_obj)
+            return false;
+
         // Don't set change rejectMsg here, it will be set in initializeAttachment() above.
         LOG_DEBUG(QString("Observer (%1): Object (%2) attachment failed, attachment was rejected by one or more subject filter.").arg(objectName()).arg(obj->objectName()));
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             observerData->subject_filters.at(i)->finalizeAttachment(obj,false,import_cycle);
         }
+
+        if (!safe_obj)
+            return false;
+
         removeQtilitiesProperties(obj);
         return false;
     }
@@ -663,14 +678,6 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         // Check if this is an observer:
         bool has_mod_iface = false;
         Observer* obs = qobject_cast<Observer*> (obj);
-        if (!obs) {
-            foreach(QObject* child, obj->children()) {
-                obs = qobject_cast<Observer*> (child);
-                if (obs) {
-                    break;
-                }
-            }
-        }
         if (obs) {
             has_mod_iface = true;
             connect(obs,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
@@ -720,7 +727,6 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
     observerData->observer_mutex.tryLock();
     // Finalize the attachment in all subject filters, indicating that the attachment was succesfull.
-    QPointer<QObject> safe_obj = obj;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         observerData->subject_filters.at(i)->finalizeAttachment(obj,true,import_cycle);
     }
@@ -728,7 +734,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         QList<QPointer<QObject> > objects;
-        objects << obj;
+        objects << safe_obj;
 
         // Change layout only after finalzeAttachment() in all filters since they might add properties
         // used by views (activity policy filter for example)
@@ -791,7 +797,6 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     }
 
     // Check for circular dependancies:
-    // TODO: Is this going to work for containment approach?
     const Observer* observer_cast = qobject_cast<Observer*> (obj);
     if (observer_cast) {
         if (isParentInHierarchy(observer_cast,this)) {
@@ -976,6 +981,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             observerData->subject_filters.at(i)->finalizeDetachment(obj,false);
         }
+        observerData->filter_subject_events_enabled = currrent_filter_subject_events_enabled;
         return false;
     } else {
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
@@ -1151,7 +1157,7 @@ void Qtilities::Core::Observer::detachAll() {
     emit allSubjectsDetached();
 }
 
-void Qtilities::Core::Observer::deleteAll() {  
+void Qtilities::Core::Observer::deleteAll(const QString& base_class_name, bool refresh_views) {
     int total = observerData->subject_list.count();
     if (total == 0)
         return;
@@ -1163,11 +1169,13 @@ void Qtilities::Core::Observer::deleteAll() {
 
     startProcessingCycle();
     for (int i = 0; i < total; i++) {
-        // Validate operation against access mode if access mode scope is category:
-        QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
-        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
-        if (!isConst(category)) {
-            deleteObject(observerData->subject_list.at(0));
+        if (observerData->subject_list.at(0)->inherits(base_class_name.toAscii().data())) {
+            // Validate operation against access mode if access mode scope is category:
+            QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
+            QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+            if (!isConst(category)) {
+                deleteObject(observerData->subject_list.at(0));
+            }
         }
     }
 
@@ -1178,7 +1186,7 @@ void Qtilities::Core::Observer::deleteAll() {
     if (total != end_count)
         setModificationState(true);
 
-    endProcessingCycle();
+    endProcessingCycle(refresh_views);
     emit allSubjectsDeleted();
 }
 
@@ -2021,23 +2029,30 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event) {
         // Next check if it is a monitored property.
         if (contains(object) && monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
             // Handle changes from different threads:
-            if (!observerData->observer_mutex.tryLock()) {
+            if (!observerData->filter_subject_events_enabled) {
                 QList<QObject*> filtered_list;
                 filtered_list << object;
                 emit propertyChangeFiltered(propertyChangeEvent->propertyName().data(),filtered_list);
                 return true;
             }
 
+            observerData->filter_subject_events_enabled = false;
+
             // We now route the event that changed to the subject filter responsible for this property to validate the change.
             // If no subject filter is responsible, the observer needs to handle it itself.
+            QPointer<QObject> safe_object = object;
             bool filter_event = false;
             for (int i = 0; i < observerData->subject_filters.count(); i++) {
                 if (observerData->subject_filters.at(i)) {
                     if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
-                        filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
+                        bool int_filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
+                        if (!filter_event && int_filter_event)
+                            filter_event = true;
                     }
                 }
             }
+            if (!safe_object)
+                return true;
 
             // Check if internal properties added by the Observer is being changed:
             // Todo - Check if this is done in above mutex check?
@@ -2090,8 +2105,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event) {
                 }
             }
 
-            // Unlock the mutex and return
-            observerData->observer_mutex.unlock();
+            observerData->filter_subject_events_enabled = true;
             return filter_event;
         }
     }
@@ -2208,14 +2222,6 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::observerList(QList<
     QList<Observer*> observer_list;
     for (int i = 0; i < object_list.count(); i++) {
         Observer* obs = qobject_cast<Observer*> (object_list.at(i));
-        if (!obs) {
-            // Check children of the object.
-            foreach (QObject* child, object_list.at(i)->children()) {
-                obs = qobject_cast<Observer*> (child);
-                if (obs)
-                    break;
-            }
-        }
         if (obs)
             observer_list << obs;
     }

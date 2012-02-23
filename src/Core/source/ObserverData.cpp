@@ -937,14 +937,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         delete relational_table;
 
     if (result == IExportable::Failed || result == IExportable::VersionTooOld || result == IExportable::VersionTooNew) {
-        LOG_TASK_WARNING(QObject::tr("Binary export of observer ") + observer->observerName() + QObject::tr(" failed."),exportTask());
+        LOG_TASK_WARNING(QObject::tr("Xml export of observer ") + observer->observerName() + QObject::tr(" failed."),exportTask());
         return result;
     } else {
         if (result == IExportable::Incomplete || !complete) {
-            LOG_TASK_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (incomplete).")),exportTask());
+            LOG_TASK_DEBUG(QObject::tr("Xml export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (incomplete).")),exportTask());
             return IExportable::Incomplete;
         } else {
-            LOG_TASK_DEBUG(QObject::tr("Binary export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (complete).")),exportTask());
+            LOG_TASK_DEBUG(QObject::tr("Xml export of observer ") + observer->observerName() + QString(QObject::tr(" was successful (complete).")),exportTask());
             return IExportable::Complete;
         }
     }
@@ -1142,10 +1142,11 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                         if (childrenChild.hasAttribute("Ownership")) {
                                             ownership = Observer::stringToObjectOwnership(childrenChild.attribute("Ownership"));
                                         }
-                                        if (observer->attachSubject(iface->objectBase(),ownership)) {
+                                        QString error_msg;
+                                        if (observer->attachSubject(iface->objectBase(),ownership,&error_msg)) {
                                             import_list << obj;
                                         } else {
-                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to attach reconstructed object to tree node: %1. Import will be incomplete.")).arg(observer->observerName()),exportTask());
+                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to attach reconstructed object \"%1\" to tree node: %2. Import will be incomplete.")).arg(observer->observerName()).arg(error_msg),exportTask());
                                             delete obj;
                                             result = IExportable::Incomplete;
                                             continue;
@@ -1297,15 +1298,6 @@ bool Qtilities::Core::ObserverData::constructRelationships(QList<QPointer<QObjec
         int visitor_id = ObserverRelationalTable::getVisitorID(objects.at(i));
         RelationalTableEntry* entry = table->entryWithVisitorID(visitor_id);
         Observer* obs = qobject_cast<Observer*> (objects.at(i));
-        if (!obs) {
-            // Check children of the object.
-            foreach (QObject* child, objects.at(i)->children()) {
-                obs = qobject_cast<Observer*> (child);
-                if (obs)
-                    break;
-            }
-        }
-
         if (obs) {
             LOG_TASK_DEBUG(QString("Doing session ID mapping on observer \"%1\": Previous ID: %2, Current ID: %3").arg(obs->observerName()).arg(entry->sessionID()).arg(obs->observerID()),exportTask());
             entry->setPreviousSessionID(entry->sessionID());
@@ -1516,18 +1508,6 @@ QList<IExportable*> Qtilities::Core::ObserverData::getLimitedExportsList(QList<Q
     for (int i = 0; i < objects.count(); i++) {
         QObject* obj = objects.at(i);
         IExportable* iface = qobject_cast<IExportable*> (obj);
-        // When doing containment, the containment class should reconstruct the contained observer: Otherwise
-        // reconstruction will just skip the containment class and attach the contained observer directly
-        // to the parent of the containment class.
-        //
-        // if (!iface) {
-        //     foreach (QObject* child, obj->children()) {
-        //     Observer* obs = qobject_cast<Observer*> (child);
-        //     if (obs) {
-        //         iface = obs;
-        //         break;
-        //     }
-        // }
 
         if (iface) {
             if (!(iface->supportedFormats() & export_mode)) {

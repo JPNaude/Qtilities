@@ -80,6 +80,7 @@ namespace Qtilities {
 
             ObserverData(Observer* obs, const QString& observer_name) : subject_limit(-1),
                 subject_id_counter(0),
+                filter_subject_events_lock(true),
                 filter_subject_events_enabled(false),
                 deliver_qtilities_property_changed_events(false),
                 access_mode(0),
@@ -102,6 +103,7 @@ namespace Qtilities {
                 subject_filters(other.subject_filters),
                 subject_limit(other.subject_limit),
                 subject_id_counter(0),
+                filter_subject_events_lock(true),
                 filter_subject_events_enabled(other.filter_subject_events_enabled),
                 deliver_qtilities_property_changed_events(other.deliver_qtilities_property_changed_events),
                 access_mode(other.access_mode),
@@ -177,6 +179,7 @@ namespace Qtilities {
             int                                 observer_id;
             QString                             observer_description;
             QMutex                              observer_mutex;
+            bool                                filter_subject_events_lock;
             bool                                filter_subject_events_enabled;
             bool                                deliver_qtilities_property_changed_events;
             int                                 access_mode;

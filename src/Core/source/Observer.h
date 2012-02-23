@@ -749,7 +749,11 @@ obs.endProcessingCycle(); // Internal count = 0;
             //! Function to detach all currently observed subjects.
             virtual void detachAll();
             //! Function to delete all currenlty observed subjects.
-            virtual void deleteAll();
+            /*!
+              \param base_class_name Specifies that only items inheriting the specified base class must be deleted.
+              \param refresh_views Indicates if this function must refresh all observer views when done.
+              */
+            virtual void deleteAll(const QString &base_class_name = "QObject", bool refresh_views = true);
 
         private slots:
             //! Will handle an object which has been deleted somewhere else in the application.
