@@ -94,6 +94,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     d->proxyModel = new QSortFilterProxyModel(this);
     d->proxyModel->setSourceModel(&d->logger_engine_model);
     ui->tableViewLoggerEngines->setModel(d->proxyModel);
+    ui->tableViewLoggerEngines->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableViewLoggerEngines->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewLoggerEngines->setSortingEnabled(true);
     ui->tableViewLoggerEngines->verticalHeader()->setVisible(false);
     for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
@@ -368,19 +370,23 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
-    if (!d->proxyModel)
+    if (!d->proxyModel) {
+        d->active_engine = 0;
         return;
+    }
 
     // Get the engine at the position:
-    QItemSelection selection = d->proxyModel->mapSelectionToSource(ui->tableViewLoggerEngines->selectionModel()->selection());
-    if (selection.count() > 0) {
-        if (selection.indexes().front().row() < 0 || selection.indexes().front().row() >= Log->attachedLoggerEngineCount())
+    QModelIndex mapped_index = d->proxyModel->mapToSource(ui->tableViewLoggerEngines->currentIndex());
+    if (!mapped_index.isValid())
+        d->active_engine = 0;
+    else {
+        if (mapped_index.row() < 0 || mapped_index.row() >= Log->attachedLoggerEngineCount())
             d->active_engine = 0;
         else
-            d->active_engine = Log->loggerEngineReferenceAt(selection.indexes().front().row());
-    } else
-        d->active_engine = 0;
+            d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
+    }
 
+    qDebug() << "Active logger engine" << d->active_engine;
     refreshLoggerEngineInformation();
 }
 
