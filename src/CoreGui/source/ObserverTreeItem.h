@@ -94,13 +94,6 @@ namespace Qtilities {
             //! Gets the category represented through this item. Only used with CategoryItem types.
             inline QtilitiesCategory category() const { return category_id; }
             //! Sets a references to an observer in the case where the observer is contained within an interface.
-            /*!
-                This is used in cases where a non-observer based child is the parent of an observer.
-                An example of this where the requirement is an QObject based interface, thus
-                the object can't inherit from Observer directly. It can but it defeats the purpose of an
-                abstract interface which needs to hide the actual implementation. In such cases use the
-                observer class through containment and make the interface implementation it's parent.
-              */
             inline void setContainedObserver(Observer* contained_observer) { contained_observer_ref = contained_observer; }
             //! Gets the contained observer reference. The reference is held by the category item.
             inline Observer* containedObserver() const { return contained_observer_ref; }

@@ -135,16 +135,6 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
         QApplication::processEvents();
 
     if (!observer && item->getObject()) {
-        // Handle cases where a non-observer based child is the parent of an observer.
-        // Observer containment tree building approach.
-        foreach (QObject* child, item->getObject()->children()) {
-            Observer* child_observer = qobject_cast<Observer*> (child);
-            if (child_observer)
-                observer = child_observer;
-        }
-    }
-
-    if (!observer && item->getObject()) {
         // Handle cases where the item is a category item
         if (item->itemType() == ObserverTreeItem::CategoryItem) {
             // Get the observer from the parent of item

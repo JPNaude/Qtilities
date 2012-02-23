@@ -228,6 +228,14 @@ categorized_widget->show();
             ObserverTreeModel* treeModel() const;
             QAbstractProxyModel* proxyModel() const;
 
+            //! Disables usage of proxy filter models.
+            /*!
+              This function must be called before initializing the widget for the first time, and it cannot be enabled once it was disabled.
+
+              \note When disabling proxy models, the search box is not available. See toggleSearchBox().
+              */
+            void disableProxyModels() const;
+
         public:
             //! Sets the display mode of the widget.
             /*!
@@ -803,6 +811,9 @@ categorized_widget->show();
               */
             virtual void handle_actionPaste_triggered();
             //! Toggles the visibility of the SearchBoxWidget at the bottom of the ObserverWidget.
+            /*!
+              \note When proxy models are disabled, the search box is not available and this function does nothing. See disableProxyModels().
+              */
             void toggleSearchBox();
             //! Collapse all items in the tree view to a depth of 1 in TreeView mode.
             virtual void viewCollapseAll();

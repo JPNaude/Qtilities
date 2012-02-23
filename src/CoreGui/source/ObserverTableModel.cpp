@@ -335,24 +335,11 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
             Observer* observer = qobject_cast<Observer*> (obj);
             if (observer) {
                 int count = observer->treeCount(columnChildCountBaseClass(),false,columnChildCountLimit());
-                if (count > columnChildCountLimit())
+                if (count > columnChildCountLimit() - 1)
                     return QString("> %1").arg(columnChildCountLimit() -1);
                 else
                     return count;
-            }/* DROP CONTAINMENT SUPPORT else {
-                // Handle the case where the child is the parent of an observer
-                int count = 0;
-                foreach (QObject* child, obj->children()) {
-                    Observer* child_observer = qobject_cast<Observer*> (child);
-                    if (child_observer)
-                        count += child_observer->treeCount();
-                }
-
-                if (count == 0)
-                    return QVariant();
-                else
-                    return count;
-            }*/
+            }
         }
     // ------------------------------------
     // Handle Subject Type Info Column
@@ -378,15 +365,6 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
                 return QVariant();
 
             Observer* observer = qobject_cast<Observer*> (obj);
-            if (!observer) {
-                // Handle the case where the child is the parent of an observer
-                foreach (QObject* child, obj->children()) {
-                    observer = qobject_cast<Observer*> (child);
-                    if (observer)
-                        break;
-                }
-            }
-
             if (observer) {
                 if (observer->accessMode() == Observer::FullAccess)
                     return QVariant();
@@ -568,7 +546,12 @@ void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
     if (!respondToObserverChanges()) {
         qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in table model";
         return;
+    } else {
+        qDebug() << "Responding to data changes to observer" << d_observer->observerName() << "in table model";
     }
+
+    if (d_observer->observerName() == "Products")
+        int i = 5;
 
     emit dataChanged(createIndex(0,0),createIndex(rowCount()-1,columnCount()-1));
 }
@@ -578,8 +561,10 @@ void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
         return;
 
     if (!respondToObserverChanges()) {
-        qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in table model";
+        qDebug() << "Ignoring layout changes to observer" << d_observer->observerName() << "in table model";
         return;
+    } else {
+        qDebug() << "Responding to layout changes to observer" << d_observer->observerName() << "in table model";
     }
 
     d->fetch_count = qMin(100, d_observer->subjectCount());
