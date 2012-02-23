@@ -512,16 +512,6 @@ void Qtilities::Core::ObserverRelationalTable::removeRelationalProperties(Observ
         if (obs)
             is_observer = true;
 
-        if (!obs) {
-            for (int r = 0; r < obj->children().count(); r++) {
-                obs = qobject_cast<Observer*> (obj->children().at(r));
-                if (obs) {
-                    has_child_observer = true;
-                    break;
-                }
-            }
-        }
-
         if (is_iface && is_observer) {
             removeRelationalProperties(obs);
         } else if (!is_iface && has_child_observer) {
@@ -687,16 +677,6 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
         if (obs)
             is_observer = true;
 
-        if (!obs) {
-            for (int r = 0; r < obj->children().count(); r++) {
-                obs = qobject_cast<Observer*> (obj->children().at(r));
-                if (obs) {
-                    has_child_observer = true;
-                    break;
-                }
-            }
-        }
-
         // The way this relational table is build follows the way Observers export
         // hierarchical structures underneath them.
         // That is, IExportable interfaces gets the highest priority, then normal subjects. In the
@@ -717,13 +697,6 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
             else
                 break;
         } else if (!is_iface && has_child_observer) {
-            // Now inspect the subject.
-            for (int r = 0; r < obj->children().count(); r++) {
-                obs = qobject_cast<Observer*> (obj->children().at(r));
-                if (obs)
-                    break;
-            }
-
             subject_entry = constructTable(obs);
             subject_id = subject_entry->visitorID();
             // Now add this observer as a parent to the subject
