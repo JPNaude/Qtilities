@@ -89,6 +89,11 @@ namespace Qtilities {
             //! Sets the current list of string.
             void setStringList(const QStringList& string_list);
 
+            //! Gets the current list of non-removable only strings.
+            QStringList nonRemovableStringList() const;
+            //! Sets the current list of non-removable only strings.
+            void setNonRemovableStringList(const QStringList& string_list);
+
             //! Gets the string type.
             QString stringType() const;
             //! Sets the string type.

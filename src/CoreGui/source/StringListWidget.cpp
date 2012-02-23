@@ -39,6 +39,7 @@
 #include <QInputDialog>
 #include <QStringListModel>
 #include <QFileDialog>
+#include <QMessageBox>
 
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
@@ -51,6 +52,7 @@ struct Qtilities::CoreGui::StringListWidgetPrivateData {
     QAction*                        actionRemoveString;
     QString                         string_type;
     StringListWidget::ListType      list_type;
+    QStringList                     non_removable_strings;
 
     QString                         open_dialog_filter;
     QString                         open_dialog_path;
@@ -98,6 +100,14 @@ void Qtilities::CoreGui::StringListWidget::setStringList(const QStringList& stri
     d->model.setStringList(string_list);
 
     emit stringListChanged(d->model.stringList());
+}
+
+QStringList Qtilities::CoreGui::StringListWidget::nonRemovableStringList() const {
+    return d->non_removable_strings;
+}
+
+void Qtilities::CoreGui::StringListWidget::setNonRemovableStringList(const QStringList &string_list) {
+    d->non_removable_strings = string_list;
 }
 
 QString Qtilities::CoreGui::StringListWidget::stringType() const {
@@ -178,8 +188,16 @@ void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
             selected_list << d->model.data(ui->listView->selectionModel()->selectedIndexes().at(i),Qt::DisplayRole).toString();
 
         QStringList new_list = d->model.stringList();
-        foreach (QString string, selected_list)
-            new_list.removeOne(string);
+        foreach (QString string, selected_list) {
+            if (!d->non_removable_strings.contains(string)) {
+                new_list.removeOne(string);
+            } else {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
+                msgBox.setText("The following item cannot be removed:<br><br>" + string + "<br><br>It was marked as non-removable.");
+                msgBox.exec();
+            }
+        }
         d->model.setStringList(new_list);
     }
 }
