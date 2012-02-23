@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Registered Help Files</string>
+      <string>Registered Documentation</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

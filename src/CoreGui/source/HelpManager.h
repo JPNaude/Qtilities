@@ -157,6 +157,16 @@ bool MyPlugins::initializeDependencies(QStringList *error_strings) {
             //! Reads the help settings.
             void readSettings(bool initialize_after_change = true);
 
+            //! Formats file names into the format used by the help manager.
+            static QString formatFileName(const QString& file_name);
+
+            //! Request a help page to be shown in any help browsers connected to the help manager.
+            /*!
+              When the %Qtilities help plugin is loaded in your application, this function will load the requested page in the help plugin and
+              if \p ensure_visible is true, the application will switch to the help mode provided by the help plugin.
+              */
+            void requestUrlDisplay(const QUrl& url, bool ensure_visible = true);
+
         private slots:
             //! Logs warning messages from the help engine in the logger.
             void logMessage(const QString& message);
@@ -164,6 +174,8 @@ bool MyPlugins::initializeDependencies(QStringList *error_strings) {
         signals:
             //! Signal which is emitted when the files registered in the engine is changed.
             void registeredFilesChanged(const QStringList& files);
+            //! Signal used to forward help display requests to any help browsers connected to the help manager.
+            void forwardRequestUrlDisplay(const QUrl& url, bool ensure_visible = true);
 
         private:
             //! Unregister all files.

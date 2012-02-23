@@ -132,8 +132,10 @@ namespace Qtilities {
                 void toggleDock(bool toggle);
                 //! Handles a new help widget. This function makes the neccessary connections.
                 void handleNewHelpWidget(QWidget* widget);
-                //! Handles QUrl requests from the help side widgets.
+                //! Display the page at \p url.
                 void handleUrl(const QUrl& url);
+                //! Handle requests from the help manager to display the url.
+                void handleUrlRequest(const QUrl& url, bool ensure_visible);
 
             private:
                 HelpModeData* d;

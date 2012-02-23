@@ -106,11 +106,13 @@ void HelpManager::initialize() {
         QString filename = registered_file;
 
         QFile file(filename);
-        QTemporaryFile *temp_file =QTemporaryFile::createLocalFile(file);
-        if (temp_file) {
-            filename = temp_file->fileName();
-            temp_file->setParent(this);
-            temp_file->setAutoRemove(true);
+        if (file.open(QFile::ReadOnly)) {
+            QTemporaryFile *temp_file = QTemporaryFile::createLocalFile(file);
+            if (temp_file) {
+                filename = temp_file->fileName();
+                temp_file->setParent(this);
+                temp_file->setAutoRemove(true);
+            }
         }
 
         if (!d->helpEngine->registerDocumentation(filename))
@@ -162,9 +164,10 @@ void HelpManager::unregisterAllNamespaces() {
 
 void HelpManager::registerFiles(const QStringList &files, bool initialize_after_change) {
     foreach (QString file, files) {
-        if (d->registered_files.contains(file))
+        QString formatted_file = formatFileName(file);
+        if (d->registered_files.contains(formatted_file,Qt::CaseInsensitive))
             continue;
-        d->registered_files << file;
+        d->registered_files << formatted_file;
     }
 
     if (initialize_after_change)
@@ -174,10 +177,11 @@ void HelpManager::registerFiles(const QStringList &files, bool initialize_after_
 }
 
 void HelpManager::registerFile(const QString &file, bool initialize_after_change) {
-    if (d->registered_files.contains(file))
+    QString formatted_file = formatFileName(file);
+    if (d->registered_files.contains(formatted_file,Qt::CaseInsensitive))
         return;
 
-    d->registered_files << file;
+    d->registered_files << formatted_file;
     if (initialize_after_change)
         initialize();
 
@@ -191,7 +195,7 @@ QStringList HelpManager::registeredFiles() const {
 void HelpManager::unregisterFiles(const QStringList &files, bool initialize_after_change) {
     QStringList old_files = d->registered_files;
     foreach (QString file, files)
-        d->registered_files.removeAll(file);
+        d->registered_files.removeAll(formatFileName(file));
 
     if (old_files == d->registered_files)
         return;
@@ -203,10 +207,11 @@ void HelpManager::unregisterFiles(const QStringList &files, bool initialize_afte
 }
 
 void HelpManager::unregisterFile(const QString &file, bool initialize_after_change) {
-    if (!d->registered_files.contains(file))
+    QString formatted_file = formatFileName(file);
+    if (!d->registered_files.contains(formatted_file,Qt::CaseInsensitive))
         return;
 
-    d->registered_files << file;
+    d->registered_files << formatted_file;
     if (initialize_after_change)
         initialize();
 
@@ -236,4 +241,18 @@ void Qtilities::CoreGui::HelpManager::writeSettings() {
     settings.setValue("registered_files",d->registered_files);
     settings.endGroup();
     settings.endGroup();
+}
+
+QString Qtilities::CoreGui::HelpManager::formatFileName(const QString &file_name) {
+    QString formatted_name;
+    #ifdef Q_OS_WIN
+    formatted_name = QDir::fromNativeSeparators(QDir::cleanPath(file_name));
+    #else
+    formatted_name = QDir::toNativeSeparators(QDir::cleanPath(file_name));
+    #endif
+    return formatted_name;
+}
+
+void HelpManager::requestUrlDisplay(const QUrl &url, bool ensure_visible) {
+    emit forwardRequestUrlDisplay(url,ensure_visible);
 }

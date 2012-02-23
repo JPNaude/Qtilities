@@ -54,9 +54,9 @@ Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
     files_widget.show();
     files_widget.setListType(StringListWidget::FilePaths);
     files_widget.setFileOpenDialogFilter("Help Files (*.qch)");
-    files_widget.setStringList(HELP_MANAGER->registeredFiles());
 
     connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
+    handleFilesChanged(HELP_MANAGER->registeredFiles());
 }
 
 Qtilities::Plugins::Help::HelpPluginConfig::~HelpPluginConfig() {
@@ -99,8 +99,12 @@ void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::handleFilesChanged(const QStringList& files) {
-    QStringList native_paths;
-    foreach (QString file, files)
-        native_paths << QDir::toNativeSeparators(file);
-    files_widget.setStringList(native_paths);
+    // All paths in resources, thus starting with :/ are relative.
+    QStringList read_only_paths;
+    foreach (QString file, files) {
+        if (file.startsWith(":/"))
+            read_only_paths << HelpManager::formatFileName(file);
+    }
+    files_widget.setStringList(files);
+    files_widget.setNonRemovableStringList(read_only_paths);
 }

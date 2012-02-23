@@ -217,6 +217,8 @@ void HelpMode::initiallize() {
     // Load the home page:
     if (HELP_MANAGER->homePage().isValid())
         d->browser->webView()->load(HELP_MANAGER->homePage());
+
+    connect(HELP_MANAGER,SIGNAL(forwardRequestUrlDisplay(QUrl,bool)),SLOT(handleUrlRequest(QUrl,bool)),Qt::UniqueConnection);
 }
 
 void HelpMode::toggleDock(bool toggle) {
@@ -283,4 +285,16 @@ void HelpMode::handleNewHelpWidget(QWidget* widget) {
 
 void HelpMode::handleUrl(const QUrl& url) {
     d->browser->webView()->load(url);
+}
+
+void HelpMode::handleUrlRequest(const QUrl &url, bool ensure_visible) {
+    handleUrl(url);
+    if (ensure_visible) {
+        QtilitiesMainWindow* main_window = qobject_cast<QtilitiesMainWindow*> (QtilitiesApplication::mainWindow());
+        if (main_window) {
+            if (main_window->modeManager()) {
+                main_window->modeManager()->setActiveMode(modeName());
+            }
+        }
+    }
 }
