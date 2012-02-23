@@ -175,6 +175,24 @@ settings.endGroup();
             //! Checks if a configuration page with the given name exists and if so returns a pointer to the interface.
             IConfigPage* getPage(const QString& page_name) const;
 
+            //! Sets if the configuration widget groups pages with the same categories under tabs in pages named using the name of the category.
+            /*!
+              False by default.
+
+              \note You must call this function before initialize().
+
+              \sa categorizedTabDisplay();
+
+              This function was introduced in %Qtilities v1.1.
+              */
+            void setCategorizedTabDisplay(bool enabled = true);
+            //! Gets if the configuration widget groups pages with the same categories under tabs in pages named using the name of the category.
+            /*!
+              \sa setCategorizedTabDisplay()
+
+              This function was introduced in %Qtilities v1.1.
+              */
+            bool categorizedTabDisplay() const;
        signals:
             //! Signal emitted whenever a config page is applied.
             void appliedPage(IConfigPage* conig_page);

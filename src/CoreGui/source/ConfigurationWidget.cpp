@@ -45,9 +45,10 @@ using namespace Qtilities::CoreGui::Interfaces;
 
 struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     ConfigurationWidgetPrivateData() : config_pages(QObject::tr("Application Settings")),
-    activity_filter(0),
-    active_widget(0),
-    apply_all_pages(true) {}
+        activity_filter(0),
+        active_widget(0),
+        apply_all_pages(true),
+        categorized_display(false) {}
 
     //! Observer widget which is used to display the categories of the config pages.
     ObserverWidget          config_pages_widget;
@@ -63,6 +64,8 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     Qtilities::DisplayMode  display_mode;
     //! The apply all pages setting for this widget.
     bool                    apply_all_pages;
+    //! Indicates if this widgets uses a categorized display.
+    bool                    categorized_display;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :
@@ -116,50 +119,65 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     int max_width = -1;
     int max_height = -1;
 
-    // Add all the pages to the config pages observer:
-    for (int i = 0; i < config_pages.count(); i++) {
-        IConfigPage* config_page = config_pages.at(i);
-        if (config_page) {
-            if (config_page->configPageWidget()) {
-                if (d->config_pages.contains(config_pages.at(i)->objectBase())) {
-                    if (config_page->configPageWidget()->size().width() > max_width)
-                        max_width = config_page->configPageWidget()->sizeHint().width();
-                    if (config_page->configPageWidget()->size().height() > max_height)
-                        max_height = config_page->configPageWidget()->sizeHint().height();
-                    continue;
-                }
-
-                // Set the object name to the page title:
-                config_page->objectBase()->setObjectName(config_page->configPageTitle());
-
-                // Add the category as a property on the object:
-                if (!config_page->configPageCategory().isEmpty()) {
-                    if (ObjectManager::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
-                        MultiContextProperty category_property = ObjectManager::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
-                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-                            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
-                    } else {
-                        MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
-                        if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
-                            ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
-                    }
-                }
-                // Add the icon as a property on the object:
-                if (!config_page->configPageIcon().isNull()) {
-                    SharedProperty icon_property(qti_prop_DECORATION,config_page->configPageIcon());
-                    ObjectManager::setSharedProperty(config_page->objectBase(),icon_property);
-                }
-
-                if (d->config_pages.attachSubject(config_page->objectBase())) {
-                    if (config_page->configPageWidget()->size().width() > max_width)
-                        max_width = config_page->configPageWidget()->sizeHint().width();
-                    if (config_page->configPageWidget()->size().height() > max_height)
-                        max_height = config_page->configPageWidget()->sizeHint().height();
-                }
-            } else {
-                LOG_DEBUG("Found configuration page \"" + config_page->configPageTitle() + "\" without a valid configuration widget. This page will not be shown.");
+    if (d->categorized_display) {
+        QStringList categories;
+        QMap<IConfigPage*,QString> config_page_category_map;
+        // Add all the pages to the config pages observer:
+        for (int i = 0; i < config_pages.count(); i++) {
+            IConfigPage* config_page = config_pages.at(i);
+            if (config_page) {
+                categories << config_page->configPageCategory().toString();
+                config_page_category_map[config_page] = config_page->configPageCategory().toString();
             }
         }
+    } else {
+        // Add all the pages to the config pages observer:
+        d->config_pages.startProcessingCycle();
+        for (int i = 0; i < config_pages.count(); i++) {
+            IConfigPage* config_page = config_pages.at(i);
+            if (config_page) {
+                if (config_page->configPageWidget()) {
+                    if (d->config_pages.contains(config_pages.at(i)->objectBase())) {
+                        if (config_page->configPageWidget()->size().width() > max_width)
+                            max_width = config_page->configPageWidget()->sizeHint().width();
+                        if (config_page->configPageWidget()->size().height() > max_height)
+                            max_height = config_page->configPageWidget()->sizeHint().height();
+                        continue;
+                    }
+
+                    // Set the object name to the page title:
+                    config_page->objectBase()->setObjectName(config_page->configPageTitle());
+
+                    // Add the category as a property on the object:
+                    if (!config_page->configPageCategory().isEmpty()) {
+                        if (ObjectManager::propertyExists(config_page->objectBase(),qti_prop_CATEGORY_MAP)) {
+                            MultiContextProperty category_property = ObjectManager::getMultiContextProperty(config_page->objectBase(),qti_prop_CATEGORY_MAP);
+                            if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
+                                ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
+                        } else {
+                            MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
+                            if (category_property.setValue(qVariantFromValue(config_page->configPageCategory()),d->config_pages.observerID()))
+                                ObjectManager::setMultiContextProperty(config_page->objectBase(),category_property);
+                        }
+                    }
+                    // Add the icon as a property on the object:
+                    if (!config_page->configPageIcon().isNull()) {
+                        SharedProperty icon_property(qti_prop_DECORATION,config_page->configPageIcon());
+                        ObjectManager::setSharedProperty(config_page->objectBase(),icon_property);
+                    }
+
+                    if (d->config_pages.attachSubject(config_page->objectBase())) {
+                        if (config_page->configPageWidget()->size().width() > max_width)
+                            max_width = config_page->configPageWidget()->sizeHint().width();
+                        if (config_page->configPageWidget()->size().height() > max_height)
+                            max_height = config_page->configPageWidget()->sizeHint().height();
+                    }
+                } else {
+                    LOG_DEBUG("Found configuration page \"" + config_page->configPageTitle() + "\" without a valid configuration widget. This page will not be shown.");
+                }
+            }
+        }
+        d->config_pages.endProcessingCycle();
     }
 
     // Check if the max sizes are bigger than the current size. If so we need to resize:
@@ -197,14 +215,15 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->config_pages_widget.treeView()->sortByColumn(1,Qt::AscendingOrder);
     }
 
+    if (d->config_pages.subjectCount() > 0)
+        d->activity_filter->setActiveSubject(d->config_pages.subjectAt(0));
+
     d->initialized = true;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> config_pages) {
-    if (config_pages.isEmpty()) {
-        config_pages = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IConfigPage/1.0");
-        LOG_DEBUG(QString("%1 configuration page(s) found.").arg(config_pages.count()));
-    }
+    config_pages = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IConfigPage/1.0");
+    LOG_DEBUG(QString("%1 configuration page(s) found.").arg(config_pages.count()));
 
     QList<IConfigPage*> config_ifaces;
     for (int i = 0; i < config_pages.count(); i++) {
@@ -268,6 +287,14 @@ IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& pag
     }
 
     return 0;
+}
+
+void Qtilities::CoreGui::ConfigurationWidget::setCategorizedTabDisplay(bool enabled) {
+    d->categorized_display = enabled;
+}
+
+bool Qtilities::CoreGui::ConfigurationWidget::categorizedTabDisplay() const {
+    return d->categorized_display;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObject*> active_pages) {
