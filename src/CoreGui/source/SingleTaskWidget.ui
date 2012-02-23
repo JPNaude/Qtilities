@@ -65,7 +65,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources/CoreGui.qrc">
+         <iconset>
           <normaloff>:/icons/task_stop_22x22.png</normaloff>:/icons/task_stop_22x22.png</iconset>
         </property>
         <property name="autoRaise">
@@ -91,7 +91,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources/CoreGui.qrc">
+         <iconset>
           <normaloff>:/icons/delete_red_16x16.png</normaloff>:/icons/delete_red_16x16.png</iconset>
         </property>
         <property name="autoRaise">
@@ -101,22 +101,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>2</width>
-       <height>10</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <widget class="QLabel" name="lblTaskName">
@@ -141,6 +125,22 @@
     </widget>
    </item>
    <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>2</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="minimumSize">
       <size>
@@ -150,7 +150,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>100</width>
+       <width>16777215</width>
        <height>8</height>
       </size>
      </property>
@@ -231,7 +231,7 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../resources/CoreGui.qrc">
+         <iconset>
           <normaloff>:/icons/delete_red_16x16.png</normaloff>:/icons/delete_red_16x16.png</iconset>
         </property>
         <property name="autoRaise">
@@ -250,8 +250,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="../resources/CoreGui.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

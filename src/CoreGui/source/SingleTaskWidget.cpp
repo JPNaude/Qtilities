@@ -87,6 +87,13 @@ Qtilities::CoreGui::SingleTaskWidget::SingleTaskWidget(int task_id, QWidget* par
     ui->btnStart->setIcon(QIcon(qti_icon_TASK_START_22x22));
     ui->btnStart->setToolTip(tr("Task Has Not Been Started. Click to start it."));
 
+    // Hide Stop and Pause buttons widget if those buttons are not shown.
+    if (!d->task->canStop() && !d->task->canPause()) {
+        ui->widgetRightButtonsHolder->setVisible(false);
+    } else {
+        ui->widgetRightButtonsHolder->setVisible(true);
+    }
+
     // Log Button
     ui->btnShowLog->setVisible(d->task->loggingEnabled());
 
