@@ -8,6 +8,7 @@ Qtilities v1.1 Changes
       This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff
       and you don't need to link against QtHelp when it is defined.
     - All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
+    - Removed support for containment approach of building trees.
 
     ============================
     QtilitiesLogging:
@@ -31,6 +32,17 @@ Qtilities v1.1 Changes
     - Observer::treeCount() optimized to only do a recount of the tree when the tree was modified. Its not const anymore, and
       you can can force a rebuild using the new force_recount parameter.
     - Fixed bug where Observer::observerName() could return the wrong name in some cases.
+    - Observer::treeChildren() and Observer::treeCount() got a new limit parameter.
+    - Fixed bug where ActivityPolicyFilter::ParentFollowActivity was not handled correctly.
+    - Fixed QtilitiesFileInfo::compareActualFilePaths() not working when paths use different separators.
+    - Object pool observer no longer filters events on subjects.
+    - Object pool observer broadcast modification state changes.
+    - Removed containment support from Observer.
+    - Observer::setModificationState() will now broadcast changes even if a processing cycle is active on the observer.
+    - Observer::attachSubject() will no longer crash if the object being attached is deleted during initialization in any subject filters.
+    - Observer::detachSubject() did not restore filtering of subject events properly in some cases.
+    - Observer::deleteAll() got new parameter to specify that only objects inheriting a specified base class must be deleted, as well as a parameter which inidcates if views must be refreshed when the operation is completed.
+    - Observer::eventFilter() will no longer crash if the object on which the event is being filtered is deleted during property validation in any subject filters.
 
     ============================
     QtilitiesCoreGui:
@@ -99,6 +111,17 @@ Qtilities v1.1 Changes
     - Fixed issue with ObserverTableModel dataChanged() not passing the correct indexes to the view, and thus not updating it.
     - Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with
       the same functionilty on ObserverTableModel.
+    - Fixed problem in ObserverWidget where it could have accidentally removed all action toolbars it created during setReadOnly().
+    - AbstractObserverItemModel now supports disabling of responses to observer changes. When toggling display mode in ObserverWidget it will automatically
+      disable the correct model.
+    - Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to show only children in the child count column which inherit from a specific base class.
+    - Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to limit the child count column counter.
+    - It is now possible to disable proxy filter models in ObserverWidget through disableProxyModels().
+    - Moved setReadOnly() and readOnly() to AbstractObserverItemModel from ObserverTableModel and ObserverTreeModel.
+    - Improved layout of SingleTaskWidget.
+    - TaskManagerGui::assignLoggerEngineToTask() is now public.
+    - Fixed crash in NamingPolicyFilter when conflicting object is deleted in any name handler dialogs.
+    - StringListWidget now allows you to specify non-removable items.
 
     ============================
     QtilitiesExtensionSystem:
