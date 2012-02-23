@@ -109,8 +109,8 @@ QString Qtilities::Core::QtilitiesFileInfo::actualFilePath() const {
 }
 
 bool Qtilities::Core::QtilitiesFileInfo::compareActualFilePaths(const QtilitiesFileInfo& ref) const {
-    QString path1 = actualFilePath();
-    QString path2 = ref.actualFilePath();
+    QString path1 = QDir::toNativeSeparators(QDir::cleanPath(actualFilePath()));
+    QString path2 = QDir::toNativeSeparators(QDir::cleanPath(ref.actualFilePath()));
 
     if (path1.compare(path2,Qt::CaseInsensitive) == 0)
         return true;
