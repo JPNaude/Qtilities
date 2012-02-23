@@ -400,6 +400,7 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
         return true;
 
     d->rollback_name = obj->objectName();
+    QPointer<QObject> safe_obj = obj;
 
     // Get name of new subject/object
     // New names are extracted in the following order
@@ -429,6 +430,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::initializeAttachment(QObject* obj, 
             ObjectManager::setSharedProperty(obj,object_name_manager_property);
         }
     }
+
+    if (!safe_obj)
+        return false;
 
     // Check if an instance name must be created.
     // The object manager uses qti_prop_NAME, thus we don't create an instance for it ever, only do it if this observer is not the manager.
@@ -537,6 +541,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
                     delete d->conflicting_object; // It's a QPointer so we don't need to set it = 0.
                     layout_changed = true;
                 }
+
+                if (!safe_obj)
+                    return false;
 
                 QString new_name = observer->getMultiContextPropertyValue(obj,qti_prop_NAME).toString();
                 if (!new_name.isEmpty()) {
