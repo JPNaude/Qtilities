@@ -31,15 +31,16 @@
 **
 ****************************************************************************/
 
-#ifndef CONFIGURATIONWIDGET_H
-#define CONFIGURATIONWIDGET_H
+#ifndef CONFIGURATION_WIDGET_H
+#define CONFIGURATION_WIDGET_H
 
 #include "QtilitiesCoreGui_global.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "IConfigPage.h"
+#include "IGroupedConfigPageInfoProvider.h"
 
 #include <QWidget>
-#include <QTreeWidgetItem>
+#include <QAbstractButton>
 
 namespace Ui {
     class ConfigurationWidget;
@@ -153,13 +154,17 @@ settings.endGroup();
             ~ConfigurationWidget();
 
             //! Initializes the config widget with the given set of config pages.
-            void initialize(QList<IConfigPage*> config_pages);
+            void initialize(QList<IConfigPage*> config_pages, QList<IGroupedConfigPageInfoProvider*> grouped_page_info_providers);
             //! Initializes the widget with a list of QObjects. All objects in the list which implements the IConfigPage interface will be added.
             /*!
-              You can initialize the ConfigurationWidget multiple times and when called more than once it will just rescan the global object pool
-              \note If the list is empty, the function will search the global object pool and automatically add all found config pages. A debug message with information about the found pages will be created.
+              You can initialize the ConfigurationWidget multiple times and when called more than once it will just rescan the global object pool.
+
+              \param object_list Explicitly specified the list of config pages and grouped config page info providers that must be shown in this widget.
+
+              \note If the list is empty, the function will search the global object pool and automatically add all found config pages and grouped config page info providers.
+                    Debug messages with information about the found items will be logged.
               */
-            void initialize(QList<QObject*> config_pages = QList<QObject*>());
+            void initialize(QList<QObject*> object_list = QList<QObject*>());
 
             //! Sets the way the configuration widget handles the \p Apply button.
             /*!
@@ -183,25 +188,22 @@ settings.endGroup();
 
               \sa categorizedTabDisplay();
 
-              This function was introduced in %Qtilities v1.1.
+              <li>This function was introduced in %Qtilities v1.1.<li>
               */
             void setCategorizedTabDisplay(bool enabled = true);
             //! Gets if the configuration widget groups pages with the same categories under tabs in pages named using the name of the category.
             /*!
               \sa setCategorizedTabDisplay()
 
-              This function was introduced in %Qtilities v1.1.
+              <li>This function was introduced in %Qtilities v1.1.</li>
               */
             bool categorizedTabDisplay() const;
+
        signals:
             //! Signal emitted whenever a config page is applied.
             void appliedPage(IConfigPage* conig_page);
 
         public slots:
-            //! Handles the close button.
-            void on_btnClose_clicked();
-            //! Handles the apply button.
-            void on_btnApply_clicked();
             //! Handles item changes in the page tree.
             void handleActiveItemChanges(QList<QObject*> active_pages);
             //! Function to set the active page.
@@ -214,11 +216,19 @@ settings.endGroup();
         protected:
             void changeEvent(QEvent *e);
 
+        private slots:
+            void on_buttonBox_clicked(QAbstractButton *button);
+
         private:
+            //! Adds icon property to a config page.
+            void addPageIconProperty(IConfigPage* config_page);
+            //! Adds category property to a config page.
+            void addPageCategoryProperty(IConfigPage* config_page);
+
             Ui::ConfigurationWidget* ui;
             ConfigurationWidgetPrivateData* d;
         };
     }
 }
 
-#endif // GLOBALPROPERTYEDITOR_H
+#endif // CONFIGURATION_WIDGET_H

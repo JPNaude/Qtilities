@@ -58,6 +58,7 @@ Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverT
     d = new ObserverTreeModelBuilderPrivateData;
 
     d->task.setTaskType(ITask::TaskLocal);
+    d->task.setSubTaskPerformanceIndication(ITask::SubTaskNoPerformanceIndication);
     d->hints = observer_hints;
     d->use_hints = use_observer_hints;
     setRootItem(item);
@@ -103,13 +104,26 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_e
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     QMutexLocker locker(&d->build_lock);
 
+    #ifdef QTILITIES_BENCHMARKING
+    time_t timer_start;
+    time_t timer_end;
+    time(&timer_start);
+    double diff = difftime(timer_end,timer_start);
+    qDebug() << Q_FUNC_INFO << "Time at start of build" << diff;
+    #endif
+
     // Get number of children under observer tree:
     Observer* obs = qobject_cast<Observer*> (d->root_item->getObject());
     int tree_count = -1;
     if (obs)
-        tree_count = obs->treeCount();
+        tree_count = obs->treeCount("",true);
 
-    //qDebug() << "Tree count: " << tree_count;
+    #ifdef QTILITIES_BENCHMARKING
+    time(&timer_end);
+    diff = difftime(timer_end,timer_start);
+    qDebug() << Q_FUNC_INFO << "Time after count" << diff;
+    #endif
+
     d->task.startTask(tree_count);
     QApplication::processEvents();
     buildRecursive(d->root_item);
@@ -118,6 +132,12 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
         d->root_item->moveToThread(d->thread);
         moveToThread(d->thread);
     }
+
+    #ifdef QTILITIES_BENCHMARKING
+    time(&timer_end);
+    diff = difftime(timer_end,timer_start);
+    qDebug() << Q_FUNC_INFO << "Time at end of build" << diff;
+    #endif
 
     d->task.completeTask(ITask::TaskSuccessful);
     //printStructure(root_item);

@@ -113,6 +113,11 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
                 SearchOnly,             /*!< The widget will only show search related items. */
                 SearchAndReplace        /*!< The widget will show both show search and replace related items. */
             };
+            //! An enumeration which defines when notifications about changes to the search string is emitted.
+            enum SearchStringChangedNotificationMode {
+                NotifyOnChange,         /*!< Notifications will be done everytime that the search string changed. */
+                NotifyOnReturn          /*!< Notifications will be done only when the user presses return. */
+            };
             //! An enumeration which is used to indicate the target on which the search and place operations must be performed.
             enum WidgetTarget {
                 ExternalTarget,         /*!< External target. Will emit needed signals for external target to connect to. This is the default. */
@@ -218,6 +223,11 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             //! Clears the information string text.
             void clearInfoText();
 
+            //! Sets the search string notification mode.
+            void setSearchStringNotificationMode(SearchStringChangedNotificationMode notification_mode);
+            //! Gets the search string notification mode.
+            SearchStringChangedNotificationMode searchStringNotificationMode() const;
+
         public slots:
             //! Sets the current search string in the search text box.
             void setCurrentSearchString(const QString& search_string);
@@ -228,10 +238,12 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             void changeEvent(QEvent *e);
 
         private slots:
-            void handleSearchStringChanged(const QString& string);
             void handleReplaceStringChanged(const QString& string);
             void handleOptionsChanged();
             void handleClose();
+
+            void on_txtSearchString_returnPressed();
+            void handleSearchStringChanged(const QString &string);
 
         public slots:
             void handleFindNext();

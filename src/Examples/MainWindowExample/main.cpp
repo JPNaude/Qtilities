@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 
     // Create the configuration widget:
     ConfigurationWidget config_widget;
+    config_widget.setCategorizedTabDisplay(true);
     QtilitiesApplication::setConfigWidget(&config_widget);
 
     // Initialize the logger:

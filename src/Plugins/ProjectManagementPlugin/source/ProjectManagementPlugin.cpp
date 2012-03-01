@@ -227,7 +227,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
     QString project_path;
     if (PROJECT_MANAGER->useCustomProjectsPath())
-        project_path = PROJECT_MANAGER->customProjectsPath();
+        project_path = PROJECT_MANAGER->customProjectsPath(PROJECT_MANAGER->defaultCustomProjectsCategory());
     else
         project_path = QCoreApplication::applicationDirPath() + tr("/Projects");
     QString file_name = QFileDialog::getOpenFileName(0, tr("Open Existing Project"), project_path, filter);
@@ -271,7 +271,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
     QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
     QString project_path;
     if (PROJECT_MANAGER->useCustomProjectsPath())
-        project_path = PROJECT_MANAGER->customProjectsPath();
+        project_path = PROJECT_MANAGER->customProjectsPath(PROJECT_MANAGER->defaultCustomProjectsCategory());
     else
         project_path = QCoreApplication::applicationDirPath() + "/Projects";
     QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);

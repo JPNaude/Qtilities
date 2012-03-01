@@ -47,6 +47,7 @@ struct Qtilities::Core::TaskPrivateData {
         task_lifetime_flags(Task::LifeTimeManual),
         task_stop_action(ITask::TaskDoNothingWhenStopped),
         task_remove_action(ITask::TaskHideWhenRemoved),
+        sub_task_performance_indication(ITask::SubTaskTimeFromTaskStart),
         number_of_sub_tasks(-1),
         current_progress(0),
         can_start(false),
@@ -66,6 +67,7 @@ struct Qtilities::Core::TaskPrivateData {
     Task::TaskLifeTimeFlags         task_lifetime_flags;
     ITask::TaskStopAction           task_stop_action;
     ITask::TaskRemoveAction         task_remove_action;
+    ITask::SubTaskPerformanceIndication sub_task_performance_indication;
     int                             number_of_sub_tasks;
     int                             current_progress;
     bool                            can_start;
@@ -153,6 +155,14 @@ void Qtilities::Core::Task::setTaskStopAction(TaskStopAction task_stop_action) {
 
 void Qtilities::Core::Task::setTaskRemoveAction(TaskRemoveAction task_remove_action) {
     d->task_remove_action = task_remove_action;
+}
+
+ITask::SubTaskPerformanceIndication Task::subTaskPerformanceIndication() const {
+    return d->sub_task_performance_indication;
+}
+
+void Task::setSubTaskPerformanceIndication(ITask::SubTaskPerformanceIndication performance_indication) {
+    d->sub_task_performance_indication = performance_indication;
 }
 
 ITask* Qtilities::Core::Task::parentTask() const {
@@ -445,9 +455,11 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
 
     emit taskSubTaskAboutToComplete();
 
-    time(&d->timer_end);
-    double diff = difftime(d->timer_end,d->timer_start);
-    logMessage(QString(tr("Subtask completed after %1 second(s).")).arg(QString::number(diff)));
+    if (d->sub_task_performance_indication == ITask::SubTaskTimeFromTaskStart) {
+        time(&d->timer_end);
+        double diff = difftime(d->timer_end,d->timer_start);
+        logMessage(QString(tr("Subtask completed after %1 second(s).")).arg(QString::number(diff)));
+    }
 
     //qDebug() << "addCompletedSubTasks() progress on task " << taskName() << " with " << number_of_sub_tasks << " new, " << d->current_progress << " current, " << d->number_of_sub_tasks << " total.";
     d->current_progress = d->current_progress + number_of_sub_tasks;

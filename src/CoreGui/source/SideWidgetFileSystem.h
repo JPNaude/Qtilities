@@ -105,12 +105,17 @@ side_viewer_widget->show();
             void setPath(const QString& path);
             //! Function to get the path of this side viewer widget.
             QString path() const;
+            //! Function to get the path of this side viewer widget.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QString filePath() const;
 
             //! Function which enables/disables opening of files when double clicking on them
             /*!
               This is enabled by default.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void toggleDoubleClickFileOpen(bool open_file);
 

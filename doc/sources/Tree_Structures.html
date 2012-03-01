@@ -391,37 +391,4 @@ All of these classes support the following approaches to parsing trees.
 
 This approach is the most common and easiest and was used in the examples presented in this article so far. The tree is made up of Observers with other observers underneath it, with other observers underneath these observers etc. 
 
-\subsection tree_parsing_observer_contained_observer Approach 2: Observer containment approach
-
-It is also possible to create trees in a more advanced way. For example:
-
-\code
-// Create a couple of observers
-Observer* observerA = new Observer("Observer A","Top level observer");
-Observer* observerB = new Observer("Observer B","Contained observer");
-
-// Create the objects
-QObject* object1 = new QObject();
-object1->setObjectName("Object 1");
-QObject* object2 = new QObject();
-object2->setObjectName("Object 2");
-QObject* object3 = new QObject();
-object3->setObjectName("Object 3");
-
-// Attach object2 and object3 to observerB
-observerB->attachSubject(object2);
-observerB->attachSubject(object3);
-
-// Set object1 as the parent of observerB:
-observerB->setParent(object1);
-\endcode
-
-The above code would create a tree which looks as follows:
-
-\image html tree_structure_containment_approach.jpg "Tree Structure: Containment Approach"
-
-This approach allows for creation of complex trees. It solves the problem where you want to attach a class instance with children underneath it to a tree but the class already inherits \p QObject and since Qtilities::Core::Observer also inherits \p QObject the class cannot derive from Qtilities::Core::Observer. The limitation of this approach is that only the first observer child of an object is parsed. If we would add another observer child to \p object1 in the example above, it will not be part of the parsed tree.
-
-Note that tree iterators does not work on tree containment trees.
-
 */

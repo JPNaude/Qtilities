@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 
               \note At present the task summary is only supported with ModesTop and ModesBottom.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             TaskSummaryWidget* taskSummaryWidget() const;
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
               \sa enablePriorityMessages(), disablePriorityMessages()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             QLabel* priorityMessageLabel() const;
 

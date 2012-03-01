@@ -31,48 +31,43 @@
 **
 ****************************************************************************/
 
-#include "AboutWindow.h"
-#include "ui_AboutWindow.h"
-#include "QtilitiesApplication.h"
+#ifndef I_GROUPED_CONFIG_PAGE_INFO_PROVIDER_H
+#define I_GROUPED_CONFIG_PAGE_INFO_PROVIDER_H
 
-#include <QtilitiesCoreApplication_p>
+#include "QtilitiesCoreGui_global.h"
+#include "QtilitiesCategory.h"
 
-#include <QApplication>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QDesktopWidget>
+#include <QIcon>
+#include <QObject>
 
-Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::qti_private_AboutWindow)
-{
-    ui->setupUi(this);
-    setWindowTitle(tr("About ") + "Qtilities");
-    ui->labelVersion->setText("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString() + " (Built on " + QLatin1String(__DATE__) + " at " + QLatin1String(__TIME__) + ")");
-    ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">http://www.qtilities.org</a>");
-    ui->labelCopyright->setText(tr("Copyright ©") + " 2009-2012, Jaco Naude");
+using namespace Qtilities::Core;
+using namespace Qtilities::Core::Interfaces;
 
-    // Put the widget in the center of the screen
-    QRect qrect = QApplication::desktop()->availableGeometry(this);
-    move(qrect.center() - rect().center());
+namespace Qtilities {
+    namespace CoreGui {
+        namespace Interfaces {
+            /*!
+            \class IGroupedConfigPageInfoProvider
+            \brief An interface through which information for groped config pages can be provided.
 
-    setAttribute(Qt::WA_QuitOnClose,false);
-    setAttribute(Qt::WA_DeleteOnClose);
-}
+            <i>This class was added in %Qtilities v1.1.</i>.
+              */
+            class QTILITIES_CORE_GUI_SHARED_EXPORT IGroupedConfigPageInfoProvider
+            {
+            public:
+                IGroupedConfigPageInfoProvider() {}
+                virtual ~IGroupedConfigPageInfoProvider() {}
 
-Qtilities::CoreGui::qti_private_AboutWindow::~qti_private_AboutWindow()
-{
-    delete ui;
-}
+                //! Gets if this provider provides information for a specific category.
+                virtual bool isProviderForCategory(const QtilitiesCategory& category) const = 0;
 
-void Qtilities::CoreGui::qti_private_AboutWindow::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
+                //! Gets the icon used for the page in the configuration widget.
+                virtual QIcon groupedConfigPageIcon(const QtilitiesCategory& category) const = 0;
+            };
+        }
     }
 }
+
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IGroupedConfigPageInfoProvider,"com.Qtilities.CoreGui.IGroupedConfigPageInfoProvider/1.0");
+
+#endif // I_GROUPED_CONFIG_PAGE_INFO_PROVIDER_H

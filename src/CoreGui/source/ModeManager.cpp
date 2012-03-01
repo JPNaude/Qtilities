@@ -114,6 +114,7 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
         stylesheet += "QListView::item { padding: 5px 1px 5px 1px;}";
     else
         stylesheet += "QListView::item { padding: 5px 0px 5px 0px;}";
+
     d->mode_list_widget->setStyleSheet(stylesheet);
 }
 

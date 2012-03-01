@@ -146,12 +146,12 @@ task_summary_widget.findCurrentTasks();
 
             //! Gets if this task summary widget is enabled.
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             bool taskSummaryEnabled() const;
             //! Sets if this task summary widget is enabled.
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setTaskSummaryEnabled(bool enable);
 

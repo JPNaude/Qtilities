@@ -108,6 +108,12 @@ namespace Qtilities {
                     TaskHideWhenRemoved              = 1   /*!< Hide the task's Qtilities::CoreGui::SingleTaskWidget when the "Remove Task" button is pressed. */
                 };
 
+                //! Indicates how sub tasks are timed.
+                enum SubTaskPerformanceIndication {
+                    SubTaskNoPerformanceIndication   = 0,  /*!< Sub tasks will not be timed, usefull for tasks with many small, fast sub tasks. */
+                    SubTaskTimeFromTaskStart         = 1   /*!< Sub tasks are timed from the start of the task and execution times are printed in the task log when task logging is enabled. */
+                };
+
                 ITask() {
                     qRegisterMetaType<ITask::TaskResult>("ITask::TaskResult");
                     qRegisterMetaType<Logger::MessageType>("Logger::MessageType");
@@ -193,6 +199,25 @@ namespace Qtilities {
                 virtual void setTaskStopAction(TaskStopAction task_stop_action) = 0;
                 //! Sets the task's remove action.
                 virtual void setTaskRemoveAction(TaskRemoveAction task_remove_action) = 0;
+
+                //! Gets what performance measures are used for sub tasks.
+                /*!
+                    Default is SubTaskTimeFromTaskStart.
+
+                    \sa setSubTaskPerformanceIndication()
+
+                    <i>This function was added in %Qtilities v1.1.</i>
+                */
+                virtual SubTaskPerformanceIndication subTaskPerformanceIndication() const {
+                    return SubTaskTimeFromTaskStart;
+                }
+                //! Sets what performance measures are used for sub tasks.
+                /*!
+                    \sa SubTaskPerformanceIndication()
+
+                    <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual void setSubTaskPerformanceIndication(SubTaskPerformanceIndication performance_indication) = 0;
 
                 //! The parent task of this task.
                 /*!
@@ -485,7 +510,7 @@ void MyObject::doSomething(ITask* task) {
                     If no task was passed to the function, the messages will be logged as system wide messages to the logger. If a valid task was
                     received the message will be logged to the task.
 
-                    This function was added in Qtilities v1.1.
+                    <i>This function was added in %Qtilities v1.1.</i>
 
                     \sa logPriorityMessageToTask
                   */
@@ -518,7 +543,7 @@ void MyObject::doSomething(ITask* task) {
 }
 \endcode
 
-                    This function was added in Qtilities v1.1.
+                    <i>This function was added in %Qtilities v1.1.</i>
 
                     \sa logMessageToTask()
                   */

@@ -49,16 +49,11 @@
 #include <QDropEvent>
 #include <QFileIconProvider>
 
-#include <stdio.h>
-#include <time.h>
-
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::Core::Properties;
 using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
-
-#define PROGRESS_BAR_DISPLAY_THRESHOLD 10
 
 struct Qtilities::CoreGui::ObserverTreeModelData  {
     ObserverTreeModelData() : tree_model_up_to_date(true),
@@ -260,6 +255,38 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
     if (!d->tree_model_up_to_date)
         return QVariant();
+
+    // ------------------------------------
+    // Return nothing for columns which should not be displayed
+    // We hide them in Observer Widget, but during initialize
+    // the model is built before we get to a place where we can hide the
+    // columns. Thus, the info is called on all models at least once
+    // before we can hide it. Thus we filter it here:
+    // ------------------------------------
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnSubjectID)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnIDHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnName)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnChildCount)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnAccess)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnTypeInfo)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnCategory)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
+            return QVariant();
+    }
 
     // ------------------------------------
     // Handle Name Column

@@ -116,11 +116,11 @@ void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::handleLoggerEngine
     Q_UNUSED(engine)
     Q_UNUSED(change_indication)
 
-    emit dataChanged(index(0,0),index(rowCount(),columnCount()));
+    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     emit layoutChanged();
 }
 
 void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::requestRefresh() {
-    emit dataChanged(index(0,0),index(rowCount(),columnCount()));
+    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     emit layoutChanged();
 }

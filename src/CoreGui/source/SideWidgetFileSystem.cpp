@@ -206,6 +206,21 @@ QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
     return ui->txtCurrentPath->text();
 }
 
+QString Qtilities::CoreGui::SideWidgetFileSystem::filePath() const {
+    QModelIndex index = ui->treeView->currentIndex();
+
+    if (!index.isValid())
+        return QString();
+
+    if (!d->model)
+        return QString();
+
+    if (d->model->isDir(index))
+        return QString();
+
+    return d->model->filePath(index);
+}
+
 void Qtilities::CoreGui::SideWidgetFileSystem::toggleDoubleClickFileOpen(bool open_file) {
     d->open_file_on_double_click = open_file;
 }

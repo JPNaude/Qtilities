@@ -142,14 +142,6 @@ void Qtilities::CoreGui::qti_private_ObjectInfoTreeWidget::setObjectMap(QMap<QPo
         prop = object_map.keys().at(i)->property(qti_prop_DECORATION);
         if (prop.isValid() && prop.canConvert<SharedProperty>())
             child->setIcon(0,(prop.value<SharedProperty>().value().value<QIcon>()));
-
-        // Handle the case where the object has an observer as a child
-        /*foreach (QObject* child, item->getObject()->children()) {
-            Observer* child_observer = qobject_cast<Observer*> (child);
-            if (child_observer) {
-                observer = child_observer;
-            }
-        }*/
     }
     expandToDepth(0);
     sortItems(0,Qt::AscendingOrder);

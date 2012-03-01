@@ -38,6 +38,7 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "IActionProvider.h"
 #include "ObjectPropertyBrowser.h"
+#include "ObjectDynamicPropertyBrowser.h"
 #include "ObserverTableModel.h"
 #include "ObserverTreeModel.h"
 #include "SearchBoxWidget.h"
@@ -270,7 +271,7 @@ categorized_widget->show();
 
                 \sa expandNodes(), lastExpandedItemsResults()
 
-                This function was added in Qtilities v1.1.
+                <i>This function was added in %Qtilities v1.1.</i>
                 */
             QStringList findExpandedItems() const;
             //! Returns the last set of calculated expanded items from the last findExpandedItems() call without calculating them again.
@@ -280,7 +281,7 @@ categorized_widget->show();
 
               \sa findExpandedItems()
 
-                This function was added in Qtilities v1.1.
+                <i>This function was added in %Qtilities v1.1.</i>
               */
             QStringList lastExpandedItemsResults() const;
 
@@ -305,12 +306,12 @@ categorized_widget->show();
             void handleTreeModelBuildAboutToStart();
             //! Slot which listens for the expanded() signal on the tree view if in Qtilities::TreeView mode in order to emit the latest expansion details using expandedNodesChanged().
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void handleExpanded(const QModelIndex & index);
             //! Slot which listens for the collapsed() signal on the tree view if in Qtilities::TreeView mode in order to emit the latest expansion details using expandedNodesChanged().
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void handleCollapsed(const QModelIndex &index);
 
@@ -325,7 +326,7 @@ categorized_widget->show();
 
               \sa findExpandedItems();
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void expandNodes(const QStringList& node_names);
             //! Expand all nodes specified by the indexes in \p indexes.
@@ -526,7 +527,7 @@ categorized_widget->show();
             /*!
               \sa selectedObjectsChanged(), selectedObjects()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             bool selectedObjectsContextMatch() const;
             //! Checks if all current selectedObjects() share the same ObserverHints.
@@ -537,7 +538,7 @@ categorized_widget->show();
 
               \sa selectedObjectsChanged(), selectedObjects()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             bool selectedObjectsHintsMatch() const;
             //! Provides a pointer to the current selection's parent. If no objects are selected, 0 is returned.
@@ -610,7 +611,7 @@ categorized_widget->show();
 
               \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategory()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void selectCategories(QList<QtilitiesCategory> categories);
             //! Selects the specified object in the active item view.
@@ -622,7 +623,7 @@ categorized_widget->show();
 
               \sa selectedObjectsChanged(), clearSelection(), selectObject(), selectObjects(), selectCategories()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void selectCategory(QtilitiesCategory category);
             //! Clears the current selection in the view.
@@ -672,14 +673,28 @@ categorized_widget->show();
             #ifdef QTILITIES_PROPERTY_BROWSER
             //! Returns the property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
             /*!
-              \sa propertyBrowserDock()
+              \sa propertyBrowserDock(), dynamicPropertyBrowserDock(), dynamicPropertyBrowser()
               */
             ObjectPropertyBrowser* propertyBrowser();
             //! Returns the dock widget containing the property browser.
             /*!
-              \sa propertyBrowser();
+              \sa propertyBrowser(), dynamicPropertyBrowserDock(), dynamicPropertyBrowser()
               */
             QDockWidget* propertyBrowserDock();
+            //! Returns the dynamic property editor used inside the observer widget. This can be 0 depending on the display flags used. Always call this function after initialize().
+            /*!
+              \sa dynamicPropertyBrowserDock(), propertyBrowserDock(), propertyBrowser()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            ObjectDynamicPropertyBrowser* dynamicPropertyBrowser();
+            //! Returns the dock widget containing the dynamic property browser.
+            /*!
+              \sa dynamicPropertyBrowser(), propertyBrowserDock(), propertyBrowser()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QDockWidget* dynamicPropertyBrowserDock();
             #endif
             //! Returns the SearchBoxWidget contained inside the observer widget.
             /*!
@@ -701,11 +716,41 @@ categorized_widget->show();
             void setPreferredPropertyEditorType(ObjectPropertyBrowser::BrowserType property_editor_type);
             //! Sets the desired property browser filter list to be used when constructing a property browser in this widget.
             void setPreferredPropertyFilter(QStringList filter_list, bool inversed_filter = false);
+
+            //! Sets the desired area of the dynamic property editor (if it is used by the observer context).
+            /*!
+              This area will be used to position the dynamic property editor dock widget when the widget is first shown during a session. Afterwards the widget will remember where the dock widget is.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setPreferredDynamicPropertyEditorDockArea(Qt::DockWidgetArea property_editor_dock_area);
+            //! Sets the desired type of the dynamic property editor (if it is used by the observer context).
+            /*!
+              The dynamic property editor type must be set before calling initialize().
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setPreferredDynamicPropertyEditorType(ObjectDynamicPropertyBrowser::BrowserType property_editor_type);
+//            //! Sets the desired dynamic property browser filter list to be used when constructing a property browser in this widget.
+//            /*!
+//              <i>This function was added in %Qtilities v1.1.</i>
+//              */
+//            void setPreferredDynamicPropertyFilter(QStringList filter_list, bool inversed_filter = false);
         protected:
             //! Constructs the property browser and show it. If it already exists, this function does nothing.
             void constructPropertyBrowser();
             //! Refreshes the property browser, thus hide or show it depending on the active display flags.
             void refreshPropertyBrowser();
+            //! Constructs the dynamic property browser and show it. If it already exists, this function does nothing.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void constructDynamicPropertyBrowser();
+            //! Refreshes the dynamic property browser, thus hide or show it depending on the active display flags.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void refreshDynamicPropertyBrowser();
             #endif
         public:
             //! Refreshes the action toolbar with the current state of the actions.

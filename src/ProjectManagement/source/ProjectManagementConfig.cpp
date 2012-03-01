@@ -51,12 +51,13 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     ui(new Ui::ProjectManagementConfig)
 {
     ui->setupUi(this);
-    ui->btnOpenProjectsPath->setIcon(QIcon(qti_icon_FILE_OPEN_16x16));
-    ui->btnRestoreDefaultPath->setIcon(QIcon(qti_icon_EDIT_UNDO_16x16));
     ui->chkOpenLastProject->setChecked(PROJECT_MANAGER->openLastProjectOnStartup());
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());
     ui->chkUseCustomProjectsPath->setChecked(PROJECT_MANAGER->useCustomProjectsPath());
+
+    default_category_item = 0;
+    active_category_item = 0;
 
     if (ui->chkOpenLastProject->isChecked()) {
         ui->chkCreateNewOnStartup->setEnabled(true);
@@ -75,15 +76,6 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     } else if (PROJECT_MANAGER->modifiedProjectsHandlingPolicy() == ProjectManager::PromptUser){
         ui->radioPromptUserToSave->setChecked(true);
     }
-    if (ui->chkUseCustomProjectsPath->isChecked()) {
-        ui->labelCustomProjectsPath->setEnabled(true);
-        ui->txtCustomProjectsPath->setEnabled(true);
-        ui->btnOpenProjectsPath->setEnabled(true);
-    } else {
-        ui->labelCustomProjectsPath->setEnabled(false);
-        ui->txtCustomProjectsPath->setEnabled(false);
-        ui->btnOpenProjectsPath->setEnabled(false);
-    }
 
     connect(ui->btnClearRecentProjectList,SIGNAL(clicked()),SLOT(handle_btnClearRecentProjectList()));
     connect(ui->chkCreateNewOnStartup,SIGNAL(toggled(bool)),SLOT(handle_chkCreateNewOnStartup(bool)));
@@ -92,10 +84,12 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     connect(ui->chkUseCustomProjectsPath,SIGNAL(toggled(bool)),SLOT(handle_chkUseCustomProjectsPath(bool)));
     connect(ui->radioPromptUserToSave,SIGNAL(toggled(bool)),SLOT(handle_radioPromptUserToSave(bool)));
     connect(ui->radioSaveAutomatically,SIGNAL(toggled(bool)),SLOT(handle_radioSaveAutomatically(bool)));
-    connect(ui->txtCustomProjectsPath,SIGNAL(textChanged(QString)),SLOT(handle_txtCustomProjectsPathTextChanged(QString)));
-    connect(ui->btnOpenProjectsPath,SIGNAL(clicked()),SLOT(handle_btnOpenProjectsPath()));
 
-    ui->txtCustomProjectsPath->setText(PROJECT_MANAGER->customProjectsPath());
+    connect(ui->tableCustomPaths,SIGNAL(itemChanged(QTableWidgetItem*)),SLOT(handleActiveCustomProjectPathChanged(QTableWidgetItem*)));
+    connect(ui->tableCustomPaths,SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)),SLOT(handleCurrentItemChanged(QTableWidgetItem*,QTableWidgetItem*)));
+
+    connect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),SLOT(refreshCustomProjectPaths()));
+    refreshCustomProjectPaths();
 }
 
 Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
@@ -120,23 +114,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManageme
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
-    // Create projects path if it does not exist:
-    if (!ui->txtCustomProjectsPath->text().isEmpty()) {
-        #ifdef Q_OS_WIN
-        if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
-        #else
-        if (!ui->txtCustomProjectsPath->text().isEmpty()) {
-        #endif
-            QDir dir(ui->txtCustomProjectsPath->text());
-            if (!dir.exists()) {
-                if (dir.mkpath(ui->txtCustomProjectsPath->text())) {
-                    LOG_INFO_P("Successfully created custom projects path at: " + ui->txtCustomProjectsPath->text());
-                }
-            }
-        }
-    }
-    handle_txtCustomProjectsPathTextChanged();
-
+    saveCustomProjectsPaths();
     PROJECT_MANAGER->writeSettings();
 }
 
@@ -152,6 +130,182 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::changeEvent(QEvent *
         break;
     default:
         break;
+    }
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnRemove_clicked() {
+    // Find the name of the category at currentRow():
+    QTableWidgetItem* current_category_name = ui->tableCustomPaths->item(ui->tableCustomPaths->currentRow(),0);
+    if (current_category_name) {
+        if (current_category_name->text() == active_category) {
+            active_category = "Default";
+            active_category_item = default_category_item;
+            active_category_item->setCheckState(Qt::Checked);
+        }
+        custom_paths.remove(current_category_name->text());
+        ui->tableCustomPaths->removeRow(ui->tableCustomPaths->currentRow());
+        saveCustomProjectsPaths();
+    }
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnAdd_clicked() {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Specify Custom Path"),QtilitiesApplication::applicationSessionPath(),QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (!dir.isEmpty()) {
+        QString category;
+        if (custom_paths.isEmpty())
+            category = "Default";
+        else
+            category = "New Category";
+        int count = 1;
+        while (PROJECT_MANAGER->customProjectCategories().contains(category)) {
+            QString count_string = QString::number(count);
+            if (category.endsWith(count_string))
+                category.chop(count_string.length());
+            ++count;
+            category.append(count_string);
+        }
+
+
+
+        custom_paths[category] = QDir::toNativeSeparators(QDir::cleanPath(dir));
+
+        saveCustomProjectsPaths();
+        refreshCustomProjectPaths();
+    }
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::refreshCustomProjectPaths() {
+    if (custom_paths.keys() != PROJECT_MANAGER->customProjectCategories()) {
+        custom_paths.clear();
+        foreach (QString cat, PROJECT_MANAGER->customProjectCategories())
+            custom_paths[cat] = PROJECT_MANAGER->customProjectsPath(cat);
+    }
+
+    QStringList categories = custom_paths.keys();
+
+    ui->tableCustomPaths->clear();
+    ui->tableCustomPaths->setRowCount(categories.count());
+    ui->tableCustomPaths->setColumnCount(2);
+
+    QStringList headers;
+    headers << tr("Category") << tr("Path");
+    ui->tableCustomPaths->setHorizontalHeaderLabels(headers);
+    ui->tableCustomPaths->verticalHeader()->hide();
+
+    ui->tableCustomPaths->blockSignals(true);
+
+    for (int i = 0; i < categories.count(); i++) {
+        bool is_editable = (categories.at(i) != QString("Default"));
+
+        // Category column:
+        QTableWidgetItem* newItem = new QTableWidgetItem(categories.at(i));
+        if (categories.at(i) == PROJECT_MANAGER->defaultCustomProjectsCategory()) {
+            newItem->setCheckState(Qt::Checked);
+            active_category_item = newItem;
+        } else
+            newItem->setCheckState(Qt::Unchecked);
+
+        Qt::ItemFlags item_flags = newItem->flags();
+        if (!is_editable) {
+            item_flags &= ~Qt::ItemIsEditable;
+            newItem->setFlags(item_flags);
+            newItem->setToolTip("Default custom path category.");
+            default_category_item = newItem;
+        }
+        ui->tableCustomPaths->setItem(i, 0, newItem);
+
+        // Path column:
+        QString path = PROJECT_MANAGER->customProjectsPath(categories.at(i));
+        if (!path.isEmpty()) {
+            QDir dir(path);
+            if (dir.exists()) {
+                newItem = new QTableWidgetItem(path);
+                newItem->setForeground(QBrush(QColor("#00aa00")));
+            } else {
+                newItem = new QTableWidgetItem(path);
+                newItem->setForeground(QBrush(Qt::red));
+            }
+        } else {
+            path = "None specified";
+            newItem = new QTableWidgetItem(path);
+            newItem->setForeground(QBrush(Qt::red));
+        }
+        ui->tableCustomPaths->setItem(i, 1, newItem);
+        ui->tableCustomPaths->setRowHeight(i,17);
+
+        if (i == categories.count()-1)
+            ui->tableCustomPaths->blockSignals(false);
+    }
+
+    ui->tableCustomPaths->resizeColumnsToContents();
+    ui->tableCustomPaths->horizontalHeader()->setStretchLastSection(true);
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::saveCustomProjectsPaths() {
+    disconnect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),this,SLOT(refreshCustomProjectPaths()));
+    PROJECT_MANAGER->setDefaultCustomProjectsCategory(active_category);
+    PROJECT_MANAGER->clearCustomProjectsPaths();
+    foreach (QString key, custom_paths.keys()) {
+        PROJECT_MANAGER->setCustomProjectsPath(custom_paths[key],key);
+    }
+    connect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),this,SLOT(refreshCustomProjectPaths()));
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::handleCurrentItemChanged(QTableWidgetItem* current, QTableWidgetItem* previous) {
+    Q_UNUSED(previous)
+
+    if (current) {
+        QTableWidgetItem* current_category = ui->tableCustomPaths->item(current->row(),0);
+        if (current_category->text() != "Default") {
+            ui->btnRemove->setEnabled(true);
+            return;
+        }
+    }
+    ui->btnRemove->setEnabled(false);
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::handleActiveCustomProjectPathChanged(QTableWidgetItem * item) {
+    QString item_version = item->text();
+
+    // Update The Map:
+    if (item->column() == 0) {
+        // Find the path to look it up in the map:
+        QTableWidgetItem* lookup_item = ui->tableCustomPaths->item(item->row(),1);
+        if (lookup_item) {
+            QString old_name = custom_paths.key(lookup_item->text());
+            custom_paths.remove(old_name);
+            custom_paths[item->text()] = lookup_item->text();
+            if (active_category == old_name)
+                active_category = item->text();
+        }
+    } else if (item->column() == 1) {
+        // Find the name to look it up in the map:
+        QTableWidgetItem* lookup_item = ui->tableCustomPaths->item(item->row(),0);
+        if (lookup_item) {
+            if (!item->text().isEmpty()) {
+                QDir dir(item->text());
+                if (dir.exists())
+                    item->setForeground(QBrush(QColor("#00aa00")));
+                else
+                    item->setForeground(QBrush(Qt::red));
+            } else {
+                item->setText("None specified");
+                item->setForeground(QBrush(Qt::red));
+            }
+
+            custom_paths[lookup_item->text()] = item->text();
+        }
+    }
+
+    // Update Activity:
+    if (item->checkState() == Qt::Checked) {
+        if (active_category != item_version) {
+            if (active_category_item)
+                active_category_item->setCheckState(Qt::Unchecked);
+            active_category_item = item;
+            active_category = item_version;
+            saveCustomProjectsPaths();
+        }
     }
 }
 
@@ -181,52 +335,3 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::handle_chkUseCustomP
     PROJECT_MANAGER->setUseCustomProjectsPath(toggle);
 }
 
-void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnOpenProjectsPath() {
-    QFileDialog::Options options = QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly;
-    QString directory = QFileDialog::getExistingDirectory(0,
-                                tr("Select Custom Projects Path"),
-                                ui->txtCustomProjectsPath->text(),
-                                options);
-    ui->txtCustomProjectsPath->setText(directory);
-}
-
-void Qtilities::ProjectManagement::ProjectManagementConfig::handle_txtCustomProjectsPathTextChanged(QString new_path) {
-    Q_UNUSED(new_path)
-
-    if (ui->txtCustomProjectsPath->text().isEmpty()) {
-        ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
-        ui->lblPathMessageText->setText("Your custom projects path cannot be empty.");
-        ui->txtCustomProjectsPath->setStyleSheet("color: red");
-    } else {
-        #ifdef Q_OS_WIN
-        if (QtilitiesFileInfo::isValidFilePath(ui->txtCustomProjectsPath->text())) {
-        #else
-        if (!ui->txtCustomProjectsPath->text().isEmpty()) {
-        #endif
-            QDir dir(ui->txtCustomProjectsPath->text());
-            if (dir.exists()) {
-                ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_SUCCESS_16x16).pixmap(16));
-                ui->lblPathMessageText->setText("Your custom projects path exists and is correct.");
-                ui->txtCustomProjectsPath->setStyleSheet("color: black");
-            } else {
-                ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16));
-                ui->lblPathMessageText->setText("Your custom projects path does not exists. It will be created as soon as you Apply.");
-                ui->txtCustomProjectsPath->setStyleSheet("color: black");
-            }
-        } else {
-            ui->lblPathMessageIcon->setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16));
-            #ifdef Q_OS_WIN
-            ui->lblPathMessageText->setText("Your path contains invalid characters: " + QtilitiesFileInfo::invalidFilePathCharacters());
-            #else
-            ui->lblPathMessageText->setText("Your path contains invalid characters.");
-            #endif
-            ui->txtCustomProjectsPath->setStyleSheet("color: red");
-        }
-    }
-
-    PROJECT_MANAGER->setCustomProjectsPath(ui->txtCustomProjectsPath->text());
-}
-
-void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnRestoreDefaultPath_clicked() {
-    ui->txtCustomProjectsPath->setText(QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects");
-}

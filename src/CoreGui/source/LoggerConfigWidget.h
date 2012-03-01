@@ -124,7 +124,6 @@ OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
             void handle_BtnApplyClicked();
             void resizeCommandTableRows();
             void on_btnViewLog_clicked();
-
             void on_tableViewLoggerEngines_doubleClicked(const QModelIndex &index);
 
         private:

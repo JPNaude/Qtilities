@@ -27,6 +27,10 @@ namespace Qtilities {
         \brief An easy to use way to launch external processes through an extended wrapper around QProcess.
 
         The QtilitiesProcess class simplifies usage of QProcess and provides ready to use logging and task integration capablities.
+
+        When logging is enabled, QtilitiesProcess will automatically log all \p stdout and \p stderr outputs in a logger engine.
+        It takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged to the
+        logger engine.
           */
         class QTILIITES_CORE_SHARED_EXPORT QtilitiesProcess : public Task
         {

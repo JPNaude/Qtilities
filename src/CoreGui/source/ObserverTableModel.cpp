@@ -89,7 +89,6 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
-    reset();
 
     // Check if this observer has a subject type filter installed
     for (int i = 0; i < observer->subjectFilters().count(); i++) {
@@ -101,6 +100,8 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
             break;
         }
     }
+
+    handleLayoutChanged();
 
     return true;
 }
@@ -186,6 +187,34 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
 
     if (index.row() >= d_observer->subjectCount() || index.row() < 0)
         return QVariant();
+
+    // ------------------------------------
+    // Return nothing for columns which should not be displayed
+    // We hide them in Observer Widget, but during initialize
+    // the model is built before we get to a place where we can hide the
+    // columns. Thus, the info is called on all models at least once
+    // before we can hide it. Thus we filter it here:
+    // ------------------------------------
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnName)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnNameHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnChildCount)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnAccess)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnAccessHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnTypeInfo)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnTypeInfoHint))
+            return QVariant();
+    }
+    if (index.column() == columnPosition(AbstractObserverItemModel::ColumnCategory)) {
+        if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
+            return QVariant();
+    }
 
     // ------------------------------------
     // Handle Subject ID Column
@@ -549,9 +578,6 @@ void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
     } else {
         qDebug() << "Responding to data changes to observer" << d_observer->observerName() << "in table model";
     }
-
-    if (d_observer->observerName() == "Products")
-        int i = 5;
 
     emit dataChanged(createIndex(0,0),createIndex(rowCount()-1,columnCount()-1));
 }

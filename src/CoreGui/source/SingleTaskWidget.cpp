@@ -325,6 +325,8 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnStop->setToolTip("Remove Task");
         ui->btnStart->setVisible(d->task->canStart());
     } else if (d->task->state() == ITask::TaskCompleted) {
+        ui->widgetRightButtonsHolder->setVisible(true);
+
         if (show_progress) {
             ui->progressBar->setEnabled(true);
             if (d->task->numberOfSubTasks() == -1) {

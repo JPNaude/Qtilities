@@ -417,13 +417,17 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
 
         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
-             if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount()) {
+            // Note that it is possible to get in here without the number of subjects changing under this observer when
+            // a processing cycle is ended on a tree and this observer is not the top level observer.
+            // If a subject was attached somewhere in a lower level in the tree, the subjects in this
+            // observer will still be the same. However we must still emit the layoutChanged() signal
+            // since ObserverWidget in TreeView mode only listens to the layoutChanged() signal on the
+            // top level observer.
+            if (observerData->number_of_subjects_start_of_proc_cycle > subjectCount())
                 emit numberOfSubjectsChanged(Observer::SubjectRemoved);
-                emit layoutChanged();
-            }  else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount()) {
+            else if (observerData->number_of_subjects_start_of_proc_cycle < subjectCount())
                 emit numberOfSubjectsChanged(Observer::SubjectAdded);
-                emit layoutChanged();
-            }
+            emit layoutChanged();
         }
 
         // TODO: Send processing cycle end to subject filters in order for activity filter to emit the active subjects after the processing cycle if they changed. Note that TreeNode does this already.
@@ -688,8 +692,10 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
             // to the modification changed signals:
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
             if (mod_iface) {
-                connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
-                has_mod_iface = true;
+                if (mod_iface->objectBase()) {
+                    connect(mod_iface->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
+                    has_mod_iface = true;
+                }
             }
         }
 

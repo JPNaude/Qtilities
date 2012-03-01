@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>327</width>
+    <width>318</width>
     <height>454</height>
    </rect>
   </property>
@@ -31,30 +31,13 @@
     <widget class="QLabel" name="labelVersion">
      <property name="font">
       <font>
-       <pointsize>11</pointsize>
+       <pointsize>8</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
       <string>Version</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelBuildDate">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Build Date</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

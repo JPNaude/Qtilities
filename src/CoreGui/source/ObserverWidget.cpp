@@ -75,6 +75,9 @@
 #include <QSettings>
 #include <QToolBar>
 
+#include <stdio.h>
+#include <time.h>
+
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Icons;
@@ -191,6 +194,13 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     ObjectPropertyBrowser::BrowserType property_editor_type;
     QStringList property_filter;
     bool property_filter_inversed;
+
+    QPointer<QDockWidget> dynamic_property_browser_dock;
+    QPointer<ObjectDynamicPropertyBrowser> dynamic_property_browser_widget;
+    Qt::DockWidgetArea dynamic_property_editor_dock_area;
+    ObjectDynamicPropertyBrowser::BrowserType dynamic_property_editor_type;
+//    QStringList dynamic_property_filter;
+//    bool dynamic_property_filter_inversed;
     #endif
 
     //! Indicates if the widget is in an initialized state. Thus initialization was successful. \sa initialize()
@@ -267,12 +277,14 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     hideProgressInfo();
 
     #ifdef QTILITIES_PROPERTY_BROWSER
-    d->property_browser_dock = 0;
-    d->property_browser_widget = 0;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
     d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
     d->property_filter_inversed = false;
     d->property_filter = QStringList();
+    d->dynamic_property_editor_dock_area = Qt::RightDockWidgetArea;
+    d->dynamic_property_editor_type = ObjectDynamicPropertyBrowser::TreeBrowser;
+//    d->dynamic_property_filter_inversed = false;
+//    d->dynamic_property_filter = QStringList();
     #endif
 
     ui->widgetProgressInfo->setVisible(false);
@@ -298,6 +310,8 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->global_meta_type = context_string;
     d->shared_global_meta_type = QString();
     setObjectName(context_string);
+
+    setDockNestingEnabled(true);
 }
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -309,12 +323,14 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
     d->action_provider = new ActionProvider(this);
 
     #ifdef QTILITIES_PROPERTY_BROWSER
-    d->property_browser_dock = 0;
-    d->property_browser_widget = 0;
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
     d->property_editor_type = ObjectPropertyBrowser::TreeBrowser;
     d->property_filter_inversed = false;
     d->property_filter = QStringList();
+    d->dynamic_property_editor_dock_area = Qt::RightDockWidgetArea;
+    d->dynamic_property_editor_type = ObjectDynamicPropertyBrowser::TreeBrowser;
+//    d->dynamic_property_filter_inversed = false;
+//    d->dynamic_property_filter = QStringList();
     #endif
 
     d->display_mode = display_mode;
@@ -633,6 +649,12 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         }
     }
 
+//    time_t start,end;
+//    time(&start);
+
+//    double diff = difftime(end,start);
+//    qDebug() << QString("ObserverWidget init 1: " + QString::number(diff) + " seconds.");
+
     if (!hints_only) {
         // Delete the current layout on itemParentWidget
         if (ui->itemParentWidget->layout())
@@ -693,7 +715,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             QHBoxLayout* layout = new QHBoxLayout(ui->itemParentWidget);
             layout->setMargin(0);
             layout->addWidget(d->tree_view);
-            d->tree_view->setEnabled(true);
 
             d->tree_model->setObjectName(d->top_level_observer->observerName());
 
@@ -701,10 +722,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             if (!d->tree_name_column_delegate) {
                 d->tree_name_column_delegate = new NamingPolicyDelegate(this);
                 connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->tree_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
+                d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
             }
 
             d->tree_name_column_delegate->setObserverContext(d_observer);
-            d->tree_view->setItemDelegateForColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),d->tree_name_column_delegate);
 
             // Setup proxy model:
             if (!d->disable_proxy_models) {
@@ -725,10 +746,13 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     }
                 }
 
-                d->tree_proxy_model->setSourceModel(d->tree_model);
-                d->tree_view->setModel(d->tree_proxy_model);
+                if (d->tree_proxy_model != d->tree_view->model()) {
+                    d->tree_proxy_model->setSourceModel(d->tree_model);
+                    d->tree_view->setModel(d->tree_proxy_model);
+                }
             } else {
-                d->tree_view->setModel(d->tree_model);
+                if (d->tree_model != d->tree_view->model())
+                    d->tree_view->setModel(d->tree_model);
             }
 
             d->tree_model->setObserverContext(d->top_level_observer);
@@ -772,13 +796,17 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->verticalHeader()->setVisible(false);
             }
 
+            // TODO: We don't have to do this everytime... Only when mode changes and first init... (also in tree view side)
             if (ui->itemParentWidget->layout())
                 delete ui->itemParentWidget->layout();
 
             QHBoxLayout* layout = new QHBoxLayout(ui->itemParentWidget);
             layout->setMargin(0);
             layout->addWidget(d->table_view);
-            d->table_view->setEnabled(true);
+
+//            time(&end);
+//            diff = difftime(end,start);
+//            qDebug() << QString("ObserverWidget init 2: " + QString::number(diff) + " seconds.");
 
             d->table_model->setObjectName(d_observer->observerName());
             d->table_model->setObserverContext(d_observer);
@@ -787,8 +815,9 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             if (!d->table_name_column_delegate) {
                 d->table_name_column_delegate = new NamingPolicyDelegate(this);
                 connect(this,SIGNAL(selectedObjectsChanged(QList<QObject*>)),d->table_name_column_delegate,SLOT(handleCurrentObjectChanged(QList<QObject*>)));
+                d->table_view->setItemDelegateForColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),d->table_name_column_delegate);
             }
-            d->table_view->setItemDelegateForColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnName),d->table_name_column_delegate);
+
             d->table_name_column_delegate->setObserverContext(d_observer);
 
             // Setup proxy model
@@ -809,11 +838,18 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                     d->table_proxy_model = d->custom_table_proxy_model;
                 }
 
-                d->table_proxy_model->setSourceModel(d->table_model);
-                d->table_view->setModel(d->table_proxy_model);
+                if (d->table_proxy_model != d->table_view->model()) {
+                    d->table_proxy_model->setSourceModel(d->table_model);
+                    d->table_view->setModel(d->table_proxy_model);
+                }
             } else {
-                d->table_view->setModel(d->table_model);
+                if (d->table_model != d->table_view->model())
+                    d->table_view->setModel(d->table_model);
             }
+
+//            time(&end);
+//            diff = difftime(end,start);
+//            qDebug() << QString("ObserverWidget init 3: " + QString::number(diff) + " seconds.");
 
             if (d->table_view->selectionModel()) {
                 d->table_view->selectionModel()->clear();
@@ -938,6 +974,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         // Construct the property browser if neccesarry:
         #ifdef QTILITIES_PROPERTY_BROWSER
         refreshPropertyBrowser();
+        refreshDynamicPropertyBrowser();
         #endif
         installEventFilter(this);
     }
@@ -986,6 +1023,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Resize view:
     if (!hints_only)
         hideProgressInfo(false);
+
+    resizeColumns();
 
     if (d->display_mode == Qtilities::TableView)
         QApplication::restoreOverrideCursor();
@@ -1389,6 +1428,27 @@ void Qtilities::CoreGui::ObserverWidget::setPreferredPropertyFilter(QStringList 
     d->property_filter = filter_list;
     d->property_filter_inversed = inversed_filter;
 }
+
+Qtilities::CoreGui::ObjectDynamicPropertyBrowser* Qtilities::CoreGui::ObserverWidget::dynamicPropertyBrowser() {
+    return d->dynamic_property_browser_widget;
+}
+
+QDockWidget* Qtilities::CoreGui::ObserverWidget::dynamicPropertyBrowserDock() {
+    return d->dynamic_property_browser_dock;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setPreferredDynamicPropertyEditorDockArea(Qt::DockWidgetArea property_editor_dock_area) {
+    d->dynamic_property_editor_dock_area = property_editor_dock_area;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setPreferredDynamicPropertyEditorType(ObjectDynamicPropertyBrowser::BrowserType property_editor_type) {
+    d->dynamic_property_editor_type = property_editor_type;
+}
+
+//void Qtilities::CoreGui::ObserverWidget::setPreferredDynamicPropertyFilter(QStringList filter_list, bool inversed_filter) {
+//    d->dynamic_property_filter = filter_list;
+//    d->dynamic_property_filter_inversed = inversed_filter;
+//}
 
 #endif
 
@@ -1974,6 +2034,8 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
         d->actionDeleteItem->setEnabled(false);
         d->actionRemoveItem->setEnabled(false);
         d->actionNewItem->setEnabled(false);
+        d->actionSwitchView->setEnabled(false);
+        d->actionRefreshView->setEnabled(false);
     }
 
     refreshActionToolBar();
@@ -2059,6 +2121,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
         d->tree_name_column_delegate->setObserverContext(observer);
         #ifdef QTILITIES_PROPERTY_BROWSER
         refreshPropertyBrowser();
+        refreshDynamicPropertyBrowser();
         #endif
     }
 }
@@ -2545,6 +2608,10 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
             return;
         }
 
+        time_t start,end;
+        time(&start);
+        time(&end);
+
         // First disconnet all current observer connections
         d_observer->disconnect(this);
         d_observer->disconnect(d->navigation_bar);
@@ -2552,8 +2619,19 @@ void Qtilities::CoreGui::ObserverWidget::selectionPushDown() {
         // Set up widget to use new observer
         d->navigation_stack.push(d_observer->observerID());
         connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),SLOT(contextDetachHandler(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)));
+
+        #ifdef QTILITIES_BENCHMARKING
+        double diff = difftime(end,start);
+        qDebug() << QString("Before observerwidget init: " + QString::number(diff) + " seconds.");
+        #endif
+
         setObserverContext(observer);
         initialize();
+
+        #ifdef QTILITIES_BENCHMARKING
+        diff = difftime(end,start);
+        qDebug() << QString("After observerwidget init: " + QString::number(diff) + " seconds.");
+        #endif
 
         if (observer->subjectCount() > 0)
             selectObject(observer->subjectAt(0));
@@ -3016,6 +3094,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     #ifdef QTILITIES_PROPERTY_BROWSER
     if (!d->property_browser_widget) {
         refreshPropertyBrowser();
+        refreshDynamicPropertyBrowser();
     #endif
         updateGlobalActiveSubjects();
     #ifdef QTILITIES_PROPERTY_BROWSER
@@ -3063,6 +3142,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
     if (d->display_mode == TableView) {
         #ifdef QTILITIES_PROPERTY_BROWSER
         refreshPropertyBrowser();
+        refreshDynamicPropertyBrowser();
         #endif
         selection_parent = d_observer;
 
@@ -3081,6 +3161,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
                 d->update_selection_activity = true;
             }
         }
+
         // Refresh actions
         refreshActions();
         emit selectedObjectsChanged(object_list, d_observer);
@@ -3284,6 +3365,7 @@ void Qtilities::CoreGui::ObserverWidget::selectCategories(QList<QtilitiesCategor
             // Update the property browser:
             #ifdef QTILITIES_PROPERTY_BROWSER
                 refreshPropertyBrowser();
+                refreshDynamicPropertyBrowser();
             #endif
         }
     }
@@ -3378,6 +3460,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             // Update the property browser:
             #ifdef QTILITIES_PROPERTY_BROWSER
                 refreshPropertyBrowser();
+                refreshDynamicPropertyBrowser();
             #endif
         } else if (d->tree_view && d->tree_model && d->display_mode == TreeView && d->tree_proxy_model) {
             d->update_selection_activity = false;
@@ -3424,6 +3507,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             // Update the property browser:
             #ifdef QTILITIES_PROPERTY_BROWSER
                 refreshPropertyBrowser();
+                refreshDynamicPropertyBrowser();
             #endif
         }
     }
@@ -3621,6 +3705,9 @@ void Qtilities::CoreGui::ObserverWidget::refreshPropertyBrowser() {
         if (d->property_editor_dock_area == Qt::TopDockWidgetArea || d->property_editor_dock_area == Qt::BottomDockWidgetArea)
             d->property_browser_widget->setMaximumHeight(d->property_browser_widget->sizeHint().height());
         d->property_browser_dock->show();
+
+        if (d->property_browser_dock && d->dynamic_property_browser_dock)
+            tabifyDockWidget(d->property_browser_dock,d->dynamic_property_browser_dock);
     } else {
         removeDockWidget(d->property_browser_dock);
     }
@@ -3641,6 +3728,49 @@ void Qtilities::CoreGui::ObserverWidget::constructPropertyBrowser() {
 
     d->property_browser_dock->setWidget(d->property_browser_widget);
 }
+
+void Qtilities::CoreGui::ObserverWidget::refreshDynamicPropertyBrowser() {
+    // Update the property editor visibility and object
+    if (activeHints()->displayFlagsHint() & ObserverHints::DynamicPropertyBrowser) {
+        constructDynamicPropertyBrowser();
+        if (selectedObjects().count() == 1)
+            d->dynamic_property_browser_widget->setObject(d->current_selection.front());
+        else if (selectedObjects().count() > 1)
+            d->dynamic_property_browser_widget->setObject(0);
+        else
+            d->dynamic_property_browser_widget->setObject(d_observer);
+        addDockWidget(d->dynamic_property_editor_dock_area, d->dynamic_property_browser_dock);
+
+        // Resize the doc depending on where it is:
+        //if (d->property_editor_dock_area == Qt::LeftDockWidgetArea || d->property_editor_dock_area == Qt::RightDockWidgetArea)
+        //    d->property_browser_widget->setFixedWidth(d->property_browser_widget->sizeHint().width());
+        if (d->dynamic_property_editor_dock_area == Qt::TopDockWidgetArea || d->dynamic_property_editor_dock_area == Qt::BottomDockWidgetArea)
+            d->dynamic_property_browser_widget->setMaximumHeight(d->dynamic_property_browser_widget->sizeHint().height());
+        d->dynamic_property_browser_dock->show();
+
+        if (d->property_browser_dock && d->dynamic_property_browser_dock)
+            tabifyDockWidget(d->property_browser_dock,d->dynamic_property_browser_dock);
+    } else {
+        removeDockWidget(d->dynamic_property_browser_dock);
+    }
+}
+
+void Qtilities::CoreGui::ObserverWidget::constructDynamicPropertyBrowser() {
+    if (!d->dynamic_property_browser_dock) {
+        d->dynamic_property_browser_dock = new QDockWidget("Dynamic Property Browser",0);
+        connect(d->dynamic_property_browser_dock,SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),SLOT(setPreferredDynamicPropertyEditorDockArea(Qt::DockWidgetArea)));
+    }
+
+    if (!d->dynamic_property_browser_widget) {
+        d->dynamic_property_browser_widget = new ObjectDynamicPropertyBrowser(d->dynamic_property_editor_type,false);
+//        if (!d->dynamic_property_filter.isEmpty())
+//            d->dynamic_property_browser_widget->setFilterList(d->dynamic_property_filter,d->dynamic_property_filter_inversed);
+        d->dynamic_property_browser_widget->setObject(d_observer);
+    }
+
+    d->dynamic_property_browser_dock->setWidget(d->dynamic_property_browser_widget);
+}
+
 #endif
 
 void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_refresh) {

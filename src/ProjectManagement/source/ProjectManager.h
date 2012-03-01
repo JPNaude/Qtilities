@@ -244,6 +244,37 @@ namespace Qtilities {
             QStringList registeredProjectItemNames() const;
 
             // ----------------------------------------------
+            // Custom project paths
+            // ----------------------------------------------
+            //! Sets a custom projects path to use for saving projects.
+            /*!
+              \param projects_path The path for projects of type category.
+              \param projects_category The category to associated with the given path.
+
+              \note When the directory does not exist, this function will create it for you.
+              */
+            void setCustomProjectsPath(const QString& projects_path, QString projects_category = QString());
+            //! Returns the custom projects path.
+            QString customProjectsPath(QString projects_category = QString()) const;
+            //! Removes the custom projects path specified by the given category.
+            void removeCustomProjectsPath(QString projects_category);
+            //! Clears all custom projects paths except for the Default one.
+            void clearCustomProjectsPaths();
+            //! Sets the default project paths category.
+            void setDefaultCustomProjectsCategory(const QString& projects_category);
+            //! Gets the default project paths category.
+            QString defaultCustomProjectsCategory() const;
+            //! Returns a list of all registered project categories.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QStringList customProjectCategories() const;
+            //! Indicates if a custom projects path is used.
+            bool useCustomProjectsPath() const;
+            //! Toggles if a custom projects path is used.
+            void setUseCustomProjectsPath(bool toggle);
+
+            // ----------------------------------------------
             // Functions related to the project manager configuration
             // ----------------------------------------------
             //! Returns a widget with project management options.
@@ -262,14 +293,6 @@ namespace Qtilities {
             void setCreateNewProjectOnStartup(bool toggle);
             //! Gets the configuration option to open the last project from the previous session on application startup.
             bool createNewProjectOnStartup() const;
-            //! Sets a custom projects path to use for saving projects.
-            void setCustomProjectsPath(const QString& projects_path);
-            //! Returns the custom projects path.
-            QString customProjectsPath() const;
-            //! Indicates if a custom projects path is used.
-            bool useCustomProjectsPath() const;
-            //! Toggles if a custom projects path is used.
-            void setUseCustomProjectsPath(bool toggle);
             //! Indicates if the project manager will check for modified open projects when the application exits.
             bool checkModifiedOpenProjects() const;
             //! Toggles if the project manager will check for modified open projects when the application exists.
@@ -323,22 +346,27 @@ namespace Qtilities {
             /*!
               Default is ExecNormal.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             ExecStyle executionStyle() const;
             //! Sets the execution style of the project manager.
             /*!
               Default is ExecNormal.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setExecutionStyle(ExecStyle exec_style);
 
             //! Removes a recent project path from the list of recent projects.
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void removeRecentProject(const QString& path);
+            //! Removes all recent project paths which does not exist and return the files that were removed.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QStringList removeNonExistingRecentProjects();
 
             // --------------------------------
             // IObjectBase Implemenation
@@ -393,6 +421,11 @@ namespace Qtilities {
                 This signal was added in Qtilities v1.1.
               */
             void recentProjectsChanged(const QStringList& names, const QStringList& paths);
+            //! Signal which is emitted whenever the custom project paths are changed.
+            /*!
+                This signal was added in Qtilities v1.1.
+              */
+            void customProjectPathsChanged();
 
         private:
             //! Add a project to the recent project list.

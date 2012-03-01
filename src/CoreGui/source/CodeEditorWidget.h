@@ -173,14 +173,14 @@ code_editor.codeEditor()->setReadOnly(true);
             /*!
               Default is CloseFile.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             FileRemovedOutsideHandlingPolicy fileRemovedOutsideHandlingPolicy() const;
             //! Sets the FileRemovedOutsideHandlingPolicy of the editor widget.
             /*!
               Default is CloseFile.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setFileRemovedOutsideHandlingPolicy(FileRemovedOutsideHandlingPolicy policy);
 
@@ -195,14 +195,14 @@ code_editor.codeEditor()->setReadOnly(true);
 
               \sa displayFlagsHint()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setDisplayFlagsHint(DisplayFlags display_flags);
             //! Gets the action display flags hint.
             /*!
               \sa setActionFlagsHint()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             ActionFlags actionFlagsHint() const;
             //! Sets the current action flags hints.
@@ -211,14 +211,14 @@ code_editor.codeEditor()->setReadOnly(true);
 
               \sa actionFlagsHint()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setActionFlagsHint(ActionFlags action_flags);
             //! Initializes the window according to the current flags.
             /*!
               \sa displayFlagsHint(), actionFlagsHint()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void initialize();
 
@@ -274,7 +274,7 @@ code_editor.codeEditor()->setReadOnly(true);
         signals:
             //! Signal which is emitted as soon as the file shown in the editor changed.
             /*!
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void fileNameChanged(const QString& new_file_name);
 
@@ -289,7 +289,7 @@ code_editor.codeEditor()->setReadOnly(true);
             bool loadFile(const QString& file_name);
             //! Closes the current file being edited, if any.
             /*!
-               This function was added in Qtilities v1.1.
+               <i>This function was added in %Qtilities v1.1.</i>
               */
             void closeFile();
             //! Saves the content of the editor to a file.
@@ -308,7 +308,7 @@ code_editor.codeEditor()->setReadOnly(true);
 
               \sa defaultPath()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setDefaultPath(const QString& file_path);
             //! Gets the default path used by the code editor widget when using file dialogs.
@@ -317,7 +317,7 @@ code_editor.codeEditor()->setReadOnly(true);
 
               \sa setDefaultPath()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             QString defaultPath() const;
 

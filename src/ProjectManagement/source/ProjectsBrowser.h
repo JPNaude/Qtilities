@@ -31,48 +31,53 @@
 **
 ****************************************************************************/
 
-#include "AboutWindow.h"
-#include "ui_AboutWindow.h"
-#include "QtilitiesApplication.h"
+#ifndef PROJECTS_BROWSER_H
+#define PROJECTS_BROWSER_H
 
-#include <QtilitiesCoreApplication_p>
+#include "ProjectManagement_global.h"
 
-#include <QApplication>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QDesktopWidget>
+#include <SideWidgetFileSystem>
 
-Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::qti_private_AboutWindow)
-{
-    ui->setupUi(this);
-    setWindowTitle(tr("About ") + "Qtilities");
-    ui->labelVersion->setText("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString() + " (Built on " + QLatin1String(__DATE__) + " at " + QLatin1String(__TIME__) + ")");
-    ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">http://www.qtilities.org</a>");
-    ui->labelCopyright->setText(tr("Copyright ©") + " 2009-2012, Jaco Naude");
+#include <QWidget>
 
-    // Put the widget in the center of the screen
-    QRect qrect = QApplication::desktop()->availableGeometry(this);
-    move(qrect.center() - rect().center());
-
-    setAttribute(Qt::WA_QuitOnClose,false);
-    setAttribute(Qt::WA_DeleteOnClose);
+namespace Ui {
+    class ProjectsBrowser;
 }
 
-Qtilities::CoreGui::qti_private_AboutWindow::~qti_private_AboutWindow()
-{
-    delete ui;
-}
+namespace Qtilities {
+    namespace ProjectManagement {
+        using namespace Qtilities::CoreGui;
+        using namespace Qtilities::CoreGui::Interfaces;
 
-void Qtilities::CoreGui::qti_private_AboutWindow::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
+        /*!
+          \class ProjectsBrowser
+          \brief The ProjectsBrowser class provides a ready to use widget which allows browsing of projects.
+
+          <i>This class was added in %Qtilities v1.1.</i>
+         */
+        class PROJECT_MANAGEMENT_SHARED_EXPORT ProjectsBrowser : public QWidget {
+            Q_OBJECT
+
+        public:
+            ProjectsBrowser(QWidget *parent = 0);
+            ~ProjectsBrowser();
+
+        private slots:
+            void refreshContents();
+            void on_btnClearRecent_clicked();
+            void on_buttonBox_accepted();
+            void on_listCustomCategories_itemClicked(QListWidgetItem *item);
+            void on_listWidgetRecent_itemDoubleClicked(QListWidgetItem *item);
+            void on_buttonBox_rejected();
+            void on_btnRemoveNonExisting_clicked();
+            void openProjectAtPath(const QString& project_path);
+
+        private:
+            Ui::ProjectsBrowser*    ui;
+            SideWidgetFileSystem*   file_system_browser;
+        };
     }
 }
+
+
+#endif // PROJECTS_BROWSER_H

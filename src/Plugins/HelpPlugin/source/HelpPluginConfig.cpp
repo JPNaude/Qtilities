@@ -80,6 +80,10 @@ Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::c
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {
+    // Only refresh when registered files changed:
+    if (files_widget.stringList() == HELP_MANAGER->registeredFiles())
+        return;
+
     disconnect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),this,SLOT(handleFilesChanged(QStringList)));
     HELP_MANAGER->clearRegisteredFiles(false);
     HELP_MANAGER->registerFiles(files_widget.stringList());

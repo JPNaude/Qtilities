@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>559</width>
-    <height>367</height>
+    <height>525</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,42 +85,33 @@
       <string>If a custom projects path is not used, projects will be saved in a folder called Projects in your session path.</string>
      </property>
      <property name="title">
-      <string>Use a custom projects path:</string>
+      <string>Use custom projects paths:</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelCustomProjectsPath">
-        <property name="maximumSize">
-         <size>
-          <width>40</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Path:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="3">
-       <widget class="QLineEdit" name="txtCustomProjectsPath">
-        <property name="toolTip">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="btnOpenProjectsPath">
-        <property name="toolTip">
-         <string>Browse for new folder</string>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="autoRaise">
+      <item row="0" column="0" colspan="3">
+       <widget class="QTableWidget" name="tableCustomPaths">
+        <property name="alternatingRowColors">
          <bool>true</bool>
+        </property>
+        <property name="showGrid">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="btnRemove">
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="btnAdd">
+        <property name="text">
+         <string>Add</string>
         </property>
        </widget>
       </item>
@@ -129,71 +120,16 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>25</width>
+          <width>356</width>
           <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="lblPathMessageIcon">
-        <property name="minimumSize">
-         <size>
-          <width>16</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" colspan="4">
-       <widget class="QLabel" name="lblPathMessageText">
-        <property name="text">
-         <string>PathMessageText</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="5">
-       <widget class="QToolButton" name="btnRestoreDefaultPath">
-        <property name="toolTip">
-         <string>Restore default</string>
-        </property>
-        <property name="text">
-         <string>...</string>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>200</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
@@ -204,8 +140,6 @@
   <tabstop>radioPromptUserToSave</tabstop>
   <tabstop>radioSaveAutomatically</tabstop>
   <tabstop>chkUseCustomProjectsPath</tabstop>
-  <tabstop>txtCustomProjectsPath</tabstop>
-  <tabstop>btnOpenProjectsPath</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -242,54 +176,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>chkUseCustomProjectsPath</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>labelCustomProjectsPath</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>93</x>
-     <y>151</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>39</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chkUseCustomProjectsPath</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>txtCustomProjectsPath</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>206</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>199</x>
-     <y>175</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chkUseCustomProjectsPath</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>btnOpenProjectsPath</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>345</x>
-     <y>152</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>191</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chkOpenLastProject</sender>
    <signal>toggled(bool)</signal>
    <receiver>chkCreateNewOnStartup</receiver>
@@ -302,22 +188,6 @@
     <hint type="destinationlabel">
      <x>46</x>
      <y>37</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chkUseCustomProjectsPath</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>btnRestoreDefaultPath</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>101</x>
-     <y>157</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>189</y>
     </hint>
    </hints>
   </connection>

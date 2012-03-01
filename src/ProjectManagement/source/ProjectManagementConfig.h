@@ -37,6 +37,7 @@
 #include <IConfigPage.h>
 
 #include <QWidget>
+#include <QTableWidgetItem>
 
 namespace Ui {
     class ProjectManagementConfig;
@@ -89,6 +90,8 @@ OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
             bool supportsApply() const { return true; }
 
         public slots:
+            void handleCurrentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
+            void handleActiveCustomProjectPathChanged(QTableWidgetItem *item);
             void handle_chkOpenLastProject(bool toggle);
             void handle_chkCreateNewOnStartup(bool toggle);
             void handle_btnClearRecentProjectList();
@@ -96,17 +99,23 @@ OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
             void handle_radioPromptUserToSave(bool toggle);
             void handle_radioSaveAutomatically(bool toggle);
             void handle_chkUseCustomProjectsPath(bool toggle);
-            void handle_btnOpenProjectsPath();
-            void handle_txtCustomProjectsPathTextChanged(QString new_path = "");
 
         protected:
             void changeEvent(QEvent *e);
 
         private slots:
-            void on_btnRestoreDefaultPath_clicked();
+            void on_btnRemove_clicked();
+            void on_btnAdd_clicked();
+            void refreshCustomProjectPaths();
 
         private:
-            Ui::ProjectManagementConfig *ui;
+            void saveCustomProjectsPaths();
+
+            Ui::ProjectManagementConfig*    ui;
+            QMap<QString,QString>           custom_paths;
+            QString                         active_category;
+            QTableWidgetItem*               active_category_item;
+            QTableWidgetItem*               default_category_item;
         };
     }
 }

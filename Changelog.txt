@@ -43,6 +43,9 @@ Qtilities v1.1 Changes
     - Observer::detachSubject() did not restore filtering of subject events properly in some cases.
     - Observer::deleteAll() got new parameter to specify that only objects inheriting a specified base class must be deleted, as well as a parameter which inidcates if views must be refreshed when the operation is completed.
     - Observer::eventFilter() will no longer crash if the object on which the event is being filtered is deleted during property validation in any subject filters.
+    - FileUtils::setFindFilesUnderDirParams() got new file filter parameter.
+    - Fixed bug where Observer::endTreeProcessingCycle() could in some situations not emit layoutChanged() causing tree views not to update when the tree's layout changed.
+    - QtilitiesProcess now takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged.
 
     ============================
     QtilitiesCoreGui:
@@ -122,6 +125,12 @@ Qtilities v1.1 Changes
     - TaskManagerGui::assignLoggerEngineToTask() is now public.
     - Fixed crash in NamingPolicyFilter when conflicting object is deleted in any name handler dialogs.
     - StringListWidget now allows you to specify non-removable items.
+    - SearchBoxWidget got a new SearchStringChangedNotificationMode enum which controls how and when changes to the search string is emitted.
+    - Added SideWidgetFileSystem::filePath().
+    - Improved performance on observer models where it does not load all column contents anymore during
+      initialize(), only for models that will be shown eventually.
+    - It is now possible to add the ObjectDynamicPropertyBrowser to observer widget in the same way that ObjectPropertyBrowser was added. See
+      the ObserverHints DisplayHints::DynamicPropertyBrowser for more information.
 
     ============================
     QtilitiesExtensionSystem:
@@ -137,8 +146,11 @@ Qtilities v1.1 Changes
     - Project related tasks now have proper logs.
     - The execution style of the project manager can now be defined to be either normal or silent. See ProjectManager::ExecStyle.
     - Project manager got a new recentProjectsChanged() signal providing notifications when the recent projects change.
-    - Fixed recentProjectNames() and recentProjectPaths() on project manager not returning items in the correct order.
-    - Added removeRecentProject() on project manager.
+    - Fixed recentProjectNames() and recentProjectPaths() to project manager not returning items in the correct order.
+    - Added removeRecentProject() to project manager.
+    - It is not possible to add multiple different custom project paths.
+    - Added new ProjectsBrowser class which allows you to browse recent projects and all custom project paths.
+    - Added removeNonExistingRecentProjects() to project manager.
 
     ============================
     QtilitiesTesting:
@@ -149,7 +161,7 @@ Qtilities v1.1 Changes
     Plugins:
     ============================
     - Added Help plugin.
-    - Project management plugin now provides actions for opening of previous projects.
+    - Project management plugin now provides actions for opening of previous projects in the File menu..
 
     ============================
     Examples:
@@ -158,6 +170,8 @@ Qtilities v1.1 Changes
         - Fixed the object management mode not showing anymore.
     - Tree Building Example:
         - Much improved, now shows different trees under seperate tabs.
+	- Observer Widget Example:
+		- Cleaned up and now shows how to use DynamicPropertyBrowser along with ObserverWidget.
 
 ================================
 Qtilities v1.0 Changes

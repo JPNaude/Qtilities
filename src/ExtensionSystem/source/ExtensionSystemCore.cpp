@@ -378,6 +378,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
     // Loop through all plugins and call finalize on them:
+    d->plugins.startProcessingCycle();
     int plugin_count = d->plugins.subjectCount();
     for (int i = 0; i < plugin_count; i++) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(0));
@@ -389,6 +390,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
             d->plugins.detachSubject(d->plugins.subjectAt(0));
         }
     }
+    d->plugins.endProcessingCycle(false);
 }
 
 QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {

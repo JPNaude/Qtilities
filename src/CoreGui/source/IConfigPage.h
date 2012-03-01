@@ -62,20 +62,81 @@ namespace Qtilities {
                 virtual ~IConfigPage() {}
 
                 //! Gets the icon used for the page in the configuration widget.
+                /*!
+                  \sa setConfigPageIcon()
+                  */
                 virtual QIcon configPageIcon() const = 0;
+                //! Sets the icon used for the page in the configuration widget.
+                /*!
+                  \note The default implementation does nothing.
+
+                  \sa configPageIcon()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual void setConfigPageIcon(const QIcon& icon) {}
                 //! Gets widget used in the configuration page area.
                 virtual QWidget* configPageWidget() = 0;
+                //! Gets the help ID of the config page.
+                /*!
+                  \note The default implementation returns an empty, invalid help ID.
+
+                  \sa setConfigPageHelpID()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual QString configPageHelpID() const { return QString(); }
+                //! Sets the help ID of the config page.
+                /*!
+                  This allows you to use config pages from other libraries, such as %Qtilities and specify
+                  help IDs for them which matches your application's help structure.
+
+                  \sa configPageHelpID()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual void setConfigPageHelpID(const QString& config_help_id) { Q_UNUSED(config_help_id) }
                 //! Gets the category of the config page.
                 /*!
-                  \note This category is only shown in the configuration widget when it is shown in Qtilities::TreeView display mode.
+                  \sa setConfigPageCategory()
                   */
                 virtual QtilitiesCategory configPageCategory() const = 0;
+                //! Sets the category of the config page.
+                /*!
+                  This allows you to use config pages from other libraries, such as %Qtilities and group them under
+                  your own custom categories.
+
+                  \note The default implementation does nothing.
+
+                  \sa configPageCategory()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual void setConfigPageCategory(const QtilitiesCategory& category) {}
                 //! Gets the title of the config page.
                 virtual QString configPageTitle() const = 0;
                 //! Indicates that the current state of the config page must be saved (applied).
                 virtual void configPageApply() = 0;
                 //! Indicates if the page supports apply operations. When a page only displays information, ExtensionSystemConfig, we don't want the apply button to be active. This function thus controls the activity of the apply button.
                 virtual bool supportsApply() const = 0;
+                //! Indicates that the defaults of the page must be restored.
+                /*!
+                  \note The default implementation does nothing.
+
+                  \sa supportsRestoreDefaults()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual void configPageRestoreDefaults() {}
+                //! Indicates if the page supports restoration of default settings.
+                /*!
+                  \note The default implementation does nothing.
+
+                  \sa configPageRestoreDefaults()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual bool supportsRestoreDefaults() const { return false; }
             };
         }
     }

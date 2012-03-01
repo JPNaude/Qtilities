@@ -868,7 +868,7 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
                 }
             }
         }
-    } else if (observer->contains(object) && event->type() == QEvent::User) {
+    }/* else if (observer->contains(object) && event->type() == QEvent::User) {
         QtilitiesPropertyChangeEvent* qtilities_event = static_cast<QtilitiesPropertyChangeEvent *> (event);
         if (qtilities_event) {
             if (!qstrcmp(qtilities_event->propertyName().data(),qti_prop_ACTIVITY_MAP)) {
@@ -896,7 +896,7 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
                 }
             }
         }
-    }
+    }*/
     return false;
 }
 

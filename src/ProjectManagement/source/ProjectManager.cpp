@@ -56,6 +56,7 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
         current_project_busy_count(0),
         recent_projects_size(5),
+        default_custom_project_paths_category("Default"),
         is_initialized(false),
         project_types(IExportable::Binary | IExportable::XML),
         default_project_type(IExportable::XML),
@@ -72,8 +73,10 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     QPointer<ProjectManagementConfig>       config_widget;
     bool                                    open_last_project;
     bool                                    auto_create_new_project;
-    bool                                    use_custom_projects_path;
-    QString                                 custom_projects_path;
+    bool                                    use_custom_projects_paths;
+    // Keys = Categories, Values = Paths
+    QMap<QString,QVariant>                  custom_projects_paths;
+    QString                                 default_custom_project_paths_category;
     bool                                    check_modified_projects;
     ProjectManager::ModifiedProjectsHandlingPolicy  modified_projects_handling_policy;
     bool                                    is_initialized;
@@ -352,6 +355,8 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
             file_name = d->current_project->projectFile();
     }
 
+    qDebug() << "Starting project save to " << file_name;
+
     int task_id = findTaskID(taskNameToString(TaskSaveProject));
     Task* task_ref = 0;
     if (isTaskActive(task_id)) {
@@ -528,20 +533,62 @@ bool Qtilities::ProjectManagement::ProjectManager::createNewProjectOnStartup() c
     return d->auto_create_new_project;
 }
 
-void Qtilities::ProjectManagement::ProjectManager::setCustomProjectsPath(const QString& projects_path) {
-    d->custom_projects_path = QDir::toNativeSeparators(QDir::cleanPath(projects_path));
+void Qtilities::ProjectManagement::ProjectManager::setCustomProjectsPath(const QString& projects_path, QString projects_category) {
+    QMap<QString,QVariant> start_map = d->custom_projects_paths;
+
+    QDir dir(projects_path);
+    if (!dir.exists()) {
+        if (dir.mkpath(projects_path)) {
+            LOG_INFO(tr("Successfully created custom projects path at: ") + projects_path);
+        }
+    }
+
+    if (projects_category.isEmpty())
+        projects_category = "Default";
+    d->custom_projects_paths[projects_category] = QVariant(QDir::toNativeSeparators(QDir::cleanPath(projects_path)));
+
+    if (d->custom_projects_paths != start_map)
+        emit customProjectPathsChanged();
 }
 
-QString Qtilities::ProjectManagement::ProjectManager::customProjectsPath() const {
-    return d->custom_projects_path;
+QString Qtilities::ProjectManagement::ProjectManager::customProjectsPath(QString projects_category) const {
+    if (projects_category.isEmpty())
+        projects_category = "Default";
+
+    if (!d->custom_projects_paths.contains(projects_category))
+        d->custom_projects_paths[projects_category] = QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects";
+
+    return d->custom_projects_paths[projects_category].toString();
+}
+
+void ProjectManagement::ProjectManager::removeCustomProjectsPath(QString projects_category) {
+    if (projects_category == "Default")
+        return;
+
+    d->custom_projects_paths.remove(projects_category);
+    emit customProjectPathsChanged();
+}
+
+void ProjectManagement::ProjectManager::setDefaultCustomProjectsCategory(const QString &projects_category) {
+    d->default_custom_project_paths_category = projects_category;
+}
+
+QString ProjectManagement::ProjectManager::defaultCustomProjectsCategory() const {
+    if (d->default_custom_project_paths_category.isEmpty())
+        d->default_custom_project_paths_category = "Default";
+    return d->default_custom_project_paths_category;
+}
+
+QStringList ProjectManagement::ProjectManager::customProjectCategories() const {
+    return d->custom_projects_paths.keys();
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::useCustomProjectsPath() const {
-    return d->use_custom_projects_path;
+    return d->use_custom_projects_paths;
 }
 
 void Qtilities::ProjectManagement::ProjectManager::setUseCustomProjectsPath(bool toggle) {
-    d->use_custom_projects_path = toggle;
+    d->use_custom_projects_paths = toggle;
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::checkModifiedOpenProjects() const {
@@ -572,10 +619,11 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.setValue("auto_create_new_project", d->auto_create_new_project);
     settings.setValue("recent_project_map", d->recent_project_names);
     settings.setValue("recent_project_stack", d->recent_project_stack);
-    settings.setValue("use_custom_projects_path", d->use_custom_projects_path);
+    settings.setValue("use_custom_projects_path", d->use_custom_projects_paths);
     settings.setValue("check_modified_projects", d->check_modified_projects);
     settings.setValue("modified_projects_handling_policy", QVariant((int) d->modified_projects_handling_policy));
-    settings.setValue("custom_projects_path", QVariant(d->custom_projects_path));
+    settings.setValue("custom_projects_paths", d->custom_projects_paths);
+    settings.setValue("default_custom_project_paths_category",defaultCustomProjectsCategory());
     settings.endGroup();
     settings.endGroup();
 }
@@ -587,12 +635,23 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     settings.beginGroup("Projects");
     d->open_last_project = settings.value("open_last_project", false).toBool();
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
-    d->use_custom_projects_path = settings.value("use_custom_projects_path", false).toBool();
+    d->use_custom_projects_paths = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();
     d->modified_projects_handling_policy = (ProjectManager::ModifiedProjectsHandlingPolicy) settings.value("modified_projects_handling_policy", 0).toInt();
-    d->custom_projects_path = settings.value("custom_projects_path",QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects").toString();
     d->recent_project_names = settings.value("recent_project_map", false).toMap();
     d->recent_project_stack = settings.value("recent_project_stack", QStringList()).toStringList();
+    d->custom_projects_paths = settings.value("custom_projects_paths", false).toMap();
+    d->default_custom_project_paths_category = settings.value("default_custom_project_paths_category","Default").toString();
+
+    // This is for backward compatibility with Qtilities v1.0:
+    // If there was a custom project path saved in Qtilities v1.0, we load it and add it to the list of current custom project paths as the default:
+    if (settings.contains("custom_projects_path")) {
+        QString old_custom_projects_path = settings.value("custom_projects_path",QtilitiesApplication::applicationSessionPath() + QDir::separator() + "Projects").toString();
+        setCustomProjectsPath(old_custom_projects_path,"Default");
+        // Now clear it:
+        //settings.remove("custom_projects_path");
+    }
+
     settings.endGroup();
     settings.endGroup();
 }
@@ -695,6 +754,23 @@ void ProjectManagement::ProjectManager::removeRecentProject(const QString &path)
     }
 }
 
+QStringList ProjectManagement::ProjectManager::removeNonExistingRecentProjects() {
+    QStringList removed_paths;
+    // Remove it from the stack if its in there:
+    foreach (QString path, d->recent_project_stack) {
+        QFileInfo fi(path);
+        if (!fi.exists()) {
+            removed_paths << path;
+        }
+    }
+
+    foreach (QString path, removed_paths)
+        removeRecentProject(path);
+
+    emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
+    return removed_paths;
+}
+
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {
     if (!project)
         return;
@@ -737,6 +813,13 @@ void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new
     }
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         d->current_project->setModificationState(new_state,notification_targets);
+    }
+}
+
+void ProjectManagement::ProjectManager::clearCustomProjectsPaths() {
+    foreach (QString key, d->custom_projects_paths.keys()) {
+        if (key != "Default");
+            removeCustomProjectsPath(key);
     }
 }
 

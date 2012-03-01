@@ -38,5 +38,4 @@ HEADERS +=  source/ProjectManagementPlugin.h \
 
 SOURCES +=  source/ProjectManagementPlugin.cpp
 
-RESOURCES += \
-    resources/ProjectManagementPlugin.qrc
+RESOURCES +=

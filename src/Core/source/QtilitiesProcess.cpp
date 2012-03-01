@@ -17,6 +17,8 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QtilitiesProcessPrivateData() : process(0) { }
 
     QProcess* process;
+    QString buffer_std_out;
+    QString buffer_std_error;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, QObject* parent) : Task(task_name,enable_logging,parent) {
@@ -108,16 +110,28 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
-    QString tmp_str = d->process->readAllStandardOutput();
-    if (!tmp_str.isEmpty())
-        logMessage(tmp_str);
-    QCoreApplication::processEvents();
+    d->buffer_std_out.append(d->process->readAllStandardOutput());
+
+    // We search for \r and split messages up:
+    QStringList split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
+    while (split_list.count() > 1) {
+        logMessage(split_list.front());
+        split_list.pop_front();
+    }
+
+    d->buffer_std_out = split_list.front();
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {
-    QString tmp_str = d->process->readAllStandardError();
-    if (!tmp_str.isEmpty())
-        logMessage(tmp_str,Logger::Error);
-    QCoreApplication::processEvents();
+    d->buffer_std_error.append(d->process->readAllStandardError());
+
+    // We search for \r and split messages up:
+    QStringList split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
+    while (split_list.count() > 1) {
+        logMessage(split_list.front());
+        split_list.pop_front();
+    }
+
+    d->buffer_std_error = split_list.front();
 }
 

@@ -145,7 +145,7 @@ namespace Qtilities {
 
               \sa setFile()
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             virtual void setFileForce(const QString& file_path, const QString& relative_to_path = QString(), bool broadcast = true);
 

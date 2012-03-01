@@ -94,21 +94,21 @@ namespace Qtilities {
             /*!
               Enabled by default.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void disableTaskProgressUpdating();
             //! Enables updating of task progress bars throughout the application.
             /*!
               Enabled by default.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void enableTaskProgressUpdating();
             //! Gets if updating of task progress bars throughout the application is enabled.
             /*!
               Enabled by default.
 
-              This function was added in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             bool taskProgressUpdatingEnabled() const;
 

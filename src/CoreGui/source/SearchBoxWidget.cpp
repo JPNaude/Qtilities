@@ -65,6 +65,7 @@ struct Qtilities::CoreGui::SearchBoxWidgetPrivateData {
     SearchBoxWidget::ButtonFlags    button_flags;
     SearchBoxWidget::SearchOptions  search_options;
     SearchBoxWidget::WidgetMode     widget_mode;
+    SearchBoxWidget::SearchStringChangedNotificationMode search_string_notification_mode;
 };
 
 Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_options, WidgetMode mode, ButtonFlags buttons, QWidget *parent) :
@@ -74,6 +75,7 @@ Qtilities::CoreGui::SearchBoxWidget::SearchBoxWidget(SearchOptions search_option
     ui->setupUi(this);
     d = new SearchBoxWidgetPrivateData;
     d->widget_target = SearchBoxWidget::ExternalTarget;
+    d->search_string_notification_mode = SearchBoxWidget::NotifyOnChange;
 
     setWindowTitle(tr("Search Box Widget"));
 
@@ -354,12 +356,6 @@ void Qtilities::CoreGui::SearchBoxWidget::handleOptionsChanged() {
     emit searchOptionsChanged();
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::handleSearchStringChanged(const QString& string) {
-    handleFindPrevious();
-    handleFindNext();
-    emit searchStringChanged(string);
-}
-
 void Qtilities::CoreGui::SearchBoxWidget::handleReplaceStringChanged(const QString& string) {
     emit replaceStringChanged(string);
 }
@@ -544,10 +540,34 @@ void Qtilities::CoreGui::SearchBoxWidget::clearInfoText() {
     ui->txtInfoMessage->clear();
 }
 
+void Qtilities::CoreGui::SearchBoxWidget::setSearchStringNotificationMode(Qtilities::CoreGui::SearchBoxWidget::SearchStringChangedNotificationMode notification_mode) {
+    d->search_string_notification_mode = notification_mode;
+}
+
+Qtilities::CoreGui::SearchBoxWidget::SearchStringChangedNotificationMode Qtilities::CoreGui::SearchBoxWidget::searchStringNotificationMode() const {
+    return d->search_string_notification_mode;
+}
+
 void Qtilities::CoreGui::SearchBoxWidget::setMessage(const QString& message) {
     ui->lblMessage->setText(message);
 }
 
 Qtilities::CoreGui::SearchBoxWidget::WidgetTarget Qtilities::CoreGui::SearchBoxWidget::widgetTarget() const {
     return d->widget_target;
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::on_txtSearchString_returnPressed() {
+    if (d->search_string_notification_mode == NotifyOnReturn) {
+        handleFindPrevious();
+        handleFindNext();
+        emit searchStringChanged(ui->txtSearchString->text());
+    }
+}
+
+void Qtilities::CoreGui::SearchBoxWidget::handleSearchStringChanged(const QString& string) {
+    if (d->search_string_notification_mode == NotifyOnChange) {
+        handleFindPrevious();
+        handleFindNext();
+        emit searchStringChanged(string);
+    }
 }

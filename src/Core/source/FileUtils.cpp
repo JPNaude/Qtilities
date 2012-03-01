@@ -53,6 +53,7 @@ struct Qtilities::Core::FileUtilsPrivateData {
     // Storage for findFilesUnderDir() future calls:
     QString             dirName;
     QString             ignore_list;
+    QString             file_filters;
     QDir::Filters       filters;
     QDir::SortFlags     sort;
 };
@@ -76,7 +77,7 @@ Qtilities::Core::FileUtils::~FileUtils() {
 // Class Implementation
 // --------------------------------
 
-QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort, bool first_run) {
+QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName, const QString& file_filters, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort, bool first_run) {
     static QFileInfoList list;
 
     QDir dir(dirName);
@@ -90,6 +91,9 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         task_ref = findTask(taskNameToString(TaskFindFilesUnderDir));
         Q_ASSERT(task_ref);
     }
+
+    QStringList file_filters_list = file_filters.split(" ",QString::SkipEmptyParts);
+    dir.setNameFilters(file_filters_list);
 
     QDir::Filters final_filters = filters;
     final_filters |= QDir::AllDirs;
@@ -148,7 +152,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                     task_ref->logMessage("Searching for files in directory: " + info.absoluteFilePath());
                     task_ref->setDisplayName("Finding Files: " + info.dir().dirName());
                 }
-                findFilesUnderDir(info.absoluteFilePath(),ignore_list,filters,sort,false);
+                findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters,sort,false);
                 if (task_ref) {
                     if (first_run)
                         task_ref->addCompletedSubTasks(10);
@@ -190,8 +194,9 @@ QFileInfoList Qtilities::Core::FileUtils::lastFilesUnderDir() {
     return last_files_under_dir;
 }
 
-void Qtilities::Core::FileUtils::setFindFilesUnderDirParams(const QString &dirName, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort) {
+void Qtilities::Core::FileUtils::setFindFilesUnderDirParams(const QString &dirName, const QString& file_filters, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort) {
     d->dirName = dirName;
+    d->file_filters = file_filters;
     d->ignore_list = ignore_list;
     d->filters = filters;
     d->sort = sort;
@@ -205,7 +210,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDirLauncher() {
         Q_ASSERT(task_ref);
 
         if (task_ref->state() & ITask::TaskIdle)
-            return findFilesUnderDir(d->dirName,d->ignore_list,d->filters,d->sort);
+            return findFilesUnderDir(d->dirName,d->file_filters,d->ignore_list,d->filters,d->sort);
     }
 
     return QFileInfoList();
