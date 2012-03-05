@@ -86,6 +86,8 @@ struct Qtilities::CoreGui::ObserverTreeModelData  {
         This is needed in order to expand renamed categories.
       */
     QMap<QString,QString>       expanded_items_replace_map;
+
+    QMutex                      build_mutex;
 };
 
 Qtilities::CoreGui::ObserverTreeModel::ObserverTreeModel(QObject* parent) :
@@ -1112,9 +1114,15 @@ void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<
     }
 
     if (d->tree_model_up_to_date) {
-        d->new_selection = new_selection;
-        //qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
-        rebuildTreeStructure();
+        if (d->build_mutex.tryLock()) {
+            d->new_selection = new_selection;
+            //qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
+            rebuildTreeStructure();
+            d->build_mutex.unlock();
+        } else {
+            d->tree_rebuild_queued = true;
+            d->queued_selection = new_selection;
+        }
     } else {
         d->tree_rebuild_queued = true;
         d->queued_selection = new_selection;

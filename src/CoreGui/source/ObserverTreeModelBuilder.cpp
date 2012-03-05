@@ -102,7 +102,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_e
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
-    QMutexLocker locker(&d->build_lock);
+    d->build_lock.lock();
 
     #ifdef QTILITIES_BENCHMARKING
     time_t timer_start;
@@ -138,6 +138,8 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     diff = difftime(timer_end,timer_start);
     qDebug() << Q_FUNC_INFO << "Time at end of build" << diff;
     #endif
+
+    d->build_lock.unlock();
 
     d->task.completeTask(ITask::TaskSuccessful);
     //printStructure(root_item);
