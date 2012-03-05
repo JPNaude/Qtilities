@@ -292,6 +292,14 @@ namespace Qtilities {
               \note Only applicable when hierarchicalDisplayToString() is CategorizedHierarchy.
               \note Category drops are enabled through CategoriesAcceptSubjectDrops which works independent of dragDropHint(). See categoryEditingFlags() for more information about category drops. Note that dragDropHint() must contain AllowDrags in order for category drag/drop operations to work.
 
+              Thus, to enabled dragging items between categories, the following is needed:
+
+\code
+node->displayHints()->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels |
+                                            ObserverHints::CategoriesAcceptSubjectDrops);
+node->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
+\endcode
+
               \sa setCategoryEditingFlags(), categoryEditingFlags()
               */
             enum CategoryEditingHint {

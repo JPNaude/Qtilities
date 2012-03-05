@@ -40,12 +40,14 @@
 #include <QStringListModel>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDesktopServices>
 
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::StringListWidgetPrivateData {
-    StringListWidgetPrivateData() : list_type(StringListWidget::PlainStrings) {}
+    StringListWidgetPrivateData() : list_type(StringListWidget::PlainStrings),
+        open_on_double_click(false) {}
 
     QStringListModel                model;
     QAction*                        actionAddString;
@@ -58,6 +60,7 @@ struct Qtilities::CoreGui::StringListWidgetPrivateData {
     QString                         open_dialog_path;
 
     Qt::ToolBarArea                 toolbar_area;
+    bool                            open_on_double_click;
 };
 
 Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string_list, Qt::ToolBarArea toolbar_area, QWidget* parent, Qt::WindowFlags flags) :
@@ -85,6 +88,7 @@ Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string
 
     // TODO: Bad way to do it, but workaround for now:
     connect(ui->listView,SIGNAL(clicked(QModelIndex)),SIGNAL(selectionChanged()));
+    connect(ui->listView,SIGNAL(doubleClicked(QModelIndex)),SLOT(handleDoubleClick(QModelIndex)));
 }
 
 Qtilities::CoreGui::StringListWidget::~StringListWidget() {
@@ -202,10 +206,37 @@ void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
     }
 }
 
+void Qtilities::CoreGui::StringListWidget::handleDoubleClick(QModelIndex index) {
+    if (d->open_on_double_click) {
+        QString current_selection = d->model.data(index,Qt::DisplayRole).toString();
+        if (d->list_type == FilePaths) {
+            QDesktopServices explorer_service;
+            if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
+                LOG_ERROR(QString("Failed to open file: %1").arg(current_selection));
+            else
+                LOG_INFO(QString("Successfully opened file: %1").arg(current_selection));
+        } else if (d->list_type == Directories) {
+            QDesktopServices explorer_service;
+            if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
+                LOG_ERROR(QString("Failed to path at: %1").arg(current_selection));
+            else
+                LOG_INFO(QString("Successfully opened path at: %1").arg(current_selection));
+        }
+    }
+}
+
 QListView* Qtilities::CoreGui::StringListWidget::listView() {
     return ui->listView;
 }
 
 QStringListModel* Qtilities::CoreGui::StringListWidget::stringListModel() {
     return &d->model;
+}
+
+void Qtilities::CoreGui::StringListWidget::setOpenOnDoubleClick(bool open_on_double_click) {
+    d->open_on_double_click = open_on_double_click;
+}
+
+bool Qtilities::CoreGui::StringListWidget::openOnDoubleClick() const {
+    return d->open_on_double_click;
 }

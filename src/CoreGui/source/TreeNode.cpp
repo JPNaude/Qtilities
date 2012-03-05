@@ -385,7 +385,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     // Put the complete doc in a string and save it to the file:
     // Still write it even if it fails so that we can check the output file for debugging purposes.
     QString docStr = doc.toString(2);
-    file.write(docStr.toAscii());
+    if (file.write(docStr.toAscii()) == -1) {
+        file.close();
+        if (errorMsg)
+            *errorMsg = QString(tr("Failed to write to output file during tree node export:")).arg(file_name);
+        LOG_ERROR(QString(tr("Failed to write to output file during tree node export:")).arg(file_name));
+        return false;
+    }
+
     file.close();
 
     //QApplication::restoreOverrideCursor();

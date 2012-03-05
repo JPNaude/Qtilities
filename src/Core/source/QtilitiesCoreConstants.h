@@ -262,7 +262,7 @@ hint set to categorized hierarchy.
 Below is an example of how to add the qti_prop_CATEGORY_MAP property to an object.
 \code
 Observer* obs = new Observer("My Observer","Observer showing categories");
-obs->setHierarchicalDisplayHint(Observer::CategorizedHierarchy);
+obs->setHierarchicalDisplayHint(ObserverHints::CategorizedHierarchy);
 
 QObject* obj = new QObject();
 MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
@@ -558,7 +558,7 @@ for the Qt::ForegroundRole.
 Below is an example of how to add this property to an object.
 \code
 QObject* obj = new QObject();
-SharedProperty property(qti_prop_FOREGROUNDQBrush(Qt::NoBrush));
+SharedProperty property(qti_prop_FOREGROUND,QBrush(Qt::NoBrush));
 ObjectManager::setSharedProperty(obj, property);
 \endcode
 */

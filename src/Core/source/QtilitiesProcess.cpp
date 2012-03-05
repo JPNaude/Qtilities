@@ -37,8 +37,10 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
 }
 
 Qtilities::Core::QtilitiesProcess::~QtilitiesProcess() {
-    if (d->process)
+    if (d->process) {
+        d->process->kill();
         delete d->process;
+    }
     delete d;
 }
 
@@ -115,7 +117,12 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
     // We search for \r and split messages up:
     QStringList split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
     while (split_list.count() > 1) {
-        logMessage(split_list.front());
+        if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+            logWarning(split_list.front());
+        else if (split_list.front().trimmed().startsWith("ERROR",Qt::CaseInsensitive))
+            logError(split_list.front());
+        else
+            logMessage(split_list.front());
         split_list.pop_front();
     }
 
@@ -128,7 +135,12 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
     // We search for \r and split messages up:
     QStringList split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
     while (split_list.count() > 1) {
-        logMessage(split_list.front());
+        if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+            logWarning(split_list.front());
+        else if (split_list.front().trimmed().startsWith("INFO",Qt::CaseInsensitive))
+            logMessage(split_list.front());
+        else
+            logError(split_list.front());
         split_list.pop_front();
     }
 

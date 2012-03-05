@@ -548,6 +548,8 @@ void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
     // TODO: This can be improved. Add that property editors can be made read only.
     if (d->property_browser_widget)
         d->property_browser_widget->setEnabled(!read_only);
+    if (d->dynamic_property_browser_widget)
+        d->dynamic_property_browser_widget->setEnabled(!read_only);
     #endif
 
     emit readOnlyStateChanged(read_only);
@@ -3244,16 +3246,14 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
             clearSelection();
             deleteActionToolBars();
             d->initialized = true;
-            if (d->tree_view)
-                d->tree_view->setEnabled(false);
+            setEnabled(false);
         } else {
             if (!d->top_level_observer) {
                 d->initialized = false;
                 clearSelection();
                 deleteActionToolBars();
                 d->initialized = true;
-                if (d->tree_view)
-                    d->tree_view->setEnabled(false);
+                setEnabled(false);
             } else {
                 if (!d->top_level_observer->isProcessingCycleActive()) {
                     setObserverContext(d->top_level_observer);
@@ -3263,8 +3263,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
                     clearSelection();
                     deleteActionToolBars();
                     d->initialized = true;
-                    if (d->tree_view)
-                        d->tree_view->setEnabled(false);
+                    setEnabled(false);
                 }
             }
 

@@ -79,15 +79,16 @@ namespace Qtilities {
                 PlainStrings         = 0, /*!< Plain strings. */
                 FilePaths            = 1, /*!< File paths. */
                 Directories          = 2  /*!< Directories. */
-            };
+            };           
 
             StringListWidget(const QStringList& string_list = QStringList(), Qt::ToolBarArea toolbar_area = Qt::TopToolBarArea, QWidget * parent = 0, Qt::WindowFlags flags = 0);
             ~StringListWidget();
 
+        public:
             //! Gets the current list of strings.
             QStringList stringList() const;
             //! Sets the current list of string.
-            void setStringList(const QStringList& string_list);
+            void setStringList(const QStringList& string_list);     
 
             //! Gets the current list of non-removable only strings.
             QStringList nonRemovableStringList() const;
@@ -119,6 +120,25 @@ namespace Qtilities {
             //! Returns the QStringListModel used as the model in the list view.
             QStringListModel* stringListModel();
 
+            //! Sets if files and folders must be opened when double clicked.
+            /*!
+              Only applicable for FilePaths and Directories list types, see listType().
+
+              \sa openOnDoubleClick()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setOpenOnDoubleClick(bool open_on_double_click);
+            //! Gets if files and folder must be opened when double clicked.
+            /*!
+              False by default.
+
+              \sa setOpenOnDoubleClick()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            bool openOnDoubleClick() const;
+
         signals:
             //! Signal emitted as soon as the list of string changed.
             void stringListChanged(const QStringList& string_list);
@@ -128,6 +148,7 @@ namespace Qtilities {
         private slots:
             void handleAddString();
             void handleRemoveString();
+            void handleDoubleClick(QModelIndex index);
 
         private:
             Ui::StringListWidget *ui;
