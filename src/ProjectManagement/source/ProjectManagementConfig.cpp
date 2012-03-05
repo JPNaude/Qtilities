@@ -110,7 +110,10 @@ QString Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle()
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManagementConfig::configPageCategory() const {
-    return QtilitiesCategory("General");
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr("General"));
+    else
+        return IConfigPage::configPageCategory();
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {

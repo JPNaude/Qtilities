@@ -206,6 +206,8 @@ settings.endGroup();
         public slots:
             //! Handles item changes in the page tree.
             void handleActiveItemChanges(QList<QObject*> active_pages);
+            //! Handles changes to active grouped pages.
+            void handleActiveGroupedPageChanged(IConfigPage* new_active_grouped_page);
             //! Function to set the active page.
             void setActivePage(const QString& active_page_name);
             //! Function to get the active page name and category.

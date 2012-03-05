@@ -150,18 +150,24 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
         // Construct grouped pages for all categories:
         for (int i = 0; i < categories.count(); i++) {
-            GroupedConfigPage* grouped_page = new GroupedConfigPage(categories.at(i));
-            grouped_config_pages[categories.at(i)] = grouped_page;
-            grouped_page->setApplyAll(d->apply_all_pages);
-            connect(grouped_page,SIGNAL(appliedPage(IConfigPage*)),SIGNAL(appliedPage(IConfigPage*)),Qt::UniqueConnection);
-            uncategorized_pages << grouped_page;
+            // Check if there is already a grouped page for this category (in case initialize() is called twice):
+            if (!grouped_config_pages.contains(categories.at(i))) {
+                GroupedConfigPage* grouped_page = new GroupedConfigPage(categories.at(i));
+                grouped_config_pages[categories.at(i)] = grouped_page;
+                grouped_page->setApplyAll(d->apply_all_pages);
+                connect(grouped_page,SIGNAL(appliedPage(IConfigPage*)),SIGNAL(appliedPage(IConfigPage*)),Qt::UniqueConnection);
+                connect(grouped_page,SIGNAL(activeGroupedPageChanged(IConfigPage*)),SLOT(handleActiveGroupedPageChanged(IConfigPage*)));
+                uncategorized_pages << grouped_page;
 
-            // Look if there is an information provider for this page:
-            for (int g = 0; g < grouped_page_info_providers.count(); g++) {
-                if (grouped_page_info_providers.at(g)->isProviderForCategory(categories.at(i))) {
-                    grouped_page->setConfigPageIcon(grouped_page_info_providers.at(g)->groupedConfigPageIcon(categories.at(i)));
+                // Look if there is an information provider for this page:
+                for (int g = 0; g < grouped_page_info_providers.count(); g++) {
+                    if (grouped_page_info_providers.at(g)->isProviderForCategory(categories.at(i))) {
+                        grouped_page->setConfigPageIcon(grouped_page_info_providers.at(g)->groupedConfigPageIcon(categories.at(i)));
+                        continue;
+                    }
                 }
             }
+
         }
 
         // Now add all categorized pages to the grouped pages:
@@ -292,9 +298,16 @@ bool Qtilities::CoreGui::ConfigurationWidget::applyAllPages() const {
 
 bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) const {
     for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+        // Check if its just a normal config page:
         IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
         if (config_page){
             if (config_page->configPageTitle() == page_name)
+                return true;
+        }
+        // Check if its a grouped config page:
+        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+        if (grouped_config_page){
+            if (grouped_config_page->hasConfigPage(page_name))
                 return true;
         }
     }
@@ -304,10 +317,17 @@ bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) 
 
 IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& page_name) const {
     for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+        // Check if its just a normal config page:
         IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
         if (config_page){
             if (config_page->configPageTitle() == page_name)
                 return config_page;
+        }
+        // Check if its a grouped config page:
+        GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+        if (grouped_config_page){
+            if (grouped_config_page->hasConfigPage(page_name))
+                return grouped_config_page->getConfigPage(page_name);
         }
     }
 
@@ -364,6 +384,22 @@ void Qtilities::CoreGui::ConfigurationWidget::handleActiveItemChanges(QList<QObj
     }
 }
 
+void Qtilities::CoreGui::ConfigurationWidget::handleActiveGroupedPageChanged(IConfigPage *new_active_grouped_page) {
+    // First check if the grouped page is the active page:
+    if (d->activity_filter->activeSubjects().count() != 1)
+        return;
+
+    if (d->activity_filter->activeSubjects().front() != sender())
+        return;
+
+    if (d->apply_all_pages)
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+    else
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(new_active_grouped_page->supportsApply());
+    ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(!new_active_grouped_page->configPageHelpID().isEmpty());
+    ui->buttonBox->button(QDialogButtonBox::RestoreDefaults)->setEnabled(new_active_grouped_page->supportsRestoreDefaults());
+}
+
 void Qtilities::CoreGui::ConfigurationWidget::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
@@ -383,7 +419,27 @@ void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& activ
         active_pages << page;
         d->activity_filter->setActiveSubjects(active_pages);
         d->config_pages_widget.selectObjects(active_pages);
+        return;
+    } else {
+        // Check if its in a grouped config page:
+        for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+            GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
+            if (grouped_config_page){
+                if (grouped_config_page->hasConfigPage(active_page_name)) {
+                    QList<QObject*> active_pages;
+                    active_pages << grouped_config_page;
+                    d->activity_filter->setActiveSubjects(active_pages);
+                    d->config_pages_widget.selectObjects(active_pages);
+
+                    // Now select the correct tab in the grouped config page:
+                    grouped_config_page->setActivePage(active_page_name);
+                    return;
+                }
+            }
+        }
     }
+
+    LOG_DEBUG("Cannot set active configuration page to \"" + active_page_name + "\". A page with this title does not exist.");
 }
 
 QString Qtilities::CoreGui::ConfigurationWidget::activePageName() const {
@@ -391,7 +447,13 @@ QString Qtilities::CoreGui::ConfigurationWidget::activePageName() const {
         return QString();
 
     IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
-    return config_page->configPageTitle();
+
+    // Check if the active config page is a grouped page:
+    GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (config_page->objectBase());
+    if (grouped_config_page) {
+        return grouped_config_page->activePage()->configPageTitle();
+    } else
+        return config_page->configPageTitle();
 }
 
 Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWidget::activePageIFace() const {
@@ -399,7 +461,13 @@ Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWi
         return 0;
 
     IConfigPage* config_page = qobject_cast<IConfigPage*> (d->activity_filter->activeSubjects().front());
-    return config_page;
+
+    // Check if the active config page is a grouped page:
+    GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (config_page->objectBase());
+    if (grouped_config_page) {
+        return grouped_config_page->activePage();
+    } else
+        return config_page;
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButton *button) {

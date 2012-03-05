@@ -46,6 +46,8 @@ Qtilities::CoreGui::GroupedConfigPage::GroupedConfigPage(const QtilitiesCategory
     d = new GroupedConfigPageData;
     d->category = category;
     setObjectName(d->category.toString());
+
+    connect(ui->groupedTab,SIGNAL(currentChanged(int)),SLOT(handleCurrentPageChanged(int)));
 }
 
 Qtilities::CoreGui::GroupedConfigPage::~GroupedConfigPage() {
@@ -136,6 +138,22 @@ bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(IConfigPage *page) con
     return d->pages.values().contains(page);
 }
 
+bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(const QString &page_title) const {
+    for (int i = 0; i < d->pages.count(); i++) {
+        if (d->pages.values().at(i)->configPageTitle() == page_title)
+            return true;
+    }
+    return false;
+}
+
+IConfigPage* Qtilities::CoreGui::GroupedConfigPage::getConfigPage(const QString &page_title) const {
+    for (int i = 0; i < d->pages.count(); i++) {
+        if (d->pages.values().at(i)->configPageTitle() == page_title)
+            return d->pages.values().at(i);
+    }
+    return 0;
+}
+
 IConfigPage *Qtilities::CoreGui::GroupedConfigPage::activePage() const {
     QWidget* current_widget = ui->groupedTab->currentWidget();
     return d->pages[current_widget];
@@ -145,6 +163,17 @@ void Qtilities::CoreGui::GroupedConfigPage::setActivePage(IConfigPage *page) {
     if (!hasConfigPage(page))
         return;
 
+    if (page) {
+        if (page->configPageWidget())
+            ui->groupedTab->setCurrentWidget(page->configPageWidget());
+    }
+}
+
+void Qtilities::CoreGui::GroupedConfigPage::setActivePage(const QString& page_title) {
+    if (!hasConfigPage(page_title))
+        return;
+
+    IConfigPage* page = getConfigPage(page_title);
     if (page) {
         if (page->configPageWidget())
             ui->groupedTab->setCurrentWidget(page->configPageWidget());
@@ -207,4 +236,11 @@ int Qtilities::CoreGui::GroupedConfigPage::findTabIndex(IConfigPage *page) {
 
 bool Qtilities::CoreGui::GroupedConfigPage::useTabIcons() const {
     return d->use_tab_icons;
+}
+
+void Qtilities::CoreGui::GroupedConfigPage::handleCurrentPageChanged(int new_index) {
+    QWidget* widget = ui->groupedTab->widget(new_index);
+
+    if (d->pages.contains(widget))
+        emit activeGroupedPageChanged(d->pages[widget]);
 }

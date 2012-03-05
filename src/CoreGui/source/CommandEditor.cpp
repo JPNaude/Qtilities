@@ -128,7 +128,10 @@ QString Qtilities::CoreGui::CommandEditor::configPageTitle() const {
 }
 
 QtilitiesCategory Qtilities::CoreGui::CommandEditor::configPageCategory() const {
-    return QtilitiesCategory("General");
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr("General"));
+    else
+        return IConfigPage::configPageCategory();
 }
 
 void Qtilities::CoreGui::CommandEditor::configPageApply() {

@@ -85,7 +85,7 @@ namespace Qtilities {
 
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
-                virtual QString configPageHelpID() const { return QString(); }
+                virtual QString configPageHelpID() const { return d_help_id; }
                 //! Sets the help ID of the config page.
                 /*!
                   This allows you to use config pages from other libraries, such as %Qtilities and specify
@@ -95,24 +95,39 @@ namespace Qtilities {
 
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
-                virtual void setConfigPageHelpID(const QString& config_help_id) { Q_UNUSED(config_help_id) }
+                virtual void setConfigPageHelpID(const QString& config_help_id) {
+                    d_help_id = config_help_id;
+                }
                 //! Gets the category of the config page.
                 /*!
+                  If you want other parts of your code to be able to modify the category of your page, implement configPageCategory() like this:
+
+\code
+if (IConfigPage::configPageCategory().isEmpty())
+    return QtilitiesCategory("Your Category");
+else
+    return IConfigPage::configPageCategory();
+\endcode
+
+                 If not, just return your caregory
+
                   \sa setConfigPageCategory()
                   */
-                virtual QtilitiesCategory configPageCategory() const = 0;
+                virtual QtilitiesCategory configPageCategory() const {
+                    return d_category;
+                }
                 //! Sets the category of the config page.
                 /*!
                   This allows you to use config pages from other libraries, such as %Qtilities and group them under
                   your own custom categories.
 
-                  \note The default implementation does nothing.
-
                   \sa configPageCategory()
 
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
-                virtual void setConfigPageCategory(const QtilitiesCategory& category) {}
+                virtual void setConfigPageCategory(const QtilitiesCategory& category) {
+                    d_category = category;
+                }
                 //! Gets the title of the config page.
                 virtual QString configPageTitle() const = 0;
                 //! Indicates that the current state of the config page must be saved (applied).
@@ -137,6 +152,10 @@ namespace Qtilities {
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
                 virtual bool supportsRestoreDefaults() const { return false; }
+
+            private:
+                QString d_help_id;
+                QtilitiesCategory d_category;
             };
         }
     }

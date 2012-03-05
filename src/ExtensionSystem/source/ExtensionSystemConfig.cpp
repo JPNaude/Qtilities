@@ -73,7 +73,10 @@ QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() con
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {
-    return QtilitiesCategory(tr("General"));
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr("General"));
+    else
+        return IConfigPage::configPageCategory();
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::changeEvent(QEvent *e)

@@ -76,7 +76,10 @@ QString Qtilities::Plugins::Help::HelpPluginConfig::configPageTitle() const {
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::configPageCategory() const {
-    return QtilitiesCategory("General");
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr("General"));
+    else
+        return IConfigPage::configPageCategory();
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {

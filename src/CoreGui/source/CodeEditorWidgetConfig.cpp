@@ -67,11 +67,7 @@ QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {
 }
 
 QString Qtilities::CoreGui::CodeEditorWidgetConfig::configPageTitle() const {
-    return tr("Code Editors");
-}
-
-QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory() const {
-    return QtilitiesCategory();
+    return tr("Editor Options");
 }
 
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {

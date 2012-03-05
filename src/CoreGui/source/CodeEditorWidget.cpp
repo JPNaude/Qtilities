@@ -784,14 +784,10 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
     if (QtilitiesApplication::configWidget()) {
         ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
         if (config_widget) {
-            // First call initialize on the config_widget to make sure it has all the pages available in the global object pool:
-            config_widget->initialize();
-            if (config_widget->hasPage(tr("Code Editors"))) {
-                d->actionSettings = new QAction(QIcon(qti_icon_PROPERTY_16x16),tr("Editor Settings"),this);
-                d->action_provider->addAction(d->actionSettings,QtilitiesCategory(tr("Editor Settings")));
-                ACTION_MANAGER->registerAction(qti_action_FILE_SETTINGS,d->actionSettings,context);
-                connect(d->actionSettings,SIGNAL(triggered()),SLOT(showEditorSettings()));
-            }
+            d->actionSettings = new QAction(QIcon(qti_icon_PROPERTY_16x16),tr("Editor Settings"),this);
+            d->action_provider->addAction(d->actionSettings,QtilitiesCategory(tr("Editor Settings")));
+            ACTION_MANAGER->registerAction(qti_action_FILE_SETTINGS,d->actionSettings,context);
+            connect(d->actionSettings,SIGNAL(triggered()),SLOT(showEditorSettings()));
         }
     }
 
@@ -820,8 +816,11 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {
 void Qtilities::CoreGui::CodeEditorWidget::showEditorSettings() {
     ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
     if (config_widget) {
-        config_widget->setActivePage(tr("Code Editors"));
-        config_widget->show();
+        if (config_widget->hasPage(tr("Code Editors"))) {
+            config_widget->setActivePage(tr("Code Editors"));
+            config_widget->show();
+        } else
+            LOG_ERROR_P("Cannot open editor settings, the editor settings page is not available in your application.");
     }
 }
 

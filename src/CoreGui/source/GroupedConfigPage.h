@@ -78,11 +78,17 @@ namespace Qtilities {
             void removeConfigPage(IConfigPage* page);
             //! Checks if a page exists in this grouping.
             bool hasConfigPage(IConfigPage* page) const;
+            //! Checks if a page exists in this grouping, specified by the title of the page.
+            bool hasConfigPage(const QString& page_title) const;
+            //! Gets a IConfigPage with the given title.
+            IConfigPage* getConfigPage(const QString& page_title) const;
 
             //! Returns the current active config page.
             IConfigPage* activePage() const;
             //! Sets the current active page.
             void setActivePage(IConfigPage* page);
+            //! Sets the current active page, specified by the title of the page.
+            void setActivePage(const QString& page_title);
 
             //! Returns a list of all config pages in this grouping.
             QList<IConfigPage*> configPages() const;
@@ -106,6 +112,12 @@ namespace Qtilities {
         signals:
              //! Signal emitted whenever a config page is applied.
              void appliedPage(IConfigPage* conig_page);
+             //! Signal emitted whenever the active config page in the group changes.
+             void activeGroupedPageChanged(IConfigPage* config_page);
+
+        private slots:
+             //! Slots which responds to changes to the active tab in the grouped tab widget.
+             void handleCurrentPageChanged(int new_index);
 
         private:
             //! Creates a tab for a given page.
