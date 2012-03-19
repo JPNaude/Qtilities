@@ -162,7 +162,6 @@ namespace Qtilities {
             ObjectManager(QObject* parent = 0);
             ~ObjectManager();
 
-        public:
             // -----------------------------------------
             // IFactoryProvider Implementation
             // -----------------------------------------

@@ -60,19 +60,20 @@ namespace Qtilities {
                 Q_OBJECT
 
             public:
-                IObjectManager(QObject* parent = 0) : QObject(parent) {}
-                virtual ~IObjectManager() {}
-
                 //! Possible property types.
                 enum PropertyTypes {
+                    NoProperties = 0,                   /*!< No properties. */
                     MultiContextProperties = 1,         /*!< Multi context properties. \sa MultiContextProperty */
-                    SharedProperties = 2,               /*!< Shared observer properties. \sa SharedProperty */
-                    QtilitiesInternalProperties = 4,    /*!< Shared observer properties. \sa SharedProperty */
+                    SharedProperties = 2,               /*!< Shared properties. \sa SharedProperty */
+                    QtilitiesInternalProperties = 4,    /*!< Internal %Qtilities properties properties. \sa SharedProperty */
                     NonQtilitiesProperties = 8,         /*!< Normal QVariant properties added to objects using QObject::setProperty(). */
                     AllPropertyTypes = MultiContextProperties | SharedProperties | QtilitiesInternalProperties | NonQtilitiesProperties
                 };
                 Q_DECLARE_FLAGS(PropertyTypeFlags, PropertyTypes)
                 Q_FLAGS(PropertyTypeFlags)
+
+                IObjectManager(QObject* parent = 0) : QObject(parent) {}
+                virtual ~IObjectManager() {}
 
                 // ---------------------------------
                 // Global Object Pool Functionality

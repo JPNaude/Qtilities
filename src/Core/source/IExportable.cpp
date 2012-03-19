@@ -34,6 +34,8 @@
 #include "IExportable.h"
 #include "QtilitiesCoreApplication.h"
 
+#include <QDomElement>
+
 Qtilities::Core::Interfaces::IExportable::IExportable() {
     d_export_version = Qtilities::Qtilities_Latest;
     d_application_export_version_set = false;
@@ -79,6 +81,99 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Int
 void Qtilities::Core::Interfaces::IExportable::setApplicationExportVersion(quint32 version) {
     d_application_export_version_set = true;
     d_export_application_version = version;
+}
+
+Qtilities::Core::Interfaces::IExportable *Qtilities::Core::Interfaces::IExportable::duplicate(int properties_to_copy, ExportResultFlags *result_flags, QString* error_msg) const {
+    // Export this interface to a QDomDocument:
+    QDomDocument doc("tmp");
+    QDomElement root = doc.createElement("tmp");
+    doc.appendChild(root);
+    if (!instanceFactoryInfo().exportXml(&doc,&root,Qtilities::Qtilities_Latest)) {
+        if (error_msg)
+            *error_msg = QString("%1: Failed to stream InstanceFactoryInfo to QDomDocument.").arg(Q_FUNC_INFO);
+        if (result_flags)
+            *result_flags = IExportable::Failed;
+        return 0;
+    }
+
+    ExportResultFlags result = exportXml(&doc,&root);
+    if (result & IExportable::FailedResult) {
+        if (error_msg)
+            *error_msg = QString("%1: Failed to stream IExportable interface to QDomDocument.").arg(Q_FUNC_INFO);
+        if (result_flags)
+            *result_flags = result;
+        return 0;
+    }
+
+    // Construct a new object using instance factory info:
+    InstanceFactoryInfo info(&doc,&root,Qtilities::Qtilities_Latest);
+    if (!info.isValid()) {
+        if (error_msg)
+            *error_msg = QString("%1: The factory info provided by InstanceFactoryInfo is not valid.").arg(Q_FUNC_INFO);
+        if (result_flags)
+            *result_flags = IExportable::Failed;
+        return 0;
+    }
+
+    // Now construct a new scripted action:
+    IExportable* new_inst = 0;
+    IFactoryProvider* ifactory = OBJECT_MANAGER->referenceIFactoryProvider(info.d_factory_tag);
+    if (ifactory) {
+        QObject* obj = ifactory->createInstance(info);
+        if (obj) {
+            obj->setObjectName(info.d_instance_name);
+
+            // Cast the object to IExportable:
+            new_inst = qobject_cast<IExportable*> (obj);
+            if (new_inst) {
+                QList<QPointer<QObject> > import_list;
+                ExportResultFlags import_result = new_inst->importXml(&doc,&root,import_list);
+                if (result_flags)
+                    *result_flags = import_result;
+
+                if (import_result & IExportable::FailedResult) {
+                    delete obj;
+                    if (error_msg)
+                        *error_msg = QString("%1: Failed to import new object from QDomDocument.").arg(Q_FUNC_INFO);
+                    return 0;
+                } else {
+                    // Copy properties if needed:
+                    ObjectManager::PropertyTypeFlags property_type_flags = (ObjectManager::PropertyTypeFlags) properties_to_copy;
+                    if (property_type_flags != ObjectManager::NoProperties && this->objectBase() && new_inst->objectBase()) {
+                        if (!ObjectManager::cloneObjectProperties(this->objectBase(),new_inst->objectBase(),property_type_flags)) {
+                            if (error_msg)
+                                *error_msg = QString("%1: The object's dynamic properties could not be cloned succesfully.").arg(Q_FUNC_INFO);
+                            if (result_flags)
+                                *result_flags = IExportable::Incomplete;
+                        }
+                    } else {
+                        if (result_flags)
+                            *result_flags = IExportable::Complete;
+                    }
+                    return new_inst;
+                }
+            } else {
+                delete obj;
+                if (error_msg)
+                    *error_msg = QString("%1: Failed to cast new object to IExportable.").arg(Q_FUNC_INFO);
+                if (result_flags)
+                    *result_flags = IExportable::Failed;
+                return 0;
+            }
+        }
+    } else {
+        if (error_msg)
+            *error_msg = QString("%1: Could not locate the factory specified by the object's InstanceFactoryInfo.").arg(Q_FUNC_INFO);
+        if (result_flags)
+            *result_flags = IExportable::Failed;
+        return 0;
+    }
+
+    if (error_msg)
+        *error_msg = QString("%1: Reached end of function without newly constructed object.").arg(Q_FUNC_INFO);
+    if (result_flags)
+        *result_flags = IExportable::Failed;
+    return 0;
 }
 
 quint32 Qtilities::Core::Interfaces::IExportable::applicationExportVersion() const {

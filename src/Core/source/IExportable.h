@@ -311,7 +311,9 @@ int main(int argc, char *argv[])
                     FailedContinue = 4,     /*!< Failed when an error occured. The import/export can continue in this case. */
                     VersionTooNew = 8,      /*!< Failed because the import format is too new. The import/export can continue in this case. */
                     VersionTooOld = 16,     /*!< Failed because the import format is too old. The import/export can continue in this case. */
-                    VersionSupported = 32   /*!< Flag indicating that an export version is supported by the current version of the application. */
+                    VersionSupported = 32,  /*!< Flag indicating that an export version is supported by the current version of the application. */
+                    SuccessResult = Complete | Incomplete | VersionSupported,  /*!< Successfull operation. */
+                    FailedResult = Failed | FailedContinue | VersionTooNew | VersionTooOld  /*!< Failed operation. */
                 };
                 Q_DECLARE_FLAGS(ExportResultFlags, Result);
                 Q_FLAGS(ExportResultFlags);
@@ -357,6 +359,75 @@ int main(int argc, char *argv[])
                   \sa applicationExportVersion()
                   */
                 virtual void setApplicationExportVersion(quint32 version);
+
+                //----------------------------
+                // Duplication
+                //----------------------------
+                //! Function which will create a duplicate (copy) of this object.
+                /*!
+                  This function will create a duplicate of this object. This operation is perfomed as follows:
+                  - Stream the object to a QDomDocument using exportXml().
+                  - Create a new object using the information in instanceFactoryInfo().
+                  - Call importXml() on the newly created object
+                  - Return the new object casted to IExportable.
+
+                  This function allows powerfull duplication of any object implementing IExportable. For example,
+                  you can duplicate a complete tree by calling duplicate() on Qtilities::CoreGui::TreeNode.
+
+                  \note In order for duplication to be complete, all items must be properly registered in a factory (or factories) known to
+                  the object manager. See the \ref page_factories article for more information.
+
+                  This function is used by duplicateInstance() which is a template based wrapper around duplicate(). The example below
+                  demonstrates how to duplicate an object. The example duplicates a complete tree.
+
+\code
+TreeNode node;
+QStringList items;
+items << "A" << "B" << "C";
+node.addItems(items);
+
+TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(&node);
+\endcode
+
+                  \param properties_to_copy Indicates which dynamic QObject properties (if any) must be duplicated on the new object. By default no properties will be duplicated. This value is a Qtilities::Core::ObjectManager::PropertyTypeFlags flag casted to int.
+                  \param result_flags When a valid reference is passed, it will be set to the correct export result flags for the operation.
+                  \param error_msg When a valid reference is passed, it will be populated with an error message when the duplication cannot be performed.
+                  \returns A newly constructed duplicated object when successfull, null otherwise.
+
+                  \sa duplicateInstance()
+                  */
+                IExportable* duplicate(int properties_to_copy = 0, ExportResultFlags* result_flags = 0, QString* error_msg = 0) const;
+
+                template<typename T>
+                //! Provides an easy to use template based implementation of IExportable::duplicate().
+                /*!
+                  This function will create a duplicate of obj using IExportable::duplicate(). See the duplicate() function documentation for more information.
+
+                  \note obj must implement the IExportable interface.
+
+                  \param properties_to_copy Indicates which dynamic QObject properties (if any) must be duplicated on the new object. By default no properties will be duplicated. This value is a Qtilities::Core::ObjectManager::PropertyTypeFlags flag casted to int.
+                  \param result_flags When a valid reference is passed, it will be set to the correct export result flags for the operation.
+                  \param error_msg When a valid reference is passed, it will be populated with an error message when the duplication cannot be performed.
+                  \param obj The object to duplicate. Note that it must implement IExportable in order for this function to work.
+                  \returns A newly constructed duplicated object when successfull, null otherwise.
+
+                  \sa duplicate()
+                  */
+                static T* duplicateInstance(IExportable* obj, int properties_to_copy = 0, ExportResultFlags* result_flags = 0, QString* error_msg = 0) {
+                    if (!obj) {
+                        if (error_msg)
+                            *error_msg = QString("%1: Null object recived.").arg(Q_FUNC_INFO);
+                        if (result_flags)
+                            *result_flags = IExportable::Failed;
+                        return 0;
+                    }
+
+                    IExportable* target_iface = obj->duplicate(properties_to_copy,result_flags,error_msg);
+                    if (target_iface) {
+                        return static_cast<T*> (target_iface);
+                    } else
+                        return 0;
+                }
 
                 //----------------------------
                 // Tasking
