@@ -79,6 +79,8 @@ Qtilities::Core::FileUtils::~FileUtils() {
 
 QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName, const QString& file_filters, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort, bool first_run) {
     static QFileInfoList list;
+    if (first_run)
+        list.clear();
 
     QDir dir(dirName);
     if (!dir.exists(dirName)) {
