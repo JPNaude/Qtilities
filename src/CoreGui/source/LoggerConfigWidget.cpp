@@ -130,12 +130,12 @@ QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
 }
 
 QString Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
-    return tr("Logging");
+    return tr(qti_config_page_LOGGING);
 }
 
 QtilitiesCategory Qtilities::CoreGui::LoggerConfigWidget::configPageCategory() const {
     if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr("General"));
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
     else
         return IConfigPage::configPageCategory();
 }

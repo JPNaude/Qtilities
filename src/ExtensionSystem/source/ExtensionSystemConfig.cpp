@@ -31,7 +31,7 @@
 **
 ****************************************************************************/
 
-#include <QFileDialog>
+#include <QDesktopWidget>
 
 #include "ExtensionSystemConfig.h"
 #include "ui_ExtensionSystemConfig.h"
@@ -53,6 +53,10 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
 
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
+
+    // Put the widget in the center of the screen:
+    QRect qrect = QApplication::desktop()->availableGeometry(this);
+    move(qrect.center() - rect().center());
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -69,12 +73,12 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageWidget() {
 }
 
 QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() const {
-    return tr("Plugins");
+    return tr(qti_config_page_PLUGINS);
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {
     if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr("General"));
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
     else
         return IConfigPage::configPageCategory();
 }

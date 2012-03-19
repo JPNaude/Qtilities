@@ -36,8 +36,10 @@
 #include "HelpPluginConstants.h"
 
 #include <QtilitiesApplication>
+#include <QtilitiesCoreGuiConstants>
 
 using namespace Qtilities::Plugins::Help::Constants;
+using namespace Qtilities::CoreGui::Constants;
 
 Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
     QWidget(parent),
@@ -72,12 +74,12 @@ QWidget* Qtilities::Plugins::Help::HelpPluginConfig::configPageWidget() {
 }
 
 QString Qtilities::Plugins::Help::HelpPluginConfig::configPageTitle() const {
-    return tr("Help");
+    return tr(qti_config_page_HELP);
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::Plugins::Help::HelpPluginConfig::configPageCategory() const {
     if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr("General"));
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
     else
         return IConfigPage::configPageCategory();
 }

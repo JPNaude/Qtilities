@@ -67,7 +67,14 @@ QWidget* Qtilities::CoreGui::CodeEditorWidgetConfig::configPageWidget() {
 }
 
 QString Qtilities::CoreGui::CodeEditorWidgetConfig::configPageTitle() const {
-    return tr("Editor Options");
+    return tr(qti_config_page_CODE_EDITORS);
+}
+
+QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory() const {
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
+    else
+        return IConfigPage::configPageCategory();
 }
 
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {

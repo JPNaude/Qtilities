@@ -48,8 +48,6 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui;
         using namespace Qtilities::CoreGui::Interfaces;
 
-
-
         /*!
           \class ExtensionSystemConfig
           \brief The ExtensionSystemConfig class provides a ready to use configuration widget for the extension system.

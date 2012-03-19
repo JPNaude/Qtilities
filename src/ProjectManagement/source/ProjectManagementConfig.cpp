@@ -44,6 +44,7 @@
 
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
+using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(QWidget *parent) :
@@ -106,12 +107,12 @@ QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget
 }
 
 QString Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle() const {
-    return tr("Projects");
+    return tr(qti_config_page_PROJECTS);
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManagementConfig::configPageCategory() const {
     if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr("General"));
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
     else
         return IConfigPage::configPageCategory();
 }
