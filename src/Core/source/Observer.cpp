@@ -1796,11 +1796,11 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
         // Check if a category property exists:
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
-            // Check if the category is empty, if so add it to the uncategorized category:
-            if (!current_category.isEmpty()) {
-                if (!subject_categories.contains(current_category))
-                    subject_categories << current_category;
-            }
+            if (!subject_categories.contains(current_category))
+                subject_categories << current_category;
+        } else {
+            if (!subject_categories.contains(QtilitiesCategory()))
+                subject_categories << QtilitiesCategory();
         }
     }
 
@@ -1861,7 +1861,7 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
             if (current_category == category)
                 list << subjectAt(i);
         } else {
-            if (!category.isValid())
+            if (category.isEmpty())
                 list << subjectAt(i);
         }
     }
