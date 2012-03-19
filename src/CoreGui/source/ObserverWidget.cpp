@@ -3682,6 +3682,7 @@ void Qtilities::CoreGui::ObserverWidget::expandNodes(QModelIndexList indexes) {
                 d->tree_view->setExpanded(index,true);
         }
         connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)),Qt::UniqueConnection);
+        resizeColumns();
     }
 }
 

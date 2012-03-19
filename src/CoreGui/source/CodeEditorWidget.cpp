@@ -816,8 +816,8 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActions() {
 void Qtilities::CoreGui::CodeEditorWidget::showEditorSettings() {
     ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
     if (config_widget) {
-        if (config_widget->hasPage(tr("Code Editors"))) {
-            config_widget->setActivePage(tr("Code Editors"));
+        if (config_widget->hasPage(tr(qti_config_page_CODE_EDITORS))) {
+            config_widget->setActivePage(tr(qti_config_page_CODE_EDITORS));
             config_widget->show();
         } else
             LOG_ERROR_P("Cannot open editor settings, the editor settings page is not available in your application.");

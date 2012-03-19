@@ -77,6 +77,19 @@ namespace Qtilities {
             const char * const qti_def_PATH_SHORTCUTS_FILE           = "shortcut_mapping.smf";
             //! The mode manager ID of the default mode manager constructed in QtilitiesMainWindow.
             const int qti_def_DEFAULT_MODE_MANAGER                   = 1;
+
+            //! The default category for config pages in %Qtilities.
+            const char * const qti_config_page_DEFAULT_CAT           = "General";
+            //! The name of the config page for logging.
+            const char * const qti_config_page_LOGGING               = "Logging";
+            //! The name of the config page for projects.
+            const char * const qti_config_page_PROJECTS              = "Projects";
+            //! The name of the config page for the help system.
+            const char * const qti_config_page_HELP                  = "Help";
+            //! The name of the config page for code editors.
+            const char * const qti_config_page_CODE_EDITORS          = "Editor Options";
+            //! The name of the config page for plugins.
+            const char * const qti_config_page_PLUGINS               = "Plugins";
         }
 
         //! Namespace containing available icons which forms part of the CoreGui Module.

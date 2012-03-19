@@ -147,10 +147,10 @@ task->completeTask();
 delete task;
 \endcode
 
-In the above example you simply create a task and change its state by starting it an then completing it. The task provides a set of control and information
+In the above example you simply create a task and change its state by starting it and then completing it. The task provides a set of control and information
 functions which you would expect on a task. The example won't do anything usefull since the task does not represent anything at this stage.
 
-This brings us to the most important thing to remember when working with Qtilities::Core::Task: It is used to represent a task, it does not do any work itself. Thus, you need to first have some
+This brings us to the most important thing to remember when working with Qtilities::Core::Task. It is used to represent a task, it does not do any work itself. Thus, you need to first have some
 function/code which does some work and then let it communicate with your task while its working. Also, you need to set up your task to provide the correct set of capabilities that match the work you
 are doing.
 
@@ -185,6 +185,7 @@ connect(timer,SIGNAL(timeout()),task,SLOT(completeTask()));
 
 // Set the interval on the timer:
 timer->setInterval(10000);
+timer->setSingleShot(true);
 
 // Starts the timer and the task:
 timer->start();
@@ -296,7 +297,7 @@ bool MyClass::slowFunction() {
     } else {
         task.logError("Error message");
         task.completeTask(ITask::TaskFailed);
-        return true;
+        return false;
     }
 }
 \endcode

@@ -313,7 +313,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
         }
     }
 
-    refresh();
+    //refresh();
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleObjectDeleted() {

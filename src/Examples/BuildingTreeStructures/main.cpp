@@ -96,6 +96,14 @@ int main(int argc, char *argv[])
     tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
 
     // ------------------------------------
+    // Demonstration of tree duplication
+    // ------------------------------------
+    QString error_msg;
+    TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(rootNodeUncategorized,0,&error_msg);
+    TreeWidget* test_duplicated_widget = new TreeWidget(duplicated_node);
+    test_duplicated_widget->show();
+
+    // ------------------------------------
     // Categorized Tree
     // ------------------------------------
     TreeNode* rootNodeCategorized = new TreeNode("Root");

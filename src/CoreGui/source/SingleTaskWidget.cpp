@@ -61,15 +61,15 @@ struct Qtilities::CoreGui::SingleTaskWidgetPrivateData {
 
 Qtilities::CoreGui::SingleTaskWidget::SingleTaskWidget(int task_id, QWidget* parent) :
     QWidget(parent),
-    ui(new Ui::SingleTaskWidget)
+    ui(new Ui::SingleTaskWidget),
+    d(0)
 {
     ui->setupUi(this);
+    d = new SingleTaskWidgetPrivateData;
     ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_NOT_STARTED_22x22));
     ui->btnShowLog->setToolTip(tr("Task Has Not Been Started."));
 
     ui->progressBar->setValue(0);
-
-    d = new SingleTaskWidgetPrivateData;
     d->task = TASK_MANAGER->hasTask(task_id);
 
     // Pause Button
@@ -240,8 +240,12 @@ void Qtilities::CoreGui::SingleTaskWidget::updateBusyState(ITask::TaskBusyState 
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
-    Q_UNUSED(event)
-    setDisplayedName(d->task->displayName());
+    // TODO: Why does this crash!!!
+//    if (d) {
+//        if (d->task)
+//            setDisplayedName(d->task->displayName());
+//    }
+
     QWidget::resizeEvent(event);
 }
 

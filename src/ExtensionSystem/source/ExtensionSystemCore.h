@@ -158,14 +158,14 @@ namespace Qtilities {
 
             //! Function to return the names of all plugins that are loaded and initialized at present.
             /*!
-              \note This function only provided usefull information after initialize() have been called.
+              \note This function only provides usefull information after initialize() have been called.
 
               \sa activePlugins()
               */
             QStringList activePlugins() const;
             //! Function to return the names of all plugins that are loaded but not initialized at present.
             /*!
-              \note This function only provided usefull information after initialize() have been called.
+              \note This function only provides usefull information after initialize() have been called.
 
               \sa inactivePlugins()
               */

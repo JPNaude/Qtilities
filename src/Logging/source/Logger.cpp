@@ -650,19 +650,18 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     static QMutex msgMutex;
     msgMutex.lock();
 
-    // Important: Don't use QString::compare() in here:
-    if (QString(msg) == "QFile::seek: IODevice is not open")
-        int i = 5;
-    else if (QString(msg) == "setReadOnly(false) called too many times on design:  \"calibration_engine_tb\"")
-        int i = 5;
-    else if (QString(msg) == "QSortFilterProxyModel: index from wrong model passed to mapFromSource")
-        int i = 5;
-    else if (QString(msg) == "ASSERT failure in QMutex::unlock(): \"A mutex must be unlocked in the same thread that locked it.\", file c:\\ndk_buildrepos\\qt-desktop\\src\\corelib\\thread\\qmutex.cpp, line 370")
-        int i = 5;
-    else if (QString(msg).contains("isEmpty()"))
-        int i = 5;
-    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
-        int i = 5;
+//    if (QString(msg) == "QFile::seek: IODevice is not open")
+//        int i = 5;
+//    else if (QString(msg) == "setReadOnly(false) called too many times on design:  \"calibration_engine_tb\"")
+//        int i = 5;
+//    else if (QString(msg) == "QSortFilterProxyModel: index from wrong model passed to mapFromSource")
+//        int i = 5;
+//    else if (QString(msg) == "ASSERT failure in QMutex::unlock(): \"A mutex must be unlocked in the same thread that locked it.\", file c:\\ndk_buildrepos\\qt-desktop\\src\\corelib\\thread\\qmutex.cpp, line 370")
+//        int i = 5;
+//    else if (QString(msg).contains("isEmpty()"))
+//        int i = 5;
+//    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
+//        int i = 5;
 
     switch (type)
     {

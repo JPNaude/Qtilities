@@ -198,18 +198,21 @@ void HelpMode::initiallize() {
     // - Register Contents Widget Factory
     d->content_widget = new ContentWidgetFactory(HELP_MANAGER->helpEngine());
     d->content_widget->setObjectName("Help Plugin: Content Widget");
+    d->content_widget->setObjectOriginID("Help Plugin");
     connect(d->content_widget,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewHelpWidget(QWidget*)));
     OBJECT_MANAGER->registerObject(d->content_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
 
     // - Register Index Widget Factory
     d->index_widget = new IndexWidgetFactory(HELP_MANAGER->helpEngine());
     d->index_widget->setObjectName("Help Plugin: Index Widget");
+    d->index_widget->setObjectOriginID("Help Plugin");
     connect(d->index_widget,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewHelpWidget(QWidget*)));
     OBJECT_MANAGER->registerObject(d->index_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));
 
     // - Register Search Widget Factory
     QHelpSearchEngine* helpSearchEngine = HELP_MANAGER->helpEngine()->searchEngine();
     d->search_widget = new SearchWidgetFactory(helpSearchEngine);
+    d->search_widget->setObjectOriginID("Help Plugin");
     d->search_widget->setObjectName("Help Plugin: Search Engine Widget");
     connect(d->search_widget,SIGNAL(newWidgetCreated(QWidget*)),SLOT(handleNewHelpWidget(QWidget*)));
     OBJECT_MANAGER->registerObject(d->search_widget,QtilitiesCategory("GUI::Side Viewer Widgets (ISideViewerWidget)","::"));

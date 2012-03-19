@@ -43,7 +43,8 @@ struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     ObserverTreeModelBuilderPrivateData() : hints(0),
         root_item(0),
         task(QObject::tr("Tree Builder")),
-        threading_enabled(false) {}
+        threading_enabled(false),
+        caching_enabled(false) {}
 
     QMutex                          build_lock;
     ObserverHints*                  hints;
@@ -52,6 +53,9 @@ struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     Task                            task;
     QThread*                        thread;
     bool                            threading_enabled;
+    bool                            caching_enabled;
+
+    QCache<int, ObserverTreeItem*>  cache;
 };
 
 Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverTreeItem* item, bool use_observer_hints, ObserverHints* observer_hints, QObject* parent) : QObject(parent) {
@@ -99,6 +103,10 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setActiveHints(ObserverHints*
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_enabled) {
     d->threading_enabled = is_enabled;
+}
+
+void ObserverTreeModelBuilder::setCachingEnabled(bool is_enabled) {
+    d->caching_enabled = is_enabled;
 }
 
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
@@ -149,6 +157,18 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
 void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeItem* item) {
     // In here we build the complete structure of all the children below item.
     Observer* observer = qobject_cast<Observer*> (item->getObject());
+
+    // Check if in caching mode:
+    if (d->caching_enabled) {
+        // TODO: isModified is not correct here. We need to get a isStructureModified() function or something...
+        if (!observer->isModified()) {
+            // Check if the cache contains cached information for this observer:
+            if (d->cache.contains(observer->observerID())) {
+
+            }
+        }
+    }
+
     ObserverTreeItem* new_item;
 
     d->task.addCompletedSubTasks(1,"Building item: " + item->objectName());

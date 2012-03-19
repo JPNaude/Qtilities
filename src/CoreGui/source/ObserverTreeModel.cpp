@@ -920,7 +920,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                         }
                     }
 
-                    obs->endProcessingCycle();
+                    obs->endProcessingCycle(false);
                     if (do_refresh)
                         obs->refreshViewsLayout(observer_mime_data->subjectList());
                     delete target_category;

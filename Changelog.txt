@@ -46,6 +46,8 @@ Qtilities v1.1 Changes
     - FileUtils::setFindFilesUnderDirParams() got new file filter parameter.
     - Fixed bug where Observer::endTreeProcessingCycle() could in some situations not emit layoutChanged() causing tree views not to update when the tree's layout changed.
     - QtilitiesProcess now takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged.
+    - IExportable got two new functions: duplicate() and duplicateInstance().
+    - IExportable::Result got new SuccessResult and FailedResult types.
 
     ============================
     QtilitiesCoreGui:

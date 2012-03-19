@@ -360,7 +360,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     //QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
     // Create the QDomDocument:
-    QDomDocument doc("QtilitiesTreeDoc");
+    QDomDocument doc("QtilitiesTreeExport");
     QDomElement root = doc.createElement("QtilitiesTree");
     doc.appendChild(root);
 
@@ -467,7 +467,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
+    if (IExportable::validateQtilitiesExportVersion(read_version) == IExportable::VersionSupported && application_read_version == QtilitiesApplication::applicationExportVersion())
         is_supported_format = true;
 
     if (!is_supported_format) {

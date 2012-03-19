@@ -658,7 +658,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     // Check if input format is supported:
     // ---------------------------------------------------
     bool is_supported_format = false;
-    if (!(read_version < Qtilities::Qtilities_1_0 || read_version > Qtilities::Qtilities_Latest))
+    IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesExportVersion(read_version,exportTask());
+    if (version_check_result == IExportable::VersionSupported)
         is_supported_format = true;
 
     if (!is_supported_format) {

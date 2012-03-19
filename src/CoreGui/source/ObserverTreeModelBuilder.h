@@ -67,6 +67,8 @@ namespace Qtilities {
             int taskID() const;
             //! Sets if threading is enabled in the builder.
             void setThreadingEnabled(bool is_enabled);
+            //! Sets if caching is enabled in the builder.
+            void setCachingEnabled(bool is_enabled);
 
         public slots:
             //! Starts the build.
