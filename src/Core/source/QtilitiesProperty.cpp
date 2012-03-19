@@ -358,6 +358,10 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
 
 QVariant Qtilities::Core::QtilitiesProperty::constructVariant(const QString& type_string, const QString& value_string) {
     QVariant::Type type = QVariant::nameToType(type_string.toAscii().constData());
+    return QtilitiesProperty::constructVariant(type,value_string);
+}
+
+QVariant Qtilities::Core::QtilitiesProperty::constructVariant(QVariant::Type type, const QString& value_string) {
     QVariant variant(type);
 
     if (type == QVariant::StringList)

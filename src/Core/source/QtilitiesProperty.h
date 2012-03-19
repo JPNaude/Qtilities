@@ -152,6 +152,8 @@ namespace Qtilities {
 
                 //! Converts a QString type_string and QString value_string to a matching QVariant.
                 static QVariant constructVariant(const QString& type_string, const QString& value_string);
+                //! Converts a QVariant::Type and QString value_string to a matching QVariant.
+                static QVariant constructVariant(QVariant::Type type, const QString& value_string);
                 //! Checks if a QVariant ia exported. Thus, if it can be converted to QString.
                 static bool isExportableVariant(QVariant variant);
 
