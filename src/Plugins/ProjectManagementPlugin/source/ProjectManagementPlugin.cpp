@@ -400,6 +400,8 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecen
         d->menuRecentProjects->addAction(prev_action);
         connect(prev_action,SIGNAL(triggered()),SLOT(handleRecentProjectActionTriggered()));
     }
+
+    d->menuRecentProjects->setEnabled(d->menuRecentProjects->actions().count() > 0);
 }
 
 void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecentProjectActionTriggered() {
