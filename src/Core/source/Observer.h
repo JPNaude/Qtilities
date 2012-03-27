@@ -406,8 +406,8 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               \sa setObjectDeletionPolicy(), objectDeletionPolicy()
               */
             enum ObjectDeletionPolicy {
-                DeleteImmediately = 0,     /*!< All observer operations are available to the user (Attachment, Detachement etc.). */
-                DeleteLater = 1            /*!< The observer is read only to the user. */
+                DeleteImmediately = 0,     /*!< When subjects are deleted by this observer, the normal \p delete operator is used. */
+                DeleteLater = 1            /*!< When subjects are deleted by this observer, deleteLater() are called on them. */
             };
             //! Function which returns a string associated with a specific ObjectDeletionPolicy.
             static QString objectDeletionPolicyToString(ObjectDeletionPolicy object_deletion_policy);

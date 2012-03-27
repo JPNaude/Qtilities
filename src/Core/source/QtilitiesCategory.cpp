@@ -238,7 +238,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
         QDomElement category_level = doc->createElement("CategoryLevel_" + QString::number(i));
         object_node->appendChild(category_level);
         if (d_category_levels.at(i).exportXml(doc,&category_level) != IExportable::Complete)
-                all_successful = false;
+            all_successful = false;
     }
 
     if (all_successful)
