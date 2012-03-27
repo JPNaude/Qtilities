@@ -396,7 +396,7 @@ TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(&node);
 
                   \sa duplicateInstance()
                   */
-                IExportable* duplicate(int properties_to_copy = 0, ExportResultFlags* result_flags = 0, QString* error_msg = 0) const;
+                IExportable* duplicate(QString* error_msg = 0, int properties_to_copy = 0, ExportResultFlags* result_flags = 0) const;
 
                 template<typename T>
                 //! Provides an easy to use template based implementation of IExportable::duplicate().
@@ -413,7 +413,7 @@ TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(&node);
 
                   \sa duplicate()
                   */
-                static T* duplicateInstance(IExportable* obj, int properties_to_copy = 0, ExportResultFlags* result_flags = 0, QString* error_msg = 0) {
+                static T* duplicateInstance(IExportable* obj, QString* error_msg = 0, int properties_to_copy = 0, ExportResultFlags* result_flags = 0) {
                     if (!obj) {
                         if (error_msg)
                             *error_msg = QString("%1: Null object recived.").arg(Q_FUNC_INFO);
@@ -422,7 +422,7 @@ TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(&node);
                         return 0;
                     }
 
-                    IExportable* target_iface = obj->duplicate(properties_to_copy,result_flags,error_msg);
+                    IExportable* target_iface = obj->duplicate(error_msg,properties_to_copy,result_flags);
                     if (target_iface) {
                         return static_cast<T*> (target_iface);
                     } else
