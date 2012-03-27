@@ -83,7 +83,7 @@ void Qtilities::Core::Interfaces::IExportable::setApplicationExportVersion(quint
     d_export_application_version = version;
 }
 
-Qtilities::Core::Interfaces::IExportable *Qtilities::Core::Interfaces::IExportable::duplicate(int properties_to_copy, ExportResultFlags *result_flags, QString* error_msg) const {
+Qtilities::Core::Interfaces::IExportable *Qtilities::Core::Interfaces::IExportable::duplicate(QString* error_msg, int properties_to_copy, ExportResultFlags *result_flags) const {
     // Export this interface to a QDomDocument:
     QDomDocument doc("tmp");
     QDomElement root = doc.createElement("tmp");
