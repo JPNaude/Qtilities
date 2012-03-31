@@ -48,6 +48,8 @@ Qtilities v1.1 Changes
     - QtilitiesProcess now takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged.
     - IExportable got two new functions: duplicate() and duplicateInstance().
     - IExportable::Result got new SuccessResult and FailedResult types.
+    - Task manager will no longer assign an object name to new tasks if the task already has a valid objectName().
+    - When obj->objectName() is empty, this Observer::attachSubject() will set the object name to the className() of the object.
 
     ============================
     QtilitiesCoreGui:
@@ -133,6 +135,8 @@ Qtilities v1.1 Changes
       initialize(), only for models that will be shown eventually.
     - It is now possible to add the ObjectDynamicPropertyBrowser to observer widget in the same way that ObjectPropertyBrowser was added. See
       the ObserverHints DisplayHints::DynamicPropertyBrowser for more information.
+    - Fixed possible crash in SingleTaskWidget::resizeEvent().
+    - It is now possible to hide the "Show Log" button in SingleTaskWidget.
 
     ============================
     QtilitiesExtensionSystem:
