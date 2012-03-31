@@ -116,6 +116,19 @@ SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(tas
             //! Gets if the start task button must be visible.
             bool startButtonVisible() const;
 
+            //! Sets if the start task button must be visible.
+            /*!
+              By default this will depend on the canStart() result on the task being shown.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setShowLogButtonVisible(bool is_visible);
+            //! Gets if the start task button must be visible.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            bool showLogButtonVisible() const;
+
             //! Access to the progress bar shown.
             QProgressBar* progressBar();
 

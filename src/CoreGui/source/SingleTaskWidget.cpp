@@ -50,13 +50,15 @@ struct Qtilities::CoreGui::SingleTaskWidgetPrivateData {
     SingleTaskWidgetPrivateData() : task(0),
         pause_button_visible(false),
         stop_button_visible(false),
-        start_button_visible(false) {}
+        start_button_visible(false),
+        show_log_button_visible(true) {}
 
     ITask*              task;
     QPointer<QObject>   task_base;
     bool                pause_button_visible;
     bool                stop_button_visible;
     bool                start_button_visible;
+    bool                show_log_button_visible;
 };
 
 Qtilities::CoreGui::SingleTaskWidget::SingleTaskWidget(int task_id, QWidget* parent) :
@@ -71,6 +73,10 @@ Qtilities::CoreGui::SingleTaskWidget::SingleTaskWidget(int task_id, QWidget* par
 
     ui->progressBar->setValue(0);
     d->task = TASK_MANAGER->hasTask(task_id);
+    if (!d->task) {
+        qDebug() << Q_FUNC_INFO << "Showing SingleTaskWidget for a task which does not exist with ID:" << task_id;
+        return;
+    }
 
     // Pause Button
     setPauseButtonVisible(d->task->canPause());
@@ -154,6 +160,15 @@ void Qtilities::CoreGui::SingleTaskWidget::setStartButtonVisible(bool is_visible
 
 bool Qtilities::CoreGui::SingleTaskWidget::startButtonVisible() const {
     return d->start_button_visible;
+}
+
+void Qtilities::CoreGui::SingleTaskWidget::setShowLogButtonVisible(bool is_visible) {
+    d->show_log_button_visible = is_visible;
+    ui->btnShowLog->setVisible(false);
+}
+
+bool Qtilities::CoreGui::SingleTaskWidget::showLogButtonVisible() const {
+    return d->show_log_button_visible;
 }
 
 QProgressBar* Qtilities::CoreGui::SingleTaskWidget::progressBar() {
@@ -240,11 +255,10 @@ void Qtilities::CoreGui::SingleTaskWidget::updateBusyState(ITask::TaskBusyState 
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
-    // TODO: Why does this crash!!!
-//    if (d) {
-//        if (d->task)
-//            setDisplayedName(d->task->displayName());
-//    }
+    if (d) {
+        if (d->task && d->task_base)
+            setDisplayedName(d->task->displayName());
+    }
 
     QWidget::resizeEvent(event);
 }
@@ -273,7 +287,7 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
 
         ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_BUSY_22x22));
         ui->btnShowLog->setToolTip(tr("Task Busy. Click to view the task log"));
-        ui->btnShowLog->setVisible(true);
+        ui->btnShowLog->setVisible(d->show_log_button_visible);
 
         setPauseButtonVisible(d->task->canPause());
 
@@ -302,7 +316,7 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
 
         ui->btnStart->setToolTip("Task Not Started. Click to start it again");
         ui->btnStart->setVisible(d->task->canStart());
-        ui->btnShowLog->setVisible(!d->task->canStart());
+        ui->btnShowLog->setVisible(!d->task->canStart() && d->show_log_button_visible);
 
         setPauseButtonVisible(d->task->canPause());
         ui->btnPause->setEnabled(false);
@@ -329,7 +343,12 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnStop->setToolTip("Remove Task");
         ui->btnStart->setVisible(d->task->canStart());
     } else if (d->task->state() == ITask::TaskCompleted) {
-        ui->widgetRightButtonsHolder->setVisible(true);
+        // Hide Stop and Pause buttons widget if those buttons are not shown.
+        if (!d->task->canStop() && !d->task->canPause()) {
+            ui->widgetRightButtonsHolder->setVisible(false);
+        } else {
+            ui->widgetRightButtonsHolder->setVisible(true);
+        }
 
         if (show_progress) {
             ui->progressBar->setEnabled(true);
