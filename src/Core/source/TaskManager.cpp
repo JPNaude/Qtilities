@@ -146,7 +146,8 @@ bool Qtilities::Core::TaskManager::addTask(QObject* obj) {
     ITask* task = qobject_cast<ITask*> (obj);
     if (task) {
         ++d->id_counter;
-        obj->setObjectName("Task with ID: " + QString::number(d->id_counter) + ", Name: " + task->taskName());
+        if (obj->objectName().isEmpty())
+            obj->setObjectName("Task with ID: " + QString::number(d->id_counter) + ", Name: " + task->taskName());
         if (d->task_observer.attachSubject(obj,Observer::ManualOwnership))  {
             task->setTaskID(d->id_counter);
             d->task_id_name_map[d->id_counter] = task->taskName();
