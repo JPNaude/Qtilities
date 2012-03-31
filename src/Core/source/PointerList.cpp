@@ -66,12 +66,13 @@ QObject* Qtilities::Core::PointerList::at(int i) const {
     return list.at(i);
 }
 
-void Qtilities::Core::PointerList::removeThisObject(QObject * object) {
-    list.removeOne(object);
-    emit objectDestroyed(object);
+void Qtilities::Core::PointerList::removeThisObject(QObject * obj) {
+    list.removeOne(obj);
+    emit objectDestroyed(obj);
 }
 
 void Qtilities::Core::PointerList::removeOne(QObject* obj) {
+    QObject::disconnect(obj, SIGNAL(destroyed(QObject *)), this, SLOT(removeSender()));
     list.removeOne(obj);
 }
 
