@@ -490,10 +490,15 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
     
     QPointer<QObject> safe_obj = obj;
 
+    // If objectName() is empty, set the object name using the objects meta type info:
+    if (obj->objectName().isEmpty())
+        obj->setObjectName(obj->metaObject()->className());
+
+    // Check if we can attach the object before we attach it:
     if (canAttach(obj,object_ownership,rejectMsg) == Rejected)
         return false;
 
-    // Pass new object through all installed subject filters
+    // Pass new object through all installed subject filters:
     bool passed_filters = true;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         bool result = observerData->subject_filters.at(i)->initializeAttachment(obj,rejectMsg,import_cycle);
@@ -505,7 +510,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         if (!safe_obj)
             return false;
 
-        // Don't set change rejectMsg here, it will be set in initializeAttachment() above.
+        // Don't set change rejectMsg here, it will be set in initializeAttachment() above:
         LOG_DEBUG(QString("Observer (%1): Object (%2) attachment failed, attachment was rejected by one or more subject filter.").arg(objectName()).arg(obj->objectName()));
         for (int i = 0; i < observerData->subject_filters.count(); i++) {
             observerData->subject_filters.at(i)->finalizeAttachment(obj,false,import_cycle);
@@ -518,7 +523,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         return false;
     }
 
-    // Details of the global object pool observer is not added to any objects.
+    // Details of the global object pool observer is not added to any objects:
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Now, add observer details to needed properties
         // Add observer details to property: qti_prop_OBSERVER_MAP
@@ -535,14 +540,14 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         }
         observerData->subject_id_counter += 1;
 
-        // Now that the object has the properties needed, we add it
+        // Now that the object has the properties needed, we add it:
         observerData->subject_list.append(obj);
 
         // Handle object ownership
         #ifndef QT_NO_DEBUG
             QString management_policy_string;
         #endif
-        // Check if the object is already managed, and if so with what ownership flag it was attached to those observers.
+        // Check if the object is already managed, and if so with what ownership flag it was attached to those observers:
         if (parentCount(obj) > 1) {
             QVariant current_ownership = getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
             if (current_ownership.toInt() != OwnedBySubjectOwnership) {
@@ -615,7 +620,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
                 // When OwnedBySubjectOwnership, the new ownership is ignored. Thus when a subject was attached to a
                 // context using OwnedBySubjectOwnership it is attached to all other contexts after that using OwnedBySubjectOwnership
                 // as well.
-                // This observer must be deleted as soon as this subject is deleted.
+                // This observer must be deleted as soon as this subject is deleted:
                 connect(obj,SIGNAL(destroyed()),SLOT(deleteLater()));
                 #ifndef QT_NO_DEBUG
                     management_policy_string = "Owned By Subject Ownership (was already observed using this ownership type).";

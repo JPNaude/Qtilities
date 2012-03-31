@@ -685,8 +685,8 @@ obs.endProcessingCycle(); // Internal count = 0;
               \returns True is succesfull, false otherwise.
 
               \note When subjectEventFilteringEnabled() is true, the observer will be installed as an event filter on \p obj. If you do not want this to happen you can turn it off using toggleSubjectEventFiltering(). See the toggleSubjectEventFiltering() function docmentation for more information on this.
-
               \note When obj lives in a different thread than this observer an attempt won't be made to install this observer as an event filter.
+              \note When obj->objectName() is empty, this function will set the object name to the className() of the object.
 
               \sa attachSubjects(), startProcessingCycle(), endProcessingCycle()
               */
