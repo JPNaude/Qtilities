@@ -911,10 +911,13 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                             if (category_variant.isValid()) {
                                 QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
                                 // Skip if current category is same as new category:
-                                if (current_category == *target_category)
+                                if (current_category == *target_category && !target_category->isEmpty())
                                     continue;
 
                                 obs->setMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP,qVariantFromValue(*target_category));
+                                IModificationNotifier* mod_notifier = qobject_cast<IModificationNotifier*> (subjects.at(i));
+                                if (mod_notifier)
+                                    mod_notifier->setModificationState(true);
                                 do_refresh= true;
                             }
                         }
@@ -1109,14 +1112,18 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 
 void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<QObject> > new_selection) {
     if (!respondToObserverChanges()) {
+        //#ifdef QTILITIES_BENCHMARKING
         qDebug() << "Ignoring layout changes to observer" << d_observer->observerName() << "in tree model.";
+        //#endif
         return;
     }
 
     if (d->tree_model_up_to_date) {
         if (d->build_mutex.tryLock()) {
             d->new_selection = new_selection;
-            //qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
+            //#ifdef QTILITIES_BENCHMARKING
+            qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
+            //#endif
             rebuildTreeStructure();
             d->build_mutex.unlock();
         } else {
@@ -1126,7 +1133,9 @@ void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<
     } else {
         d->tree_rebuild_queued = true;
         d->queued_selection = new_selection;
-        //qDebug() << QString("Received tree rebuild request in " + d_observer->observerName() + "'s view. The current tree is being rebuilt, thus queueing this change.");
+        //#ifdef QTILITIES_BENCHMARKING
+        qDebug() << QString("Received tree rebuild request in " + d_observer->observerName() + "'s view. The current tree is being rebuilt, thus queueing this change.");
+        //#endif;
     }
 }
 
