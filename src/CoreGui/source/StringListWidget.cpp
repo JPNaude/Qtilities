@@ -166,7 +166,14 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
         }
     } else if (d->list_type == FilePaths) {            
         QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),QDir::cleanPath(d->open_dialog_path),d->open_dialog_filter);
+        int process_count = 0;
         foreach (QString file_name, fileNames) {
+            if (process_count == 0) {
+                QFileInfo fi(file_name);
+                d->open_dialog_path = fi.path();
+            }
+            ++process_count;
+
             QStringList list = d->model.stringList();
             list << QDir::toNativeSeparators(file_name);
             list.removeDuplicates();
@@ -176,6 +183,10 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
     } else if (d->list_type == Directories) {
         QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),d->open_dialog_path,QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         if (!dir.isEmpty()) {
+            QDir new_default_dir(dir);
+            new_default_dir.cdUp();
+            d->open_dialog_path = new_default_dir.path();
+
             QStringList list = d->model.stringList();
             list << QDir::toNativeSeparators(dir);
             list.removeDuplicates();
