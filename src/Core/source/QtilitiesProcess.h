@@ -50,6 +50,25 @@ namespace Qtilities {
             //! Access to the QProcess instance contained and used within this object.
             QProcess* process();
 
+            //! Sets the strings to be used for splitting logged messages.
+            /*!
+              By default this list is empty an a line break character \r is used to received split messages.
+
+              You can however specify multiple strings to use using this function.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+
+              \sa lineBreakStrings()
+              */
+            void setLineBreakStrings(const QStringList& line_break_strings);
+            //! Gets the strings to be used for splitting logged messages.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+
+              \sa setLineBreakStrings()
+              */
+            QStringList lineBreakStrings();
+
         private slots:
             void procStarted();
             void procFinished(int exit_code, QProcess::ExitStatus exit_status);

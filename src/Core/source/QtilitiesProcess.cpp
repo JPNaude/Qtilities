@@ -19,6 +19,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QProcess* process;
     QString buffer_std_out;
     QString buffer_std_error;
+    QStringList line_break_strings;
 };
 
 Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, QObject* parent) : Task(task_name,enable_logging,parent) {
@@ -48,12 +49,21 @@ QProcess* Qtilities::Core::QtilitiesProcess::process() {
     return d->process;
 }
 
+void Qtilities::Core::QtilitiesProcess::setLineBreakStrings(const QStringList &line_break_strings) {
+    d->line_break_strings = line_break_strings;
+}
+
+QStringList Qtilities::Core::QtilitiesProcess::lineBreakStrings() {
+    return d->line_break_strings;
+}
+
 bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, const QStringList& arguments, QProcess::OpenMode mode) {
     if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
         return false;
 
     startTask();
     logMessage("Executing Process: " + program + " " + arguments.join(" "));
+    logMessage("-> working directory of process: " + d->process->workingDirectory());
     d->process->start(program, arguments, mode);
 
     if (!d->process->waitForStarted()) {
@@ -114,16 +124,40 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
     d->buffer_std_out.append(d->process->readAllStandardOutput());
 
-    // We search for \r and split messages up:
-    QStringList split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
-    while (split_list.count() > 1) {
-        if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
-            logWarning(split_list.front());
-        else if (split_list.front().trimmed().startsWith("ERROR",Qt::CaseInsensitive))
-            logError(split_list.front());
-        else
-            logMessage(split_list.front());
-        split_list.pop_front();
+    QStringList split_list;
+    if (d->line_break_strings.isEmpty()) {
+        // We search for \r and split messages up:
+        split_list = d->buffer_std_out.split("\r",QString::SkipEmptyParts);
+        while (split_list.count() > 1) {
+            if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+                logWarning(split_list.front());
+            else if (split_list.front().trimmed().startsWith("ERROR",Qt::CaseInsensitive))
+                logError(split_list.front());
+            else
+                logMessage(split_list.front());
+            split_list.pop_front();
+        }
+    } else {
+        // We search for any break strings and split messages up:
+        bool matched_break_string;
+        foreach (QString break_string, d->line_break_strings) {
+            matched_break_string = false;
+            split_list = d->buffer_std_out.split(break_string,QString::SkipEmptyParts);
+            while (split_list.count() > 1) {
+                matched_break_string = true;
+                QString msg = split_list.front().trimmed();
+                msg.prepend(break_string);
+                if (break_string.compare("WARNING",Qt::CaseInsensitive) == 0)
+                    logWarning(msg);
+                else if (break_string.compare("ERROR",Qt::CaseInsensitive) == 0)
+                    logError(msg);
+                else
+                    logMessage(msg);
+                split_list.pop_front();
+            }
+            if (matched_break_string)
+                break;
+        }
     }
 
     d->buffer_std_out = split_list.front();
@@ -132,16 +166,42 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
 void Qtilities::Core::QtilitiesProcess::logProgressError() {
     d->buffer_std_error.append(d->process->readAllStandardError());
 
-    // We search for \r and split messages up:
-    QStringList split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
-    while (split_list.count() > 1) {
-        if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
-            logWarning(split_list.front());
-        else if (split_list.front().trimmed().startsWith("INFO",Qt::CaseInsensitive))
-            logMessage(split_list.front());
-        else
-            logError(split_list.front());
-        split_list.pop_front();
+    QStringList split_list;
+    if (d->line_break_strings.isEmpty()) {
+        // We search for \r and split messages up:
+        split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
+        while (split_list.count() > 1) {
+            if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+                logWarning(split_list.front());
+            else if (split_list.front().trimmed().startsWith("INFO",Qt::CaseInsensitive))
+                logMessage(split_list.front());
+            else
+                logError(split_list.front());
+            split_list.pop_front();
+        }
+    } else {
+        // We search for any break strings and split messages up:
+        bool matched_break_string;
+        foreach (QString break_string, d->line_break_strings) {
+            matched_break_string = false;
+            split_list = d->buffer_std_error.split(break_string,QString::SkipEmptyParts);
+            while (split_list.count() > 1) {
+                matched_break_string = true;
+                QString msg = split_list.front().trimmed();
+                msg.prepend(break_string);
+                if (break_string.compare("WARNING",Qt::CaseInsensitive) == 0)
+                    logWarning(msg);
+                else if (break_string.compare("INFO",Qt::CaseInsensitive) == 0)
+                    logMessage(msg);
+                else
+                    logError(msg);
+                split_list.pop_front();
+            }
+            if (matched_break_string)
+                break;
+            // This is not perfect, can end up with problems where you have something like this: INFO WARNING INFO. In that
+            // case the first message will be INFO WARNING and the second just INFO, thus the WARNING is missed in the first message.
+        }
     }
 
     d->buffer_std_error = split_list.front();
