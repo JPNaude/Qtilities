@@ -114,6 +114,12 @@ Qtilities::CoreGui::SingleTaskWidget::SingleTaskWidget(int task_id, QWidget* par
         connect(d->task->objectBase(),SIGNAL(taskStopped()),SLOT(update()));
         connect(d->task->objectBase(),SIGNAL(busyStateChanged(ITask::TaskBusyState,ITask::TaskBusyState)),SLOT(updateBusyState(ITask::TaskBusyState)));
         connect(d->task->objectBase(),SIGNAL(displayedNameChanged(QString)),SLOT(setDisplayedName(QString)));
+        connect(d->task->objectBase(),SIGNAL(canStartChanged(bool)),SLOT(setStartButtonEnabled(bool)));
+        connect(d->task->objectBase(),SIGNAL(canStopChanged(bool)),SLOT(setStopButtonEnabled(bool)));
+        connect(d->task->objectBase(),SIGNAL(canPauseChanged(bool)),SLOT(setPauseButtonEnabled(bool)));
+        connect(d->task->objectBase(),SIGNAL(canStartChanged(bool)),SLOT(setStartButtonVisible(bool)));
+        connect(d->task->objectBase(),SIGNAL(canStopChanged(bool)),SLOT(setStopButtonVisible(bool)));
+        connect(d->task->objectBase(),SIGNAL(canPauseChanged(bool)),SLOT(setPauseButtonVisible(bool)));
         update();
     }
 }
@@ -130,14 +136,20 @@ ITask* Qtilities::CoreGui::SingleTaskWidget::task() const {
 void Qtilities::CoreGui::SingleTaskWidget::setPauseButtonVisible(bool is_visible) {
     d->pause_button_visible = is_visible;
 
+    ui->btnPause->setVisible(is_visible);
     if (is_visible) {
-        ui->btnPause->setVisible(true);
+        ui->widgetRightButtonsHolder->setVisible(is_visible);
         ui->btnPause->setIcon(QIcon(qti_icon_TASK_PAUSE_22x22));
         ui->btnPause->setToolTip("Pause Task");
     } else {
-        ui->btnPause->setVisible(false);
         ui->btnPause->setIcon(QIcon());
+        if (!d->task->canStop())
+            ui->widgetRightButtonsHolder->setVisible(false);
     }
+}
+
+void Qtilities::CoreGui::SingleTaskWidget::setPauseButtonEnabled(bool enabled) {
+    ui->btnPause->setEnabled(enabled);
 }
 
 bool Qtilities::CoreGui::SingleTaskWidget::pauseButtonVisible() const {
@@ -146,7 +158,21 @@ bool Qtilities::CoreGui::SingleTaskWidget::pauseButtonVisible() const {
 
 void Qtilities::CoreGui::SingleTaskWidget::setStopButtonVisible(bool is_visible) {
     d->stop_button_visible = is_visible;
-    ui->btnStop->setVisible(d->stop_button_visible);
+            ui->btnStop->setVisible(is_visible);
+    if (is_visible) {
+        ui->widgetRightButtonsHolder->setVisible(is_visible);
+    } else {
+        if (!d->task->canPause())
+            ui->widgetRightButtonsHolder->setVisible(false);
+    }
+}
+
+void Qtilities::CoreGui::SingleTaskWidget::setStopButtonEnabled(bool enabled) {
+    ui->btnStop->setEnabled(enabled);
+    if (enabled)
+        ui->btnStop->setToolTip("Cancel Task");
+    else
+        ui->btnStop->setToolTip(tr("This Task Can't Be Stopped Manually Right Now"));
 }
 
 bool Qtilities::CoreGui::SingleTaskWidget::stopButtonVisible() const {
@@ -155,7 +181,14 @@ bool Qtilities::CoreGui::SingleTaskWidget::stopButtonVisible() const {
 
 void Qtilities::CoreGui::SingleTaskWidget::setStartButtonVisible(bool is_visible) {
     d->start_button_visible = is_visible;
-    ui->btnStart->setVisible(d->start_button_visible);
+    if (is_visible) {
+        ui->widgetLeftButtonsHolder->setVisible(is_visible);
+        ui->btnStart->setVisible(is_visible);
+    }
+}
+
+void Qtilities::CoreGui::SingleTaskWidget::setStartButtonEnabled(bool enabled) {
+    ui->btnStart->setEnabled(enabled);
 }
 
 bool Qtilities::CoreGui::SingleTaskWidget::startButtonVisible() const {
@@ -164,7 +197,7 @@ bool Qtilities::CoreGui::SingleTaskWidget::startButtonVisible() const {
 
 void Qtilities::CoreGui::SingleTaskWidget::setShowLogButtonVisible(bool is_visible) {
     d->show_log_button_visible = is_visible;
-    ui->btnShowLog->setVisible(false);
+    ui->btnShowLog->setVisible(is_visible);
 }
 
 bool Qtilities::CoreGui::SingleTaskWidget::showLogButtonVisible() const {
@@ -296,7 +329,7 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
             ui->btnStop->setToolTip("Cancel Task");
         } else {
             ui->btnStop->setEnabled(false);
-            ui->btnStop->setToolTip(tr("This Task Can't Be Stopped Manually"));
+            ui->btnStop->setToolTip(tr("This Task Can't Be Stopped Manually Right Now"));
         }
 
         ui->btnStart->setVisible(false);
@@ -343,13 +376,6 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnStop->setToolTip("Remove Task");
         ui->btnStart->setVisible(d->task->canStart());
     } else if (d->task->state() == ITask::TaskCompleted) {
-        // Hide Stop and Pause buttons widget if those buttons are not shown.
-        if (!d->task->canStop() && !d->task->canPause()) {
-            ui->widgetRightButtonsHolder->setVisible(false);
-        } else {
-            ui->widgetRightButtonsHolder->setVisible(true);
-        }
-
         if (show_progress) {
             ui->progressBar->setEnabled(true);
             if (d->task->numberOfSubTasks() == -1) {
@@ -373,6 +399,7 @@ void Qtilities::CoreGui::SingleTaskWidget::update() {
         ui->btnStop->setEnabled(true);
         ui->btnStop->setToolTip("Remove Task");
         ui->btnStart->setVisible(d->task->canStart());
+        ui->widgetRightButtonsHolder->setVisible(true);
 
         if (d->task->result() == ITask::TaskFailed) {
             ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_FAILED_22x22));

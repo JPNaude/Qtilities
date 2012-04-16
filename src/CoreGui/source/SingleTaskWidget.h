@@ -94,25 +94,10 @@ SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(tas
             //! Returns the task shown by this widget.
             ITask* task() const;
 
-            //! Sets if the pause task button must be visible.
-            /*!
-              By default this will depend on the canPause() result on the task being shown.
-              */
-            void setPauseButtonVisible(bool is_visible);
             //! Gets if the pause task button must be visible.
             bool pauseButtonVisible() const;
-            //! Sets if the stop task button must be visible.
-            /*!
-              By default this will depend on the canStop() result on the task being shown.
-              */
-            void setStopButtonVisible(bool is_visible);
             //! Gets if the stop task button must be visible.
             bool stopButtonVisible() const;
-            //! Sets if the start task button must be visible.
-            /*!
-              By default this will depend on the canStart() result on the task being shown.
-              */
-            void setStartButtonVisible(bool is_visible);
             //! Gets if the start task button must be visible.
             bool startButtonVisible() const;
 
@@ -131,6 +116,45 @@ SingleTaskWidget* task_widget = TaskManagerGui::instance()->singleTaskWidget(tas
 
             //! Access to the progress bar shown.
             QProgressBar* progressBar();
+
+        public slots:
+            //! Sets if the pause task button is enabled.
+            /*!
+              By default this will depend on the canPause() result on the task being shown.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setPauseButtonEnabled(bool enabled);
+            //! Sets if the stop task button is enabled.
+            /*!
+              By default this will depend on the canPause() result on the task being shown.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setStopButtonEnabled(bool enabled);
+            //! Sets if the start task button is enabled.
+            /*!
+              By default this will depend on the canPause() result on the task being shown.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void setStartButtonEnabled(bool enabled);
+
+            //! Sets if the start task button must be visible.
+            /*!
+              By default this will depend on the canStart() result on the task being shown.
+              */
+            void setStartButtonVisible(bool is_visible);
+            //! Sets if the stop task button must be visible.
+            /*!
+              By default this will depend on the canStop() result on the task being shown.
+              */
+            void setStopButtonVisible(bool is_visible);
+            //! Sets if the pause task button must be visible.
+            /*!
+              By default this will depend on the canPause() result on the task being shown.
+              */
+            void setPauseButtonVisible(bool is_visible);
 
         private slots:
             void update();
