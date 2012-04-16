@@ -294,6 +294,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
 
     setWindowIcon(QIcon(qti_icon_QTILITIES_SYMBOL_WHITE_16x16));
     ui->widgetSearchBox->hide();
+    ui->navigationBarWidget->setVisible(false);
 
     // Assign a default meta type for this widget:
     // We construct each action and then register it
@@ -633,6 +634,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     // Here we need to check if we must use d_observer inside a specific context
     setWindowTitle(d_observer->observerName());
     setObjectName("ObserverWidget: " + d_observer->observerName());
+    ui->navigationBarWidget->setVisible(false);
 
     // Get hints from d_observer:
     if (d->use_observer_hints) {
@@ -698,10 +700,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 }
                 d->tree_view->setSortingEnabled(true);
                 d->tree_view->sortByColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName),Qt::AscendingOrder);
-                connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)));
-                connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)));
-                connect(d->tree_model,SIGNAL(selectObjects(QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)));
-                connect(d->tree_model,SIGNAL(selectCategories(QList<QtilitiesCategory>)),SLOT(selectCategories(QList<QtilitiesCategory>)));
+                connect(d->tree_model,SIGNAL(selectionParentChanged(Observer*)),SLOT(setTreeSelectionParent(Observer*)),Qt::UniqueConnection);
+                connect(d->tree_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)),Qt::UniqueConnection);
+                connect(d->tree_model,SIGNAL(selectObjects(QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)),Qt::UniqueConnection);
+                connect(d->tree_model,SIGNAL(selectCategories(QList<QtilitiesCategory>)),SLOT(selectCategories(QList<QtilitiesCategory>)),Qt::UniqueConnection);
 
                 d->tree_view->viewport()->installEventFilter(this);
                 d->tree_view->installEventFilter(this);
@@ -883,17 +885,18 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 delete ui->navigationBarWidget->layout();
             ui->navigationBarWidget->setLayout(layout);
             ui->navigationBarWidget->resize(d->navigation_bar->width(),d->navigation_bar->width());
-            d->navigation_bar->show();
         }
 
         if (d->display_mode == TableView) {
             d->navigation_bar->setVisible(true);
             d->navigation_bar->setCurrentObject(d_observer);
             d->navigation_bar->setNavigationStack(d->navigation_stack);
+            d->navigation_bar->setVisible(true);
+            ui->navigationBarWidget->setVisible(true);
         } else if (d->display_mode == TreeView) {
             d->navigation_bar->setVisible(false);
+            ui->navigationBarWidget->setVisible(false);
         }
-        ui->navigationBarWidget->setVisible(true);
     } else {
         if (d->navigation_bar) {
             delete d->navigation_bar;
@@ -2822,7 +2825,6 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
             d->navigation_stack.clear();
         }
 
-
         ui->widgetProgressInfo->setVisible(false);
         d->display_mode = TableView;
 //        qDebug() << "Obs context before:" << observerContext() << "Stack" << d->navigation_stack;
@@ -3561,13 +3563,15 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
             QHBoxLayout* layout = new QHBoxLayout(ui->widgetProgressBarHolder);
             layout->setMargin(0);
             layout->addWidget(d->task_widget);
-            d->task_widget->show();
         }
 
+        d->task_widget->show();
         ui->widgetProgressInfo->show();
-        ui->widgetSearchBox->hide();
         ui->itemParentWidget->hide();
         ui->navigationBarWidget->hide();
+
+        if (d->searchBoxWidget)
+            ui->widgetSearchBox->hide();
 
         emit treeModelBuildStarted(task_id);
         QApplication::processEvents();
@@ -3578,7 +3582,9 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
     if (displayMode() == Qtilities::TreeView) {
         ui->widgetProgressInfo->hide();
         ui->itemParentWidget->show();
-        ui->navigationBarWidget->show();
+
+        if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
+            ui->navigationBarWidget->show();
 
         if (d->searchBoxWidget)
             ui->widgetSearchBox->show();
@@ -4217,5 +4223,5 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
         return false;
      }
 
-     return false;
+    return false;
 }
