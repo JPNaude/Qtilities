@@ -98,10 +98,10 @@ int main(int argc, char *argv[])
     // ------------------------------------
     // Demonstration of tree duplication
     // ------------------------------------
-    QString error_msg;
-    TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(rootNodeUncategorized,0,&error_msg);
-    TreeWidget* test_duplicated_widget = new TreeWidget(duplicated_node);
-    test_duplicated_widget->show();
+//    QString error_msg;
+//    TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(rootNodeUncategorized,&error_msg);
+//    TreeWidget* test_duplicated_widget = new TreeWidget(duplicated_node);
+//    test_duplicated_widget->show();
 
     // ------------------------------------
     // Categorized Tree

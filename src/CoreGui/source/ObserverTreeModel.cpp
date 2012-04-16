@@ -1121,9 +1121,9 @@ void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<
     if (d->tree_model_up_to_date) {
         if (d->build_mutex.tryLock()) {
             d->new_selection = new_selection;
-            //#ifdef QTILITIES_BENCHMARKING
-            qDebug() << "Recording observer change on model: " << objectName() << ". The tree was up to date, thus rebuilding it.";
-            //#endif
+            #ifdef QTILITIES_BENCHMARKING
+            qDebug() << "Recording observer change on model: " << objectName() << ". The tree is not being built at the moment. Initiating a build request.";
+            #endif
             rebuildTreeStructure();
             d->build_mutex.unlock();
         } else {

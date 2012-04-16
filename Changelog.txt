@@ -50,6 +50,11 @@ Qtilities v1.1 Changes
     - IExportable::Result got new SuccessResult and FailedResult types.
     - Task manager will no longer assign an object name to new tasks if the task already has a valid objectName().
     - When obj->objectName() is empty, this Observer::attachSubject() will set the object name to the className() of the object.
+    - Observer::subjectCategories() now returns categories sorted in alphabetical order.
+    - QtilitiesCategory now has the following operation overloads added to it: >, >= and <=.
+    - Added canStartChanged(), canStopChanged() and canPauseChanged() signals on ITask.
+    - The following functions are not public slots on Task: setCanStop(),setCanStart(),setCanPause().
+    - ITask got two new functions to measure the time tasks are taking: elapsedTime() and elapsedTimeString().
 
     ============================
     QtilitiesCoreGui:
@@ -137,6 +142,8 @@ Qtilities v1.1 Changes
       the ObserverHints DisplayHints::DynamicPropertyBrowser for more information.
     - Fixed possible crash in SingleTaskWidget::resizeEvent().
     - It is now possible to hide the "Show Log" button in SingleTaskWidget.
+    - Fixed some issues with hiding/showing buttons in SingleTaskWidget.
+    - Fixed qti_icon_TASK_BUSY_WITH_WARNINGS_22x22 and qti_icon_TASK_BUSY_WITH_ERRORS_22x22 using icons the wrong way around. Warnings should be yellow and errors should be red.
 
     ============================
     QtilitiesExtensionSystem:

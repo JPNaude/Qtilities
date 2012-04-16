@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 
     #ifdef QTILITIES_PROPERTY_BROWSER
     hints->setDisplayFlagsHint(ObserverHints::ItemView |
+                               ObserverHints::ActionToolBar |
 //                             ObserverHints::PropertyBrowser |
                                ObserverHints::DynamicPropertyBrowser);
     #endif;
