@@ -220,6 +220,21 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             {
                 return toString() < e1.toString();
             }
+            //! Overload > operator.
+            inline bool operator>(const QtilitiesCategory &e1) const
+            {
+                return toString() > e1.toString();
+            }
+            //! Overload <= operator.
+            inline bool operator<=(const QtilitiesCategory &e1) const
+            {
+                return toString() <= e1.toString();
+            }
+            //! Overload >= operator.
+            inline bool operator>=(const QtilitiesCategory &e1) const
+            {
+                return toString() >= e1.toString();
+            }
 
             //! Indicates if this category is valid.
             /*!
