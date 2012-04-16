@@ -1809,6 +1809,7 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
         }
     }
 
+    qSort(subject_categories);
     return subject_categories;
 }
 
