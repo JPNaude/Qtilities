@@ -33,9 +33,6 @@
 
 #include "Task.h"
 
-#include <stdio.h>
-#include <time.h>
-
 using namespace Qtilities::Core::Interfaces;
 using namespace Qtilities::Core;
 
@@ -56,6 +53,7 @@ struct Qtilities::Core::TaskPrivateData {
         log_context(Logger::EngineSpecificMessages),
         logging_enabled(true),
         clear_log_on_start(true),
+        last_run_time(-1),
         parent_task(0) {}
 
     QString                         task_name;
@@ -79,8 +77,9 @@ struct Qtilities::Core::TaskPrivateData {
     bool                            logging_enabled;
     bool                            clear_log_on_start;
 
-    time_t                          timer_start;
-    time_t                          timer_end;
+    QTime                           timer;
+    int                             last_run_time;
+    QTimer                          elapsed_time_notification_timer;
 
     ITask*                          parent_task;
     QPointer<QObject>               parent_task_base;
@@ -90,6 +89,9 @@ Qtilities::Core::Task::Task(const QString& task_name, bool enable_logging, QObje
     d = new TaskPrivateData;
     d->task_name = task_name;
     d->logging_enabled = enable_logging;
+
+    d->elapsed_time_notification_timer.setInterval(1000);
+    connect(&d->elapsed_time_notification_timer,SIGNAL(timeout()),SLOT(broadcastElapsedTimeChanged()));
 }
 
 Qtilities::Core::Task::~Task() {
@@ -109,6 +111,17 @@ QString Qtilities::Core::Task::displayName() const {
 
 int Qtilities::Core::Task::numberOfSubTasks() const {
     return d->number_of_sub_tasks;
+}
+
+int Task::elapsedTime() const {
+    if (d->task_state == ITask::TaskNotStarted)
+        return 0;
+    else if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
+        return d->timer.elapsed();
+    else if (d->task_state == ITask::TaskStopped || d->task_state == ITask::TaskCompleted)
+        return d->last_run_time;
+
+    return 0;
 }
 
 ITask::TaskState Qtilities::Core::Task::state() const {
@@ -307,15 +320,24 @@ bool Qtilities::Core::Task::canPause() const {
 }
 
 void Qtilities::Core::Task::setCanStop(bool can_stop) {
-    d->can_stop = can_stop;
+    if (d->can_stop != can_stop) {
+        d->can_stop = can_stop;
+        emit canStopChanged(can_stop);
+    }
 }
 
 void Qtilities::Core::Task::setCanPause(bool can_pause) {
-    d->can_pause = can_pause;
+    if (d->can_pause != can_pause) {
+        d->can_pause = can_pause;
+        emit canPauseChanged(can_pause);
+    }
 }
 
 void Qtilities::Core::Task::setCanStart(bool can_start) {
-    d->can_start = can_start;
+    if (d->can_start != can_start) {
+        d->can_start = can_start;
+        emit canStartChanged(can_start);
+    }
 }
 
 void Qtilities::Core::Task::start() {
@@ -392,7 +414,14 @@ bool Qtilities::Core::Task::startTask(int expected_subtasks, const QString& mess
     if (!message.isEmpty())
         logMessage(message,type);
 
-    time(&d->timer_start);
+    if (d->last_run_time == -1)
+        d->timer.start();
+    else
+        d->timer.restart();
+    d->last_run_time = 0;
+
+    if (elapsedTimeChangedNotificationsEnabled())
+        d->elapsed_time_notification_timer.start();
 
     emit taskStarted(d->number_of_sub_tasks,message,type);
     emit stateChanged(ITask::TaskBusy,old_state);
@@ -421,9 +450,7 @@ bool Task::pauseTask(const QString &message, Logger::MessageType type) {
 
     d->task_state = Task::TaskPaused;
 
-    time(&d->timer_end);
-    double diff = difftime(d->timer_end,d->timer_start);
-    logMessage(QString(tr("Task paused after %1 second(s).")).arg(QString::number(diff)));
+    logMessage(QString(tr("Task paused (%1).")).arg(elapsedTimeString()));
 
     emit taskPaused();
     emit stateChanged(state(),current_state);
@@ -455,11 +482,8 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
 
     emit taskSubTaskAboutToComplete();
 
-    if (d->sub_task_performance_indication == ITask::SubTaskTimeFromTaskStart) {
-        time(&d->timer_end);
-        double diff = difftime(d->timer_end,d->timer_start);
-        logMessage(QString(tr("Subtask completed after %1 second(s).")).arg(QString::number(diff)));
-    }
+    if (d->sub_task_performance_indication == ITask::SubTaskTimeFromTaskStart)
+        logMessage(QString(tr("Subtask completed (%1).")).arg(elapsedTimeString()));
 
     //qDebug() << "addCompletedSubTasks() progress on task " << taskName() << " with " << number_of_sub_tasks << " new, " << d->current_progress << " current, " << d->number_of_sub_tasks << " total.";
     d->current_progress = d->current_progress + number_of_sub_tasks;
@@ -500,14 +524,16 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
             d->task_result = ITask::TaskSuccessful;
     } else {
         d->task_result = result;
-    }
-
-    time(&d->timer_end);
-    double diff = difftime(d->timer_end,d->timer_start);
-    logMessage(QString(tr("Task completed after %1 second(s).")).arg(QString::number(diff)));
+    }   
 
     d->task_state = ITask::TaskCompleted;
     d->task_busy_state = ITask::TaskBusyClean;
+
+    if (elapsedTimeChangedNotificationsEnabled())
+        d->elapsed_time_notification_timer.stop();
+
+    d->last_run_time = d->timer.elapsed();
+    logMessage(QString(tr("Task completed (%1).")).arg(elapsedTimeString()));
 
     // Log information about the result of the task:
     if (d->task_result == ITask::TaskSuccessful) {
@@ -541,4 +567,8 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
 // --------------------------------
 int Qtilities::Core::Task::currentProgress() const {
     return d->current_progress;
+}
+
+void Task::broadcastElapsedTimeChanged() {
+    emit taskElapsedTimeChanged(elapsedTime());
 }

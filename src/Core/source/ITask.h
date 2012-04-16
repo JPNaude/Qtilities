@@ -118,6 +118,7 @@ namespace Qtilities {
                     qRegisterMetaType<ITask::TaskResult>("ITask::TaskResult");
                     qRegisterMetaType<Logger::MessageType>("Logger::MessageType");
                     qRegisterMetaType<Logger::MessageContextFlags>("Logger::MessageContextFlags");
+                    d_elapsed_time_notifications_enabled = false;
                 }
                 virtual ~ITask() {}
 
@@ -156,6 +157,74 @@ namespace Qtilities {
                 //! The ID of this task.
                 int taskID() const {
                     return d_task_id;
+                }
+                //! Returns the elapsed time in miliseconds of the last time the task was run.
+                /*!
+                  When a task was paused, the timer will continue to time for the duration that the task was paused.
+
+                  When the task has not been run 0 is returned. When busy the function will return the elapsed time when
+                  the function is called. When the task is completed, the function will return the total time the task
+                  took to complete.
+
+                  \sa elapsedTimeString(), taskElapsedTimeChanged(), toggleElapsedTimeChangedNotifications()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual int elapsedTime() const = 0;
+                //! Returns the elapsed time of the task as a string.
+                /*!
+                  \param msec The time in miliseconds to format. When -1 (the default), the current elapsed time of the task is used.
+
+                  The format used is QString("%1:%2:%3").arg(h).arg(m).arg(ms) where h = hours, m = minutes, s = seconds.
+
+                  \sa elapsedTime(), taskElapsedTimeChanged(), toggleElapsedTimeChangedNotifications(), toggleElapsedTimeChangedNotifications()
+
+                  <i>This function was added in %Qtilities v1.1.</i>
+                  */
+                virtual QString elapsedTimeString(int msec = -1) const {
+                    int ms;
+                    if (msec == -1)
+                        ms = elapsedTime();
+                    else
+                        ms = msec;
+                    int s = ms / 1000; ms %= 1000;
+                    int m = s / 60; s %= 60;
+                    int h = m / 60; m %= 60;
+
+                    return QString("%1:%2:%3").arg(h).arg(m).arg(s);
+                }
+                //! Signal emitted when the task's elapsed time changes.
+                /*!
+                  This function is only emitted while the task is busy, and when elapsed time change notifications are enabled. See toggleElapsedTimeChangedNotifications().
+                  When enabled, it will emit every second while the task is busy.
+
+                  \param The elapsed time in miliseconds of the task at the time that the signal was emitted. You can format the received \p msec value to a string using elapsedTimeString().
+
+                  This function is only emitted while the task is busy.
+
+                  \note This function must be a signal in your interface implementation.
+
+                  \sa elapsedTime(), elapsedTimeString(), toggleElapsedTimeChangedNotifications(), toggleElapsedTimeChangedNotifications()
+                  */
+                virtual void taskElapsedTimeChanged(int msec) const = 0;
+                //! Enables elapsed time changed notifications through taskElapsedTimeChanged().
+                /*!
+                  Disabled by default.
+
+                  \sa elapsedTime(), elapsedTimeString(), taskElapsedTimeChanged(), elapsedTimeChangedNotificationsEnabled()
+                  */
+                void toggleElapsedTimeChangedNotifications(bool is_enabled) {
+                    d_elapsed_time_notifications_enabled = is_enabled;
+                }
+
+                //! Indicates if elapsed time changed notifications through taskElapsedTimeChanged() are enabled.
+                /*!
+                  Disabled by default.
+
+                  \sa elapsedTime(), elapsedTimeString(), taskElapsedTimeChanged(), toggleElapsedTimeChangedNotifications()
+                  */
+                bool elapsedTimeChangedNotificationsEnabled() const {
+                    return d_elapsed_time_notifications_enabled;
                 }
                 //! The state of the task.
                 /*!
@@ -482,6 +551,21 @@ namespace Qtilities {
                   \note This function must be a signal in your interface implementation.
                   */
                 virtual void taskSubTaskAboutToComplete() const = 0;
+                //! Signal emitted when a task's ability to be started changed.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void canStartChanged(bool new_value) const = 0;
+                //! Signal emitted when a task's ability to be stopped changed.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void canStopChanged(bool new_value) const = 0;
+                //! Signal emitted when a task's ability to be paused changed.
+                /*!
+                  \note This function must be a signal in your interface implementation.
+                  */
+                virtual void canPauseChanged(bool new_value) const = 0;
 
             public:
                 //! Message logging function which directs messages aimed for a task to the task if the task exists, or to the logger as system wide messages if the task does not exist.
@@ -563,6 +647,7 @@ void MyObject::doSomething(ITask* task) {
                 }
 
                 int d_task_id;
+                bool d_elapsed_time_notifications_enabled;
             };
         }
     }

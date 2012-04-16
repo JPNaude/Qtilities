@@ -129,6 +129,7 @@ namespace Qtilities {
             void setDisplayName(const QString& display_name);
             QString displayName() const;
             int numberOfSubTasks() const;
+            int elapsedTime() const;
             TaskState state() const;
             TaskBusyState busyState() const;
             TaskResult result() const;
@@ -188,18 +189,20 @@ namespace Qtilities {
               False by default in Qtilities::Core::Task.
               */
             bool canStart() const;
-            void setCanStart(bool can_start);
             /*!
               False by default in Qtilities::Core::Task.
               */
             bool canStop() const;
-            void setCanStop(bool can_stop);
             /*!
               False by default in Qtilities::Core::Task.
               */
             bool canPause() const;
-            void setCanPause(bool can_pause);
+
         public slots:
+            void setCanStop(bool can_stop);
+            void setCanStart(bool can_start);
+            void setCanPause(bool can_pause);
+
             virtual void start();
             virtual void stop();
             virtual void pause();
@@ -225,6 +228,8 @@ namespace Qtilities {
             int currentProgress() const;
 
         signals:
+            void taskElapsedTimeChanged(int msec) const;
+
             void taskStarted(int expected_subtasks = -1, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
             void subTaskCompleted(int number_task_completed = 1, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
             void taskCompleted(ITask::TaskResult result, const QString& message = QString(), Logger::MessageType type = Logger::Info) const;
@@ -245,10 +250,18 @@ namespace Qtilities {
             void taskTypeChanged(ITask::TaskType new_task_type) const;
             void displayedNameChanged(const QString& displayed_name) const;
 
+            void canStartChanged(bool new_value) const;
+            void canStopChanged(bool new_value) const;
+            void canPauseChanged(bool new_value) const;
+
             void startTaskRequest();
             void stopTaskRequest();
             void pauseTaskRequest();
             void resumeTaskRequest();
+
+        private slots:
+            //! Function which is responsible to emit the taskElapsedTimeChanged() signal on notifications from the internal QTimer.
+            void broadcastElapsedTimeChanged();
 
         private:
             //! Updates the busy state of the task. Called when messages are logged while the task is busy.
