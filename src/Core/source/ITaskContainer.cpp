@@ -165,7 +165,8 @@ void Qtilities::Core::Interfaces::ITaskContainer::registerTask(Task* task, const
 Task* Qtilities::Core::Interfaces::ITaskContainer::findTask(const QString& task_name) const {
     if (container_data->task_name_id_map.contains(task_name)) {
         ITask* itask = task(container_data->task_name_id_map[task_name]);
-        return qobject_cast<Task*> (itask->objectBase());
+        if (itask)
+            return qobject_cast<Task*> (itask->objectBase());
     }
 
     return 0;
