@@ -77,7 +77,8 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
 
     QPointer<QObject>                       obj;
 
-    bool                                    ignore_property_changes;
+    bool                                    ignore_property_changes_from_object_side;
+    bool                                    ignore_property_changes_from_browser_side;
 
     QToolBar*                               toolbar;
     QAction*                                actionAddProperty;
@@ -92,7 +93,8 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
 Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, bool show_toolbar, Qt::ToolBarArea area, QWidget *parent) : QMainWindow(parent)
 {
     d = new ObjectDynamicPropertyBrowserPrivateData;
-    d->ignore_property_changes = false;
+    d->ignore_property_changes_from_object_side = false;
+    d->ignore_property_changes_from_browser_side = false;
     d->show_qtilities_properties = false;
     d->monitor_changes = false;
     d->obj = 0;
@@ -118,7 +120,7 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     QtVariantEditorFactory *factory = new QtVariantEditorFactory(this);
     d->property_browser->setFactoryForManager(d->property_manager, factory);
     connect(d->property_manager, SIGNAL(valueChanged(QtProperty *, const QVariant &)),
-                this, SLOT(handle_property_changed(QtProperty *, const QVariant &)));
+                this, SLOT(propertyChangedFromBrowserSide(QtProperty *, const QVariant &)));
 
     // Create property manager for read only properties. It does not get a factory.
     d->property_manager_read_only = new QtVariantPropertyManager(this);
@@ -168,12 +170,8 @@ ObjectManager::PropertyTypes Qtilities::CoreGui::ObjectDynamicPropertyBrowser::n
     return d->new_property_type;
 }
 
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh(bool has_changes) {
-    if (d->obj && has_changes) {
-        d->ignore_property_changes = true;
-        inspectObject(d->obj);
-        d->ignore_property_changes = false;
-    }
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh() {
+    inspectObject(d->obj);
 }
 
 bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::eventFilter(QObject *object, QEvent *event) {
@@ -181,10 +179,8 @@ bool Qtilities::CoreGui::ObjectDynamicPropertyBrowser::eventFilter(QObject *obje
         if (event->type() == QEvent::DynamicPropertyChange) {
             QDynamicPropertyChangeEvent* property_change_event = static_cast<QDynamicPropertyChangeEvent*> (event);
             if (property_change_event) {
-                //qDebug() << "Dynamic change event update in ObjectDynamicPropertyBrowser: " << property_change_event->propertyName();
-                d->ignore_property_changes = true;
-                //inspectObject(d->obj);
-                d->ignore_property_changes = false;
+                if (!d->ignore_property_changes_from_object_side)
+                    inspectObject(d->obj);
             }
         }
     }
@@ -222,7 +218,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
         // Connect to the IModificationNotifier interface if it exists:
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
         if (mod_iface)
-            connect(d->obj,SIGNAL(modificationStateChanged(bool)),SLOT(refresh(bool)));
+            connect(d->obj,SIGNAL(modificationStateChanged(bool)),SLOT(propertyChangedFromObjectSide(bool)));
 
         // Install an event filter on the object.
         // This will catch property change events as well.
@@ -233,9 +229,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
         return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
-    d->ignore_property_changes = true;
     inspectObject(d->obj);
-    d->ignore_property_changes = false;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QPointer<QObject> object, bool monitor_changes) {
@@ -259,8 +253,8 @@ QObject* Qtilities::CoreGui::ObjectDynamicPropertyBrowser::object() const {
     return d->obj;
 }
 
-void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(QtProperty * property, const QVariant & value) {
-    if (d->ignore_property_changes)
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::propertyChangedFromBrowserSide(QtProperty * property, const QVariant & value) {
+    if (d->ignore_property_changes_from_browser_side)
         return;
 
     if (!d->obj)
@@ -268,6 +262,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
 
     QByteArray ba = property->propertyName().toAscii();
     const char* property_name = ba.data();
+
+    d->ignore_property_changes_from_object_side = true;
 
     if (d->multi_context_properties.contains(property)) {
         // This is an observer property:
@@ -278,9 +274,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
-                    d->ignore_property_changes = true;
                     mod_iface->setModificationState(true);
-                    d->ignore_property_changes = false;
                 }
             }
         } else if (prop_data.type == qti_private_MultiContextPropertyData::Mixed) {
@@ -290,9 +284,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
-                    d->ignore_property_changes = true;
                     mod_iface->setModificationState(true);
-                    d->ignore_property_changes = false;
                 }
             }
         }
@@ -305,15 +297,23 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handle_property_changed(Q
                 // Connect to the IModificationNotifier interface if it exists:
                 IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
                 if (mod_iface) {
-                    d->ignore_property_changes = true;
                     mod_iface->setModificationState(true);
-                    d->ignore_property_changes = false;
                 }
             }
         }
     }
 
-    //refresh();
+    d->ignore_property_changes_from_object_side = true;
+}
+
+void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::propertyChangedFromObjectSide(bool modified) {
+    if (!modified)
+        return;
+
+    if (d->ignore_property_changes_from_object_side)
+        return;
+
+    refresh();
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleObjectDeleted() {
@@ -328,6 +328,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleObjectDeleted() {
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObject* obj) {
     if (!obj)
         return;
+
+    d->ignore_property_changes_from_browser_side = true;
 
     clear();
 
@@ -477,6 +479,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
             }
         }
     }
+
+    d->ignore_property_changes_from_browser_side = false;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
@@ -521,8 +525,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
                 success = true;
             }
         } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
-            // FIX THIS... Why can't we set it?
-            if (d->obj->setProperty(char_property_name,QVariant(selected_type))) {
+            if (!d->obj->setProperty(char_property_name,QVariant(selected_type))) {
                 refresh();
                 success = true;
             }

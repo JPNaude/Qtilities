@@ -128,11 +128,11 @@ namespace Qtilities {
             ObjectManager::PropertyTypes newPropertyType() const;
 
         public slots:
-            //! Refresh function which checks all properties on the current object and refreshes the property editor.
+            //! Refresh function which gets all properties on the current object and refreshes the property editor.
             /*!
               \sa setObject()
               */
-            void refresh(bool has_changes = true);
+            void refresh();
             //! Sets the object for which the properties must be shown.
             /*!
               \param obj The object which must be used.
@@ -165,7 +165,8 @@ namespace Qtilities {
             void setObject(QList<QPointer<QObject> > objects, bool monitor_changes = true);
 
         private slots:
-            void handle_property_changed(QtProperty *, const QVariant &);
+            void propertyChangedFromBrowserSide(QtProperty *, const QVariant &);
+            void propertyChangedFromObjectSide(bool modified = true);
             void handleObjectDeleted();
             void handleAddProperty();
             void handleRemoveProperty();
