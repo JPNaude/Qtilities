@@ -137,6 +137,8 @@ namespace Qtilities {
             //! Sets the logging contexts for which this engine accepts messages.
             void setMessageContexts(Logger::MessageContextFlags message_contexts) { abstractLoggerEngineData->message_contexts = message_contexts; }
 
+
+
         public slots:
             //! Function which is called to finalize the logger engine.
             virtual void finalize() = 0;

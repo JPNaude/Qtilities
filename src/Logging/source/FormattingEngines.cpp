@@ -77,39 +77,6 @@ QString Qtilities::Logging::FormattingEngine_Default::finalizeString() const {
 QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
     QString message;
 
-    // Start with the correct font:
-    switch (message_type) {
-    case Logger::Info:
-        if (messages.front().toString().startsWith(QObject::tr("Successfully")))
-            message.append("<font color='green'>");
-        else
-            message.append("<font color='black'>");
-        break;
-
-    case Logger::Warning:
-        message.append("<font color='orange'>");
-        break;
-
-    case Logger::Error:
-        message.append("<font color='red'>");
-        break;
-
-    case Logger::Fatal:
-        message.append("<font color='purple'><b>");
-        break;
-
-    case Logger::Debug:
-        message.append("<font color='grey'>");
-        break;
-
-    case Logger::Trace:
-        message.append("<font color='lightgrey'>");
-        break;
-
-    default:
-        break;
-    }
-
     message.append(QTime::currentTime().toString());
     message.append(QString(" [%1] ").arg(Log->logLevelToString(message_type),-8,QChar(QChar::Nbsp)));
     message.append(messages.front().toString());
@@ -117,6 +84,61 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
         message.append("<br>            %1").arg(messages.at(i).toString());
     }
     message.append("</font>");
+
+    QString custom_color_hint;
+    if (messages.count() > 0)
+        custom_color_hint = matchColorFormattingHint(messages.front().toString(),message_type);
+
+    // Start with the correct font:
+    switch (message_type) {
+    case Logger::Info:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='black'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    case Logger::Warning:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='orange'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    case Logger::Error:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='red'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    case Logger::Fatal:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='purple'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    case Logger::Debug:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='grey'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    case Logger::Trace:
+        if (custom_color_hint.isEmpty())
+            message.prepend("<font color='lightgrey'>");
+        else
+            message.prepend(QString("<font color='%1'>").arg(custom_color_hint));
+        break;
+
+    default:
+        break;
+    }
+
+    // If the message matches a custom color regexp we use that color, otherwise
+    // we use the color of the message.
 
     if (message_type == Logger::Fatal)
         message.append("</b>");

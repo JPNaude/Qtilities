@@ -65,6 +65,14 @@ int main(int argc, char *argv[])
     LOG_INITIALIZE();
     Log->setIsQtMessageHandler(false);
 
+    // Add a formatting hint to the RichText formatting engine.
+    AbstractFormattingEngine* rich_text_engine = Log->formattingEngineReference(qti_def_FORMATTING_ENGINE_RICH_TEXT);
+    if (rich_text_engine) {
+        QRegExp reg_exp_success_color = QRegExp(QObject::tr("Successfully") + "*",Qt::CaseInsensitive,QRegExp::Wildcard);
+        CustomFormattingHint success_message_hint(reg_exp_success_color,"green",Logger::Info);
+        rich_text_engine->addColorFormattingHint(success_message_hint);
+    }
+
     // Speed up application launching a bit...
     ACTION_MANAGER->commandObserver()->startProcessingCycle();
     ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();

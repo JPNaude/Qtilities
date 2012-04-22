@@ -79,11 +79,13 @@ namespace Qtilities {
         //! Rich Text Formatting Engine.
         /*!
           This formatting engine prepares the logged messages in rich text format suited for widget based logger
-          engines.
+          engines. All QVariants in the input list of formatMessage() are converted to strings and one single string is constructed.
 
           A preview of the formatting applied is shown below:
 
           \image html log_formatting_preview_rich_text.jpg "Rich Text Formatting Engine Preview"
+
+          \note This formatting engine supports custom color formatting hints by matching the match expressions against the first string (the first QVariant in the list passed to formatMessage()).
 
           \sa Qtilities::Logging::FormattingEngine_HTML, Qtilities::Logging::FormattingEngine_XML, Qtilities::Logging::FormattingEngine_QtMsgEngineFormat, Qtilities::Logging::FormattingEngine_Default
           */
