@@ -265,7 +265,7 @@ QString Qtilities::CoreGui::TreeFileItem::filePath() const {
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
-    if (QDir::toNativeSeparators(filePath()) != QDir::toNativeSeparators(new_file_path)) {
+    if (!FileUtils::comparePaths(filePath(),new_file_path)) {
         treeFileItemBase->file_info.setFile(new_file_path);
         setModificationState(true,IModificationNotifier::NotifyListeners);
     }
