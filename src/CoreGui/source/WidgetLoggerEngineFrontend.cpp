@@ -126,7 +126,6 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     layout->addWidget(&d->txtLog);
     layout->addWidget(d->searchBoxWidget);
     d->txtLog.show();
-    d->searchBoxWidget->show();
     setCentralWidget(d->central_widget);
 
     connect(d->searchBoxWidget,SIGNAL(searchStringChanged(const QString)),SLOT(handleSearchStringChanged(QString)));
@@ -135,6 +134,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handle_FindNext()));
     connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handle_FindPrevious()));
     d->searchBoxWidget->setEditorFocus();
+    d->searchBoxWidget->hide();
     //setAttribute(Qt::WA_DeleteOnClose, true);
 
     // Assign a default meta type for this widget:
