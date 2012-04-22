@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     // Uncategorized Tree
     // ------------------------------------
     TreeNode* rootNodeUncategorized = new TreeNode("Root");
-    //rootNodeUncategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+    rootNodeUncategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
     rootNodeUncategorized->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     rootNodeUncategorized->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
 
@@ -88,12 +88,24 @@ int main(int argc, char *argv[])
     parentNode3->addItem("Child 14");
     parentNode3->addItem("Child 15");
 
+    QWidget* combined_uncategorized_widget = new QWidget;
+    if (combined_uncategorized_widget->layout())
+        delete combined_uncategorized_widget->layout();
+    QHBoxLayout* combined_uncategorized_widget_layout = new QHBoxLayout(combined_uncategorized_widget);
+    combined_uncategorized_widget_layout->setMargin(0);
+
     TreeWidget* uncategorized_widget = new TreeWidget(rootNodeUncategorized);
     uncategorized_widget->treeView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
     uncategorized_widget->setDragDropCopyButton(Qt::LeftButton);
     uncategorized_widget->setDragDropMoveButton(Qt::RightButton);
-    uncategorized_widget->show();
-    tab_widget->addTab(uncategorized_widget,QIcon(),"Uncategorized Tree");
+    combined_uncategorized_widget_layout->addWidget(uncategorized_widget);
+    uncategorized_widget->show();   
+
+    ObserverWidget* uncategorized_widget_level_view = new ObserverWidget(parentNode1,Qtilities::TableView);
+    combined_uncategorized_widget_layout->addWidget(uncategorized_widget_level_view);
+    uncategorized_widget_level_view->show();
+
+    tab_widget->addTab(combined_uncategorized_widget,QIcon(),"Uncategorized Tree");
 
     // ------------------------------------
     // Demonstration of tree duplication
@@ -108,7 +120,6 @@ int main(int argc, char *argv[])
     // ------------------------------------
     TreeNode* rootNodeCategorized = new TreeNode("Root");
     rootNodeCategorized->enableCategorizedDisplay();
-    // TODO: This breaks the toolbar for some reason... Looks like a display issue since it only happens in QTabWidget:
     rootNodeCategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
     rootNodeCategorized->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     rootNodeCategorized->displayHints()->setCategoryEditingFlags(ObserverHints::CategoriesEditableAllLevels | ObserverHints::CategoriesAcceptSubjectDrops);
@@ -129,7 +140,10 @@ int main(int argc, char *argv[])
     // ----------------------------------
     TreeNode* rootNodeParentTracking = new TreeNode("Root");
     rootNodeParentTracking->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
-    rootNodeParentTracking->displayHints()->setActionHints(ObserverHints::ActionSwitchView | ObserverHints::ActionPushDown | ObserverHints::ActionPushUp);
+    rootNodeParentTracking->displayHints()->setActionHints(ObserverHints::ActionSwitchView
+                                                           | ObserverHints::ActionPushDown
+                                                           | ObserverHints::ActionPushUp
+                                                           | ObserverHints::ActionDeleteItem);
     rootNodeParentTracking->toggleQtilitiesPropertyChangeEvents(true);
     rootNodeParentTracking->enableActivityControl(ObserverHints::CheckboxActivityDisplay,
                                                   ObserverHints::CheckboxTriggered);
@@ -234,7 +248,7 @@ int main(int argc, char *argv[])
     // Big Table Shown Using Fetch More Implementation
     // ------------------------------------
     TreeNode* bigTableObserver = new TreeNode("Big Table");
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 10000; i++) {
         bigTableObserver->addItem("Item " + QString::number(i));
     }
 
@@ -243,6 +257,75 @@ int main(int argc, char *argv[])
     big_table_widget->initialize();
     big_table_widget->show();
     tab_widget->addTab(big_table_widget,QIcon(),"Big Table");
+
+    // ------------------------------------
+    // Big With Activity Filter
+    // ------------------------------------
+
+    TreeNode* bigTableObserverWithActivity = new TreeNode("Big Table With Activity Filter");
+    bigTableObserverWithActivity->enableActivityControl(ObserverHints::CheckboxActivityDisplay,ObserverHints::CheckboxTriggered);
+    bigTableObserverWithActivity->enableCategorizedDisplay();
+    bigTableObserverWithActivity->displayHints()->setItemViewColumnHint(ObserverHints::ColumnNameHint | ObserverHints::ColumnChildCountHint);
+    bigTableObserverWithActivity->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+    bigTableObserverWithActivity->displayHints()->setActionHints(ObserverHints::ActionRefreshView | ObserverHints::ActionSwitchView | ObserverHints::ActionDeleteItem);
+
+    QTime time;
+    time.start();
+    int msg_count = 0;
+    int ms = time.elapsed();
+    int s = ms / 1000; ms %= 1000;
+    int m = s / 60; s %= 60;
+    int h = m / 60; m %= 60;
+    ++msg_count;
+    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+
+    for (int i = 0; i < 2000; i++) {
+        bigTableObserverWithActivity->addItem("Item " + QString::number(i),QtilitiesCategory(QString::number(i)));
+
+//        if ((i % 10000) == 0) {
+//            ms = time.elapsed();
+//            s = ms / 1000; ms %= 1000;
+//            m = s / 60; s %= 60;
+//            h = m / 60; m %= 60;
+//            qDebug() << "##### Add item" << i << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+//        }
+    }
+
+    ms = time.elapsed();
+    s = ms / 1000; ms %= 1000;
+    m = s / 60; s %= 60;
+    h = m / 60; m %= 60;
+    ++msg_count;
+    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+
+    bigTableObserverWithActivity->treeAt(0);
+
+    ms = time.elapsed();
+    s = ms / 1000; ms %= 1000;
+    m = s / 60; s %= 60;
+    h = m / 60; m %= 60;
+    ++msg_count;
+    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+
+    ObserverWidget* big_table_with_activity_widget = new ObserverWidget(Qtilities::TreeView);
+    big_table_with_activity_widget->setObserverContext(bigTableObserverWithActivity);
+    big_table_with_activity_widget->toggleLazyInit(true);
+    big_table_with_activity_widget->initialize();
+    big_table_with_activity_widget->show();
+    tab_widget->addTab(big_table_with_activity_widget,QIcon(),"Big Table (With Activity Filter)");
+
+//    ObserverWidget* big_table_with_activity_widget2 = new ObserverWidget(Qtilities::TreeView);
+//    big_table_with_activity_widget2->setObserverContext(bigTableObserverWithActivity);
+//    big_table_with_activity_widget2->toggleLazyInit(true);
+//    big_table_with_activity_widget2->initialize();
+//    big_table_with_activity_widget2->show();
+
+//    ms = time.elapsed();
+//    s = ms / 1000; ms %= 1000;
+//    m = s / 60; s %= 60;
+//    h = m / 60; m %= 60;
+//    ++msg_count;
+//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
     // ----------------------------------
     // Tree With Formatting
@@ -306,7 +389,7 @@ int main(int argc, char *argv[])
 
     tab_widget->show();
 
-    mainWindow.resize(800,500);
+    mainWindow.resize(900,500);
     mainWindow.show();
     return a.exec();
 }

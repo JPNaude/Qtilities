@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
                                ObserverHints::ActionToolBar |
 //                             ObserverHints::PropertyBrowser |
                                ObserverHints::DynamicPropertyBrowser);
-    #endif;
+    #endif
 
     // -----------------------------------
     // Create a tree using TreeNode, a class inherting Observer:
