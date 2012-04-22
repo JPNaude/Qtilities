@@ -54,7 +54,7 @@ namespace Qtilities {
         struct AbstractObserverItemModelData {
             AbstractObserverItemModelData() : respond_to_observer_changes(true),
                 child_count_base("QObject"),
-                child_count_limit(51) { }
+                child_count_limit(-1) { }
 
             //! Used to store default observer hints to be used with this widget.
             QPointer<ObserverHints>         hints_default;
@@ -78,6 +78,8 @@ namespace Qtilities {
             QString                         child_count_base;
             //! The limit for the counter counting tree children in the ColumnChildCount if it is shown.
             int                             child_count_limit;
+            //! Indicates if lazy initialization is enabled for this mode.
+            bool                            lazy_init;
         };
 
         /*!
@@ -93,6 +95,29 @@ namespace Qtilities {
         public:
             AbstractObserverItemModel();
             virtual ~AbstractObserverItemModel();
+
+            //! Enables/disables lazy initialization.
+            /*!
+              Lazy initialization means that the internal item view model won't initialize itself during the setObserverContext() call. Its usefull when
+              using custom implemented proxy models etc. To initialize the model in lazy initialization mode call refresh().
+
+              Lazy initialization is disabled by default.
+
+              \note You must call this function before setObserverContext() for it to have any effect.
+              \note From the current models in %Qtilities, only ObserverTreeModel makes use of lazy initialialization. For ObserverTableModel this is not neccesarry.
+
+              \sa lazyInitEnabled()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void toggleLazyInit(bool enabled);
+            //! Gets if lazy initialization is enabled.
+            /*!
+              \sa toggleLazyInit()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            bool lazyInitEnabled() const;
 
             //! The possible columns which can be requested by views for an module.
             enum ColumnID {
@@ -140,18 +165,28 @@ namespace Qtilities {
             virtual bool setObserverContext(Observer* observer);
 
             //! Sets if this model responds to changes from the observer context displayed.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
             void setRespondToObserverChanges(bool respond_to_observer_changes);
             //! Gets if this model responds to changes from the observer context displayed.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
             bool respondToObserverChanges() const;
 
             //! Sets if this model must be read only, thus its actions and property editor will be read only.
             /*!
               \sa readOnly()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             virtual void setReadOnly(bool read_only);
             //! Gets if this model must be read only, thus its actions and property editor will be read only.
             /*!
               \sa setReadOnly()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             bool readOnly() const;
 
@@ -162,29 +197,43 @@ namespace Qtilities {
               \note This function not refresh the view.
 
               \sa columnChildCountBaseClass()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setColumnChildCountBaseClass(const QString& base_class_name);
             //! Gets the base class to use for tree count operations in the ColumnChildCount column if shown.
             /*!
               \sa setColumnChildCountBaseClass()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             QString columnChildCountBaseClass() const;
             //! Sets the upper limit tree count operations in the ColumnChildCount column if shown.
             /*!
               This base_class_name parameter will be passed on to Qtilities::Core::Observer::treeCount().
 
-              The default is 51.
+              The default is -1, thus not limit.
 
               \note This function not refresh the view.
 
               \sa columnChildCountLimit()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
-            void setColumnChildLimit(int limit);
+            void setColumnChildCountLimit(int limit);
             //! Gets the upper limit to use for tree count operations in the ColumnChildCount column if shown.
             /*!
-              \sa setColumnChildLimit()
+              \sa setColumnChildCountLimit()
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             int columnChildCountLimit() const;
+
+            //! Forces this model to refresh its layout.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            virtual void refresh() = 0;
 
         protected:
             AbstractObserverItemModelData* model;

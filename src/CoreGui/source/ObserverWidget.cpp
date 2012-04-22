@@ -139,7 +139,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         task_widget(0),
         button_move(Qt::RightButton),
         button_copy(Qt::LeftButton),
-        disable_proxy_models(false) { }
+        disable_proxy_models(false),
+        lazy_init(false) { }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -255,6 +256,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! The task ID of the tree model rebuilding task.
     SingleTaskWidget* task_widget;
+    //! Remembers if the search box widget was visible when starting a refresh operation.
+    bool search_box_visible_before_refresh;
 
     //! The mouse button to react to when doing drag and drop moves.
     Qt::MouseButton button_move;
@@ -264,6 +267,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     QStringList last_expanded_items_result;
 
     bool disable_proxy_models;
+
+    //! Stores if lazy initialization has been enabled on this widget.
+    bool lazy_init;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -275,6 +281,9 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWi
     d->action_provider = new ActionProvider(this);
 
     hideProgressInfo();
+
+    // **** IMPORTANT *****
+    // Changes here should also happen in the other constructor!
 
     #ifdef QTILITIES_PROPERTY_BROWSER
     d->property_editor_dock_area = Qt::RightDockWidgetArea;
@@ -333,6 +342,9 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
 //    d->dynamic_property_filter_inversed = false;
 //    d->dynamic_property_filter = QStringList();
     #endif
+
+    ui->widgetProgressInfo->setVisible(false);
+    ui->navigationBarWidget->setVisible(false);
 
     d->display_mode = display_mode;
     d->hints_default = new ObserverHints(this);
@@ -425,6 +437,18 @@ bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) 
     return true;
 }
 
+void Qtilities::CoreGui::ObserverWidget::toggleLazyInit(bool enabled) {
+    d->lazy_init = enabled;
+    if (d->tree_model)
+        d->tree_model->toggleLazyInit(enabled);
+    if (d->table_model)
+        d->table_model->toggleLazyInit(enabled);
+}
+
+bool Qtilities::CoreGui::ObserverWidget::lazyInitEnabled() const {
+    return d->lazy_init;
+}
+
 int Qtilities::CoreGui::ObserverWidget::topLevelObserverID() {
     if (d->top_level_observer)
         return d->top_level_observer->observerID();
@@ -444,6 +468,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTableModel(ObserverTableModel*
 
     d->table_model = table_model;
     d->table_model->setParent(this);
+    d->table_model->toggleLazyInit(d->lazy_init);
     return true;
 }
 
@@ -459,6 +484,7 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomTreeModel(ObserverTreeModel* t
 
     d->tree_model = tree_model;
     d->tree_model->setParent(this);
+    d->tree_model->toggleLazyInit(d->lazy_init);
 
     connect(d->tree_model,SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )),this,SLOT(adaptColumns(const QModelIndex &, const QModelIndex&)));
     connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
@@ -619,6 +645,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         constructActions();
     }
 
+
     d->initialized = false;
 
     if (!d_observer) {
@@ -691,6 +718,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->tree_view->setDragEnabled(true);
                 if (!d->tree_model) {
                     d->tree_model = new ObserverTreeModel(d->tree_view);
+                    d->tree_model->toggleLazyInit(d->lazy_init);
 
                     connect(d->tree_model,SIGNAL(treeModelBuildAboutToStart()),SLOT(handleTreeModelBuildAboutToStart()));
                     connect(d->tree_model,SIGNAL(treeModelBuildStarted(int)),SLOT(showProgressInfo(int)));
@@ -782,8 +810,10 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 d->table_view->setAcceptDrops(true);
                 d->table_view->setDragEnabled(true);
                 d->table_view->setContextMenuPolicy(Qt::CustomContextMenu);
-                if (!d->table_model)
+                if (!d->table_model) {
                     d->table_model = new ObserverTableModel(d->table_view);
+                    d->table_model->toggleLazyInit(d->lazy_init);
+                }
 
                 d->table_view->setSortingEnabled(true);
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeTableViewRows()));
@@ -905,6 +935,74 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         ui->navigationBarWidget->setVisible(false);
     }
 
+    // Refreshes the visibility of columns:
+    // We only do this for table views here, for tree views this happens after the tree
+    // build is complete in hideProgressInfo() connected to treeModelBuildEnded() on the tree:
+    if (displayMode() == Qtilities::TableView)
+        refreshColumnVisibility();
+
+    d->initialized = true;
+    if (!hints_only) {
+        // Construct the property browser if neccesarry:
+        #ifdef QTILITIES_PROPERTY_BROWSER
+        refreshPropertyBrowser();
+        refreshDynamicPropertyBrowser();
+        #endif
+        installEventFilter(this);
+    }
+
+    bool create_default_selection = true;
+    if (activeHints()) {
+        // Ok since the new observer provides hints, we need to see if we must select its' active objects:
+        // Check if the observer has a FollowSelection actity policy
+        // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
+        if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
+            // Check if the observer has an activity filter, which it should have with this hint:
+            ActivityPolicyFilter* filter = 0;
+            for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+                filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
+                if (filter) {
+                    d->activity_filter = filter;
+
+                    // Connect to the activity change signal (to update activity on observer widget side):
+                    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)),Qt::UniqueConnection);
+                    QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
+                    selectObjects(active_subjects);
+                    create_default_selection = false;
+                    continue;
+                }
+            }
+        } else {
+            if (d->activity_filter)
+                d->activity_filter->disconnect(this);
+            d->activity_filter = 0;
+        }
+
+        if (create_default_selection && d->update_selection_activity) {
+            selectObjects(QList<QObject*>());
+        }
+    }
+
+    // Init all actions happens in here:
+    // Don't update selection activity, already happened in the above code:
+    d->update_selection_activity = false;
+    handleSelectionModelChange();
+    d->update_selection_activity = true;
+    // If selection problems occur, uncomment the above again.
+    //refreshActions();
+    refreshActionToolBar();
+
+    // Resize view:
+    if (!hints_only)
+        hideProgressInfo(false);
+
+    resizeColumns();
+
+    if (d->display_mode == Qtilities::TableView)
+        QApplication::restoreOverrideCursor();
+}
+
+void Qtilities::CoreGui::ObserverWidget::refreshColumnVisibility() {
     // Update the columns shown
     if (d->display_mode == TableView && d->table_view && d->table_model) {
         // Show only the needed columns for the current observer.
@@ -973,66 +1071,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             d->tree_view->showColumn(d->tree_model->columnPosition(AbstractObserverItemModel::ColumnAccess));
         }
     }
-
-    d->initialized = true;
-    if (!hints_only) {
-        // Construct the property browser if neccesarry:
-        #ifdef QTILITIES_PROPERTY_BROWSER
-        refreshPropertyBrowser();
-        refreshDynamicPropertyBrowser();
-        #endif
-        installEventFilter(this);
-    }
-
-    bool create_default_selection = true;
-    if (activeHints()) {
-        // Ok since the new observer provides hints, we need to see if we must select its' active objects:
-        // Check if the observer has a FollowSelection actity policy
-        // In that case the observer widget, in table mode must select objects which are active and adapt to changes in the activity filter.
-        if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
-            // Check if the observer has an activity filter, which it should have with this hint:
-            ActivityPolicyFilter* filter = 0;
-            for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
-                filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
-                if (filter) {
-                    d->activity_filter = filter;
-
-                    // Connect to the activity change signal (to update activity on observer widget side):
-                    connect(d->activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(selectObjects(QList<QObject*>)),Qt::UniqueConnection);
-                    QList<QObject*> active_subjects = d->activity_filter->activeSubjects();
-                    selectObjects(active_subjects);
-                    create_default_selection = false;
-                    continue;
-                }
-            }
-        } else {
-            if (d->activity_filter)
-                d->activity_filter->disconnect(this);
-            d->activity_filter = 0;
-        }
-
-        if (create_default_selection && d->update_selection_activity) {
-            selectObjects(QList<QObject*>());
-        }
-    }
-
-    // Init all actions happens in here:
-    // Don't update selection activity, already happened in the above code:
-    d->update_selection_activity = false;
-    handleSelectionModelChange();
-    d->update_selection_activity = true;
-    // If selection problems occur, uncomment the above again.
-    //refreshActions();
-    refreshActionToolBar();
-
-    // Resize view:
-    if (!hints_only)
-        hideProgressInfo(false);
-
-    resizeColumns();
-
-    if (d->display_mode == Qtilities::TableView)
-        QApplication::restoreOverrideCursor();
 }
 
 QStack<int> Qtilities::CoreGui::ObserverWidget::navigationStack() const {
@@ -2047,7 +2085,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
 }
 
 void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observer) {
-    if (d->display_mode == Qtilities::TreeView && d->tree_view) {
+    if (d->display_mode == Qtilities::TreeView && d->tree_view) {              
         // This function will only be entered in TreeView mode.
         // It is a slot connected to the selection parent changed signal in the tree model.
         bool valid_selection_parent_hints = true;
@@ -2515,8 +2553,15 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
 
     // Call selectObjects() in order to update internal d->current_selection.
     QList<QObject*> previous_selection = selectedObjects();
-    d_observer->refreshViewsLayout(QList<QPointer<QObject> >(),true);
 
+    // Call refresh on the applicable model:
+    if (displayMode() == Qtilities::TreeView && d->tree_model)
+        d->tree_model->refresh();
+    else if (displayMode() == Qtilities::TableView && d->table_model)
+        d->table_model->refresh();
+    //d_observer->refreshViewsLayout(QList<QPointer<QObject> >(),true);
+
+    // Handle observer's follow selection stuff
     if (activeHints()->activityControlHint() == ObserverHints::FollowSelection && d->activity_filter) {
         selectObjects(d->activity_filter->activeSubjects());
     } else {
@@ -2527,10 +2572,10 @@ void Qtilities::CoreGui::ObserverWidget::refresh() {
     }
 
     setWindowTitle(d_observer->observerName());
-    if (d->navigation_bar && d->display_mode == Qtilities::TableView) {
+    if (d->navigation_bar && d->display_mode == Qtilities::TableView)
         d->navigation_bar->refreshHierarchy();
-        resizeColumns();
-    }
+
+    resizeColumns();
 }
 
 void Qtilities::CoreGui::ObserverWidget::selectionPushUp() {
@@ -2981,13 +3026,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
         layout->addWidget(d->searchBoxWidget);
         layout->setMargin(0);
 
-        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),ui->widgetSearchBox,SLOT(hide()));
-        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),SLOT(resetProxyModel()));
-        if (d->table_view && d->display_mode == TableView) {
-            connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->table_view,SLOT(setFocus()));
-        } else if (d->tree_view && d->display_mode == TreeView) {
-            connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->tree_view,SLOT(setFocus()));
-        }
+        connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),SLOT(toggleSearchBox()));
 
         QMenu* search_options_menu = d->searchBoxWidget->searchOptionsMenu();
         if (search_options_menu) {
@@ -3021,10 +3060,12 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
     if (!ui->widgetSearchBox->isVisible()) {
         ui->widgetSearchBox->show();
         d->searchBoxWidget->setEditorFocus();
-        handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
+        if (!d->searchBoxWidget->currentSearchString().isEmpty())
+            handleSearchStringChanged(d->searchBoxWidget->currentSearchString());
     } else {
         ui->widgetSearchBox->hide();
-        resetProxyModel();
+        if (!d->searchBoxWidget->currentSearchString().isEmpty())
+            resetProxyModel();
         if (d->table_view && d->display_mode == TableView) {
             d->table_view->setFocus();
         } else if (d->tree_view && d->display_mode == TreeView) {
@@ -3047,6 +3088,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
                 flags |= ObserverTreeItem::CategoryItem;
             proxy->setRowFilterTypes(flags);
             proxy->invalidate();
+            resizeColumns();
         }
     }
 }
@@ -3531,6 +3573,8 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
 
     // Check if the installed proxy model is a QSortFilterProxyModel:
     if (model) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
         Qt::CaseSensitivity caseSensitivity = d->searchBoxWidget->caseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive;
         model->setFilterCaseSensitivity(caseSensitivity);
 
@@ -3543,6 +3587,9 @@ void Qtilities::CoreGui::ObserverWidget::handleSearchStringChanged(const QString
             model->setFilterWildcard(filter_string);
 
         model->invalidate();
+        resizeColumns();
+
+        QApplication::restoreOverrideCursor();
     }
 }
 
@@ -3570,8 +3617,10 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
         ui->itemParentWidget->hide();
         ui->navigationBarWidget->hide();
 
-        if (d->searchBoxWidget)
+        if (d->searchBoxWidget) {
+            d->search_box_visible_before_refresh = ui->widgetSearchBox->isVisible();
             ui->widgetSearchBox->hide();
+        }
 
         emit treeModelBuildStarted(task_id);
         QApplication::processEvents();
@@ -3586,9 +3635,10 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
         if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
             ui->navigationBarWidget->show();
 
-        if (d->searchBoxWidget)
+        if (d->searchBoxWidget && d->search_box_visible_before_refresh)
             ui->widgetSearchBox->show();
 
+        refreshColumnVisibility();
         resizeColumns();
 
         if (emit_tree_build_completed)

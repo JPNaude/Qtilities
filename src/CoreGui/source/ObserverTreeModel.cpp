@@ -136,7 +136,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     }
 
     // The first time the observer context is set we rebuild the tree:
-    if (observer->observerName() != qti_def_GLOBAL_OBJECT_POOL)
+    if (observer->observerName() != qti_def_GLOBAL_OBJECT_POOL && !lazyInitEnabled())
         recordObserverChange();
 
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleObserverContextDeleted()));
@@ -547,8 +547,8 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
             // Check if it is an observer, in that case we return treeCount() on the observer
             Observer* observer = qobject_cast<Observer*> (getItem(index)->getObject());
             if (observer) {
-                int count = observer->treeCount(columnChildCountBaseClass(),false,columnChildCountLimit());
-                if (count > columnChildCountLimit() - 1)
+                int count = observer->treeCount(columnChildCountBaseClass());
+                if ((count > columnChildCountLimit() - 1) && (columnChildCountLimit() != -1))
                     return QString("> %1").arg(columnChildCountLimit() -1);
                 else
                     return count;
@@ -1066,12 +1066,13 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                                 // The value comming in here is always Qt::Checked.
                                 // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that.
                                 QVariant current_activity = local_selection_parent->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
+                                local_selection_parent->startProcessingCycle();
                                 if (current_activity.toBool()) {
                                     local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
                                 } else {
                                     local_selection_parent->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                                 }
-
+                                local_selection_parent->endProcessingCycle(false);
                                 handleContextDataChanged(local_selection_parent);
                             }
                         }
@@ -1112,9 +1113,9 @@ int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent
 
 void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<QObject> > new_selection) {
     if (!respondToObserverChanges()) {
-        //#ifdef QTILITIES_BENCHMARKING
+        #ifdef QTILITIES_BENCHMARKING
         qDebug() << "Ignoring layout changes to observer" << d_observer->observerName() << "in tree model.";
-        //#endif
+        #endif
         return;
     }
 
@@ -1122,7 +1123,7 @@ void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<
         if (d->build_mutex.tryLock()) {
             d->new_selection = new_selection;
             #ifdef QTILITIES_BENCHMARKING
-            qDebug() << "Recording observer change on model: " << objectName() << ". The tree is not being built at the moment. Initiating a build request.";
+            qDebug() << "Recording observer change on tree model: " << objectName() << ". The tree is not being built at the moment. Initiating a build request.";
             #endif
             rebuildTreeStructure();
             d->build_mutex.unlock();
@@ -1133,9 +1134,9 @@ void Qtilities::CoreGui::ObserverTreeModel::recordObserverChange(QList<QPointer<
     } else {
         d->tree_rebuild_queued = true;
         d->queued_selection = new_selection;
-        //#ifdef QTILITIES_BENCHMARKING
+        #ifdef QTILITIES_BENCHMARKING
         qDebug() << QString("Received tree rebuild request in " + d_observer->observerName() + "'s view. The current tree is being rebuilt, thus queueing this change.");
-        //#endif;
+        #endif
     }
 }
 
@@ -1160,9 +1161,9 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
-    //#ifdef QTILITIES_BENCHMARKING
+    #ifdef QTILITIES_BENCHMARKING
     qDebug() << "Rebuilding tree structure on view: " << objectName();
-    //#endif
+    #endif
 
     // The view will call setExpandedItems() in its slot.
     // Note that the first time we show a context we don't emit the
@@ -1222,14 +1223,13 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
         d->tree_builder.setRootItem(top_level_observer_item);
         d->tree_builder.setUseObserverHints(model->use_observer_hints);
         d->tree_builder.setActiveHints(activeHints());
+
         connect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)),Qt::UniqueConnection);
         d->tree_builder.startBuild();
     }
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {
-    //qDebug() << "Received prebuilt model from tree builder on view for observer: " << d_observer->observerName();
-
     item->setParent(d->rootItem);
 
     if (d->tree_building_threading_enabled) {
@@ -1354,6 +1354,10 @@ QObject* Qtilities::CoreGui::ObserverTreeModel::getObject(const QModelIndex &ind
         return item->getObject();
     else
         return 0;
+}
+
+void Qtilities::CoreGui::ObserverTreeModel::refresh() {
+    recordObserverChange();
 }
 
 Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::selectionParent() const {

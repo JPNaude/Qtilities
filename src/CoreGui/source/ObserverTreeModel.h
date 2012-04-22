@@ -100,6 +100,7 @@ namespace Qtilities {
             int getSubjectID(const QModelIndex &index) const;
             QObject* getObject(const QModelIndex &index) const;
             void setShowModificationState(bool is_enabled);
+            void refresh();
 
             // --------------------------------
             // ObserverTreeModel Implementation

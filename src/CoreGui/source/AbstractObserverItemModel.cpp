@@ -39,11 +39,20 @@ Qtilities::CoreGui::AbstractObserverItemModel::AbstractObserverItemModel() {
     model = new AbstractObserverItemModelData;
     model->hints_default = new ObserverHints;
     model->use_observer_hints = true;
+    model->lazy_init = false;
 }
 
 Qtilities::CoreGui::AbstractObserverItemModel::~AbstractObserverItemModel() {
     delete model->hints_default;
     delete model;
+}
+
+void Qtilities::CoreGui::AbstractObserverItemModel::toggleLazyInit(bool enabled) {
+    model->lazy_init = enabled;
+}
+
+bool Qtilities::CoreGui::AbstractObserverItemModel::lazyInitEnabled() const {
+    return model->lazy_init;
 }
 
 void Qtilities::CoreGui::AbstractObserverItemModel::toggleUseObserverHints(bool toggle) {
@@ -119,7 +128,7 @@ QString Qtilities::CoreGui::AbstractObserverItemModel::columnChildCountBaseClass
     return model->child_count_base;
 }
 
-void Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildLimit(int limit) {
+void Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildCountLimit(int limit) {
     model->child_count_limit = limit;
 }
 

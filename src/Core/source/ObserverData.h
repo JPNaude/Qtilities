@@ -92,8 +92,7 @@ namespace Qtilities {
                 observer(obs),
                 object_deletion_policy(0),
                 number_of_subjects_start_of_proc_cycle(0),
-                broadcast_modification_state_changes(true),
-                last_tree_count(-1)
+                broadcast_modification_state_changes(true)
             {
                 subject_list.setObjectName(observer_name);
             }
@@ -173,6 +172,11 @@ namespace Qtilities {
             // --------------------------------
         public:
             PointerList                         subject_list;
+            //! Stores a list of all observers under this observer.
+            /*!
+              Used to optimize performance.
+              */
+            PointerList                         subject_observer_list;
             QList<AbstractSubjectFilter*>       subject_filters;
             int                                 subject_limit;
             int                                 subject_id_counter;
@@ -203,9 +207,6 @@ namespace Qtilities {
             int                                 number_of_subjects_start_of_proc_cycle;
             //! Used internally in Observer to optimize the number of times modification state changes are broadcast.
             bool                                broadcast_modification_state_changes;
-            //! Used internally to optimize multiple calls to treeCount().
-            int                                 last_tree_count;
-            QString                             last_tree_count_base_class;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

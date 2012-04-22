@@ -102,6 +102,7 @@ namespace Qtilities {
             int columnPosition(AbstractObserverItemModel::ColumnID column_id) const;
             int getSubjectID(const QModelIndex &index) const;
             QObject* getObject(const QModelIndex &index) const;
+            void refresh();
 
             // --------------------------------
             // ObserverTableModel Implementation

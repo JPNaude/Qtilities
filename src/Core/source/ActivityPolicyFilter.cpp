@@ -234,34 +234,27 @@ Qtilities::Core::ActivityPolicyFilter::NewSubjectActivityPolicy Qtilities::Core:
 }
 
 int Qtilities::Core::ActivityPolicyFilter::numActiveSubjects() const {
-    int count = 0;
-    bool is_active = false;
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
-        if (is_active)
-            ++count;
-    }
-    return count;
+    return activeSubjects().count();
 }
 
 QList<QObject*> Qtilities::Core::ActivityPolicyFilter::activeSubjects() const {
     QList<QObject*> list;
-    bool is_active = false;
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
-        if (is_active)
-            list.push_back(observer->subjectAt(i));
+    int count = observer->subjectCount();
+    for (int i = 0; i < count; i++) {
+        QObject* obj = observer->subjectAt(i);
+        if (observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool())
+            list.push_back(obj);
     }
     return list;
 }
 
 QList<QObject*> Qtilities::Core::ActivityPolicyFilter::inactiveSubjects() const {
     QList<QObject*> list;
-    bool is_active = false;
-    for (int i = 0; i < observer->subjectCount(); i++) {
-        is_active = observer->getMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP).toBool();
-        if (!is_active)
-            list.push_back(observer->subjectAt(i));
+    int count = observer->subjectCount();
+    for (int i = 0; i < count; i++) {
+        QObject* obj = observer->subjectAt(i);
+        if (!observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP).toBool())
+            list.push_back(obj);
     }
     return list;
 }
@@ -309,17 +302,18 @@ bool Qtilities::Core::ActivityPolicyFilter::setActiveSubjects(QList<QObject*> ob
     //        return;
 
     // Make sure all objects in the list is observed by this observer context.
-    for (int i = 0; i < objects.count(); i++) {
-        if (!objects.at(i)) {
-            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Null pointer to object detected at list position %1.").arg(i));
-            return false;
-        }
+    // Skip this, we are taking very long in here...
+//    for (int i = 0; i < objects.count(); i++) {
+//        if (!objects.at(i)) {
+//            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Null pointer to object detected at list position %1.").arg(i));
+//            return false;
+//        }
 
-        if (!observer->contains(objects.at(i)) && objects.at(i)) {
-            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context (%2).").arg(objects.at(i)->objectName()).arg(observer->observerName()));
-            return false;
-        }
-    }
+//        if (!observer->contains(objects.at(i)) && objects.at(i)) {
+//            LOG_TRACE(QString("Invalid objects in list sent to setActiveSubjects(). Object %1 is not observed in this context (%2).").arg(objects.at(i)->objectName()).arg(observer->observerName()));
+//            return false;
+//        }
+//    }
 
     // Check the number of objects in the list against the policies of this filter.
     if (objects.count() == 0) {
@@ -545,9 +539,11 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
         } else {
             if (d->new_subject_activity_policy == ActivityPolicyFilter::SetNewActive) {
                 if (d->activity_policy == ActivityPolicyFilter::UniqueActivity && d->enforce_activity_policy) {
-                    for (int i = 0; i < observer->subjectCount(); i++) {
-                        if (observer->subjectAt(i) != obj)
-                            observer->setMultiContextPropertyValue(observer->subjectAt(i),qti_prop_ACTIVITY_MAP,QVariant(false));
+                    int count = observer->subjectCount();
+                    for (int i = 0; i < count; i++) {
+                        QObject* obj_at = observer->subjectAt(i);
+                        if (obj_at != obj)
+                            observer->setMultiContextPropertyValue(obj_at,qti_prop_ACTIVITY_MAP,QVariant(false));
                     }
                 }
                 new_activity = true;
@@ -556,6 +552,8 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             }
         }
 
+        bool current_subject_event_filter = observer->subjectEventFilteringEnabled();
+        observer->toggleSubjectEventFiltering(false);
         MultiContextProperty subject_activity_property = ObjectManager::getMultiContextProperty(obj,qti_prop_ACTIVITY_MAP);
         if (subject_activity_property.isValid()) {
             // Thus, the property already exists
@@ -565,11 +563,10 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
             // We need to create the property and add it to the object
             MultiContextProperty new_subject_activity_property(qti_prop_ACTIVITY_MAP);
             new_subject_activity_property.setIsExportable(true);
-            new_subject_activity_property.addContext(new_activity,observer->observerID());
-            obj->blockSignals(true);
+            new_subject_activity_property.addContext(new_activity,observer->observerID());         
             ObjectManager::setMultiContextProperty(obj,new_subject_activity_property);
-            obj->blockSignals(false);
         }
+        observer->toggleSubjectEventFiltering(current_subject_event_filter);
 
         // When tracking parent activity, we need to listen to activity changes on the subjects
         // in order to make parent partially checked if needed to:
@@ -615,6 +612,7 @@ void Qtilities::Core::ActivityPolicyFilter::finalizeAttachment(QObject* obj, boo
                 setModificationState(true,IModificationNotifier::NotifyNone);
             }
         }
+
         filter_mutex.unlock();
     }
 }
@@ -677,6 +675,9 @@ QStringList Qtilities::Core::ActivityPolicyFilter::monitoredProperties() const {
 
 bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {
     Q_UNUSED(property_name)
+
+    QTime time;
+    time.start();
 
     if (!d->enforce_activity_policy)
         return true;

@@ -670,7 +670,7 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \sa startTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
               */
-            virtual void endTreeProcessingCycle(bool broadcast = true);
+            virtual void endTreeProcessingCycle(bool broadcast = true);           
 
             // --------------------------------
             // Functions to attach / detach subjects
@@ -860,7 +860,18 @@ obs.endProcessingCycle(); // Internal count = 0;
             //! Returns the category used for the specified object in this context. QtilitiesCategory() is returned if the object is not valid, not attached to this observer or does not have a category.
             QtilitiesCategory subjectCategoryInContext(const QObject* obj) const;
             //! Returns the displayed name used for the specified object in this context. QString() is returned if the object is not valid or not attached to this observer.
-            QString subjectDisplayedNameInContext(const QObject* obj) const;
+            /*!
+              The displayed name is found using the following sequence, returning the first match:
+              - Check if the object has the qti_prop_DISPLAYED_ALIAS_MAP property
+              - Check if the object has the qti_prop_ALIAS_MAP propery
+              - Lastly, just return the objectName()
+
+              \param obj The object for which the name must be fetched.
+              \param validate_object When true, the function will first check if the object exists in the context.
+
+              \return The name if the object was found, and empty QString() otherwise.
+              */
+            QString subjectDisplayedNameInContext(const QObject* obj, bool validate_object = false) const;
             //! Returns the ownership used for the specified object in this context.
             /*!
                 If \p obj is not valid or contained in this context, ManualOwnership is returned. Thus you should
@@ -875,20 +886,13 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
                 This function is different from treeCount() which gets all the children underneath an observer (Thus, children of children etc.).
                 */
-            int subjectCount(const QString& base_class_name = "QObject") const;
+            int subjectCount(const QString& base_class_name = QString()) const;
             //! Function to get the number of children under the specified observer.
             /*!
                 This count includes the children of children as well. To get the number of subjects only in this context use subjectCount().
-
-                By default this function will not do a recount everytime. It will only recount when \p base_class_name changed
-                from the last time it was called, or if isModified() returns true. You can however force a full
-                recount using \p force_recount.
-
-                \param limit When defined, the counting will stop when the limit count is reached. This allows you to stop when a tree gets too big. By default all children are counted.
-
                 \note This observer itself is not counted.
                 */
-            int treeCount(const QString& base_class_name = "QObject", bool force_recount = false, int limit = -1);
+            int treeCount(const QString& base_class_name = QString());
             //! Function to get a QObject reference at a specific location in the tree underneath this observer.
             /*!
               If \p i is < 0 or bigger than or equal to the number of items retuned by allChildren() this function returns 0.
@@ -931,7 +935,7 @@ QVERIFY(items_verify.count() == 5);
             //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.
             QStringList subjectDisplayedNames(const QString& base_class_name = "QObject") const;
             //! Returns the subject reference at a given position.
-            QObject* subjectAt(int i) const;
+            QObject* subjectAt(int i) const;       
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
             int subjectID(int i) const;
             //! Returns the ID associated with a specific subject.
@@ -948,6 +952,12 @@ QVERIFY(items_verify.count() == 5);
             QList<QObject*> subjectReferences(const QString& base_class_name = "QObject") const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
             QMap<QPointer<QObject>, QString> subjectMap();
+            //! Returns a list of observers under this observer.
+            /*!
+              This is an optimized function to get observer references under this observer. Thus, its much faster than
+              something like subjectReferences("Observer") or subjectReferences("TreeNode").
+              */
+            QList<Observer*> subjectObserverReferences() const;
             //! Gets the subject reference for a specific, unique subject ID.
             QObject* subjectReference(int ID) const;
             //! Gets the subject reference for a specific object name.
@@ -1055,6 +1065,8 @@ QVERIFY(items_verify.count() == 5);
             QStringList subjectNamesByCategory(const QtilitiesCategory& category) const;
             //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an qti_prop_CATEGORY_MAP shared observer property.
             QList<QObject*> subjectReferencesByCategory(const QtilitiesCategory& category) const;
+            //! Returns a QHash with each object in this observer mapped to its category's string representation (using toString("::") function on QtilitiesCategory).
+            QHash<QObject*,QString> subjectReferenceCategoryHash() const;
 
             // --------------------------------
             // Property related functions
@@ -1130,6 +1142,8 @@ QVERIFY(items_verify.count() == 5);
               This signal only indicates if the number of subjects in this observer changes. To monitor number of subject changes
               in the complete tree under the observer, see layoutChanged().
 
+              Thus, for table views this is enough, for tree views use layoutChanged().
+
               \param change_indication Slots can use this indicator to know what change occured.
               \param objects A list of objects which was added/removed. When the list contains null items, these objects were deleted and the observer picked it up and removed them. When this signal is emitted in endProcessingCycle() this list will be empty.
 
@@ -1151,7 +1165,8 @@ QVERIFY(items_verify.count() == 5);
               - Subject access mode changes.
 
               \param new_selection The new desired selection in any views that are refreshed due to the layout changed.
-              \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model.
+              \note When creating models for observers, this signal should be connected to the layoutChanged() signal of your model for tree models. For table
+                    models connecting to numberOfSubjectsChanged() should be enough.
               \sa accessMode(), accessModeScope(), Qtilities::Core::Properties::qti_prop_ACCESS_MODE
               */
             void layoutChanged(QList<QPointer<QObject> > new_selection = QList<QPointer<QObject> >());

@@ -42,9 +42,8 @@ using namespace QtilitiesCoreGui;
 struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     ObserverTreeModelBuilderPrivateData() : hints(0),
         root_item(0),
-        task(QObject::tr("Tree Builder")),
-        threading_enabled(false),
-        caching_enabled(false) {}
+        task(QObject::tr("Tree Builder"),false),
+        threading_enabled(false) {}
 
     QMutex                          build_lock;
     ObserverHints*                  hints;
@@ -53,9 +52,6 @@ struct Qtilities::CoreGui::ObserverTreeModelBuilderPrivateData  {
     Task                            task;
     QThread*                        thread;
     bool                            threading_enabled;
-    bool                            caching_enabled;
-
-    QCache<int, ObserverTreeItem*>  cache;
 };
 
 Qtilities::CoreGui::ObserverTreeModelBuilder::ObserverTreeModelBuilder(ObserverTreeItem* item, bool use_observer_hints, ObserverHints* observer_hints, QObject* parent) : QObject(parent) {
@@ -105,34 +101,10 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setThreadingEnabled(bool is_e
     d->threading_enabled = is_enabled;
 }
 
-void ObserverTreeModelBuilder::setCachingEnabled(bool is_enabled) {
-    d->caching_enabled = is_enabled;
-}
-
 void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     d->build_lock.lock();
 
-    #ifdef QTILITIES_BENCHMARKING
-    time_t timer_start;
-    time_t timer_end;
-    time(&timer_start);
-    double diff = difftime(timer_end,timer_start);
-    qDebug() << Q_FUNC_INFO << "Time at start of build" << diff;
-    #endif
-
-    // Get number of children under observer tree:
-    Observer* obs = qobject_cast<Observer*> (d->root_item->getObject());
-    int tree_count = -1;
-    if (obs)
-        tree_count = obs->treeCount("",true);
-
-    #ifdef QTILITIES_BENCHMARKING
-    time(&timer_end);
-    diff = difftime(timer_end,timer_start);
-    qDebug() << Q_FUNC_INFO << "Time after count" << diff;
-    #endif
-
-    d->task.startTask(tree_count);
+    d->task.startTask();
     QApplication::processEvents();
     buildRecursive(d->root_item);
 
@@ -141,37 +113,18 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
         moveToThread(d->thread);
     }
 
-    #ifdef QTILITIES_BENCHMARKING
-    time(&timer_end);
-    diff = difftime(timer_end,timer_start);
-    qDebug() << Q_FUNC_INFO << "Time at end of build" << diff;
-    #endif
-
     d->build_lock.unlock();
-
     d->task.completeTask(ITask::TaskSuccessful);
+
     //printStructure(root_item);
     emit buildCompleted(d->root_item);
 }
 
-void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeItem* item) {
-    // In here we build the complete structure of all the children below item.
+void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeItem* item, QList<QObject*> category_objects) {
+     // In here we build the complete structure of all the children below item.
     Observer* observer = qobject_cast<Observer*> (item->getObject());
-
-    // Check if in caching mode:
-    if (d->caching_enabled) {
-        // TODO: isModified is not correct here. We need to get a isStructureModified() function or something...
-        if (!observer->isModified()) {
-            // Check if the cache contains cached information for this observer:
-            if (d->cache.contains(observer->observerID())) {
-
-            }
-        }
-    }
-
     ObserverTreeItem* new_item;
-
-    d->task.addCompletedSubTasks(1,"Building item: " + item->objectName());
+    //d->task.addCompletedSubTasks(1,"Building item: " + item->objectName());
 
     if (!d->threading_enabled)
         QApplication::processEvents();
@@ -184,10 +137,9 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 Observer* parent_observer = item->containedObserver();
                 if (parent_observer) {
                     // Now add all items belonging to this category
-                    QList<QObject*> objects_for_category = parent_observer->subjectReferencesByCategory(item->category());
-                    for (int i = 0; i < objects_for_category.count(); i++) {
+                    for (int i = 0; i < category_objects.count(); i++) {
                         // Storing all information in the data vector here can improve performance
-                        QObject* object = objects_for_category.at(i);
+                        QObject* object = category_objects.at(i);
                         Observer* obs = qobject_cast<Observer*> (object);
                         QVector<QVariant> column_data;
                         column_data << QVariant(parent_observer->subjectNameInContext(object));
@@ -197,7 +149,9 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                             new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeItem);
                         }
                         item->appendChild(new_item);
-                        buildRecursive(new_item);
+
+                        if (obs)
+                            buildRecursive(new_item);
                     }
                 }
             }
@@ -224,8 +178,14 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
 
             if (use_categorized) {
                 // Create items for each category:
-                QList<QtilitiesCategory> categories = observer->subjectCategories();
-                foreach (QtilitiesCategory category, categories) {
+                //QList<QtilitiesCategory> categories = observer->subjectCategories();
+                // Get the object / category hash:
+                // TODO: Analyze this difference in TreeBuilder example (using the Set vs. the above subjectCategories() call)
+                QHash<QObject *, QString> category_hash = observer->subjectReferenceCategoryHash();
+                QSet<QString> categories = category_hash.values().toSet();
+
+                foreach (QString category_string, categories) {
+                    QtilitiesCategory category = QtilitiesCategory(category_string,"::");
                     // Check the category against the displayed category list:
                     bool valid_category = true;
                     if (hints_to_use) {
@@ -289,14 +249,12 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                                 tree_item_list.push_back(new_item);
 
                                 // If this item has locked access, we don't dig into any items underneath it:
-                                if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
-                                    buildRecursive(new_item);
-                                } else {
+                                if (observer->accessMode(shortened_category) != Observer::LockedAccess)
+                                    buildRecursive(new_item,category_hash.keys(category_levels.join("::")));
+                                else
                                     break;
-                                }
-                            } else {
+                            } else
                                 tree_item_list.push_back(existing_item);
-                            }
 
                             // Increment the level counter:
                             ++level_counter;
@@ -316,7 +274,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                         new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);;
                         item->appendChild(new_item);
                         // If this item has locked access, we don't dig into any items underneath it:
-                        if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess)
+                        if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess && obs)
                             buildRecursive(new_item);
                     } else {
                         new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
@@ -324,17 +282,20 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                     }
                 }
             } else {
-                for (int i = 0; i < observer->subjectCount(); i++) {
-                    // Storing all information in the data vector here can improve performance:
-                    Observer* obs = qobject_cast<Observer*> (observer->subjectAt(i));
+                int count = observer->subjectCount();
+                for (int i = 0; i < count; i++) {
+                    QObject* obj_at = observer->subjectAt(i);
+                    Observer* obs = qobject_cast<Observer*> (obj_at);
                     QVector<QVariant> column_data;
-                    column_data << QVariant(observer->subjectNames().at(i));
+                    column_data << QVariant(observer->subjectNameInContext(obj_at));
                     if (obs)
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeNode);
+                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeNode);
                     else
-                        new_item = new ObserverTreeItem(observer->subjectAt(i),item,column_data,ObserverTreeItem::TreeItem);
+                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeItem);
                     item->appendChild(new_item);
-                    buildRecursive(new_item);
+
+                    if (obs)
+                        buildRecursive(new_item);
                 }
             }
         }

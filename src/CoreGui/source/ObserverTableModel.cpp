@@ -60,6 +60,8 @@ struct Qtilities::CoreGui::ObserverTableModelData {
     int         fetch_count;
 };
 
+#define fetch_limit 1000
+
 Qtilities::CoreGui::ObserverTableModel::ObserverTableModel(QObject* parent) : QAbstractTableModel(parent), AbstractObserverItemModel()
 {
     d = new ObserverTableModelData();
@@ -86,7 +88,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
         return false;
 
     d->fetch_count = 0;
-    connect(d_observer,SIGNAL(layoutChanged(QList<QPointer<QObject> >)),SLOT(handleLayoutChanged()));
+    connect(d_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication, QList<QPointer<QObject> >)),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(destroyed()),SLOT(handleLayoutChanged()));
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
 
@@ -102,7 +104,6 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     }
 
     handleLayoutChanged();
-
     return true;
 }
 
@@ -233,13 +234,14 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             // Check the modification state of the object if it implements IModificationNotifier:
             bool is_modified = false;
+            QObject* obj = d_observer->subjectAt(index.row());
             if (activeHints()->modificationStateDisplayHint() == ObserverHints::CharacterModificationStateDisplay) {
-                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d_observer->subjectAt(index.row()));
+                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
                 if (mod_iface)
                     is_modified = mod_iface->isModified();
             }
 
-            QString return_string = d_observer->subjectDisplayedNames().at(index.row());
+            QString return_string = d_observer->subjectDisplayedNameInContext(obj);
             if (is_modified)
                 return return_string + "*";
             else
@@ -363,8 +365,8 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
 
             Observer* observer = qobject_cast<Observer*> (obj);
             if (observer) {
-                int count = observer->treeCount(columnChildCountBaseClass(),false,columnChildCountLimit());
-                if (count > columnChildCountLimit() - 1)
+                int count = observer->treeCount(columnChildCountBaseClass());
+                if ((count > columnChildCountLimit() - 1) && (columnChildCountLimit() != -1))
                     return QString("> %1").arg(columnChildCountLimit() -1);
                 else
                     return count;
@@ -506,7 +508,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
                     } else {
                         d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
                     }
-                    d_observer->endProcessingCycle();
+                    d_observer->endProcessingCycle(false);
                     emit dataChanged(index,index);
                     return true;
                 //}
@@ -533,7 +535,7 @@ void Qtilities::CoreGui::ObserverTableModel::fetchMore(const QModelIndex &parent
 
     int remainder = d_observer->subjectCount() - d->fetch_count;
     //qDebug() << "remainder" << remainder;
-    int itemsToFetch = qMin(100, remainder);
+    int itemsToFetch = qMin(fetch_limit, remainder);
 
     beginInsertRows(QModelIndex(), d->fetch_count, d->fetch_count+itemsToFetch-1);
     d->fetch_count += itemsToFetch;
@@ -550,7 +552,7 @@ int Qtilities::CoreGui::ObserverTableModel::rowCount(const QModelIndex &parent) 
     else {
         if (d->fetch_count == 0) {
             // First time:
-            d->fetch_count = qMin(100, d_observer->subjectCount());
+            d->fetch_count = qMin(fetch_limit, d_observer->subjectCount());
             return d->fetch_count;
         } else {
             return d->fetch_count;
@@ -573,10 +575,14 @@ void Qtilities::CoreGui::ObserverTableModel::handleDataChanged() {
         return;
 
     if (!respondToObserverChanges()) {
+        #ifdef QTILITIES_BENCHMARKING
         qDebug() << "Ignoring data changes to observer" << d_observer->observerName() << "in table model";
+        #endif
         return;
     } else {
+        #ifdef QTILITIES_BENCHMARKING
         qDebug() << "Responding to data changes to observer" << d_observer->observerName() << "in table model";
+        #endif
     }
 
     emit dataChanged(createIndex(0,0),createIndex(rowCount()-1,columnCount()-1));
@@ -587,13 +593,17 @@ void Qtilities::CoreGui::ObserverTableModel::handleLayoutChanged() {
         return;
 
     if (!respondToObserverChanges()) {
-        qDebug() << "Ignoring layout changes to observer" << d_observer->observerName() << "in table model";
+        #ifdef QTILITIES_BENCHMARKING
+        qDebug() << "Ignoring number of subjects changed on observer" << d_observer->observerName() << "in table model";
+        #endif
         return;
     } else {
-        qDebug() << "Responding to layout changes to observer" << d_observer->observerName() << "in table model";
+        #ifdef QTILITIES_BENCHMARKING
+        qDebug() << "Responding to number of subjects changed on observer" << d_observer->observerName() << "in table model";
+        #endif
     }
 
-    d->fetch_count = qMin(100, d_observer->subjectCount());
+    d->fetch_count = qMin(fetch_limit, d_observer->subjectCount());
     emit layoutAboutToBeChanged();
     emit layoutChanged();
     emit layoutChangeCompleted();
@@ -627,6 +637,10 @@ QObject* Qtilities::CoreGui::ObserverTableModel::getObject(const QModelIndex &in
         return d_observer->subjectReference(id);
     else
         return 0;
+}
+
+void Qtilities::CoreGui::ObserverTableModel::refresh() {
+    handleLayoutChanged();
 }
 
 QObject* Qtilities::CoreGui::ObserverTableModel::getObject(int row) const {

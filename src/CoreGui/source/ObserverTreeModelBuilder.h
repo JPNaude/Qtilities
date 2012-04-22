@@ -67,8 +67,6 @@ namespace Qtilities {
             int taskID() const;
             //! Sets if threading is enabled in the builder.
             void setThreadingEnabled(bool is_enabled);
-            //! Sets if caching is enabled in the builder.
-            void setCachingEnabled(bool is_enabled);
 
         public slots:
             //! Starts the build.
@@ -85,7 +83,7 @@ namespace Qtilities {
 
         private:
             //! Function which will rebuild the complete tree structure under the top level observer.
-            void buildRecursive(ObserverTreeItem* item);
+            void buildRecursive(ObserverTreeItem* item, QList<QObject*> category_objects = QList<QObject*>());
             //! Prints the structure of the tree as trace messages.
             /*!
               \sa LOG_TRACE

@@ -129,7 +129,33 @@ categorized_widget->show();
             virtual ~ObserverWidget();
             //! Implementation of virtual function ObserverAwareBase::setObserverContext().
             bool setObserverContext(Observer* observer);
+            //! Enables/disables lazy initialization.
+            /*!
+              Lazy initialization means that the internal item view model won't initialize itself during the initialize() call. Its usefull when
+              using custom implemented proxy models etc. To initialize the model in lazy initialization mode call refresh().
+
+              Lazy initialization is disabled by default.
+
+              \note You must call this function before initialize() for it to have any effect.
+              \note Only usefull when in TreeView mode, in TableView mode this does not have any effect.
+              \note After initialization lazy initialization is always turned off in order for display mode switching to work properly.
+
+              \sa lazyInitEnabled()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void toggleLazyInit(bool enabled);
+            //! Gets if lazy initialization is enabled.
+            /*!
+              \sa toggleLazyInit()
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            bool lazyInitEnabled() const;
             //! Initializes the observer widget. Make sure to set the item model as well as the flags you would like to use before calling initialize.
+            /*!
+              \sa toggleLazyInit(), lazyInitEnabled()
+              */
             virtual void initialize(bool hints_only = false);
             //! Gets the current navigation stack of this widget.
             QStack<int> navigationStack() const;
@@ -342,7 +368,7 @@ categorized_widget->show();
         signals:
             //! Signal which is emitted when the expanded nodes changes.
             /*!
-              This signal was added in Qtilities v1.1.
+              This function was added in Qtilities v1.1.
               */
             void expandedNodesChanged(const QStringList& node_names);
             //! Signal which is emitted when the observer context of this widget changes.
@@ -967,6 +993,9 @@ categorized_widget->show();
             void newObserverWidgetCreated(ObserverWidget* new_widget);
 
         private:
+            //! Refreshes the visible columns.
+            void refreshColumnVisibility();
+
             //! Disconnects the clipboard's copy and cut actions from this widget.
             void disconnectClipboard();
             void changeEvent(QEvent *e);
