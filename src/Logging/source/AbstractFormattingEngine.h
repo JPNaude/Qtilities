@@ -100,10 +100,10 @@ namespace Qtilities {
 
         \section AbstractFormattingEngine_custom_hints Custom Formatting Hints
 
-        Since v1.1, formatting engines allows you to set custom formatting hints by providing QRegExp expressions with matching colors. This allows you to
+        Formatting engines allows you to set custom color formatting hints by providing QRegExp expressions with matching colors. This allows you to
         format messages using different color schemes without having to create a complete new formatting engine. Formatting engines must build in support for
-        this functionality, and it won't apply to all engines. For example, the Qtilities::Logging::FormattingEngine_Default engine does not use coloring, therefore
-        it does not support this functionality. Other engine however, such as Qtilities::Logging::FormattingEngine_Rich_Text, does
+        this functionality, and it won't apply to all engines. For example, the FormattingEngine_Default engine does not use coloring, therefore
+        it does not support this functionality. Other engine however, such as FormattingEngine_Rich_Text, does
         use coloring information and therefore supports these custom color rules.
 
         By default engines would use colors that you would expect for different messages. For example, errors are colored in red, warnings in orange etc. However you
@@ -130,7 +130,7 @@ if (rich_text_engine) {
         Since all the default %Qtilities provided formatting engines are shared by all engines its only neccesarry to add custom hints to the single instance and the rule
         will be applied to all logger engines that uses that formatting engine.
 
-        Note that previous versions of %Qtilities had the above rule built in to Qtilities::Logging::FormattingEngine_Rich_Text in order to match successfull messages.
+        Note that previous versions of %Qtilities had the above rule built in to FormattingEngine_Rich_Text in order to match successfull messages.
         Since that design was flawed because it depended on English as your language, this built in functionality was removed and you must now set the above rule
         manually if you depended on the previous mode of operation.
           */
