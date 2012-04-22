@@ -293,3 +293,7 @@ bool Qtilities::Core::FileUtils::compareBinaryFiles(const QString& file1, const 
 
     return true;
 }
+
+bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
+    return (QDir::toNativeSeparators(QDir::cleanPath(path1)).compare(QDir::toNativeSeparators(QDir::cleanPath(path2)),Qt::CaseInsensitive) == 0);
+}

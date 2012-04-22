@@ -155,6 +155,18 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hid
             static bool compareTextFiles(const QString& file1, const QString& file2);
             //! Compares two binary files and returns true if they are exactly the same, false otherwise.
             static bool compareBinaryFiles(const QString& file1, const QString& file2);
+            //! Compares two paths in a system independant way.
+            /*!
+              This function takes two paths and checks if they are the same. The function does the following:
+              - Does a case insensitive check.
+              - Removes any unwanted things in the path through QDir::cleanPath().
+              - Does an environment independent check by converting both paths to the native characters of the OS on which this function is called.
+
+              \return True when the paths are the same, false otherwise.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            static bool comparePaths(const QString& path1, const QString& path2);
 
         private:
             QFileInfoList                   last_files_under_dir;
