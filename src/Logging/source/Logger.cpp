@@ -650,6 +650,7 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     static QMutex msgMutex;
     msgMutex.lock();
 
+    // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
 //        int i = 5;
 //    else if (QString(msg) == "setReadOnly(false) called too many times on design:  \"calibration_engine_tb\"")
@@ -661,6 +662,8 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 //    else if (QString(msg).contains("isEmpty()"))
 //        int i = 5;
 //    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
+//        int i = 5;
+//    else if (QString(msg).contains("QVector<T>::remove: \"index out of range\""))
 //        int i = 5;
 
     switch (type)
