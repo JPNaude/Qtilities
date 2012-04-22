@@ -261,8 +261,14 @@ namespace Qtilities {
             //! Clears all custom projects paths except for the Default one.
             void clearCustomProjectsPaths();
             //! Sets the default project paths category.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
             void setDefaultCustomProjectsCategory(const QString& projects_category);
             //! Gets the default project paths category.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
             QString defaultCustomProjectsCategory() const;
             //! Returns a list of all registered project categories.
             /*!
@@ -368,6 +374,24 @@ namespace Qtilities {
               */
             QStringList removeNonExistingRecentProjects();
 
+            //! Disables/enables the ability to save projects.
+            /*!
+              Saving of projects are disabled by default.
+
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            void toggleProjectSaving(bool is_enabled, const QString& info_message = QString());
+            //! Gets if project saving is enabled.
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            bool projectSavingEnabled() const;
+            //! Gets the info message about why project saving was disabled (if so).
+            /*!
+              <i>This function was added in %Qtilities v1.1.</i>
+              */
+            QString projectSavingInfoMessage() const;
+
             // --------------------------------
             // IObjectBase Implemenation
             // --------------------------------
@@ -418,12 +442,12 @@ namespace Qtilities {
             void projectClosingFinished(bool success);
             //! Signal which is emitted whenever the recent projects list changes.
             /*!
-                This signal was added in Qtilities v1.1.
+                This function was added in Qtilities v1.1.
               */
             void recentProjectsChanged(const QStringList& names, const QStringList& paths);
             //! Signal which is emitted whenever the custom project paths are changed.
             /*!
-                This signal was added in Qtilities v1.1.
+                This function signal was added in Qtilities v1.1.
               */
             void customProjectPathsChanged();
 

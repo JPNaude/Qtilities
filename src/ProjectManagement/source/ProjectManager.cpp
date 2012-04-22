@@ -61,7 +61,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
         project_types(IExportable::Binary | IExportable::XML),
         default_project_type(IExportable::XML),
         project_changed_during_load(false),
-        exec_style(ProjectManager::ExecNormal) {}
+        exec_style(ProjectManager::ExecNormal),
+        saving_enabled(true) {}
 
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;
@@ -85,6 +86,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     QMap<IExportable::ExportMode,QString>   suffices;
     bool                                    project_changed_during_load;
     ProjectManager::ExecStyle               exec_style;
+    bool                                    saving_enabled;
+    QString                                 saving_info_message;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -702,7 +705,7 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
     if (!d->is_initialized)
         LOG_WARNING(tr("ProjectManager is finalized without being initialized first."));
 
-    if (d->current_project) {
+    if (d->current_project && d->saving_enabled) {
         if (d->check_modified_projects && d->current_project->isModified()) {
             if (d->modified_projects_handling_policy == PromptUser) {
                 if (d->exec_style != ExecSilent) {
@@ -771,6 +774,19 @@ QStringList ProjectManagement::ProjectManager::removeNonExistingRecentProjects()
     return removed_paths;
 }
 
+void ProjectManagement::ProjectManager::toggleProjectSaving(bool is_enabled, const QString &info_message) {
+    d->saving_enabled = is_enabled;
+    d->saving_info_message = info_message;
+}
+
+bool ProjectManagement::ProjectManager::projectSavingEnabled() const {
+    return d->saving_enabled;
+}
+
+QString ProjectManagement::ProjectManager::projectSavingInfoMessage() const {
+    return d->saving_info_message;
+}
+
 void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* project) {
     if (!project)
         return;
@@ -822,4 +838,3 @@ void ProjectManagement::ProjectManager::clearCustomProjectsPaths() {
             removeCustomProjectsPath(key);
     }
 }
-

@@ -45,6 +45,7 @@
 #include <QDomElement>
 #include <QApplication>
 #include <QCursor>
+#include <QMessageBox>
 
 #include <stdio.h>
 #include <time.h>
@@ -86,6 +87,21 @@ bool Qtilities::ProjectManagement::Project::newProject() {
 quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 
 bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name, ITask* task) {
+    if (!PROJECT_MANAGER->projectSavingEnabled()) {
+        if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecSilent) {
+            LOG_ERROR("Saving of projects is currently disabled, project save can't continue: " + PROJECT_MANAGER->projectSavingInfoMessage());
+        } else {
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Cannot Save Project");
+            msgBox.setText("Saving of projects is currently disabled, project save can't continue.");
+            msgBox.setInformativeText(PROJECT_MANAGER->projectSavingInfoMessage());
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+
+        return false;
+    }
+
     LOG_TASK_INFO(tr("Starting to save current project to file: ") + file_name,task);
 
     if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::XML))) {
