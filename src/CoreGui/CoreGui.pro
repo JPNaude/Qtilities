@@ -14,7 +14,6 @@ CONFIG += qt \
     dll \
     ordered
 
-CONFIG  += help
 QT += xml
 CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
 else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
@@ -179,6 +178,7 @@ FORMS += source/ObserverWidget.ui \
 contains(DEFINES, QTILITIES_NO_HELP) {
     # Do nothing here for now.
 } else {
+    CONFIG  += help
     HEADERS += source/HelpManager.h
     SOURCES += source/HelpManager.cpp
 }
