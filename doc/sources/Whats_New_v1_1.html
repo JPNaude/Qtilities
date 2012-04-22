@@ -1,37 +1,136 @@
 /**
 \page page_whats_new_v1_1 What's New In %Qtilities v1.1
 
-This page highlights new features and improvements in the v1.1 release, in no particular order.
+This page and overview of new classes, and functions added to existing classes in the v1.1 release.
 
-Table of contents:
-- \ref whats_new_v1_1_classes
+A detailed overview of changes and bug fixes can be found in the <a href="https://github.com/JPNaude/Qtilities/blob/v1.1/Changelog.txt">detailed change log</a>. The change log uses the following legend to list items.
+- [+] New feature added
+- [*] Bug Fix
+- [#] Change/Improvement to old code
 
-Alternatively have a look at the <a href="https://github.com/JPNaude/Qtilities/blob/v1.1/Changelog.txt">detailed change log</a>. See \ref page_whats_new_v1_0
-for details on changes in the previous version.
+For comment, queries or bug reports please get in contact through the following channels:
+- Support: support@qtilities.org
+- Issue List: https://github.com/JPNaude/Qtilities/issues
+- Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en/
 
 \section whats_new_v1_1_classes New Classes
 
 %Qtilities v1.1 provides the following new classes:
 
-- Qtilities::Core::HelpManager
+- Qtilities::CoreGui::HelpManager
 - Qtilities::CoreGui::GroupedConfigPage
 - Qtilities::CoreGui::Interfaces::IGroupedConfigPageInfoProvider
 - Qtilities::ProjectManagement::ProjectsBrowser
 
 The help manager class is complimented through a Help plugin which contains a set of classes, all grouped under the Qtilities::Plugins::Help namespace.
-- Qtilities::Core::HelpManager
 
-\section whats_new_v1_1_core_highlights Highlights of changes to the Qtilities::Core module
+\section whats_new_v1_1_functions New Functions
 
-\subsection whats_new_v1_1_core_highlights_duplication Duplicating objects made easy
+- Qtilities::Logging::AbstractFormattingEngine::addColorFormattingHint()
+- Qtilities::Logging::AbstractFormattingEngine::colorFormattingHints()
+- Qtilities::Logging::AbstractFormattingEngine::clearColorFormattingHints()
+- Qtilities::Logging::AbstractFormattingEngine::removeColorFormattingHint()
+- Qtilities::Logging::AbstractFormattingEngine::matchColorFormattingHint()
 
-\section whats_new_v1_1_coregui_highlights Highlights of changes to the Qtilities::CoreGui module
+- Qtilities::CoreGui::AbstractObserverItemModel::toggleLazyInit()
+- Qtilities::CoreGui::AbstractObserverItemModel::lazyInitEnabled()
+- Qtilities::CoreGui::AbstractObserverItemModel::setRespondToObserverChanges()
+- Qtilities::CoreGui::AbstractObserverItemModel::respondToObserverChanges()
+- Qtilities::CoreGui::AbstractObserverItemModel::setReadOnly()
+- Qtilities::CoreGui::AbstractObserverItemModel::readOnly()
+- Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildCountBaseClass()
+- Qtilities::CoreGui::AbstractObserverItemModel::columnChildCountBaseClass()
+- Qtilities::CoreGui::AbstractObserverItemModel::setColumnChildCountLimit()
+- Qtilities::CoreGui::AbstractObserverItemModel::columnChildCountLimit()
+- Qtilities::CoreGui::AbstractObserverItemModel::refresh()
 
-\section whats_new_v1_1_projectmangement_highlights Highlights of changes to the Qtilities::ProjectManagement module
+- Qtilities::CoreGui::CodeEditorWidget::fileRemovedOutsideHandlingPolicy()
+- Qtilities::CoreGui::CodeEditorWidget::setFileRemovedOutsideHandlingPolicy()
+- Qtilities::CoreGui::CodeEditorWidget::setDisplayFlagsHint()
+- Qtilities::CoreGui::CodeEditorWidget::actionFlagsHint()
+- Qtilities::CoreGui::CodeEditorWidget::setActionFlagsHint()
+- Qtilities::CoreGui::CodeEditorWidget::initialize()
+- Qtilities::CoreGui::CodeEditorWidget::fileNameChanged()
+- Qtilities::CoreGui::CodeEditorWidget::closeFile()
+- Qtilities::CoreGui::CodeEditorWidget::setDefaultPath()
+- Qtilities::CoreGui::CodeEditorWidget::defaultPath()
 
-\section whats_new_v1_1_plugins_highlights Highlights of changes to plugins
+- Qtilities::CoreGui::Interfaces::IConfigPage::setConfigPageIcon()
+- Qtilities::CoreGui::Interfaces::IConfigPage::configPageHelpID()
+- Qtilities::CoreGui::Interfaces::IConfigPage::setConfigPageHelpID()
+- Qtilities::CoreGui::Interfaces::IConfigPage::setConfigPageCategory()
+- Qtilities::CoreGui::Interfaces::IConfigPage::configPageRestoreDefaults()
+- Qtilities::CoreGui::Interfaces::IConfigPage::supportsRestoreDefaults()
 
-\subsection whats_new_v1_1_plugins_highlights_help New Help plugin
+- Qtilities::CoreGui::ObserverWidget::toggleLazyInit()
+- Qtilities::CoreGui::ObserverWidget::lazyInitEnabled()
+- Qtilities::CoreGui::ObserverWidget::findExpandedItems()
+- Qtilities::CoreGui::ObserverWidget::lastExpandedItemsResults()
+- Qtilities::CoreGui::ObserverWidget::handleExpanded()
+- Qtilities::CoreGui::ObserverWidget::handleCollapsed()
+- Qtilities::CoreGui::ObserverWidget::expandNodes()
+- Qtilities::CoreGui::ObserverWidget::selectedObjectsContextMatch()
+- Qtilities::CoreGui::ObserverWidget::selectedObjectsHintsMatch()
+- Qtilities::CoreGui::ObserverWidget::selectCategories()
+- Qtilities::CoreGui::ObserverWidget::selectCategory()
+- Qtilities::CoreGui::ObserverWidget::dynamicPropertyBrowser()
+- Qtilities::CoreGui::ObserverWidget::dynamicPropertyBrowserDock()
+- Qtilities::CoreGui::ObserverWidget::setPreferredDynamicPropertyEditorDockArea()
+- Qtilities::CoreGui::ObserverWidget::setPreferredDynamicPropertyEditorType()
+- Qtilities::CoreGui::ObserverWidget::constructDynamicPropertyBrowser()
+- Qtilities::CoreGui::ObserverWidget::refreshDynamicPropertyBrowser()
+- Qtilities::CoreGui::ObserverWidget::expandedNodesChanged()
 
-\section whats_new_v1_1_plugins_examples Highlights of changes to examples
+- Qtilities::CoreGui::QtilitiesMainWindow::taskSummaryWidget()
+- Qtilities::CoreGui::QtilitiesMainWindow::priorityMessageLabel()
+
+- Qtilities::CoreGui::SideWidgetFileSystem::filePath()
+- Qtilities::CoreGui::SideWidgetFileSystem::toggleDoubleClickFileOpen()
+
+- Qtilities::CoreGui::SingleTaskWidget::setShowLogButtonVisible()
+- Qtilities::CoreGui::SingleTaskWidget::showLogButtonVisible()
+- Qtilities::CoreGui::SingleTaskWidget::setPauseButtonEnabled()
+- Qtilities::CoreGui::SingleTaskWidget::setStopButtonEnabled()
+- Qtilities::CoreGui::SingleTaskWidget::setStartButtonEnabled()
+
+- Qtilities::CoreGui::StringListWidget::setOpenOnDoubleClick()
+- Qtilities::CoreGui::StringListWidget::openOnDoubleClick()
+
+- Qtilities::CoreGui::TaskManagerGui::disableTaskProgressUpdating()
+- Qtilities::CoreGui::TaskManagerGui::enableTaskProgressUpdating()
+- Qtilities::CoreGui::TaskManagerGui::taskProgressUpdatingEnabled()
+
+- Qtilities::CoreGui::TaskSummaryWidget::taskSummaryEnabled()
+- Qtilities::CoreGui::TaskSummaryWidget::setTaskSummaryEnabled()
+
+- Qtilities::CoreGui::TreeFileItem::setFileForce()
+
+- Qtilities::Core::FileUtils::comparePaths()
+
+- Qtilities::Core::Interfaces::ITask::elapsedTime()
+- Qtilities::Core::Interfaces::ITask::elapsedTimeString()
+- Qtilities::Core::Interfaces::ITask::subTaskPerformanceIndication()
+- Qtilities::Core::Interfaces::ITask::setSubTaskPerformanceIndication()
+- Qtilities::Core::Interfaces::ITask::logMessageToTask()
+- Qtilities::Core::Interfaces::ITask::logPriorityMessageToTask()
+
+- Qtilities::Core::ObjectManager::convSafeObjectsToNormal()
+- Qtilities::Core::ObjectManager::convNormalObjectsToSafe()
+
+- Qtilities::Core::QtilitiesProcess::setLineBreakStrings()
+- Qtilities::Core::QtilitiesProcess::lineBreakStrings()
+
+- Qtilities::ProjectManagement::ProjectManager::setDefaultCustomProjectsCategory()
+- Qtilities::ProjectManagement::ProjectManager::defaultCustomProjectsCategory()
+- Qtilities::ProjectManagement::ProjectManager::customProjectCategories()
+- Qtilities::ProjectManagement::ProjectManager::executionStyle()
+- Qtilities::ProjectManagement::ProjectManager::setExecutionStyle()
+- Qtilities::ProjectManagement::ProjectManager::removeRecentProject()
+- Qtilities::ProjectManagement::ProjectManager::removeNonExistingRecentProjects()
+- Qtilities::ProjectManagement::ProjectManager::toggleProjectSaving()
+- Qtilities::ProjectManagement::ProjectManager::projectSavingEnabled()
+- Qtilities::ProjectManagement::ProjectManager::projectSavingInfoMessage()
+- Qtilities::ProjectManagement::ProjectManager::recentProjectsChanged()
+- Qtilities::ProjectManagement::ProjectManager::customProjectPathsChanged()
+
 */

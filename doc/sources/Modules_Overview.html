@@ -14,8 +14,8 @@
 This page provides an overview of the different modules which form part of %Qtilities and describes the dependencies of these modules on each other.
 
 Table of contents:
-- \ref section_modules
 - \ref section_dependencies
+- \ref section_modules
 
 </td>
 
@@ -66,9 +66,20 @@ Table of contents:
 </tr>
 </table>
 
-\section section_modules Modules
 
-This section provides an overview of the different modules (libraries) which together forms %Qtilities. Usage information for each library is also shown. If the usage information does not make sense, see the \ref page_the_basics article.
+\section section_dependencies Module And Dependencies Overview
+
+The diagram below shows the dependencies of the different modules on each other. When you include a library in your .pro file, all dependent modules are automatically included.
+<br>
+
+\image html dependency_graph.jpg "Library Dependency Graph"
+
+For more information about the conditional dependencies, see \p Dependencies.pri.
+
+\section section_modules Module Details
+
+This section provides an overview of the different modules (libraries) which together forms %Qtilities. Usage information for each library is also shown.
+If the usage information does not make sense, see the \ref page_the_basics article.
 
 <div align="center">
 <table style="table-layout:auto;
@@ -260,13 +271,5 @@ using namespace QtilitiesTesting;
 </table>
 </div>
 
-\section section_dependencies Module Dependencies
-
-The diagram below shows the dependencies of the different modules on each other. When you include a library in your .pro file, all dependent modules are automatically included.
-<br>
-
-\image html dependency_graph.jpg "Library Dependency Graph"
-
-For more information about the conditional dependencies, see \p Dependencies.pri.
  */
  
