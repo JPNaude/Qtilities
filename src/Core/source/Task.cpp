@@ -483,7 +483,7 @@ void Qtilities::Core::Task::addCompletedSubTasks(int number_of_sub_tasks, const 
     emit taskSubTaskAboutToComplete();
 
     if (d->sub_task_performance_indication == ITask::SubTaskTimeFromTaskStart)
-        logMessage(QString(tr("Subtask completed (%1).")).arg(elapsedTimeString()));
+        logMessage(QString(tr("Subtask completed (%1).")).arg(elapsedTimeString(d->timer.elapsed())));
 
     //qDebug() << "addCompletedSubTasks() progress on task " << taskName() << " with " << number_of_sub_tasks << " new, " << d->current_progress << " current, " << d->number_of_sub_tasks << " total.";
     d->current_progress = d->current_progress + number_of_sub_tasks;

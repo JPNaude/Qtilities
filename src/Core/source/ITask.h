@@ -110,7 +110,7 @@ namespace Qtilities {
 
                 //! Indicates how sub tasks are timed.
                 enum SubTaskPerformanceIndication {
-                    SubTaskNoPerformanceIndication   = 0,  /*!< Sub tasks will not be timed, usefull for tasks with many small, fast sub tasks. */
+                    SubTaskNoPerformanceIndication   = 0,  /*!< Sub tasks will not be timed, usefull for tasks with many small, quick sub tasks. */
                     SubTaskTimeFromTaskStart         = 1   /*!< Sub tasks are timed from the start of the task and execution times are printed in the task log when task logging is enabled. */
                 };
 
@@ -173,25 +173,21 @@ namespace Qtilities {
                 virtual int elapsedTime() const = 0;
                 //! Returns the elapsed time of the task as a string.
                 /*!
-                  \param msec The time in miliseconds to format. When -1 (the default), the current elapsed time of the task is used.
-
-                  The format used is QString("%1:%2:%3").arg(h).arg(m).arg(ms) where h = hours, m = minutes, s = seconds.
+                  \param msec The time in miliseconds to format. When -1 (default) the current elapsed time of the task is used.
+                  \param format The format to use, see QTime::toString(const QString& format) for details.
 
                   \sa elapsedTime(), taskElapsedTimeChanged(), toggleElapsedTimeChangedNotifications(), toggleElapsedTimeChangedNotifications()
 
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
-                virtual QString elapsedTimeString(int msec = -1) const {
-                    int ms;
+                virtual QString elapsedTimeString(int msec = -1, const QString & format = "hh:mm:ss.zzz") const {
+                    QTime ref_time(0,0);
+                    QTime ref_time_elapsed;
                     if (msec == -1)
-                        ms = elapsedTime();
+                        ref_time_elapsed = ref_time.addMSecs(elapsedTime());
                     else
-                        ms = msec;
-                    int s = ms / 1000; ms %= 1000;
-                    int m = s / 60; s %= 60;
-                    int h = m / 60; m %= 60;
-
-                    return QString("%1:%2:%3").arg(h).arg(m).arg(s);
+                        ref_time_elapsed = ref_time.addMSecs(msec);
+                    return ref_time_elapsed.toString(format);
                 }
                 //! Signal emitted when the task's elapsed time changes.
                 /*!
