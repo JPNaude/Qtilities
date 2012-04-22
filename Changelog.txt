@@ -1,190 +1,236 @@
+This change log uses the following legend to list items.
+[+] New feature added
+[*] Bug Fix
+[#] Change/Improvement to old code
+
 ================================
 Qtilities v1.1 Changes
 ================================
+    To see all closed issues in the issue tracker linked to this milestone, see the following page:
+    https://github.com/JPNaude/Qtilities/issues/milestones
+
     General:
     ============================
-    - Extended the object management article with details about functionality offered by Qtilities to work with QObject properties.
-    - Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications.
-      This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff
-      and you don't need to link against QtHelp when it is defined.
-    - All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
-    - Removed support for containment approach of building trees.
+    [+] Extended the object management article with details about functionality offered by Qtilities to work with QObject properties.
+    [+] Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications.
+        This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff
+        and you don't need to link against QtHelp when it is defined.
+    [#] All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
+    [#] Removed support for containment approach of building trees.
+    [#] Observer models now tested with, and runs without problems through the Qt ModelTest tests.
+    [#] Lots of performance improvements all around. See the Qtilities blog for the "Making Qtilities faster for v1.1" post for details.
 
     ============================
     QtilitiesLogging:
     ============================
-    - FIXED #30: Fixed bug where Logger::newFileEngine() could crash if file could not be created at the location provided.
-    - Don't write any logging settings when settings on the logger is disabled.
+    [+] Custom formatting hints can now be provided to AbstractFormattingEngine.
+
+    [#] The Rich Text formatting engine no longer colors messages starting with "Successfully" green. The custom hints functionality
+        on AbstractFormattingEngine can now be used to get this behaviour.
+
+    [*] Fixed bug where Logger::newFileEngine() could crash if file could not be created at the location provided.
+    [*] Don't write any logging settings when settings on the logger is disabled.
 
     ============================
     QtilitiesCore:
     ============================
-    - Better support for logging to tasks.
-    - IExporatble now supports setting a task to which export/import messages should be logged.
-    - Fixed problems with backward compatibility in Qtilities internal exports.
-    - Added new signals on ITask: taskAboutToPause(), taskAboutToComplete(), taskSubTaskAboutToComplete(), taskAboutToStop(), taskAboutToStart(), taskAboutToResume().
-    - Updated IFactoryProvider and factory to use categories better.
-    - ActivityPolicyFilter::setActiveSubject(s) functions changed to return bool indicating if the new selection was accepted by the filter according to its policies.
-    - TreeIterator can now iterate trees with subjects attached to multiple nodes in the tree without problems. See the updated TreeItereator documentation for details.
-    - Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
-    - Fixed crash in Observer when a subject filter deletes a subject during finalizeAttachment().
-    - Observer got new processingCycleCount() and resetProcessingCycleCount() functions.
-    - Observer::treeCount() optimized to only do a recount of the tree when the tree was modified. Its not const anymore, and
-      you can can force a rebuild using the new force_recount parameter.
-    - Fixed bug where Observer::observerName() could return the wrong name in some cases.
-    - Observer::treeChildren() and Observer::treeCount() got a new limit parameter.
-    - Fixed bug where ActivityPolicyFilter::ParentFollowActivity was not handled correctly.
-    - Fixed QtilitiesFileInfo::compareActualFilePaths() not working when paths use different separators.
-    - Object pool observer no longer filters events on subjects.
-    - Object pool observer broadcast modification state changes.
-    - Removed containment support from Observer.
-    - Observer::setModificationState() will now broadcast changes even if a processing cycle is active on the observer.
-    - Observer::attachSubject() will no longer crash if the object being attached is deleted during initialization in any subject filters.
-    - Observer::detachSubject() did not restore filtering of subject events properly in some cases.
-    - Observer::deleteAll() got new parameter to specify that only objects inheriting a specified base class must be deleted, as well as a parameter which inidcates if views must be refreshed when the operation is completed.
-    - Observer::eventFilter() will no longer crash if the object on which the event is being filtered is deleted during property validation in any subject filters.
-    - FileUtils::setFindFilesUnderDirParams() got new file filter parameter.
-    - Fixed bug where Observer::endTreeProcessingCycle() could in some situations not emit layoutChanged() causing tree views not to update when the tree's layout changed.
-    - QtilitiesProcess now takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged.
-    - IExportable got two new functions: duplicate() and duplicateInstance().
-    - IExportable::Result got new SuccessResult and FailedResult types.
-    - Task manager will no longer assign an object name to new tasks if the task already has a valid objectName().
-    - When obj->objectName() is empty, this Observer::attachSubject() will set the object name to the className() of the object.
-    - Observer::subjectCategories() now returns categories sorted in alphabetical order.
-    - QtilitiesCategory now has the following operation overloads added to it: >, >= and <=.
-    - Added canStartChanged(), canStopChanged() and canPauseChanged() signals on ITask.
-    - The following functions are not public slots on Task: setCanStop(),setCanStart(),setCanPause().
-    - ITask got two new functions to measure the time tasks are taking: elapsedTime() and elapsedTimeString().
+    [+] Added new signals on ITask: taskAboutToPause(), taskAboutToComplete(), taskSubTaskAboutToComplete(), taskAboutToStop(),
+        taskAboutToStart(), taskAboutToResume().
+    [+] Added new convSafeObjectsToNormal() and convNormalObjectsToSafe() functions on Object Manager.
+    [+] Observer got new processingCycleCount() and resetProcessingCycleCount() functions.
+    [+] Observer::deleteAll() got new parameter to specify that only objects inheriting a specified base class must be deleted, as well as a
+        parameter which inidcates if views must be refreshed when the operation is completed.
+    [+] FileUtils::setFindFilesUnderDirParams() got new file filter parameter.
+    [+] IExportable got two new functions: duplicate() and duplicateInstance().
+    [+] IExportable::Result got new SuccessResult and FailedResult types.
+    [+] QtilitiesCategory now has the following operation overloads added to it: >, >= and <=.
+    [+] Added canStartChanged(), canStopChanged() and canPauseChanged() signals on ITask.
+    [+] ITask got two new functions to measure the time tasks are taking: elapsedTime() and elapsedTimeString().
+    [+] QtilitiesProcess got functionality to specify custom line break strings to look out for. For example INFO, WARNING, ERROR etc.
+    [+] FileUtils got new comparePaths() function.
+    [+] Observer::subjectDisplayedNameInContext() got new validate_object parameter.
+    [+] New Observer::subjectReferenceCategoryHash() function, used to speed up categorized tree building.
+
+    [#] Better support for logging to tasks.
+    [#] IExporatble now supports setting a task to which export/import messages should be logged.
+    [#] ActivityPolicyFilter::setActiveSubject(s) functions changed to return bool indicating if the new selection was
+        accepted by the filter according to its policies.
+    [#] TreeIterator can now iterate trees with subjects attached to multiple nodes in the tree without problems.
+        See the updated TreeItereator documentation for details.
+    [#] Object pool observer no longer filters events on subjects.
+    [#] Object pool observer broadcast modification state changes.
+    [#] Removed containment support from Observer.
+    [#] Observer::setModificationState() will now broadcast changes even if a processing cycle is active on the observer.
+    [#] Observer::treeCount() optimized to be much faster than previously.
+    [#] QtilitiesProcess now takes care of splitting up messages received from the QProcess buffer for you, thus individual messages are logged.
+    [#] Task manager will no longer assign an object name to new tasks if the task already has a valid objectName().
+    [#] When obj->objectName() is empty, this Observer::attachSubject() will set the object name to the className() of the object.
+    [#] Observer::subjectCategories() now returns categories sorted in alphabetical order.
+    [#] The following functions are now public slots on Task: setCanStop(),setCanStart(),setCanPause().
+    [#] Greatly improved performance of some Observer and ActivitySubjectFilter functions.
+
+    [*] Fixed problems with backward compatibility in Qtilities internal exports.
+    [*] Updated IFactoryProvider and factory to use categories better.
+    [*] Fixed crash in Observer when a subject filter deletes a subject during finalizeAttachment().
+    [*] Fixed bug where Observer::observerName() could return the wrong name in some cases.
+    [*] Fixed bug where ActivityPolicyFilter::ParentFollowActivity was not handled correctly.
+    [*] Fixed QtilitiesFileInfo::compareActualFilePaths() not working when paths use different separators.
+    [*] Observer::attachSubject() will no longer crash if the object being attached is deleted during initialization in any subject filters.
+    [*] Observer::detachSubject() did not restore filtering of subject events properly in some cases.
+    [*] Observer::eventFilter() will no longer crash if the object on which the event is being filtered is deleted during property validation in any subject filters.
+    [*] Fixed bug where Observer::endTreeProcessingCycle() could in some situations not emit layoutChanged() causing tree views not to update
+        when the tree's layout changed.
+    [*] Fixed some unnecesarry emissions of layoutChanged() and numberOfSubjectsChanged() on Observer.
 
     ============================
     QtilitiesCoreGui:
     ============================
-    - CLOSED #29: ObserverWidget deleteAll() and detachAll() actions should use better text.
-    - CLOSED #31: ObserverWidget deleteItem() and detachItem() actions should use better text.
-    - FIXED #34: Fixed bug in DynamicSideWidgetWrapper where it did not respect manageWidgets() properly.
-    - Fixed wrong error debug message in SideWidgetFileSystem.
-    - Fixed documentation on NamingPolicyFilter::ValidationCheck
-    - Improved usage of CodeEditorWidget when viewing file logger engines in the LoggerConfigWidget.
-    - Fixed ObserverWidget not remembering its expansion state in some cases.
-    - ObserverWidget will now remember category selections when rebuilding tree views.
-    - ObserverWidget got new setDragDropCopyButton() and setDragDropMoveButton() functions.
-    - TreeNode::enableCategorizedDisplay() got new CategoryEditingFlags property.
-    - The LoggerConfigWidget now allows sorting of engines.
-    - TaskManagerGui now allows different ways of initializing task logger engines.
-    - ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
-    - ObserverWidget can now be used under the name TreeWidget as well.
-    - IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for
-      IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
-    - IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
-    - QtilitiesMainWindow makes available the QLabel used to display priority messages.
-    - QtilitiesMainWindow makes available the TaskSummaryWidget used to display task summary.
-    - No longer shows a message box when attempting to register actions in the action manager without setting your application main window.
-      This is now just a message logged with qWarning and LOG_WARNING.
-    - TreeNode::addItems now starts a processing cycle on the node before adding.
-    - Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
-    - Observer models now tested with, and runs without problems through the Qt ModelTest tests.
-    - ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called.
-      Previously it only happened when the "hints_only" parameter was false.
-    - Added new setFileForce() function to TreeFileItem.
-    - Updated dependency graph in documentation to show CoreGui dependency on QtHelp unless QTILITIES_NO_HELP is defined.
-    - Fixed bug on ObserverWidget where the internal current selection was not updated when removing items. This caused crashes whenever
-      the internal selection was used before the user made a new selection.
-    - Added new aboutToBeDestroyed() signal on QtilitiesMainWindow.
-    - NamingPolicyFilter: Fixed wrong calculation of conflicting object in NamingPolicyInputDialog.
-    - Changed return value of AbstractTreeItem::setCategory() when the new category is the same as the current category. It now returns true
-      in this case, previously it returned false.
-    - LoggerConfigWidget now opens logs when you double click on them.
-    - LoggerConfigWidget now displays the correct information for the selected engine when opened the first time.
-    - Fixed bug where QtilitiesMainWindow managed the lifetime of all mode widgets in it. It no longer does that.
-    - TreeItemBase now automatically handles the modification state updates when setting categories.
-    - Fixed problem with size of first column in ObserverWidget when tree has multiple columns.
-    - Added SideWidgetFileSystem::toggleDoubleClickFileOpen().
-    - QtilitiesMainWindow shows the task summary widget by default now. This is the intended behavior as in the v1.0 docs.
-    - Added the ability to specify min and max sizes for mode items in the mode manager's list widget.
-    - The mode manger now allows you to disable registration of shortcuts for application modes.
-    - Fixed layout issue in mode manager list widget.
-    - Improved mode manager list widget's setting of active modes.
-    - Improved display of the mode manager's list widget on small screens.
-    - Added propertyAdded() and propertyRemoved() signals on ObjectDynamicPropertyBrowser.
-    - Observer widget in tree view mode now shows folders first in a context and then all uncategorized items. Like in any file explorer.
-    - Added ObserverWidget::displayModeChanged() signal.
-    - Improved pushing up and down in table view mode in observer widget.
-    - Fixed bug in with navigation stack when switching from observer widget in tree view mode to table mode when there was no selection in the tree view.
-    - Fixed wrong headerData() for some observer widget columns.
-    - ObserverTableModel now implements fetchMore and canFetchMore which allows showing of large observer contexts in batches.
-    - The column ordering in ObserverTableModel changed: The category column is now shown before the name column.
-    - Double click on node in ObserverWidget table mode now pushes into it if ObserverHints::ActionPushDown is part of the active hints.
-    - AbstractTreeItem::setCategory() no longer returns false when attempting to set an empty category.
-    - Fixed #7: ObserverWidget::selectObjects() must respect current view's selection mode
-    - Performance improvements in ObserverWidget.
-    - Fixed problem where item delegate was not set correctly when using a custom table model.
-    - Fixed problem where selection was not kept when refreshing observer wigdet in table mode.
-    - Now correctly resizes columns when pushing down into a context.
-    - Fixed issue with ObserverTableModel dataChanged() not passing the correct indexes to the view, and thus not updating it.
-    - Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with
-      the same functionilty on ObserverTableModel.
-    - Fixed problem in ObserverWidget where it could have accidentally removed all action toolbars it created during setReadOnly().
-    - AbstractObserverItemModel now supports disabling of responses to observer changes. When toggling display mode in ObserverWidget it will automatically
-      disable the correct model.
-    - Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to show only children in the child count column which inherit from a specific base class.
-    - Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to limit the child count column counter.
-    - It is now possible to disable proxy filter models in ObserverWidget through disableProxyModels().
-    - Moved setReadOnly() and readOnly() to AbstractObserverItemModel from ObserverTableModel and ObserverTreeModel.
-    - Improved layout of SingleTaskWidget.
-    - TaskManagerGui::assignLoggerEngineToTask() is now public.
-    - Fixed crash in NamingPolicyFilter when conflicting object is deleted in any name handler dialogs.
-    - StringListWidget now allows you to specify non-removable items.
-    - SearchBoxWidget got a new SearchStringChangedNotificationMode enum which controls how and when changes to the search string is emitted.
-    - Added SideWidgetFileSystem::filePath().
-    - Improved performance on observer models where it does not load all column contents anymore during
-      initialize(), only for models that will be shown eventually.
-    - It is now possible to add the ObjectDynamicPropertyBrowser to observer widget in the same way that ObjectPropertyBrowser was added. See
-      the ObserverHints DisplayHints::DynamicPropertyBrowser for more information.
-    - Fixed possible crash in SingleTaskWidget::resizeEvent().
-    - It is now possible to hide the "Show Log" button in SingleTaskWidget.
-    - Fixed some issues with hiding/showing buttons in SingleTaskWidget.
-    - Fixed qti_icon_TASK_BUSY_WITH_WARNINGS_22x22 and qti_icon_TASK_BUSY_WITH_ERRORS_22x22 using icons the wrong way around. Warnings should be yellow and errors should be red.
+    [+] ObserverWidget will now remember category selections when rebuilding tree views.
+    [+] ObserverWidget got new setDragDropCopyButton() and setDragDropMoveButton() functions.
+    [+] TreeNode::enableCategorizedDisplay() got new CategoryEditingFlags property.
+    [+] The LoggerConfigWidget now allows sorting of engines.
+    [+] TaskManagerGui now allows different ways of initializing task logger engines.
+    [+] ObserverWidget new functions: selectedObjectsContextMatch() and selectedObjectsHintsMatch()
+    [+] ObserverWidget can now be used under the name TreeWidget as well.
+    [+] IExportable::ExportResultFlags added. Return values on export and import functions are now using these flags. A search and replace for
+        IExportable::Result with IExportable::ExportResultFlags will fix any compile time errors.
+    [+] IActionProvider and ActionProvider implementation's find action functions improved to use Qt::MatchFlags and to return a list of all found actions.
+    [+] QtilitiesMainWindow makes available the QLabel used to display priority messages.
+    [+] QtilitiesMainWindow makes available the TaskSummaryWidget used to display task summary.
+    [+] Added new setFileForce() function to TreeFileItem.
+    [+] Added new aboutToBeDestroyed() signal on QtilitiesMainWindow.
+    [+] Added SideWidgetFileSystem::toggleDoubleClickFileOpen().
+    [+] Added the ability to specify min and max sizes for mode items in the mode manager's list widget.
+    [+] The mode manger now allows you to disable registration of shortcuts for application modes.
+    [+] Added propertyAdded() and propertyRemoved() signals on ObjectDynamicPropertyBrowser.
+    [+] Added ObserverWidget::displayModeChanged() signal.
+    [+] StringListWidget now allows you to specify non-removable items.
+    [+] SearchBoxWidget got a new SearchStringChangedNotificationMode enum which controls how and when changes to the search string is emitted.
+    [+] Added SideWidgetFileSystem::filePath().
+    [+] Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to show only children in the child count column which inherit
+        from a specific base class.
+    [+] Added AbstractObserverItemModel::setColumnChildCountBaseClass() in order to limit the child count column counter.
+    [+] It is now possible to disable proxy filter models in ObserverWidget through disableProxyModels().
+    [+] Added getIndex() to ObserverTreeModel. It had findObject() which provided the same functionality, but it now matches the function with
+        the same functionilty on ObserverTableModel.
+    [+] It is now possible to hide the "Show Log" button in SingleTaskWidget.
+    [+] It is now possible to add the ObjectDynamicPropertyBrowser to observer widget in the same way that ObjectPropertyBrowser was added. See
+        the ObserverHints DisplayHints::DynamicPropertyBrowser for more information.
+
+    [#] Improved usage of CodeEditorWidget when viewing file logger engines in the LoggerConfigWidget.
+    [#] No longer shows a message box when attempting to register actions in the action manager without setting your application main window.
+        This is now just a message logged with qWarning and LOG_WARNING.
+    [#] TreeNode::addItems now starts a processing cycle on the node before adding.
+    [#] ObserverWidget now calls toggleObserverHints() & setCustomHints() on custom tree and table models everytime initialize() is called.
+        Previously it only happened when the "hints_only" parameter was false.
+    [#] Updated dependency graph in documentation to show CoreGui dependency on QtHelp unless QTILITIES_NO_HELP is defined.
+    [#] Improved showing/hiding of the navigation bar in ObserverWidget.
+    [#] Small improvements in the way StringListWidget opens paths.
+    [#] WidgetLoggerEngineFrontend no longer shows the search box by default.
+    [#] ObserverWidget no longer shows the search box widget everytime that a refresh was done. It checks if it was shown before the
+        refresh started and only shows it if it was.
+    [#] Hiding the search box in ObserverWidget now only resets the proxy model when there was something types in the search box.
+    [#] When calling ObserverWidget::refresh(), it will only refresh the observer widget on which it was called, not all observer widgets showing the observer.
+    [#] ObserverTreeModel now connects its handleLayoutChanged() signal to the numberOfSubjectsChanged() signal of its observer context. This fixes
+        table views not updating when calling endTreeProcessingCycle() on an Observer higher up in the tree, in which case the layoutChanged() signal
+        is only emitted for the upper level Observer.
+    [#] NamingPolicyFilter: Fixed wrong calculation of conflicting object in NamingPolicyInputDialog.
+    [#] Changed return value of AbstractTreeItem::setCategory() when the new category is the same as the current category. It now returns true
+        in this case, previously it returned false.
+    [#] LoggerConfigWidget now opens logs when you double click on them.
+    [#] LoggerConfigWidget now displays the correct information for the selected engine when opened the first time.
+    [#] TreeItemBase now automatically handles the modification state updates when setting categories.
+    [#] QtilitiesMainWindow shows the task summary widget by default now. This is the intended behavior as in the v1.0 docs.
+    [#] Improved mode manager list widget's setting of active modes.
+    [#] Improved display of the mode manager's list widget on small screens.
+    [#] Observer widget in tree view mode now shows folders first in a context and then all uncategorized items. Like in any file explorer.
+    [#] Improved pushing up and down in table view mode in observer widget.
+    [#] ObserverTableModel now implements fetchMore and canFetchMore which allows showing of large observer contexts in batches.
+    [#] The column ordering in ObserverTableModel changed: The category column is now shown before the name column.
+    [#] Double click on node in ObserverWidget table mode now pushes into it if ObserverHints::ActionPushDown is part of the active hints.
+    [#] AbstractTreeItem::setCategory() no longer returns false when attempting to set an empty category.
+    [#] Performance improvements in ObserverWidget.
+    [#] Moved setReadOnly() and readOnly() to AbstractObserverItemModel from ObserverTableModel and ObserverTreeModel.
+    [#] Improved layout of SingleTaskWidget.
+    [#] TaskManagerGui::assignLoggerEngineToTask() is now public.
+    [#] Now correctly resizes columns when pushing down into a context.
+    [#] AbstractObserverItemModel now supports disabling of responses to observer changes. When toggling display mode in ObserverWidget it will automatically
+        disable the correct model.
+    [#] Improved performance on observer models where it does not load all column contents anymore during
+        initialize(), only for models that will be shown eventually.
+
+    [*] ObserverWidget deleteAll() and detachAll() actions should use better text.
+    [*] ObserverWidget deleteItem() and detachItem() actions should use better text.
+    [*] Fixed bug in DynamicSideWidgetWrapper where it did not respect manageWidgets() properly.
+    [*] Fixed wrong error debug message in SideWidgetFileSystem.
+    [*] Fixed documentation on NamingPolicyFilter::ValidationCheck
+    [*] Fixed ObserverWidget not remembering its expansion state in some cases.
+    [*] Fixed bug where not selection was allowed when activity filter's policies did not allow it. ... Create it in tree building example ...
+    [*] Fixed bug on ObserverWidget where the internal current selection was not updated when removing items. This caused crashes whenever
+        the internal selection was used before the user made a new selection.
+    [*] Fixed problem with size of first column in ObserverWidget when tree has multiple columns.
+    [*] Fixed bug where QtilitiesMainWindow managed the lifetime of all mode widgets in it. It no longer does that.
+    [*] Fixed layout issue in mode manager list widget.
+    [*] ObserverWidget::selectObjects() must respect current view's selection mode
+    [*] Fixed bug in with navigation stack when switching from observer widget in tree view mode to table mode when there was no selection in the tree view.
+    [*] Fixed wrong headerData() for some observer widget columns.
+    [*] Fixed problem where item delegate was not set correctly when using a custom table model.
+    [*] Fixed problem where selection was not kept when refreshing observer wigdet in table mode.
+    [*] Fixed some issues with hiding/showing buttons in SingleTaskWidget.
+    [*] Fixed qti_icon_TASK_BUSY_WITH_WARNINGS_22x22 and qti_icon_TASK_BUSY_WITH_ERRORS_22x22 using icons the wrong way around.
+        Warnings should be yellow and errors should be red.
+    [*] Fixed issue with ObserverTableModel dataChanged() not passing the correct indexes to the view, and thus not updating it.
+    [*] Fixed problem in ObserverWidget where it could have accidentally removed all action toolbars it created during setReadOnly().
+    [*] Fixed crash in NamingPolicyFilter when conflicting object is deleted in any name handler dialogs.
+    [*] Fixed possible crash in SingleTaskWidget::resizeEvent().
+    [*] Fixed bug in ObjectDynamicPropertyBrowser where it responded that a property cannot be added even though it could be when using the Add button.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
-    - Improved error message when a plugin could not be loaded on Linux.
-    - Added documentation showing how to check for core plugins when an application starts.
-    - No longer creates "/Plugins" dir in applicationSessionPath() when extension system is used the first time, it now happens in initialize().
+    [+] Added documentation showing how to check for core plugins when an application starts.
+
+    [#] Improved error message when a plugin could not be loaded on Linux.
+    [#] No longer creates "/Plugins" dir in applicationSessionPath() when extension system is used the first time, it now happens in initialize().
 
     ============================
     QtilitiesProjectManagement:
     ============================
-    - IProject now has the ability to receive a task to which open, close and save operations should log their messages.
-    - Project related tasks now have proper logs.
-    - The execution style of the project manager can now be defined to be either normal or silent. See ProjectManager::ExecStyle.
-    - Project manager got a new recentProjectsChanged() signal providing notifications when the recent projects change.
-    - Fixed recentProjectNames() and recentProjectPaths() to project manager not returning items in the correct order.
-    - Added removeRecentProject() to project manager.
-    - It is not possible to add multiple different custom project paths.
-    - Added new ProjectsBrowser class which allows you to browse recent projects and all custom project paths.
-    - Added removeNonExistingRecentProjects() to project manager.
+    [+] IProject now has the ability to receive a task to which open, close and save operations should log their messages.
+    [+] The execution style of the project manager can now be defined to be either normal or silent. See ProjectManager::ExecStyle.
+    [+] Project manager got a new recentProjectsChanged() signal providing notifications when the recent projects change.
+    [+] Added removeRecentProject() to project manager.
+    [+] It is not possible to add multiple different custom project paths.
+    [+] Added new ProjectsBrowser class which allows you to browse recent projects and all custom project paths.
+    [+] Added removeNonExistingRecentProjects() to project manager.
+    [+] Project saving can now be disabled/enabled during runtime.
+
+    [#] Project related tasks now have proper logs.
+
+    [*] Fixed recentProjectNames() and recentProjectPaths() to project manager not returning items in the correct order.
 
     ============================
     QtilitiesTesting:
     ============================
-    - Extended exporting unit tests in order to test new Qtilities::Qtilities_1_1 export version on all classes for which the export version changed.
+    [#] Extended exporting unit tests in order to test new Qtilities::Qtilities_1_1 export version on all classes for which the export version changed.
 
     ============================
     Plugins:
     ============================
-    - Added Help plugin.
-    - Project management plugin now provides actions for opening of previous projects in the File menu..
+    [+] Added Help plugin.
+    [+] Project management plugin now provides actions for opening of previous projects in the File menu.
 
     ============================
     Examples:
     ============================
     - Object Management Example:
-        - Fixed the object management mode not showing anymore.
+        [*] Fixed the object management mode not showing anymore.
     - Tree Building Example:
-        - Much improved, now shows different trees under seperate tabs.
-	- Observer Widget Example:
-		- Cleaned up and now shows how to use DynamicPropertyBrowser along with ObserverWidget.
+        [#] Much improved, now shows different trees under seperate tabs.
+    - Observer Widget Example:
+        [#] Cleaned up and now shows how to use DynamicPropertyBrowser along with ObserverWidget.
+    - [+] Tcl Scripting Example was added showing how to add Tcl scripting as a mode in your application using the QConsole
+          backend by Houssem BDIOUI.
 
 ================================
 Qtilities v1.0 Changes
