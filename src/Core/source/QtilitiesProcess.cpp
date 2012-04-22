@@ -33,6 +33,7 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
     connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(procFinished(int, QProcess::ExitStatus)));
     connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(logProgressOutput()));
     connect(d->process,SIGNAL(readyReadStandardError()), this, SLOT(logProgressError()));
+    connect(d->process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(procStateChanged(QProcess::ProcessState)));
 
     setCanStop(true);
 }
@@ -85,11 +86,12 @@ void Qtilities::Core::QtilitiesProcess::procStarted() {
 
 void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::ExitStatus exit_status) {
     if (exit_code == 0) {
-        logMessage("Process " + taskName() + " finished successfully.");
-        completeTask(ITask::TaskSuccessful);
+        logMessage("Process " + taskName() + " exited normal with code 0.");
     } else {
-        logMessage("Process " + taskName() + " finished with code " + QString::number(exit_code),Logger::Error);
-        completeTask(ITask::TaskFailed);
+        if (exit_status == QProcess::NormalExit)
+            logMessage("Process " + taskName() + " exited normal with code " + QString::number(exit_code),Logger::Error);
+        else if (exit_status == QProcess::CrashExit)
+            logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
     }
 
     Q_UNUSED(exit_status)
@@ -121,6 +123,11 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
     }
 }
 
+void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
+    if (newState == QProcess::NotRunning)
+        completeTask();
+}
+
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
     d->buffer_std_out.append(d->process->readAllStandardOutput());
 
@@ -138,29 +145,31 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
             split_list.pop_front();
         }
     } else {
-        // We search for any break strings and split messages up:
-        bool matched_break_string;
-        foreach (QString break_string, d->line_break_strings) {
-            matched_break_string = false;
-            split_list = d->buffer_std_out.split(break_string,QString::SkipEmptyParts);
-            while (split_list.count() > 1) {
-                matched_break_string = true;
-                QString msg = split_list.front().trimmed();
-                msg.prepend(break_string);
-                if (break_string.compare("WARNING",Qt::CaseInsensitive) == 0)
-                    logWarning(msg);
-                else if (break_string.compare("ERROR",Qt::CaseInsensitive) == 0)
-                    logError(msg);
-                else
-                    logMessage(msg);
-                split_list.pop_front();
-            }
-            if (matched_break_string)
-                break;
+        // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
+        // it using &{_:
+        foreach (QString break_string, d->line_break_strings)
+            d->buffer_std_out.replace(break_string,"&{_" + break_string);
+
+        split_list = d->buffer_std_out.split("&{_",QString::SkipEmptyParts);
+        while (split_list.count() > 1) {
+            QString msg = split_list.front();
+            if (msg.startsWith("&{_"))
+                msg = msg.remove(0,3);
+
+            if (msg.startsWith("WARNING",Qt::CaseInsensitive))
+                logWarning(msg);
+            else if (msg.startsWith("ERROR",Qt::CaseInsensitive))
+                logError(msg);
+            else
+                logMessage(msg);
+            split_list.pop_front();
         }
     }
 
-    d->buffer_std_out = split_list.front();
+    if (split_list.isEmpty())
+        d->buffer_std_out.clear();
+    else
+        d->buffer_std_out = split_list.front();
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressError() {
@@ -171,39 +180,38 @@ void Qtilities::Core::QtilitiesProcess::logProgressError() {
         // We search for \r and split messages up:
         split_list = d->buffer_std_error.split("\r",QString::SkipEmptyParts);
         while (split_list.count() > 1) {
-            if (split_list.front().trimmed().startsWith("WARNING",Qt::CaseInsensitive))
+            if (split_list.front().trimmed().startsWith("WARNING:",Qt::CaseInsensitive))
                 logWarning(split_list.front());
-            else if (split_list.front().trimmed().startsWith("INFO",Qt::CaseInsensitive))
+            else if (split_list.front().trimmed().startsWith("INFO:",Qt::CaseInsensitive))
                 logMessage(split_list.front());
             else
                 logError(split_list.front());
             split_list.pop_front();
-        }
-    } else {
-        // We search for any break strings and split messages up:
-        bool matched_break_string;
-        foreach (QString break_string, d->line_break_strings) {
-            matched_break_string = false;
-            split_list = d->buffer_std_error.split(break_string,QString::SkipEmptyParts);
-            while (split_list.count() > 1) {
-                matched_break_string = true;
-                QString msg = split_list.front().trimmed();
-                msg.prepend(break_string);
-                if (break_string.compare("WARNING",Qt::CaseInsensitive) == 0)
-                    logWarning(msg);
-                else if (break_string.compare("INFO",Qt::CaseInsensitive) == 0)
-                    logMessage(msg);
-                else
-                    logError(msg);
-                split_list.pop_front();
-            }
-            if (matched_break_string)
-                break;
-            // This is not perfect, can end up with problems where you have something like this: INFO WARNING INFO. In that
-            // case the first message will be INFO WARNING and the second just INFO, thus the WARNING is missed in the first message.
+        }   
+    } else { 
+        // We loop through the string and replace all known break strings with &{_BREAKSTRING and then split
+        // it using &{_:
+        foreach (QString break_string, d->line_break_strings)
+            d->buffer_std_error.replace(break_string,"&{_" + break_string);
+
+        split_list = d->buffer_std_error.split("&{_",QString::SkipEmptyParts);
+        while (split_list.count() > 1) {
+            QString msg = split_list.front();
+            if (msg.startsWith("&{_"))
+                msg = msg.remove(0,3);
+
+            if (msg.startsWith("WARNING:",Qt::CaseInsensitive))
+                logWarning(msg);
+            else if (msg.startsWith("INFO:",Qt::CaseInsensitive))
+                logMessage(msg);
+            else
+                logError(msg);
+            split_list.pop_front();
         }
     }
 
-    d->buffer_std_error = split_list.front();
+    if (split_list.isEmpty())
+        d->buffer_std_error.clear();
+    else
+        d->buffer_std_error = split_list.front();
 }
-
