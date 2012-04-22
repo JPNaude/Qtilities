@@ -209,6 +209,9 @@ QProgressBar* Qtilities::CoreGui::SingleTaskWidget::progressBar() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnShowLog_clicked() {
+    if (!d->task)
+        return;
+
     // Check if the task has a log widget:
     if (d->task->loggerEngine()) {
         WidgetLoggerEngine* engine_widget = qobject_cast<WidgetLoggerEngine*> (d->task->loggerEngine());
@@ -238,6 +241,9 @@ void Qtilities::CoreGui::SingleTaskWidget::setDisplayedName(const QString& name)
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnPause_clicked() {
+    if (!d->task)
+        return;
+
     if (d->task->state() == ITask::TaskBusy)
         d->task->pause();
     else if (d->task->state() == ITask::TaskPaused)
@@ -245,6 +251,9 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnPause_clicked() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
+    if (!d->task)
+        return;
+
     if (d->task->state() == ITask::TaskBusy) {
         d->task->stop();
         if (d->task_base) {
@@ -269,10 +278,16 @@ void Qtilities::CoreGui::SingleTaskWidget::handleTaskDeleted() {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::on_btnStart_clicked() {
+    if (!d->task)
+        return;
+
     d->task->start();
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::updateBusyState(ITask::TaskBusyState busy_state) {
+    if (!d->task)
+        return;
+
     if (d->task->state() == ITask::TaskBusy) {
         if (busy_state == ITask::TaskBusyClean) {
             ui->btnShowLog->setIcon(QIcon(qti_icon_TASK_BUSY_22x22));
@@ -297,6 +312,9 @@ void Qtilities::CoreGui::SingleTaskWidget::resizeEvent(QResizeEvent * event) {
 }
 
 void Qtilities::CoreGui::SingleTaskWidget::update() {  
+    if (!d->task)
+        return;
+
     bool show_progress = TaskManagerGui::instance()->taskProgressUpdatingEnabled();
 
     setDisplayedName(d->task->displayName());
