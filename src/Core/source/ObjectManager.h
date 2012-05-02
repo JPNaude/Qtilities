@@ -167,7 +167,9 @@ namespace Qtilities {
             // -----------------------------------------
             QStringList providedFactories() const;
             QObject* createInstance(const InstanceFactoryInfo& ifactory_data);
-            QStringList providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
+            QStringList providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter = QtilitiesCategory(), bool* ok = 0) const;
+            QtilitiesCategory categoryForTag(const QString& factory_name, const QString& factory_tag, bool* ok = 0) const;
+            QMap<QString, QtilitiesCategory> tagCategoryMap(const QString& factory_name, bool* ok = 0) const;
 
             // --------------------------------
             // IObjectManager Implemenation

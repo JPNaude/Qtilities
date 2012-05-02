@@ -118,11 +118,46 @@ QStringList Qtilities::Core::ObjectManager::providedFactories() const {
     return tags;
 }
 
-QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter) const {
-    if (factory_name == QString(qti_def_FACTORY_QTILITIES))
+QStringList Qtilities::Core::ObjectManager::providedFactoryTags(const QString& factory_name, const QtilitiesCategory& category_filter, bool *ok) const {
+    if (factory_name == QString(qti_def_FACTORY_QTILITIES)) {
+        if (ok)
+            *ok = true;
         return d->qtilities_factory.tags(category_filter);
-    else
+    } else {
+        if (ok)
+            *ok = false;
         return QStringList();
+    }
+}
+
+QtilitiesCategory ObjectManager::categoryForTag(const QString &factory_name, const QString &factory_tag, bool *ok) const {
+    if (factory_name == QString(qti_def_FACTORY_QTILITIES)) {
+        if (d->qtilities_factory.isTagValid(factory_tag)) {
+            if (ok)
+                *ok = true;
+            return d->qtilities_factory.categoryForTag(factory_tag);
+        } else {
+            if (ok)
+                *ok = false;
+            return QtilitiesCategory();
+        }
+    } else {
+        if (ok)
+            *ok = false;
+        return QtilitiesCategory();
+    }
+}
+
+QMap<QString, QtilitiesCategory> ObjectManager::tagCategoryMap(const QString &factory_name, bool *ok) const {
+    if (factory_name == QString(qti_def_FACTORY_QTILITIES)) {
+        if (ok)
+            *ok = true;
+        return d->qtilities_factory.tagCategoryMap();
+    } else {
+        if (ok)
+            *ok = false;
+        return QMap<QString, QtilitiesCategory>();
+    }
 }
 
 QObject* Qtilities::Core::ObjectManager::createInstance(const InstanceFactoryInfo& ifactory_data) {

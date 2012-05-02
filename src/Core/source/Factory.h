@@ -185,7 +185,18 @@ namespace Qtilities {
               }
               //! Function which verifies the validity of a new tag. If the tag is already present, false is returend.
               inline bool isTagValid(const QString& tag) const {
-                  return data_ifaces.keys().contains(tag);
+                  return data_ifaces.contains(tag);
+              }
+              //! Function which verifies the validity of a new tag. If the tag is already present, false is returend.
+              /*!
+                <i>This function was added in %Qtilities v1.2.</i>
+                */
+              inline QtilitiesCategory categoryForTag(const QString& tag) const {
+                  if (data_ifaces.contains(tag)) {
+                      FactoryItemID item_data = data_ifaces[tag];
+                      return item_data.category;
+                  }
+                  return QtilitiesCategory();
               }
               //! Creates an instance of the factory interface implementation registered with the specified tag. If an invalid tag is specified, null will be returned.
               BaseClass* createInstance(const QString& tag) {
