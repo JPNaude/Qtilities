@@ -79,9 +79,17 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
 
     message.append(QTime::currentTime().toString());
     message.append(QString(" [%1] ").arg(Log->logLevelToString(message_type),-8,QChar(QChar::Nbsp)));
-    message.append(messages.front().toString());
+
+    // Since we convert it to rich text, < and > characters must be converted.
+    QString formatted_string = messages.front().toString();
+    formatted_string.replace("<","&#60;");
+    formatted_string.replace(">","&#62;");
+    message.append(formatted_string);
     for (int i = 1; i < messages.count(); i++) {
-        message.append("<br>            %1").arg(messages.at(i).toString());
+        QString formatted_string = messages.at(i).toString();
+        formatted_string.replace("<","&#60;");
+        formatted_string.replace(">","&#62;");
+        message.append("<br>            %1").arg(formatted_string);
     }
     message.append("</font>");
 
@@ -161,8 +169,11 @@ QString Qtilities::Logging::FormattingEngine_XML::formatMessage(Logger::MessageT
     QString type_string = Log->logLevelToString(message_type);
     QString message;
     message = QString("<Log>\n<Type>%1</Type>").arg(type_string);
-    for (int i = 0; i < messages.count(); i++) {
-        message.append(QString("\n<Message_%1>%2</Message_%1>").arg(i).arg(messages.at(i).toString()));
+    for (int i = 0; i < messages.count(); i++) {    
+        QString formatted_string = messages.at(i).toString();
+        formatted_string.replace("<","(");
+        formatted_string.replace(">",")");
+        message.append(QString("\n<Message_%1>%2</Message_%1>").arg(i).arg(formatted_string));
     }
     message.append("\n</Log>");
 
@@ -187,25 +198,32 @@ QString Qtilities::Logging::FormattingEngine_HTML::initializeString() const {
 }
 
 QString Qtilities::Logging::FormattingEngine_HTML::formatMessage(Logger::MessageType message_type, const QList<QVariant>& messages) const {
+    if (messages.count() == 0)
+        return "";
+
+    QString formatted_string = messages.front().toString();
+    formatted_string.replace("<","&#60;");
+    formatted_string.replace(">","&#62;");
+
     QString message;
     switch (message_type) {
         case Logger::Trace:
-            message = QString("<td>%1</td><td><font color='grey'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='grey'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::Debug:
-            message = QString("<td>%1</td><td><font color='grey'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='grey'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::Warning:
-            message = QString("<td>%1</td><td><font color='orange'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='orange'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::Info:
-            message = QString("<td>%1</td><td><font color='black'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='black'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::Error:
-            message = QString("<td>%1</td><td><font color='red'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='red'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::Fatal:
-            message = QString("<td>%1</td><td><font color='red'>%2</font></td>").arg(QTime::currentTime().toString()).arg(messages.front().toString());
+            message = QString("<td>%1</td><td><font color='red'>%2</font></td>").arg(QTime::currentTime().toString()).arg(formatted_string);
             break;
         case Logger::None:
             return QString();
