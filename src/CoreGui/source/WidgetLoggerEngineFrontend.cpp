@@ -54,6 +54,8 @@
 #include <QPrintPreviewDialog>
 #include <QApplication>
 #include <QToolBar>
+#include <QDockWidget>
+#include <QTabBar>
 
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui;
@@ -61,8 +63,8 @@ using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::CoreGui::Constants;
 
-struct Qtilities::CoreGui::WidgetLoggerEngineFrontendPrivateData {
-    WidgetLoggerEngineFrontendPrivateData() : searchBoxWidget(0),
+struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
+    MessagesPlainTextEditTabPrivateData() : searchBoxWidget(0),
     txtLog(0),
     actionCopy(0),
     actionSelectAll(0),
@@ -97,9 +99,9 @@ struct Qtilities::CoreGui::WidgetLoggerEngineFrontendPrivateData {
     QWidget* central_widget;
 };
 
-Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab( QWidget *parent) : QMainWindow(parent)
 {
-    d = new WidgetLoggerEngineFrontendPrivateData;
+    d = new MessagesPlainTextEditTabPrivateData;
     d->action_provider = new ActionProvider(this);
 
     // Setup search box widget:
@@ -109,14 +111,22 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     search_options |= SearchBoxWidget::RegEx;
     d->searchBoxWidget = new SearchBoxWidget(search_options);
     d->searchBoxWidget->setWholeWordsOnly(false);
+    connect(d->searchBoxWidget,SIGNAL(searchStringChanged(const QString)),SLOT(handleSearchStringChanged(QString)));
+    connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handle_FindNext()));
+    connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->searchBoxWidget,SLOT(hide()));
+    connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handle_FindNext()));
+    connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handle_FindPrevious()));
+    d->searchBoxWidget->setEditorFocus();
+    d->searchBoxWidget->hide();
 
     // Setup the log widget:
     d->txtLog.setReadOnly(true);
     d->txtLog.setFont(QFont("Courier New"));
     d->txtLog.setMaximumBlockCount(1000);
 
+    d->central_widget = new QWidget;
+
     // Setup the widget layout:
-    d->central_widget = new QWidget();
     if (d->central_widget->layout())
         delete d->central_widget->layout();
 
@@ -128,18 +138,9 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     d->txtLog.show();
     setCentralWidget(d->central_widget);
 
-    connect(d->searchBoxWidget,SIGNAL(searchStringChanged(const QString)),SLOT(handleSearchStringChanged(QString)));
-    connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handle_FindNext()));
-    connect(d->searchBoxWidget,SIGNAL(btnClose_clicked()),d->searchBoxWidget,SLOT(hide()));
-    connect(d->searchBoxWidget,SIGNAL(btnFindNext_clicked()),SLOT(handle_FindNext()));
-    connect(d->searchBoxWidget,SIGNAL(btnFindPrevious_clicked()),SLOT(handle_FindPrevious()));
-    d->searchBoxWidget->setEditorFocus();
-    d->searchBoxWidget->hide();
-    //setAttribute(Qt::WA_DeleteOnClose, true);
-
     // Assign a default meta type for this widget:
     // We construct each action and then register it
-    QString context_string = "WidgetLoggerEngineFrontend";
+    QString context_string = "MessagesPlainTextEditTab";
     int count = 0;
     context_string.append(QString("%1").arg(count));
     while (CONTEXT_MANAGER->hasContext(context_string)) {
@@ -167,19 +168,18 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(QWidg
     d->txtLog.installEventFilter(this);
 }
 
-Qtilities::CoreGui::WidgetLoggerEngineFrontend::~WidgetLoggerEngineFrontend()
-{
+Qtilities::CoreGui::MessagesPlainTextEditTab::~MessagesPlainTextEditTab() {
     delete d;
 }
 
-bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::eventFilter(QObject *object, QEvent *event) {
+bool Qtilities::CoreGui::MessagesPlainTextEditTab::eventFilter(QObject *object, QEvent *event) {
     if (object == &d->txtLog && event->type() == QEvent::FocusIn) {
         CONTEXT_MANAGER->setNewContext(d->global_meta_type,true);
     }
     return false;
 }
 
-bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::setGlobalMetaType(const QString& meta_type) {
+bool Qtilities::CoreGui::MessagesPlainTextEditTab::setGlobalMetaType(const QString& meta_type) {
     // Check if this global meta type is allowed.
     if (CONTEXT_MANAGER->hasContext(meta_type))
         return false;
@@ -188,16 +188,16 @@ bool Qtilities::CoreGui::WidgetLoggerEngineFrontend::setGlobalMetaType(const QSt
     return true;
 }
 
-QString Qtilities::CoreGui::WidgetLoggerEngineFrontend::globalMetaType() const {
+QString Qtilities::CoreGui::MessagesPlainTextEditTab::globalMetaType() const {
     return d->global_meta_type;
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::appendMessage(const QString& message) {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::appendMessage(const QString& message) {
     d->txtLog.appendHtml(message);
     d->txtLog.verticalScrollBar()->setValue(d->txtLog.verticalScrollBar()->maximum());
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindPrevious() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_FindPrevious() {
     QTextDocument::FindFlags find_flags = 0;
     if (d->searchBoxWidget->caseSensitive())
         find_flags |= QTextDocument::FindCaseSensitively;
@@ -207,7 +207,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindPrevious() {
     d->txtLog.find(d->searchBoxWidget->currentSearchString(),find_flags);
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handleSearchStringChanged(const QString& filter_string) {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handleSearchStringChanged(const QString& filter_string) {
     QTextDocument::FindFlags find_flags = 0;
     if (d->searchBoxWidget->wholeWordsOnly())
         find_flags |= QTextDocument::FindWholeWords;
@@ -218,7 +218,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handleSearchStringChanged(c
     d->txtLog.find(filter_string,find_flags);
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindNext() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_FindNext() {
     QTextDocument::FindFlags find_flags = 0;
     if (d->searchBoxWidget->caseSensitive())
         find_flags |= QTextDocument::FindCaseSensitively;
@@ -227,7 +227,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_FindNext() {
     d->txtLog.find(d->searchBoxWidget->currentSearchString(),find_flags);
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Save() {
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save Log"),QtilitiesApplication::applicationSessionPath(),tr("Log File (*.log)"));
 
     if (file_name.isEmpty())
@@ -242,7 +242,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Save() {
     file.close();
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Settings() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Settings() {
     ConfigurationWidget* config_widget = qobject_cast<ConfigurationWidget*> (QtilitiesApplication::configWidget());
     if (config_widget) {
         config_widget->setActivePage(tr("Logging"));
@@ -250,7 +250,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Settings() {
     }
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Print() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Print() {
 #ifndef QT_NO_PRINTER
      QPrinter printer;
 
@@ -266,7 +266,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Print() {
 #endif
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPDF() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_PrintPDF() {
 #ifndef QT_NO_PRINTER
     QString fileName = QFileDialog::getSaveFileName(this, tr("Export PDF"), QString(), "*.pdf");
     if (!fileName.isEmpty()) {
@@ -280,7 +280,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPDF() {
 #endif
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPreview() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_PrintPreview() {
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     QPrintPreviewDialog preview(&printer, &d->txtLog);
@@ -289,7 +289,7 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_PrintPreview() {
 #endif
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::printPreview(QPrinter *printer) {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::printPreview(QPrinter *printer) {
 #ifdef QT_NO_PRINTER
     Q_UNUSED(printer);
 #else
@@ -297,15 +297,15 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::printPreview(QPrinter *prin
 #endif
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Clear() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Clear() {
     d->txtLog.clear();
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_Copy() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_Copy() {
     d->txtLog.copy();
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SearchShortcut() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_SearchShortcut() {
     if (d->searchBoxWidget) {
         if (!d->searchBoxWidget->isVisible()) {
             d->searchBoxWidget->show();
@@ -320,11 +320,11 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SearchShortcut() {
     }
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::handle_SelectAll() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::handle_SelectAll() {
     d->txtLog.selectAll();
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
+void Qtilities::CoreGui::MessagesPlainTextEditTab::constructActions() {
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(d->global_meta_type));
 
@@ -428,8 +428,200 @@ void Qtilities::CoreGui::WidgetLoggerEngineFrontend::constructActions() {
     ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
 }
 
-QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngineFrontend::plainTextEdit() const {
+QPlainTextEdit* Qtilities::CoreGui::MessagesPlainTextEditTab::plainTextEdit() const {
     return &d->txtLog;
 }
 
+void MessagesPlainTextEditTab::clear() {
+    d->txtLog.clear();
+}
+
+// ----------------------------------------------
+// WidgetLoggerEngineFrontend
+// ----------------------------------------------
+
+
+struct Qtilities::CoreGui::WidgetLoggerEngineFrontendPrivateData {
+    WidgetLoggerEngineFrontendPrivateData() {}
+
+    WidgetLoggerEngine::MessageDisplaysFlag                         message_displays_flag;
+    QMap<WidgetLoggerEngine::MessageDisplaysFlag,QWidget*>          message_displays;
+    QMap<WidgetLoggerEngine::MessageDisplaysFlag,QDockWidget*>      message_display_docks;
+};
+
+Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag, QWidget *parent) : QMainWindow(parent)
+{
+    d = new WidgetLoggerEngineFrontendPrivateData;
+    d->message_displays_flag = message_displays_flag;
+
+    // When only one message display is present we don't create it as a tab widget.
+    if (message_displays_flag == WidgetLoggerEngine::AllMessagesPlainTextEdit ||
+            message_displays_flag == WidgetLoggerEngine::IssuesPlainTextEdit ||
+            message_displays_flag == WidgetLoggerEngine::WarningsPlainTextEdit ||
+            message_displays_flag == WidgetLoggerEngine::ErrorsPlainTextEdit) {
+
+        MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+        d->message_displays[message_displays_flag] = new_tab;
+        setCentralWidget(new_tab);
+    } else {
+        int info_index = -1;
+        int issues_index = -1;
+        int warning_index = -1;
+        int error_index = -1;
+
+        // Create needed tabs:
+        if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit) {
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            d->message_displays[WidgetLoggerEngine::AllMessagesPlainTextEdit] = new_tab;
+            QDockWidget* new_dock = new QDockWidget("Messages");
+            d->message_display_docks[WidgetLoggerEngine::AllMessagesPlainTextEdit] = new_dock;
+            connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+            new_dock->setWidget(new_tab);
+            addDockWidget(Qt::BottomDockWidgetArea,new_dock);
+            info_index = 0;
+        }
+
+        if (d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit) {
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            d->message_displays[WidgetLoggerEngine::IssuesPlainTextEdit] = new_tab;
+            QDockWidget* new_dock = new QDockWidget("Issues");
+            d->message_display_docks[WidgetLoggerEngine::IssuesPlainTextEdit] = new_dock;
+            connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+            new_dock->setWidget(new_tab);
+            addDockWidget(Qt::BottomDockWidgetArea,new_dock);
+
+            if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit)
+                issues_index = 1;
+            else
+                issues_index = 0;
+        }
+
+        if (d->message_displays_flag & WidgetLoggerEngine::WarningsPlainTextEdit) {
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            d->message_displays[WidgetLoggerEngine::WarningsPlainTextEdit] = new_tab;
+            QDockWidget* new_dock = new QDockWidget("Warnings");
+            d->message_display_docks[WidgetLoggerEngine::WarningsPlainTextEdit] = new_dock;
+            connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+            new_dock->setWidget(new_tab);
+            addDockWidget(Qt::BottomDockWidgetArea,new_dock);
+
+            if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit && d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit)
+                warning_index = 2;
+            else if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit)
+                warning_index = 1;
+            else
+                warning_index = 0;
+        }
+
+        if (d->message_displays_flag & WidgetLoggerEngine::ErrorsPlainTextEdit) {
+            MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
+            d->message_displays[WidgetLoggerEngine::ErrorsPlainTextEdit] = new_tab;
+            QDockWidget* new_dock = new QDockWidget("Errors");
+            d->message_display_docks[WidgetLoggerEngine::ErrorsPlainTextEdit] = new_dock;
+            connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
+            new_dock->setWidget(new_tab);
+            addDockWidget(Qt::BottomDockWidgetArea,new_dock);
+
+            if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit && d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit && d->message_displays_flag & WidgetLoggerEngine::WarningsPlainTextEdit)
+                error_index = 3;
+            else if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit && d->message_displays_flag & WidgetLoggerEngine::WarningsPlainTextEdit)
+                error_index = 2;
+            else if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit && d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit)
+                error_index = 2;
+            else if (d->message_displays_flag & WidgetLoggerEngine::AllMessagesPlainTextEdit)
+                error_index = 1;
+            else if (d->message_displays_flag & WidgetLoggerEngine::WarningsPlainTextEdit)
+                error_index = 1;
+            else if (d->message_displays_flag & WidgetLoggerEngine::IssuesPlainTextEdit)
+                error_index = 1;
+            else
+                error_index = 0;
+        }
+
+        for (int i = 1; i < d->message_display_docks.count(); i++)
+            tabifyDockWidget(d->message_display_docks.values().at(i-1),d->message_display_docks.values().at(i));
+
+        QList<QTabBar *> tabList = findChildren<QTabBar *>();
+        if (!tabList.isEmpty()) {
+            QTabBar *tabBar = tabList.at(0);
+            tabBar->setCurrentIndex(0);
+            tabBar->setShape(QTabBar::RoundedSouth);
+
+            if (info_index != -1)
+                tabBar->setTabIcon(info_index,QIcon(qti_icon_INFO_12x12));
+            if (issues_index != -1)
+                tabBar->setTabIcon(issues_index,QIcon(qti_icon_WARNING_12x12));
+            if (warning_index != -1)
+                tabBar->setTabIcon(warning_index,QIcon(qti_icon_WARNING_12x12));
+            if (error_index != -1)
+                tabBar->setTabIcon(error_index,QIcon(qti_icon_ERROR_12x12));
+        }
+    }
+}
+
+Qtilities::CoreGui::WidgetLoggerEngineFrontend::~WidgetLoggerEngineFrontend() {
+    delete d;
+}
+
+QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngineFrontend::plainTextEdit(WidgetLoggerEngine::MessageDisplaysFlag message_display) const {
+    if (d->message_displays.contains(message_display)) {
+        MessagesPlainTextEditTab* plain_text_edit_tab = qobject_cast<MessagesPlainTextEditTab*> (d->message_displays[message_display]);
+        if (plain_text_edit_tab)
+            return plain_text_edit_tab->plainTextEdit();
+    }
+    return 0;
+}
+
+void WidgetLoggerEngineFrontend::appendMessage(const QString &message, Logger::MessageType message_type) {
+    MessagesPlainTextEditTab* plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::AllMessagesPlainTextEdit);
+    if (plain_text_edit_tab)
+        plain_text_edit_tab->appendMessage(message);
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::IssuesPlainTextEdit);
+    if (plain_text_edit_tab && (message_type & Logger::Warning || message_type & Logger::Error || message_type & Logger::Fatal))
+        plain_text_edit_tab->appendMessage(message);
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::WarningsPlainTextEdit);
+    if (plain_text_edit_tab && (message_type & Logger::Warning))
+        plain_text_edit_tab->appendMessage(message);
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::ErrorsPlainTextEdit);
+    if (plain_text_edit_tab && (message_type & Logger::Error || message_type & Logger::Fatal))
+        plain_text_edit_tab->appendMessage(message);
+}
+
+void WidgetLoggerEngineFrontend::clear() {
+    MessagesPlainTextEditTab* plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::AllMessagesPlainTextEdit);
+    if (plain_text_edit_tab)
+        plain_text_edit_tab->clear();
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::IssuesPlainTextEdit);
+    if (plain_text_edit_tab)
+        plain_text_edit_tab->clear();
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::WarningsPlainTextEdit);
+    if (plain_text_edit_tab)
+        plain_text_edit_tab->clear();
+
+    plain_text_edit_tab = plainTextEditTab(WidgetLoggerEngine::ErrorsPlainTextEdit);
+    if (plain_text_edit_tab)
+        plain_text_edit_tab->clear();
+}
+
+MessagesPlainTextEditTab *WidgetLoggerEngineFrontend::plainTextEditTab(WidgetLoggerEngine::MessageDisplaysFlag message_display) {
+    if (d->message_displays.contains(message_display) && d->message_displays_flag & message_display)
+        return qobject_cast<MessagesPlainTextEditTab*> (d->message_displays[message_display]);
+
+    return 0;
+}
+
+void WidgetLoggerEngineFrontend::handle_dockVisibilityChanged(bool visible) {
+    QDockWidget* dock = qobject_cast<QDockWidget*> (sender());
+    if (dock && visible) {
+        MessagesPlainTextEditTab* front_end = qobject_cast<MessagesPlainTextEditTab*> (dock->widget());
+        if (front_end) {
+            CONTEXT_MANAGER->setNewContext(front_end->contextString(),true);
+        }
+    }
+}
 

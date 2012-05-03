@@ -76,7 +76,30 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            WidgetLoggerEngine();
+            //! This enumeration provides the possible ways that messages can be displayed in the WidgetLoggerEngineFrontend used by this engine.
+            /*!
+              The default is DefaultDisplays.
+
+              \note When only one message display is used in the engine, that display will not be tabbed.
+              */
+            enum MessageDisplays {
+                NoMessageDisplays           = 0,   /*!< No message displays. */
+                AllMessagesPlainTextEdit    = 1,   /*!< Displays all messages under an "All Messages" tab using a QPlainTextEdit. */
+                IssuesPlainTextEdit         = 2,   /*!< Displays all issues (warnings, errors etc.) under an "Issues" tab using a QPlainTextEdit. */
+                WarningsPlainTextEdit       = 4,   /*!< Displays all warnings under a "Warnings" tab using a QPlainTextEdit. */
+                ErrorsPlainTextEdit         = 8,   /*!< Displays all errors under a "Errors" tab using a QPlainTextEdit. */
+//                AllMessagesListWidget       = 16,  /*!< Displays all messages under an "All Messages" tab using a QListView. */
+//                IssuesListWidget            = 32,  /*!< Displays all issues (warnings, errors etc.) under an "Issues" tab using a QListView. */
+//                WarningsListWidget          = 64,  /*!< Displays all warnings under a "Warnings" tab using a QListView. */
+//                ErrorsListWidget            = 128  /*!< Displays all errors under a "Errors" tab using a QListView. */
+                DefaultDisplays             = AllMessagesPlainTextEdit,
+                DefaultTaskDisplays         = AllMessagesPlainTextEdit | IssuesPlainTextEdit
+            };
+            Q_ENUMS(MessageDisplays);
+            Q_DECLARE_FLAGS(MessageDisplaysFlag, MessageDisplays);
+            Q_FLAGS(MessageDisplaysFlag);
+
+            WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag = (MessageDisplaysFlag) (DefaultDisplays));
             ~WidgetLoggerEngine();
 
             //! Sets the window title used for this logger engine.
@@ -104,16 +127,22 @@ namespace Qtilities {
 
             // Make this class a factory item
             static Qtilities::CoreGui::FactoryItem<AbstractLoggerEngine, WidgetLoggerEngine> factory;
+
             //! Returns the QPlainTextEdit used by this widget logger engine. Through this reference you can add your own custom syntax highligter etc.
-            QPlainTextEdit* plainTextEdit() const;
+            /*!
+              \note Only available when your MessageDisplayFlags includes MessagesPlainTextEdit.
+              */
+            QPlainTextEdit* plainTextEdit(MessageDisplaysFlag message_display) const;
 
         public slots:
-            void logMessage(const QString& message);
+            void logMessage(const QString& message, Logger::MessageType message_type);
             void clearLog();
 
         private:
             WidgetLoggerEnginePrivateData* d;
         };
+
+        Q_DECLARE_OPERATORS_FOR_FLAGS(WidgetLoggerEngine::MessageDisplaysFlag)
     }
 }
 

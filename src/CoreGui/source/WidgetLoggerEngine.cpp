@@ -46,13 +46,15 @@
 // ------------------------------------
 
 struct Qtilities::CoreGui::WidgetLoggerEnginePrivateData { 
-    QPointer<WidgetLoggerEngineFrontend> widget;
+    QPointer<WidgetLoggerEngineFrontend>            widget;
+    WidgetLoggerEngine::MessageDisplaysFlag         message_displays_flag;
 };
 
-Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine() : AbstractLoggerEngine()
+Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine(MessageDisplaysFlag message_displays_flag) : AbstractLoggerEngine()
 {
     d = new WidgetLoggerEnginePrivateData;
     setName(QObject::tr("Widget Logger Engine"));
+    d->message_displays_flag = message_displays_flag;
 }
 
 Qtilities::CoreGui::WidgetLoggerEngine::~WidgetLoggerEngine()
@@ -77,7 +79,7 @@ QString Qtilities::CoreGui::WidgetLoggerEngine::windowTitle() const {
 bool Qtilities::CoreGui::WidgetLoggerEngine::initialize() {
     // During initialization we build a map with possible widgets
     abstractLoggerEngineData->is_initialized = true;
-    d->widget = new WidgetLoggerEngineFrontend();
+    d->widget = new WidgetLoggerEngineFrontend(d->message_displays_flag);
     connect(d->widget,SIGNAL(destroyed(QObject*)),SLOT(deleteLater()));
 
     if (d->widget) {
@@ -114,17 +116,17 @@ QWidget* Qtilities::CoreGui::WidgetLoggerEngine::getWidget() {
     return d->widget;
 }
 
-void Qtilities::CoreGui::WidgetLoggerEngine::logMessage(const QString& message) {
+void Qtilities::CoreGui::WidgetLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
     if (d->widget)
-        d->widget->appendMessage(message);
+        d->widget->appendMessage(message,message_type);
 }
 
 void Qtilities::CoreGui::WidgetLoggerEngine::clearLog() {
     if (d->widget)
-        d->widget->plainTextEdit()->clear();
+        d->widget->clear();
 }
 
-QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngine::plainTextEdit() const {
-    return d->widget->plainTextEdit();
+QPlainTextEdit* Qtilities::CoreGui::WidgetLoggerEngine::plainTextEdit(MessageDisplaysFlag message_display) const {
+    return d->widget->plainTextEdit(message_display);
 }
 

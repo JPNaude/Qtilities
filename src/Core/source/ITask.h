@@ -37,7 +37,6 @@
 #include "QtilitiesCore_global.h"
 #include "IObjectBase.h"
 #include "TaskManager.h"
-
 #include <AbstractLoggerEngine>
 
 #include <QString>
@@ -85,7 +84,7 @@ namespace Qtilities {
                     TaskBusy                        = 2,  /*!< The task is busy. */
                     TaskPaused                      = 4,  /*!< The task is paused. */
                     TaskStopped                     = 8,  /*!< The task has been stopped. */
-                    TaskCompleted                   = 16,  /*!< The task has been completed. */
+                    TaskCompleted                   = 16, /*!< The task has been completed. */
                     TaskIdle                        = TaskNotStarted |  TaskCompleted | TaskStopped  /*!< The task is idle, thus it can be started. */
                 };
 
@@ -119,6 +118,7 @@ namespace Qtilities {
                     qRegisterMetaType<Logger::MessageType>("Logger::MessageType");
                     qRegisterMetaType<Logger::MessageContextFlags>("Logger::MessageContextFlags");
                     d_elapsed_time_notifications_enabled = false;
+                    d_widget_logger_engine_message_display_flags = 0;
                 }
                 virtual ~ITask() {}
 
@@ -392,6 +392,27 @@ namespace Qtilities {
                     return false;
                 }
 
+                //! Gets the (int) WidgetLoggerEngine::MessageDisplaysFlag used when assigning logger engines to tasks.
+                /*!
+                  The default is WidgetLoggerEngine::DefaultDisplays.
+
+                  \sa setWidgetLoggerEngineDisplaysFlag
+
+                  <i>This function was added in %Qtilities v1.2.</i>
+                  */
+                int getWidgetLoggerEngineDisplaysFlag() const {
+                    return d_widget_logger_engine_message_display_flags;
+                }
+                //! Sets the (int) WidgetLoggerEngine::MessageDisplaysFlag used when assigning logger engines to tasks.
+                /*!
+                  \sa getWidgetLoggerEngineDisplaysFlag
+
+                  <i>This function was added in %Qtilities v1.2.</i>
+                  */
+                void setWidgetLoggerEngineDisplaysFlag(int message_display_flags) {
+                    d_widget_logger_engine_message_display_flags = message_display_flags;
+                }
+
                 // --------------------------------------------------
                 // Control Functionality
                 // --------------------------------------------------
@@ -644,6 +665,7 @@ void MyObject::doSomething(ITask* task) {
 
                 int d_task_id;
                 bool d_elapsed_time_notifications_enabled;
+                int d_widget_logger_engine_message_display_flags;
             };
         }
     }

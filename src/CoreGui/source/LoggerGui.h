@@ -84,6 +84,7 @@ AbstractLoggerEngine* engine = Log->loggerEngineReference(*engine_name);
                 adding " (1)" to the engine (where the number will match an unused number).
 
                 \param engine_name The name of the engine. If an engine with the same name already exists this function will assign an unique name to the new widget by appending a number to \p engine_name.
+                \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types which must be logged in this log widget.
@@ -98,15 +99,19 @@ QWidget* log_widget = LoggerGui::createLogWidget(&log_widget_name);
 // We can now access the AbstractLoggerEngine instance like this:
 AbstractLoggerEngine* log_engine = Log->loggerEngineReference(log_widget_name);
 Q_ASSERT(log_engine);
-// As an example, lets change the message context to log only messages logged to this engine:
+// As an example, lets change the message context to log only messages specifically logged to this engine:
 log_engine->setMessageContexts(Logger::EngineSpecificMessages);
 \endcode
 
-                \note The user must manage the widget instance.
+                \note The user must manage the new widget instance.
 
                 \sa createTempLogWidget(), createLogDockWidget()
               */
-            static QWidget* createLogWidget(QString* engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+            static QWidget* createLogWidget(QString* engine_name,
+                                            WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
+                                            const QString& window_title = QString(),
+                                            bool is_active = true,
+                                            Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
                 if (!engine_name)
                     return 0;
 
@@ -120,7 +125,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 }
 
                 // Create a new logger widget engine and add it to the logger.
-                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine;
+                WidgetLoggerEngine* new_widget_engine = new WidgetLoggerEngine(message_displays_flag);
 
                 // Install a formatting engine for the new logger engine
                 QString formatter = qti_def_FORMATTING_ENGINE_RICH_TEXT;
@@ -161,16 +166,21 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                   and the application will close. Note that this depends on the way widgets are managed in your application, by default the mentioned behavior will happen.
 
                 \param engine_name The name of the engine.
+                \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param message_types The message types which must be logged in this log widget.
                 \param size The size of the widget
 
-                \note The user must manage the widget instance.
+                \note The user must manage the new widget instance.
 
               \sa createLogWidget(), createLogDockWidget()
               */
-            static QWidget* createTempLogWidget(QString* engine_name, const QString& window_title = QString(), Logger::MessageTypeFlags message_types = Logger::AllLogLevels, const QSize& size = QSize(1000,600)) {
-                QWidget* new_widget = createLogWidget(engine_name,window_title,true,message_types);
+            static QWidget* createTempLogWidget(QString* engine_name,
+                                                WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
+                                                const QString& window_title = QString(),
+                                                Logger::MessageTypeFlags message_types = Logger::AllLogLevels,
+                                                const QSize& size = QSize(1000,600)) {
+                QWidget* new_widget = createLogWidget(engine_name,message_displays_flag,window_title,true,message_types);
                 if (new_widget) {
                     // Resize:
                     new_widget->resize(size);
@@ -191,15 +201,20 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                 This function is similar to createLogWidget() but it wraps the widget produced by createLogWidget() with a QDockWidget().
 
                 \param engine_name The name of the engine.
+                \param message_displays_flag The message display flags indicating which message tabs should be shown in the logger widget.
                 \param window_title The created window's title. By default an empty string is passed which will result in the engine_name being used.
                 \param is_active Indicates if the engine must be active after it was created.
                 \param message_types The message types which must be logged in this log widget.
 
-                \note The user must manage the widget instance.
+                \note The user must manage the new widget instance.
 
               \sa createLogWidget(), createTempLogWidget()
               */
-            static QDockWidget* createLogDockWidget(QString* engine_name, const QString& window_title = QString(), bool is_active = true, Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
+            static QDockWidget* createLogDockWidget(QString* engine_name,
+                                                    WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::DefaultDisplays,
+                                                    const QString& window_title = QString(),
+                                                    bool is_active = true,
+                                                    Logger::MessageTypeFlags message_types = Logger::AllLogLevels) {
                 if (!engine_name)
                     return 0;
 
@@ -208,7 +223,7 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
                     dock_name = *engine_name;
 
                 QDockWidget* log_dock_widget = new QDockWidget(dock_name);
-                QWidget* log_widget = createLogWidget(engine_name,window_title,is_active,message_types);
+                QWidget* log_widget = createLogWidget(engine_name,message_displays_flag,window_title,is_active,message_types);
                 if (log_widget) {
                     log_dock_widget->setWidget(log_widget);
                     QObject::connect(log_widget,SIGNAL(destroyed()),log_dock_widget,SLOT(deleteLater()));

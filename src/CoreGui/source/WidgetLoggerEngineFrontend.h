@@ -36,6 +36,7 @@
 
 #include "SearchBoxWidget.h"
 #include "QtilitiesCoreGui_global.h"
+#include "WidgetLoggerEngine.h"
 
 #include <IContext.h>
 
@@ -50,20 +51,22 @@ using namespace Qtilities::Core::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
-        struct WidgetLoggerEngineFrontendPrivateData;
+        struct MessagesPlainTextEditTabPrivateData;
         using namespace Qtilities::Core::Interfaces;
 
         /*!
-        \class WidgetLoggerEngineFrontend
-        \brief The visual frontend of a widget logger engine.
+        \class WidgetLoggerEngineFrontendTab
+        \brief A QPlainTextEdit messages tab used in WidgetLoggerEngineFrontend.
+
+        <i>This class was added in %Qtilities v1.2.</i>
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT WidgetLoggerEngineFrontend : public QMainWindow, public IContext {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT MessagesPlainTextEditTab : public QMainWindow, public IContext {
             Q_OBJECT
             Q_INTERFACES(Qtilities::Core::Interfaces::IContext)
 
         public:
-            WidgetLoggerEngineFrontend(QWidget *parent = 0);
-            ~WidgetLoggerEngineFrontend();
+            MessagesPlainTextEditTab(QWidget *parent = 0);
+            ~MessagesPlainTextEditTab();
             bool eventFilter(QObject *object, QEvent *event);
 
             // --------------------------------
@@ -102,6 +105,9 @@ namespace Qtilities {
             //! Returns the QPlainTextEdit used by this widget logger engine. Through this reference you can add your own custom syntax highligter etc.
             QPlainTextEdit* plainTextEdit() const;
 
+            //! Clears the log.
+            void clear();
+
         public slots:
             void appendMessage(const QString& message);
 
@@ -123,6 +129,43 @@ namespace Qtilities {
         private:
             void constructActions();
 
+            MessagesPlainTextEditTabPrivateData* d;
+        };
+
+        struct WidgetLoggerEngineFrontendPrivateData;
+
+        /*!
+        \class WidgetLoggerEngineFrontend
+        \brief The visual frontend of a widget logger engine.
+          */
+        class QTILITIES_CORE_GUI_SHARED_EXPORT WidgetLoggerEngineFrontend : public QMainWindow {
+            Q_OBJECT
+
+        public:
+            WidgetLoggerEngineFrontend(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag, QWidget *parent = 0);
+            ~WidgetLoggerEngineFrontend();
+
+            // --------------------------------
+            // IObjectBase Implemenation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            //! Returns the QPlainTextEdit used by this widget logger engine for the specified message display.
+            /*!
+                Through this reference you can add your own custom syntax highligter etc.
+
+                \note Only PlainTextEdit displays can be used with this function.
+                */
+            QPlainTextEdit* plainTextEdit(WidgetLoggerEngine::MessageDisplaysFlag message_display) const;
+
+        public slots:
+            void appendMessage(const QString& message, Logger::MessageType message_type = Logger::Info);
+            void clear();
+            void handle_dockVisibilityChanged(bool visible);
+
+        private:
+            MessagesPlainTextEditTab* plainTextEditTab(WidgetLoggerEngine::MessageDisplaysFlag message_display);
             WidgetLoggerEngineFrontendPrivateData* d;
         };
     }

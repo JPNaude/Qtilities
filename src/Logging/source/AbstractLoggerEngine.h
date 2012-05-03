@@ -45,8 +45,6 @@ namespace Qtilities {
         /*!
         \struct AbstractLoggerEngineData
         \brief Structure used by an AbstractLoggerEngine to store it's data.
-
-        This struct is defined in the header because it is use by inherited classes.
           */
         struct AbstractLoggerEngineData {
             AbstractLoggerEngineData(): message_contexts(Logger::AllMessageContexts),
@@ -88,9 +86,11 @@ namespace Qtilities {
             bool isInitialized() const;
             //! Function which receives a formatted string which needs to be logged.
             /*!
-              Messages arrives at logger engines through the newMessages() slot which will format the messages and validate if they must be logged. If so, this function will be called with a formatted message. If you wish to handle the message formatting manually, you can reimplement the newMessages() function.
+              Messages arrives at logger engines through the newMessages() slot which will format the messages and validate if they must be logged.
+              If so, this function will be called with a formatted message. If you wish to handle the message formatting manually, you can reimplement the
+              newMessages() function.
               */
-            virtual void logMessage(const QString& message) = 0;
+            virtual void logMessage(const QString& message, Logger::MessageType message_type = Logger::Info) = 0;
             //! Clears the log currently hold by the logger engine.
             /*!
               \note This is not supported by all logger engines. See the class documentation of the logger engine you are interested in to see if it is supported.
@@ -136,8 +136,6 @@ namespace Qtilities {
             inline Logger::MessageContextFlags messageContexts() const { return abstractLoggerEngineData->message_contexts; }
             //! Sets the logging contexts for which this engine accepts messages.
             void setMessageContexts(Logger::MessageContextFlags message_contexts) { abstractLoggerEngineData->message_contexts = message_contexts; }
-
-
 
         public slots:
             //! Function which is called to finalize the logger engine.

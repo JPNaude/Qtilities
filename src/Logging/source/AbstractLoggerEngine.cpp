@@ -94,10 +94,10 @@ void Qtilities::Logging::AbstractLoggerEngine::installFormattingEngine(AbstractF
 
     if (!isFormattingEngineConstant() && abstractLoggerEngineData->formatting_engine && engine) {
         abstractLoggerEngineData->formatting_engine = engine;
-        logMessage(" ");
-        logMessage(QString(tr("Formatting engine change detected.")));
-        logMessage(QString(tr("This engine now logs messages using the following formatting engine: %1")).arg(abstractLoggerEngineData->formatting_engine->name()));
-        logMessage(" ");
+        logMessage(" ",Logger::Info);
+        logMessage(QString(tr("Formatting engine change detected.")),Logger::Info);
+        logMessage(QString(tr("This engine now logs messages using the following formatting engine: %1")).arg(abstractLoggerEngineData->formatting_engine->name()),Logger::Info);
+        logMessage(" ",Logger::Info);
     } else if (!abstractLoggerEngineData->formatting_engine && engine)
         abstractLoggerEngineData->formatting_engine = engine;
 }
@@ -127,7 +127,7 @@ void Qtilities::Logging::AbstractLoggerEngine::newMessages(const QString& engine
         if (abstractLoggerEngineData->formatting_engine) {
             //Check if this message type is allowed
             if (abstractLoggerEngineData->enabled_message_types & message_type)
-                logMessage(abstractLoggerEngineData->formatting_engine->formatMessage(message_type,messages));
+                logMessage(abstractLoggerEngineData->formatting_engine->formatMessage(message_type,messages),message_type);
         }
     }
 }

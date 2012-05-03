@@ -30,11 +30,13 @@ using namespace Qtilities::Logging;
 
 struct Qtilities::CoreGui::TaskManagerGuiPrivateData {
     TaskManagerGuiPrivateData() : log_initialization(TaskManagerGui::TaskLogLazyInitialization),
-            task_progress_updating_enabled(true) {}
+        task_progress_updating_enabled(true),
+        message_displays_flag(WidgetLoggerEngine::DefaultTaskDisplays) {}
 
     QList<QPointer<SingleTaskWidget> >      task_widgets;
     TaskManagerGui::TaskLogInitialization   log_initialization;
     bool                                    task_progress_updating_enabled;
+    WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag;
 };
 
 Qtilities::CoreGui::TaskManagerGui* TaskManagerGui::m_Instance = 0;
@@ -105,7 +107,15 @@ void TaskManagerGui::setTaskLogInitializationMode(Qtilities::CoreGui::TaskManage
     d->log_initialization = log_initialization_mode;
 }
 
-AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task) {
+WidgetLoggerEngine::MessageDisplaysFlag TaskManagerGui::getWidgetLoggerEngineDisplaysFlag() const {
+    return d->message_displays_flag;
+}
+
+void TaskManagerGui::setWidgetLoggerEngineDisplaysFlag(WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag) {
+    d->message_displays_flag = message_displays_flag;
+}
+
+AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task, WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag) {
     if (!task)
         return 0;
 
@@ -115,8 +125,15 @@ AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task) {
     if (task->loggerEngine())
         return task->loggerEngine();
 
+    if (message_displays_flag == WidgetLoggerEngine::NoMessageDisplays) {
+        if (task->getWidgetLoggerEngineDisplaysFlag() != 0)
+            message_displays_flag = (WidgetLoggerEngine::MessageDisplaysFlag) task->getWidgetLoggerEngineDisplaysFlag();
+        else
+            message_displays_flag = d->message_displays_flag;
+    }
+
     QString engine_name = "Task Log: " + task->displayName();
-    LoggerGui::createLogWidget(&engine_name);
+    LoggerGui::createLogWidget(&engine_name,message_displays_flag);
     //qDebug() << engine_name;
     AbstractLoggerEngine* log_engine = Log->loggerEngineReference(engine_name);
     Q_ASSERT(log_engine);

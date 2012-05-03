@@ -139,7 +139,9 @@ void Qtilities::Logging::FileLoggerEngine::clearLog() {
     file.close();
 }
 
-void Qtilities::Logging::FileLoggerEngine::logMessage(const QString& message) {
+void Qtilities::Logging::FileLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
+    Q_UNUSED(message_type)
+
     if (!abstractLoggerEngineData->is_initialized)
         return;
 
@@ -233,7 +235,8 @@ QString Qtilities::Logging::QtMsgLoggerEngine::status() const {
     }
 }
 
-void Qtilities::Logging::QtMsgLoggerEngine::logMessage(const QString& message) {
+void Qtilities::Logging::QtMsgLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
+    Q_UNUSED(message_type)
     qDebug() << message;
 }
 
@@ -291,6 +294,7 @@ QString Qtilities::Logging::ConsoleLoggerEngine::status() const {
     }
 }
 
-void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message) {
+void Qtilities::Logging::ConsoleLoggerEngine::logMessage(const QString& message, Logger::MessageType message_type) {
+    Q_UNUSED(message_type)
     fprintf(stdout, "%s\n", qPrintable(message));
 }

@@ -102,7 +102,7 @@ namespace Qtilities {
             static LoggerFactoryItem<AbstractLoggerEngine, FileLoggerEngine> factory;
 
         public slots:
-            void logMessage(const QString& message);
+            void logMessage(const QString& message, Logger::MessageType message_type);
 
         private:
             QString file_name;
@@ -141,7 +141,7 @@ namespace Qtilities {
             bool isFormattingEngineConstant() const { return true; }
 
         public slots:
-            void logMessage(const QString& message);
+            void logMessage(const QString& message, Logger::MessageType message_type);
 
         private:
             static QtMsgLoggerEngine* m_Instance;
@@ -180,7 +180,7 @@ namespace Qtilities {
             bool isFormattingEngineConstant() const { return false; }
 
         public slots:
-            void logMessage(const QString& message);
+            void logMessage(const QString& message, Logger::MessageType message_type);
 
         private:
             static ConsoleLoggerEngine* m_Instance;

@@ -37,6 +37,7 @@
 #include "QtilitiesCoreGui_global.h"
 #include "SingleTaskWidget.h"
 #include "TaskSummaryWidget.h"
+#include "WidgetLoggerEngine"
 
 #include <QPointer>
 #include <QApplication>
@@ -76,13 +77,34 @@ namespace Qtilities {
             //! Gets the task log initialization used by TaskManagerGui.
             /*!
               \sa setTaskLogInitializationMode
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             TaskLogInitialization getTaskLogInitializationMode() const;
             //! Sets the task log initialization used by TaskManagerGui.
             /*!
               \sa getTaskLogInitializationMode
+
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setTaskLogInitializationMode(TaskLogInitialization log_initialization_mode);
+
+            //! Gets the WidgetLoggerEngine::MessageDisplaysFlag used when assigning logger engines to tasks.
+            /*!
+              The default is WidgetLoggerEngine::DefaultTaskDisplays.
+
+              \sa setWidgetLoggerEngineDisplaysFlag
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            WidgetLoggerEngine::MessageDisplaysFlag getWidgetLoggerEngineDisplaysFlag() const;
+            //! Sets the WidgetLoggerEngine::MessageDisplaysFlag used when assigning logger engines to tasks.
+            /*!
+              \sa getWidgetLoggerEngineDisplaysFlag
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            void setWidgetLoggerEngineDisplaysFlag(WidgetLoggerEngine::MessageDisplaysFlag message_display_flags);
 
             //! Creates a SingleTaskWidget for the given task.
             /*!
@@ -117,7 +139,15 @@ namespace Qtilities {
 
         public slots:
             //! Slot which will check if obj is a task and assign a logger engine to it if needed.
-            AbstractLoggerEngine* assignLoggerEngineToTask(ITask *task);
+            /*!
+              \param task The task on which the logger engine must be assigned.
+              \param message_displays_flag The message displays flag that should be used when assigning the engine. By default WidgetLoggerEngine::NoMessageDisplays
+                                           in which case the flag specified by the task (if any) will be used. If the task does not specify anything the flags set through
+                                           setWidgetLoggerEngineDisplaysFlag() will be used.
+              \return The logger engine which has been assigned to the task.
+              */
+            AbstractLoggerEngine* assignLoggerEngineToTask(ITask *task,
+                                                           WidgetLoggerEngine::MessageDisplaysFlag message_displays_flag = WidgetLoggerEngine::NoMessageDisplays);
 
         private slots:
             //! Slot which will inspect all objects registered in the object pool, and assign task logs to tasks according to TaskLogLazyInitialization.
