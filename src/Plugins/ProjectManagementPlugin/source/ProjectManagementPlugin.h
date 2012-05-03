@@ -100,6 +100,7 @@ namespace Qtilities {
 
             private slots:
                 void handleRecentProjectActionTriggered();
+                void handleApplicationBusyStateChanged();
 
             private:
                 ProjectManagementPluginPrivateData* d;

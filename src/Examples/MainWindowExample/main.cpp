@@ -208,6 +208,8 @@ int main(int argc, char *argv[])
     splash->close();
     #endif
 
+    LOG_INFO("< > < >");
+
     // Initialize the project manager:
     // PROJECT_MANAGER->setAllowedProjectTypes(IExportable::XML);
     PROJECT_MANAGER_INITIALIZE();

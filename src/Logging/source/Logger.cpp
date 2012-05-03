@@ -663,7 +663,7 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 //        int i = 5;
 //    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
 //        int i = 5;
-//    else if (QString(msg).contains("QVector<T>::remove: \"index out of range\""))
+//    else if (QString(msg).contains("\"index out of range\""))
 //        int i = 5;
 
     switch (type)

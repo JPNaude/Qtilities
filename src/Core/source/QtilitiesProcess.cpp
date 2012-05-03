@@ -40,6 +40,8 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
 
 Qtilities::Core::QtilitiesProcess::~QtilitiesProcess() {
     if (d->process) {
+        if (state() == ITask::TaskBusy)
+            completeTask();
         d->process->kill();
         delete d->process;
     }
@@ -59,10 +61,12 @@ QStringList Qtilities::Core::QtilitiesProcess::lineBreakStrings() {
 }
 
 bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, const QStringList& arguments, QProcess::OpenMode mode) {
-    if (state() == ITask::TaskBusy || state() == ITask::TaskPaused)
+    if (state() == ITask::TaskPaused)
         return false;
 
-    startTask();
+    if (state() != ITask::TaskBusy)
+        startTask();
+
     logMessage("Executing Process: " + program + " " + arguments.join(" "));
     logMessage("-> working directory of process: " + d->process->workingDirectory());
     d->process->start(program, arguments, mode);
@@ -94,6 +98,8 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
             logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
     }
 
+    if (state() == ITask::TaskBusy)
+        completeTask();
     Q_UNUSED(exit_status)
 }
 
@@ -124,7 +130,7 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
-    if (newState == QProcess::NotRunning)
+    if (newState == QProcess::NotRunning && state() == ITask::TaskBusy)
         completeTask();
 }
 

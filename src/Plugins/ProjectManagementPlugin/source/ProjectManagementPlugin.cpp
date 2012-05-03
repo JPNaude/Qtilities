@@ -425,5 +425,23 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecen
     }
 }
 
+void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleApplicationBusyStateChanged() {
+    if (QtilitiesApplication::applicationBusy()) {
+        d->actionProjectClose->setEnabled(false);
+        d->actionProjectNew->setEnabled(false);
+        d->actionProjectOpen->setEnabled(false);
+        d->actionProjectSave->setEnabled(false);
+        d->actionProjectSaveAs->setEnabled(false);
+        d->menuRecentProjects->setEnabled(false);
+    } else{
+        d->actionProjectClose->setEnabled(true);
+        d->actionProjectNew->setEnabled(true);
+        d->actionProjectOpen->setEnabled(true);
+        d->actionProjectSave->setEnabled(true);
+        d->actionProjectSaveAs->setEnabled(true);
+        d->menuRecentProjects->setEnabled(true);
+    }
+}
+
 using namespace Qtilities::Plugins::ProjectManagement;
 Q_EXPORT_PLUGIN2(ProjectManagementPlugin, ProjectManagementPlugin);

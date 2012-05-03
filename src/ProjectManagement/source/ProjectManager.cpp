@@ -720,7 +720,7 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
                         saveProject();
                     }
                 } else {
-                    LOG_INFO(tr("Project manager is in silent execution mode. Auto-saving instead of prompting user"));
+                    LOG_INFO(tr("Project manager is in silent execution mode. Auto-saving instead of prompting user."));
                     saveProject();
                 }
             } else if (d->modified_projects_handling_policy == AutoSave) {
