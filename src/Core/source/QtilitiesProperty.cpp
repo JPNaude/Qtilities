@@ -79,7 +79,7 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& p
     setIsExportable(property.isExportable());
 }
 
-void Qtilities::Core::QtilitiesProperty::QtilitiesProperty::operator=(const QtilitiesProperty& property) {
+void Qtilities::Core::QtilitiesProperty::operator=(const QtilitiesProperty& property) {
     name = property.propertyNameString();
     is_reserved = property.isReserved();
     is_removable = property.isRemovable();

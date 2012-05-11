@@ -219,7 +219,7 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
 
         For more information about how MultiContextProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
 
-        Note that you can inspect all MultiContextProperty properties on an object through the Qtilities::CoreGui::DynamicObjectPropertyBrowser widget.
+        Note that you can inspect all MultiContextProperty properties on an object through the Qtilities::CoreGui::ObjectDynamicPropertyBrowser widget.
         See the \p qti.core.CategoryMap property as an example below:
 
         \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
@@ -342,7 +342,7 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
 
         For information about how SharedProperty are used in the context of Qtilities::Core::Observer, please see \ref qtilities_properties.
 
-        Note that you can inspect all SharedProperty properties on an object through the Qtilities::CoreGui::DynamicObjectPropertyBrowser widget. See the example below:
+        Note that you can inspect all SharedProperty properties on an object through the Qtilities::CoreGui::ObjectDynamicPropertyBrowser widget. See the example below:
 
         \image html debugging_dynamic_properties.jpg "Dynamic Properties Browser"
 

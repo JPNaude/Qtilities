@@ -41,11 +41,11 @@
 
 #include <QObject>
 
+using namespace Qtilities::Core::Interfaces;
+using namespace Qtilities::Logging;
+
 namespace Qtilities {
     namespace Core {
-        using namespace Qtilities::Core::Interfaces;
-        using namespace Qtilities::Logging;
-
         /*!
         \struct TaskPrivateData
         \brief Structure used by Task to store private data.

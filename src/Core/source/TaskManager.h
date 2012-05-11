@@ -44,8 +44,12 @@ namespace Qtilities {
         namespace Interfaces {
             class ITask;
         }
-        using namespace Qtilities::Core::Interfaces;
+    }
+}
+using namespace Qtilities::Core::Interfaces;
 
+namespace Qtilities {
+    namespace Core {
         /*!
         \struct TaskManagerPrivateData
         \brief A structure storing private data in the TaskManager class.
