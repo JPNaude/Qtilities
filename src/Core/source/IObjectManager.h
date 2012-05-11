@@ -53,7 +53,7 @@ namespace Qtilities {
             using namespace Qtilities::Core;
             /*!
             \class IObjectManager
-            \brief Interface used to communicate with the observer manager.
+            \brief Interface used to communicate with the object manager, directly accessable through the OBJECT_MANAGER macro.
               */
             class QTILIITES_CORE_SHARED_EXPORT IObjectManager : public QObject, virtual public IFactoryProvider
             {

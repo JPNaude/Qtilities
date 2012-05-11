@@ -52,12 +52,12 @@ using namespace Qtilities::CoreGui::Icons;
 struct Qtilities::CoreGui::CommandEditorPrivateData {
     CommandEditorPrivateData() { }
 
-    ObserverWidget              observer_widget;
+    ObserverWidget                          observer_widget;
     qti_private_CommandTreeModel*           model;
     qti_private_ShortcutEditorDelegate*     shortcut_delegate;
-    QAction*                    action_restore_defaults;
-    QAction*                    action_save;
-    QAction*                    action_load;
+    QAction*                                action_restore_defaults;
+    QAction*                                action_save;
+    QAction*                                action_load;
 };
 
 Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :

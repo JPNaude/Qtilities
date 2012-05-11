@@ -34,6 +34,7 @@
 #ifndef OBJECTPROPERTYBROWSER_H
 #define OBJECTPROPERTYBROWSER_H
 
+#ifdef QTILITIES_PROPERTY_BROWSER
 #include <QtGui/QWidget>
 
 #include "QtilitiesCoreGui_global.h"
@@ -182,4 +183,5 @@ namespace Qtilities {
     }
 }
 
+#endif // QTILITIES_PROPERTY_BROWSER
 #endif // OBJECTPROPERTYBROWSER_H

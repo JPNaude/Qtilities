@@ -214,7 +214,7 @@ void Qtilities::Plugins::Help::Browser::handleSearchBackwards() {
 
     find_flags |= QWebPage::FindWrapsAroundDocument;
     find_flags |= QWebPage::HighlightAllOccurrences;
-    find_flags |= QWebPage::QWebPage::FindBackward;
+    find_flags |= QWebPage::FindBackward;
 
     d->web_view->findText(d->searchBoxWidget->currentSearchString(),find_flags);
 }

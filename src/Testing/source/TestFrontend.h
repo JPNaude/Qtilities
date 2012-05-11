@@ -31,7 +31,6 @@
 **
 ****************************************************************************/
 
-
 #ifndef TESTFRONTEND_H
 #define TESTFRONTEND_H
 
@@ -47,11 +46,11 @@
 namespace Ui {
     class TestFrontend;
 }
+using namespace Qtilities::Core;
+using namespace Qtilities::Testing::Interfaces;
 
 namespace Qtilities {
     namespace Testing {
-        using namespace Qtilities::Core;
-        using namespace Interfaces;
         /*!
           \struct TestFrontendPrivateData
           \brief The TestFrontendPrivateData class stores private data used by the TestFrontend class.

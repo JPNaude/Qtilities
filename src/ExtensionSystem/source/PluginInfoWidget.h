@@ -40,10 +40,10 @@
 namespace Ui {
     class PluginInfoWidget;
 }
+using namespace Qtilities::ExtensionSystem::Interfaces;
 
 namespace Qtilities {
     namespace ExtensionSystem {
-        using namespace Interfaces;
 
         /*!
           \class PluginInfoWidget

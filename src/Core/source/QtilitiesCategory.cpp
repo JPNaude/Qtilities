@@ -102,6 +102,7 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
     if (!category_level_name.isEmpty())
         addLevel(category_level_name);
     d_access_mode = 3;
+    //d_category_icon = 0;
 }
 
 Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_levels, const QString& seperator) {
@@ -111,17 +112,21 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QString& category_le
             addLevel(level);
     }
     d_access_mode = 3;
+    //d_category_icon = 0;
 }
 
 Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QStringList& category_name_list) {
     foreach(QString level,category_name_list)
         addLevel(level);
     d_access_mode = 3;
+    //d_category_icon = 0;
 }
 
 void Qtilities::Core::QtilitiesCategory::operator=(const QtilitiesCategory& other) {
     d_category_levels = other.categoryLevels();
     d_access_mode = other.accessMode();
+//    if (!other.categoryIcon().isNull())
+//        d_category_icon = new QIcon(other.categoryIcon());
 }
 
 bool Qtilities::Core::QtilitiesCategory::operator==(const QtilitiesCategory& ref) const {

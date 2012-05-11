@@ -70,8 +70,6 @@ struct Qtilities::CoreGui::ConfigurationWidgetPrivateData {
     bool                    apply_all_pages;
     //! Indicates if this widgets uses a categorized display.
     bool                    categorized_display;
-    //! List of IGroupedConfigPageInfoProvider interfaces found during initilization.
-    QList<IGroupedConfigPageInfoProvider> grouped_config_page_providers;
 };
 
 Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display_mode, QWidget *parent) :

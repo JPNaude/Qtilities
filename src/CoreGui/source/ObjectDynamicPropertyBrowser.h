@@ -34,6 +34,7 @@
 #ifndef ObjectDynamicPropertyBrowser_H
 #define ObjectDynamicPropertyBrowser_H
 
+#ifdef QTILITIES_PROPERTY_BROWSER
 #include <QtGui/QMainWindow>
 
 #include "QtilitiesCoreGui_global.h"
@@ -184,4 +185,5 @@ namespace Qtilities {
     }
 }
 
+#endif // QTILITIES_PROPERTY_BROWSER
 #endif // ObjectDynamicPropertyBrowser_H

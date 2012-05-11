@@ -32,7 +32,7 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
 # need the Qt Property Browser Solution.
-# DEFINES += QTILITIES_PROPERTY_BROWSER
+DEFINES += QTILITIES_PROPERTY_BROWSER
 # --------------------------
 contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEFINES += QT_QTPROPERTYBROWSER_IMPORT
@@ -41,12 +41,14 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     DEPENDPATH += $$PROPERTY_EDITOR_BASE/src
     INCLUDEPATH += $$PROPERTY_EDITOR_BASE/src
     CONFIG(debug, debug|release) {
-        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-headd.a
+        win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-headd.a
+        win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-headd.lib
         unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
             -lQtSolutions_PropertyBrowser-head
     }
     else {
-        win32:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-head.a
+        win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-head.a
+        win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-head.lib
         unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
             -lQtSolutions_PropertyBrowser-head
     }
@@ -88,11 +90,14 @@ contains(DEFINES, QTILITIES_CONAN) {
     INCLUDEPATH += $$CONAN_BASE/include
 
     CONFIG(debug, debug|release) {
-        win32:LIBS += $$CONAN_BASE/lib/libConand1.a
+        win32::win32-g++:LIBS += $$CONAN_BASE/lib/libConand1.a
+        win32::win32-msvc*:LIBS += $$CONAN_BASE/lib/Conand1.lib
         unix::LIBS += -L$$CONAN_BASE/lib -lConand
     }
     else {
-        win32:LIBS += $$CONAN_BASE/lib/libConan1.a
+        win32::win32-g++:LIBS += $$CONAN_BASE/lib/libConan1.a
+        win32::win32-msvc*:LIBS += $$CONAN_BASE/lib/Conan1.lib
         unix::LIBS += -L$$CONAN_BASE/lib -lConan
     }
 }
+

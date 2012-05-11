@@ -180,7 +180,7 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
             // Check if there is already an action for this context
             if (d->id_action_map.keys().contains(context_ids.at(i))) {
                 if (d->id_action_map.keys().contains(context_ids.at(i))) {
-                    LOG_WARNING(tr("Attempting to register a backend action for a proxy action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
+                    LOG_DEBUG(tr("Attempting to register a backend action for a proxy action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
                     qWarning() << "Attempting to register a backend action for a proxy action twice for a single context with name: " << CONTEXT_MANAGER->contextString(context_ids.at(i)) <<  ". Last action will be ignored: " <<  action->text();
                     continue;
                 } else

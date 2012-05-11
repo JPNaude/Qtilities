@@ -17,12 +17,12 @@
 #include <QtilitiesCategory>
 #include <QObject>
 
+using namespace Qtilities::ExtensionSystem::Interfaces;
+using namespace Qtilities::Core;
+
 namespace Qtilities {
     namespace Plugins {
         namespace Debug {
-            using namespace ExtensionSystem::Interfaces;
-            using namespace Qtilities::Core;
-
             /*!
               \struct DebugPluginPrivateData
               \brief The DebugPluginPrivateData struct stores private data used by the DebugPlugin class.

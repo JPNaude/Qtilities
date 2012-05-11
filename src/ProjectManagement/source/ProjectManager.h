@@ -45,12 +45,12 @@
 #include <IModificationNotifier.h>
 #include <ITaskContainer>
 
+using namespace Qtilities::ProjectManagement::Constants;
+using namespace Qtilities::ProjectManagement::Interfaces;
+using namespace Qtilities::Core::Interfaces;
+
 namespace Qtilities {
     namespace ProjectManagement {
-        using namespace Qtilities::ProjectManagement::Constants;
-        using namespace Qtilities::ProjectManagement::Interfaces;
-        using namespace Qtilities::Core::Interfaces;
-
         /*!
         \struct ProjectManagerPrivateData
         \brief The struct used to store private data in the ProjectManager class.

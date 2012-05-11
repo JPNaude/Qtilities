@@ -15,10 +15,10 @@
 
 #include <Logger>
 
+using namespace Qtilities::Logging;
+
 namespace Qtilities {
     namespace Testing {
-        using namespace Qtilities::Logging;
-
         /*!
           \class qti_private_DropableListWidget
           \brief Subclasses QListView with dropEvent reimplemented for plugin configuration set creation in the %Qtilities debug widget.

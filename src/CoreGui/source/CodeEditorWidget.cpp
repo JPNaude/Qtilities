@@ -179,6 +179,8 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
     CONTEXT_MANAGER->registerContext(context_string);
     d->global_meta_type = context_string;
     setObjectName(context_string);
+
+    initialize();
 }
 
 Qtilities::CoreGui::CodeEditorWidget::~CodeEditorWidget() {
@@ -338,9 +340,12 @@ bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
         d->watcher.removePath(d->current_file);
 
     QFile file(file_name);
-    if (!file.open(QFile::WriteOnly)) {
+    if (file.exists()) {
+        if (!file.open(QFile::WriteOnly)) {
+            return false;
+        }
+    } else
         return false;
-    }
 
     file.write(d->codeEditor->toPlainText().toLocal8Bit());
     file.close();

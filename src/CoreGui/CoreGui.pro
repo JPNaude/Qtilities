@@ -52,7 +52,6 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObjectHierarchyNavigator.h \
     source/ObserverTreeItem.h \
     source/SearchBoxWidget.h \
-    source/ObjectInfoTreeWidget.h \
     source/IActionProvider.h \
     source/ActionProvider.h \
     source/LoggerConfigWidget.h \
@@ -111,7 +110,6 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/ObjectHierarchyNavigator.cpp \
     source/ObserverTreeItem.cpp \
     source/SearchBoxWidget.cpp \
-    source/ObjectInfoTreeWidget.cpp \
     source/ActionProvider.cpp \
     source/LoggerConfigWidget.cpp \
     source/WidgetLoggerEngine.cpp \

@@ -98,8 +98,7 @@ void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::Ex
             logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
     }
 
-    if (state() == ITask::TaskBusy)
-        completeTask();
+    completeTask();
     Q_UNUSED(exit_status)
 }
 
@@ -130,7 +129,7 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
-    if (newState == QProcess::NotRunning && state() == ITask::TaskBusy)
+    if (newState == QProcess::NotRunning && (state() == ITask::TaskBusy || state() == ITask::TaskPaused))
         completeTask();
 }
 

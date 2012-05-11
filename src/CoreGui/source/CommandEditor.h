@@ -45,10 +45,10 @@
 namespace Ui {
     class CommandEditor;
 }
+using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
-        using namespace Qtilities::CoreGui::Interfaces;
         class Command;
 
         /*!

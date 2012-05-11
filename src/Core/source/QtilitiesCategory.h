@@ -293,6 +293,29 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
                     return QString();
             }
 
+//            //! Gets the QIcon associated with this category.
+//            /*!
+//              By default all QtilitiesCategory objects returns QIcon().
+
+//              <i>This function was added in %Qtilities v1.2.</i>
+//              */
+//            QIcon categoryIcon() const {
+//                if (d_category_icon)
+//                    return *d_category_icon;
+
+//                return QIcon();
+//            }
+//            //! Sets the QIcon associated with this category.
+//            /*!
+//              <i>This function was added in %Qtilities v1.2.</i>
+//              */
+//            void setCategoryIcon(QIcon category_icon) {
+//                if (d_category_icon)
+//                    delete d_category_icon;
+
+//                d_category_icon = new QIcon(category_icon);
+//            }
+
             // --------------------------------
             // IObjectBase Implementation
             // --------------------------------
@@ -314,6 +337,8 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
             IExportable::ExportResultFlags importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list);
             /*!
               This function adds a category node under \p object_node with all the information about this category.
+
+              \note The category icon is not exported along with your category.
               */
             IExportable::ExportResultFlags exportXml(QDomDocument* doc, QDomElement* object_node) const;
             IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
@@ -321,6 +346,7 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
         protected:
             QList<CategoryLevel>    d_category_levels;
             int                     d_access_mode;
+            //QIcon*                  d_category_icon;
         };
     }
 }

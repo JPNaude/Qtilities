@@ -45,11 +45,10 @@
 namespace Ui {
     class ConfigurationWidget;
 }
+using namespace Qtilities::CoreGui::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {
-        using namespace Qtilities::CoreGui::Interfaces;
-
         /*!
           \struct ConfigurationWidgetPrivateData
           \brief The ConfigurationWidgetPrivateData struct stores private data used by the ConfigurationWidget class.
