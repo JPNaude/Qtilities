@@ -1021,11 +1021,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshColumnVisibility() {
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnCategoryHint))
             d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
         else {
-            if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
+//            if (activeHints()->hierarchicalDisplayHint() & ObserverHints::CategorizedHierarchy) {
                 d->table_view->showColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
-            } else {
-                d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
-            }
+//            } else {
+//                d->table_view->hideColumn(d->table_model->columnPosition(AbstractObserverItemModel::ColumnCategory));
+//            }
         }
 
         if (!(activeHints()->itemViewColumnHint() & ObserverHints::ColumnChildCountHint))
