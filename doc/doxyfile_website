@@ -2,7 +2,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "Qtilities"
-PROJECT_NUMBER         = "v1.1"
+PROJECT_NUMBER         = "v1.2"
 DOXYFILE_ENCODING      = UTF-8
 OUTPUT_DIRECTORY       = output
 CREATE_SUBDIRS         = NO
@@ -122,7 +122,7 @@ FILE_PATTERNS          = *.h \
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       = *ui_*
+EXCLUDE_PATTERNS       = *ui_* *TclScriptingExample*
 EXCLUDE_SYMBOLS        = *qti_private* *::*Private *::*PrivateData
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = *
@@ -170,9 +170,9 @@ CHM_INDEX_ENCODING     =
 BINARY_TOC             = NO
 TOC_EXPAND             = NO
 GENERATE_QHP           = NO
-QCH_FILE               = 
-QHP_NAMESPACE          = Qtilities_v1_1
-QHP_VIRTUAL_FOLDER     = "Qtilities Documentation"
+QCH_FILE               = Qtilities_v1_2.qch
+QHP_NAMESPACE          = Qtilities_v1_2
+QHP_VIRTUAL_FOLDER     = "Qtilities Documentation v1.2"
 DISABLE_INDEX          = NO
 ENUM_VALUES_PER_LINE   = 4
 GENERATE_TREEVIEW      = NONE

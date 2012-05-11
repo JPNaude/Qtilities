@@ -4,6 +4,73 @@ This change log uses the following legend to list items.
 [#] Change/Improvement to old code
 
 ================================
+Qtilities v1.2 Changes
+================================
+    To see all closed issues in the issue tracker linked to this milestone, see the following page:
+    https://github.com/JPNaude/Qtilities/issues/milestones
+
+    General:
+    ============================
+
+
+    ============================
+    QtilitiesLogging:
+    ============================
+    [#] AbstractLoggerEngine's logMessage() function got a new message type parameter.
+
+    [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
+
+    ============================
+    QtilitiesCore:
+    ============================
+    [+] Added Factory::categoryForTag().
+    [+] Added IFactoryProvider::categoryForTag().
+    [+] Added IFactoryProvider::tagCategoryMap().
+
+    [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
+
+    ============================
+    QtilitiesCoreGui:
+    ============================
+    [+] You can now specify which widget logger engine message displays must be used by TaskManagerGui when assigning logger engines to tasks.
+    [+] Each task can now explicitly specify the widget logger engine message displays that TaskManagerGui must use when assigning logger engines to it.
+    [+] Widget logger engines much improved to allow multiple message tabs to be shown in a single widget logger engine.
+    [+] Added ObserverWidget::view() function.
+
+    [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
+        must be shown in the widget logger engine.
+    [#] It is no longer needed to enable categorized display in order to display category column in ObserverWidget in TableView mode.
+
+    [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
+    [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
+    [*} Fixed some "QFSFileEngine::open: No file name specified" messages in CodeEditorWidget.
+
+    ============================
+    QtilitiesExtensionSystem:
+    ============================
+
+
+    ============================
+    QtilitiesProjectManagement:
+    ============================
+
+
+    ============================
+    QtilitiesTesting:
+    ============================
+
+
+    ============================
+    Plugins:
+    ============================
+
+
+    ============================
+    Examples:
+    ============================
+
+
+================================
 Qtilities v1.1 Changes
 ================================
     To see all closed issues in the issue tracker linked to this milestone, see the following page:
@@ -15,6 +82,7 @@ Qtilities v1.1 Changes
     [+] Added new QTILITIES_NO_HELP define. In v1.1 a help manager was introduced to help you integrate the Qt Help module into your applications.
         This added the QtHelp module as a dependency on QtilitiesCoreGui. Using QTILITIES_NO_HELP you can build Qtilities without any of the help stuff
         and you don't need to link against QtHelp when it is defined.
+
     [#] All places in Qtilities where we use OBJECT_MANAGER->registeredInterfaces() we now use the string signatures for known Qtilities classes.
     [#] Removed support for containment approach of building trees.
     [#] Observer models now tested with, and runs without problems through the Qt ModelTest tests.

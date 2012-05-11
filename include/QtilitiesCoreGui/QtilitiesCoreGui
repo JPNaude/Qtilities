@@ -30,7 +30,6 @@
 #include "NamingPolicyFilter.h"
 #include "NamingPolicyInputDialog.h"
 #include "ObjectHierarchyNavigator.h"
-#include "ObjectInfoTreeWidget.h"
 #include "ObjectPropertyBrowser.h"
 #include "ObjectScopeWidget.h"
 #include "ObserverTableModel.h"

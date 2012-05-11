@@ -175,7 +175,7 @@ The observer widget class provides functions which makes it easy to interact wit
 
 \section observer_and_widget_integration Observer hints: Telling item views how they should show an observer context
 
-Observers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::activeHints() function as shown in the above example.
+Observers can provide display hints to any observer widgets in which it is displayed. The available hints are defined in the form of the Qtilities::Core::ObserverHints class and are explained in this section. Observer widgets automatically follow the hints of the widget's current observer context if the context provides hints. It is however possible to turn this feature off using the Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints() function and then set the hints explicitly using the Qtilities::CoreGui::ObserverWidget::setActiveHints() function as shown in the above example.
 
 Observers does not automatically provide hints and the Qtilities::Core::Observer::useDisplayHints() function must be called on the observer after it is constructed and before any subjects are attached to it. Qtilities::CoreGui::TreeNode on the other hand calls this function in its constructor.
 
