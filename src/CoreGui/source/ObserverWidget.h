@@ -586,13 +586,29 @@ categorized_widget->show();
             //! Function providing access to the contained table view.
             /*!
               \note This reference is only valid in TableView mode.
+
+              \sa treeView(), view()
               */
             QTableView* tableView();
             //! Function providing access to the contained tree view.
             /*!
               \note This reference is only valid in TreeView mode.
+
+              \sa tableView(), view()
               */
             QTreeView* treeView();
+            //! Function providing access to the QAbstractItemView view base class.
+            /*!
+              This function is usefull when you want to access functionality on the current view which is common
+              to both QTreeView and QTableView, without needing to care about the view type.
+
+              \note This reference is only valid in TreeView and TableView modes.
+
+              \sa tableView(), treeView()
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            QAbstractItemView* view();
             //! Enables automatic column resizing in the displayed table or tree view, depending on the displayMode().
             /*!
               True by default which will cause the view's columns to be resized to their contents and the name column to be streched. If you

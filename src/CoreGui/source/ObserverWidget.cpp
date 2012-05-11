@@ -1321,6 +1321,15 @@ QTreeView* Qtilities::CoreGui::ObserverWidget::treeView() {
         return 0;
 }
 
+QAbstractItemView *Qtilities::CoreGui::ObserverWidget::view() {
+    if (d->display_mode == TreeView)
+        return d->tree_view;
+    else if (d->display_mode == TableView)
+        return d->table_view;
+    else
+        return 0;
+}
+
 void Qtilities::CoreGui::ObserverWidget::enableAutoColumnResizing() {
     d->do_column_resizing = true;
 }
