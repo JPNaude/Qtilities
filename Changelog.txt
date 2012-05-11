@@ -11,6 +11,7 @@ Qtilities v1.2 Changes
 
     General:
     ============================
+    [+] Now compiles and runs with the MSVC compiler.
 
 
     ============================
