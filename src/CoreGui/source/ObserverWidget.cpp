@@ -2147,15 +2147,21 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
             if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
                 // Check if the observer has a activity filter, which it should have with this hint
                 ActivityPolicyFilter* filter = 0;
+
+                QList<QPointer<QObject> > active_subjects = d->current_selection;
+                active_subjects.removeOne(observer);
+
                 for (int i = 0; i < observer->subjectFilters().count(); i++) {
                     filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
-                    if (filter) {
+                    if (filter) {  
                         // We set d->update_selection_activity to false in here since we don't want selectObjects()
                         // to select the objects again. We will get in this slot when the user already made a new
                         // selection and we do not want to go into an endless loop.
                         d->update_selection_activity = false;
-                        filter->setActiveSubjects(d->current_selection);
+                        filter->setActiveSubjects(active_subjects);
                         d->update_selection_activity = true;
+
+                        break;
                     }
                 }
             }
