@@ -34,11 +34,11 @@
 #ifndef OBSERVER_TREE_MODEL_PROXY_FILTER_H
 #define OBSERVER_TREE_MODEL_PROXY_FILTER_H
 
-#include <QSortFilterProxyModel>
-
 #include "Observer.h"
 #include "ObserverTreeItem.h"
 #include "QtilitiesCoreGui_global.h"
+
+#include <QSortFilterProxyModel>
 
 namespace Qtilities {
     namespace CoreGui {

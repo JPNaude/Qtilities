@@ -27,6 +27,7 @@ Qtilities v1.2 Changes
     [+] Added Factory::categoryForTag().
     [+] Added IFactoryProvider::categoryForTag().
     [+] Added IFactoryProvider::tagCategoryMap().
+    [+] Added QtilitiesProcess::newStandardOutputMessage() and QtilitiesProcesss:newStandardErrorMessage().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
 
@@ -45,6 +46,7 @@ Qtilities v1.2 Changes
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
     [*} Fixed some "QFSFileEngine::open: No file name specified" messages in CodeEditorWidget.
+    [*} Fixed problems with category filtering in TableView mode ObserverWidget when using custom hints.
 
     ============================
     QtilitiesExtensionSystem:

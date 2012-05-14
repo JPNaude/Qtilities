@@ -151,10 +151,11 @@ namespace Qtilities {
             //! This function allows you to copy the custom hints used by this model from a different ObserverHints instance.
             /*!
               \note These hints are only used when usesObserverHints() is false.
+              \note The model will take ownership of the custom hints instance.
 
               \sa toggleUseObserverHints()
               */
-            bool setCustomHints(ObserverHints* observer);
+            bool setCustomHints(ObserverHints* custom_hints);
             //! This function will provide the hints which should be used by this model at any time.
             /*!
               \sa toggleUseObserverHints()

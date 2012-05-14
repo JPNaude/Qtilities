@@ -896,13 +896,8 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
     }
 
     // Toggle use observer hints on custom models and set custom hints everytime initialize() is called.
-    if (d->display_mode == TreeView && d->tree_model) {
-        d->tree_model->toggleUseObserverHints(d->use_observer_hints);
-        d->tree_model->setCustomHints(d->hints_default);
-    } else if (d->display_mode == TableView && d->table_model) {
-        d->table_model->toggleUseObserverHints(d->use_observer_hints);
-        d->table_model->setCustomHints(d->hints_default);
-    }
+    toggleUseObserverHints(d->use_observer_hints);
+    setCustomHints(d->hints_default);
 
     // Check if the hierarchy navigation bar should be visible:
     if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar) {
@@ -1113,6 +1108,19 @@ void Qtilities::CoreGui::ObserverWidget::toggleUseObserverHints(bool toggle) {
         d->tree_model->toggleUseObserverHints(toggle);
     if (d->table_model)
         d->table_model->toggleUseObserverHints(toggle);
+    // Important: We need to change the table proxy filters as well.
+    // Note that we don't change the tree proxy filters since the tree model builder
+    // does not build the tree for filtered categories.
+    if (d->table_proxy_model) {
+        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
+        if (obs_proxy_model)
+            obs_proxy_model->toggleUseObserverHints(toggle);
+    }
+    if (d->custom_table_proxy_model) {
+        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
+        if (obs_proxy_model)
+            obs_proxy_model->toggleUseObserverHints(toggle);
+    }
 }
 
 bool Qtilities::CoreGui::ObserverWidget::usesObserverHints() const {
@@ -1132,7 +1140,19 @@ bool Qtilities::CoreGui::ObserverWidget::setCustomHints(ObserverHints* custom_hi
         d->tree_model->setCustomHints(custom_hints);
     if (d->table_model)
         d->table_model->setCustomHints(custom_hints);
-
+    // Important: We need to change the table proxy filters as well.
+    // Note that we don't change the tree proxy filters since the tree model builder
+    // does not build the tree for filtered categories.
+    if (d->table_proxy_model) {
+        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->table_proxy_model);
+        if (obs_proxy_model)
+            obs_proxy_model->setCustomHints(custom_hints);
+    }
+    if (d->custom_table_proxy_model) {
+        ObserverTableModelProxyFilter* obs_proxy_model = qobject_cast<ObserverTableModelProxyFilter*> (d->custom_table_proxy_model);
+        if (obs_proxy_model)
+            obs_proxy_model->setCustomHints(custom_hints);
+    }
     return true;
 }
 

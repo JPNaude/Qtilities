@@ -44,11 +44,32 @@ using namespace Qtilities::Core;
 using namespace Qtilities::Core::Constants;
 
 Qtilities::CoreGui::ObserverTableModelProxyFilter::ObserverTableModelProxyFilter(QObject* parent) : QSortFilterProxyModel(parent) {
-
+    hints_default = new ObserverHints;
+    use_observer_hints = true;
 }
 
 Qtilities::CoreGui::ObserverTableModelProxyFilter::~ObserverTableModelProxyFilter() {
+    delete hints_default;
+}
 
+void Qtilities::CoreGui::ObserverTableModelProxyFilter::toggleUseObserverHints(bool toggle) {
+    use_observer_hints = toggle;
+}
+
+bool Qtilities::CoreGui::ObserverTableModelProxyFilter::usesObserverHints() const {
+    return use_observer_hints;
+}
+
+bool Qtilities::CoreGui::ObserverTableModelProxyFilter::setCustomHints(ObserverHints *custom_hints) {
+    if (!custom_hints)
+        return false;
+
+    *hints_default = *custom_hints;
+    return true;
+}
+
+ObserverHints *Qtilities::CoreGui::ObserverTableModelProxyFilter::activeHints() const {
+    return hints_default;
 }
 
 bool Qtilities::CoreGui::ObserverTableModelProxyFilter::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
@@ -60,35 +81,36 @@ bool Qtilities::CoreGui::ObserverTableModelProxyFilter::filterAcceptsRow(int sou
             return false;
 
         Observer* observer = table_model->observerContext();
-        if (observer) {
-            if (observer->displayHints()) {
-                if (observer->displayHints()->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
-                    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-                    QObject* object_at_index = table_model->getObject(index);
-                    if (object_at_index) {
-                        QVariant category_variant = observer->getMultiContextPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
-                        QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
-                        if (!category.isValid())
-                            category << QString();
+        if (observer && hints_default) {
+            ObserverHints* active_hints = hints_default;
+            if (use_observer_hints)
+                active_hints = observer->displayHints();
+            if (active_hints->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
+                QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+                QObject* object_at_index = table_model->getObject(index);
+                if (object_at_index) {
+                    QVariant category_variant = observer->getMultiContextPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
+                    QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+                    if (!category.isValid())
+                        category << QString();
 
-                        if (observer->displayHints()->categoryFilterEnabled()) {
-                            if (observer->displayHints()->hasInversedCategoryDisplay()) {
-                                if (!observer->displayHints()->displayedCategories().contains(category))
-                                    return true;
-                                else
-                                    return false;
-                            } else {
-                                if (observer->displayHints()->displayedCategories().contains(category))
-                                    return true;
-                                else
-                                    return false;
-                            }
+                    if (active_hints->categoryFilterEnabled()) {
+                        if (active_hints->hasInversedCategoryDisplay()) {
+                            if (!active_hints->displayedCategories().contains(category))
+                                return true;
+                            else
+                                return false;
                         } else {
-                            return true;
+                            if (active_hints->displayedCategories().contains(category))
+                                return true;
+                            else
+                                return false;
                         }
-                    } else
-                        return false;
-                }
+                    } else {
+                        return true;
+                    }
+                } else
+                    return false;
             }
         }
     }

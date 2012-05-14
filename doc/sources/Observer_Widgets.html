@@ -261,13 +261,13 @@ Columns are described in more detail in the \ref controlling_displayed_columns s
 
 \image html observer_widget_doc_table_view_categorized.jpg "Observer Widget With Categories (Table View Mode)"
 
-It possible to filter the displayed categories. However to use the filter we need to change the hint on the observer we want to enable the filtering on since the models producing the data showed by the observer widget needs this information.
+It is possible to filter the displayed categories as well. As with all the other display hints we can either set the filtering parameters on the Observer itself, or on the display hints of the ObserverWidget when we don't use observer hints in the widget. In our example thus far we are using custom hints, thus we set the filtering parameters on the \p activeHints() of the ObserverWidget (which points to our custom hints).
 
 \code
 QList<QtilitiesCategory> displayed_categories;
 displayed_categories << QtilitiesCategory("Category 1");
-nodeB->displayHints()->setDisplayedCategories(displayed_categories);
-nodeB->displayHints()->setCategoryFilterEnabled(true);
+observer_widget->activeHints()->setDisplayedCategories(displayed_categories);
+observer_widget->activeHints()->setCategoryFilterEnabled(true);
 \endcode
 
 After adding the category filter, the observer widget looks this:
