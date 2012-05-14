@@ -85,7 +85,7 @@ namespace Qtilities {
 
               <i>This function was added in %Qtilities v1.2.</i>
               */
-            ObserverHints* activeHints() const;
+            ObserverHints* customHints() const;
 
         protected:
             virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;

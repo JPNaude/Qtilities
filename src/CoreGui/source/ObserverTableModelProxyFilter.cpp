@@ -53,7 +53,10 @@ Qtilities::CoreGui::ObserverTableModelProxyFilter::~ObserverTableModelProxyFilte
 }
 
 void Qtilities::CoreGui::ObserverTableModelProxyFilter::toggleUseObserverHints(bool toggle) {
-    use_observer_hints = toggle;
+    if (use_observer_hints != toggle) {
+        use_observer_hints = toggle;
+        invalidateFilter();
+    }
 }
 
 bool Qtilities::CoreGui::ObserverTableModelProxyFilter::usesObserverHints() const {
@@ -65,10 +68,11 @@ bool Qtilities::CoreGui::ObserverTableModelProxyFilter::setCustomHints(ObserverH
         return false;
 
     *hints_default = *custom_hints;
+    invalidateFilter();
     return true;
 }
 
-ObserverHints *Qtilities::CoreGui::ObserverTableModelProxyFilter::activeHints() const {
+ObserverHints *Qtilities::CoreGui::ObserverTableModelProxyFilter::customHints() const {
     return hints_default;
 }
 
@@ -85,33 +89,32 @@ bool Qtilities::CoreGui::ObserverTableModelProxyFilter::filterAcceptsRow(int sou
             ObserverHints* active_hints = hints_default;
             if (use_observer_hints)
                 active_hints = observer->displayHints();
-            if (active_hints->hierarchicalDisplayHint() == ObserverHints::CategorizedHierarchy) {
-                QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-                QObject* object_at_index = table_model->getObject(index);
-                if (object_at_index) {
-                    QVariant category_variant = observer->getMultiContextPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
-                    QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
-                    if (!category.isValid())
-                        category << QString();
 
-                    if (active_hints->categoryFilterEnabled()) {
-                        if (active_hints->hasInversedCategoryDisplay()) {
-                            if (!active_hints->displayedCategories().contains(category))
-                                return true;
-                            else
-                                return false;
-                        } else {
-                            if (active_hints->displayedCategories().contains(category))
-                                return true;
-                            else
-                                return false;
-                        }
+            QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+            QObject* object_at_index = table_model->getObject(index);
+            if (object_at_index) {
+                QVariant category_variant = observer->getMultiContextPropertyValue(object_at_index,qti_prop_CATEGORY_MAP);
+                QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
+                if (!category.isValid())
+                    category << QString();
+
+                if (active_hints->categoryFilterEnabled()) {
+                    if (active_hints->hasInversedCategoryDisplay()) {
+                        if (!active_hints->displayedCategories().contains(category))
+                            return true;
+                        else
+                            return false;
                     } else {
-                        return true;
+                        if (active_hints->displayedCategories().contains(category))
+                            return true;
+                        else
+                            return false;
                     }
-                } else
-                    return false;
-            }
+                } else {
+                    return true;
+                }
+            } else
+                return false;
         }
     }
     return true;
