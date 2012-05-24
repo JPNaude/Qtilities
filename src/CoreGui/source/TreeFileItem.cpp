@@ -266,7 +266,10 @@ QString Qtilities::CoreGui::TreeFileItem::filePath() const {
 
 void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
     if (!FileUtils::comparePaths(filePath(),new_file_path)) {
-        treeFileItemBase->file_info.setFile(new_file_path);
+        QString tmp_string = new_file_path;
+        if (tmp_string.startsWith("\\"))
+            tmp_string = tmp_string.remove(0,1);
+        treeFileItemBase->file_info.setFile(tmp_string);
         setModificationState(true,IModificationNotifier::NotifyListeners);
     }
 }
