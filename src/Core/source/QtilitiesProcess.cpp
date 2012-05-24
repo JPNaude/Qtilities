@@ -22,7 +22,7 @@ struct Qtilities::Core::QtilitiesProcessPrivateData {
     QStringList line_break_strings;
 };
 
-Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, QObject* parent) : Task(task_name,enable_logging,parent) {
+Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bool enable_logging, bool read_process_buffers, QObject* parent) : Task(task_name,enable_logging,parent) {
     d = new QtilitiesProcessPrivateData;
     d->process = new QProcess;
 
@@ -31,9 +31,12 @@ Qtilities::Core::QtilitiesProcess::QtilitiesProcess(const QString& task_name, bo
 
     connect(d->process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(procError(QProcess::ProcessError)));
     connect(d->process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(procFinished(int, QProcess::ExitStatus)));
-    connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(logProgressOutput()));
-    connect(d->process,SIGNAL(readyReadStandardError()), this, SLOT(logProgressError()));
     connect(d->process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(procStateChanged(QProcess::ProcessState)));
+
+    if (read_process_buffers) {
+        connect(d->process,SIGNAL(readyReadStandardOutput()), this, SLOT(logProgressOutput()));
+        connect(d->process,SIGNAL(readyReadStandardError()), this, SLOT(logProgressError()));
+    }
 
     setCanStop(true);
 }
@@ -134,7 +137,9 @@ void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState 
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
-    d->buffer_std_out.append(d->process->readAllStandardOutput());
+    QString new_output = d->process->readAllStandardOutput();
+    emit newStandardOutputMessage(new_output);
+    d->buffer_std_out.append(new_output);
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {
@@ -177,8 +182,10 @@ void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
         d->buffer_std_out = split_list.front();
 }
 
-void Qtilities::Core::QtilitiesProcess::logProgressError() {
-    d->buffer_std_error.append(d->process->readAllStandardError());
+void Qtilities::Core::QtilitiesProcess::logProgressError() {   
+    QString new_output = d->process->readAllStandardError();
+    emit newStandardErrorMessage(new_output);
+    d->buffer_std_error.append(new_output);
 
     QStringList split_list;
     if (d->line_break_strings.isEmpty()) {

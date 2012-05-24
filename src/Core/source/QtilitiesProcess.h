@@ -38,7 +38,15 @@ namespace Qtilities {
             Q_INTERFACES(Qtilities::Core::Interfaces::ITask)
 
         public:
-            QtilitiesProcess(const QString& task_name, bool enable_logging = true, QObject* parent = 0);
+            //! Constructs a new QtilitiesProcess instance.
+            /*!
+             * \brief QtilitiesProcess
+             * \param task_name The name of the task.
+             * \param enable_logging Indicates if messages received from the task must be buffered and logged to a task log assigned to this task.
+             * \param read_process_buffers Indicates if messages in the process's buffers must be processed. When false, the process buffer won't be touched and you can manually access it through the process() function.
+             * \param parent The parent of this process.
+             */
+            QtilitiesProcess(const QString& task_name, bool enable_logging = true, bool read_process_buffers = true, QObject* parent = 0);
             virtual ~QtilitiesProcess();
 
             //! Starts the process, similar to QProcess::start().
@@ -86,6 +94,18 @@ namespace Qtilities {
                 Its important to call Task::stop() at the end of your implementation.
             */
             virtual void stopProcess();
+
+        signals:
+            //! Emitted when new standard output becomes available.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void newStandardOutputMessage(const QString& message);
+            //! Emitted when new standard error becomes available.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void newStandardErrorMessage(const QString& message);
 
         private:
             QtilitiesProcessPrivateData* d;
