@@ -25,6 +25,7 @@
 #include "TestTreeFileItem.h"
 #include "TestObjectManager.h"
 #include "TestTask.h"
+#include "TestFileSetInfo.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Unit Tests module.
 namespace QtilitiesTesting { 
