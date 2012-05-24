@@ -810,6 +810,8 @@ void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* pr
         d->recent_project_stack.push_front(project->projectFile());
     }
 
+    writeSettings();
+
     emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
 }
 
