@@ -58,8 +58,10 @@ QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::Act
         bool add_action = true;
 
         // Check the category:
-        if (d->actions.values().at(i) != category_filter && !category_filter.isEmpty())
-            add_action = false;
+        if (category_filter != QtilitiesCategory("Hello World!")) {
+            if ((d->actions.values().at(i) != category_filter))
+                add_action = false;
+        }
 
         // Check for IActionProvider::FilterDisabled:
         if (action_filter & IActionProvider::FilterDisabled && add_action) {

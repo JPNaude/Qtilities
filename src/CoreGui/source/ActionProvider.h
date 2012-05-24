@@ -85,7 +85,7 @@ QList<QAction*> actions_per_category = widget.actions(IActionProvider::NoFilter,
             // --------------------------------
             // IActionProvider Implementation
             // --------------------------------
-            QList<QAction*> actions(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
+            QList<QAction*> actions(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory("Hello World!")) const;
             QMap<QAction*, QtilitiesCategory> actionMap(IActionProvider::ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const;
             /*!
               The ActionProvider implementation of the IActionProvider interface will always return

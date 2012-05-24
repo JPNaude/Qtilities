@@ -78,7 +78,7 @@ namespace Qtilities {
                   \param action_filter The action filter flags to be used to filter returned actions.
                   \param category_filter Only actions which have a category which appears in the category filter will be part of the returned list.
                   */
-                virtual QList<QAction *> actions(ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory()) const = 0;
+                virtual QList<QAction *> actions(ActionFilterFlags action_filter = NoFilter, const QtilitiesCategory& category_filter = QtilitiesCategory("Hello World!")) const = 0;
                 //! A map with the action and action category of all the actions provided through the interface.
                 /*!
                   This function can be used to visualize the actions provided through this interface.
