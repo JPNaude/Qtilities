@@ -222,6 +222,16 @@ namespace Qtilities {
                 bool elapsedTimeChangedNotificationsEnabled() const {
                     return d_elapsed_time_notifications_enabled;
                 }
+
+                //! This function allows you to overwrite the last run time of the task.
+                /*!
+                 * \brief setElapsedTime This is usefull when you need to restore the state of a task for example.
+                 * \param msec The new elapsed time in msec.
+                 *
+                 *<i>This function was added in %Qtilities v1.2.</i>
+                 */
+                virtual void setLastRunTime(int msec) = 0;
+
                 //! The state of the task.
                 /*!
                     Default is TaskNotStarted.

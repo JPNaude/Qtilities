@@ -114,14 +114,21 @@ int Qtilities::Core::Task::numberOfSubTasks() const {
 }
 
 int Task::elapsedTime() const {
-    if (d->task_state == ITask::TaskNotStarted)
-        return 0;
-    else if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
+    if (d->task_state == ITask::TaskNotStarted) {
+        if (d->last_run_time == -1)
+            return 0;
+        else
+            return d->last_run_time;
+    } else if (d->task_state == ITask::TaskBusy || d->task_state == ITask::TaskPaused)
         return d->timer.elapsed();
     else if (d->task_state == ITask::TaskStopped || d->task_state == ITask::TaskCompleted)
         return d->last_run_time;
 
     return 0;
+}
+
+void Task::setLastRunTime(int msec) {
+    d->last_run_time = msec;
 }
 
 ITask::TaskState Qtilities::Core::Task::state() const {

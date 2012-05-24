@@ -118,8 +118,6 @@ namespace Qtilities {
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
-            //! Sets if this task depends on a backend process to handle requests to start, stop the task etc.
-
             // -------------------------------------------------------------------------
             // ITask Implementation
             // -------------------------------------------------------------------------
@@ -130,6 +128,7 @@ namespace Qtilities {
             QString displayName() const;
             int numberOfSubTasks() const;
             int elapsedTime() const;
+            void setLastRunTime(int msec);
             TaskState state() const;
             TaskBusyState busyState() const;
             TaskResult result() const;
