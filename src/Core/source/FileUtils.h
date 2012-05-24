@@ -148,13 +148,11 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hid
             static QString removeFromFileName(const QString &fullFileName, int len);
             //! Calculates a hash code for a text file.
             /*!
-              If something went wrong, -1 is returned as an error code.
+              If something went wrong (for example if the file does not exist), -1 is returned as an error code.
               */
-            static int textFileHashCode(const QString& file);
-            //! Compares two text files and returns true if they are exactly the same, false otherwise.
-            static bool compareTextFiles(const QString& file1, const QString& file2);
-            //! Compares two binary files and returns true if they are exactly the same, false otherwise.
-            static bool compareBinaryFiles(const QString& file1, const QString& file2);
+            static int fileHashCode(const QString& file);
+            //! Compares two files and returns true if they are exactly the same, false otherwise.
+            static bool compareFiles(const QString& file1, const QString& file2);
             //! Compares two paths in a system independant way.
             /*!
               This function takes two paths and checks if they are the same. The function does the following:

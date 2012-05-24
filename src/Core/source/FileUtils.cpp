@@ -260,38 +260,22 @@ QString Qtilities::Core::FileUtils::removeFromFileName(const QString &fullFileNa
         return file_path + QDir::separator() + name_only.remove(name_only.length()-len,len) + "." + extension;
 }
 
-int Qtilities::Core::FileUtils::textFileHashCode(const QString& file_name) {
+int Qtilities::Core::FileUtils::fileHashCode(const QString& file_name) {
     QFile file(file_name);
     if (!file.open(QIODevice::ReadOnly))
         return -1;
-    QString file_contents = file.readAll();
+    QByteArray file_contents = file.readAll();
+    //qDebug() << "textFileHashCode" << file_name << qHash(file_contents);
+    file.close();
     return qHash(file_contents);
 }
 
-bool Qtilities::Core::FileUtils::compareTextFiles(const QString& file1, const QString& file2) {
-    int original_xml = FileUtils::textFileHashCode(file1);
-    int readback_xml = FileUtils::textFileHashCode(file2);
-    if (original_xml == -1 || readback_xml == -1)
+bool Qtilities::Core::FileUtils::compareFiles(const QString& file1, const QString& file2) {
+    int original = FileUtils::fileHashCode(file1);
+    int readback = FileUtils::fileHashCode(file2);
+    if (original == -1 || readback == -1)
         return false;
-    return (original_xml == readback_xml);
-}
-
-bool Qtilities::Core::FileUtils::compareBinaryFiles(const QString& file1, const QString& file2) {
-    QFile fileA(file1);
-    if (!fileA.open(QIODevice::ReadOnly))
-        return false;
-    QFile fileB(file2);
-    if (!fileB.open(QIODevice::ReadOnly))
-        return false;
-
-    while (!fileA.atEnd() || !fileB.atEnd()) {
-        QByteArray lineA = fileA.readLine();
-        QByteArray lineB = fileB.readLine();
-        if (lineA != lineB)
-            return false;
-    }
-
-    return true;
+    return (original == readback);
 }
 
 bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
