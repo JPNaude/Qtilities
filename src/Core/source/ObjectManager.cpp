@@ -42,6 +42,7 @@
 #include "ActivityPolicyFilter.h"
 #include "SubjectTypeFilter.h"
 #include "ObserverRelationalTable.h"
+#include "FileSetInfo.h"
 
 #include <Logger>
 
@@ -83,6 +84,8 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
     d->qtilities_factory.registerFactoryInterface(&SubjectTypeFilter::factory,subject_type_filter);
     FactoryItemID observer(qti_def_FACTORY_TAG_OBSERVER,QtilitiesCategory("Core Classes"));
     d->qtilities_factory.registerFactoryInterface(&Observer::factory,observer);
+    FactoryItemID file_set_info(qti_def_FACTORY_TAG_FILE_SET_INFO,QtilitiesCategory("Core Classes"));
+    d->qtilities_factory.registerFactoryInterface(&FileSetInfo::factory,file_set_info);
 
     // Register the object manager, thus the Qtilities Factory in the list of available IFactories.
     registerIFactoryProvider(this);
@@ -92,6 +95,7 @@ Qtilities::Core::ObjectManager::ObjectManager(QObject* parent) : IObjectManager(
 
     // Register some stream operators:
     qRegisterMetaTypeStreamOperators<Qtilities::Core::QtilitiesCategory>("Qtilities::Core::QtilitiesCategory");
+    qRegisterMetaTypeStreamOperators<Qtilities::Core::FileSetInfo>("Qtilities::Core::FileSetInfo");
     qRegisterMetaTypeStreamOperators<Qtilities::Core::SharedProperty>("Qtilities::Core::SharedProperty");
     qRegisterMetaTypeStreamOperators<Qtilities::Core::MultiContextProperty>("Qtilities::Core::MultiContextProperty");
 }

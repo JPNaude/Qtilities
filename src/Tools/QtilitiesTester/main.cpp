@@ -103,6 +103,9 @@ int main(int argc, char *argv[])
 
     TestTask* testTask = new TestTask;
     testFrontend.addTest(testTask,QtilitiesCategory("Qtilities::Core","::"));
+
+    TestFileSetInfo* testFileSetInfo = new TestFileSetInfo;
+    testFrontend.addTest(testFileSetInfo,QtilitiesCategory("Qtilities::Core","::"));
     #endif
 
     // ---------------------------------------------

@@ -78,7 +78,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/TaskManager.h \
     source/ITaskContainer.h \
     source/FileUtils.h \
-    source/QtilitiesProcess.h
+    source/QtilitiesProcess.h \
+    source/FileSetInfo.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \
@@ -104,4 +105,5 @@ SOURCES += source/QtilitiesCoreApplication.cpp \
     source/ITaskContainer.cpp \
     source/Task.cpp \
     source/FileUtils.cpp \
-    source/QtilitiesProcess.cpp
+    source/QtilitiesProcess.cpp \
+    source/FileSetInfo.cpp

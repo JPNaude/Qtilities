@@ -81,12 +81,14 @@ HEADERS += source/TestingConstants.h \
         source/TestFrontend.h \
         source/DebugWidget.h \
         source/DropableListWidget.h \
-        source/FunctionCallAnalyzer.h
+        source/FunctionCallAnalyzer.h \
+    source/TestFileSetInfo.h
 
 SOURCES += source/TestFrontend.cpp \
         source/DebugWidget.cpp \
         source/DropableListWidget.cpp \
-        source/FunctionCallAnalyzer.cpp
+        source/FunctionCallAnalyzer.cpp \
+    source/TestFileSetInfo.cpp
 
 FORMS += source/TestFrontend.ui \
         source/DebugWidget.ui

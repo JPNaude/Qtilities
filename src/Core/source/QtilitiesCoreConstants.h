@@ -67,6 +67,8 @@ namespace Qtilities {
             const char * const qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER      = "qti.def.FactoryTag.SubjectTypeFilter";
             //! %Factory tag for observers.
             const char * const qti_def_FACTORY_TAG_OBSERVER                 = "qti.def.FactoryTag.Observer";
+            //! %Factory tag for FileSetInfo.
+            const char * const qti_def_FACTORY_TAG_FILE_SET_INFO            = "qti.def.FactoryTag.FileSetInfo";
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
             const char * const qti_def_CONTEXT_STANDARD                     = "qti.def.Context.Standard";
         }
