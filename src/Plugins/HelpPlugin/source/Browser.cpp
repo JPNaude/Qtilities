@@ -50,6 +50,7 @@ Qtilities::Plugins::Help::Browser::Browser(const QUrl &url, QWidget* parent) : Q
     d->web_view = new QWebView;
     QNetworkProxyFactory::setUseSystemConfiguration(true);
     d->web_view->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    d->web_view->settings()->globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
     loadUrl(url);
 
     //----------------------
