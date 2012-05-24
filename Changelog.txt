@@ -28,8 +28,16 @@ Qtilities v1.2 Changes
     [+] Added IFactoryProvider::categoryForTag().
     [+] Added IFactoryProvider::tagCategoryMap().
     [+] Added QtilitiesProcess::newStandardOutputMessage() and QtilitiesProcesss:newStandardErrorMessage().
+    [+] Added QtilitiesFileInfo::updateRelativeToPath().
+    [+] Added == and != overloads to QtilitiesFileInfo.
+    [+] Added Task::setLastRunTime().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
+    [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
+    [#] Replaced FileUtils::compareTextFiles() and FileUtils::compareBinaryFiles() with a single FileUtils::compareFiles() function.
+    [#] QtilitiesProcess's constructor got a new read_process_buffers parameter.
+
+    [*] Fixed some places in FileUtils where files were not closed properly.
 
     ============================
     QtilitiesCoreGui:
@@ -56,6 +64,7 @@ Qtilities v1.2 Changes
     ============================
     QtilitiesProjectManagement:
     ============================
+    [*] Fixed some cases where the last open project would not be remembered.
 
 
     ============================
