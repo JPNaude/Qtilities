@@ -32,6 +32,7 @@
 ****************************************************************************/
 
 #include "QtilitiesFileInfo.h"
+#include "FileUtils.h"
 
 #include <QDir>
 
@@ -50,6 +51,14 @@ Qtilities::Core::QtilitiesFileInfo::QtilitiesFileInfo(const QString& file, const
 Qtilities::Core::QtilitiesFileInfo::QtilitiesFileInfo(const QtilitiesFileInfo& ref) : QFileInfo(ref) {
     d = new QtilitiesFileInfoPrivateData;
     d->relative_to_path = ref.relativeToPath();
+}
+
+bool Qtilities::Core::QtilitiesFileInfo::operator==(const Qtilities::Core::QtilitiesFileInfo &ref) const {
+    return actualFilePath() == ref.actualFilePath();
+}
+
+bool Qtilities::Core::QtilitiesFileInfo::operator!=(const Qtilities::Core::QtilitiesFileInfo &ref) const {
+    return !(*this==ref);
 }
 
 Qtilities::Core::QtilitiesFileInfo::~QtilitiesFileInfo() {
@@ -116,6 +125,14 @@ bool Qtilities::Core::QtilitiesFileInfo::compareActualFilePaths(const QtilitiesF
         return true;
     else
         return false;
+}
+
+bool Qtilities::Core::QtilitiesFileInfo::updateRelativeToPath(const QString &old_relative_to_path, const QString &new_relative_to_path) {
+    if (FileUtils::comparePaths(old_relative_to_path,d->relative_to_path)) {
+        setRelativeToPath(new_relative_to_path);
+        return true;
+    }
+    return false;
 }
 
 #ifdef Q_OS_WIN

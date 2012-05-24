@@ -178,6 +178,20 @@ completeSuffix:  "tar.gz"
               */
             QtilitiesFileInfo(const QString& file = QString(), const QString& relative_to_path = QString());
             QtilitiesFileInfo(const QtilitiesFileInfo& ref);
+            //! Operator overload to compare two QtilitiesFileInfo objects with each other.
+            /*!
+              \note This overload does a comparison using the actualFilePath() paths of the two objects being compared.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            bool operator==(const QtilitiesFileInfo& ref) const;
+            //! Operator overload to compare two QtilitiesFileInfo objects are not equal.
+            /*!
+              \note This overload does a comparison using the actualFilePath() paths of the two objects being compared.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            bool operator!=(const QtilitiesFileInfo& ref) const;
             virtual ~QtilitiesFileInfo();
 
             //! Indicates if a relative to path has been set.
@@ -237,6 +251,17 @@ completeSuffix:  "tar.gz"
 
             //! Compares the actual file paths of QtilitiesFileInfo objects and returns true if they are the same, false otherwise.
             bool compareActualFilePaths(const QtilitiesFileInfo& ref) const;
+
+            //! Replaces the relative to path if it matches the old relative to path.
+            /*!
+             * \brief updateRelateiveToPath
+             * \param old_relative_to_path The old relative to path that must be matched in order for the update operation to happen.
+             * \param new_relative_to_path The replacement relative to path.
+             * \returns True if the update was performed, false otherwise.
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool updateRelativeToPath(const QString& old_relative_to_path, const QString& new_relative_to_path);
 
 #ifdef Q_OS_WIN
             //! Indicates if a file name is valid.
