@@ -48,9 +48,9 @@ using namespace Qtilities::Core::Properties;
 
 Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_name) {
     if (property_name.isNull())
-        name = property_name;
-    else
         name = QString("");
+    else
+        name = property_name;
 
     is_reserved = QtilitiesProperty::propertyIsReserved(property_name.toAscii().data());
     supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name.toAscii().data());
