@@ -74,7 +74,9 @@ namespace Qtilities {
 
                   <i>This function was added in %Qtilities v1.1.</i>
                   */
-                virtual void setConfigPageIcon(const QIcon& icon) {}
+                virtual void setConfigPageIcon(const QIcon& icon) {
+                    Q_UNUSED(icon)
+                }
                 //! Gets widget used in the configuration page area.
                 virtual QWidget* configPageWidget() = 0;
                 //! Gets the help ID of the config page.
