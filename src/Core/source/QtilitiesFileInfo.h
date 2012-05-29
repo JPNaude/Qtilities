@@ -263,15 +263,12 @@ completeSuffix:  "tar.gz"
              */
             bool updateRelativeToPath(const QString& old_relative_to_path, const QString& new_relative_to_path);
 
-#ifdef Q_OS_WIN
             //! Indicates if a file name is valid.
             /*!
               Checks if the file name is valid. Thus checks that it does not contain any of the following characters:
 \code
 \ / : * ? " < > |
 \endcode
-
-              Only available on system for which Qt has Q_OS_WIN defined.
               */
             static bool isValidFileName(const QString file_name);
             //! Returns the invalid characters which are checked in isValidFileName() in a QString seperated by spaces.
@@ -287,8 +284,6 @@ completeSuffix:  "tar.gz"
 \code
 : * ? " < > |
 \endcode
-
-              Only available on system for which Qt has Q_OS_WIN defined.
               */
             static bool isValidFilePath(const QString file_path);
             //! Returns the invalid characters which are checked in isValidFilePath() in a QString seperated by spaces.
@@ -298,7 +293,6 @@ completeSuffix:  "tar.gz"
             static QString invalidFilePathCharacters() {
                 return QString(": * ? \" < > |");
             }
-#endif
 
         private:
             QtilitiesFileInfoPrivateData* d;

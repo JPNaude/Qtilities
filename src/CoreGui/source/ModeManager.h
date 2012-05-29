@@ -118,7 +118,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \sa setMaximumItemSize(), maximumItemSize(), minimumItemSize()
 
-              This function was introduced in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setMinimumItemSize(QSize size);
             //! Sets the maximum items size of mode items in the list widget.
@@ -127,7 +127,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \sa setMinimumItemSize(), maximumItemSize(), minimumItemSize()
 
-              This function was introduced in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             void setMaximumItemSize(QSize size);
             //! Gets the minimum items size of mode items in the list widget.
@@ -136,7 +136,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \sa setMaximumItemSize(), setMinimumItemSize(), maximumItemSize();
 
-              This function was introduced in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             QSize minimumItemSize() const;
             //! Gets the maximum items size of mode items in the list widget.
@@ -145,7 +145,7 @@ modeListWidget()->setStyleSheet(stylesheet);
 
               \sa minimumItemSize(), setMinimumItemSize(), setMaximumItemSize()
 
-              This function was introduced in Qtilities v1.1.
+              <i>This function was added in %Qtilities v1.1.</i>
               */
             QSize maximumItemSize() const;
 

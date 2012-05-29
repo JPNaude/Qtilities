@@ -135,7 +135,6 @@ bool Qtilities::Core::QtilitiesFileInfo::updateRelativeToPath(const QString &old
     return false;
 }
 
-#ifdef Q_OS_WIN
 bool Qtilities::Core::QtilitiesFileInfo::isValidFileName(const QString file_name) {
     bool valid = !file_name.isEmpty();
 
@@ -192,4 +191,3 @@ bool Qtilities::Core::QtilitiesFileInfo::isValidFilePath(const QString file_path
 
     return valid;
 }
-#endif
