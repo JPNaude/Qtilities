@@ -39,9 +39,8 @@
 
 using namespace Qtilities::CoreGui::Constants;
 
-Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::qti_private_LoggerEnginesTableModel(QObject* parent) : QAbstractTableModel(parent)
-{
-    connect(Log,SIGNAL(loggerEngineCountChanged(AbstractLoggerEngine*,Logger::EngineChangeIndication)),SLOT(handleLoggerEngineChanged(AbstractLoggerEngine*,Logger::EngineChangeIndication)));
+Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::qti_private_LoggerEnginesTableModel(QObject* parent) : QAbstractTableModel(parent) {
+
 }
 
 QVariant Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::data(const QModelIndex &index, int role) const {
@@ -102,7 +101,6 @@ bool Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::setData(const QMod
 
 int Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent)
-
     return Log->attachedLoggerEngineCount();
 }
 
@@ -112,15 +110,6 @@ int Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::columnCount(const Q
     return NameColumn+1;
 }
 
-void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::handleLoggerEngineChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication) {
-    Q_UNUSED(engine)
-    Q_UNUSED(change_indication)
-
-    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
-    emit layoutChanged();
-}
-
 void Qtilities::CoreGui::qti_private_LoggerEnginesTableModel::requestRefresh() {
-    emit dataChanged(index(0,0),index(rowCount()-1,columnCount()-1));
     emit layoutChanged();
 }

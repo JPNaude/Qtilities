@@ -45,8 +45,8 @@ Qtilities::Logging::AbstractLoggerEngine::AbstractLoggerEngine() : QObject()
     enableAllMessageTypes();
 }
 
-Qtilities::Logging::AbstractLoggerEngine::~AbstractLoggerEngine()
-{
+Qtilities::Logging::AbstractLoggerEngine::~AbstractLoggerEngine() {
+    Log->detachLoggerEngine(this,false);
     delete abstractLoggerEngineData;
 }
 

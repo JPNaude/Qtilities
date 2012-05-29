@@ -345,6 +345,7 @@ bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_lo
     }
 
     if (new_logger_engine) {
+        new_logger_engine->setObjectName(new_logger_engine->name());
         d->logger_engines << new_logger_engine;
         connect(this,SIGNAL(newMessage(QString,Logger::MessageType,Logger::MessageContextFlags,QList<QVariant>)),new_logger_engine,SLOT(newMessages(QString,Logger::MessageType,Logger::MessageContextFlags,QList<QVariant>)));
     }
@@ -353,11 +354,12 @@ bool Qtilities::Logging::Logger::attachLoggerEngine(AbstractLoggerEngine* new_lo
     return true;
 }
 
-bool Qtilities::Logging::Logger::detachLoggerEngine(AbstractLoggerEngine* logger_engine) {
+bool Qtilities::Logging::Logger::detachLoggerEngine(AbstractLoggerEngine* logger_engine, bool delete_engine) {
     if (logger_engine) {
         if (d->logger_engines.removeOne(logger_engine)) {
             emit loggerEngineCountChanged(logger_engine, EngineRemoved);
-            delete logger_engine;
+            if (delete_engine)
+                delete logger_engine;
             return true;
         }
     }
@@ -521,12 +523,12 @@ QStringList Qtilities::Logging::Logger::attachedLoggerEngineNames() const {
 }
 
 int Qtilities::Logging::Logger::attachedLoggerEngineCount() const {
-    QStringList names;
+    int count = 0;
     for (int i = 0; i < d->logger_engines.count(); i++) {
         if (d->logger_engines.at(i))
-            names << d->logger_engines.at(i)->name();
+            ++count;
     }
-    return names.count();
+    return count;
 }
 
 Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngineReference(const QString& engine_name) {
@@ -540,10 +542,16 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngi
 }
 
 Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::loggerEngineReferenceAt(int index) {
-    if (index < 0 || index >= d->logger_engines.count())
-        return 0;
-
-    return d->logger_engines.at(index);
+    int valid_engine_count = 0;
+    for (int i = 0; i < d->logger_engines.count(); i++) {
+        if (d->logger_engines.at(i)) {
+            if (valid_engine_count == index)
+                return d->logger_engines.at(i);
+            else
+                ++valid_engine_count;
+        }
+    }
+    return 0;
 }
 
 void Qtilities::Logging::Logger::setGlobalLogLevel(Logger::MessageType new_log_level) {

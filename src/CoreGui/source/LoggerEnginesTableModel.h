@@ -66,7 +66,6 @@ namespace Qtilities {
             virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
         public slots:
-            void handleLoggerEngineChanged(AbstractLoggerEngine* engine, Logger::EngineChangeIndication change_indication);
             void requestRefresh();
         };
     }

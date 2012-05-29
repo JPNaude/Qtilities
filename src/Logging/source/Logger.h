@@ -82,7 +82,7 @@ namespace Qtilities {
             /*!
               Note that this does not include the Qt Message Logger or Console Logging engines.
               */
-            void clear();        
+            void clear();
 
         public:
             //! The possible message contexts used by the logger.
@@ -326,7 +326,13 @@ namespace Qtilities {
             //! Attaches the new logger engine. By default the new engine will be intialized by this function. If you want to initialize the engine manually, set the initialize_engine paramater to false.
             bool attachLoggerEngine(AbstractLoggerEngine* new_logger_engine, bool initialize_engine = true);
             //! Detaches the logger engine specified.
-            bool detachLoggerEngine(AbstractLoggerEngine* logger_engine);
+            /*!
+             * \brief detachLoggerEngine
+             * \param logger_engine The engine to be deleted.
+             * \param delete_engine Indicates if the engine must be deleted after it was detached.
+             * \return True when successfull, false otherwise.
+             */
+            bool detachLoggerEngine(AbstractLoggerEngine* logger_engine, bool delete_engine = true);
 
             //! Loads the session config from a previous session.
             /*!

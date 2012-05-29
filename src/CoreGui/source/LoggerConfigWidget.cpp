@@ -85,6 +85,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     connect(ui->btnApply,SIGNAL(clicked()),SLOT(handle_BtnApplyClicked()));
     connect(ui->tableViewLoggerEngines->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeCommandTableRows()));
 
+    connect(Log,SIGNAL(loggerEngineCountChanged(AbstractLoggerEngine*,Logger::EngineChangeIndication)),SLOT(resizeCommandTableRows()));
+
     // Add log levels:
     QStringList list = Log->allLogLevelStrings();
     list.pop_back();
@@ -284,6 +286,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnApplyClicked() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
+    d->logger_engine_model.requestRefresh();
+
     for (int i = 0; i < d->logger_engine_model.rowCount(); i++) {
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     }
@@ -383,13 +387,17 @@ void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
     if (!mapped_index.isValid())
         d->active_engine = 0;
     else {
-        if (mapped_index.row() < 0 || mapped_index.row() >= Log->attachedLoggerEngineCount())
-            d->active_engine = 0;
-        else
-            d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
+        d->active_engine = Log->loggerEngineReferenceAt(mapped_index.row());
     }
 
-    qDebug() << "Active logger engine" << d->active_engine;
+    //    qDebug() << "XXXXXXXXXXXXXXXX";
+    //    for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
+    //        qDebug() << i << Log->attachedLoggerEngineNames().at(i);
+    //    qDebug() << "XXXXXXXXXXXXXXXX";
+    //    qDebug() << "Selected index (mapped to source)" << mapped_index.row() << "proxy index" << ui->tableViewLoggerEngines->currentIndex().row();
+    //    if (d->active_engine)
+    //        qDebug() << "Active logger engine name" << d->active_engine->name() << Log->attachedLoggerEngineNames().at(mapped_index.row());
+
     refreshLoggerEngineInformation();
 }
 
