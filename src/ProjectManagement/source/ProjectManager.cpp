@@ -257,6 +257,12 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& file_name) {
+    QFileInfo fi(file_name);
+    if (!fi.exists()) {
+        LOG_ERROR_P(tr("The project you are trying to open does not exist at: ") + file_name + tr(". The open project operation will not continue."));
+        return false;
+    }
+
     // If the project is already open tell the user, don't open it again.
     if (d->current_project) {
         if (d->current_project->projectFile() == file_name) {
