@@ -34,6 +34,7 @@
 #ifndef PROJECTMANAGEMENTCONFIG_H
 #define PROJECTMANAGEMENTCONFIG_H
 
+#include "ProjectManagement_global.h"
 #include <IConfigPage.h>
 
 #include <QWidget>
@@ -65,7 +66,7 @@ OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
 
         For more information see the \ref page_project_management article.
          */
-        class ProjectManagementConfig : public QWidget, public IConfigPage {
+        class PROJECT_MANAGEMENT_SHARED_EXPORT ProjectManagementConfig : public QWidget, public IConfigPage {
             Q_OBJECT
             Q_INTERFACES(Qtilities::CoreGui::Interfaces::IConfigPage)
 
