@@ -759,7 +759,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             //! Will handle an object which has been deleted somewhere else in the application.
             void handle_deletedSubject(QObject* obj);
         signals:
-            //! Will be emmitted wehn a subject is deleted.
+            //! Will be emmitted when a subject is deleted.
             void subjectDeleted(QObject* obj);
 
             // --------------------------------
@@ -770,14 +770,14 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will get the property's value.
-              If the property_name reffers to a shared property, the shared property's value will be returned.
+              If the \p property_name reffers to a shared property, the shared property's value will be returned.
               */
             QVariant getMultiContextPropertyValue(const QObject* obj, const char* property_name) const;
             //! Convenience function which will set the value of a MultiContextProperty based dynamic property, and not the observer property itself.
             /*!
               If the property_name does not refer to a shared property, the observer context of the observer on which this function
               is called will be used to define the observer context for which this function will set the property's value.
-              If the property_name reffers to a shared property, the shared property's value will be returned.
+              If the \p property_name reffers to a shared property, the shared property's value will be returned.
               */
             bool setMultiContextPropertyValue(QObject* obj, const char* property_name, const QVariant& new_value) const;
 
@@ -957,7 +957,7 @@ QVERIFY(items_verify.count() == 5);
               This is an optimized function to get observer references under this observer. Thus, its much faster than
               something like subjectReferences("Observer") or subjectReferences("TreeNode").
               */
-            QList<Observer*> subjectObserverReferences() const;
+            QList<QPointer<Observer> > subjectObserverReferences() const;
             //! Gets the subject reference for a specific, unique subject ID.
             QObject* subjectReference(int ID) const;
             //! Gets the subject reference for a specific object name.

@@ -20,6 +20,7 @@ Qtilities v1.2 Changes
     [#] AbstractLoggerEngine's logMessage() function got a new message type parameter.
 
     [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
+    [*] Fixed bug in Logger::loggerEngineReferenceAt() where it did not ignore deleted logger engines during its position calculation.
 
     ============================
     QtilitiesCore:
@@ -31,13 +32,17 @@ Qtilities v1.2 Changes
     [+] Added QtilitiesFileInfo::updateRelativeToPath().
     [+] Added == and != overloads to QtilitiesFileInfo.
     [+] Added Task::setLastRunTime().
+    [+] Added new class: FileSetInfo.
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
     [#] Replaced FileUtils::compareTextFiles() and FileUtils::compareBinaryFiles() with a single FileUtils::compareFiles() function.
     [#] QtilitiesProcess's constructor got a new read_process_buffers parameter.
+    [#] All functions on QtilitiesFileInfo are now available under linux as well.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
+    [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
+        in isValid() returning false for valid properties.
 
     ============================
     QtilitiesCoreGui:
@@ -46,6 +51,8 @@ Qtilities v1.2 Changes
     [+] Each task can now explicitly specify the widget logger engine message displays that TaskManagerGui must use when assigning logger engines to it.
     [+] Widget logger engines much improved to allow multiple message tabs to be shown in a single widget logger engine.
     [+] Added ObserverWidget::view() function.
+    [+} Added NamingPolicyFilter::subjectNameChanged() signal.
+    [+] Logger::detachLoggerEngine() got a new delete_engine parameter.
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -55,6 +62,9 @@ Qtilities v1.2 Changes
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
     [*} Fixed some "QFSFileEngine::open: No file name specified" messages in CodeEditorWidget.
     [*} Fixed problems with category filtering in TableView mode ObserverWidget when using custom hints.
+    [*] Fixed problems with category filtering of actions in action providers.
+    [*] Fixed bug where in some cases TreeFileItem::setFilePath() did not set if the item had a relative to path properly.
+    [*] Fixed LoggerConfigWidget not sorting the log table automatically when the log engine count changes.
 
     ============================
     QtilitiesExtensionSystem:
@@ -64,7 +74,10 @@ Qtilities v1.2 Changes
     ============================
     QtilitiesProjectManagement:
     ============================
+    [#] ProjectManagementConfig is now exported.
+
     [*] Fixed some cases where the last open project would not be remembered.
+    [*] Fixed ProjectManager::openProject() trying to open a project file which does not exist.
 
 
     ============================
@@ -75,6 +88,7 @@ Qtilities v1.2 Changes
     ============================
     Plugins:
     ============================
+    [#] The browser in the help plugin now enables webkit plugin loading, thus flash etc. should show correctly in docs.
 
 
     ============================

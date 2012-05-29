@@ -1550,9 +1550,11 @@ int Qtilities::Core::Observer::treeCount(const QString& base_class_name) {
     #endif
 
     int count = subjectCount(base_class_name);
-    QList<Observer*> observers = subjectObserverReferences();
-    for (int i = 0; i < observers.count(); i++)
-        count += observers.at(i)->treeCount(base_class_name);
+    QList<QPointer<Observer> > observers = subjectObserverReferences();
+    for (int i = 0; i < observers.count(); i++) {
+        if (observers.at(i))
+            count += observers.at(i)->treeCount(base_class_name);
+    }
 
     #ifdef QTILITIES_BENCHMARKING
     QTime ref_time(0,0);
@@ -1886,8 +1888,8 @@ QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
     return subject_map;
 }
 
-QList<Observer *> Observer::subjectObserverReferences() const {
-    QList<Observer*> obs_list;
+QList<QPointer<Observer> > Observer::subjectObserverReferences() const {
+    QList<QPointer<Observer> > obs_list;
     for (int i = 0; i < observerData->subject_observer_list.count(); i++)
         obs_list << qobject_cast<Observer*> (observerData->subject_list.at(i));
     return obs_list;
