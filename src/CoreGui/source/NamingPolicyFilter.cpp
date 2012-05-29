@@ -547,7 +547,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
 
                 QString new_name = observer->getMultiContextPropertyValue(obj,qti_prop_NAME).toString();
                 if (!new_name.isEmpty()) {
-                    LOG_DEBUG("Sync'ed objectName() with qti_prop_NAME property -> " + new_name);
+                    QString old_name = obj->objectName();
+
+                    LOG_DEBUG("Sync'ed objectName() with qti_prop_NAME property. New name \"" + new_name + "\", Old name \"" + old_name);
                     obj->setObjectName(new_name);
 
                     // What we do here is to change the property value and filter the actual event.
@@ -579,6 +581,9 @@ bool Qtilities::CoreGui::NamingPolicyFilter::handleMonitoredPropertyChange(QObje
                         observer->refreshViewsLayout();
                     else
                         observer->refreshViewsData();
+
+                    // 5. Emit the subjectNameChanged() signal:
+                    emit subjectNameChanged(obj,old_name,new_name);
                 }
             } else {
                 LOG_WARNING(QString(tr("Property change event from objectName() = %1 to qti_prop_NAME property = %2 aborted.")).arg(obj->objectName()).arg(observer->getMultiContextPropertyValue(obj,qti_prop_NAME).toString()));

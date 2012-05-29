@@ -268,6 +268,17 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
         signals:
             void modificationStateChanged(bool is_modified) const;
 
+            //! Signal which is emitted when the name of an object who's name is managed by this policy filter is changed.
+            /*!
+             * \brief subjectNameChanged
+             * \param obj The object who's name changed.
+             * \param old_name The previous name, before it was changed.
+             * \param new_name The new name that was changed.
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            void subjectNameChanged(QObject* obj, const QString& old_name, const QString& new_name);
+
         public:
             // --------------------------------
             // NamingPolicyFilter Implemenation
