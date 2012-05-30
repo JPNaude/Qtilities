@@ -117,14 +117,8 @@ QString Qtilities::Core::QtilitiesFileInfo::actualFilePath() const {
     return filePath();
 }
 
-bool Qtilities::Core::QtilitiesFileInfo::compareActualFilePaths(const QtilitiesFileInfo& ref) const {
-    QString path1 = QDir::toNativeSeparators(QDir::cleanPath(actualFilePath()));
-    QString path2 = QDir::toNativeSeparators(QDir::cleanPath(ref.actualFilePath()));
-
-    if (path1.compare(path2,Qt::CaseInsensitive) == 0)
-        return true;
-    else
-        return false;
+bool Qtilities::Core::QtilitiesFileInfo::compareActualFilePaths(const QtilitiesFileInfo& ref) const {   
+    return FileUtils::comparePaths(actualFilePath(),ref.absoluteFilePath());
 }
 
 bool Qtilities::Core::QtilitiesFileInfo::updateRelativeToPath(const QString &old_relative_to_path, const QString &new_relative_to_path) {

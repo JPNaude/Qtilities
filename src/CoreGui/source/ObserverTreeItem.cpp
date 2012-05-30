@@ -52,7 +52,7 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, Observer
     }
 }
 
-Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& ref) {
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& ref) : QObject(ref.parent()) {
     parent_item = ref.parentItem();
     itemData = ref.itemData;
     obj = ref.obj;

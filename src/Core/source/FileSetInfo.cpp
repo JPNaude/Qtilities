@@ -72,7 +72,7 @@ Qtilities::Core::FileSetInfo::FileSetInfo(QObject* parent) : QObject(parent) {
     connect(&d->watcher,SIGNAL(fileChanged(QString)),SIGNAL(setChanged()));
 }
 
-FileSetInfo::FileSetInfo(const FileSetInfo &other) {
+FileSetInfo::FileSetInfo(const FileSetInfo &other) : QObject(other.parent()) {
     d = new FileSetInfoPrivateData;
     connect(&d->watcher,SIGNAL(fileChanged(QString)),SIGNAL(fileChanged(QString)));
     connect(&d->watcher,SIGNAL(fileChanged(QString)),SIGNAL(setChanged()));

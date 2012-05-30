@@ -519,6 +519,8 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
 }
 
 bool Qtilities::CoreGui::ObserverTableModel::canFetchMore(const QModelIndex &parent) const {
+    Q_UNUSED(parent)
+
     if (!d_observer)
         return false;
 

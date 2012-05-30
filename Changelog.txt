@@ -33,12 +33,14 @@ Qtilities v1.2 Changes
     [+] Added == and != overloads to QtilitiesFileInfo.
     [+] Added Task::setLastRunTime().
     [+] Added new class: FileSetInfo.
+    [+] Added FileUtils::toNativeSeperators().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
     [#] Replaced FileUtils::compareTextFiles() and FileUtils::compareBinaryFiles() with a single FileUtils::compareFiles() function.
     [#] QtilitiesProcess's constructor got a new read_process_buffers parameter.
     [#] All functions on QtilitiesFileInfo are now available under linux as well.
+    [#] QtilitiesProcess will no longer try to execute processes for which the executable does not exist.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting

@@ -123,7 +123,9 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     return IExportable::Complete;
 }
 
-Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {   
+Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectManagement::CodeEditorProjectItemWrapper::importBinary(QDataStream& stream, QList<QPointer<QObject> >& import_list) {
+    Q_UNUSED(import_list)
+
     IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;

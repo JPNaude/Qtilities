@@ -70,6 +70,14 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
     if (state() != ITask::TaskBusy)
         startTask();
 
+    // Check if the program exists:
+    QFileInfo fi(program);
+    if (!fi.exists()) {
+        logMessage("Failed to find application \"" + program + "\".", Logger::Error);
+        completeTask(ITask::TaskFailed);
+        return false;
+    }
+
     logMessage("Executing Process: " + program + " " + arguments.join(" "));
     logMessage("-> working directory of process: " + d->process->workingDirectory());
     d->process->start(program, arguments, mode);

@@ -279,5 +279,17 @@ bool Qtilities::Core::FileUtils::compareFiles(const QString& file1, const QStrin
 }
 
 bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
+    #ifdef Q_OS_LINUX
+    return ((QDir::cleanPath(path1)).replace("\\","/")).compare((QDir::cleanPath(path2)).replace("\\","/"),Qt::CaseInsensitive) == 0);
+    #else
     return (QDir::toNativeSeparators(QDir::cleanPath(path1)).compare(QDir::toNativeSeparators(QDir::cleanPath(path2)),Qt::CaseInsensitive) == 0);
+#endif
+}
+
+QString FileUtils::toNativeSeperators(const QString &path) {
+    #ifdef Q_OS_LINUX
+    return path.replace("\\","/");
+    #else
+    return QDir::toNativeSeparators(path);
+    #endif
 }

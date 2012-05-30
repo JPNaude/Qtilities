@@ -390,7 +390,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
         if (errorMsg)
             *errorMsg = QString(tr("Failed to write to output file during tree node export:")).arg(file_name);
         LOG_ERROR(QString(tr("Failed to write to output file during tree node export:")).arg(file_name));
-        return false;
+        return IExportable::Failed;
     }
 
     file.close();

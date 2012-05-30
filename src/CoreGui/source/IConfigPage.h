@@ -111,7 +111,7 @@ else
     return IConfigPage::configPageCategory();
 \endcode
 
-                 If not, just return your caregory
+                 If not, just return your caregory.
 
                   \sa setConfigPageCategory()
                   */

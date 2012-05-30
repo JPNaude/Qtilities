@@ -3667,8 +3667,11 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
         ui->widgetProgressInfo->hide();
         ui->itemParentWidget->show();
 
-        if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
-            ui->navigationBarWidget->show();
+        if (activeHints()) {
+            if (activeHints()->displayFlagsHint() & ObserverHints::NavigationBar && d->display_mode == Qtilities::TableView)
+                ui->navigationBarWidget->show();
+        } else
+            ui->navigationBarWidget->hide();
 
         if (d->searchBoxWidget && d->search_box_visible_before_refresh)
             ui->widgetSearchBox->show();

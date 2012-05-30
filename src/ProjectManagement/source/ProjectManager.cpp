@@ -428,7 +428,6 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
     QList<QObject*> projectItemObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.ProjectManagement.IProjectItem/1.0");
     QList<IProjectItem*> projectItems;
     QStringList itemNames;
-    bool success = true;
     // Check all items
     for (int i = 0; i < projectItemObjects.count(); i++) {
         IProjectItem* part = qobject_cast<IProjectItem*> (projectItemObjects.at(i));
@@ -436,14 +435,10 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
             if (!itemNames.contains(part->projectItemName())) {
                 projectItems.append(part);
                 LOG_INFO(QString(tr("Project Manager: Found project item: %1")).arg(part->projectItemName()));
-            } else {
+            } else
                 LOG_ERROR(tr("The project manager found duplicate project items called: ") + part->projectItemName() + tr(", the second occurance is on object: ") + projectItemObjects.at(i)->objectName());
-                success = false;
-            }
-        } else {
+        } else
             LOG_ERROR(tr("The project manager found in invalid project item interface on object: ") + projectItemObjects.at(i)->objectName());
-            success = false;
-        }
     }
     setProjectItemList(projectItems);
 }
@@ -842,7 +837,7 @@ void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new
 
 void ProjectManagement::ProjectManager::clearCustomProjectsPaths() {
     foreach (QString key, d->custom_projects_paths.keys()) {
-        if (key != "Default");
+        if (key != "Default")
             removeCustomProjectsPath(key);
     }
 }
