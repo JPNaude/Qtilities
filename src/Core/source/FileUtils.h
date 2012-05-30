@@ -167,11 +167,11 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hid
             static bool comparePaths(const QString& path1, const QString& path2);
             //! Converts a path to the native format of the underlying OS.
             /*!
-              This function is similar to QDir::toNativeSeperators(), but it supports linux as well.
+              This function is similar to QDir::toNativeSeparators(), but it supports linux as well.
 
               <i>This function was added in %Qtilities v1.2.</i>
               */
-            static QString toNativeSeperators(const QString& path);
+            static QString toNativeSeparators(const QString& path);
 
         private:
             QFileInfoList                   last_files_under_dir;
