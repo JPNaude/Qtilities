@@ -33,8 +33,10 @@
 
 #include "SideWidgetFileSystem.h"
 #include "ui_SideWidgetFileSystem.h"
+#include "QtilitiesApplication"
 
-#include <QtilitiesApplication>
+#include <FileUtils>
+using namespace Qtilities::Core;
 
 #include <QFileSystemModel>
 #include <QTreeView>
@@ -198,7 +200,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::handleClicked(const QModelIndex& 
 
 void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
     ui->treeView->setRootIndex(d->model->index(path));
-    ui->txtCurrentPath->setText(QDir::toNativeSeparators(path));
+    ui->txtCurrentPath->setText(FileUtils::toNativeSeparators(path));
     ui->treeView->setEnabled(true);
 }
 

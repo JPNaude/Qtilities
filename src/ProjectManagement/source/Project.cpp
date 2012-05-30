@@ -374,7 +374,7 @@ bool Qtilities::ProjectManagement::Project::closeProject(ITask *task) {
 }
 
 QString Qtilities::ProjectManagement::Project::projectFile() const {
-    return QDir::toNativeSeparators(QDir::cleanPath(d->project_file));
+    return FileUtils::toNativeSeparators(QDir::cleanPath(d->project_file));
 }
 
 QString Qtilities::ProjectManagement::Project::projectName() const {

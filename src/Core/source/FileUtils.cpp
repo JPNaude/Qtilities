@@ -282,7 +282,7 @@ bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
     return (FileUtils::toNativeSeparators(QDir::cleanPath(path1)).compare(FileUtils::toNativeSeparators(QDir::cleanPath(path2)),Qt::CaseInsensitive) == 0);
 }
 
-QString FileUtils::toNativeSeparators(const QString &path) {
+QString FileUtils::toNativeSeparators(QString path) {
     #ifdef Q_OS_LINUX
     return path.replace("\\","/");
     #else

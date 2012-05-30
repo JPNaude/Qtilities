@@ -171,7 +171,7 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hid
 
               <i>This function was added in %Qtilities v1.2.</i>
               */
-            static QString toNativeSeparators(const QString& path);
+            static QString toNativeSeparators(QString path);
 
         private:
             QFileInfoList                   last_files_under_dir;

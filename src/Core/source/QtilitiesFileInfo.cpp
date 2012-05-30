@@ -79,20 +79,20 @@ void Qtilities::Core::QtilitiesFileInfo::setRelativeToPath(const QString& relati
 
 QString Qtilities::Core::QtilitiesFileInfo::absoluteToRelativePath() const {
     if (isRelative()) {
-        return QDir::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + path()));
+        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + path()));
     } else
         return QString();
 }
 
 QString Qtilities::Core::QtilitiesFileInfo::absoluteToRelativeFilePath() const {
     if (isRelative()) {
-        return QDir::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + filePath()));
+        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + filePath()));
     } else
         return QString();
 }
 
 void Qtilities::Core::QtilitiesFileInfo::setFileName(const QString& new_file_name) {
-    setFile(QDir::toNativeSeparators(path() + "/" + new_file_name));
+    setFile(FileUtils::toNativeSeparators(path() + "/" + new_file_name));
 }
 
 QString Qtilities::Core::QtilitiesFileInfo::actualPath() const {

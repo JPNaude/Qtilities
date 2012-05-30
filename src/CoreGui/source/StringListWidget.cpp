@@ -35,6 +35,7 @@
 #include "ui_StringListWidget.h"
 #include "QtilitiesCoreGuiConstants.h"
 #include "QtilitiesApplication.h"
+#include "FileUtils.h"
 
 #include <QInputDialog>
 #include <QStringListModel>
@@ -42,6 +43,7 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 
+using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui::Interfaces;
 using namespace Qtilities::CoreGui::Icons;
 
@@ -175,7 +177,7 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
             ++process_count;
 
             QStringList list = d->model.stringList();
-            list << QDir::toNativeSeparators(file_name);
+            list << FileUtils::toNativeSeparators(file_name);
             list.removeDuplicates();
             d->model.setStringList(list);
             emit stringListChanged(list);
@@ -188,7 +190,7 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
             d->open_dialog_path = new_default_dir.path();
 
             QStringList list = d->model.stringList();
-            list << QDir::toNativeSeparators(dir);
+            list << FileUtils::toNativeSeparators(dir);
             list.removeDuplicates();
             d->model.setStringList(list);
             emit stringListChanged(list);

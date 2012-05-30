@@ -475,7 +475,7 @@ bool Qtilities::ProjectManagement::ProjectManager::activeProjectBusy() const {
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() const {
     QStringList recent_project_names;
     foreach (QString stack_name, d->recent_project_stack) {
-        recent_project_names << d->recent_project_names[QDir::toNativeSeparators(stack_name)].toString();
+        recent_project_names << d->recent_project_names[FileUtils::toNativeSeparators(stack_name)].toString();
     }
     return recent_project_names;
 }
@@ -549,7 +549,7 @@ void Qtilities::ProjectManagement::ProjectManager::setCustomProjectsPath(const Q
 
     if (projects_category.isEmpty())
         projects_category = "Default";
-    d->custom_projects_paths[projects_category] = QVariant(QDir::toNativeSeparators(QDir::cleanPath(projects_path)));
+    d->custom_projects_paths[projects_category] = QVariant(FileUtils::toNativeSeparators(QDir::cleanPath(projects_path)));
 
     if (d->custom_projects_paths != start_map)
         emit customProjectPathsChanged();
@@ -751,7 +751,7 @@ void ProjectManagement::ProjectManager::setExecutionStyle(ProjectManagement::Pro
 
 void ProjectManagement::ProjectManager::removeRecentProject(const QString &path) {
     // Remove it from the stack if its in there:
-    QString clean_path = QDir::toNativeSeparators(QDir::cleanPath(path));
+    QString clean_path = FileUtils::toNativeSeparators(QDir::cleanPath(path));
     if (d->recent_project_stack.contains(clean_path)) {
         d->recent_project_stack.removeOne(clean_path);
         d->recent_project_names.remove(clean_path);
@@ -807,7 +807,7 @@ void Qtilities::ProjectManagement::ProjectManager::addRecentProject(IProject* pr
         }
 
         // Now add the new project.
-        d->recent_project_names[QDir::toNativeSeparators(project->projectFile())] = project->projectName();
+        d->recent_project_names[FileUtils::toNativeSeparators(project->projectFile())] = project->projectName();
         d->recent_project_stack.push_front(project->projectFile());
     }
 

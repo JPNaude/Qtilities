@@ -36,6 +36,7 @@
 #include "ProjectManager.h"
 
 #include <QtilitiesFileInfo>
+#include <FileUtils.h>
 
 #include <QtilitiesApplication>
 #include <QtilitiesCoreGuiConstants>
@@ -171,7 +172,7 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnAdd_clicked() 
 
 
 
-        custom_paths[category] = QDir::toNativeSeparators(QDir::cleanPath(dir));
+        custom_paths[category] = FileUtils::toNativeSeparators(QDir::cleanPath(dir));
 
         saveCustomProjectsPaths();
         refreshCustomProjectPaths();

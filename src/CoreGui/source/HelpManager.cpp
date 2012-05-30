@@ -248,7 +248,7 @@ QString Qtilities::CoreGui::HelpManager::formatFileName(const QString &file_name
     #ifdef Q_OS_WIN
     formatted_name = QDir::fromNativeSeparators(QDir::cleanPath(file_name));
     #else
-    formatted_name = QDir::toNativeSeparators(QDir::cleanPath(file_name));
+    formatted_name = FileUtils::toNativeSeparators(QDir::cleanPath(file_name));
     #endif
     return formatted_name;
 }
