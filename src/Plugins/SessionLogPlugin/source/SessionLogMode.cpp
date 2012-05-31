@@ -111,6 +111,7 @@ QString Qtilities::Plugins::SessionLog::SessionLogMode::modeName() const {
 }
 
 void Qtilities::Plugins::SessionLog::SessionLogMode::handle_dockVisibilityChanged(bool visible) {
+    Q_UNUSED(visible)
 //    QDockWidget* dock = qobject_cast<QDockWidget*> (sender());
 //    if (dock && visible) {
 //        WidgetLoggerEngineFrontend* front_end = qobject_cast<WidgetLoggerEngineFrontend*> (dock->widget());

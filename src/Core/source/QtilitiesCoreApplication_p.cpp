@@ -129,7 +129,7 @@ QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath
 }
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPathDefault() const {
-    return QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+    return QString("%1%2%3").arg(QCoreApplication::applicationDirPath()).arg(QDir::separator()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
 }
 
 void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationSessionPath(const QString& path) {

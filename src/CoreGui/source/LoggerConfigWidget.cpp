@@ -189,6 +189,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_RemoveLoggerEngineRequest() 
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::handle_LoggerEngineTableClicked(const QModelIndex& index) {
+    Q_UNUSED(index)
     updateActiveEngine();
 }
 

@@ -198,6 +198,11 @@ void Qtilities::Core::Task::setParentTask(ITask* parent_task) {
     if (!parent_task)
         return;
 
+    if (parent_task == this) {
+        qDebug() << Q_FUNC_INFO << "Can't set a parent task to be the task itself";
+        return;
+    }
+
     d->parent_task = parent_task;
     d->parent_task_base = parent_task->objectBase();
 }

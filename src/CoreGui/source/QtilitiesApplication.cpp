@@ -77,7 +77,8 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
 
         connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
 
-        applicationSessionPath();
+        // Organization name not set here yet, thus we can't do this:
+        // applicationSessionPath();
     } else {
         qWarning() << QString(tr("An instance was already created for QtilitiesApplication"));
     }
@@ -151,8 +152,6 @@ void Qtilities::CoreGui::QtilitiesApplication::initialize() {
     qRegisterMetaType<QList<QPointer<QObject> > >("QList<QPointer<QObject> >");
 
     connect(OBJECT_MANAGER,SIGNAL(newObjectAdded(QObject*)),TaskManagerGui::instance(),SLOT(handleObjectPoolAddition(QObject*)));
-
-    applicationSessionPath();
 }
 
 Qtilities::CoreGui::QtilitiesApplication* Qtilities::CoreGui::QtilitiesApplication::instance(bool silent) {
@@ -177,9 +176,13 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::aboutQtilities(bool show) {
 }
 
 QString Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath() {
-    // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
-    if (QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath() == QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault())
-        QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    if (QApplication::organizationName().isEmpty() || QApplication::applicationName().isEmpty()) {
+        qDebug() << Q_FUNC_INFO << "Organization name and application name must be set in order to properly use QtilitiesApplication::applicationSessionPath().";
+    } else {
+        // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
+        if (FileUtils::comparePaths(QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath(),QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault()))
+            QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+    }
 
     return QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath();
 }

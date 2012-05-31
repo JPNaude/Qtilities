@@ -157,6 +157,8 @@ void Qtilities::Core::Interfaces::ITaskContainer::registerTask(Task* task, const
     if (!task || task_name.isEmpty())
         return;
 
+    if (task->objectName().isEmpty())
+        task->setObjectName(task->taskName());
     OBJECT_MANAGER->registerObject(task,QtilitiesCategory("Tasks"));
     container_data->task_id_activity_map[task] = true;
     container_data->task_name_id_map[task_name] = task->taskID();

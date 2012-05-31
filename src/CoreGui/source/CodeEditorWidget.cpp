@@ -504,7 +504,11 @@ void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QSt
         QFont font;
         font.setFamily(settings.value("font_type","Courier").toString());
         font.setFixedPitch(true);
+        #ifdef Q_OS_WIN
         font.setPointSize(settings.value("font_size",8).toInt());
+        #else
+        font.setPointSize(settings.value("font_size",10).toInt());
+        #endif
         d->codeEditor->setFont(font);
 
         settings.endGroup();

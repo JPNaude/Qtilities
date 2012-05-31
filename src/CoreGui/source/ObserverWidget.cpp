@@ -569,6 +569,15 @@ void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
         d->tree_model->setReadOnly(read_only);
     if (d->table_model)
         d->table_model->setReadOnly(read_only);
+
+    if (d->read_only) {
+        setEnabled(true);
+        if (d->tree_view)
+            d->tree_view->setEnabled(true);
+        if (d->table_view)
+            d->table_view->setEnabled(true);
+    }
+
     refreshActions();
 
     #ifdef QTILITIES_PROPERTY_BROWSER
@@ -3361,8 +3370,7 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
         clearSelection();
         deleteActionToolBars();
         d->initialized = true;
-        if (d->table_view)
-            d->table_view->setEnabled(false);
+        setEnabled(false);
     }
     d->last_display_flags = ObserverHints::NoDisplayFlagsHint;
 }
