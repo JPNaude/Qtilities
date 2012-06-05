@@ -948,8 +948,8 @@ QVERIFY(items_verify.count() == 5);
             int subjectID(const QString& subject_name, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
             //! Returns the IDs for all the attached subjects.
             QList<int> subjectIDs() const;
-            //! Returns a list with the subject references of all the observed subjects which inherits a specific base class. If you don't specify an interface, all objects in the observer are returned.
-            QList<QObject*> subjectReferences(const QString& base_class_name = "QObject") const;
+            //! Returns a list with the subject references of all the observed subjects which inherits a specific base class. If you don't specify an interface, all QObjects in the observer are returned.
+            QList<QObject*> subjectReferences(const QString& base_class_name = QString()) const;
             //! Return a QMap with references to all subjects as keys with the names used for the subjects in this context as values.
             QMap<QPointer<QObject>, QString> subjectMap();
             //! Returns a list of observers under this observer.

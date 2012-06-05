@@ -1823,14 +1823,13 @@ QList<int> Qtilities::Core::Observer::subjectIDs() const {
 }
 
 QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& iface) const {
+    if (iface.isEmpty())
+        return observerData->subject_list.toQList();
+
     QList<QObject*> subjects;
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        if (iface.isEmpty())
+        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()))
             subjects << observerData->subject_list.at(i);
-        else {
-            if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()))
-                subjects << observerData->subject_list.at(i);
-        }
     }
     return subjects;
 }
