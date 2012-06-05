@@ -33,7 +33,7 @@ Qtilities v1.2 Changes
     [+] Added == and != overloads to QtilitiesFileInfo.
     [+] Added Task::setLastRunTime().
     [+] Added new class: FileSetInfo.
-    [+] Added FileUtils::toNativeSeperators().
+    [+] Added FileUtils::toNativeSeparators().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -42,10 +42,12 @@ Qtilities v1.2 Changes
     [#] All functions on QtilitiesFileInfo are now available under linux as well.
     [#] QtilitiesProcess will no longer try to execute processes for which the executable does not exist.
     [#] Observer::accessMode() optimized which results in significant increases in tree building.
+    [#] Task::setParentTask() does not allow you to set itself as a parent anymore.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
         in isValid() returning false for valid properties.
+    [*] Fixed bug in QtilitiesApplication::applicationSessionPath() where it messed up the QDesktopServices::DataLocation path which should be used by default.
 
     ============================
     QtilitiesCoreGui:
@@ -60,6 +62,7 @@ Qtilities v1.2 Changes
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
     [#] It is no longer needed to enable categorized display in order to display category column in ObserverWidget in TableView mode.
+    [#] CodeEditorWidget uses a bigger font by default on Linux.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.

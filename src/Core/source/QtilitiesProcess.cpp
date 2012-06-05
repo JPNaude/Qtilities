@@ -71,6 +71,7 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
         startTask();
 
     // Check if the program exists:
+<<<<<<< Updated upstream
     QFileInfo fi(program);
     if (fi.isAbsolute()) {
         if (!fi.exists()) {
@@ -78,6 +79,19 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
             completeTask(ITask::TaskFailed);
             return false;
         }
+=======
+    QString expanded_check_path = program;
+    #ifdef Q_OS_WIN
+    if (!program.endsWith(".exe",Qt::CaseInsensitive))
+        expanded_check_path.append(".exe");
+    #else
+        // TODO: Check this on linux.
+    #endif;
+    QFileInfo fi(expanded_check_path);
+    if (!fi.exists() && fi.isAbsolute()) {
+        completeTask(ITask::TaskFailed);
+        return false;
+>>>>>>> Stashed changes
     }
 
     logMessage("Executing Process: " + program + " " + arguments.join(" "));
