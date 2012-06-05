@@ -67,35 +67,32 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& r
 }
 
 Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem() {
-    int count = childItems.count();
+    int count = childItemList.count();
     for (int i = count-1; i >= 0; i--) {
-        if (childItems.at(i)) {
-            delete childItems.at(i);
+        if (childItemList.at(i)) {
+            delete childItemList.at(i);
         }
     }
 }
 
 void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item) {
-    childItems.push_back(child_item);
+    childItemHash[child_item->getObject()->objectName()] = child_item;
+    childItemList << child_item;
 }
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::childWithName(const QString& name) const {
-    for (int i = 0; i < childItems.count(); i++) {
-        if (childItems.at(i)->getObject()) {
-            if (childItems.at(i)->getObject()->objectName() == name)
-                return childItems.at(i);
-        }
-    }
+    if (childItemHash.contains(name))
+        return childItemHash[name];
 
     return 0;
 }
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::child(int row) {
-    return childItems.value(row);
+    return childItemList.at(row);
 }
 
 int Qtilities::CoreGui::ObserverTreeItem::childCount() const {
-    return childItems.count();
+    return childItemList.count();
 }
 
 int Qtilities::CoreGui::ObserverTreeItem::columnCount() const {
@@ -108,7 +105,7 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::pare
 
 int Qtilities::CoreGui::ObserverTreeItem::row() const {
     if (parent_item)
-        return parent_item->childItems.indexOf(const_cast<ObserverTreeItem*>(this));
+        return parent_item->childItemList.indexOf(const_cast<ObserverTreeItem*>(this));
 
     return 0;
 }

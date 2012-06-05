@@ -62,9 +62,9 @@ void Qtilities::CoreGui::TreeItemBase::setModificationState(bool new_state, IMod
 }
 
 bool Qtilities::CoreGui::TreeItemBase::setCategory(const QtilitiesCategory& category, TreeNode* tree_node) {
-    QtilitiesCategory previous_category = AbstractTreeItem::getCategory();
     if (AbstractTreeItem::setCategory(category,tree_node)) {
-        if (previous_category != AbstractTreeItem::getCategory())
+        QtilitiesCategory previous_category = AbstractTreeItem::getCategory();
+        if (previous_category != category)
             setModificationState(true);
         return true;
     } else

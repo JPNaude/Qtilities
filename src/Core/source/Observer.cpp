@@ -1420,10 +1420,6 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(Qtil
     if (category.isEmpty())
         return (AccessMode) observerData->access_mode;
     else {
-        if (!hasCategory(category)) {
-            return Observer::InvalidAccess;
-        }
-
         // Loop through the categories list until we find the category:
         for (int i = 0; i < observerData->categories.count(); i++) {
             if (observerData->categories.at(i) == category) {
@@ -1473,17 +1469,12 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     if (!obj)
         return QString();
 
-    // Check if the object is in this context:
-    if (contains(obj) || contains(obj->parent())) {
-        // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
-        QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
-        if (instance_name.isValid())
-            return instance_name.toString();
-        else
-            return obj->objectName();
-    }
-
-    return QString();
+    // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+    QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
+    if (instance_name.isValid())
+        return instance_name.toString();
+    else
+        return obj->objectName();
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::Core::Observer::subjectCategoryInContext(const QObject* obj) const {

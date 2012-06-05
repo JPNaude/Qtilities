@@ -107,6 +107,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionCollapseAll(0),
         actionFindItem(0),
         navigation_bar(0),
+        display_mode(Qtilities::TreeView),
         table_view(0),
         table_model(0),
         custom_table_proxy_model(0),

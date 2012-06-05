@@ -138,8 +138,13 @@ bool Qtilities::Core::QtilitiesCategory::operator!=(const QtilitiesCategory& ref
 }
 
 QString Qtilities::Core::QtilitiesCategory::toString(const QString& join_string) const {
-    QStringList category_string_list = toStringList();
-    return category_string_list.join(join_string);
+    QString category_string;
+    for (int i = 0; i < d_category_levels.count(); i++) {
+        if (i > 0)
+            category_string.append(join_string);
+        category_string.append(d_category_levels.at(i).d_name);
+    }
+    return category_string;
 }
 
 QStringList Qtilities::Core::QtilitiesCategory::toStringList(int level) const {

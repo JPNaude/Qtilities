@@ -41,6 +41,7 @@ Qtilities v1.2 Changes
     [#] QtilitiesProcess's constructor got a new read_process_buffers parameter.
     [#] All functions on QtilitiesFileInfo are now available under linux as well.
     [#] QtilitiesProcess will no longer try to execute processes for which the executable does not exist.
+    [#] Observer::accessMode() optimized which results in significant increases in tree building.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting

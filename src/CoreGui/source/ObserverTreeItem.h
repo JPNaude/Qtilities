@@ -85,7 +85,7 @@ namespace Qtilities {
             int columnCount() const;
             int row() const;
             ObserverTreeItem *parentItem() const;
-            inline QList<QPointer<ObserverTreeItem> > childItemReferences() const { return childItems; }
+            inline QList<QPointer<ObserverTreeItem> > childItemReferences() const { return childItemList; }
             inline void setObject(QObject* object) { obj = object; }
             inline QPointer<QObject> getObject() const { return obj; }
             inline TreeItemType itemType() const { return type; }
@@ -102,7 +102,8 @@ namespace Qtilities {
             void newObjectAdded(QObject* obj, ObserverTreeItem* new_item);
 
         private:
-            QList<QPointer<ObserverTreeItem> > childItems;
+            QHash<QString,QPointer<ObserverTreeItem> > childItemHash;
+            QList<QPointer<ObserverTreeItem> > childItemList;
             QVector<QVariant> itemData;
             QPointer<ObserverTreeItem> parent_item;
             QPointer<QObject> obj;

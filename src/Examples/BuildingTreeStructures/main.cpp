@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     uncategorized_widget->setDragDropCopyButton(Qt::LeftButton);
     uncategorized_widget->setDragDropMoveButton(Qt::RightButton);
     combined_uncategorized_widget_layout->addWidget(uncategorized_widget);
-    uncategorized_widget->show();   
+    uncategorized_widget->show();
 
     ObserverWidget* uncategorized_widget_level_view = new ObserverWidget(parentNode1,Qtilities::TableView);
     combined_uncategorized_widget_layout->addWidget(uncategorized_widget_level_view);
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 
     ObserverWidget* big_table_with_activity_widget = new ObserverWidget(Qtilities::TreeView);
     big_table_with_activity_widget->setObserverContext(bigTableObserverWithActivity);
-    big_table_with_activity_widget->toggleLazyInit(true);
+    //big_table_with_activity_widget->toggleLazyInit(true);
     big_table_with_activity_widget->initialize();
     big_table_with_activity_widget->show();
     tab_widget->addTab(big_table_with_activity_widget,QIcon(),"Big Table (With Activity Filter)");
@@ -320,12 +320,12 @@ int main(int argc, char *argv[])
 //    big_table_with_activity_widget2->initialize();
 //    big_table_with_activity_widget2->show();
 
-//    ms = time.elapsed();
-//    s = ms / 1000; ms %= 1000;
-//    m = s / 60; s %= 60;
-//    h = m / 60; m %= 60;
-//    ++msg_count;
-//    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
+    ms = time.elapsed();
+    s = ms / 1000; ms %= 1000;
+    m = s / 60; s %= 60;
+    h = m / 60; m %= 60;
+    ++msg_count;
+    qDebug() << "##### Construction" << msg_count << QString("%1:%2:%3:%4").arg(h,2,10,QChar('0')).arg(m,2,10,QChar('0')).arg(s,2,10,QChar('0')).arg(ms,4,10,QChar('0'));
 
     // ----------------------------------
     // Tree With Formatting
