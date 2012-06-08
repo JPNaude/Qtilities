@@ -34,6 +34,7 @@ Qtilities v1.2 Changes
     [+] Added Task::setLastRunTime().
     [+] Added new class: FileSetInfo.
     [+] Added FileUtils::toNativeSeparators().
+    [+] Added Task::setTaskName().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.

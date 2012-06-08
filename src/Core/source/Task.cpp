@@ -98,6 +98,13 @@ Qtilities::Core::Task::~Task() {
     delete d;
 }
 
+void Qtilities::Core::Task::setTaskName(const QString &task_name) {
+    if (d->task_name != task_name) {
+        d->task_name = task_name;
+        emit displayedNameChanged(task_name);
+    }
+}
+
 QString Qtilities::Core::Task::taskName() const {
     return d->task_name;
 }
