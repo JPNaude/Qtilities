@@ -311,19 +311,21 @@ Different displayed aliases for the object in different unique contexts. For mor
 names see the Qtilities::CoreGui::NamingPolicyFilter class documentation.
 
 <b>Permission:</b> Read/Write<br>
-<b>Data Type:</b> QMap<int,QString>, where the keys are observer IDs and the values are the corresponding displayed aliases<br>
+<b>Data Type:</b> QString<br>
 <b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 <b>Removable:</b> Yes
 
-For more information on this property see \ref
-
 Below is an example of how you can create change the name displayed in Observer models showing this object.
 \code
-SharedProperty new_subject_displayed_name_property(qti_prop_DISPLAYED_ALIAS_MAP,QVariant(new_name));
-new_subject_displayed_name_property.setIsExportable(false);
-ObjectManager::setSharedProperty(obj,new_subject_displayed_name_property);
+Observer* obs = new Observer("My Observer");
+QObject* obj = new QObject;
+obs << obj;
+
+MultiContextProperty category_property(qti_prop_DISPLAYED_ALIAS_MAP);
+category_property.setValue("Displayed Name",obs->observerID());
+ObjectManager::setMultiContextProperty(obj,category_property);
 \endcode
 
 \sa qti_prop_NAME

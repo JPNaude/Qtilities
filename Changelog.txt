@@ -44,6 +44,7 @@ Qtilities v1.2 Changes
     [#] QtilitiesProcess will no longer try to execute processes for which the executable does not exist.
     [#] Observer::accessMode() optimized which results in significant increases in tree building.
     [#] Task::setParentTask() does not allow you to set itself as a parent anymore.
+    [#] Observer::subjectDisplayedNameInContext() got new parameter to indicate if the qti_prop_DISPLAYED_ALIAS_MAP property must be checked.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -58,12 +59,12 @@ Qtilities v1.2 Changes
     [+] Widget logger engines much improved to allow multiple message tabs to be shown in a single widget logger engine.
     [+] Added ObserverWidget::view() function.
     [+} Added NamingPolicyFilter::subjectNameChanged() signal.
-    [+] Logger::detachLoggerEngine() got a new delete_engine parameter.
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
     [#] It is no longer needed to enable categorized display in order to display category column in ObserverWidget in TableView mode.
     [#] CodeEditorWidget uses a bigger font by default on Linux.
+    [#] Logger::detachLoggerEngine() got a new delete_engine parameter.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
@@ -82,6 +83,7 @@ Qtilities v1.2 Changes
     QtilitiesProjectManagement:
     ============================
     [#] ProjectManagementConfig is now exported.
+    [#] Projects will now save complete file backups ending in "_complete", rather than ".complete" as in previous versions.
 
     [*] Fixed some cases where the last open project would not be remembered.
     [*] Fixed ProjectManager::openProject() trying to open a project file which does not exist.

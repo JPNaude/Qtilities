@@ -255,7 +255,9 @@ void Qtilities::CoreGui::SingleTaskWidget::on_btnStop_clicked() {
         return;
 
     if (d->task->state() == ITask::TaskBusy) {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
         d->task->stop();
+        QApplication::restoreOverrideCursor();
         if (d->task_base) {
             if (d->task->taskStopAction() == ITask::TaskDeleteWhenStopped)
                 d->task->objectBase()->deleteLater();

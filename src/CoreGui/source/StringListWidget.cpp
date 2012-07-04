@@ -49,7 +49,8 @@ using namespace Qtilities::CoreGui::Icons;
 
 struct Qtilities::CoreGui::StringListWidgetPrivateData {
     StringListWidgetPrivateData() : list_type(StringListWidget::PlainStrings),
-        open_on_double_click(false) {}
+        open_on_double_click(false),
+        read_only(false) {}
 
     QStringListModel                model;
     QAction*                        actionAddString;
@@ -63,6 +64,7 @@ struct Qtilities::CoreGui::StringListWidgetPrivateData {
 
     Qt::ToolBarArea                 toolbar_area;
     bool                            open_on_double_click;
+    bool                            read_only;
 };
 
 Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string_list, Qt::ToolBarArea toolbar_area, QWidget* parent, Qt::WindowFlags flags) :
@@ -114,6 +116,18 @@ QStringList Qtilities::CoreGui::StringListWidget::nonRemovableStringList() const
 
 void Qtilities::CoreGui::StringListWidget::setNonRemovableStringList(const QStringList &string_list) {
     d->non_removable_strings = string_list;
+}
+
+void Qtilities::CoreGui::StringListWidget::setReadOnly(bool read_only) {
+    if (d->read_only != read_only) {
+        d->read_only = read_only;
+        d->actionAddString->setEnabled(!d->read_only);
+        d->actionRemoveString->setEnabled(!d->read_only);
+    }
+}
+
+bool Qtilities::CoreGui::StringListWidget::readOnly() const {
+    return d->read_only;
 }
 
 QString Qtilities::CoreGui::StringListWidget::stringType() const {

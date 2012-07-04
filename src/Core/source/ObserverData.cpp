@@ -1166,12 +1166,23 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                                 QtilitiesCategory category;
                                                 category.setExportVersion(exportVersion());
                                                 category.setExportTask(exportTask());
-                                                category.importXml(doc,&subjectChild,import_list);
+                                                IExportable::ExportResultFlags category_result = category.importXml(doc,&subjectChild,import_list);
                                                 category.clearExportTask();
+
+                                                if (category_result == IExportable::Incomplete) {
+                                                    LOG_TASK_WARNING(QString(QObject::tr("Failed to import category completely for object in tree node: %1. Item \"%2\" will not have its category set.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                                    result = IExportable::Incomplete;
+                                                } else if (category_result & IExportable::FailedResult) {
+                                                    LOG_TASK_ERROR(QString(QObject::tr("Failed to import category for object in tree node: %1. Item \"%2\" will not have its category set.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                                    result = category_result;
+                                                }
+
                                                 MultiContextProperty category_property(qti_prop_CATEGORY_MAP);
                                                 category_property.setValue(qVariantFromValue(category),observer->observerID());
-                                                if (!ObjectManager::setMultiContextProperty(iface->objectBase(),category_property))
+                                                if (!ObjectManager::setMultiContextProperty(iface->objectBase(),category_property)) {
+                                                    LOG_TASK_WARNING(QString(QObject::tr("Failed to set category on object \"%1\" to tree node: %2. Import will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                                     result = IExportable::Incomplete;
+                                                }
                                             }
                                         }
 
@@ -1183,14 +1194,18 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                                         // Check if it is an observer: if so we must use internal_import_list, not import_list:
                                         Observer* obs = qobject_cast<Observer*> (iface->objectBase());
                                         IExportable::ExportResultFlags intermediate_result;
+
                                         if (obs)
                                             intermediate_result = iface->importXml(doc,&childrenChild,internal_import_list);
                                         else
                                             intermediate_result = iface->importXml(doc,&childrenChild,import_list);
 
-                                        if (intermediate_result != IExportable::Complete) {
-                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to reconstruct object completely in tree node: %1. Item %2 will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                        if (intermediate_result == IExportable::Incomplete) {
+                                            LOG_TASK_WARNING(QString(QObject::tr("Failed to reconstruct object completely in tree node: %1. Item \"%2\" will be incomplete.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
                                             result = IExportable::Incomplete;
+                                        } else if (intermediate_result & IExportable::FailedResult) {
+                                            LOG_TASK_ERROR(QString(QObject::tr("Failed to import object in tree node: %1. Item \"%2\" will not be imported.")).arg(observer->observerName()).arg(iface->objectBase()->objectName()),exportTask());
+                                            result = intermediate_result;
                                         }
 
                                         // Check if it is active:
@@ -1209,7 +1224,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
                                         iface->clearExportTask();
                                     } else {
-                                        LOG_TASK_WARNING(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()),exportTask());
+                                        LOG_TASK_ERROR(QString(QObject::tr("Found invalid exportable interface on reconstructed object in tree node: %1")).arg(observer->observerName()),exportTask());
                                         observer->endProcessingCycle();
                                         return IExportable::Failed;
                                     }

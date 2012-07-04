@@ -173,8 +173,8 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
     if (ObjectManager::propertyExists(this,qti_prop_NAME)) {
         // The rest of the things that need to happen is done in eventFilter(), only when the name property was set correctly.
         // We just set paths to be used in the event filter here:
-        d_queued_file_path = file_path;
-        d_queued_relative_to_path = relative_to_path;
+        d_queued_file_path = file_path.trimmed();
+        d_queued_relative_to_path = relative_to_path.trimmed();
 
         //qDebug() << "Not updating internal QFileInfo in TreeFileItem::setFile(). This will happen in event filter and indicated using a debug message. Queued file: " << d_queued_file_path;
         SharedProperty new_subject_name_property(qti_prop_NAME,QVariant(fi.actualFilePath()));
@@ -187,8 +187,8 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
         setObjectName(fi.actualFilePath());
 
         // In this case we do not need to check in eventFilter() since the object name was correctly updated:
-        treeFileItemBase->file_info.setFile(file_path);
-        treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+        treeFileItemBase->file_info.setFile(file_path.trimmed());
+        treeFileItemBase->file_info.setRelativeToPath(relative_to_path.trimmed());
     }
 
     setModificationState(true,IModificationNotifier::NotifyListeners);
@@ -199,8 +199,8 @@ void Qtilities::CoreGui::TreeFileItem::setFile(const QString& file_path, const Q
 
 void CoreGui::TreeFileItem::setFileForce(const QString &file_path, const QString &relative_to_path, bool broadcast) {
     if (ObjectManager::propertyExists(this,qti_prop_NAME)) {
-        treeFileItemBase->file_info.setFile(file_path);
-        treeFileItemBase->file_info.setRelativeToPath(relative_to_path);
+        treeFileItemBase->file_info.setFile(file_path.trimmed());
+        treeFileItemBase->file_info.setRelativeToPath(relative_to_path.trimmed());
         setFile(file_path,relative_to_path,broadcast);
     } else
         setFile(file_path,relative_to_path,broadcast);

@@ -132,7 +132,7 @@ AbstractLoggerEngine* TaskManagerGui::assignLoggerEngineToTask(ITask* task, Widg
             message_displays_flag = d->message_displays_flag;
     }
 
-    QString engine_name = "Task Log: " + task->displayName();
+    QString engine_name = "Task Log: " + task->taskName();
     LoggerGui::createLogWidget(&engine_name,message_displays_flag);
     //qDebug() << engine_name;
     AbstractLoggerEngine* log_engine = Log->loggerEngineReference(engine_name);

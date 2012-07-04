@@ -99,7 +99,7 @@ struct Qtilities::CoreGui::MessagesPlainTextEditTabPrivateData {
     QWidget* central_widget;
 };
 
-Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab( QWidget *parent) : QMainWindow(parent)
+Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *parent) : QMainWindow(parent)
 {
     d = new MessagesPlainTextEditTabPrivateData;
     d->action_provider = new ActionProvider(this);
@@ -474,10 +474,19 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
             MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
             d->message_displays[WidgetLoggerEngine::AllMessagesPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Messages");
+
+            // We don't want users to be able to close the individual log
+            // dock widgets since there is no way to get them back then
+            // until the application is restarted.
+            QDockWidget::DockWidgetFeatures features = new_dock->features();
+            features &= ~QDockWidget::DockWidgetClosable;
+            new_dock->setFeatures(features);
+
             d->message_display_docks[WidgetLoggerEngine::AllMessagesPlainTextEdit] = new_dock;
             connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
             new_dock->setWidget(new_tab);
             addDockWidget(Qt::BottomDockWidgetArea,new_dock);
+
             info_index = 0;
         }
 
@@ -485,6 +494,14 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
             MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
             d->message_displays[WidgetLoggerEngine::IssuesPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Issues");
+
+            // We don't want users to be able to close the individual log
+            // dock widgets since there is no way to get them back then
+            // until the application is restarted.
+            QDockWidget::DockWidgetFeatures features = new_dock->features();
+            features &= ~QDockWidget::DockWidgetClosable;
+            new_dock->setFeatures(features);
+
             d->message_display_docks[WidgetLoggerEngine::IssuesPlainTextEdit] = new_dock;
             connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
             new_dock->setWidget(new_tab);
@@ -500,6 +517,14 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
             MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
             d->message_displays[WidgetLoggerEngine::WarningsPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Warnings");
+
+            // We don't want users to be able to close the individual log
+            // dock widgets since there is no way to get them back then
+            // until the application is restarted.
+            QDockWidget::DockWidgetFeatures features = new_dock->features();
+            features &= ~QDockWidget::DockWidgetClosable;
+            new_dock->setFeatures(features);
+
             d->message_display_docks[WidgetLoggerEngine::WarningsPlainTextEdit] = new_dock;
             connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
             new_dock->setWidget(new_tab);
@@ -517,6 +542,14 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
             MessagesPlainTextEditTab* new_tab = new MessagesPlainTextEditTab;
             d->message_displays[WidgetLoggerEngine::ErrorsPlainTextEdit] = new_tab;
             QDockWidget* new_dock = new QDockWidget("Errors");
+
+            // We don't want users to be able to close the individual log
+            // dock widgets since there is no way to get them back then
+            // until the application is restarted.
+            QDockWidget::DockWidgetFeatures features = new_dock->features();
+            features &= ~QDockWidget::DockWidgetClosable;
+            new_dock->setFeatures(features);
+
             d->message_display_docks[WidgetLoggerEngine::ErrorsPlainTextEdit] = new_dock;
             connect(new_dock,SIGNAL(visibilityChanged(bool)),SLOT(handle_dockVisibilityChanged(bool)));
             new_dock->setWidget(new_tab);

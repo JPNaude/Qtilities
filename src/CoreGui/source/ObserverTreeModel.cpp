@@ -337,9 +337,12 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
                     QString return_string;
                     // If observer is valid, we get the name, otherwise we just use object name.
-                    if (obs)
-                        return_string = obs->subjectDisplayedNameInContext(obj);
-                    else
+                    if (obs) {
+                        if (role == Qt::DisplayRole)
+                            return_string = obs->subjectDisplayedNameInContext(obj);
+                        else if (role == Qt::EditRole)
+                            return_string = obs->subjectDisplayedNameInContext(obj,false);
+                    } else
                         return_string = obj->objectName();
 
                     if (is_modified)

@@ -118,7 +118,7 @@ namespace Qtilities {
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
-        protected:
+        public:
             //! Sets the name of the task.
             /*!
               \param task_name The new name of the task. This name is not validated in here, thus make sure its correct.
@@ -127,7 +127,6 @@ namespace Qtilities {
               */
             void setTaskName(const QString& task_name);
 
-        public:
             // -------------------------------------------------------------------------
             // ITask Implementation
             // -------------------------------------------------------------------------

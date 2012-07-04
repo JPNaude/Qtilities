@@ -1494,7 +1494,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::Core::Observer::subjectCategoryInC
     return QtilitiesCategory();
 }
 
-QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* obj, bool validate_object) const {
+QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* obj, bool check_displayed_name_property, bool validate_object) const {
     if (!obj)
         return QString();
 
@@ -1504,12 +1504,12 @@ QString Qtilities::Core::Observer::subjectDisplayedNameInContext(const QObject* 
             return QString();
     }
 
-    // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+    // We need to check if a subject has a custom display name set on it.
     QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_DISPLAYED_ALIAS_MAP);
-    if (instance_name.isValid())
+    if (instance_name.isValid() && check_displayed_name_property)
         return instance_name.toString();
     else {
-        // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+        // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
         QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
         if (instance_name.isValid())
             return instance_name.toString();

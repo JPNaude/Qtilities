@@ -87,7 +87,7 @@ namespace Qtilities {
 
         /*!
           \class PropertyDiffInfo
-          \brief The PropertyDiffInfo structure is used to define provide information of property differences between two objects.
+          \brief The PropertyDiffInfo class is used to provide information of property differences between two objects.
          */
         class QTILIITES_CORE_SHARED_EXPORT PropertyDiffInfo {
         public:
@@ -117,7 +117,7 @@ namespace Qtilities {
                 d_removed_properties.clear();
                 d_changed_properties.clear();
             }
-            bool hasChanges() {
+            bool hasChanges() const {
                 if (d_added_properties.count() > 0)
                     return true;
                 if (d_removed_properties.count() > 0)
@@ -126,7 +126,6 @@ namespace Qtilities {
                     return true;
                 return false;
             }
-
             bool operator!=(const PropertyDiffInfo& ref) {
                 return !(*this==ref);
             }

@@ -320,7 +320,60 @@ p, li { white-space: pre-wrap; }
           <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="page">
+          <widget class="QWidget" name="pageFactories">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1013</width>
+             <height>581</height>
+            </rect>
+           </property>
+           <attribute name="label">
+            <string>Factories</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="margin">
+             <number>3</number>
+            </property>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>This page provides an overview of all the factories registered in the object manager as well as the registered tags in each factory. </string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="2">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QListWidget" name="listFactories"/>
+              </item>
+              <item>
+               <widget class="QListWidget" name="listFactoryItemIDs"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="pageTaskActivity">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>1013</width>
+             <height>581</height>
+            </rect>
+           </property>
            <attribute name="label">
             <string>Task Activity History</string>
            </attribute>
@@ -359,8 +412,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>581</height>
+             <width>98</width>
+             <height>278</height>
             </rect>
            </property>
            <attribute name="label">
@@ -657,51 +710,6 @@ p, li { white-space: pre-wrap; }
                </item>
               </layout>
              </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="pageFactories">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>160</width>
-             <height>280</height>
-            </rect>
-           </property>
-           <attribute name="label">
-            <string>Factories</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout">
-            <property name="margin">
-             <number>3</number>
-            </property>
-            <item row="0" column="0" colspan="2">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>This page provides an overview of all the factories registered in the object manager as well as the registered tags in each factory. </string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="2">
-             <widget class="Line" name="line_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" colspan="2">
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QListWidget" name="listFactories"/>
-              </item>
-              <item>
-               <widget class="QListWidget" name="listFactoryItemIDs"/>
-              </item>
-             </layout>
             </item>
            </layout>
           </widget>
@@ -1350,7 +1358,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Plugin Classification:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Core Plugins:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; These&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;plugins&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;form&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;the&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;core&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;of&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;an&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;application.&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Thus&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;they&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;must&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;always&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;be&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;treated&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;as&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;active&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;plugins&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;(thus&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;loaded&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;and&lt;/span&gt;&lt;span style=&quot; font-size:8pt; color:#c0c0c0;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;initialized). Note that core plugins does not form part of plugin configuration sets since they must be set in your application code before plugins are loaded.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Active Plugins:  &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Active plugins are loaded and initialized. The list contains name of plugins which are currently loaded, with names as returned by the IPlugin::pluginName() implementation. Active plugins does not form part of .pconfig files since all plugins which does not fall under in-active plugins or filtered plugins will be loaded and initialized.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;In-Active Plugins:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; In-Active plugins are loaded but not initialized. The list contains name of plugins to be filtered, as returned by the IPlugin::pluginName() implementation.&lt;/span&gt;&lt;/p&gt;

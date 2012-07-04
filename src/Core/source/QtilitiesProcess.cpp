@@ -1,13 +1,40 @@
 /****************************************************************************
 **
-** Copyright 2010-2011, CSIR
-** Author: JP Naude, jpnaude@csir.co.za
+** Copyright (c) 2009-2012, Jaco Naude
+**
+** This file is part of Qtilities which is released under the following
+** licensing options.
+**
+** Option 1: Open Source
+** Under this license Qtilities is free software: you can
+** redistribute it and/or modify it under the terms of the GNU General
+** Public License as published by the Free Software Foundation, either
+** version 3 of the License, or (at your option) any later version.
+**
+** Qtilities is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with Qtilities. If not, see http://www.gnu.org/licenses/.
+**
+** Option 2: Commercial
+** Alternatively, this library is also released under a commercial license
+** that allows the development of closed source proprietary applications
+** without restrictions on licensing. For more information on this option,
+** please see the project website's licensing page:
+** http://www.qtilities.org/licensing.html
+**
+** If you are unsure which license is appropriate for your use, please
+** contact support@qtilities.org.
 **
 ****************************************************************************/
 
 #include "QtilitiesProcess.h"
 
 #include <QCoreApplication>
+#include <FileUtils>
 
 #include <Logger>
 
@@ -70,28 +97,35 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
     if (state() != ITask::TaskBusy)
         startTask();
 
-    // Check if the program exists:
-    QString expanded_check_path = program;
-    #ifdef Q_OS_WIN
-    if (!program.endsWith(".exe",Qt::CaseInsensitive))
-        expanded_check_path.append(".exe");
-    #else
-        // TODO: Check this on linux.
-    #endif
-    QFileInfo fi(expanded_check_path);
-    if (!fi.exists() && fi.isAbsolute()) {
-        logMessage("Failed to find application \"" + program + "\".", Logger::Error);
-        completeTask(ITask::TaskFailed);
-        return false;
+    // Check if program exists:
+    QFileInfo fi1(program);
+    if (!fi1.exists() && fi1.isAbsolute()) {
+        // Check if program.exe exists:
+        QFileInfo fi2(program + ".exe");
+        if (!fi2.exists() && fi2.isAbsolute()) {
+            // Check if program.bat exists:
+            QFileInfo fi3(program + ".bat");
+            if (!fi3.exists() && fi3.isAbsolute())
+                logWarning("Failed to find application \"" + program + "\". An attempt to launch it will still be made.");
+        }
     }
 
-    logMessage("Executing Process: " + program + " " + arguments.join(" "));
-    logMessage("-> working directory of process: " + d->process->workingDirectory());
-    d->process->start(program, arguments, mode);
+    QString native_program = FileUtils::toNativeSeparators(program);
+    logMessage("Executing Process: " + native_program + " " + arguments.join(" "));
+    if (d->process->workingDirectory().isEmpty())
+        logMessage("-> working directory of process: " + QDir::current().path());
+    else
+        logMessage("-> working directory of process: " + d->process->workingDirectory());
+    QDir dir(d->process->workingDirectory());
+    if (!dir.exists())
+        logWarning("-> working directory does not exist, process might fail to start.");
+    d->process->start(native_program, arguments, mode);
 
     if (!d->process->waitForStarted()) {
-        logMessage("Failed to open " + program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
+        logMessage("Failed to start " + native_program + ". Make sure the executable is visible in your system's paths.", Logger::Error);
         completeTask(ITask::TaskFailed);
+
+        d->process->waitForFinished();
         return false;
     }
 
@@ -99,7 +133,13 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
 }
 
 void Qtilities::Core::QtilitiesProcess::stopProcess() {
+    d->process->terminate();
+    d->process->waitForFinished(3000);
     d->process->kill();
+    d->process->waitForFinished(3000);
+
+    if (state() == ITask::TaskBusy)
+        completeTask();
 }
 
 void Qtilities::Core::QtilitiesProcess::procStarted() {

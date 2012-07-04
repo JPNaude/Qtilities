@@ -95,6 +95,11 @@ namespace Qtilities {
             //! Sets the current list of non-removable only strings.
             void setNonRemovableStringList(const QStringList& string_list);
 
+            //! Sets if this list is read only.
+            void setReadOnly(bool read_only);
+            //! Gets if this list is read only.
+            bool readOnly() const;
+
             //! Gets the string type.
             QString stringType() const;
             //! Sets the string type.

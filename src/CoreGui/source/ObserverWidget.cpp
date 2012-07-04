@@ -2296,6 +2296,8 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemoveItems(bool delete_items)
                 selectObjects(object_list);
             }
 
+            object_list.removeOne(selection_parent);
+
             // Check if the new selection must become active:
             if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
                 d->update_selection_activity = false;

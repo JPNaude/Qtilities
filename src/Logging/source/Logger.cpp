@@ -675,6 +675,8 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 //        int i = 5;
 //    else if (QString(msg).contains("QFSFileEngine::open: No file name specified"))
 //        int i = 5;
+//    else if (QString(msg).contains("QProcess: Destroyed while process is still running",Qt::CaseInsensitive))
+//        int i = 5;
 
     switch (type)
     {

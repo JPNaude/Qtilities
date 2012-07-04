@@ -279,7 +279,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             if (success == IExportable::Complete)
                 LOG_TASK_INFO_P(tr("Successfully loaded complete project from file: ") + file_name,task);
             if (success == IExportable::Incomplete) {
-                QString backup_file_name = FileUtils::appendToFileName(file_name,".complete");
+                QString backup_file_name = FileUtils::appendToFileName(file_name,"_complete");
                 QFile backup_file(backup_file_name);
                 if (backup_file.exists()) {
                     if (!backup_file.remove())

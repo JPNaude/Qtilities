@@ -867,11 +867,12 @@ obs.endProcessingCycle(); // Internal count = 0;
               - Lastly, just return the objectName()
 
               \param obj The object for which the name must be fetched.
+              \param check_displayed_name_property Indicates if the qti_prop_DISPLAYED_ALIAS_MAP property must be checked.
               \param validate_object When true, the function will first check if the object exists in the context.
 
               \return The name if the object was found, and empty QString() otherwise.
               */
-            QString subjectDisplayedNameInContext(const QObject* obj, bool validate_object = false) const;
+            QString subjectDisplayedNameInContext(const QObject* obj, bool check_displayed_name_property = true, bool validate_object = false) const;
             //! Returns the ownership used for the specified object in this context.
             /*!
                 If \p obj is not valid or contained in this context, ManualOwnership is returned. Thus you should

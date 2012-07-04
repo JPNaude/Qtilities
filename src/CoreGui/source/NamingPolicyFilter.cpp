@@ -758,6 +758,11 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
 
     // Invalid names must be handled first:
     if (validity_result & Invalid) {
+        QRegExpValidator* reg_exp_validator = qobject_cast<QRegExpValidator*> (d->validator);
+        if (reg_exp_validator)
+            LOG_WARNING(QString("Naming Policy Filter: Validation of name property change detected an invalid name in context: \"%1\". Invalid Name = \"%2\", Validation Expression = \"%3\". This property change will be rejected.").arg(observer->objectName()).arg(evaluation_name).arg(reg_exp_validator->regExp().pattern()));
+        else
+            LOG_WARNING(QString("Naming Policy Filter: Validation of name property change detected an invalid name in context: \"%1\". Invalid Name = \"%2\". This property change will be rejected.").arg(observer->objectName()).arg(evaluation_name));
         if (d->validity_resolution_policy == PromptUser) {
             if (!d->name_dialog) {
                 d->name_dialog = constructUserDialog();
@@ -790,15 +795,18 @@ bool Qtilities::CoreGui::NamingPolicyFilter::validateNamePropertyChange(QObject*
             }
         } else if (d->validity_resolution_policy == AutoRename) {
             QString valid_name = generateValidName(evaluation_name);
-            if (valid_name.isEmpty())
+            if (valid_name.isEmpty()) {
                 return_value = false;
-            observer->setMultiContextPropertyValue(obj,property_name,QVariant(valid_name));
-            return_value = true;
+            } else {
+                observer->setMultiContextPropertyValue(obj,property_name,QVariant(valid_name));
+                return_value = true;
+            }
         } else if (d->validity_resolution_policy == Reject) {
             return_value = false;
         }
     // Next handle duplicate names:
     } else if ((validity_result & Duplicate) && (d->uniqueness_policy == ProhibitDuplicateNames) && (getConflictingObject(evaluation_name) != obj)) {
+        LOG_WARNING(QString("Naming Policy Filter: Validation of name property change detected a duplicate name in context: \"%1\". Duplicate Name = \"%2\". This property change will be rejected.").arg(observer->objectName()).arg(evaluation_name));
         if (d->uniqueness_resolution_policy == PromptUser) {
             if (!d->name_dialog) {
                 d->name_dialog = constructUserDialog();
