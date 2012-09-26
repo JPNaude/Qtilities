@@ -39,6 +39,7 @@
 #include <QVariant>
 
 #include "Logger.h"
+#include "Logging_global.h"
 
 namespace Qtilities {
     namespace Logging {
@@ -60,10 +61,14 @@ namespace Qtilities {
                 d_message_type_flags = ref.d_message_type_flags;
                 d_regexp = ref.d_regexp;
             }
-            void operator=(const CustomFormattingHint& ref) {
+            CustomFormattingHint& operator=(const CustomFormattingHint& ref) {
+                if (this==&ref) return *this;
+
                 d_hint = ref.d_hint;
                 d_message_type_flags = ref.d_message_type_flags;
                 d_regexp = ref.d_regexp;
+
+                return *this;
             }
             bool operator==(const CustomFormattingHint& ref) {
                 if (d_hint != ref.d_hint)
@@ -134,7 +139,7 @@ if (rich_text_engine) {
         Since that design was flawed because it depended on English as your language, this built in functionality was removed and you must now set the above rule
         manually if you depended on the previous mode of operation.
           */
-        class AbstractFormattingEngine : public QObject
+        class LOGGING_SHARED_EXPORT AbstractFormattingEngine : public QObject
         {
         Q_OBJECT
         Q_PROPERTY(QString FileExtension READ fileExtension)

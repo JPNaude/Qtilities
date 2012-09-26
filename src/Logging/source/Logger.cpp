@@ -661,13 +661,21 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
 //        int i = 5;
+//    else if (QString(msg).contains("ASSERT: \"false\""))
+//        int i = 5;
+//    else if (QString(msg) == "QCoreApplication::sendEvent: \"Cannot send events to objects owned by a different thread")
+//        int i = 5;
+//    else if (QString(msg) == "Calling appendChild() on a null node does nothing.")
+//        int i = 5;
 //    else if (QString(msg) == "setReadOnly(false) called too many times on design:  \"calibration_engine_tb\"")
 //        int i = 5;
 //    else if (QString(msg) == "QSortFilterProxyModel: index from wrong model passed to mapFromSource")
 //        int i = 5;
 //    else if (QString(msg) == "ASSERT failure in QMutex::unlock(): \"A mutex must be unlocked in the same thread that locked it.\", file c:\\ndk_buildrepos\\qt-desktop\\src\\corelib\\thread\\qmutex.cpp, line 370")
 //        int i = 5;
-//    else if (QString(msg).contains("isEmpty()"))
+//    else if (QString(msg).contains("!isEmpty()"))
+//        int i = 5;
+//    else if (QString(msg).contains("QFileSystemWatcher:"))
 //        int i = 5;
 //    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
 //        int i = 5;
@@ -677,6 +685,9 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 //        int i = 5;
 //    else if (QString(msg).contains("QProcess: Destroyed while process is still running",Qt::CaseInsensitive))
 //        int i = 5;
+//    else if (QString(msg).contains("qtreeview.cpp, line 3271",Qt::CaseInsensitive))
+//        int i = 5;
+
 
     switch (type)
     {
