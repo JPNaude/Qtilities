@@ -62,6 +62,99 @@ CONFIG              += debug
 #****************************************************************************
 # Library includes
 #****************************************************************************
+
+contains( QTILITIES, testing ) {
+    message( "Using Testing Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
+
+    CONFIG(debug, debug|release) {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTestingd$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTestingd$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTestingd$${QTILITIES_FILE_VER}
+    } else {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTesting$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTesting$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_FILE_VER}
+    }
+    QTILITIES += logging
+    QTILITIES += core
+    QTILITIES += coregui
+    QTILITIES += extension_system
+    QTILITIES += project_management
+}
+
+contains( QTILITIES, project_management ) {
+    message( "Using Qtilities Project Management Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
+
+    CONFIG(debug, debug|release) {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagementd$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagementd$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
+    } else {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagement$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagement$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
+    }
+
+    QTILITIES += logging
+    QTILITIES += core
+    QTILITIES += coregui
+}
+
+contains( QTILITIES, extension_system ) {
+    message( "Using Qtilities Extension System Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
+
+    CONFIG(debug, debug|release) {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
+    } else {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystem$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystem$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
+    }
+
+    QTILITIES += logging
+    QTILITIES += core
+    QTILITIES += coregui
+}
+
+contains( QTILITIES, coregui ) {
+    message( "Using Qtilities Core Gui Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
+
+    CONFIG(debug, debug|release) {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
+    } else {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
+    }
+    QTILITIES += logging
+    QTILITIES += core
+}
+
+contains( QTILITIES, core ) {
+    message( "Using Qtilities Core Module..." )
+    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
+
+    CONFIG(debug, debug|release) {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
+    } else {
+        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
+        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
+        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
+    }
+
+    QTILITIES += logging
+}
+
 contains( QTILITIES, logging ) {
     message( "Using Qtilities Logging Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
@@ -74,192 +167,5 @@ contains( QTILITIES, logging ) {
         win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
         win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
         unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-    }
-}
-
-contains( QTILITIES, core ) {
-    message( "Using Qtilities Core Module..." )
-    message( "Core Dependency: Using Qtilities Logging Module..." )
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-    }
-}
-
-contains( QTILITIES, coregui ) {
-    message( "Using Qtilities Core Gui Module..." )
-    message( "CoreGui Dependency: Using Qtilities Logging Module..." )
-    message( "CoreGui Dependency: Using Qtilities Core Module..." )
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
-    }
-}
-
-contains( QTILITIES, extension_system ) {
-    message( "Using Qtilities Extension System Module..." )
-    message( "Extension System Dependency: Using Qtilities Logging Module..." )
-    message( "Extension System Dependency: Using Qtilities Core Module..." )
-    message( "Extension System Dependency: Using Qtilities CoreGui Module..." )
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystem$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystem$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
-    }
-}
-
-contains( QTILITIES, project_management ) {
-    message( "Using Qtilities Project Management Module..." )
-    message( "Project Management Dependency: Using Qtilities Logging Module..." )
-    message( "Project Management Dependency: Using Qtilities Core Module..." )
-    message( "Project Management Dependency: Using Qtilities CoreGui Module..." )
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagementd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagementd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagement$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagement$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
-    }
-}
-
-contains( QTILITIES, testing ) {
-    message( "Using Testing Module..." )
-    message( "Project Management Dependency: Using Qtilities Logging Module..." )
-    message( "Project Management Dependency: Using Qtilities Core Module..." )
-    message( "Project Management Dependency: Using Qtilities CoreGui Module..." )
-    message( "Project Management Dependency: Using Qtilities Project Management Module..." )
-    message( "Project Management Dependency: Using Qtilities Extension System Module..." )
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-    INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagementd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagementd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTestingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTestingd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTestingd$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagement$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagement$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystem$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystem$${QTILITIES_FILE_VER}.lib
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTesting$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTesting$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_FILE_VER}
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
     }
 }
