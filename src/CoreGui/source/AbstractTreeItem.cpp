@@ -520,8 +520,10 @@ bool Qtilities::CoreGui::AbstractTreeItem::hasStatusTip() const {
 void Qtilities::CoreGui::AbstractTreeItem::setSizeHint(const QSize& size) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedProperty property(qti_prop_SIZE_HINT,size);
-        ObjectManager::setSharedProperty(obj,property);
+        if (size.isValid()) {
+            SharedProperty property(qti_prop_SIZE_HINT,size);
+            ObjectManager::setSharedProperty(obj,property);
+        }
     }
 }
 
