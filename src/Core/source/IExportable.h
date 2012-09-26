@@ -494,34 +494,14 @@ TreeNode* duplicated_node = IExportable::duplicateInstance<TreeNode>(&node);
                   \param task A task to which a compatibility message should be logged if its too new or too old.
                   \returns IExportable::VersionSupported when the version is supported, IExportable::VersionTooOld when the version is too new, IExportable::VersionTooOld when the version is too old.
                   */
-                static Result validateQtilitiesExportVersion(Qtilities::ExportVersion export_version, ITask* task = 0) {
-                    if (export_version < Qtilities::Qtilities_1_0) {
-                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + (int) export_version + QObject::tr(") is too old."),task);
-                        return IExportable::VersionTooOld;
-                    } else if (export_version > Qtilities::Qtilities_Latest) {
-                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version requested (version ") + (int) export_version + QObject::tr(") is too new."),task);
-                        return IExportable::VersionTooNew;
-                    }
-
-                    return IExportable::VersionSupported;
-                }
+                static Result validateQtilitiesExportVersion(Qtilities::ExportVersion export_version, ITask* task = 0);
                 //! Checks the exportVersion() against the supported %Qtilities import versions for the current %Qtilities version.
                 /*!
                   \param import_version The import version to check.
                   \param task A task to which a compatibility message should be logged if its too new or too old.
                   \returns IExportable::VersionSupported when the version is supported, IExportable::VersionTooOld when the version is too new, IExportable::VersionTooOld when the version is too old.
                   */
-                static Result validateQtilitiesImportVersion(Qtilities::ExportVersion import_version, ITask* task = 0) {
-                    if (import_version < Qtilities::Qtilities_1_0) {
-                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too old."),task);
-                        return IExportable::VersionTooOld;
-                    } else if (import_version > Qtilities::Qtilities_Latest) {
-                        LOG_TASK_ERROR(QObject::tr("Qtilities export version compatibility check failed. The Qtilities export version detected in the input data (version ") + (int) import_version + QObject::tr(") is too new."),task);
-                        return IExportable::VersionTooNew;
-                    }
-
-                    return IExportable::VersionSupported;
-                }
+                static Result validateQtilitiesImportVersion(Qtilities::ExportVersion import_version, ITask* task = 0);
 
                 //----------------------------
                 // XML Exporting
