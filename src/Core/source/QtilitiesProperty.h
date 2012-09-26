@@ -59,7 +59,7 @@ namespace Qtilities {
                 QtilitiesProperty(const QString& property_name = "");
                 QtilitiesProperty(const char* property_name);
                 QtilitiesProperty(const QtilitiesProperty& property);
-                void operator=(const QtilitiesProperty& property);
+                QtilitiesProperty& operator=(const QtilitiesProperty& property);
                 virtual ~QtilitiesProperty();
                 //! Gets the name of this property as a QString.
                 QString propertyNameString() const;
@@ -234,7 +234,7 @@ if (prop.isValid() && prop.canConvert<MultiContextProperty>()) {
             MultiContextProperty(const MultiContextProperty& property);
             MultiContextProperty(const QtilitiesProperty& qtilities_property);
             virtual ~MultiContextProperty();
-            void operator=(const MultiContextProperty& property);
+            MultiContextProperty& operator=(const MultiContextProperty& property);
             bool operator==(const MultiContextProperty& other) const;
             bool operator!=(const MultiContextProperty& other) const;
 
@@ -356,7 +356,7 @@ if (prop.isValid() && prop.canConvert<SharedProperty>()) {
             SharedProperty(const SharedProperty& shared_property);
             SharedProperty(const QtilitiesProperty& qtilities_property);
             ~SharedProperty() {}
-            void operator=(const SharedProperty& other);
+            SharedProperty& operator=(const SharedProperty& other);
             bool operator==(const SharedProperty& other) const;
             bool operator!=(const SharedProperty& other) const;
 

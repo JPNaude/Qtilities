@@ -70,12 +70,12 @@ namespace Qtilities {
             QString filterName() { return tr("Subject Filter Template"); }
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<AbstractSubjectFilter, SubjectFilterTemplate> factory;
 
             // --------------------------------
-            // AbstractSubjectFilter Implemenation
+            // AbstractSubjectFilter Implementation
             // --------------------------------
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const;
             bool initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle = false);
@@ -102,7 +102,7 @@ namespace Qtilities {
             InstanceFactoryInfo instanceFactoryInfo() const;
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:

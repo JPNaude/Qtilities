@@ -93,17 +93,17 @@ subject_type_filter->enableInverseFiltering(true);
             SubjectTypeFilter(const QString& known_objects_group_name = QString(), QObject* parent = 0);
             virtual ~SubjectTypeFilter();
 
-            void operator=(const SubjectTypeFilter& ref);
+            SubjectTypeFilter& operator=(const SubjectTypeFilter& ref);
             bool operator==(const SubjectTypeFilter& ref) const;
             bool operator!=(const SubjectTypeFilter& ref) const;
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, SubjectTypeFilter> factory;
 
             // --------------------------------
-            // AbstractSubjectFilter Implemenation
+            // AbstractSubjectFilter Implementation
             // --------------------------------
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             QString filterName() const { return qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER; }
@@ -128,7 +128,7 @@ subject_type_filter->enableInverseFiltering(true);
             IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:
@@ -138,7 +138,7 @@ subject_type_filter->enableInverseFiltering(true);
 
         public:
             // --------------------------------
-            // SubjectTypeFilter Implemenation
+            // SubjectTypeFilter Implementation
             // --------------------------------
             //! Gets the name describing the known subject grouping.
             /*!

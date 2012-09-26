@@ -65,8 +65,10 @@ namespace Qtilities {
             CategoryLevel(const CategoryLevel& ref) {
                 d_name = ref.d_name;
             }
-            void operator=(const CategoryLevel& ref) {
+            CategoryLevel& operator=(const CategoryLevel& ref) {
+                if (this==&ref) return *this;
                 d_name = ref.d_name;
+                return *this;
             }
             bool operator==(const CategoryLevel& ref) const {
                 return d_name == ref.d_name;
@@ -198,7 +200,7 @@ sure that categories are handled the same way everywhere. Some usages in %Qtilit
                 d_access_mode = category.d_access_mode;
             }
             virtual ~QtilitiesCategory() {}
-            void operator=(const QtilitiesCategory& other);
+            QtilitiesCategory& operator=(const QtilitiesCategory& other);
             //! Operator overload to compare two QtilitiesCategory objects with each other.
             /*!
               \note Only the category names are used in this comparison.

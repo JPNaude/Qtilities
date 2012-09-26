@@ -122,11 +122,15 @@ Qtilities::Core::QtilitiesCategory::QtilitiesCategory(const QStringList& categor
     //d_category_icon = 0;
 }
 
-void Qtilities::Core::QtilitiesCategory::operator=(const QtilitiesCategory& other) {
+QtilitiesCategory& Qtilities::Core::QtilitiesCategory::operator=(const QtilitiesCategory& other) {
+    if (this==&other) return *this;
+
     d_category_levels = other.categoryLevels();
     d_access_mode = other.accessMode();
 //    if (!other.categoryIcon().isNull())
 //        d_category_icon = new QIcon(other.categoryIcon());
+
+    return *this;
 }
 
 bool Qtilities::Core::QtilitiesCategory::operator==(const QtilitiesCategory& ref) const {

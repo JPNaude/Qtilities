@@ -1469,11 +1469,11 @@ QString Qtilities::Core::Observer::subjectNameInContext(const QObject* obj) cons
     if (!obj)
         return QString();
 
-    // We need to check if a subject has a instance name in this context. If so, we use the instance name, not the objectName().
+    // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
     QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
     if (instance_name.isValid())
         return instance_name.toString();
-    else
+    else // If we don't use the alias map, the object name will be sync'ed with the object name category by the managing NamingPolicyFilter:
         return obj->objectName();
 }
 
@@ -1611,14 +1611,8 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
     QStringList subject_names;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
-            // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
-            if (instance_name.isValid())
-                subject_names << instance_name.toString();
-            else
-                subject_names << observerData->subject_list.at(i)->objectName();
-        }
+        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty())
+            subject_names << subjectNameInContext(observerData->subject_list.at(i));
     }
     return subject_names;
 }
@@ -1854,19 +1848,19 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
     return list;
 }
 
-QHash<QObject *, QString> Observer::subjectReferenceCategoryHash() const {
-    QHash<QObject *, QString> hash;
+QMap<QPointer<QObject>, QString> Observer::subjectReferenceCategoryMap() const {
+    QMap<QPointer<QObject>, QString> map;
 
     for (int i = 0; i < observerData->subject_list.count(); i++) {
-        QObject* obj = subjectAt(i);
+        QPointer<QObject> obj = subjectAt(i);
         QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         if (category_variant.isValid())
-            hash[obj] = (category_variant.value<QtilitiesCategory>()).toString("::");
+            map[obj] = (category_variant.value<QtilitiesCategory>()).toString("::");
         else
-            hash[obj] = "";
+            map[obj] = "";
     }
 
-    return hash;
+    return map;
 }
 
 QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
@@ -1881,7 +1875,7 @@ QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
 QList<QPointer<Observer> > Observer::subjectObserverReferences() const {
     QList<QPointer<Observer> > obs_list;
     for (int i = 0; i < observerData->subject_observer_list.count(); i++)
-        obs_list << qobject_cast<Observer*> (observerData->subject_list.at(i));
+        obs_list << qobject_cast<Observer*> (observerData->subject_observer_list.at(i));
     return obs_list;
 }
 

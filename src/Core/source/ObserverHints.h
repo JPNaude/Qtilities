@@ -348,7 +348,7 @@ category_filter_enabled(false),
             ObserverHints(const ObserverHints& other);
             //! Destructor.
             virtual ~ObserverHints();
-            void operator=(const ObserverHints& other);
+            ObserverHints& operator=(const ObserverHints& other);
             bool operator==(const ObserverHints& other) const;
             bool operator!=(const ObserverHints& other) const;
 
@@ -444,13 +444,13 @@ category_filter_enabled(false),
             bool hasInversedCategoryDisplay() const;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
             // --------------------------------
-            // IExportable Implemenation
+            // IExportable Implementation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
@@ -460,7 +460,7 @@ category_filter_enabled(false),
             IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:

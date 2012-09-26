@@ -109,7 +109,9 @@ bool Qtilities::Core::VersionNumber::operator!=(const VersionNumber& ref) const 
     return !(*this==ref);
 }
 
-void Qtilities::Core::VersionNumber::operator=(const VersionNumber& ref) {
+Qtilities::Core::VersionNumber& Qtilities::Core::VersionNumber::operator=(const VersionNumber& ref) {
+    if (this==&ref) return *this;
+
     d->version_major = ref.versionMajor();
     d->version_minor = ref.versionMinor();
     d->version_revision = ref.versionRevision();
@@ -117,6 +119,8 @@ void Qtilities::Core::VersionNumber::operator=(const VersionNumber& ref) {
     d->field_width_revision = ref.fieldWidthRevision();
     d->is_version_minor_used = ref.isVersionMinorUsed();
     d->is_version_revision_used = ref.isVersionRevisionUsed();
+
+    return *this;
 }
 
 bool Qtilities::Core::VersionNumber::operator>(const VersionNumber& ref) {

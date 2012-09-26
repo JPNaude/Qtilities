@@ -103,7 +103,9 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     setIsExportable(other.isExportable());
 }
 
-void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
+ObserverHints& Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
+    if (this==&other) return *this;
+
     d->observer_selection_context = other.observerSelectionContextHint();
     d->naming_control = other.namingControlHint();
     d->activity_display = other.activityDisplayHint();
@@ -124,6 +126,8 @@ void Qtilities::Core::ObserverHints::operator=(const ObserverHints& other) {
 
     if (observerContext())
         observerContext()->setModificationState(true);
+
+    return *this;
 }
 
 bool Qtilities::Core::ObserverHints::operator==(const ObserverHints& other) const {

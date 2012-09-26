@@ -65,9 +65,13 @@ namespace Qtilities {
                 d_meta_type = ref.d_meta_type;
                 d_name = ref.d_name;
             }
-            void operator=(const SubjectTypeInfo& ref) {
+            SubjectTypeInfo& operator=(const SubjectTypeInfo& ref) {
+                if (this==&ref) return *this;
+
                 d_meta_type = ref.d_meta_type;
                 d_name = ref.d_name;
+
+                return *this;
             }
             bool operator==(const SubjectTypeInfo& ref) {
                 if (d_meta_type != ref.d_meta_type)
@@ -97,10 +101,14 @@ namespace Qtilities {
                 d_removed_properties = ref.d_removed_properties;
                 d_changed_properties = ref.d_changed_properties;
             }
-            void operator=(const PropertyDiffInfo& ref) {
+            PropertyDiffInfo& operator=(const PropertyDiffInfo& ref) {
+                if (this==&ref) return *this;
+
                 d_added_properties = ref.d_added_properties;
                 d_removed_properties = ref.d_removed_properties;
                 d_changed_properties = ref.d_changed_properties;
+
+                return *this;
             }
             bool operator==(const PropertyDiffInfo& ref) {
                 if (d_added_properties != ref.d_added_properties)
@@ -171,7 +179,7 @@ namespace Qtilities {
             QMap<QString, QtilitiesCategory> tagCategoryMap(const QString& factory_name, bool* ok = 0) const;
 
             // --------------------------------
-            // IObjectManager Implemenation
+            // IObjectManager Implementation
             // --------------------------------
             Observer* observerReference(int id) const;             
             Observer* objectPool();

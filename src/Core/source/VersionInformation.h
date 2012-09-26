@@ -107,7 +107,7 @@ bool is_smaller = (ver0 < ver1); // True
             //! Operator overload to compare two VersionNumber objects are not equal.
             bool operator!=(const VersionNumber& ref) const;
             //! Operator overload to assign one VersionNumber to another VersionNumber.
-            void operator=(const VersionNumber& ref);
+            VersionNumber& operator=(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to bigger than another VersionNumber.
             bool operator>(const VersionNumber& ref);
             //! Operator overload to check if one VersionNumber to bigger than or equal to another VersionNumber.

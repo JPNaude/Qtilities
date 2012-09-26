@@ -71,8 +71,12 @@ Qtilities::Core::ObserverDotWriter::ObserverDotWriter(const ObserverDotWriter& o
     d->observer = other.observerContext();
 }
 
-void Qtilities::Core::ObserverDotWriter::operator=(const ObserverDotWriter& other) {
+ObserverDotWriter& Qtilities::Core::ObserverDotWriter::operator=(const ObserverDotWriter& other) {
+    if (this==&other) return *this;
+
     d->observer = other.observerContext();
+
+    return *this;
 }
 
 bool Qtilities::Core::ObserverDotWriter::saveToFile(const QString& fileName) const {

@@ -79,7 +79,9 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QtilitiesProperty& p
     setIsExportable(property.isExportable());
 }
 
-void Qtilities::Core::QtilitiesProperty::operator=(const QtilitiesProperty& property) {
+QtilitiesProperty& Qtilities::Core::QtilitiesProperty::operator=(const QtilitiesProperty& property) {
+    if (this==&property) return *this;
+
     name = property.propertyNameString();
     is_reserved = property.isReserved();
     is_removable = property.isRemovable();
@@ -87,6 +89,7 @@ void Qtilities::Core::QtilitiesProperty::operator=(const QtilitiesProperty& prop
     read_only = property.isReadOnly();
 
     setIsExportable(property.isExportable());
+    return *this;
 }
 
 Qtilities::Core::QtilitiesProperty::~QtilitiesProperty() {
@@ -422,7 +425,9 @@ Qtilities::Core::MultiContextProperty::MultiContextProperty(const QtilitiesPrope
 
 }
 
-void Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty& other) {
+MultiContextProperty& Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty& other) {
+    if (this==&other) return *this;
+
     name = other.propertyNameString();
     context_map = other.contextMap();
     last_change_context = other.lastChangedContext();
@@ -432,6 +437,7 @@ void Qtilities::Core::MultiContextProperty::operator=(const MultiContextProperty
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
+    return *this;
 }
 
 bool Qtilities::Core::MultiContextProperty::operator==(const MultiContextProperty& other) const {
@@ -654,7 +660,9 @@ bool Qtilities::Core::SharedProperty::setValue(QVariant new_value) {
     return true;
 }
 
-void Qtilities::Core::SharedProperty::operator=(const SharedProperty& other) {
+SharedProperty& Qtilities::Core::SharedProperty::operator=(const SharedProperty& other) {
+    if (this==&other) return *this;
+
     name = other.propertyNameString();
     property_value = other.value();
     is_reserved = other.isReserved();
@@ -663,6 +671,7 @@ void Qtilities::Core::SharedProperty::operator=(const SharedProperty& other) {
     supports_change_notifications = other.supportsChangeNotifications();
 
     setIsExportable(other.isExportable());
+    return *this;
 }
 
 bool Qtilities::Core::SharedProperty::operator==(const SharedProperty& other) const {

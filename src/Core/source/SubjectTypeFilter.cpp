@@ -69,10 +69,14 @@ Qtilities::Core::SubjectTypeFilter::~SubjectTypeFilter() {
     delete d;
 }
 
-void Qtilities::Core::SubjectTypeFilter::operator=(const SubjectTypeFilter& ref) {
+SubjectTypeFilter& Qtilities::Core::SubjectTypeFilter::operator=(const SubjectTypeFilter& ref) {
+    if (this==&ref) return *this;
+
     d->inversed_filtering = ref.inverseFilteringEnabled();
     d->known_subject_types = ref.knownSubjectTypes();
     d->known_objects_group_name = ref.groupName();
+
+    return *this;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::operator==(const SubjectTypeFilter& ref) const {

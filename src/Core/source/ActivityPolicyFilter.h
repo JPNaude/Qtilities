@@ -82,7 +82,7 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             virtual ~ActivityPolicyFilter();
             bool eventFilter(QObject *object, QEvent *event);
 
-            void operator=(const ActivityPolicyFilter& ref);
+            ActivityPolicyFilter& operator=(const ActivityPolicyFilter& ref);
             bool operator==(const ActivityPolicyFilter& ref) const;
             bool operator!=(const ActivityPolicyFilter& ref) const;
 
@@ -105,12 +105,12 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             void enableActivityPolicyEnforcement();
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, ActivityPolicyFilter> factory;
 
             // --------------------------------
-            // ActivityPolicyFilter Implemenation
+            // ActivityPolicyFilter Implementation
             // --------------------------------
             //! Policy to control if only one, or multiple subjects can be active at any time.
             /*!
@@ -249,7 +249,7 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             QStringList inactiveSubjectNames() const;
 
             // --------------------------------
-            // AbstractSubjectFilter Implemenation
+            // AbstractSubjectFilter Implementation
             // --------------------------------
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
             void finalizeAttachment(QObject* obj, bool attachment_successful, bool import_cycle = false);
@@ -261,7 +261,7 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
 
         public:
             // --------------------------------
-            // IExportable Implemenation
+            // IExportable Implementation
             // --------------------------------
             IExportable::ExportModeFlags supportedFormats() const;
             InstanceFactoryInfo instanceFactoryInfo() const;
@@ -271,13 +271,13 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
             IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:

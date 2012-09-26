@@ -278,7 +278,7 @@ digraph "Root Node" {
             //! Copy constructor.
             ObserverDotWriter(const ObserverDotWriter& other);
             //! Overloaded = operator.
-            void operator=(const ObserverDotWriter& other);
+            ObserverDotWriter& operator=(const ObserverDotWriter& other);
             //! Destructor.
             virtual ~ObserverDotWriter();
 

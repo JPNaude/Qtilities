@@ -107,9 +107,13 @@ namespace Qtilities {
                 category = ref.category;
             }
             //! Overload of the = operator.
-            void operator=(const FactoryItemID& ref) {
+            FactoryItemID& operator=(const FactoryItemID& ref) {
+                if (this==&ref) return *this;
+
                 tag = ref.tag;
                 category = ref.category;
+
+                return *this;
             }
 
             QString             tag;

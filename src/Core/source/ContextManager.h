@@ -67,7 +67,7 @@ namespace Qtilities {
             ContextManager(QObject* parent = 0);
 
             // --------------------------------
-            // IContextManager Implemenation
+            // IContextManager Implementation
             // --------------------------------
             int registerContext(const QString& context, const QString& context_help_id = QString());
             QList<int> allContexts() const;

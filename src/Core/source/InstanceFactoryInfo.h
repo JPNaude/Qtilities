@@ -101,11 +101,15 @@ namespace Qtilities {
             bool operator!=(const InstanceFactoryInfo& ref) {
                 return !(*this==ref);
             }
-            void operator=(const InstanceFactoryInfo& ref) {
+            InstanceFactoryInfo& operator=(const InstanceFactoryInfo& ref) {
+                if (this==&ref) return *this;
+
                 d_factory_tag = ref.d_factory_tag;
                 d_instance_tag = ref.d_instance_tag;
                 d_instance_name = ref.d_instance_name;
                 d_description = ref.d_description;
+
+                return *this;
             }
 
             //! Returns true if this object contains the neccessary information to be used during object construction.

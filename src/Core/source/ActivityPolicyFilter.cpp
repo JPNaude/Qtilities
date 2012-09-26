@@ -79,12 +79,16 @@ Qtilities::Core::ActivityPolicyFilter::~ActivityPolicyFilter() {
     delete d;
 }
 
-void Qtilities::Core::ActivityPolicyFilter::operator=(const ActivityPolicyFilter& ref) {
+ActivityPolicyFilter& Qtilities::Core::ActivityPolicyFilter::operator=(const ActivityPolicyFilter& ref) {
+    if (this==&ref) return *this;
+
     d->activity_policy = ref.activityPolicy();
     d->minimum_activity_policy = ref.minimumActivityPolicy();
     d->new_subject_activity_policy = ref.newSubjectActivityPolicy();
     d->parent_tracking_policy = ref.parentTrackingPolicy();
     filter_is_modification_state_monitored = ref.isModificationStateMonitored();
+
+    return *this;
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::operator==(const ActivityPolicyFilter& ref) const {

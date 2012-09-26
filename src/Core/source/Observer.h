@@ -493,7 +493,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             bool broadcastModificationStateChangesEnabled() const;
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, Observer> factory;
 
@@ -1066,8 +1066,8 @@ QVERIFY(items_verify.count() == 5);
             QStringList subjectNamesByCategory(const QtilitiesCategory& category) const;
             //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an qti_prop_CATEGORY_MAP shared observer property.
             QList<QObject*> subjectReferencesByCategory(const QtilitiesCategory& category) const;
-            //! Returns a QHash with each object in this observer mapped to its category's string representation (using toString("::") function on QtilitiesCategory).
-            QHash<QObject*,QString> subjectReferenceCategoryHash() const;
+            //! Returns a QMap with each object in this observer mapped to its category's string representation (using toString("::") function on QtilitiesCategory).
+            QMap<QPointer<QObject>,QString> subjectReferenceCategoryMap() const;
 
             // --------------------------------
             // Property related functions
