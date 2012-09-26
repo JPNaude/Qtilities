@@ -83,7 +83,7 @@ namespace Qtilities {
 
         private:
             //! Function which will rebuild the complete tree structure under the top level observer.
-            void buildRecursive(ObserverTreeItem* item, QList<QObject*> category_objects = QList<QObject*>());
+            void buildRecursive(ObserverTreeItem* item, QList<QPointer<QObject> > category_objects = QList<QPointer<QObject> >());
             //! Prints the structure of the tree as trace messages.
             /*!
               \sa LOG_TRACE

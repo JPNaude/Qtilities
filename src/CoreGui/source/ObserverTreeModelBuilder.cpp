@@ -120,7 +120,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::startBuild() {
     emit buildCompleted(d->root_item);
 }
 
-void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeItem* item, QList<QObject*> category_objects) {
+void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeItem* item, QList<QPointer<QObject> > category_objects) {
      // In here we build the complete structure of all the children below item.
     Observer* observer = qobject_cast<Observer*> (item->getObject());
     ObserverTreeItem* new_item;
@@ -139,19 +139,21 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                     // Now add all items belonging to this category
                     for (int i = 0; i < category_objects.count(); i++) {
                         // Storing all information in the data vector here can improve performance
-                        QObject* object = category_objects.at(i);
-                        Observer* obs = qobject_cast<Observer*> (object);
-                        QVector<QVariant> column_data;
-                        column_data << QVariant(parent_observer->subjectNameInContext(object));
-                        if (obs) {
-                            new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeNode);
-                        } else {
-                            new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeItem);
-                        }
-                        item->appendChild(new_item);
+                        QPointer<QObject> object = category_objects.at(i);
+                        if (object) {
+                            QPointer<Observer> obs = qobject_cast<Observer*> (object);
+                            QVector<QVariant> column_data;
+                            column_data << QVariant(parent_observer->subjectNameInContext(object));
+                            if (obs) {
+                                new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeNode);
+                            } else {
+                                new_item = new ObserverTreeItem(object,item,column_data,ObserverTreeItem::TreeItem);
+                            }
+                            item->appendChild(new_item);
 
-                        if (obs)
-                            buildRecursive(new_item);
+                            if (obs)
+                                buildRecursive(new_item);
+                        }
                     }
                 }
             }
@@ -177,12 +179,9 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
             }
 
             if (use_categorized) {
-                // Create items for each category:
-                //QList<QtilitiesCategory> categories = observer->subjectCategories();
                 // Get the object / category hash:
-                // TODO: Analyze this difference in TreeBuilder example (using the Set vs. the above subjectCategories() call)
-                QHash<QObject *, QString> category_hash = observer->subjectReferenceCategoryHash();
-                QSet<QString> categories = category_hash.values().toSet();
+                QMap<QPointer<QObject>, QString> category_map = observer->subjectReferenceCategoryMap();
+                QSet<QString> categories = category_map.values().toSet();
 
                 foreach (QString category_string, categories) {
                     QtilitiesCategory category = QtilitiesCategory(category_string,"::");
@@ -249,9 +248,10 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                                 tree_item_list.push_back(new_item);
 
                                 // If this item has locked access, we don't dig into any items underneath it:
-                                if (observer->accessMode(shortened_category) != Observer::LockedAccess)
-                                    buildRecursive(new_item,category_hash.keys(category_levels.join("::")));
-                                else
+                                if (observer->accessMode(shortened_category) != Observer::LockedAccess) {
+                                    QList<QPointer<QObject> > safe_list = category_map.keys(category_levels.join("::"));
+                                    buildRecursive(new_item,safe_list);
+                                } else
                                     break;
                             } else
                                 tree_item_list.push_back(existing_item);
