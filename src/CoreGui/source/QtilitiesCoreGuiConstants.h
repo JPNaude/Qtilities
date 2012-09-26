@@ -301,7 +301,7 @@ namespace Qtilities {
         namespace Actions {
             // Standard actions & containers
             const char * const qti_action_MENUBAR_STANDARD                = "MainWindowMenuBar";
-            const char * const qti_action_FILE                            = "File";
+            const char * const qti_action_FILE                            = "&File";
             const char * const qti_action_FILE_NEW                        = "File.New";
             const char * const qti_action_FILE_OPEN                       = "File.Open";
             const char * const qti_action_FILE_SETTINGS                   = "File.Settings";
@@ -316,8 +316,8 @@ namespace Qtilities {
             const char * const qti_action_HELP_ABOUT                      = "General.About";
 
             // Observer widget actions & containers
-            const char * const qti_action_CONTEXT                         = "Context";
-            const char * const qti_action_CONTEXT_HIERARCHY               = "Hierarchy";
+            const char * const qti_action_CONTEXT                         = "&Context";
+            const char * const qti_action_CONTEXT_HIERARCHY               = "&Hierarchy";
             const char * const qti_action_CONTEXT_REFRESH_VIEW            = "Context.RefreshView";
             const char * const qti_action_CONTEXT_NEW_ITEM                = "Context.NewItem";
             const char * const qti_action_CONTEXT_SWITCH_VIEW             = "Context.SwitchView";
@@ -339,7 +339,7 @@ namespace Qtilities {
             const char * const qti_action_SELECTION_SCOPE_REMOVE_OTHERS   = "Selection.Scope.RemoveOthers";
 
             // Edit menu and actions
-            const char * const qti_action_EDIT                            = "Edit";
+            const char * const qti_action_EDIT                            = "&Edit";
             const char * const qti_action_EDIT_UNDO                       = "Edit.Undo";
             const char * const qti_action_EDIT_REDO                       = "Edit.Redo";
             const char * const qti_action_EDIT_COPY                       = "Edit.Copy";
@@ -350,7 +350,7 @@ namespace Qtilities {
             const char * const qti_action_EDIT_FIND                       = "Edit.Find";
 
             // View menu and actions
-            const char * const qti_action_VIEW                             = "View";
+            const char * const qti_action_VIEW                             = "&View";
             const char * const qti_action_VIEW_ACTIVATE_NEXT               = "View.ActivateNext";
             const char * const qti_action_VIEW_ACTIVATE_PREV               = "View.ActivatePrev";
             const char * const qti_action_VIEW_CLOSE_ALL                   = "View.CloseAll";
@@ -359,7 +359,7 @@ namespace Qtilities {
             const char * const qti_action_VIEW_TILE                        = "View.Tile";
 
             // About menu and actions
-            const char * const qti_action_ABOUT                            = "About";
+            const char * const qti_action_ABOUT                            = "&About";
             const char * const qti_action_ABOUT_QTILITIES                  = "About.Qtilities";
         }
     }
