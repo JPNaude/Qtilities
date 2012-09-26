@@ -141,7 +141,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         button_move(Qt::RightButton),
         button_copy(Qt::LeftButton),
         disable_proxy_models(false),
-        lazy_init(false) { }
+        lazy_init(false),
+        search_item_filter_flags(ObserverTreeItem::TreeItem){ }
 
     QAction* actionRemoveItem;
     QAction* actionRemoveAll;
@@ -271,6 +272,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
 
     //! Stores if lazy initialization has been enabled on this widget.
     bool lazy_init;
+
+    ObserverTreeItem::TreeItemTypeFlags search_item_filter_flags;
 };
 
 Qtilities::CoreGui::ObserverWidget::ObserverWidget(DisplayMode display_mode, QWidget * parent, Qt::WindowFlags f) :
@@ -1903,10 +1906,15 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                                 d->actionDeleteAll->setEnabled(false);
                             }
                         } else if (observer->displayHints()->observerSelectionContextHint() == ObserverHints::SelectionUseParentContext && selectionParent()) {
-                            d->actionRemoveAll->setText(tr("Detach All Under: ") + selectionParent()->observerName() + "\"");
-                            d->actionRemoveAll->setEnabled(true);
-                            d->actionDeleteAll->setText(tr("Delete All Under: ") + selectionParent()->observerName() + "\"");
-                            d->actionDeleteAll->setEnabled(true);
+                            if (selectionParent()->subjectCount() > 0) {
+                                d->actionRemoveAll->setText(tr("Detach All Under \"") + observer->observerName() + "\"");
+                                d->actionRemoveAll->setEnabled(true);
+                                d->actionDeleteAll->setText(tr("Delete All Under: ") + observer->observerName() + "\"");
+                                d->actionDeleteAll->setEnabled(true);
+                            } else {
+                                d->actionRemoveAll->setEnabled(false);
+                                d->actionDeleteAll->setEnabled(false);
+                            }
                         }
                     }
 
@@ -2414,7 +2422,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemoveAll(bool delete_all) {
             return;
         else if (d->current_selection.count() == 1) {
             // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed:
-            Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
+            Observer* obs = qobject_cast<Observer*> (d->current_selection.front());
             if (obs) {
                 if (obs->displayHints()) {
                     if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
@@ -2544,9 +2552,9 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
 
     if (d->display_mode == TableView && d->table_model) {
         if (d->current_selection.count() == 1) {
-            // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
+            // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed:
             bool use_parent_context = true;
-            Observer* obs = qobject_cast<Observer*> (d->table_model->getObject(selectedIndexes().front()));
+            Observer* obs = qobject_cast<Observer*> (d->current_selection.front());
             if (obs) {
                 if (obs->displayHints()) {
                     if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
@@ -2573,7 +2581,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionNewItem_triggered() {
         if (d->current_selection.count() == 1 && d->tree_view->selectionModel()->selectedIndexes().count() > 0) {
             // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
             bool use_parent_context = true;
-            Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
+            Observer* obs = qobject_cast<Observer*> (d->current_selection.front());
             if (obs) {
                 if (obs->displayHints()) {
                     if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
@@ -3080,17 +3088,14 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
             d->actionFilterTypeSeperator = search_options_menu->addSeparator();
             d->actionFilterNodes = new QAction(tr("Filter Nodes"),this);
             d->actionFilterNodes->setCheckable(true);
-            d->actionFilterNodes->setChecked(false);
             connect(d->actionFilterNodes,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
             search_options_menu->addAction(d->actionFilterNodes);
             d->actionFilterItems = new QAction(tr("Filter Items"),this);
             d->actionFilterItems->setCheckable(true);
-            d->actionFilterItems->setChecked(true);
             connect(d->actionFilterItems,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
             search_options_menu->addAction(d->actionFilterItems);
             d->actionFilterCategories = new QAction(tr("Filter Categories"),this);
             d->actionFilterCategories->setCheckable(true);
-            d->actionFilterCategories->setChecked(false);
             connect(d->actionFilterCategories,SIGNAL(triggered()),SLOT(handleSearchItemTypesChanged()));
             search_options_menu->addAction(d->actionFilterCategories);
             if (d->display_mode == TableView) {
@@ -3099,6 +3104,8 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
                 d->actionFilterItems->setVisible(false);
                 d->actionFilterTypeSeperator->setVisible(false);
             }
+
+            setSearchBoxCheckedItemFilters(d->search_item_filter_flags);
         }
         connect(d->searchBoxWidget,SIGNAL(searchOptionsChanged()),SLOT(handleSearchOptionsChanged()));
         connect(d->searchBoxWidget,SIGNAL(searchStringChanged(QString)),SLOT(handleSearchStringChanged(QString)));
@@ -3119,6 +3126,24 @@ void Qtilities::CoreGui::ObserverWidget::toggleSearchBox() {
             d->tree_view->setFocus();
         }
     }
+}
+
+void Qtilities::CoreGui::ObserverWidget::setSearchBoxCheckedItemFilters(Qtilities::CoreGui::ObserverTreeItem::TreeItemTypeFlags search_item_filter_flags) {
+    d->search_item_filter_flags = search_item_filter_flags;
+
+    if (d->actionFilterNodes)
+        d->actionFilterNodes->setChecked(d->search_item_filter_flags & ObserverTreeItem::TreeNode);
+    if (d->actionFilterItems)
+        d->actionFilterItems->setChecked(d->search_item_filter_flags & ObserverTreeItem::TreeItem);
+    if (d->actionFilterCategories)
+        d->actionFilterCategories->setChecked(d->search_item_filter_flags & ObserverTreeItem::CategoryItem);
+
+    if (d->searchBoxWidget)
+        handleSearchItemTypesChanged();
+}
+
+Qtilities::CoreGui::ObserverTreeItem::TreeItemTypeFlags Qtilities::CoreGui::ObserverWidget::searchBoxCheckedItemFilters() const {
+    return d->search_item_filter_flags;
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchItemTypesChanged() {
@@ -3587,6 +3612,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
                 }
                 if (mapped_indexes.count() > 0)
                     d->tree_view->selectionModel()->setCurrentIndex(mapped_indexes.front(),QItemSelectionModel::Current);
+
                 selectedObjects();
                 updateGlobalActiveSubjects();
             }
@@ -3659,7 +3685,6 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
         }
 
         d->task_widget->show();
-        ui->widgetProgressInfo->show();
         ui->itemParentWidget->hide();
         ui->navigationBarWidget->hide();
 
@@ -3667,6 +3692,8 @@ void Qtilities::CoreGui::ObserverWidget::showProgressInfo(int task_id) {
             d->search_box_visible_before_refresh = ui->widgetSearchBox->isVisible();
             ui->widgetSearchBox->hide();
         }
+
+        ui->widgetProgressInfo->show();
 
         emit treeModelBuildStarted(task_id);
         QApplication::processEvents();
@@ -4009,21 +4036,23 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
     // ----------------------------------------------
     if (d->tree_view && d->tree_model && d->display_mode == TreeView) {
         if (object == d->tree_view->viewport() && event->type() == QEvent::MouseButtonDblClick) {
-            if (d->current_selection.count() == 1 && selectedIndexes().front().column() == d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) {
-                // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
-                bool use_parent_context = true;
-                Observer* obs = qobject_cast<Observer*> (d->tree_model->getObject(selectedIndexes().front()));
-                if (obs) {
-                    if (obs->displayHints()) {
-                        if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
-                            emit doubleClickRequest(0, obs);
-                            use_parent_context = false;
+            if (selectedIndexes().count() > 0) {
+                if (d->current_selection.count() == 1 && selectedIndexes().front().column() == d->tree_model->columnPosition(AbstractObserverItemModel::ColumnName)) {
+                    // Respect ObserverSelectionContext hint by first checking if the selection is an observer if needed
+                    bool use_parent_context = true;
+                    Observer* obs = qobject_cast<Observer*> (d->current_selection.front());
+                    if (obs) {
+                        if (obs->displayHints()) {
+                            if (obs->displayHints()->observerSelectionContextHint() & ObserverHints::SelectionUseSelectedContext) {
+                                emit doubleClickRequest(0, obs);
+                                use_parent_context = false;
+                            }
                         }
                     }
-                }
 
-                if (use_parent_context)
-                    emit doubleClickRequest(d->current_selection.front(), d_observer);
+                    if (use_parent_context)
+                        emit doubleClickRequest(d->current_selection.front(), d_observer);
+                }
             }
             return false;
         }

@@ -312,7 +312,7 @@ categorized_widget->show();
             QStringList lastExpandedItemsResults() const;
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QWidget, ObserverWidget> factory;
 
@@ -398,7 +398,7 @@ categorized_widget->show();
             void setAppendSelectedContexts(bool enable);
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
@@ -897,11 +897,30 @@ categorized_widget->show();
               When initializing the %Qtilities clipboard manager the paste action will be created automatically.
               */
             virtual void handle_actionPaste_triggered();
+
             //! Toggles the visibility of the SearchBoxWidget at the bottom of the ObserverWidget.
             /*!
               \note When proxy models are disabled, the search box is not available and this function does nothing. See disableProxyModels().
+
+              \sa setCheckedSearchBoxItemFilters()
               */
             void toggleSearchBox();
+            //! Sets the active item type filters in the menu on the search box widget used in this ObserverWidget.
+            /*!
+             * \sa searchBoxCheckedItemFilters(), toggleSearchBox()
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void setSearchBoxCheckedItemFilters(ObserverTreeItem::TreeItemTypeFlags item_filter_flags);
+            //! Gets the active item type filters in the menu on the search box widget used in this ObserverWidget.
+            /*!
+             * By default, ObserverTreeItem::TreeItem
+             *
+             * \sa setSearchBoxCheckedItemFilters(), toggleSearchBox()
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            ObserverTreeItem::TreeItemTypeFlags searchBoxCheckedItemFilters() const;
             //! Collapse all items in the tree view to a depth of 1 in TreeView mode.
             virtual void viewCollapseAll();
             //! Expand all items in the tree view in TreeView mode.
