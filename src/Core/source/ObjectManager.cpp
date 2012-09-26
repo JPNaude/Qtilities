@@ -1026,7 +1026,8 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                         else
                             value2_string = value2.toString();
 
-                        property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
+                        if (value2_string != value1_string)
+                            property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
                     }
                 }
             }
@@ -1078,7 +1079,8 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                         else
                             value2_string = value2.toString();
 
-                        property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
+                        if (value2_string != value1_string)
+                            property_diff_info->d_changed_properties[name] = value2_string + "," + value1_string;
                     }
                 }
             }
@@ -1112,7 +1114,8 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                         QString value1_string = to_be_compared_multi1[name].valueString();
                         QString value2_string = to_be_compared_multi2[name].valueString();
 
-                        property_diff_info->d_changed_properties[name] = "(" + value2_string + "),(" + value1_string + ")";
+                        if (value2_string != value1_string)
+                            property_diff_info->d_changed_properties[name] = "(" + value2_string + "),(" + value1_string + ")";
                     }
                 }
             }
