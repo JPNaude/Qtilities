@@ -75,6 +75,7 @@ Qtilities::CoreGui::StringListWidget::StringListWidget(const QStringList& string
     d->toolbar_area = toolbar_area;
     d->model.setStringList(string_list);
     ui->listView->setModel(&d->model);
+    d->model.sort(0);
 
     d->actionAddString = new QAction(QIcon(qti_icon_NEW_16x16),"Add",this);
     d->actionRemoveString = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove",this);
@@ -108,6 +109,7 @@ void Qtilities::CoreGui::StringListWidget::setStringList(const QStringList& stri
     d->model.setStringList(string_list);
 
     emit stringListChanged(d->model.stringList());
+    d->model.sort(0);
 }
 
 QStringList Qtilities::CoreGui::StringListWidget::nonRemovableStringList() const {
@@ -210,6 +212,7 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
             emit stringListChanged(list);
         }
     }
+    d->model.sort(0);
 }
 
 void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
@@ -231,6 +234,7 @@ void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
         }
         d->model.setStringList(new_list);
     }
+    d->model.sort(0);
 }
 
 void Qtilities::CoreGui::StringListWidget::handleDoubleClick(QModelIndex index) {
