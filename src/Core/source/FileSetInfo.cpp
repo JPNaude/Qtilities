@@ -85,13 +85,17 @@ FileSetInfo::FileSetInfo(const FileSetInfo &other) : QObject(other.parent()) {
     emit setChanged();
 }
 
-void Qtilities::Core::FileSetInfo::operator=(const FileSetInfo& other) {
+FileSetInfo& Qtilities::Core::FileSetInfo::operator=(const FileSetInfo& other) {
+    if (this==&other) return *this;
+
     d->watcher.removePaths(d->watcher.files());
     d->files = other.files();
     if (d->files.count() > 0)
         d->watcher.addPaths(filePaths());
 
     emit setChanged();
+
+    return *this;
 }
 
 Qtilities::Core::FileSetInfo::~FileSetInfo() {
@@ -103,6 +107,8 @@ Qtilities::Core::FileSetInfo::~FileSetInfo() {
 // -----------------------------------
 
 bool FileSetInfo::addFile(const QString &file_path) {
+    //qDebug() << "ADDING FILE TO FILESETINFO" << file_path;
+
     QtilitiesFileInfo fi(file_path);
     if (!d->files.contains(fi)) {
         if (d->file_watching_enabled)
@@ -159,6 +165,7 @@ QStringList FileSetInfo::filePaths() const {
     QStringList file_paths;
     foreach (QtilitiesFileInfo fi, d->files)
         file_paths << fi.actualFilePath();
+    file_paths.sort();
     return file_paths;
 }
 
@@ -181,15 +188,29 @@ void FileSetInfo::clear() {
     emit setChanged();
 }
 
-void FileSetInfo::updateRelativeToPaths(const QString &old_relative_to_path, const QString &new_relative_to_path, ITask *task) {
+void FileSetInfo::updateRelativeToPaths(const QString &search_string, const QString &replace_string, ITask *task) {
     QList<QtilitiesFileInfo> local_list = files();
     for (int i = 0; i < local_list.count(); i++) {
-        if (FileUtils::comparePaths(old_relative_to_path,d->files.at(i).relativeToPath())) {
-            QtilitiesFileInfo updated_fi(d->files.at(i).filePath(),new_relative_to_path) ;
+        QString actual_file_path = local_list.at(i).actualFilePath();
+
+        bool do_replacement = false;
+        if (FileUtils::toNativeSeparators(QDir::cleanPath(replace_string)).startsWith(FileUtils::toNativeSeparators(QDir::cleanPath(search_string)))) {
+            // Do check 1:
+            do_replacement = (actual_file_path.startsWith(search_string,Qt::CaseInsensitive) && !actual_file_path.startsWith(replace_string,Qt::CaseInsensitive));
+        } else {
+            // Do check 2:
+            do_replacement = (actual_file_path.startsWith(search_string,Qt::CaseInsensitive));
+        }
+
+        if (do_replacement) {
+            actual_file_path.remove(0,search_string.length());
+            QString new_actual_path = actual_file_path.prepend(replace_string);
+
+            QtilitiesFileInfo updated_fi(new_actual_path) ;
             if (task)
-                task->logMessage("Updating relative path of file in file set. Previous: \"" + d->files.at(i).actualFilePath() + "\", Updated: " + updated_fi.actualFilePath());
+                task->logMessage("Updating relative path of file in file set. Previous: \"" + local_list.at(i).actualFilePath() + "\", Updated: " + updated_fi.actualFilePath());
             addFile(updated_fi);
-            removeFile(d->files.at(i));
+            removeFile(local_list.at(i));
         }
     }
 }
@@ -198,6 +219,9 @@ void FileSetInfo::updateRelativeToPaths(const QString &old_relative_to_path, con
 // State Of Files In Set
 // -----------------------------------
 int FileSetInfo::fileSetHash(bool update_previous_hash_storage) const {
+    if (d->files.isEmpty())
+        return -1;
+
     // We store the file with its corresponding hash code in a map in order
     // to always sort the hash code order according to the file name:
     QMap<QString,int> sorted_hash_codes;
@@ -216,6 +240,10 @@ int FileSetInfo::fileSetHash(bool update_previous_hash_storage) const {
     if (update_previous_hash_storage)
         d->files_hash = new_hash;
     return new_hash;
+}
+
+void FileSetInfo::setFileSetHash(int hash) {
+    d->files_hash = hash;
 }
 
 int FileSetInfo::fileSetHashPrevious() const {

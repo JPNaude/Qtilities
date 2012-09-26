@@ -76,7 +76,7 @@ namespace Qtilities {
         public:
             FileSetInfo(QObject* parent = 0);
             FileSetInfo(const FileSetInfo& other);
-            void operator=(const FileSetInfo& other);
+            FileSetInfo& operator=(const FileSetInfo& other);
             virtual ~FileSetInfo();
 
             // -----------------------------------
@@ -147,8 +147,8 @@ namespace Qtilities {
             int count() const;
             //! Removes all files from this file set hash.
             void clear();
-            //! Updates all relative to paths matching the relative to path specified with the newly specified relative to path.
-            void updateRelativeToPaths(const QString& old_relative_to_path, const QString& new_relative_to_path, ITask *task);
+            //! Updates all paths starting with the search string to start with replace string.
+            void updateRelativeToPaths(const QString& search_string, const QString& replace_string, ITask *task);
 
             // -----------------------------------
             // State Of Files In Set
@@ -159,11 +159,13 @@ namespace Qtilities {
              *
              *\param update_previous_hash_storage When true, the internal storage storing the last calculated hash which is accessable through
              *fileSetHashPrevious() will be updated. When false, the new hash will only be returned and the internal storage won't be modified.
-             *\returns The file set hash for the files in this set.
+             *\returns The file set hash for the files in this set. If no files are in the set, this function will return -1.
              *
              *\sa fileSetHashPrevious()
              */
             int fileSetHash(bool update_previous_hash_storage = true) const;
+            //! Sets the hash code for the contents of all files in the set.
+            void setFileSetHash(int hash);
             //! Returns the last hash code calculated for the contents of all files in the set.
             /*!
              *This function will return the last calculated hash code for the contents of all files in the set.
@@ -210,7 +212,7 @@ namespace Qtilities {
             bool fileWatchingEnabled() const;
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, FileSetInfo> factory;
             static InstanceFactoryInfo staticInstanceFactoryInfo();
