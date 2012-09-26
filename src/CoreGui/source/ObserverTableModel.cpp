@@ -315,9 +315,10 @@ QVariant Qtilities::CoreGui::ObserverTableModel::data(const QModelIndex &index, 
         // ------------------------------------
         } else if (role == Qt::SizeHintRole) {
             QObject* obj = d_observer->subjectReference(getSubjectID(index));
-            SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
-            if (icon_property.isValid()) {
-                return icon_property.value();
+            SharedProperty size_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
+            if (size_property.isValid()) {
+                if (size_property.value().toSize().isValid())
+                    return size_property.value();
             }
         // ------------------------------------
         // Qt::WhatsThisRole

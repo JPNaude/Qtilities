@@ -447,9 +447,11 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
 
             // Check if it has the role shared property set.
             if (obj) {
-                SharedProperty icon_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
-                if (icon_property.isValid())
-                    return icon_property.value();
+                SharedProperty size_property = ObjectManager::getSharedProperty(obj,qti_prop_SIZE_HINT);
+                if (size_property.isValid()) {
+                    if (size_property.value().toSize().isValid())
+                        return size_property.value();
+                }
             }
         // ------------------------------------
         // Qt::StatusTipRole
@@ -1185,12 +1187,13 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
         }
     }
 
+    emit treeModelBuildStarted(d->tree_builder.taskID());
+
     // Rebuild the tree structure:
     beginResetModel();
     //reset();
     d->tree_model_up_to_date = false;
 
-    emit treeModelBuildStarted(d->tree_builder.taskID());
     QApplication::processEvents();
     deleteRootItem();
     QVector<QVariant> columns;
