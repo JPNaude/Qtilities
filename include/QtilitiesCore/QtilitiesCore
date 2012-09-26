@@ -43,6 +43,7 @@
 #include "Task.h"
 #include "QtilitiesProcess.h"
 #include "FileSetInfo.h"
+#include "FileLocker.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 
