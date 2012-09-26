@@ -107,7 +107,7 @@ namespace Qtilities {
             void toggleQtilitiesProperties(bool show_qtilities_properties);
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QWidget, ObjectDynamicPropertyBrowser> factory;       
 

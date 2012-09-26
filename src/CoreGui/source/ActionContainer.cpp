@@ -35,7 +35,7 @@
 #include <QPointer>
 
 // --------------------------------
-// MenuContainer Implemenation
+// MenuContainer Implementation
 // --------------------------------
 
 struct Qtilities::CoreGui::MenuContainerPrivateData {
@@ -128,7 +128,7 @@ void Qtilities::CoreGui::MenuContainer::addMenu(ActionContainer *menu, const QSt
 }
 
 // --------------------------------
-// MenuBarContainer Implemenation
+// MenuBarContainer Implementation
 // --------------------------------
 struct Qtilities::CoreGui::MenuBarContainerPrivateData {
    MenuBarContainerPrivateData() : this_menu_bar(0) { }

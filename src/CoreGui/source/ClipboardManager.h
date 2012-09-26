@@ -67,7 +67,7 @@ namespace Qtilities {
             ~ClipboardManager();
 
             // --------------------------------
-            // IClipboard Implemenation
+            // IClipboard Implementation
             // --------------------------------
             ClipboardOrigin clipboardOrigin();
             void setClipboardOrigin(IClipboard::ClipboardOrigin new_origin);

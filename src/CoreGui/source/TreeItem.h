@@ -74,12 +74,12 @@ namespace Qtilities {
             virtual ~TreeItem();
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, TreeItem> factory;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }

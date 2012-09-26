@@ -100,7 +100,7 @@ namespace Qtilities {
             virtual ~MenuContainer();
 
             // --------------------------------
-            // ActionContainer Implemenation
+            // ActionContainer Implementation
             // --------------------------------
             QMenu *menu() const;
             void addAction(Command *command, const QString &before = QString());
@@ -133,7 +133,7 @@ namespace Qtilities {
             virtual ~MenuBarContainer();
 
             // --------------------------------
-            // ActionContainer Implemenation
+            // ActionContainer Implementation
             // --------------------------------
             QMenu *menu() const;
             void addAction(Command *command, const QString &before = QString());

@@ -46,7 +46,7 @@ using namespace Qtilities::Core;
 int Qtilities::CoreGui::Command::d_category_context;
 
 // --------------------------------
-// Command Implemenation
+// Command Implementation
 // --------------------------------
 Qtilities::CoreGui::Command::Command(int category_context, QObject* parent) : QObject(parent)
 {
@@ -114,7 +114,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const
 }
 
 // --------------------------------
-// ProxyAction Implemenation
+// ProxyAction Implementation
 // --------------------------------
 struct Qtilities::CoreGui::ProxyActionPrivateData {
     ProxyActionPrivateData() : proxy_action(0),
@@ -370,7 +370,7 @@ QPointer<QAction> Qtilities::CoreGui::ProxyAction::activeBackendAction() const {
 }
 
 // --------------------------------
-// ShortcutCommand Implemenation
+// ShortcutCommand Implementation
 // --------------------------------
 struct Qtilities::CoreGui::ShortcutCommandPrivateData {
     ShortcutCommandPrivateData() : initialized(false),

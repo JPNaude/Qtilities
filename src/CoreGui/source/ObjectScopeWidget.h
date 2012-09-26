@@ -105,7 +105,7 @@ namespace Qtilities {
             IActionProvider* actionProvider();
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QWidget, ObjectScopeWidget> factory;
 
@@ -116,7 +116,7 @@ namespace Qtilities {
             QString contextHelpId() const;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }

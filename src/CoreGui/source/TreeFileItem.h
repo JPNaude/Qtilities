@@ -197,12 +197,12 @@ namespace Qtilities {
             QtilitiesFileInfo fileInfo() const;
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, TreeFileItem> factory;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }

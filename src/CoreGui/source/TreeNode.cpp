@@ -385,6 +385,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     // Put the complete doc in a string and save it to the file:
     // Still write it even if it fails so that we can check the output file for debugging purposes.
     QString docStr = doc.toString(2);
+    docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
+    docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     if (file.write(docStr.toAscii()) == -1) {
         file.close();
         if (errorMsg)

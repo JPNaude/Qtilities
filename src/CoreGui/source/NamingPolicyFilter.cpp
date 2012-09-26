@@ -95,12 +95,15 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
     }
 }
 
-void Qtilities::CoreGui::NamingPolicyFilter::operator=(const NamingPolicyFilter& ref) {
+Qtilities::CoreGui::NamingPolicyFilter& Qtilities::CoreGui::NamingPolicyFilter::operator=(const NamingPolicyFilter& ref) {
+    if (this==&ref) return *this;
     d->uniqueness_policy = ref.uniquenessNamingPolicy();
     d->uniqueness_resolution_policy = ref.uniquenessResolutionPolicy();
     d->validity_resolution_policy = ref.validityResolutionPolicy();
     d->processing_cycle_validation_check_flags = ref.processingCycleValidationChecks();
     d->validation_check_flags = ref.validationChecks();
+
+    return *this;
 }
 
 bool Qtilities::CoreGui::NamingPolicyFilter::operator==(const NamingPolicyFilter& ref) const {

@@ -68,7 +68,7 @@ namespace Qtilities {
             ~ActionManager();
 
             // --------------------------------
-            // IActionManager Implemenation
+            // IActionManager Implementation
             // --------------------------------
             ActionContainer* createMenu(const QString &id, bool& existed);
             ActionContainer* menu(const QString &id);

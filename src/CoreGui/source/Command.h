@@ -150,7 +150,7 @@ namespace Qtilities {
             virtual ~ProxyAction();
 
             // --------------------------------
-            // Command Implemenation
+            // Command Implementation
             // --------------------------------
             QAction *action() const;
             QShortcut *shortcut() const;
@@ -196,7 +196,7 @@ namespace Qtilities {
             virtual ~ShortcutCommand();
 
             // --------------------------------
-            // Command Implemenation
+            // Command Implementation
             // --------------------------------
             QAction *action() const;
             QShortcut *shortcut() const;

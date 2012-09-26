@@ -25,12 +25,12 @@
 #ifdef QTILITIES_PROPERTY_BROWSER
 #include <QtilitiesCoreGui>
 
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QScrollArea>
-#include <QtGui/QAction>
-#include <QtGui/QToolBar>
+#include <QMetaObject>
+#include <QMetaProperty>
+#include <QVBoxLayout>
+#include <QScrollArea>
+#include <QAction>
+#include <QToolBar>
 
 #include <qtvariantproperty.h>
 #include <qtgroupboxpropertybrowser.h>

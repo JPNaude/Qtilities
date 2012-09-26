@@ -159,7 +159,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             NamingPolicyFilter(QObject* parent = 0);
             virtual ~NamingPolicyFilter();
 
-            void operator=(const NamingPolicyFilter& ref);
+            NamingPolicyFilter& operator=(const NamingPolicyFilter& ref);
             bool operator==(const NamingPolicyFilter& ref) const;
             bool operator!=(const NamingPolicyFilter& ref) const;
 
@@ -225,12 +225,12 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             Q_FLAGS(NameValidity);
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, NamingPolicyFilter> factory;
 
             // --------------------------------
-            // AbstractSubjectFilter Implemenation
+            // AbstractSubjectFilter Implementation
             // --------------------------------
             AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const;
             bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
@@ -260,7 +260,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
             IExportable::ExportResultFlags importXml(QDomDocument* doc, QDomElement* object_node, QList<QPointer<QObject> >& import_list);
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:
@@ -281,7 +281,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
 
         public:
             // --------------------------------
-            // NamingPolicyFilter Implemenation
+            // NamingPolicyFilter Implementation
             // --------------------------------
             //! Sets the naming checks that must be done when this filter's observer context is not busy with a processing cycle.
             void setValidationChecks(NamingPolicyFilter::ValidationCheckFlags validation_checks);

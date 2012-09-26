@@ -76,7 +76,7 @@ namespace Qtilities {
             QString contextHelpId() const { return QString(); }
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
@@ -146,7 +146,7 @@ namespace Qtilities {
             ~WidgetLoggerEngineFrontend();
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
