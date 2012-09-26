@@ -58,15 +58,17 @@ struct Qtilities::Core::FileUtilsPrivateData {
     QDir::SortFlags     sort;
 };
 
-Qtilities::Core::FileUtils::FileUtils(QObject* parent) : QObject(parent) {
+Qtilities::Core::FileUtils::FileUtils(bool enable_tasking, QObject* parent) : QObject(parent) {
     d = new FileUtilsPrivateData;
 
-    // Register the tasks contained in this object:
-    // Create TaskFindFilesUnderDir:
-    Task* taskFindFileUnderDir = new Task(taskNameToString(TaskFindFilesUnderDir),true,this);
-    taskFindFileUnderDir->setCanStart(true);
-    connect(taskFindFileUnderDir,SIGNAL(startTaskRequest()),SLOT(findFilesUnderDirLauncher()));
-    registerTask(taskFindFileUnderDir,taskNameToString(TaskFindFilesUnderDir));
+    if (enable_tasking) {
+        // Register the tasks contained in this object:
+        // Create TaskFindFilesUnderDir:
+        Task* taskFindFileUnderDir = new Task(taskNameToString(TaskFindFilesUnderDir),true,this);
+        taskFindFileUnderDir->setCanStart(true);
+        connect(taskFindFileUnderDir,SIGNAL(startTaskRequest()),SLOT(findFilesUnderDirLauncher()));
+        registerTask(taskFindFileUnderDir,taskNameToString(TaskFindFilesUnderDir));
+    }
 }
 
 Qtilities::Core::FileUtils::~FileUtils() {
@@ -77,7 +79,12 @@ Qtilities::Core::FileUtils::~FileUtils() {
 // Class Implementation
 // --------------------------------
 
-QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName, const QString& file_filters, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort, bool first_run) {
+QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirName,
+                                                            const QString& file_filters,
+                                                            const QString& ignore_list,
+                                                            QDir::Filters filters,
+                                                            QDir::SortFlags sort,
+                                                            bool first_run) {
     static QFileInfoList list;
     if (first_run)
         list.clear();
@@ -91,16 +98,23 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
     Task* task_ref = 0;
     if (isTaskActive(task_id)) {
         task_ref = findTask(taskNameToString(TaskFindFilesUnderDir));
-        Q_ASSERT(task_ref);
     }
 
-    QStringList file_filters_list = file_filters.split(" ",QString::SkipEmptyParts);
-    dir.setNameFilters(file_filters_list);
+    if (!file_filters.isEmpty()) {
+        QStringList file_filters_list = file_filters.split(" ",QString::SkipEmptyParts);
+        dir.setNameFilters(file_filters_list);
+    }
 
-    QDir::Filters final_filters = filters;
-    final_filters |= QDir::AllDirs;
-    final_filters |= QDir::Files;
-    final_filters |= QDir::NoDotAndDotDot;
+    QDir::Filters final_filters;
+    if (filters == QDir::NoFilter) {
+        final_filters |= QDir::AllDirs;
+        final_filters |= QDir::Files;
+        final_filters |= QDir::NoDotAndDotDot;
+    } else {
+        final_filters = filters;
+    }
+
+    //qDebug() << "XXX" << dir.path() << file_filters << ignore_list;
 
     QStringList ignore_patterns = ignore_list.split(" ",QString::SkipEmptyParts);
     ignore_patterns.removeDuplicates();
@@ -114,11 +128,24 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
             foreach (QFileInfo info, dir.entryInfoList(final_filters,sort)) {
                 // Check if this entry must be ignored:
                 bool not_ignored = true;
-                foreach (QString ignore_pattern, ignore_patterns) {
-                    QRegExp regExp(ignore_pattern);
-                    regExp.setPatternSyntax(QRegExp::Wildcard);
-                    if (regExp.exactMatch(info.fileName()))
-                        not_ignored = false;
+                if (!ignore_list.isEmpty()) {
+                    foreach (QString ignore_pattern, ignore_patterns) {
+                        // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
+                        #ifdef Q_OS_WIN
+                        QString path_to_match = QDir::fromNativeSeparators(info.filePath());
+                        QString match_value_correct_sep = QDir::fromNativeSeparators(ignore_pattern);
+                        #else
+                        QString path_to_match = QDir::toNativeSeparators(info.filePath());
+                        QString match_value_correct_sep = QDir::toNativeSeparators(ignore_pattern);
+                        #endif
+
+                        QRegExp regExp(match_value_correct_sep);
+                        regExp.setPatternSyntax(QRegExp::Wildcard);
+                        if (regExp.exactMatch(path_to_match)) {
+                            not_ignored = false;
+                            continue;
+                        }
+                    }
                 }
 
                 if (not_ignored) {
@@ -127,7 +154,6 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                     else
                         ++file_count;
                 }
-
             }
 
             task_ref->setDisplayName("Finding Files: " + dir.dirName());
@@ -141,11 +167,24 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         QCoreApplication::processEvents();
         // Check if this entry must be ignored:
         bool not_ignored = true;
-        foreach (QString ignore_pattern, ignore_patterns) {
-            QRegExp regExp(ignore_pattern);
-            regExp.setPatternSyntax(QRegExp::Wildcard);
-            if (regExp.exactMatch(info.fileName()))
-                not_ignored = false;
+        if (!ignore_list.isEmpty()) {
+            foreach (QString ignore_pattern, ignore_patterns) {
+                // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
+                #ifdef Q_OS_WIN
+                QString path_to_match = QDir::fromNativeSeparators(info.filePath());
+                QString match_value_correct_sep = QDir::fromNativeSeparators(ignore_pattern);
+                #else
+                QString path_to_match = QDir::toNativeSeparators(info.filePath());
+                QString match_value_correct_sep = QDir::toNativeSeparators(ignore_pattern);
+                #endif
+
+                QRegExp regExp(match_value_correct_sep);
+                regExp.setPatternSyntax(QRegExp::Wildcard);
+                if (regExp.exactMatch(path_to_match)) {
+                    not_ignored = false;
+                    continue;
+                }
+            }
         }
 
         if (not_ignored) {
@@ -155,6 +194,15 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                     task_ref->setDisplayName("Finding Files: " + info.dir().dirName());
                 }
                 findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters,sort,false);
+
+                // If its a directory and QDir::AllDirs was set and not QDir::Files, we assume that
+                // the function is being used to return directory names and not files. In that
+                // case we add this directory name to the results.
+                if ((final_filters & QDir::AllDirs) && !(final_filters & QDir::Files)) {
+                    LOG_TASK_INFO("Found directory: " + info.absoluteFilePath(),task_ref);
+                    list.append(info);
+                }
+
                 if (task_ref) {
                     if (first_run)
                         task_ref->addCompletedSubTasks(10);

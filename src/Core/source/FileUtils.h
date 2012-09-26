@@ -76,7 +76,7 @@ namespace Qtilities {
                 return "";
             }
 
-            FileUtils(QObject* parent = 0);
+            FileUtils(bool enable_tasking = true, QObject* parent = 0);
             virtual ~FileUtils();
 
             // --------------------------------
@@ -99,10 +99,9 @@ FileUtils fu;
 
 // All non-system and non-hidden files:
 QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
-
-// All system and hidden files as well:
-QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hidden);
 \endcode
+
+                It is possible to find just directories by specifying the filters to be QDir::AllDirs without including QDir::Files.
 
                \param dirName Path of directory to search under.
                \param file_filters The list of files which must be returned, when empty all files are returned. For example: *.bit *.log *.ngc , when empty all files added by default (*.*).
@@ -112,7 +111,7 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path",QDir::System | QDir::Hid
                \param first_run Ignore this parameter, used in recursive operations.
                \return A list of QUrls containing the files. The QUrls are constructed using QUrl::fromLocalFile().
               */
-            QFileInfoList findFilesUnderDir(const QString &dirName, const QString& file_filters = QString(), const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
+            QFileInfoList findFilesUnderDir(const QString &dirName, const QString& file_filters = QString(), const QString& ignore_list = QString(), QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
             //! Returns the last QFileInfoList produced by fileFilesUnderDir().
             QFileInfoList lastFilesUnderDir();
             //! Sets up the paramaters for future findFilesUnderDir() runs.
