@@ -98,7 +98,7 @@ namespace Qtilities {
             bool eventFilter(QObject *object, QEvent *event);
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QWidget, ObjectPropertyBrowser> factory;    
 

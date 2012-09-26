@@ -139,9 +139,9 @@ bool Qtilities::CoreGui::ObjectPropertyBrowser::eventFilter(QObject *object, QEv
                 //qDebug() << "Dynamic change event update in ObjectPropertyBrowser: " << property_change_event->propertyName();
                 d->ignore_property_changes = true;
                 refresh(true);
-                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
-                if (mod_iface)
-                    mod_iface->setModificationState(true);
+//                IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
+//                if (mod_iface)
+//                    mod_iface->setModificationState(true);
                 d->ignore_property_changes = false;
             }
         }
