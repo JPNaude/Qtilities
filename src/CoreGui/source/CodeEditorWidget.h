@@ -229,7 +229,7 @@ code_editor.codeEditor()->setReadOnly(true);
             QString contextHelpId() const;
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:
@@ -239,7 +239,7 @@ code_editor.codeEditor()->setReadOnly(true);
 
         public:
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
@@ -338,9 +338,8 @@ code_editor.codeEditor()->setReadOnly(true);
 
             void deleteActionToolBars();
             void refreshActionToolBar(bool force_full_refresh);
-        private:
             bool maybeSave();
-
+        private:
             Ui::CodeEditorWidget *ui;
             CodeEditorWidgetPrivateData* d;
         };

@@ -336,17 +336,15 @@ bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
     if (file_name.isEmpty())
         file_name = d->current_file;
 
+    if (file_name.isEmpty())
+        return false;
+
     if (d->watcher.files().contains(d->current_file))
         d->watcher.removePath(d->current_file);
 
     QFile file(file_name);
-    if (file.exists()) {
-        if (!file.open(QFile::WriteOnly)) {
-            return false;
-        }
-    } else
+    if (!file.open(QFile::WriteOnly))
         return false;
-
     file.write(d->codeEditor->toPlainText().toLocal8Bit());
     file.close();
 
@@ -567,6 +565,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
         if (file.exists()) {
             // The contents was modified:
             QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Question);
             msgBox.setText("Your file has changed outside of the editor:<br><br>" + d->current_file);
             msgBox.setInformativeText("Do you want to reload the file?");
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
