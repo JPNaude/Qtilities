@@ -12,12 +12,15 @@ Qtilities v1.2 Changes
     General:
     ============================
     [+] Now compiles and runs with the MSVC compiler.
-
+	[+] Improved = operator overloading everywhere. Now check that you don't assign an object to itself.
+	[+] Cleaned up Qtilities.pri. The resulting makefile's include paths does not contain duplicates anymore. Thanks to Carel Combrink for the contribution.
 
     ============================
     QtilitiesLogging:
     ============================
     [#] AbstractLoggerEngine's logMessage() function got a new message type parameter.
+    [#] AbstractFormattingEngine is not exported, thus you can subclass it to create your own formatting engines in your own libraries.
+    [#] WidgetLoggerEngine::isFormattingEngineConstant() no longer returns true, thus you can formatting messages using your own formatting engines.
 
     [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
     [*] Fixed bug in Logger::loggerEngineReferenceAt() where it did not ignore deleted logger engines during its position calculation.
@@ -35,6 +38,7 @@ Qtilities v1.2 Changes
     [+] Added new class: FileSetInfo.
     [+] Added FileUtils::toNativeSeparators().
     [+] Added Task::setTaskName().
+    [+] New FileLocker class.
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -45,11 +49,15 @@ Qtilities v1.2 Changes
     [#] Observer::accessMode() optimized which results in significant increases in tree building.
     [#] Task::setParentTask() does not allow you to set itself as a parent anymore.
     [#] Observer::subjectDisplayedNameInContext() got new parameter to indicate if the qti_prop_DISPLAYED_ALIAS_MAP property must be checked.
+	[#] Improved log messages in Core::Task::completeTask(), they now include the elapsed time of the task.
+	[#] FileUtils's constructor now has a new parameter which can be used to disable task registration during construction.
+    [#] FileUtils::findFilesUnderDir() can now be used to find directories under a path as well. See updated function docs for details.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
         in isValid() returning false for valid properties.
     [*] Fixed bug in QtilitiesApplication::applicationSessionPath() where it messed up the QDesktopServices::DataLocation path which should be used by default.
+	[*] Fixed bug in ObjectManager::compareDynamicProperties() where it could pick up invalid changes to properties.
 
     ============================
     QtilitiesCoreGui:
@@ -58,36 +66,54 @@ Qtilities v1.2 Changes
     [+] Each task can now explicitly specify the widget logger engine message displays that TaskManagerGui must use when assigning logger engines to it.
     [+] Widget logger engines much improved to allow multiple message tabs to be shown in a single widget logger engine.
     [+] Added ObserverWidget::view() function.
-    [+} Added NamingPolicyFilter::subjectNameChanged() signal.
+    [+] Added NamingPolicyFilter::subjectNameChanged() signal.
+    [+] Added ObserverWidget::setSearchBoxCheckedItemFilters() and ObserverWidget::searchBoxCheckedItemFilters().
+	[+] Added ObserverWidget::setSearchBoxCheckedItemFilters() and ObserverWidget::searchBoxCheckedItemFilters()
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
     [#] It is no longer needed to enable categorized display in order to display category column in ObserverWidget in TableView mode.
     [#] CodeEditorWidget uses a bigger font by default on Linux.
     [#] Logger::detachLoggerEngine() got a new delete_engine parameter.
+	[#] AbstractTreeItem::setSizeHint() will first validate the QSize property to be set before setting it.
+	[#] ConfigurationWidget now uses a splitter in its layout.
+	[#] ObjectPropertyBrowser::eventFilter() no longer sets the object's modification state when a property changes.
+	[#] Added & character in front of menu item text in QtilitiesCoreGuiConstants.
+	[#] StringListWidget will stay sorted now when adding/removing items etc.
+	[#] WidgetLoggerEngine::isFormattingEngineConstant() now returns false.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
-    [*} Fixed some "QFSFileEngine::open: No file name specified" messages in CodeEditorWidget.
-    [*} Fixed problems with category filtering in TableView mode ObserverWidget when using custom hints.
+    [*] Fixed some "QFSFileEngine::open: No file name specified" messages in CodeEditorWidget.
+    [*] Fixed problems with category filtering in TableView mode ObserverWidget when using custom hints.
     [*] Fixed problems with category filtering of actions in action providers.
     [*] Fixed bug where in some cases TreeFileItem::setFilePath() did not set if the item had a relative to path properly.
     [*] Fixed LoggerConfigWidget not sorting the log table automatically when the log engine count changes.
+    [*] Fixed CodeEditorWidget::saveFile() not saving a file when it does not exist already.
+	[*] Fixed CodeEditorWidget::saveFile() not saving to a file if the file does not exist already.
+	[*] Observer models now validates qti_prop_SIZE_HINT before using it.
+	[*] Fixed bug in ObserverTreeModelProxyFilter::filterAcceptsRow() where it filtered the complete tree most of the time.
 
     ============================
     QtilitiesExtensionSystem:
     ============================
+    [+] Added two new signals to ExtensionSystemCore: pluginLoadingStarted() and pluginLoadingCompleted().
 
+    [#] Extension system now only uses the MAJOR and MINOR parts of the application to check if plugins support the version of the application.
 
     ============================
     QtilitiesProjectManagement:
     ============================
+    [+] Added new projectSaveRequestedWithoutOpenProject() signal on project manager.
+	[+] ProjectManager now allows automatic locking of project files and all related operations. This is done using the new FileLocker class.
+
     [#] ProjectManagementConfig is now exported.
     [#] Projects will now save complete file backups ending in "_complete", rather than ".complete" as in previous versions.
+    [#] Added functionality to the project manager to allow locking of project files. This can also be disabled.
 
     [*] Fixed some cases where the last open project would not be remembered.
     [*] Fixed ProjectManager::openProject() trying to open a project file which does not exist.
-
+    [*] Fixed bug where closeProject() was not called on a project before it was deleted when it did not load successfully.
 
     ============================
     QtilitiesTesting:
@@ -97,7 +123,8 @@ Qtilities v1.2 Changes
     ============================
     Plugins:
     ============================
-    [#] The browser in the help plugin now enables webkit plugin loading, thus flash etc. should show correctly in docs.
+    [#] Help Plugin: The browser in the help plugin now enables webkit plugin loading, thus flash etc. should show correctly in docs.
+    [*] Project Management Plugin: Fixed problems with actions and main window title bar when project did not load successfully.
 
 
     ============================
@@ -152,7 +179,7 @@ Qtilities v1.1 Changes
     [+] QtilitiesProcess got functionality to specify custom line break strings to look out for. For example INFO, WARNING, ERROR etc.
     [+] FileUtils got new comparePaths() function.
     [+] Observer::subjectDisplayedNameInContext() got new validate_object parameter.
-    [+] New Observer::subjectReferenceCategoryHash() function, used to speed up categorized tree building.
+    [+] New Observer::subjectReferenceCategoryMap() function, used to speed up categorized tree building.
 
     [#] Better support for logging to tasks.
     [#] IExporatble now supports setting a task to which export/import messages should be logged.
