@@ -111,6 +111,10 @@ void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
     ui->treeView->setModel(d->model);
     ui->txtCurrentPath->setText(d->model->rootPath());
     ui->treeView->setEnabled(false);
+    ui->txtCurrentPath->clear();
+    ui->txtCurrentPath->setEnabled(false);
+    ui->btnBrowse->setEnabled(false);
+    ui->btnCdUp->setEnabled(false);
 }
 
 void Qtilities::CoreGui::SideWidgetFileSystem::dragEnterEvent(QDragEnterEvent *event) {
@@ -202,6 +206,9 @@ void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
     ui->treeView->setRootIndex(d->model->index(path));
     ui->txtCurrentPath->setText(FileUtils::toNativeSeparators(path));
     ui->treeView->setEnabled(true);
+    ui->txtCurrentPath->setEnabled(true);
+    ui->btnBrowse->setEnabled(true);
+    ui->btnCdUp->setEnabled(true);
 }
 
 QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {

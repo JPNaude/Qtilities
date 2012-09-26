@@ -97,7 +97,7 @@ side_viewer_widget->show();
             void dropEvent(QDropEvent *event);
 
             // --------------------------------
-            // Factory Interface Implemenation
+            // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QWidget, SideWidgetFileSystem> factory;
 
