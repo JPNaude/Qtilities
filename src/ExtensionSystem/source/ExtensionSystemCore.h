@@ -261,6 +261,20 @@ if (!core_plugins_ok) {
         signals:
             //! Progress messages submitted during application startup.
             void newProgressMessage(const QString& message);
+            //! Signal which is emitted when the plugin loading started.
+            /*!
+             * \brief pluginLoadingStarted
+             *
+             * <i>This class was added in %Qtilities v1.1.</i>
+             */
+            void pluginLoadingStarted();
+            //! Signal which is emitted when the plugin loading completed.
+            /*!
+             * \brief pluginLoadingCompleted
+             *
+             * <i>This class was added in %Qtilities v1.1.</i>
+             */
+            void pluginLoadingCompleted();
 
         public slots:
             //! Handle plugin configuration changes.

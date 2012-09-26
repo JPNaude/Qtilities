@@ -163,6 +163,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     time(&start);
     #endif
 
+    emit pluginLoadingStarted();
+
     foreach (QString path, d->customPluginPaths) {
         emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(path));
         LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(path));
@@ -269,9 +271,9 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                         }
                     } else {
                         #ifdef Q_WS_WIN
-                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this is that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as Dependency Walker."));
+                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this are that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as Dependency Walker."));
                         #else
-                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this is that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as \"ldd\"."));
+                        LOG_ERROR(tr("Plugin could not be loaded: ") + stripped_file_name + tr(". Common causes of this are that the plugin was built in a different mode (release or debug) as your application, with a different compiler or it could not find all the libraries it depends on. Verify it using an application such as \"ldd\"."));
                         #endif
                     }
                 }
@@ -374,6 +376,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     QCoreApplication::processEvents();
 
     d->is_initialized = true;
+
+    emit pluginLoadingCompleted();
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
@@ -523,6 +527,8 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
     // Put the complete doc in a string and save it to the file:
     // Still write it even if it fails so that we can check the output file for debugging purposes.
     QString docStr = doc.toString(2);
+    docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
+    docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     file.write(docStr.toAscii());
     file.close();
 
