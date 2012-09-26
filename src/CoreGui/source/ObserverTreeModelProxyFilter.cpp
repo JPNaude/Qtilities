@@ -55,10 +55,17 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sour
     ObserverTreeModel* tree_model = dynamic_cast<ObserverTreeModel*> (sourceModel());
 
     if (tree_model) {
-        // Check if it contains the filterRegExp():
+        // Get the ObserverTreeItem:
         QModelIndex name_index = sourceModel()->index(sourceRow, tree_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);
         ObserverTreeItem* tree_item = tree_model->getItem(name_index);
         if (tree_item) {
+            // Don't ever filter the root item:
+            if (tree_item->itemType() == ObserverTreeItem::TreeNode && tree_item->parentItem()) {
+                if (tree_item->parentItem()->objectName() == "Root Item")
+                    return true;
+            }
+
+            // Filter by type:
             if (!(row_filter_types & tree_item->itemType()))
                 return true;
         }
