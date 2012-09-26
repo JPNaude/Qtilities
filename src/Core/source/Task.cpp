@@ -552,17 +552,16 @@ bool Qtilities::Core::Task::completeTask(ITask::TaskResult result, const QString
         d->elapsed_time_notification_timer.stop();
 
     d->last_run_time = d->timer.elapsed();
-    logMessage(QString(tr("Task completed (%1).")).arg(elapsedTimeString()));
 
     // Log information about the result of the task:
     if (d->task_result == ITask::TaskSuccessful) {
-        logMessage(QString(tr("Task \"%1\" completed successfully.")).arg(taskName()));
+        logMessage(QString(tr("Task \"%1\" completed successfully (%2).")).arg(taskName()).arg(elapsedTimeString()));
     } else if (d->task_result == ITask::TaskSuccessfulWithErrors) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings and/or errors were logged while the task was busy. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Warning);
     } else if (d->task_result == ITask::TaskSuccessfulWithWarnings) {
-        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged while the task was busy. See the task log for more information.")).arg(taskName()),Logger::Warning);
+        logMessage(QString(tr("Task \"%1\" completed successfully but some warnings were logged while the task was busy. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Warning);
     } else if (d->task_result == ITask::TaskFailed) {
-        logMessage(QString(tr("Task \"%1\" failed. See the task log for more information.")).arg(taskName()),Logger::Error);
+        logMessage(QString(tr("Task \"%1\" failed. See the task log for more information (%2).")).arg(taskName()).arg(elapsedTimeString()),Logger::Error);
     }
 
     emit taskCompleted(result,message,type);
