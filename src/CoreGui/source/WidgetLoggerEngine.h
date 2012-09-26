@@ -120,7 +120,7 @@ namespace Qtilities {
             QString description() const;
             QString status() const;      
             // Logger widgets will always be created after LOG_INITIALIZE(), thus we won't be able to restore their settings.
-            bool isFormattingEngineConstant() const { return true; }
+            bool isFormattingEngineConstant() const { return false; }
 
             // WidgetLoggerEngine implementation
             QWidget* getWidget();
