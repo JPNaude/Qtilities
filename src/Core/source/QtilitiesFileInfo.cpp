@@ -79,20 +79,20 @@ void Qtilities::Core::QtilitiesFileInfo::setRelativeToPath(const QString& relati
 
 QString Qtilities::Core::QtilitiesFileInfo::absoluteToRelativePath() const {
     if (isRelative()) {
-        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + path()));
+        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + QDir::separator() + path()));
     } else
         return QString();
 }
 
 QString Qtilities::Core::QtilitiesFileInfo::absoluteToRelativeFilePath() const {
     if (isRelative()) {
-        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + "/" + filePath()));
+        return FileUtils::toNativeSeparators(QDir::cleanPath(d->relative_to_path + QDir::separator() + filePath()));
     } else
         return QString();
 }
 
 void Qtilities::Core::QtilitiesFileInfo::setFileName(const QString& new_file_name) {
-    setFile(FileUtils::toNativeSeparators(path() + "/" + new_file_name));
+    setFile(FileUtils::toNativeSeparators(path() + QDir::separator() + new_file_name));
 }
 
 QString Qtilities::Core::QtilitiesFileInfo::actualPath() const {
@@ -145,7 +145,7 @@ bool Qtilities::Core::QtilitiesFileInfo::isValidFileName(const QString file_name
         valid = !file_name.contains("\"");
 
     if (valid)
-        valid = !file_name.contains("/");
+        valid = !file_name.contains(QDir::separator());
 
     if (valid)
         valid = !file_name.contains("\\");

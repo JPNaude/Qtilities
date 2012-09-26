@@ -113,12 +113,14 @@ bool Qtilities::Core::QtilitiesProcess::startProcess(const QString& program, con
     QString native_program = FileUtils::toNativeSeparators(program);
     logMessage("Executing Process: " + native_program + " " + arguments.join(" "));
     if (d->process->workingDirectory().isEmpty())
-        logMessage("-> working directory of process: " + QDir::current().path());
+        logMessage("> working directory of process: " + QDir::current().path());
     else
-        logMessage("-> working directory of process: " + d->process->workingDirectory());
+        logMessage("> working directory of process: " + d->process->workingDirectory());
     QDir dir(d->process->workingDirectory());
     if (!dir.exists())
-        logWarning("-> working directory does not exist, process might fail to start.");
+        logWarning("> working directory does not exist, process might fail to start.");
+
+    logMessage("");
     d->process->start(native_program, arguments, mode);
 
     if (!d->process->waitForStarted()) {
@@ -147,16 +149,28 @@ void Qtilities::Core::QtilitiesProcess::procStarted() {
 }
 
 void Qtilities::Core::QtilitiesProcess::procFinished(int exit_code, QProcess::ExitStatus exit_status) {
+    // Note that we log some empty messages here and when the process was started in order to
+    // seperate the process's output and the task messages.
     if (exit_code == 0) {
-        logMessage("Process " + taskName() + " exited normal with code 0.");
+        //logMessage("Process " + taskName() + " exited normal with code 0.");
     } else {
-        if (exit_status == QProcess::NormalExit)
+        if (exit_status == QProcess::NormalExit) {
+            logMessage("");
             logMessage("Process " + taskName() + " exited normal with code " + QString::number(exit_code),Logger::Error);
-        else if (exit_status == QProcess::CrashExit)
+        } else if (exit_status == QProcess::CrashExit) {
+            logMessage("");
             logMessage("Process " + taskName() + " crashed with code " + QString::number(exit_code),Logger::Error);
+        }
     }
 
+//    bool current_active = true;
+//    if (loggerEngine()) {
+//        current_active = loggerEngine()->isActive();
+//        loggerEngine()->setActive(false);
+//    }
     completeTask();
+//    if (loggerEngine())
+//        loggerEngine()->setActive(current_active);
     Q_UNUSED(exit_status)
 }
 
@@ -187,8 +201,9 @@ void Qtilities::Core::QtilitiesProcess::procError(QProcess::ProcessError error) 
 }
 
 void Qtilities::Core::QtilitiesProcess::procStateChanged(QProcess::ProcessState newState) {
-    if (newState == QProcess::NotRunning && (state() == ITask::TaskBusy || state() == ITask::TaskPaused))
+    if (newState == QProcess::NotRunning && (state() == ITask::TaskBusy || state() == ITask::TaskPaused)) {
         completeTask();
+    }
 }
 
 void Qtilities::Core::QtilitiesProcess::logProgressOutput() {
