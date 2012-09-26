@@ -81,6 +81,8 @@ Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::ProjectManagemen
     d = new ProjectManagementPluginPrivateData;
     setObjectName(pluginName());
     connect(PROJECT_MANAGER,SIGNAL(modificationStateChanged(bool)),SLOT(handle_projectStateChanged()));
+    connect(PROJECT_MANAGER,SIGNAL(projectClosingFinished(bool)),SLOT(handle_projectStateChanged()));
+    connect(PROJECT_MANAGER,SIGNAL(projectLoadingFinished(QString,bool)),SLOT(handle_projectStateChanged()));
 }
 
 Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::~ProjectManagementPlugin() {
@@ -155,7 +157,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // ---------------------------
     ActionContainer* recent_projects_menu = ACTION_MANAGER->createMenu("Recent Projects",existed);
     file_menu->addMenu(recent_projects_menu,qti_action_FILE_SETTINGS);
-    file_menu->addSeperator(qti_action_FILE_SETTINGS);
+    //file_menu->addSeperator(qti_action_FILE_SETTINGS);
     d->menuRecentProjects = recent_projects_menu->menu();
 
     // Register project management config page.
