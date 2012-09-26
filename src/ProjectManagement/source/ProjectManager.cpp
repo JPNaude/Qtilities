@@ -56,6 +56,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManagerPrivateData() : current_project(0),
         current_project_busy_count(0),
         recent_projects_size(5),
+        open_last_project(false),
+        use_project_file_locks(true),
         default_custom_project_paths_category("Default"),
         is_initialized(false),
         project_types(IExportable::Binary | IExportable::XML),
@@ -73,6 +75,7 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     int                                     recent_projects_size;
     QPointer<ProjectManagementConfig>       config_widget;
     bool                                    open_last_project;
+    bool                                    use_project_file_locks;
     bool                                    auto_create_new_project;
     bool                                    use_custom_projects_paths;
     // Keys = Categories, Values = Paths
@@ -88,6 +91,8 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     ProjectManager::ExecStyle               exec_style;
     bool                                    saving_enabled;
     QString                                 saving_info_message;
+
+    FileLocker                              file_locker;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -242,6 +247,7 @@ bool Qtilities::ProjectManagement::ProjectManager::closeProject(){
         d->current_project->closeProject(task_ref);
         QApplication::restoreOverrideCursor();
         d->current_project->disconnect(this);
+
         delete d->current_project;
         d->current_project = 0;
 
@@ -284,6 +290,51 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
         task_ref->startTask(-1,tr("Opening Project: ") + fi.fileName(),Logger::Info);
     }
 
+    // Check if the project is locked:
+    if (d->use_project_file_locks) {
+        bool is_file_locked = d->file_locker.isFileLocked(file_name);
+        if (is_file_locked) {
+            if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecNormal) {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setText("The project you are trying to open is currently locked.<br><br>" + d->file_locker.lastLockSummary(file_name,"<br>"));
+                msgBox.setInformativeText("Do you want to break the lock in order to continue opening it?");
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+                msgBox.setDefaultButton(QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                switch (ret) {
+                    case QMessageBox::Yes:
+                        {
+                            QString errorMsg;
+                            if (!d->file_locker.unlockFile(file_name,&errorMsg)) {
+                                LOG_TASK_ERROR(errorMsg,task_ref);
+                                if (task_ref)
+                                    task_ref->completeTask(ITask::TaskFailed);
+                                return false;
+                            }
+                        }
+                        break;
+                    case QMessageBox::Cancel:
+                        // In this case we say the project was locked and abort.
+                        LOG_TASK_ERROR("Project file is locked, you decided not to release the lock: " + file_name,task_ref);
+                        if (task_ref)
+                            task_ref->completeTask(ITask::TaskFailed);
+                        return false;
+                        break;
+                    default:
+                        // should never be reached
+                        break;
+                }
+            } else if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecSilent) {
+                // In this case we say the project was locked and abort.
+                LOG_TASK_ERROR("Project file is locked, cannot open it in silent execution mode: " + file_name,task_ref);
+                if (task_ref)
+                    task_ref->completeTask(ITask::TaskFailed);
+                return false;
+            }
+        }
+    }
+
     markProjectAsChangedDuringLoad(false);
     emit projectLoadingStarted(file_name);
 
@@ -293,24 +344,26 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
     connect(d->current_project,SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
     d->current_project->setProjectItems(d->item_list);
     if (!d->current_project->loadProject(file_name,false,task_ref)) {
+        // Call close project on all project items in the project.
+        // Remember that some of them might have been loaded successfully:
+        d->current_project->closeProject(task_ref);
+
         delete d->current_project;
         QApplication::restoreOverrideCursor();
         emit projectLoadingFinished(file_name,false);
         markProjectAsChangedDuringLoad(false);
 
-        if (task_ref) {
-            QFileInfo fi(file_name);
-            task_ref->setDisplayName(tr("Opened Project: ") + fi.fileName());
-            task_ref->completeTask();
-        }
+        if (task_ref)
+            task_ref->completeTask(ITask::TaskFailed);
 
         return false;
     }
 
     addRecentProject(d->current_project);
     QApplication::restoreOverrideCursor();
-    emit projectLoadingFinished(file_name,true);
     markProjectAsChangedDuringLoad(false);
+
+    emit projectLoadingFinished(file_name,true);
 
     if (task_ref) {
         QFileInfo fi(file_name);
@@ -322,8 +375,10 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name, bool respect_project_busy) {
-    if (!d->current_project)
+    if (!d->current_project) {
+        emit projectSaveRequestedWithoutOpenProject();
         return false; 
+    }
 
     if (activeProjectBusy() && respect_project_busy) {
         QString msg = tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
@@ -528,6 +583,15 @@ bool Qtilities::ProjectManagement::ProjectManager::openLastProjectOnStartup() co
     return d->open_last_project;
 }
 
+void ProjectManagement::ProjectManager::setUseProjectFileLocks(bool toggle) {
+    d->use_project_file_locks = toggle;
+    writeSettings();
+}
+
+bool ProjectManagement::ProjectManager::useProjectFileLocks() const {
+    return d->use_project_file_locks;
+}
+
 void Qtilities::ProjectManagement::ProjectManager::setCreateNewProjectOnStartup(bool toggle) {
     d->auto_create_new_project = toggle;
     writeSettings();
@@ -625,6 +689,7 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.setValue("recent_project_stack", d->recent_project_stack);
     settings.setValue("use_custom_projects_path", d->use_custom_projects_paths);
     settings.setValue("check_modified_projects", d->check_modified_projects);
+    settings.setValue("use_project_file_locks", d->use_project_file_locks);
     settings.setValue("modified_projects_handling_policy", QVariant((int) d->modified_projects_handling_policy));
     settings.setValue("custom_projects_paths", d->custom_projects_paths);
     settings.setValue("default_custom_project_paths_category",defaultCustomProjectsCategory());
@@ -641,6 +706,7 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
     d->use_custom_projects_paths = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();
+    d->use_project_file_locks = settings.value("use_project_file_locks", true).toBool();
     d->modified_projects_handling_policy = (ProjectManager::ModifiedProjectsHandlingPolicy) settings.value("modified_projects_handling_policy", 0).toInt();
     d->recent_project_names = settings.value("recent_project_map", false).toMap();
     d->recent_project_stack = settings.value("recent_project_stack", QStringList()).toStringList();
@@ -730,6 +796,8 @@ void Qtilities::ProjectManagement::ProjectManager::finalize() {
         }
     }
 
+    if (d->current_project)
+        delete d->current_project;
     writeSettings();
 }
 

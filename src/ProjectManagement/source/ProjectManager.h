@@ -289,6 +289,10 @@ namespace Qtilities {
             void setOpenLastProjectOnStartup(bool toggle);
             //! Gets the configuration option to open the last project from the previous session on application startup.
             bool openLastProjectOnStartup() const;
+            //! Sets if project file locking is enabled.
+            void setUseProjectFileLocks(bool toggle);
+            //! Gets if project file locking is enabled.
+            bool useProjectFileLocks() const;
             //! Sets the configuration option to create a new project when the no last open project is available.
             /*!
               This configuration setting has no effect if the openLastProjectOnStartup() is false.
@@ -393,13 +397,13 @@ namespace Qtilities {
             QString projectSavingInfoMessage() const;
 
             // --------------------------------
-            // IObjectBase Implemenation
+            // IObjectBase Implementation
             // --------------------------------
             QObject* objectBase() { return this; }
             const QObject* objectBase() const { return this; }
 
             // --------------------------------
-            // IModificationNotifier Implemenation
+            // IModificationNotifier Implementation
             // --------------------------------
             bool isModified() const;
         public slots:
@@ -450,6 +454,11 @@ namespace Qtilities {
                 This function signal was added in Qtilities v1.1.
               */
             void customProjectPathsChanged();
+            //! Signal which is emitted when a project save operation was requested while no project was open.
+            /*!
+                This function signal was added in Qtilities v1.2.
+              */
+            void projectSaveRequestedWithoutOpenProject();
 
         private:
             //! Add a project to the recent project list.

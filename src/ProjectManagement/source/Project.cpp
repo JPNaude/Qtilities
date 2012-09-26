@@ -47,6 +47,8 @@
 #include <QCursor>
 #include <QMessageBox>
 
+#include <FileLocker>
+
 #include <stdio.h>
 #include <time.h>
 
@@ -62,6 +64,8 @@ struct Qtilities::ProjectManagement::ProjectPrivateData {
     QString                 project_file;
     QString                 project_name;
     QMutex                  modification_mutex;
+
+    FileLocker              file_locker;
 };
 
 Qtilities::ProjectManagement::Project::Project(QObject* parent) : QObject(parent), IProject() {
@@ -70,6 +74,7 @@ Qtilities::ProjectManagement::Project::Project(QObject* parent) : QObject(parent
 }
 
 Qtilities::ProjectManagement::Project::~Project() {
+    closeProject();
     delete d;
 }
 
@@ -128,6 +133,8 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         // Put the complete doc in a string and save it to the file:
         QString docStr = doc.toString(2);
+        docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
+        docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         file.write(docStr.toAscii());
         file.close();
 
@@ -147,6 +154,15 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFileInfo fi(d->project_file);
             QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
+
+            // Add a lock on the project file.
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                if (!d->file_locker.isFileLocked(file_name)) {
+                    QString errorMsg;
+                    if (!d->file_locker.lockFile(file_name,&errorMsg))
+                        LOG_TASK_WARNING(errorMsg,task);
+                }
+            }
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
@@ -197,6 +213,15 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
             QFileInfo fi(d->project_file);
             QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
+
+            // Add a lock on the project file.
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                if (!d->file_locker.isFileLocked(file_name)) {
+                    QString errorMsg;
+                    if (!d->file_locker.lockFile(file_name,&errorMsg))
+                        LOG_TASK_WARNING(errorMsg,task);
+                }
+            }
 
             setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
             if (success == IExportable::Complete)
@@ -259,11 +284,18 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         LOG_TASK_INFO("Project XML import completed in " + QString::number(diff) + " seconds.",task);
         #endif
 
-        if (success != IExportable::Failed) {
+        if (success & IExportable::SuccessResult || success == IExportable::Complete) {
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);
             QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
+
+            // Add a lock on the project file.
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                QString errorMsg;
+                if (!d->file_locker.lockFile(file_name,&errorMsg))
+                    LOG_TASK_WARNING(errorMsg,task);
+            }
 
             // Process events here before we set the modification state. This would ensure that any
             // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
@@ -325,6 +357,13 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
             QString file_name_only = fi.baseName();
             d->project_name = file_name_only;
 
+            // Add a lock on the project file.
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                QString errorMsg;
+                if (!d->file_locker.lockFile(file_name,&errorMsg))
+                    LOG_TASK_WARNING(errorMsg,task);
+            }
+
             // Process events here before we set the modification state. This would ensure that any
             // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
             // modification state of observers and when these events are delivered later than the
@@ -367,6 +406,13 @@ bool Qtilities::ProjectManagement::Project::closeProject(ITask *task) {
     LOG_TASK_INFO_P(tr("Closing project: ") + d->project_file,task);
     for (int i = 0; i < d->project_items.count(); i++) {
         d->project_items.at(i)->closeProjectItem(task);
+    }
+
+    // Add a lock on the project file.
+    if (PROJECT_MANAGER->useProjectFileLocks() && !d->project_file.isEmpty()) {
+        QString errorMsg;
+        if (!d->file_locker.unlockFile(d->project_file,&errorMsg))
+            LOG_TASK_WARNING(errorMsg,task);
     }
 
     setModificationState(false,IModificationNotifier::NotifyListeners | IModificationNotifier::NotifySubjects);
@@ -719,9 +765,8 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
 
             if (!item_iface) {
                 LOG_TASK_WARNING(QString(tr("Input file contains a project item \"%1\" which does not exist in your application. Import will be incomplete.")).arg(item_name),exportTask());
-                if (success != IExportable::Failed) {
+                if (success != IExportable::Failed)
                     success = IExportable::Incomplete;
-                }
                 continue;
             } else {
                 item_iface->setExportVersion(read_version);
@@ -730,8 +775,9 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
                 success = item_iface->importXml(doc,&item,import_list);
                 item_iface->clearExportTask();
 
-                if (success != IExportable::Complete && success != IExportable::Incomplete) {
+                if (success & IExportable::FailedResult) {
                     LOG_TASK_ERROR(tr("Project item \"") + item_name + tr("\" failed during import."),exportTask());
+                    success = IExportable::Incomplete;
                     break;
                 }
             }
