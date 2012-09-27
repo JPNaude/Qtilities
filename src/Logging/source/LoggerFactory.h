@@ -67,10 +67,10 @@ namespace Qtilities {
               LoggerFactory() {}
               ~LoggerFactory() {}
 
-              void registerFactoryInterface(const QString& tag, LoggerFactoryInterface<BaseClass>* interface) {
+              void registerFactoryInterface(const QString& tag, LoggerFactoryInterface<BaseClass>* factory_interface) {
                   if (!tag.isEmpty()) {
-                      if (!reg_ifaces.values().contains(interface)) {
-                          reg_ifaces[tag] = interface;
+                      if (!reg_ifaces.values().contains(factory_interface)) {
+                          reg_ifaces[tag] = factory_interface;
                       } else
                           return;
                  } else

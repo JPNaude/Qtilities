@@ -299,8 +299,8 @@ void Qtilities::Core::ObjectManager::removeObject(QObject* obj) {
         emit objectRemoved(obj);
 }
 
-void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) {
-    d->qtilities_factory.registerFactoryInterface(interface,iface_tag);
+void Qtilities::Core::ObjectManager::registerFactoryInterface(FactoryInterface<QObject>* factory_interface, FactoryItemID iface_tag) {
+    d->qtilities_factory.registerFactoryInterface(factory_interface,iface_tag);
 }
 
 bool Qtilities::Core::ObjectManager::registerIFactoryProvider(IFactoryProvider* factory_iface) {

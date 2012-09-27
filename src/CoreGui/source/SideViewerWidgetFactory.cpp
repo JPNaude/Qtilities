@@ -48,11 +48,11 @@ struct Qtilities::CoreGui::SideViewerWidgetFactoryPrivateData {
     bool is_exclusive;
 };
 
-Qtilities::CoreGui::SideViewerWidgetFactory::SideViewerWidgetFactory(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive) : QObject(0) {
+Qtilities::CoreGui::SideViewerWidgetFactory::SideViewerWidgetFactory(FactoryInterface<QWidget>* factory_interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive) : QObject(0) {
     d = new SideViewerWidgetFactoryPrivateData;
 
     FactoryItemID factory_data("Produce Me");
-    d->factory.registerFactoryInterface(interface,factory_data);
+    d->factory.registerFactoryInterface(factory_interface,factory_data);
     d->widget_id = widget_id;
     d->modes = modes;
     d->startup_modes = startup_modes;

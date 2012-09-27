@@ -87,7 +87,7 @@ sideWidget->setIFaceMap(map, true);
               \param modes The modes in which this widget must be present.
               \param startup_modes The modes in which this widget must be visible when the application starts.
               */
-            SideViewerWidgetFactory(FactoryInterface<QWidget>* interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive = false);
+            SideViewerWidgetFactory(FactoryInterface<QWidget>* factory_interface, const QString& widget_id, QList<int> modes, QList<int> startup_modes, bool is_exclusive = false);
             ~SideViewerWidgetFactory();
 
             // --------------------------------------------

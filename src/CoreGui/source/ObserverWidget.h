@@ -71,7 +71,7 @@ namespace Qtilities {
         \struct ObserverWidgetData
         \brief A structure used by ObserverWidget classes to store data.
           */
-        class ObserverWidgetData;
+        struct ObserverWidgetData;
 
         /*!
           \class ObserverWidget

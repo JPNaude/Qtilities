@@ -467,7 +467,7 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
         \class Qtilities::CoreGui::NamingPolicyDelegateData
         \brief The NamingPolicyDelegateData class provides stores data needed by the NamingPolicyDelegate class.
           */
-        class NamingPolicyDelegateData;
+        struct NamingPolicyDelegateData;
 
         /*!
         \class Qtilities::CoreGui::NamingPolicyDelegate

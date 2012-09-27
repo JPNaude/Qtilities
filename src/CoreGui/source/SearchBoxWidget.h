@@ -53,7 +53,7 @@ namespace Qtilities {
 
           \sa Qtilities::CoreGui::SearchBoxWidget
           */
-        class SearchBoxWidgetPrivateData;
+        struct SearchBoxWidgetPrivateData;
 
         /*!
           \class Qtilities::CoreGui::SearchBoxWidget

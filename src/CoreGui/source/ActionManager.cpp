@@ -415,7 +415,7 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
 
     if (!is_supported_format) {
         LOG_ERROR(QString(tr("Unsupported shortcuts file found with export version: %1. The file will not be parsed.")).arg(read_version));
-        return IExportable::Failed;
+        return false;
     }
 
     // ---------------------------------------------------

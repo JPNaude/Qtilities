@@ -44,10 +44,10 @@ namespace Qtilities {
         using namespace Qtilities::CoreGui::Interfaces;
 
         /*!
-          \class ClipboardManagerPrivateData
+          \struct ClipboardManagerPrivateData
           \brief The ClipboardManagerPrivateData class stores data used by the ClipboardManager class.
          */
-        class ClipboardManagerPrivateData;
+        struct ClipboardManagerPrivateData;
 
         /*!
           \class ClipboardManager

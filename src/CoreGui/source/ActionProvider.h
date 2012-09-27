@@ -45,10 +45,10 @@ namespace Qtilities {
     namespace CoreGui {
         using namespace Qtilities::CoreGui::Interfaces;
         /*!
-        \class ActionProviderPrivateData
+        \struct ActionProviderPrivateData
         \brief The ActionProviderPrivateData struct stores private data used by the ActionProvider class.
           */
-        class ActionProviderPrivateData;
+        struct ActionProviderPrivateData;
 
         /*!
         \class ActionProvider

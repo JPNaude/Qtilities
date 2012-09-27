@@ -166,7 +166,7 @@ for (int i = 0; i < projectItemObjects.count(); i++) {
                 // Qtilities Factory Related Functionality
                 // ---------------------------------
                 //! Registers a factory interface inside the %Qtilities factory.
-                virtual void registerFactoryInterface(FactoryInterface<QObject>* interface, FactoryItemID iface_tag) = 0;
+                virtual void registerFactoryInterface(FactoryInterface<QObject>* factory_interface, FactoryItemID iface_tag) = 0;
 
                 // ---------------------------------
                 // Factory Management Related Functionality
