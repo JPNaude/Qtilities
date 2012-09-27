@@ -137,17 +137,17 @@ namespace Qtilities {
 
               //! Registers a new factory interface implementation. The string 'factory_tag' can be used to generate instances of this implementation.
               /*!
-                \param interface The factory item interface.
+                \param factory_interface The factory item interface.
                 \param iface_data A structure providing information about the factory item interface. If another item interface with the same tag already exists, the function call will fail and false will be returned. The tag must also contain a value.
                 \returns True if the interface was registered successfully, false otherwise.
                 */
-              bool registerFactoryInterface(FactoryInterface<BaseClass>* interface, FactoryItemID iface_data) {
+              bool registerFactoryInterface(FactoryInterface<BaseClass>* factory_interface, FactoryItemID iface_data) {
                   if (!iface_data.tag.isEmpty()) {
                       // Check that multiple tags don't exist
                       // Don't check the interface itself, sometimes it is desirable to
                       // to register the same interface using different tags.
                       if (!reg_ifaces.keys().contains(iface_data.tag)) {
-                          reg_ifaces[iface_data.tag] = interface;
+                          reg_ifaces[iface_data.tag] = factory_interface;
                           data_ifaces[iface_data.tag] = iface_data;
                           return true;
                       } else
