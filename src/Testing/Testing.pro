@@ -16,7 +16,9 @@ CONFIG += qt \
     ordered
 
 QT += gui
-QT += xml
+QT += xml \
+      widgets \
+      printsupport
 CONFIG += qtestlib
 
 CONFIG(debug, debug|release) {

@@ -42,6 +42,7 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QPrinter>
 
 namespace Ui {
     class WidgetLoggerEngineFrontend;

@@ -15,7 +15,9 @@ CONFIG += qt \
     ordered
 
 QT += core
-QT += xml
+QT += xml \
+      widgets \
+      printsupport
 
 CONFIG(debug, debug|release) {
     TARGET = QtilitiesProjectManagementd$${QTILITIES_FILE_VER}

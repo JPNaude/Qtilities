@@ -42,6 +42,9 @@
 
 #include <QFileInfo>
 #include <QtGui>
+#include <QtWidgets>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
 
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;

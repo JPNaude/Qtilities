@@ -14,7 +14,11 @@ CONFIG += qt \
     dll \
     ordered
 
-QT += xml
+QT += xml \
+      widgets \
+      printsupport \
+      gui
+
 CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
 else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
 TEMPLATE = lib
