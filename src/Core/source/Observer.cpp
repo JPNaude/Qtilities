@@ -412,9 +412,6 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
 //        qDebug() << "endProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
 
     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
-        if (isModified())
-            emit modificationStateChanged(true);
-
         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
             // Note that it is possible to get in here without the number of subjects changing under this observer when
@@ -770,7 +767,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(QList<QObjec
         if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
             success_list << objects.at(i);
     }
-    endProcessingCycle();
+    endProcessingCycle(true);
     return success_list;
 }
 
@@ -778,10 +775,11 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(ObserverMime
     QList<QPointer<QObject> > success_list;
     startProcessingCycle();
     for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
-        if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle))
+        if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle)) {
             success_list << mime_data_object->subjectList().at(i);
+        }
     }
-    endProcessingCycle();
+    endProcessingCycle(true);
     return success_list;
 }
 
@@ -822,7 +820,6 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
             *rejectMsg = reject_string;
         return Observer::Rejected;
     }
-
 
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is already monitored by this observer, if so abort.
@@ -877,8 +874,10 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     AbstractSubjectFilter::EvaluationResult current_filter_evaluation;
     for (int i = 0; i < observerData->subject_filters.count(); i++) {
         current_filter_evaluation = observerData->subject_filters.at(i)->evaluateAttachment(obj,rejectMsg,silent);
-        if (current_filter_evaluation == AbstractSubjectFilter::Rejected)
+        if (current_filter_evaluation == AbstractSubjectFilter::Rejected) {
             was_rejected = true;
+            break;
+        }
         if (current_filter_evaluation == AbstractSubjectFilter::Conditional)
             was_conditional = true;
     }
