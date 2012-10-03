@@ -98,7 +98,9 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/TaskSummaryWidget.h \
     source/ObserverTableModelProxyFilter.h \
     source/GroupedConfigPage.h \
-    source/IGroupedConfigPageInfoProvider.h
+    source/IGroupedConfigPageInfoProvider.h \
+    source/AddDynamicPropertyWizard.h \
+    source/IAvailablePropertyProvider.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \
@@ -147,7 +149,8 @@ SOURCES += source/QtilitiesApplication.cpp \
     source/SingleTaskWidget.cpp \
     source/TaskSummaryWidget.cpp \
     source/ObserverTableModelProxyFilter.cpp \
-    source/GroupedConfigPage.cpp
+    source/GroupedConfigPage.cpp \
+    source/AddDynamicPropertyWizard.cpp
 
 FORMS += source/ObserverWidget.ui \
     source/NamingPolicyInputDialog.ui \

@@ -36,8 +36,11 @@
 
 #include <QtilitiesCoreGui>
 
+#include "AvailablePropertyProvider.h"
+
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
+using namespace Qtilities::Examples::ObserverWidgetExample;
 
 int main(int argc, char *argv[])
 {
@@ -56,6 +59,7 @@ int main(int argc, char *argv[])
 
     Log->setLoggerSessionConfigPath(QtilitiesApplication::applicationSessionPath());
     LOG_INITIALIZE();
+    Log->setIsQtMessageHandler(false);
 
     // -----------------------------------
     // Construct some hints:
@@ -167,6 +171,8 @@ int main(int argc, char *argv[])
     // We can also show Qtilities properties on the dynamic property browser:
     if (observer_widget->dynamicPropertyBrowser()) {
         observer_widget->dynamicPropertyBrowser()->toggleQtilitiesProperties(true);
+        observer_widget->dynamicPropertyBrowser()->toggleToolBar();
+        observer_widget->dynamicPropertyBrowser()->setNewPropertyType(ObjectManager::SharedProperties);
     }
     #endif
 
@@ -174,6 +180,13 @@ int main(int argc, char *argv[])
     // Finally show the widget:
     // -----------------------------------
     observer_widget->show();
+
+    // -----------------------------------
+    // Create and register an example implementation of IAvailablePropertyProvider to
+    // demonstrate how it works.
+    // -----------------------------------
+    AvailablePropertyProvider* property_provider = new AvailablePropertyProvider;
+    OBJECT_MANAGER->registerObject(property_provider);
 
     return a.exec();
 }
