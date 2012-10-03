@@ -164,6 +164,8 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
     }
 
     d->obj = object;
+    if (!d->obj)
+        return;
 
     if (monitor_changes) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
@@ -174,9 +176,6 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::setObject(QObject *object, bool 
         // This will catch property change events as well.
         d->obj->installEventFilter(this);
     }
-
-    if (!d->obj)
-        return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
     d->ignore_property_changes = true;

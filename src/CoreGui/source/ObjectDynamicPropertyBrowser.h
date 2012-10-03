@@ -127,6 +127,20 @@ namespace Qtilities {
               \returns The property type used when the user adds new properties. Default is normal QVariants, thus ObjectManager::NonQtilitiesProperties.
               */
             ObjectManager::PropertyTypes newPropertyType() const;
+            //! Function which toggle the visibility of the toolbar with add/remove actions etc. on the property browser.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             *
+             * \sa isToolBarVisible()
+             */
+            void toggleToolBar();
+            //! Function which checks if the toolbar is currently visible.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             *
+             * \sa toggleToolBar()
+             */
+            bool isToolBarVisible() const;
 
         public slots:
             //! Refresh function which gets all properties on the current object and refreshes the property editor.
