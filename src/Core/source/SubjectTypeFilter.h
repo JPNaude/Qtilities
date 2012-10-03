@@ -105,7 +105,7 @@ subject_type_filter->enableInverseFiltering(true);
             // --------------------------------
             // AbstractSubjectFilter Implementation
             // --------------------------------
-            bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false);
+            AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const;
             QString filterName() const { return qti_def_FACTORY_TAG_SUBJECT_TYPE_FILTER; }
         protected:
             bool handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent);
