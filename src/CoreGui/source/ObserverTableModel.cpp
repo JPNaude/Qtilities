@@ -445,7 +445,7 @@ QVariant Qtilities::CoreGui::ObserverTableModel::headerData(int section, Qt::Ori
         return tr("ID");
     } else if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         if (d->type_grouping_name.isEmpty())
-            return tr("Items");
+            return observerContext()->observerName();
         else
             return d->type_grouping_name;
     } else if ((section == columnPosition(ColumnCategory)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {

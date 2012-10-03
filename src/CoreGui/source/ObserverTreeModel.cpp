@@ -789,7 +789,7 @@ Qt::ItemFlags Qtilities::CoreGui::ObserverTreeModel::flags(const QModelIndex &in
 QVariant Qtilities::CoreGui::ObserverTreeModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if ((section == columnPosition(ColumnName)) && (orientation == Qt::Horizontal) && (role == Qt::DisplayRole)) {
         if (d->type_grouping_name.isEmpty())
-            return tr("Contents Tree");
+            return observerContext()->observerName();
         else
             return d->type_grouping_name;
     } else if ((section == columnPosition(ColumnChildCount)) && (orientation == Qt::Horizontal) && (role == Qt::DecorationRole)) {
@@ -920,6 +920,16 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
                                     continue;
 
                                 obs->setMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP,qVariantFromValue(*target_category));
+                                IModificationNotifier* mod_notifier = qobject_cast<IModificationNotifier*> (subjects.at(i));
+                                if (mod_notifier)
+                                    mod_notifier->setModificationState(true);
+                                do_refresh= true;
+                            } else {
+                                // If the category does not exist, we create and add it:
+                                MultiContextProperty new_category_prop(qti_prop_CATEGORY_MAP);
+                                new_category_prop.setValue(qVariantFromValue(*target_category),obs->observerID());
+
+                                ObjectManager::setMultiContextProperty(subjects.at(i),new_category_prop);
                                 IModificationNotifier* mod_notifier = qobject_cast<IModificationNotifier*> (subjects.at(i));
                                 if (mod_notifier)
                                     mod_notifier->setModificationState(true);
@@ -1202,7 +1212,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     columns.push_back(QString(tr("Type Info")));
     columns.push_back(QString(tr("Object Tree")));
     d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
-    d->rootItem->setObjectName("Root Item");
+    d->rootItem->setObjectName(tr("Root Item"));
     ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
     d->rootItem->appendChild(top_level_observer_item);
 
@@ -1225,7 +1235,6 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
         QMetaObject::invokeMethod(&d->tree_builder, "startBuild", Qt::QueuedConnection);
     } else {
         d->tree_rebuild_queued = false;
-        //top_level_observer_item->moveToThread(&d->tree_builder_thread);
         d->tree_builder.setRootItem(top_level_observer_item);
         d->tree_builder.setUseObserverHints(model->use_observer_hints);
         d->tree_builder.setActiveHints(activeHints());

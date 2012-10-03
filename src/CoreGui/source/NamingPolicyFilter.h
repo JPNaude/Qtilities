@@ -206,8 +206,8 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 Uniqueness = 2,           /*!< Checks the uniqueness of subject names. \sa validityResolutionPolicy() */
                 AllChecks = Validity | Uniqueness /*!< All checks are performed. */
             };
-            Q_DECLARE_FLAGS(ValidationCheckFlags, ValidationCheck);
-            Q_FLAGS(ValidationCheckFlags);
+            Q_DECLARE_FLAGS(ValidationCheckFlags, ValidationCheck)
+            Q_FLAGS(ValidationCheckFlags)
             //! Function which returns a string associated with a specific ValidationCheckFlags.
             static QString validationCheckFlagsToString(ValidationCheckFlags validation_checks);
             //! Function which returns the ValidationCheckFlags associated with a string.
@@ -221,8 +221,8 @@ if (ObjectManager::propertyExists(obj,qti_prop_NAME)) {
                 Duplicate = 1,          /*!< A duplicate name exists. */
                 Invalid = 2             /*!< The name is invalid in this context. \sa setValidator(), getValidator(). */
             };
-            Q_DECLARE_FLAGS(NameValidity, ValidityCheckResult);
-            Q_FLAGS(NameValidity);
+            Q_DECLARE_FLAGS(NameValidity, ValidityCheckResult)
+            Q_FLAGS(NameValidity)
 
             // --------------------------------
             // Factory Interface Implementation

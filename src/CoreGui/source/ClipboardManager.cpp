@@ -72,7 +72,7 @@ Qtilities::CoreGui::ClipboardManager::ClipboardManager(QObject* parent) : IClipb
     d->clipboard = QApplication::clipboard();
     connect(d->clipboard,SIGNAL(dataChanged()),SLOT(handleClipboardChanged()));
 
-    setObjectName("Clipboard Manager");
+    setObjectName(tr("Clipboard Manager"));
 }
 
 Qtilities::CoreGui::ClipboardManager::~ClipboardManager()
@@ -102,7 +102,7 @@ void Qtilities::CoreGui::ClipboardManager::initialize() {
     d->actionPaste->setShortcut(QKeySequence(QKeySequence::Paste));
     d->actionPaste->setEnabled(false);
     Command* command = ACTION_MANAGER->registerAction(qti_action_EDIT_PASTE,d->actionPaste,context);
-    command->setCategory(QtilitiesCategory("Editing"));
+    command->setCategory(QtilitiesCategory(tr("Editing")));
 
     d->initialized = true;
 }
