@@ -36,6 +36,7 @@
 
 #include "IObjectManager.h"
 #include "QtilitiesCore_global.h"
+#include "IAvailablePropertyProvider.h"
 
 #include <QList>
 #include <QStringList>
@@ -213,7 +214,7 @@ namespace Qtilities {
             static QList<QPointer<QObject> > convNormalObjectsToSafe(QList<QObject*> normal_list);
 
             // --------------------------------
-            // Static Dynamic Property Functions
+            // Static / Dynamic Property Functions
             // --------------------------------
             //! Streams exportable dynamic properties about the object to the given QDataStream.
             /*!
@@ -287,6 +288,13 @@ if (ObjectManager::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
               */
             static bool setSharedProperty(QObject* obj, const char* property_name, QVariant property_value);
+            //! Convenience function which will create and set a SharedProperty from the given PropertySpecification.
+            /*!
+              \sa setMultiContextProperty(), getMultiContextProperty(), getSharedProperty(), propertyExists()
+
+              This function was added in %Qtilities v1.2.
+              */
+            static bool setSharedProperty(QObject* obj, PropertySpecification property_specification);
             //! Convenience function to check if a dynamic property exists on a object.
             static bool propertyExists(const QObject* obj, const char* property_name);
             //! Convenience function to remove all properties that match the PropertyTypeFlags from an object.
@@ -302,6 +310,43 @@ if (ObjectManager::propertyExists(iface->objectBase(),qti_prop_CATEGORY_MAP)) {
               \param ignore_list A list of property names which should be ignored in the comparison.
               */
             static bool compareDynamicProperties(const QObject* obj1, const QObject* obj2, PropertyTypeFlags property_types = AllPropertyTypes, PropertyDiffInfo* property_diff_info = 0, QStringList ignore_list = QStringList());
+
+            //! Convenience function to allow construction of all properties specified by IAvailablePropertyProvider interfaces in the global object pool on the given object.
+            /*!
+             *This function can be used to do automatic dynamic property construction on objects. This is usefull in
+             *extendible applications where you use dynamic properties in order to extend objects at runtime. For example,
+             *if you have an application and plugins can add dynamic properties on specific type of objects, you can do it by
+             *having some sort of mechanism where the plugin is notified of new objects that it is interested in. One way to do it
+             *is to register the new objects in the global object pool and listen to the new object added signal on the object pool.
+             *When the plugin gets this notification it adds the needed dynamic properties on the object.
+             *
+             *This function provides a more efficient way to do this. When called, the function looks for all implementations of
+             *IAvailablePropertyProvider registered in the global object pool and gets all PropertySpecification specifications for
+             *for which the given object inherits the \p d_class_name specification of the property specification.
+             *
+             *It will check all these properties and if their \p d_add_during_construction parameter is set
+             *it will add these properties with the parameters specified by the matching PropertySpecification.
+             *
+             *The intended use of this function is to call it in the constructor of your object.
+             *
+             *\param obj The object on which the properties must be constructed.ad.
+             *\param errorMsg When the function returns false due to any issues, the reason for the failure can be found through this parameter.
+             *
+             *\returns True when successfull, false otherwise.
+             *
+             *This function was added in %Qtilities v1.2.
+             */
+            static bool constructDefaultPropertiesOnObject(QObject* obj, QString* errorMsg = 0);
+
+            //! Convenience function to construct a property from a given PropertySpecification.
+            /*!
+             * \brief Constructs a SharedProperty from the given PropertySpecification.
+             * \param specification The property specification
+             * \return A reference to the constructed property.
+             *
+             *This function was added in %Qtilities v1.2.
+             */
+            static SharedProperty* constructPropertyFromSpecification(PropertySpecification specification);
 
             // --------------------------------
             // IObjectBase Implementation
