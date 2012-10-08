@@ -44,6 +44,7 @@
 #include "QtilitiesProcess.h"
 #include "FileSetInfo.h"
 #include "FileLocker.h"
+#include "IAvailablePropertyProvider.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the Core module.
 namespace QtilitiesCore { 

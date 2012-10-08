@@ -39,6 +39,9 @@ Qtilities v1.2 Changes
     [+] Added FileUtils::toNativeSeparators().
     [+] Added Task::setTaskName().
     [+] New FileLocker class.
+    [+] Added ObjectManager::constructPropertyFromSpecification().
+    [+] Added ObjectManager::constructDefaultPropertiesOnObject().
+    [+] Added ObjectManager::setSharedProperty(QObject*,PropertySpecification).
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -54,7 +57,7 @@ Qtilities v1.2 Changes
     [#] FileUtils::findFilesUnderDir() can now be used to find directories under a path as well. See updated function docs for details.
     [#] Added QVariant::Brush to QtilitiesProperty::isExportableVariant().
     [#] Moved SubjectTypeFilter::initializeAttachment() to SubjectTypeFilter::evaluateAttachment() since its 
-	    really only doing an evaluation, to an initialization.
+        really only doing an evaluation, to an initialization.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting

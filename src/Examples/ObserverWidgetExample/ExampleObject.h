@@ -31,46 +31,28 @@
 **
 ****************************************************************************/
 
-#ifndef AVAILABLE_PROPERTY_PROVIDER_H
-#define AVAILABLE_PROPERTY_PROVIDER_H
-
-#include <IAvailablePropertyProvider>
+#ifndef EXAMPLE_OBJECT_H
+#define EXAMPLE_OBJECT_H
 
 #include <QObject>
 
 namespace Qtilities {
     namespace Examples {
         namespace ObserverWidgetExample {
-            using namespace Qtilities::Core;
-            using namespace Qtilities::Core::Interfaces;
-
             /*!
-            \class AvailablePropertyProvider
-            \brief An example implementation of Qtilities::CoreGui::Interfaces::IAvailablePropertyProvider.
+            \class ExampleObject
+            \brief An example object used to demonstrate automatic default property creation using ObjectManager::constructDefaultPropertiesOnObject().
               */
-            class AvailablePropertyProvider : public QObject, public IAvailablePropertyProvider
+            class ExampleObject : public QObject
             {
                 Q_OBJECT
-                Q_INTERFACES(Qtilities::Core::Interfaces::IAvailablePropertyProvider)
 
                 public:
-                    AvailablePropertyProvider(QObject* parent = 0) : QObject(parent) {}
-                    ~AvailablePropertyProvider() {}
-
-                    // --------------------------------
-                    // IObjectBase Implementation
-                    // --------------------------------
-                    QObject* objectBase() { return this; }
-                    const QObject* objectBase() const { return this; }
-
-                    // --------------------------------------------
-                    // IAvailablePropertyProvider Implementation
-                    // --------------------------------------------
-                    QList<PropertySpecification> availableProperties() const;
-                    QStringList prohibitedCustomPropertiesClasses() const;
+                    ExampleObject(QObject* parent = 0);
+                    ~ExampleObject() {}
             };
         }
     }
 }
 
-#endif // AVAILABLE_PROPERTY_PROVIDER_H
+#endif // EXAMPLE_OBJECT_H

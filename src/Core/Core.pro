@@ -80,7 +80,8 @@ HEADERS += source/QtilitiesCore_global.h \
     source/FileUtils.h \
     source/QtilitiesProcess.h \
     source/FileSetInfo.h \
-    source/FileLocker.h
+    source/FileLocker.h \
+    source/IAvailablePropertyProvider.h
 
 SOURCES += source/QtilitiesCoreApplication.cpp \
     source/QtilitiesCoreApplication_p.cpp \

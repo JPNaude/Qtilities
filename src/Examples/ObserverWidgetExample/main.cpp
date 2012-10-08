@@ -37,6 +37,7 @@
 #include <QtilitiesCoreGui>
 
 #include "AvailablePropertyProvider.h"
+#include "ExampleObject.h"
 
 using namespace QtilitiesCore;
 using namespace QtilitiesCoreGui;
@@ -45,6 +46,10 @@ using namespace Qtilities::Examples::ObserverWidgetExample;
 int main(int argc, char *argv[])
 {
     QtilitiesApplication a(argc, argv);
+    QtilitiesApplication::setOrganizationName("Jaco Naude");
+    QtilitiesApplication::setOrganizationDomain("Qtilities");
+    QtilitiesApplication::setApplicationName("Observer Widget Example");
+    QtilitiesApplication::setApplicationVersion(QtilitiesApplication::qtilitiesVersionString());
 
     // Create the observer widget in tree mode:
     // (Note we can also use TreeWidget which is the same as ObserverWidget)
@@ -187,6 +192,10 @@ int main(int argc, char *argv[])
     // -----------------------------------
     AvailablePropertyProvider* property_provider = new AvailablePropertyProvider;
     OBJECT_MANAGER->registerObject(property_provider);
+
+    // Add our example object (we do this after registering the property provider in order
+    // to demonstrate the use of ObjectManager::constructDefaultPropertiesOnObject()):
+    rootNode->attachSubject(new ExampleObject);
 
     return a.exec();
 }

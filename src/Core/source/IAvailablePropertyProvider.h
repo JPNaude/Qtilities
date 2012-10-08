@@ -34,8 +34,8 @@
 #ifndef IAVAILABLE_PROPERTY_PROVIDER_H
 #define IAVAILABLE_PROPERTY_PROVIDER_H
 
-#include "QtilitiesCoreGui_global.h"
-#include "QtilitiesCoreGuiConstants.h"
+#include "QtilitiesCore_global.h"
+#include "QtilitiesCoreConstants.h"
 
 #include <IObjectBase>
 
@@ -43,7 +43,7 @@
 #include <QStringList>
 
 namespace Qtilities {
-    namespace CoreGui {
+    namespace Core {
         /*!
           \struct PropertySpecification
           \brief The PropertySpecification structure is used to define an available property through the .
@@ -58,34 +58,40 @@ namespace Qtilities {
             PropertySpecification() {
                 d_removable = true;
                 d_read_only = false;
+                d_add_during_construction = false;
+                d_internal = false;
             }
             /*!
              * \brief Quick constructor for PropertySpecification with important property details as parameters.
              * \param displayed_name The displayed name that will be used in AddDynamicPropertyWizard.
              * \param description The description for the property.
-             * \param type The type of property.
+             * \param data_type The type of property.
              * \param class_name The base className() to which this property is applicable. When empty, will be available for all classes.
              * \param property_name When empty, will use displayed_name as the property name.
              */
-            PropertySpecification(const QString& displayed_name, const QString& description, QVariant::Type type, const QString& class_name = QString(), const QString& property_name = QString()) {
+            PropertySpecification(const QString& displayed_name, const QString& description, QVariant::Type data_type, const QString& class_name = QString(), const QString& property_name = QString()) {
                 d_displayed_name = displayed_name;
                 d_property_name = property_name;
                 d_description = description;
-                d_type = type;
+                d_data_type = data_type;
                 d_class_name = class_name;
 
                 d_removable = true;
                 d_read_only = false;
+                d_add_during_construction = false;
+                d_internal = false;
             }
             PropertySpecification(const PropertySpecification& ref) {
                 d_displayed_name = ref.d_displayed_name;
                 d_property_name = ref.d_property_name;
                 d_description = ref.d_description;
-                d_type = ref.d_type;
+                d_data_type = ref.d_data_type;
                 d_default_value = ref.d_default_value;
                 d_removable = ref.d_removable;
                 d_read_only = ref.d_read_only;
                 d_class_name = ref.d_class_name;
+                d_add_during_construction = ref.d_add_during_construction;
+                d_internal = ref.d_internal;
             }
             PropertySpecification& operator=(const PropertySpecification& ref) {
                 if (this==&ref) return *this;
@@ -93,11 +99,13 @@ namespace Qtilities {
                 d_displayed_name = ref.d_displayed_name;
                 d_property_name = ref.d_property_name;
                 d_description = ref.d_description;
-                d_type = ref.d_type;
+                d_data_type = ref.d_data_type;
                 d_default_value = ref.d_default_value;
                 d_removable = ref.d_removable;
                 d_read_only = ref.d_read_only;
                 d_class_name = ref.d_class_name;
+                d_add_during_construction = ref.d_add_during_construction;
+                d_internal = ref.d_internal;
 
                 return *this;
             }
@@ -110,13 +118,17 @@ namespace Qtilities {
                     return false;
                 if (d_default_value != ref.d_default_value)
                     return false;
-                if (d_type != ref.d_type)
+                if (d_data_type != ref.d_data_type)
                     return false;
                 if (d_removable != ref.d_removable)
                     return false;
                 if (d_read_only != ref.d_read_only)
                     return false;
                 if (d_class_name != ref.d_class_name)
+                    return false;
+                if (d_add_during_construction != ref.d_add_during_construction)
+                    return false;
+                if (d_internal != ref.d_internal)
                     return false;
 
                 return true;
@@ -131,32 +143,52 @@ namespace Qtilities {
             bool isValid() const {
                 if (d_displayed_name.isEmpty())
                     return false;
-                if (d_type == QVariant::Invalid)
+                if (d_data_type == QVariant::Invalid)
                     return false;
 
                 return true;
             }
+            //! Returns the property name to use. Use this instead of d_property_name directly.
+            /*!
+             *Function which check if d_property_name is valid and if so returns it, otherwise returns d_displayed_name.
+             */
+            QString propertyName() const {
+                if (d_property_name.isEmpty())
+                    return d_displayed_name;
+                else
+                    return d_property_name;
+            }
 
+            //! A display name for the property.
             QString d_displayed_name;
+            //! The actual property name used by QObject::setProperty(). When empty, the displayed name will be used as the actual property name as well.
             QString d_property_name;
+            //! A description of the property.
             QString d_description;
-            QVariant::Type d_type;
+            //! The property's data type.
+            QVariant::Type d_data_type;
+            //! The default value of the property.
             QVariant d_default_value;
+            //! Indicates if the property must be removable. True by default.
             bool d_removable;
+            //! Indicates if the property must be read only. False by default.
             bool d_read_only;
+            //! Indicates the class names to which this property applies. Checked with QObject::inherits().
             QString d_class_name;
+            //! Indicates if the property must be added to objects that matches the specified class name by default. False by default.
+            bool d_add_during_construction;
+            //! Indicates if the property is internal, thus it will not be shown as an available property when users add properties to an object. False by default.
+            bool d_internal;
         };
 
         namespace Interfaces {
-            using namespace Qtilities::Core::Interfaces;
-
             /*!
             \class IAvailablePropertyProvider
             \brief Used by the AddDynamicPropertyWizard class to determine the available properties for a specific type of object.
 
             <i>This class was added in %Qtilities v1.2.</i>
               */
-            class QTILITIES_CORE_GUI_SHARED_EXPORT IAvailablePropertyProvider: virtual public IObjectBase
+            class QTILIITES_CORE_SHARED_EXPORT IAvailablePropertyProvider: virtual public IObjectBase
             {
 
             public:
@@ -176,6 +208,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IAvailablePropertyProvider,"com.Qtilities.CoreGui.IAvailablePropertyProvider/1.0");
+Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IAvailablePropertyProvider,"com.Qtilities.Core.IAvailablePropertyProvider/1.0")
 
 #endif // IAVAILABLE_PROPERTY_PROVIDER_H

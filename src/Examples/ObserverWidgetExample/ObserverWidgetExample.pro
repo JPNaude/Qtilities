@@ -29,10 +29,12 @@ UI_DIR          = $$QTILITIES_TEMP/ObserverWidgetExample
 # Application Files
 # --------------------------
 SOURCES += main.cpp \
-    AvailablePropertyProvider.cpp
+    AvailablePropertyProvider.cpp \
+    ExampleObject.cpp
 RC_FILE = rc_file.rc
 
 OTHER_FILES +=
 
 HEADERS += \
-    AvailablePropertyProvider.h
+    AvailablePropertyProvider.h \
+    ExampleObject.h

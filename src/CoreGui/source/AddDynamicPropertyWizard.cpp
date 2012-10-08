@@ -93,8 +93,9 @@ Qtilities::CoreGui::AddDynamicPropertyWizard::AddDynamicPropertyWizard(PropertyC
     d->validation_enabled = true;
     d->new_property_type = ObjectManager::NonQtilitiesProperties;
     d->property_creation_hint = property_creation_hint;
+    d->property_description.setReadOnly(true);
 
-    setWindowTitle("Add Dynamic Property");
+    setWindowTitle(tr("Adding Dynamic Property"));
 
     // Initialize the providers:
     initializePropertyProviders();
@@ -102,10 +103,10 @@ Qtilities::CoreGui::AddDynamicPropertyWizard::AddDynamicPropertyWizard(PropertyC
     if (!d->wizard_page_available_properties) {
         // Add the wizard page which allows selection of the available properties (only if there are any):
         d->wizard_page_available_properties = new QWizardPage;
-        d->wizard_page_available_properties->setTitle("Available Properties");
+        d->wizard_page_available_properties->setTitle(tr("Available Properties"));
 
         QVBoxLayout *wizard_page_layout = new QVBoxLayout;
-        QLabel *label_heading = new QLabel("Please select the property you want to add from the list of available properties.<br>");
+        QLabel *label_heading = new QLabel(tr("Please select the property you want to add from the list of available properties. Existing properties are colored in gray.<br>"));
         label_heading->setWordWrap(true);
         wizard_page_layout->addWidget(label_heading);
 
@@ -122,11 +123,11 @@ Qtilities::CoreGui::AddDynamicPropertyWizard::AddDynamicPropertyWizard(PropertyC
 
     if (!d->wizard_page_property_details) {
         d->wizard_page_property_details = new QWizardPage;
-        d->wizard_page_property_details->setTitle("Property Details");
+        d->wizard_page_property_details->setTitle(tr("Property Details"));
 
         // The heading:
         QVBoxLayout *wizard_page_layout = new QVBoxLayout;
-        d->property_details_heading_label.setText("Heading Not Set!");
+        d->property_details_heading_label.setText(tr("Heading Not Set!"));
         d->property_details_heading_label.setWordWrap(true);
         wizard_page_layout->addWidget(&d->property_details_heading_label);
 
@@ -228,7 +229,7 @@ void AddDynamicPropertyWizard::accept() {
 
     if (!success) {
         d->message_icon.setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16,16));
-        d->message_label.setText("Oops, something went wrong and your property could not be added.");
+        d->message_label.setText(tr("Oops, something went wrong and your property could not be added."));
         d->message_widget.setVisible(true);
         // Don't reject, the user can cancel if he wants to abort.
     } else {
@@ -264,8 +265,11 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::setObject(QObject* obj) {
         return;
     }
 
-    if (d->obj == obj)
+    if (d->obj == obj) {
+        // Get available properties again in order to refresh display for existing properties:
+        getAvailableProperties();
         return;
+    }
 
     if (d->obj)
         d->obj->disconnect(this);
@@ -276,8 +280,8 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::setObject(QObject* obj) {
     // Get available properties for the new object:
     d->validation_enabled = true;
     getAvailableProperties();
-    if (!obj->objectName().isEmpty())
-        setWindowTitle(tr("Add Dynamic Property To \"") + obj->objectName() + "\"");
+//    if (!obj->objectName().isEmpty())
+//        setWindowTitle(tr("Adding Dynamic Property To \"") + obj->objectName() + "\"");
 }
 
 void Qtilities::CoreGui::AddDynamicPropertyWizard::setObject(QPointer<QObject> obj) {
@@ -308,28 +312,34 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::handleObjectDestroyed() {
 
 void AddDynamicPropertyWizard::handleSelectedPropertyChanged(const QString &property_displayed_name) {
     if (!d->obj) {
-        d->property_description.setText("Object not specified");
+        d->property_description.setText(tr("Object not specified"));
         return;
     }
 
     // Load the correct description:
     QString new_text;
     new_text.append("<b>" + property_displayed_name + "</b>");
+    QString description = propertyDescription(property_displayed_name);
+    if (!description.isEmpty()) {
+        new_text.append("<br><br>");
+        new_text.append(description);
+    }
     new_text.append("<br><br>");
-    new_text.append(propertyDescription(property_displayed_name));
-    new_text.append("<br><br>");
-    new_text.append(QString(tr("<b>Type:</b>  %1<br>")).arg(QVariant::typeToName(propertyType(property_displayed_name))));
     QString default_value = propertyDefaultValue(property_displayed_name).toString();
     if (default_value.isEmpty())
         new_text.append(QString(tr("<b>Default value:</b>  Not specified<br>")));
     else
         new_text.append(QString(tr("<b>Default value:</b>  %1<br>")).arg(default_value));
+
+    #ifndef QT_NO_DEBUG
+    new_text.append(QString(tr("<b>Type:</b>  %1<br>")).arg(QVariant::typeToName(propertyType(property_displayed_name))));
     new_text.append(QString(tr("<b>Actual name:</b>  %1<br>")).arg(propertyName(property_displayed_name)));
 
     if (d->new_property_type == ObjectManager::SharedProperties) {
         new_text.append(QString(tr("<b>Removable:</b>  %1<br>")).arg(QVariant(propertyRemovable(property_displayed_name)).toString()));
         new_text.append(QString(tr("<b>Read only:</b>  %1<br>")).arg(QVariant(propertyReadOnly(property_displayed_name)).toString()));
     }
+    #endif
 
     d->property_description.setText(new_text);
 
@@ -356,14 +366,14 @@ void AddDynamicPropertyWizard::handleCurrentIdChanged() {
 bool AddDynamicPropertyWizard::validateNewPropertyName(const QString &property_name) {
     if (property_name.isEmpty()) {
         d->message_icon.setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16,16));
-        d->message_label.setText("Please specify a name for your property.");
+        d->message_label.setText(tr("Please specify a name for your property."));
         d->message_widget.setVisible(true);
         return false;
     }
 
     if (!d->obj) {
         d->message_icon.setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16,16));
-        d->message_label.setText("Object not specified on which property must be set.");
+        d->message_label.setText(tr("Object not specified on which property must be set."));
         d->message_widget.setVisible(true);
         return false;
     }
@@ -388,19 +398,19 @@ bool AddDynamicPropertyWizard::validateNewPropertyName(const QString &property_n
                 if (shared_property.isReadOnly() || !shared_property.isRemovable()) {
                     // Its not a shared property, thus we can just prompt that it will be overwritten.
                     d->message_icon.setPixmap(QIcon(qti_icon_ERROR_16x16).pixmap(16,16));
-                    d->message_label.setText("A <b>read-only/non-removable</b> property with the same name already exists.");
+                    d->message_label.setText(tr("A <b>read-only/non-removable</b> property with the same name already exists."));
                     d->message_widget.setVisible(true);
                     return false;
                 } else {
                     // Its not a shared property, thus we can just prompt that it will be overwritten.
                     d->message_icon.setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16,16));
-                    d->message_label.setText("A property with the same name already exists, it will be overwritten.");
+                    d->message_label.setText(tr("A property with the same name already exists, it will be overwritten."));
                     d->message_widget.setVisible(true);
                 }
             } else {
                 // Its not a shared property, thus we can just prompt that it will be overwritten.
                 d->message_icon.setPixmap(QIcon(qti_icon_WARNING_16x16).pixmap(16,16));
-                d->message_label.setText("A property with the same name already exists, it will be overwritten.");
+                d->message_label.setText(tr("A property with the same name already exists, it will be overwritten."));
                 d->message_widget.setVisible(true);
             }
         } else
@@ -430,7 +440,7 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::initializePropertyProviders()
     d->property_providers.clear();
 
     // Get a list of all the property providers in the system:
-    QList<QObject*> propertyProviderObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.CoreGui.IAvailablePropertyProvider/1.0");
+    QList<QObject*> propertyProviderObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.IAvailablePropertyProvider/1.0");
     // Check all items
     for (int i = 0; i < propertyProviderObjects.count(); i++) {
         IAvailablePropertyProvider* provider = qobject_cast<IAvailablePropertyProvider*> (propertyProviderObjects.at(i));
@@ -448,6 +458,9 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
 
     foreach (PropertySpecification property, all_properties) {
         if (property.isValid()) {
+            if (property.d_internal)
+                continue;
+
             if (property.d_class_name.isEmpty()) {
                 d->available_properties << property;
                 continue;
@@ -463,7 +476,18 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
     disconnect(&d->property_list,SIGNAL(currentTextChanged(QString)),this,SLOT(handleSelectedPropertyChanged(QString)));
     d->property_list.clear();
     connect(&d->property_list,SIGNAL(currentTextChanged(QString)),SLOT(handleSelectedPropertyChanged(QString)));
-    d->property_list.addItems(availablePropertyDisplayedNames());
+
+    QStringList available_property_name = availablePropertyDisplayedNames();
+    foreach (QString name, available_property_name) {
+        QListWidgetItem* item = new QListWidgetItem(name);
+
+        QString actual_property_name = propertyName(name);
+        if (ObjectManager::propertyExists(d->obj,actual_property_name.toAscii().data()))
+            item->setForeground(QBrush(Qt::gray));
+        d->property_list.addItem(item);
+    }
+
+
     d->property_list.setCurrentRow(0);
 }
 
@@ -594,7 +618,7 @@ QVariant::Type AddDynamicPropertyWizard::propertyType(QString displayed_name) co
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
-                return prop.d_type;
+                return prop.d_data_type;
         }
     }
     return QVariant::Invalid;

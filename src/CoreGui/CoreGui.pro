@@ -99,8 +99,7 @@ HEADERS += source/QtilitiesCoreGui_global.h \
     source/ObserverTableModelProxyFilter.h \
     source/GroupedConfigPage.h \
     source/IGroupedConfigPageInfoProvider.h \
-    source/AddDynamicPropertyWizard.h \
-    source/IAvailablePropertyProvider.h
+    source/AddDynamicPropertyWizard.h
 
 SOURCES += source/QtilitiesApplication.cpp \
     source/QtilitiesApplication_p.cpp \

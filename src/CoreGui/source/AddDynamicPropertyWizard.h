@@ -43,7 +43,7 @@
 #include <QPointer>
 
 using namespace Qtilities::Core;
-using namespace Qtilities::CoreGui::Interfaces;
+using namespace Qtilities::Core::Interfaces;
 
 namespace Qtilities {
     namespace CoreGui {

@@ -35,14 +35,20 @@
 
 #include <QtDebug>
 
-using namespace Qtilities::CoreGui;
+using namespace Qtilities::Core;
 
-QList<Qtilities::CoreGui::PropertySpecification> Qtilities::Examples::ObserverWidgetExample::AvailablePropertyProvider::availableProperties() const {
-    QList<Qtilities::CoreGui::PropertySpecification> properties;
+QList<Qtilities::Core::PropertySpecification> Qtilities::Examples::ObserverWidgetExample::AvailablePropertyProvider::availableProperties() const {
+    QList<Qtilities::Core::PropertySpecification> properties;
 
+    // -----------------------------------------
+    // Properties for all QObjects
+    // -----------------------------------------
     PropertySpecification prop1("Global Property","Test description 1",QVariant::String);
     properties << prop1;
 
+    // -----------------------------------------
+    // Properties for Qtilities::CoreGui::TreeNode
+    // -----------------------------------------
     PropertySpecification prop2("TreeNode Property","Test description 2",QVariant::Bool);
     prop2.d_read_only = true;
     prop2.d_removable = false;
@@ -50,9 +56,28 @@ QList<Qtilities::CoreGui::PropertySpecification> Qtilities::Examples::ObserverWi
     prop2.d_class_name = "Qtilities::CoreGui::TreeNode";
     properties << prop2;
 
+    // -----------------------------------------
+    // Properties for Qtilities::CoreGui::TreeItem
+    // -----------------------------------------
     PropertySpecification prop3("TreeItem Property","Test description 3",QVariant::Int);
     prop3.d_class_name = "Qtilities::CoreGui::TreeItem";
     properties << prop3;
+
+    // -----------------------------------------
+    // Properties for our ExampleObject
+    // -----------------------------------------
+    PropertySpecification example_prop1("Example Int Property","",QVariant::Int);
+    example_prop1.d_class_name = "Qtilities::Examples::ObserverWidgetExample::ExampleObject";
+    example_prop1.d_default_value = 10;
+    example_prop1.d_add_during_construction = false;
+    properties << example_prop1;
+
+    PropertySpecification example_prop2("Example Bool Property","",QVariant::Bool);
+    example_prop2.d_class_name = "Qtilities::Examples::ObserverWidgetExample::ExampleObject";
+    example_prop2.d_default_value = true;
+    example_prop2.d_add_during_construction = true;
+    example_prop2.d_internal = true;
+    properties << example_prop2;
 
     return properties;
 }
