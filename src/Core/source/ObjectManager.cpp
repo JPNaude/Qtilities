@@ -866,6 +866,14 @@ bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, const char*
     return ObjectManager::setSharedProperty(obj,sp);
 }
 
+bool ObjectManager::setSharedProperty(QObject *obj, PropertySpecification property_specification) {
+    SharedProperty* sp = ObjectManager::constructPropertyFromSpecification(property_specification);
+    if (sp)
+        return ObjectManager::setSharedProperty(obj,*sp);
+    else
+        return false;
+}
+
 bool Qtilities::Core::ObjectManager::propertyExists(const QObject* obj, const char* property_name) {
     if (!obj)
         return false;
@@ -1123,5 +1131,76 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
     }
 
     return is_equal;
+}
+
+bool ObjectManager::constructDefaultPropertiesOnObject(QObject *obj, QString* errorMsg) {
+    if (!obj) {
+        if (errorMsg)
+            *errorMsg = QObject::tr("Null object received");
+        return false;
+    }
+
+    // Find all IAvailablePropertyProvider interfaces:
+    QList<IAvailablePropertyProvider*> property_providers;
+
+    // Get a list of all the property providers in the system:
+    QList<QObject*> propertyProviderObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.IAvailablePropertyProvider/1.0");
+    // Check all items
+    for (int i = 0; i < propertyProviderObjects.count(); i++) {
+        IAvailablePropertyProvider* provider = qobject_cast<IAvailablePropertyProvider*> (propertyProviderObjects.at(i));
+        if (provider)
+            property_providers << provider;
+    }
+
+    // Now find all available properties that must be added during construction:
+    QList<PropertySpecification> all_properties;
+    foreach (IAvailablePropertyProvider* provider, property_providers)
+        all_properties << provider->availableProperties();
+
+    QString error_string;
+    bool success = true;
+    foreach (PropertySpecification property_specification, all_properties) {
+        if (property_specification.isValid()) {
+            if (!property_specification.d_add_during_construction)
+                continue;
+
+            bool construct_it = false;
+
+            if (property_specification.d_class_name.isEmpty()) {
+                construct_it = true;
+            } else {
+                if (obj->inherits(property_specification.d_class_name.toAscii().data())) {
+                    construct_it = true;
+                }
+            }
+
+            if (construct_it) {
+                if (!ObjectManager::setSharedProperty(obj,property_specification)) {
+                    success = false;
+                    bool first_error = error_string.isEmpty();
+                    error_string.append("Failed to add property \"" + property_specification.propertyName() + "\"");
+                    if (!first_error)
+                        error_string.append("\n");
+                }
+
+            }
+        }
+    }
+
+    if (errorMsg)
+        *errorMsg = error_string;
+    return success;
+}
+
+SharedProperty* ObjectManager::constructPropertyFromSpecification(PropertySpecification specification) {
+    QVariant value_variant = QtilitiesProperty::constructVariant(specification.d_data_type,specification.d_default_value.toString());
+
+    SharedProperty* new_shared_property = new SharedProperty(specification.propertyName().toAscii().data(),value_variant);
+    if (specification.d_read_only)
+        new_shared_property->makeReadOnly();
+    if (!specification.d_removable)
+        new_shared_property->makeNotRemovable();
+
+    return new_shared_property;
 }
 

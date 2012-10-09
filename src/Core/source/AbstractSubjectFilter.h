@@ -111,7 +111,7 @@ namespace Qtilities {
                 \param silent When true, the attachment must be done in a silent way. That is, it should not show any dialogs. This is usefull when objects must be attached to observers without calling exec() on a dialog (such as the user input dialog for NamingPolicyFilters) which can lead to crashes when for example attaching objects inside an event filter. For more information on this topic see <a href="http://labs.qt.nokia.com/2010/02/23/unpredictable-exec/">Unpredictable exec()</a>.
                 \returns AbstractSubjectFilter::EvaluationResult indicating the result of the evaluation.
 
-                \note By default AbstractSubjectFilter::Allowed is reruend by the base class.
+                \note By default AbstractSubjectFilter::Allowed is returned by the base class.
               */
             virtual AbstractSubjectFilter::EvaluationResult evaluateAttachment(QObject* obj, QString* rejectMsg = 0, bool silent = false) const {
                 Q_UNUSED(obj)
@@ -119,7 +119,6 @@ namespace Qtilities {
                 Q_UNUSED(silent)
                 return AbstractSubjectFilter::Allowed;
             }
-                ;
             //! Initialize the attachment of a new subject to the filter's observer context.
             /*!
                 \note The object is not yet attached to the observer context when this function is called.

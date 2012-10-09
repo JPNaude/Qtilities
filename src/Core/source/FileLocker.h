@@ -67,16 +67,23 @@ namespace Qtilities {
              * the file is already locked, or the .lck file can't be created for some reason, it will return false
              * and set the errorMsg parameter to the reason why the lock failed.
              *
+             * \param file_path The path of the file that must be locked.
+             * \param errorMsg When valid, will be populated with error message if the function fails.
              * \returns True if successfull, false otherwise.
+             *
              */
             virtual bool lockFile(const QString& file_path, QString* errorMsg = 0);
             //! Unlocks a file.
             /*!
-             * This function will create a .lck file with the same name as the file name provided. If
-             * the file is already locked, or the .lck file can't be created for some reason, it will return false
+             * This function will look for a .lck file with the same name as the file name provided. If
+             * the file exists, it means that the file was locked and this function will attempt to lock it. If the \p .lck
+             * file can't be removed for some reason, it will return false
              * and set the errorMsg parameter to the reason why the lock failed.
              *
+             * \param file_path The path of the file that must be locked.
+             * \param errorMsg When valid, will be populated with error message if the function fails.
              * \returns True if successfull, false otherwise.
+             *
              */
             virtual bool unlockFile(const QString& file_path, QString* errorMsg = 0);
 
@@ -85,7 +92,6 @@ namespace Qtilities {
             // -----------------------------------
             //! Gets the host name that was used to lock a file.
             /*!
-             * \brief lastLockHostName
              * \param file_path The path of the file that is locked, not the lock file itself.
              * \param errorMsg When valid, will be populated with error message if the function fails.
              * \return The last lock host name.
@@ -93,7 +99,6 @@ namespace Qtilities {
             virtual QString lastLockHostName(QString file_path, QString *errorMsg = 0) const;
             //! Gets the date and time when a lock was created.
             /*!
-             * \brief lastLockHostName
              * \param file_path The path of the file that is locked, not the lock file itself.
              * \param errorMsg When valid, will be populated with error message if the function fails.
              * \return The last lock date and time.
@@ -101,7 +106,6 @@ namespace Qtilities {
             virtual QString lastLockDateTime(QString file_path, QString *errorMsg = 0) const;
             //! Provides a lock summary string for a lock on a file.
             /*!
-             * \brief lastLockHostName
              * \param file_path The path of the file that is locked, not the lock file itself.
              * \param line_break_char The line break characters to use in the summary text.
              * \param errorMsg When valid, will be populated with error message if the function fails.

@@ -94,8 +94,8 @@ bool Qtilities::Core::SubjectTypeFilter::operator!=(const SubjectTypeFilter& ref
     return !(*this==ref);
 }
 
-bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
-    Q_UNUSED(import_cycle)
+AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::evaluateAttachment(QObject* obj, QString* rejectMsg, bool silent) const {
+    Q_UNUSED(silent)
 
     #ifndef QT_NO_DEBUG
     Q_ASSERT(observer != 0);
@@ -104,7 +104,7 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
     if (!obj) {
         if (rejectMsg)
             *rejectMsg = QString(tr("Subject Type Filter: Invalid object reference received. Attachment cannot be done."));
-        return false;
+        return AbstractSubjectFilter::Rejected;
     }
     #endif
 
@@ -112,7 +112,7 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
         if (rejectMsg)
             *rejectMsg = QString(tr("Subject Type Filter: Cannot evaluate an attachment in a subject filter without an observer context."));
         LOG_TRACE("Cannot evaluate an attachment in a subject filter without an observer context.");
-        return false;
+        return AbstractSubjectFilter::Rejected;
     }
 
     bool is_known_type = false;
@@ -153,7 +153,10 @@ bool Qtilities::Core::SubjectTypeFilter::initializeAttachment(QObject* obj, QStr
         LOG_WARNING(msg);
     }
 
-    return is_known_type;
+    if (is_known_type)
+        return AbstractSubjectFilter::Allowed;
+    else
+        return AbstractSubjectFilter::Rejected;
 }
 
 bool Qtilities::Core::SubjectTypeFilter::handleMonitoredPropertyChange(QObject* obj, const char* property_name, QDynamicPropertyChangeEvent* propertyChangeEvent) {

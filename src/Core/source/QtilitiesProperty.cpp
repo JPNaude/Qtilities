@@ -373,7 +373,10 @@ QVariant Qtilities::Core::QtilitiesProperty::constructVariant(QVariant::Type typ
     else
         variant.setValue(value_string);
 
-    variant.convert(type);
+    if (!variant.convert(type)) {
+        qDebug() << Q_FUNC_INFO << "Failed to convert variant to type" << type;
+        Q_ASSERT(1);
+    }
 
     // If this assert happen for you, you can trying to construct a variant type which cannot be constructed from a string.
     // For supported types and more information see the QVariant::toString() documentation.
@@ -386,6 +389,7 @@ QVariant Qtilities::Core::QtilitiesProperty::constructVariant(QVariant::Type typ
 bool Qtilities::Core::QtilitiesProperty::isExportableVariant(QVariant variant) {
     if (variant.type() == QVariant::String ||
             variant.type() == QVariant::Bool ||
+            //variant.type() == QVariant::Brush ||
             variant.type() == QVariant::ByteArray ||
             variant.type() == QVariant::Char ||
             variant.type() == QVariant::Date ||

@@ -65,6 +65,7 @@
 #include "ObserverTableModelProxyFilter.h"
 #include "IGroupedConfigPageInfoProvider.h"
 #include "GroupedConfigPage.h"
+#include "AddDynamicPropertyWizard.h"
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 

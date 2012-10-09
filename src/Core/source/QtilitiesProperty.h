@@ -72,7 +72,7 @@ namespace Qtilities {
 
                 //! Indicates if the property is reserved.
                 /*!
-                  Reserved properties are managed by %Qtilities and must be be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
+                  Reserved properties are managed by %Qtilities and must not be changed by developers. Changes to these properties will automatically be filtered by Observers observing them.
 
                   For non-Qtilities properties this is false by default.
                   */

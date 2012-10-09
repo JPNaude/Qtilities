@@ -76,11 +76,14 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
     QtVariantPropertyManager*               property_manager_read_only;
 
     QPointer<QObject>                       obj;
+    QPointer<AddDynamicPropertyWizard>      add_property_wizard;
 
     bool                                    ignore_property_changes_from_object_side;
     bool                                    ignore_property_changes_from_browser_side;
 
     QToolBar*                               toolbar;
+    bool                                    toolbar_visible;
+    Qt::ToolBarArea                         preferred_area;
     QAction*                                actionAddProperty;
     QAction*                                actionRemoveProperty;
 
@@ -97,7 +100,10 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     d->ignore_property_changes_from_browser_side = false;
     d->show_qtilities_properties = false;
     d->monitor_changes = false;
+    d->toolbar_visible = show_toolbar;
+    d->preferred_area = area;
     d->obj = 0;
+    d->toolbar = 0;
     d->new_property_type = ObjectManager::NonQtilitiesProperties;
 
     if (browser_type == TreeBrowser) {
@@ -125,18 +131,8 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     // Create property manager for read only properties. It does not get a factory.
     d->property_manager_read_only = new QtVariantPropertyManager(this);
 
-    // Set up the toolbar:
-    if (show_toolbar) {
-        d->toolbar = new QToolBar("Dynamic Property Actions");
-        addToolBar(area,d->toolbar);
-        d->toolbar->setMovable(false);
-        d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),"Add Property",this);
-        connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
-        d->toolbar->addAction(d->actionAddProperty);
-        d->actionRemoveProperty = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),"Remove Selected Property",this);
-        connect(d->actionRemoveProperty,SIGNAL(triggered()),SLOT(handleRemoveProperty()));
-        d->toolbar->addAction(d->actionRemoveProperty);
-    }
+    if (d->toolbar_visible)
+        toggleToolBar();
 }
 
 Qtilities::CoreGui::ObjectDynamicPropertyBrowser::~ObjectDynamicPropertyBrowser() {
@@ -162,12 +158,37 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::clear() {
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setNewPropertyType(ObjectManager::PropertyTypes new_property_type) {
-    if (new_property_type == ObjectManager::NonQtilitiesProperties || new_property_type == ObjectManager::SharedProperties)
+    if (new_property_type == ObjectManager::NonQtilitiesProperties || new_property_type == ObjectManager::SharedProperties) {
         d->new_property_type = new_property_type;
+        if (d->add_property_wizard)
+            d->add_property_wizard->setNewPropertyType(new_property_type);
+    }
 }
 
 ObjectManager::PropertyTypes Qtilities::CoreGui::ObjectDynamicPropertyBrowser::newPropertyType() const {
     return d->new_property_type;
+}
+
+void ObjectDynamicPropertyBrowser::toggleToolBar() {
+    // Set up the toolbar:
+    if (!d->toolbar) {
+        d->toolbar = new QToolBar("Dynamic Property Actions");
+        addToolBar(d->preferred_area,d->toolbar);
+        d->toolbar->setMovable(false);
+        d->actionAddProperty = new QAction(QIcon(qti_icon_NEW_16x16),tr("Add Property"),this);
+        connect(d->actionAddProperty,SIGNAL(triggered()),SLOT(handleAddProperty()));
+        d->toolbar->addAction(d->actionAddProperty);
+        d->actionRemoveProperty = new QAction(QIcon(qti_icon_REMOVE_ONE_16x16),tr("Remove Selected Property"),this);
+        connect(d->actionRemoveProperty,SIGNAL(triggered()),SLOT(handleRemoveProperty()));
+        d->toolbar->addAction(d->actionRemoveProperty);
+    } else {
+        d->toolbar->setVisible(d->toolbar_visible);
+        d->toolbar_visible = !d->toolbar_visible;
+    }
+}
+
+bool ObjectDynamicPropertyBrowser::isToolBarVisible() const {
+    return d->toolbar_visible;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh() {
@@ -213,6 +234,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
 
     d->obj = object;
     d->monitor_changes = monitor_changes;
+    if (!d->obj)
+        return;
 
     if (monitor_changes) {
         // Connect to the IModificationNotifier interface if it exists:
@@ -224,9 +247,6 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object
         // This will catch property change events as well.
         d->obj->installEventFilter(this);
     }
-
-    if (!d->obj)
-        return;
 
     connect(d->obj,SIGNAL(destroyed()),SLOT(handleObjectDeleted()));
     inspectObject(d->obj);
@@ -487,64 +507,16 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleAddProperty() {
     if (!d->obj)
         return;
 
-    QVariant::Type selected_type;
-    bool ok;
-    QString property_name = QInputDialog::getText(this, tr("Name your property"),tr("Property name:"), QLineEdit::Normal,"New Property", &ok);
-    if (!ok && property_name.isEmpty())
-        return;
-
-    QStringList type_names;
-    type_names << QVariant::typeToName(QVariant::Bool);
-    type_names << QVariant::typeToName(QVariant::Brush);
-    type_names << QVariant::typeToName(QVariant::Color);
-    type_names << QVariant::typeToName(QVariant::Date);
-    type_names << QVariant::typeToName(QVariant::Font);
-    type_names << QVariant::typeToName(QVariant::Point);
-    type_names << QVariant::typeToName(QVariant::Size);
-    type_names << QVariant::typeToName(QVariant::String);
-    type_names << QVariant::typeToName(QVariant::UInt);
-
-    QInputDialog dialog;
-    dialog.setComboBoxItems(type_names);
-    dialog.setComboBoxEditable(false);
-    dialog.setWindowTitle(tr("Choose a property type"));
-    dialog.setLabelText(tr("Available property types:"));
-    dialog.setOption(QInputDialog::UseListViewForComboBoxItems,true);
-    if (dialog.exec()) {
-        QString item = dialog.textValue().trimmed();
-        QByteArray type_name_ba = item.toAscii();
-        const char* type_name = type_name_ba.data();
-        QByteArray property_name_ba = property_name.toAscii();
-        const char* char_property_name = property_name_ba.data();
-        selected_type = QVariant::nameToType(type_name);
-
-        bool success = false;
-        if (d->new_property_type == ObjectManager::SharedProperties) {
-            if (ObjectManager::setSharedProperty(d->obj,char_property_name,QVariant(selected_type))) {
-                refresh();                        
-                success = true;
-            }
-        } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
-            if (!d->obj->setProperty(char_property_name,QVariant(selected_type))) {
-                refresh();
-                success = true;
-            }
-        }
-
-        if (!success) {
-            QMessageBox msgBox;
-            msgBox.setIcon(QMessageBox::Warning);
-            msgBox.setWindowTitle(tr("Dynamic Property Browser"));
-            msgBox.setText(tr("Failed to add property to object in QObject::setProperty()."));
-            msgBox.exec();
-        } else if (d->monitor_changes) {
-            IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (d->obj);
-            if (mod_iface)
-                mod_iface->setModificationState(true);
-
-            emit propertyAdded(item);
-        }
+    if (!d->add_property_wizard) {
+        d->add_property_wizard = new AddDynamicPropertyWizard(AddDynamicPropertyWizard::ConstructAndAdd,this);
+        d->add_property_wizard->setNewPropertyType(d->new_property_type);
+    } else {
+        d->add_property_wizard->restart();
     }
+
+    d->add_property_wizard->setObject(d->obj);
+    if (d->add_property_wizard->exec())
+        refresh();
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
