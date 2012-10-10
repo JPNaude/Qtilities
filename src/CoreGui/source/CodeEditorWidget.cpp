@@ -42,9 +42,13 @@
 
 #include <QFileInfo>
 #include <QtGui>
-#include <QtWidgets>
+
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
+
+#if QT_MAJOR_VERSION > 4
+    #include <QtWidgets>
+#endif
 
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
@@ -329,7 +333,7 @@ void Qtilities::CoreGui::CodeEditorWidget::closeFile() {
         d->watcher.removePath(d->current_file);
 
     d->current_file.clear();
-    emit fileNameChanged("Untitled");
+    emit fileNameChanged(tr("Untitled"));
 
     d->codeEditor->clear();
     refreshActions();

@@ -8,6 +8,13 @@ QTILITIES += extension_system
 QTILITIES += project_management
 include(../../Qtilities.pri)
 
+QT += core \
+      gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 TARGET = ObjectManagementExample
 TEMPLATE = app
 DESTDIR = $$QTILITIES_BIN/Examples/ObjectManagement

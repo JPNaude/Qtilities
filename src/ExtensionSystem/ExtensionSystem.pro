@@ -13,10 +13,13 @@ CONFIG += qt \
     dll \
     ordered
 
-QT += core
 QT += xml \
-      widgets \
-      printsupport
+      printsupport \
+      gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 CONFIG(debug, debug|release) {
     TARGET = QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}

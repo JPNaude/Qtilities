@@ -8,10 +8,14 @@ QTILITIES += coregui
 QTILITIES += testing
 include(../../Qtilities.pri)
 
-QT       += core
-QT       += gui
-QT       += xml
 CONFIG += qtestlib
+
+QT += xml \
+      gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 TARGET    = QtilitiesTester
 CONFIG   -= app_bundle

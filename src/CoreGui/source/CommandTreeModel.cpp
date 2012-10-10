@@ -37,7 +37,10 @@
 #include "Command.h"
 
 #include <QtGui>
-#include <QtWidgets>
+
+#if QT_MAJOR_VERSION > 4
+    #include <QtWidgets>
+#endif
 
 Qtilities::CoreGui::qti_private_CommandTreeModel::qti_private_CommandTreeModel(QObject* parent) : ObserverTreeModel(parent) {
 

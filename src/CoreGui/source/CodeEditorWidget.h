@@ -47,8 +47,11 @@
 #include <QPointer>
 #include <QSyntaxHighlighter>
 #include <QtGui>
-#include <QtWidgets>
 #include <QPrinter>
+
+#if QT_MAJOR_VERSION > 4
+    #include <QtWidgets>
+#endif
 
 namespace Ui {
     class CodeEditorWidget;

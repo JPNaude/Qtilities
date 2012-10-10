@@ -125,5 +125,8 @@ QString Qtilities::Plugins::Help::HelpPlugin::pluginLicense() const {
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins::Help;
-Q_EXPORT_PLUGIN2(HelpPlugin, HelpPlugin);
+#if QT_MAJOR_VERSION < 5
+    using namespace Qtilities::Plugins::Help;
+    Q_EXPORT_PLUGIN2(HelpPlugin, HelpPlugin)
+#endif
+

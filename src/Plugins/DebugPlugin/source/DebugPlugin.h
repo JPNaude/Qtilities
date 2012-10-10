@@ -39,6 +39,9 @@ namespace Qtilities {
             {
                 Q_OBJECT
                 Q_INTERFACES(Qtilities::ExtensionSystem::Interfaces::IPlugin)
+                #if QT_MAJOR_VERSION > 4
+                Q_PLUGIN_METADATA(IID "org.qtilities.DebugPlugin")
+                #endif
 
             public:
                 DebugPlugin(QObject* parent = 0);

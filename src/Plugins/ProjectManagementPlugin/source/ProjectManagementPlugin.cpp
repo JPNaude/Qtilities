@@ -445,5 +445,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleAppli
     }
 }
 
-using namespace Qtilities::Plugins::ProjectManagement;
-Q_EXPORT_PLUGIN2(ProjectManagementPlugin, ProjectManagementPlugin);
+#if QT_MAJOR_VERSION < 5
+    using namespace Qtilities::Plugins::ProjectManagement;
+    Q_EXPORT_PLUGIN2(ProjectManagementPlugin, ProjectManagementPlugin)
+#endif

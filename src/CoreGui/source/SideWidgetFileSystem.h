@@ -39,7 +39,10 @@
 
 #include <QObject>
 #include <QtGui>
-#include <QtWidgets>
+
+#if QT_MAJOR_VERSION > 4
+    #include <QtWidgets>
+#endif
 
 namespace Ui {
     class SideWidgetFileSystem;

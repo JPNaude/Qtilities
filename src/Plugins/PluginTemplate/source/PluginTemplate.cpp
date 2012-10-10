@@ -114,5 +114,7 @@ QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense() const {
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins::Template;
-Q_EXPORT_PLUGIN2(PluginTemplate, PluginTemplate);
+#if QT_MAJOR_VERSION < 5
+    using namespace Qtilities::Plugins::Template;
+    Q_EXPORT_PLUGIN2(PluginTemplate, PluginTemplate)
+#endif

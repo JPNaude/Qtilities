@@ -20,6 +20,10 @@ TEMPLATE = lib
 DEFINES += SESSION_LOG_PLUGIN_LIBRARY
 CONFIG += plugin
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 # ------------------------------
 # Temp Output Paths
 # ------------------------------

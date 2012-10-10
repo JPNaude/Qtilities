@@ -4,8 +4,14 @@
 # ***************************************************************************
 QTILITIES += coregui
 include(../../Qtilities.pri)
+
 QT += core
 QT += gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 TARGET = TheBasicsExample
 CONFIG -= app_bundle
 

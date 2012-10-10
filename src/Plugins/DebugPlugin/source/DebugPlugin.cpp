@@ -98,5 +98,8 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins::Debug;
-Q_EXPORT_PLUGIN2(DebugPlugin, DebugPlugin);
+#if QT_MAJOR_VERSION < 5
+    using namespace Qtilities::Plugins::Debug;
+    Q_EXPORT_PLUGIN2(DebugPlugin, DebugPlugin)
+#endif
+

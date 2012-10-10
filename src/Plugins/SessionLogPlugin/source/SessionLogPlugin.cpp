@@ -125,5 +125,7 @@ QString Qtilities::Plugins::SessionLog::SessionLogPlugin::pluginLicense() const 
     return tr("See the Qtilities Libraries license");
 }
 
-using namespace Qtilities::Plugins::SessionLog;
-Q_EXPORT_PLUGIN2(SessionLogPlugin, SessionLogPlugin);
+#if QT_MAJOR_VERSION < 5
+    using namespace Qtilities::Plugins::SessionLog;
+    Q_EXPORT_PLUGIN2(SessionLogPlugin, SessionLogPlugin)
+#endif

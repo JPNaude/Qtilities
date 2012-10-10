@@ -15,10 +15,14 @@ CONFIG += qt \
     dll \
     ordered
 
-QT += gui
 QT += xml \
-      widgets \
-      printsupport
+      printsupport \
+      gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 CONFIG += qtestlib
 
 CONFIG(debug, debug|release) {

@@ -15,9 +15,12 @@ CONFIG += qt \
     ordered
 
 QT += xml \
-      widgets \
       printsupport \
       gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
 else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
