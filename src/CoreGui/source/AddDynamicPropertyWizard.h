@@ -161,6 +161,8 @@ namespace Qtilities {
             QString propertyName(const QString& displayed_name) const;
             //! Gets the removability for the given displayed property name.
             bool propertyRemovable(const QString& displayed_name) const;
+            //! Gets if the property is exportable for the given displayed property name.
+            bool propertyIsExportable(const QString& displayed_name) const;
             //! Gets the read only state for the given displayed property name.
             bool propertyReadOnly(const QString& displayed_name) const;
             //! Gets the default value for the given displayed property name.

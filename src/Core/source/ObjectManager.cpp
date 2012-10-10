@@ -1182,7 +1182,6 @@ bool ObjectManager::constructDefaultPropertiesOnObject(QObject *obj, QString* er
                     if (!first_error)
                         error_string.append("\n");
                 }
-
             }
         }
     }
@@ -1200,6 +1199,7 @@ SharedProperty* ObjectManager::constructPropertyFromSpecification(PropertySpecif
         new_shared_property->makeReadOnly();
     if (!specification.d_removable)
         new_shared_property->makeNotRemovable();
+    new_shared_property->setIsExportable(specification.d_is_exportable);
 
     return new_shared_property;
 }

@@ -217,6 +217,7 @@ void AddDynamicPropertyWizard::accept() {
                 new_shared_property.makeReadOnly();
             if (!propertyRemovable(selected_available_property))
                 new_shared_property.makeNotRemovable();
+            new_shared_property.setIsExportable(propertyIsExportable(selected_available_property));
             if (ObjectManager::setSharedProperty(d->obj,new_shared_property))
                 success = true;
         } else if (d->new_property_type == ObjectManager::NonQtilitiesProperties) {
@@ -487,7 +488,6 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
         d->property_list.addItem(item);
     }
 
-
     d->property_list.setCurrentRow(0);
 }
 
@@ -563,6 +563,21 @@ bool AddDynamicPropertyWizard::propertyRemovable(const QString &displayed_name) 
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
                 return prop.d_removable;
+        }
+    }
+
+    return true;
+}
+
+bool AddDynamicPropertyWizard::propertyIsExportable(const QString &displayed_name) const {
+    if (isCurrentCustomProperty())
+        return true;
+
+    for (int i = 0; i < d->available_properties.count(); i++) {
+        PropertySpecification prop = d->available_properties.at(i);
+        if (prop.d_displayed_name == displayed_name) {
+            if (prop.isValid())
+                return prop.d_is_exportable;
         }
     }
 

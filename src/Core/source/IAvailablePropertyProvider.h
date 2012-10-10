@@ -60,6 +60,7 @@ namespace Qtilities {
                 d_read_only = false;
                 d_add_during_construction = false;
                 d_internal = false;
+                d_is_exportable = true;
             }
             /*!
              * \brief Quick constructor for PropertySpecification with important property details as parameters.
@@ -80,6 +81,7 @@ namespace Qtilities {
                 d_read_only = false;
                 d_add_during_construction = false;
                 d_internal = false;
+                d_is_exportable = true;
             }
             PropertySpecification(const PropertySpecification& ref) {
                 d_displayed_name = ref.d_displayed_name;
@@ -92,6 +94,7 @@ namespace Qtilities {
                 d_class_name = ref.d_class_name;
                 d_add_during_construction = ref.d_add_during_construction;
                 d_internal = ref.d_internal;
+                d_is_exportable = ref.d_is_exportable;
             }
             PropertySpecification& operator=(const PropertySpecification& ref) {
                 if (this==&ref) return *this;
@@ -106,6 +109,7 @@ namespace Qtilities {
                 d_class_name = ref.d_class_name;
                 d_add_during_construction = ref.d_add_during_construction;
                 d_internal = ref.d_internal;
+                d_is_exportable = ref.d_is_exportable;
 
                 return *this;
             }
@@ -129,6 +133,8 @@ namespace Qtilities {
                 if (d_add_during_construction != ref.d_add_during_construction)
                     return false;
                 if (d_internal != ref.d_internal)
+                    return false;
+                if (d_is_exportable != ref.d_is_exportable)
                     return false;
 
                 return true;
@@ -179,6 +185,8 @@ namespace Qtilities {
             bool d_add_during_construction;
             //! Indicates if the property is internal, thus it will not be shown as an available property when users add properties to an object. False by default.
             bool d_internal;
+            //! Indicates if the property is exportable. True by default.
+            bool d_is_exportable;
         };
 
         namespace Interfaces {

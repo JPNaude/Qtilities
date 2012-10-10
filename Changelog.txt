@@ -78,7 +78,10 @@ Qtilities v1.2 Changes
     [+] Added ObserverWidget::setSearchBoxCheckedItemFilters() and ObserverWidget::searchBoxCheckedItemFilters().
     [+] Added ObjectDynamicPropertyBrowser::toggleToolBar() and ObjectDynamicPropertyBrowser::isToolBarVisible().
     [+] Added new AddDynamicPropertyWizard class along with the IAvailablePropertyProvider interface, allowing 
-	    fine grained control over properties that users can add on objects.
+        fine grained control over properties that users can add on objects.
+    [+] Added abstractPropertyBrowser() on access function on ObjectDynamicPropertyBrowser and ObjectPropertyBrowser.
+    [+] ObserverTableModel now allows you to check/uncheck all selected items at the same time. This behavior is powerful
+        and found in applications like TortoiseSVN etc.
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -94,6 +97,8 @@ Qtilities v1.2 Changes
     [#] Observer models will now use the name of the observer context being shown in the name column's header if the
         observer does not have a SubjectTypeFilter installed which explicitly provides a name for the objects
         in the observer. Previously you had to install a SubjectTypeFilter just to change the text in the header.
+    [#] ObjectDynamicPropertyBrowser will now list properties in alphabetical order.
+    [#] ObjectDynamicPropertyBrowser will now resize columns to their contents when in TreeBrowser mode.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
