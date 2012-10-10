@@ -42,6 +42,8 @@
 
 #include <QPointer>
 
+#include <qtpropertybrowser.h>
+
 class QtProperty;
 
 using namespace Qtilities::Core;
@@ -124,6 +126,12 @@ namespace Qtilities {
 
             //! Override size hint in order to resize it according to the number of properties displayed.
             QSize sizeHint() const;
+
+            //! Return a reference to the QtAbstractPropertyBrowser property browser used internally.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QtAbstractPropertyBrowser* abstractPropertyBrowser() const;
 
         public slots:
             //! Refresh function which checks all properties on the current object and refreshes the property editor.

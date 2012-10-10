@@ -114,6 +114,10 @@ QSize Qtilities::CoreGui::ObjectPropertyBrowser::sizeHint() const {
     return this->size();
 }
 
+QtAbstractPropertyBrowser *Qtilities::CoreGui::ObjectPropertyBrowser::abstractPropertyBrowser() const {
+    return d->property_browser;
+}
+
 void Qtilities::CoreGui::ObjectPropertyBrowser::refresh(bool has_changes) {
     if (d->obj && has_changes) {
         if (d->obj) {

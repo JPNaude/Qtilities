@@ -43,6 +43,8 @@
 
 #include <QPointer>
 
+#include <qtpropertybrowser.h>
+
 class QtProperty;
 
 using namespace Qtilities::Core;
@@ -141,6 +143,12 @@ namespace Qtilities {
              * \sa toggleToolBar()
              */
             bool isToolBarVisible() const;
+
+            //! Return a reference to the QtAbstractPropertyBrowser property browser used internally.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QtAbstractPropertyBrowser* abstractPropertyBrowser() const;
 
         public slots:
             //! Refresh function which gets all properties on the current object and refreshes the property editor.

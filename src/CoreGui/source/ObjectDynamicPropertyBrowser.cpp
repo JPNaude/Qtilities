@@ -109,6 +109,7 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     if (browser_type == TreeBrowser) {
         QtTreePropertyBrowser* property_browser = new QtTreePropertyBrowser(this);
         property_browser->setRootIsDecorated(false);
+        property_browser->setResizeMode(QtTreePropertyBrowser::ResizeToContents);
         d->property_browser = property_browser;
     } else if (browser_type == GroupBoxBrowser) {
         QtGroupBoxPropertyBrowser* property_browser = new QtGroupBoxPropertyBrowser(this);
@@ -189,6 +190,10 @@ void ObjectDynamicPropertyBrowser::toggleToolBar() {
 
 bool ObjectDynamicPropertyBrowser::isToolBarVisible() const {
     return d->toolbar_visible;
+}
+
+QtAbstractPropertyBrowser *ObjectDynamicPropertyBrowser::abstractPropertyBrowser() const {
+    return d->property_browser;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::refresh() {
@@ -353,12 +358,14 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
 
     clear();
 
-    for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
-        QString property_name = QString(obj->dynamicPropertyNames().at(i).data());
+    QList<QByteArray> property_names = obj->dynamicPropertyNames();
+    qSort(property_names);
+    for (int i = 0; i < property_names.count(); i++) {
+        QString property_name = QString(property_names.at(i).data());
         if (property_name.startsWith("qti.") && !d->show_qtilities_properties)
             continue;
 
-        QVariant property_variant = obj->property(obj->dynamicPropertyNames().at(i));
+        QVariant property_variant = obj->property(property_names.at(i));
         QVariant property_value = property_variant;
 
         bool is_enabled = true;
@@ -371,8 +378,8 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
             property_value = shared_property.value();
 
             // We handle some specific Qtilities properties in a special way:
-            if (!strcmp(obj->dynamicPropertyNames().at(i).data(),qti_prop_PARENT_ID) ||
-                !strcmp(obj->dynamicPropertyNames().at(i).data(),qti_prop_NAME_MANAGER_ID)) {
+            if (!strcmp(property_names.at(i).data(),qti_prop_PARENT_ID) ||
+                !strcmp(property_names.at(i).data(),qti_prop_NAME_MANAGER_ID)) {
                     int observer_id = property_value.toInt();
                     if (observer_id == -1) {
                         property_value = QLatin1String("None");
@@ -395,7 +402,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         d->top_level_properties.append(dynamic_property);
                         d->property_browser->addProperty(dynamic_property);
                         qti_private_MultiContextPropertyData prop_data;
-                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.name = property_names.at(i).data();
                         prop_data.type = qti_private_MultiContextPropertyData::Shared;
                         d->multi_context_properties[dynamic_property] = prop_data;
                     }
@@ -414,7 +421,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         d->top_level_properties.append(dynamic_property);
                         d->property_browser->addProperty(dynamic_property);
                         qti_private_MultiContextPropertyData prop_data;
-                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.name = property_names.at(i).data();
                         prop_data.type = qti_private_MultiContextPropertyData::Shared;
                         d->multi_context_properties[dynamic_property] = prop_data;
                     }
@@ -468,7 +475,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                     if (sub_property) {
                         dynamic_property->addSubProperty(sub_property);
                         qti_private_MultiContextPropertyData prop_data;
-                        prop_data.name = obj->dynamicPropertyNames().at(i).data();
+                        prop_data.name = property_names.at(i).data();
                         prop_data.type = qti_private_MultiContextPropertyData::Mixed;
                         prop_data.observer_id = (int) context_map.keys().at(s);
                         d->multi_context_properties[sub_property] = prop_data;
