@@ -58,6 +58,7 @@ struct Qtilities::CoreGui::ObserverTableModelData {
     QString     type_grouping_name;
     bool        read_only;
     int         fetch_count;
+    QList<QPointer<QObject> > selected_objects;
 };
 
 #define fetch_limit 1000
@@ -504,11 +505,44 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
                     // We get the current check state from the qti_prop_ACTIVITY_MAP property and change that:
                     QVariant current_activity = d_observer->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
                     d_observer->startProcessingCycle();
-                    if (current_activity.toBool()) {
-                        d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(false));
-                    } else {
-                        d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(true));
+
+                    // We do group activity when the index clicked on is part of the current selection:
+                    bool index_part_of_selection = false;
+                    for (int p = 0; p < d->selected_objects.count(); p++) {
+                        if (d->selected_objects.at(p) == obj) {
+                            index_part_of_selection = true;
+                            break;
+                        }
                     }
+
+                    // Get the ActivityPolicyFilter on the Observer:
+                    bool do_group_activity_change = false;
+                    if (index_part_of_selection) {
+                        foreach (AbstractSubjectFilter* filter, d_observer->subjectFilters()) {
+                            ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (filter);
+                            if (activity_filter) {
+                                // To be able to do a group activity change, we need to check that the following hints are used:
+                                // 1) AllowNoneActive must be set
+                                // 2) AllowMultipleActivity must be set
+                                if (activity_filter->minimumActivityPolicy() == ActivityPolicyFilter::AllowNoneActive &&
+                                        activity_filter->activityPolicy() == ActivityPolicyFilter::MultipleActivity)
+                                    do_group_activity_change = true;
+                            }
+                        }
+                    }
+
+                    // Finally, toggle the activity:
+                    if (do_group_activity_change && d->selected_objects.count() > 0 && index_part_of_selection) {
+                        // Loop through all active subjects and set their activity:
+                        for (int p = 0; p < d->selected_objects.count(); p++)
+                            d_observer->setMultiContextPropertyValue(d->selected_objects.at(p),qti_prop_ACTIVITY_MAP,QVariant(!current_activity.toBool()));
+
+                        emit selectObjects(d->selected_objects);
+                    } else {
+                        // Just do single activity:
+                        d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(!current_activity.toBool()));
+                    }
+
                     d_observer->endProcessingCycle(false);
                     emit dataChanged(index,index);
                     return true;
@@ -630,6 +664,10 @@ int Qtilities::CoreGui::ObserverTableModel::getSubjectID(int row) const {
         return id;
     else
         return -1;
+}
+
+void Qtilities::CoreGui::ObserverTableModel::setSelectedObjects(QList<QPointer<QObject> > selected_objects) {
+    d->selected_objects = selected_objects;
 }
 
 QObject* Qtilities::CoreGui::ObserverTableModel::getObject(const QModelIndex &index) const {

@@ -833,6 +833,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 connect(d->table_view->verticalHeader(),SIGNAL(sectionCountChanged(int,int)),SLOT(resizeColumns()));
 
                 connect(d->table_model,SIGNAL(layoutChangeCompleted()),SLOT(handleLayoutChangeCompleted()));
+                connect(d->table_model,SIGNAL(selectObjects(QList<QPointer<QObject> >)),SLOT(selectObjects(QList<QPointer<QObject> >)),Qt::UniqueConnection);
 
                 d->table_view->viewport()->installEventFilter(this);
                 d->table_view->installEventFilter(this);
@@ -1192,6 +1193,8 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
                 }
             }
         }
+
+        d->table_model->setSelectedObjects(smart_selected_objects);
     } else if (d->display_mode == TreeView) {
         if (!d->tree_view || !d->tree_model)
             return selected_objects;

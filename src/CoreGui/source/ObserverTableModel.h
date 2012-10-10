@@ -126,6 +126,14 @@ namespace Qtilities {
                \returns The the subject ID of the object at the specified row. If the row is invalid, -1 is returned.
              */
             int getSubjectID(int row) const;
+            //! Function to let the model know which objects are currently selected in the view connected to this model.
+            /*!
+              This functionality is used in order to allow group activity changes on selected items if the
+              observer context shown contains an ActivityPolicyFilter that supports these type of operations.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            void setSelectedObjects(QList<QPointer<QObject> > selected_objects);
 
         private slots:
             //! Slot which will emit the correct signals in order for the view using the model to refresh its data.
@@ -148,6 +156,8 @@ namespace Qtilities {
             void moreDataFetched(int number);
             //! Signal which is emitted after the layoutChanged() signal was emitted.
             void layoutChangeCompleted();
+            //! This signal will be handled by a slot in the ObserverWidget parent of this model and the objects will be selected. The signal is emitted when grouped activity changes completed.
+            void selectObjects(QList<QPointer<QObject> > objects) const;
 
         protected:
             ObserverTableModelData* d;
