@@ -74,6 +74,7 @@
 #include <QSortFilterProxyModel>
 #include <QSettings>
 #include <QToolBar>
+#include <QDrag>
 
 #include <stdio.h>
 #include <time.h>

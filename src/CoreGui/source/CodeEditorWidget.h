@@ -47,6 +47,8 @@
 #include <QPointer>
 #include <QSyntaxHighlighter>
 #include <QtGui>
+#include <QtWidgets>
+#include <QPrinter>
 
 namespace Ui {
     class CodeEditorWidget;
