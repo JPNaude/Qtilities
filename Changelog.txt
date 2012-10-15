@@ -11,6 +11,8 @@ Qtilities v1.2 Changes
 
     General:
     ============================
+    [+] Ported to work with Qt 5 (including plugins etc.). Note that the Qt Property Browser solution does
+        not build against Qt 5 yet, thus building against Qt 5 only works when QTILITIES_PROPERTY_BROWSER is not defined at present.
     [+] Now compiles and runs with the MSVC compiler.
     [+] Improved = operator overloading everywhere. Now check that you don't assign an object to itself.
     [+] Cleaned up Qtilities.pri. The resulting makefile's include paths does not contain duplicates anymore. Thanks to Carel Combrink for the contribution.
@@ -58,6 +60,9 @@ Qtilities v1.2 Changes
     [#] Added QVariant::Brush to QtilitiesProperty::isExportableVariant().
     [#] Moved SubjectTypeFilter::initializeAttachment() to SubjectTypeFilter::evaluateAttachment() since its 
         really only doing an evaluation, to an initialization.
+    [#] ActivityPolicyFilter's emission of activeSubjectsChanged() signal changed a bit: Its no longer emitted during processing
+        cycles of its observer context. It will check if the active subjects changed during a processing cycle and
+        only emit at the end of a processing cycle if necessary.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -82,6 +87,7 @@ Qtilities v1.2 Changes
     [+] Added abstractPropertyBrowser() on access function on ObjectDynamicPropertyBrowser and ObjectPropertyBrowser.
     [+] ObserverTableModel now allows you to check/uncheck all selected items at the same time. This behavior is powerful
         and found in applications like TortoiseSVN etc.
+    [+] Added the ability to make ObjectDynamicPropertyBrowser read only.
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -112,8 +118,9 @@ Qtilities v1.2 Changes
     [*] Observer models now validates qti_prop_SIZE_HINT before using it.
     [*] Fixed bug in ObserverTreeModelProxyFilter::filterAcceptsRow() where it filtered the complete tree most of the time.
     [*] Fixed possible crash in ObjectPropertyBrowser::setObject() and ObjectDynamicPropertyBrowser::setObject() when passed an invalid object.
-	[*] Fixed bug in ObserverTreeModel where subject drops onto categories did not work if the subject 
-	    did not already have a Qtilities category property on it.
+    [*] Fixed bug in ObserverTreeModel where subject drops onto categories did not work if the subject
+        did not already have a Qtilities category property on it.
+    [*] Fixed bug in ObjectDynamicPropertyBrowser where it did not show properties with unsupported types.
 
     ============================
     QtilitiesExtensionSystem:

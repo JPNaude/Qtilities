@@ -91,6 +91,8 @@ struct Qtilities::CoreGui::ObjectDynamicPropertyBrowserPrivateData {
     bool                                    monitor_changes;
 
     ObjectManager::PropertyTypes            new_property_type;
+
+    bool                                    read_only;
 };
 
 Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(BrowserType browser_type, bool show_toolbar, Qt::ToolBarArea area, QWidget *parent) : QMainWindow(parent)
@@ -105,6 +107,7 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     d->obj = 0;
     d->toolbar = 0;
     d->new_property_type = ObjectManager::NonQtilitiesProperties;
+    d->read_only = false;
 
     if (browser_type == TreeBrowser) {
         QtTreePropertyBrowser* property_browser = new QtTreePropertyBrowser(this);
@@ -219,6 +222,17 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::toggleQtilitiesProperties
         d->show_qtilities_properties = show_qtilities_properties;
         refresh();
     }
+}
+
+void ObjectDynamicPropertyBrowser::setReadOnly(bool read_only) {
+    if (d->read_only != read_only) {
+        d->read_only = read_only;
+        refresh();
+    }
+}
+
+bool ObjectDynamicPropertyBrowser::readOnly() const {
+    return d->read_only;
 }
 
 void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setObject(QObject *object, bool monitor_changes) {
@@ -355,7 +369,6 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
         return;
 
     d->ignore_property_changes_from_browser_side = true;
-
     clear();
 
     QList<QByteArray> property_names = obj->dynamicPropertyNames();
@@ -368,12 +381,12 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
         QVariant property_variant = obj->property(property_names.at(i));
         QVariant property_value = property_variant;
 
-        bool is_enabled = true;
+        bool is_enabled = !d->read_only;
         QtProperty *dynamic_property = 0;
         // If it is MultiContextProperty or SharedProperty then we need to handle it:
         if (property_variant.isValid() && property_variant.canConvert<SharedProperty>()) {
             SharedProperty shared_property = (property_variant.value<SharedProperty>());
-            if (shared_property.isReserved() || shared_property.isReadOnly())
+            if (shared_property.isReserved() || shared_property.isReadOnly() || d->read_only)
                 is_enabled = false;
             property_value = shared_property.value();
 
@@ -411,6 +424,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                     d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
                     dynamic_property->setEnabled(false);
                     d->top_level_properties.append(dynamic_property);
+                    d->property_browser->addProperty(dynamic_property);
                 }
             } else {
                 if (d->property_manager_read_only->isPropertyTypeSupported(property_value.type())) {
@@ -430,11 +444,12 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                     d->property_manager_read_only->setValue(dynamic_property,QLatin1String("< Unknown Type >"));
                     dynamic_property->setEnabled(false);
                     d->top_level_properties.append(dynamic_property);
+                    d->property_browser->addProperty(dynamic_property);
                 }
             }
         } else if (property_variant.isValid() && property_variant.canConvert<MultiContextProperty>()) {
             MultiContextProperty multi_context_property = (property_variant.value<MultiContextProperty>());
-            if (multi_context_property.isReserved() || multi_context_property.isReadOnly())
+            if (multi_context_property.isReserved() || multi_context_property.isReadOnly() || d->read_only)
                 is_enabled = false;
 
             // Now make a group property with the values for all the different contexts under it:

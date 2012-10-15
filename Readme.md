@@ -6,7 +6,7 @@ Qtilities is a set of Qt C++ libraries which provides building blocks for Qt app
 Building & Getting Started
 --------------------------
 
-This archive contains files which will guide you through the process of building Qtilities:
+The following files in the repository's root folder will guide you through the process of building Qtilities:
 
 * On Windows see "Building on Windows.txt"
 * On Linux see "Building on Linux.txt"

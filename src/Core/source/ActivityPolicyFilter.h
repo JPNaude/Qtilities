@@ -368,8 +368,27 @@ ActivityPolicyFilter* activity_filter = tree_node->enableActivityControl(Observe
               */
             bool canSetNoneActive() const;
 
+        private slots:
+            //! Handles a processing cycle start on the observer context.
+            /*!
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            void handleProcessingCycleStarted();
+            //! Handles a processing cycle end on the observer context.
+            /*!
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            void handleProcessingCycleEnded();
         signals:
-            //! Emitted when the active objects changed. Use this signal when you have access to the observer reference, rather than waiting for a QtilitiesPropertyChangeEvent on each object in the observer context.
+            //! Emitted when the active objects changed.
+            /*!
+             *Use this signal when you have access to the observer reference, rather than waiting for a
+             *QtilitiesPropertyChangeEvent on each object in the observer context.
+             *
+             *\note This signal is not emmited while a processing cycle is active on this filter's observer
+             *context. In that scenario, the signal will be emitted when the processing cycle on the observer
+             *context ends only if the active subjects changed during the processing cycle.
+             */
             void activeSubjectsChanged(QList<QObject*> active_objects, QList<QObject*> inactive_objects);
 
         private:

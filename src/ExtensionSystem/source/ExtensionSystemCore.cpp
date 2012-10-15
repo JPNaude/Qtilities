@@ -716,6 +716,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
              // Check if any core plugins were made inactive, if so we notify the user and make them active again:
              if (d->core_plugins.contains(iface->pluginName())) {
                 QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Information);
                 msgBox.setText(QString(tr("%1 is a core plugin and must be active at all times.")).arg(iface->pluginName()));
                 msgBox.exec();
 

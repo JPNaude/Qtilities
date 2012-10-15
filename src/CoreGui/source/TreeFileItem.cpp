@@ -202,6 +202,7 @@ void CoreGui::TreeFileItem::setFileForce(const QString &file_path, const QString
         treeFileItemBase->file_info.setFile(file_path.trimmed());
         treeFileItemBase->file_info.setRelativeToPath(relative_to_path.trimmed());
         setFile(file_path,relative_to_path,broadcast);
+        setObjectName(treeFileItemBase->file_info.actualFilePath());
     } else
         setFile(file_path,relative_to_path,broadcast);
 }

@@ -531,19 +531,21 @@ bool Qtilities::CoreGui::ObserverTableModel::setData(const QModelIndex &index, c
                         }
                     }
 
+                    d_observer->endProcessingCycle(false);
+
                     // Finally, toggle the activity:
                     if (do_group_activity_change && d->selected_objects.count() > 0 && index_part_of_selection) {
+                        d_observer->startProcessingCycle();
                         // Loop through all active subjects and set their activity:
                         for (int p = 0; p < d->selected_objects.count(); p++)
                             d_observer->setMultiContextPropertyValue(d->selected_objects.at(p),qti_prop_ACTIVITY_MAP,QVariant(!current_activity.toBool()));
-
+                        d_observer->endProcessingCycle(false);
                         emit selectObjects(d->selected_objects);
                     } else {
                         // Just do single activity:
                         d_observer->setMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP,QVariant(!current_activity.toBool()));
                     }
 
-                    d_observer->endProcessingCycle(false);
                     emit dataChanged(index,index);
                     return true;
                 //}

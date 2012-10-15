@@ -65,6 +65,7 @@ struct Qtilities::Core::ActivityPolicyFilterPrivateData {
     ActivityPolicyFilter::MinimumActivityPolicy     minimum_activity_policy;
     ActivityPolicyFilter::NewSubjectActivityPolicy  new_subject_activity_policy;
     ActivityPolicyFilter::ParentTrackingPolicy      parent_tracking_policy;
+    QList<QPointer<QObject> >                       processing_cycle_start_active_subjects;
 };
 
 Qtilities::Core::ActivityPolicyFilter::ActivityPolicyFilter(QObject* parent) : AbstractSubjectFilter(parent) {
@@ -485,6 +486,16 @@ bool Qtilities::Core::ActivityPolicyFilter::canSetNoneActive() const {
     return true;
 }
 
+void ActivityPolicyFilter::handleProcessingCycleStarted() {
+    d->processing_cycle_start_active_subjects = ObjectManager::convNormalObjectsToSafe(activeSubjects());
+}
+
+void ActivityPolicyFilter::handleProcessingCycleEnded() {
+    QList<QObject*> previous_active_subjects = ObjectManager::convSafeObjectsToNormal(d->processing_cycle_start_active_subjects);
+    if (previous_active_subjects != activeSubjects())
+        emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+}
+
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
     Q_UNUSED(obj)
     Q_UNUSED(import_cycle)
@@ -734,10 +745,7 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
         changed_objects << observer->subjectReferences();
     emit monitoredPropertyChanged(propertyChangeEvent->propertyName(),changed_objects);
 
-    // 3. Emit the activeSubjectsChanged() signal:
-    emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
-
-    // 4. Change the modification state of the filter and object:
+    // 3. Change the modification state of the filter and object:
     setModificationState(true);
     if (isModificationStateMonitored()) {
         IModificationNotifier* mod_notify = qobject_cast<IModificationNotifier*> (obj);
@@ -745,8 +753,13 @@ bool Qtilities::Core::ActivityPolicyFilter::handleMonitoredPropertyChange(QObjec
             mod_notify->setModificationState(true);
     }
 
-    // 5. Emit the dataChanged() signal on the observer context:
-    observer->refreshViewsData();
+    if (!observer->isProcessingCycleActive()) {
+        // 4. Emit the activeSubjectsChanged() signal:
+        emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+
+        // 5. Emit the dataChanged() signal on the observer context:
+        observer->refreshViewsData();
+    }
 
     filter_mutex.unlock();
     return false;
@@ -906,8 +919,13 @@ bool Qtilities::Core::ActivityPolicyFilter::eventFilter(QObject *object, QEvent 
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::setObserverContext(Observer* observer_context) {
+    if (observerContext())
+        observerContext()->disconnect(this);
+
     if (AbstractSubjectFilter::setObserverContext(observer_context)) {
         observer_context->installEventFilter(this);
+        connect(observer_context,SIGNAL(processingCycleStarted()),SLOT(handleProcessingCycleStarted()));
+        connect(observer_context,SIGNAL(processingCycleEnded()),SLOT(handleProcessingCycleEnded()));
         return true;
     } else
         return false;

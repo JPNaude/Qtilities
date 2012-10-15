@@ -363,8 +363,8 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
                             valueMap[value] = true;
                             flagNames.append(QLatin1String(metaEnum.key(i)));
                         }
-                    subProperty->setAttribute(QLatin1String("flagNames"), flagNames);
-                    subProperty->setValue(flagToInt(metaEnum, metaProperty.read(d->obj).toInt()));
+                        subProperty->setAttribute(QLatin1String("flagNames"), flagNames);
+                        subProperty->setValue(flagToInt(metaEnum, metaProperty.read(d->obj).toInt()));
                     }
                 } else {
                     subProperty = d->property_manager->addProperty(QtVariantPropertyManager::enumTypeId(), QLatin1String(metaProperty.name()));

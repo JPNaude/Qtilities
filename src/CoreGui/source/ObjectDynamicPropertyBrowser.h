@@ -108,6 +108,17 @@ namespace Qtilities {
             //! Toggles if Qtilities properties are shown.
             void toggleQtilitiesProperties(bool show_qtilities_properties);
 
+            //! Sets if the property editor is read only.
+            /*!
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            void setReadOnly(bool read_only);
+            //! Gets if the property editor is read only.
+            /*!
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool readOnly() const;
+
             // --------------------------------
             // Factory Interface Implementation
             // --------------------------------
