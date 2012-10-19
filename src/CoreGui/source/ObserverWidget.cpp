@@ -124,6 +124,7 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         initialized(false),
         read_only(false),
         update_selection_activity(true),
+        is_expand_collapse_visible(true),
         hints_selection_parent(0),
         use_observer_hints(true),
         update_global_active_objects(false),
@@ -213,6 +214,8 @@ struct Qtilities::CoreGui::ObserverWidgetData {
     bool read_only;
     //! Used to disable selection activiy updates in FollowSelection cases. This is only used internally to avoid continuous loops.
     bool update_selection_activity;
+    //! Indicates if the expand/collapse all actions should be available when in TreeView mode.
+    bool is_expand_collapse_visible;
 
     //! Used to store default observer hints to be used with this widget.
     QPointer<ObserverHints> hints_default;
@@ -389,6 +392,17 @@ Qtilities::Core::ObserverHints* Qtilities::CoreGui::ObserverWidget::activeHints(
         return d->hints_selection_parent;
     else
         return d->hints_default;
+}
+
+void Qtilities::CoreGui::ObserverWidget::setTreeExpandCollapseVisible(bool is_visible) {
+    if (d->is_expand_collapse_visible != is_visible) {
+        d->is_expand_collapse_visible = is_visible;
+        refreshActions();
+    }
+}
+
+bool Qtilities::CoreGui::ObserverWidget::treeExpandCollapseVisible() const {
+    return d->is_expand_collapse_visible;
 }
 
 bool Qtilities::CoreGui::ObserverWidget::setObserverContext(Observer* observer) {
@@ -1835,11 +1849,12 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
             }
         }
     } else {
+        d->actionCollapseAll->setVisible(d->is_expand_collapse_visible);
+        d->actionExpandAll->setVisible(d->is_expand_collapse_visible);
+        d->actionCollapseAll->setEnabled(d->is_expand_collapse_visible);
+        d->actionExpandAll->setEnabled(d->is_expand_collapse_visible);
+
         d->actionSwitchView->setIcon(QIcon(qti_icon_TABLE_16x16));
-        d->actionCollapseAll->setVisible(true);
-        d->actionExpandAll->setVisible(true);
-        d->actionCollapseAll->setEnabled(true);
-        d->actionExpandAll->setEnabled(true);
         d->actionPushDown->setEnabled(false);
         d->actionPushUp->setEnabled(false);
         d->actionPushDownNew->setEnabled(false);

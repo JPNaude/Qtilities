@@ -1177,9 +1177,8 @@ void Qtilities::Core::Observer::deleteAll(const QString& base_class_name, bool r
             // Validate operation against access mode if access mode scope is category:
             QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
             QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
-            if (!isConst(category)) {
+            if (!isConst(category))
                 deleteObject(observerData->subject_list.at(0));
-            }
         }
     }
 

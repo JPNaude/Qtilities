@@ -46,6 +46,7 @@ using namespace Qtilities::Core::Constants;
 Qtilities::CoreGui::ObserverTableModelProxyFilter::ObserverTableModelProxyFilter(QObject* parent) : QSortFilterProxyModel(parent) {
     hints_default = new ObserverHints;
     use_observer_hints = true;
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 Qtilities::CoreGui::ObserverTableModelProxyFilter::~ObserverTableModelProxyFilter() {

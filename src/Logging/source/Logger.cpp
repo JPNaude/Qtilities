@@ -661,6 +661,8 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
 //        int i = 5;
+//    else if (QString(msg).contains("Invalid parameter passed to C runtime function"))
+//        int i = 5;
 //    else if (QString(msg).contains("QPainter::begin: Paint device returned engine == 0, type: 2"))
 //        int i = 5;
 //    else if (QString(msg).contains("ASSERT: \"false\""))

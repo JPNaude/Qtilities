@@ -381,15 +381,22 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
+    disconnect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),this,SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
+
     // Loop through all plugins and call finalize on them:
     d->plugins.startProcessingCycle();
     int plugin_count = d->plugins.subjectCount();
     for (int i = 0; i < plugin_count; i++) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(0));
+
         if (pluginIFace) {
             emit newProgressMessage(QString(tr("Finalizing plugin: %1")).arg(pluginIFace->pluginName()));
             QCoreApplication::processEvents();
-            pluginIFace->finalize();
+
+            // Check that it is active:
+            if (d->current_active_plugins.contains(pluginIFace->pluginName()))
+                pluginIFace->finalize();
+
             OBJECT_MANAGER->removeObject(d->plugins.subjectAt(0));
             d->plugins.detachSubject(d->plugins.subjectAt(0));
         }

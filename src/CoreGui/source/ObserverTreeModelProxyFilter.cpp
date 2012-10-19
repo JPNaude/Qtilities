@@ -45,6 +45,7 @@ using namespace Qtilities::Core::Constants;
 
 Qtilities::CoreGui::ObserverTreeModelProxyFilter::ObserverTreeModelProxyFilter(QObject* parent) : QSortFilterProxyModel(parent) {
     row_filter_types = ObserverTreeItem::TreeItem;
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 Qtilities::CoreGui::ObserverTreeModelProxyFilter::~ObserverTreeModelProxyFilter() {
@@ -95,7 +96,7 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::lessThan(const QModelInde
             // Categories are smaller than normal items:
             if (left_item->itemType() == ObserverTreeItem::CategoryItem && right_item->itemType() == ObserverTreeItem::CategoryItem) {
                 // Check the names of the category
-                return QString::localeAwareCompare(left_item->category().categoryTop(), right_item->category().categoryTop()) < 0;;
+                return QString::localeAwareCompare(left_item->category().categoryTop(), right_item->category().categoryTop()) < 0;
             } else if (left_item->itemType() == ObserverTreeItem::CategoryItem && right_item->itemType() == ObserverTreeItem::TreeItem)
                 return true;
             else if (left_item->itemType() == ObserverTreeItem::TreeItem && right_item->itemType() == ObserverTreeItem::CategoryItem)

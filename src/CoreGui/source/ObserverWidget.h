@@ -430,6 +430,22 @@ categorized_widget->show();
               */
             ObserverHints* activeHints() const;
 
+            //! Sets if the "Expand All"/"Collapse All" actions should be visible when in TreeView mode.
+            /*!
+              \sa treeExpandCollapseVisible()
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            void setTreeExpandCollapseVisible(bool is_visible);
+            //! Gets if the "Expand All"/"Collapse All" actions should be visible when in TreeView mode.
+            /*!
+             *This is true by default.
+             *\sa setTreeExpandCollapseVisible()
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+              */
+            bool treeExpandCollapseVisible() const;
+
             // --------------------------------
             // Settings, Global Meta Type and Action Provider Functions
             // --------------------------------

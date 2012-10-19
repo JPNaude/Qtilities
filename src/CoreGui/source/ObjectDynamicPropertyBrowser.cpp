@@ -105,6 +105,8 @@ Qtilities::CoreGui::ObjectDynamicPropertyBrowser::ObjectDynamicPropertyBrowser(B
     d->toolbar_visible = show_toolbar;
     d->preferred_area = area;
     d->obj = 0;
+    d->actionAddProperty = 0;
+    d->actionRemoveProperty = 0;
     d->toolbar = 0;
     d->new_property_type = ObjectManager::NonQtilitiesProperties;
     d->read_only = false;
@@ -228,6 +230,10 @@ void ObjectDynamicPropertyBrowser::setReadOnly(bool read_only) {
     if (d->read_only != read_only) {
         d->read_only = read_only;
         refresh();
+        if (d->actionAddProperty)
+            d->actionAddProperty->setEnabled(false);
+        if (d->actionRemoveProperty)
+            d->actionRemoveProperty->setEnabled(false);
     }
 }
 
