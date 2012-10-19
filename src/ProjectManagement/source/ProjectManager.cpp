@@ -297,8 +297,8 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
             if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecNormal) {
                 QMessageBox msgBox;
                 msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("The project you are trying to open is currently locked.<br><br>" + d->file_locker.lastLockSummary(file_name,"<br>"));
-                msgBox.setInformativeText("Do you want to break the lock in order to continue opening it?");
+                msgBox.setText(tr("The project you are trying to open is currently locked.<br><br>") + d->file_locker.lastLockSummary(file_name,"<br>"));
+                msgBox.setInformativeText(tr("Do you want to break the lock in order to continue opening it?"));
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
                 msgBox.setDefaultButton(QMessageBox::Cancel);
                 int ret = msgBox.exec();
@@ -316,7 +316,7 @@ bool Qtilities::ProjectManagement::ProjectManager::openProject(const QString& fi
                         break;
                     case QMessageBox::Cancel:
                         // In this case we say the project was locked and abort.
-                        LOG_TASK_ERROR("Project file is locked, you decided not to release the lock: " + file_name,task_ref);
+                        LOG_TASK_ERROR(tr("Project file is locked, you decided not to release the lock: ") + file_name,task_ref);
                         if (task_ref)
                             task_ref->completeTask(ITask::TaskFailed);
                         return false;
@@ -689,7 +689,6 @@ void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
     settings.setValue("recent_project_stack", d->recent_project_stack);
     settings.setValue("use_custom_projects_path", d->use_custom_projects_paths);
     settings.setValue("check_modified_projects", d->check_modified_projects);
-    settings.setValue("use_project_file_locks", d->use_project_file_locks);
     settings.setValue("modified_projects_handling_policy", QVariant((int) d->modified_projects_handling_policy));
     settings.setValue("custom_projects_paths", d->custom_projects_paths);
     settings.setValue("default_custom_project_paths_category",defaultCustomProjectsCategory());
@@ -706,7 +705,6 @@ void Qtilities::ProjectManagement::ProjectManager::readSettings() {
     d->auto_create_new_project = settings.value("auto_create_new_project", false).toBool();
     d->use_custom_projects_paths = settings.value("use_custom_projects_path", false).toBool();
     d->check_modified_projects = settings.value("check_modified_projects", true).toBool();
-    d->use_project_file_locks = settings.value("use_project_file_locks", true).toBool();
     d->modified_projects_handling_policy = (ProjectManager::ModifiedProjectsHandlingPolicy) settings.value("modified_projects_handling_policy", 0).toInt();
     d->recent_project_names = settings.value("recent_project_map", false).toMap();
     d->recent_project_stack = settings.value("recent_project_stack", QStringList()).toStringList();

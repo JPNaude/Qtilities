@@ -290,8 +290,20 @@ namespace Qtilities {
             //! Gets the configuration option to open the last project from the previous session on application startup.
             bool openLastProjectOnStartup() const;
             //! Sets if project file locking is enabled.
+            /*!
+             *<i>This function was added in %Qtilities v1.2.</i>
+             *
+             *\sa useProjectFileLocks()
+             */
             void setUseProjectFileLocks(bool toggle);
             //! Gets if project file locking is enabled.
+            /*!
+             *Default is true.
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+             *
+             *\sa setUseProjectFileLocks()
+             */
             bool useProjectFileLocks() const;
             //! Sets the configuration option to create a new project when the no last open project is available.
             /*!

@@ -295,7 +295,10 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 QString errorMsg;
                 if (!d->file_locker.lockFile(file_name,&errorMsg))
                     LOG_TASK_WARNING(errorMsg,task);
-            }
+                else
+                    LOG_TASK_INFO(tr("Successfully locked project file."),task);
+            } else
+                LOG_TASK_INFO(tr("Project file locking is disabled, will not attempt to lock project file."),task);
 
             // Process events here before we set the modification state. This would ensure that any
             // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
@@ -362,7 +365,10 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
                 QString errorMsg;
                 if (!d->file_locker.lockFile(file_name,&errorMsg))
                     LOG_TASK_WARNING(errorMsg,task);
-            }
+                else
+                    LOG_TASK_INFO(tr("Successfully locked project file."),task);
+            } else
+                LOG_TASK_INFO(tr("Project file locking is disabled, will not attempt to lock project file."),task);
 
             // Process events here before we set the modification state. This would ensure that any
             // queued QtilitiesPropertyChangeEvents are processed. In some cases this can set the
@@ -408,7 +414,7 @@ bool Qtilities::ProjectManagement::Project::closeProject(ITask *task) {
         d->project_items.at(i)->closeProjectItem(task);
     }
 
-    // Add a lock on the project file.
+    // Release existing lock on the project file.
     if (PROJECT_MANAGER->useProjectFileLocks() && !d->project_file.isEmpty()) {
         QString errorMsg;
         if (!d->file_locker.unlockFile(d->project_file,&errorMsg))
