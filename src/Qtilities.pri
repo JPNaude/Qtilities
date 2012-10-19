@@ -20,6 +20,9 @@ QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
 QTILITIES_BIN           = $$QTILITIES_BASE/bin
 QTILITIES_FILE_VER      = -1.2
 
+DEFINES += "QTILITIES_VERSION_MAJOR=1"
+DEFINES += "QTILITIES_VERSION_MINOR=2"
+DEFINES += "QTILITIES_VERSION_REVISION=0"
 #****************************************************************************
 # Build Options:
 #   *************************************************************************

@@ -46,11 +46,11 @@ namespace Qtilities {
     };
 
     //! The %Qtilities major version number.
-    #define qti_def_VERSION_MAJOR 1
+    #define qti_def_VERSION_MAJOR QTILITIES_VERSION_MAJOR
     //! The %Qtilities minor version number.
-    #define qti_def_VERSION_MINOR 2
+    #define qti_def_VERSION_MINOR QTILITIES_VERSION_MINOR
     //! The %Qtilities revision version number.
-    #define qti_def_VERSION_REVISION 0
+    #define qti_def_VERSION_REVISION QTILITIES_VERSION_REVISION
     //! The %Qtilities beta number.
     #define qti_def_VERSION_BETA 0
     //! The %Qtilities alpha number.
