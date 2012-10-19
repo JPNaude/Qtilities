@@ -36,9 +36,11 @@
 
 #include <QCoreApplication>
 
-#define EXTENSION_LOCK "lck"
-
 using namespace Qtilities::Core;
+
+FileLocker::FileLocker(const QString &lock_extension) {
+    d_lock_extension = lock_extension;
+}
 
 bool FileLocker::isFileLocked(const QString &file_path) const {
     QFileInfo fi(file_path);
@@ -194,7 +196,7 @@ QString FileLocker::lockFilePathForFile(const QString &file_path) const {
     QString lock_file_path = fi.path();
     lock_file_path.append(QDir::separator());
     lock_file_path.append(fi.baseName());
-    lock_file_path.append("." + QString(EXTENSION_LOCK));
+    lock_file_path.append("." + QString(d_lock_extension));
 
     return lock_file_path;
 }

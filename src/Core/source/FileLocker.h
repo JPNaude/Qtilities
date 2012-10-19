@@ -53,7 +53,7 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT FileLocker {
 
         public:
-            FileLocker() {}
+            FileLocker(const QString& lock_extension = "lck");
             virtual ~FileLocker() {}
 
             // -----------------------------------
@@ -116,6 +116,9 @@ namespace Qtilities {
         private:
             //! Returns the expected lock file path for a given file path.
             QString lockFilePathForFile(const QString& file_path) const;
+
+            //! The extension used for the lock file.
+            QString d_lock_extension;
         };
     }
 }
