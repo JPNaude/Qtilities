@@ -56,6 +56,8 @@ struct Qtilities::Core::FileUtilsPrivateData {
     QString             file_filters;
     QDir::Filters       filters;
     QDir::SortFlags     sort;
+
+    QFileInfoList       find_files_under_dir_list;
 };
 
 Qtilities::Core::FileUtils::FileUtils(bool enable_tasking, QObject* parent) : QObject(parent) {
@@ -85,13 +87,12 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                                                             QDir::Filters filters,
                                                             QDir::SortFlags sort,
                                                             bool first_run) {
-    static QFileInfoList list;
     if (first_run)
-        list.clear();
+        d->find_files_under_dir_list.clear();
 
     QDir dir(dirName);
     if (!dir.exists(dirName)) {
-        return list;
+        return d->find_files_under_dir_list;
     }
 
     int task_id = findTaskID(taskNameToString(TaskFindFilesUnderDir));
@@ -160,7 +161,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
             task_ref->startTask(folder_count*10 + file_count);
             task_ref->logMessage("Searching for files in directory: " + dirName);
         }
-        list.clear();
+        d->find_files_under_dir_list.clear();
     }
 
     foreach (QFileInfo info, dir.entryInfoList(final_filters,sort)) {
@@ -200,7 +201,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                 // case we add this directory name to the results.
                 if ((final_filters & QDir::AllDirs) && !(final_filters & QDir::Files)) {
                     LOG_TASK_INFO("Found directory: " + info.absoluteFilePath(),task_ref);
-                    list.append(info);
+                    d->find_files_under_dir_list.append(info);
                 }
 
                 if (task_ref) {
@@ -208,7 +209,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                         task_ref->addCompletedSubTasks(10);
                 }
             } else {
-                list.append(info);
+                d->find_files_under_dir_list.append(info);
                 if (task_ref) {
                     if (first_run) {
                         task_ref->logMessage("Found file: " + info.absoluteFilePath());
@@ -229,19 +230,18 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
     }
 
     if (first_run) {
-        last_files_under_dir = list;
         if (task_ref) {
             task_ref->setDisplayName("Found Files In: " + dir.dirName());
-            task_ref->logMessage("Successfully searched for and found " + QString::number(list.count()) + " files under directory: " + dirName);
+            task_ref->logMessage("Successfully searched for and found " + QString::number(d->find_files_under_dir_list.count()) + " files under directory: " + dirName);
             task_ref->completeTask(ITask::TaskSuccessful);
         }
     }
 
-    return list;
+    return d->find_files_under_dir_list;
 }
 
 QFileInfoList Qtilities::Core::FileUtils::lastFilesUnderDir() {
-    return last_files_under_dir;
+    return d->find_files_under_dir_list;
 }
 
 void Qtilities::Core::FileUtils::setFindFilesUnderDirParams(const QString &dirName, const QString& file_filters, const QString& ignore_list, QDir::Filters filters, QDir::SortFlags sort) {

@@ -173,7 +173,6 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
             static QString toNativeSeparators(QString path);
 
         private:
-            QFileInfoList                   last_files_under_dir;
             FileUtilsPrivateData*           d;
         };
     }
