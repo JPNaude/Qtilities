@@ -46,19 +46,6 @@ Qtilities::Plugins::Help::HelpPluginConfig::HelpPluginConfig(QWidget *parent) :
     ui(new Ui::HelpPluginConfig)
 {
     ui->setupUi(this);
-
-    if (ui->widgetFilesHolder->layout())
-        delete ui->widgetFilesHolder->layout();
-
-    QHBoxLayout* layout = new QHBoxLayout(ui->widgetFilesHolder);
-    layout->addWidget(&files_widget);
-    layout->setMargin(0);
-    files_widget.show();
-    files_widget.setListType(StringListWidget::FilePaths);
-    files_widget.setFileOpenDialogFilter("Help Files (*.qch)");
-
-    connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
-    handleFilesChanged(HELP_MANAGER->registeredFiles());
 }
 
 Qtilities::Plugins::Help::HelpPluginConfig::~HelpPluginConfig() {
@@ -94,6 +81,21 @@ void Qtilities::Plugins::Help::HelpPluginConfig::configPageApply() {
     HELP_MANAGER->registerFiles(files_widget.stringList());
     connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
     HELP_MANAGER->writeSettings();
+}
+
+void Qtilities::Plugins::Help::HelpPluginConfig::configPageInitialize() {
+    if (ui->widgetFilesHolder->layout())
+        delete ui->widgetFilesHolder->layout();
+
+    QHBoxLayout* layout = new QHBoxLayout(ui->widgetFilesHolder);
+    layout->addWidget(&files_widget);
+    layout->setMargin(0);
+    files_widget.show();
+    files_widget.setListType(StringListWidget::FilePaths);
+    files_widget.setFileOpenDialogFilter("Help Files (*.qch)");
+
+    connect(HELP_MANAGER,SIGNAL(registeredFilesChanged(QStringList)),SLOT(handleFilesChanged(QStringList)));
+    handleFilesChanged(HELP_MANAGER->registeredFiles());
 }
 
 void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {

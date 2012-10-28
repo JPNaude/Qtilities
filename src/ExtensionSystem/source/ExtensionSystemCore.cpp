@@ -414,6 +414,7 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
         observer_widget->layout()->setMargin(0);
 
         d->extension_system_config_widget = new ExtensionSystemConfig();
+        d->extension_system_config_widget->configPageInitialize();
         d->extension_system_config_widget->setPluginListWidget(observer_widget);
 
         if (observer_widget->treeView()) {

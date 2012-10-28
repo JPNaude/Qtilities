@@ -70,10 +70,43 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
 {
     ui->setupUi(this); 
     ui->btnApply->setVisible(applyButtonVisisble);
-    ui->txtFormattingEnginePreview->setFont(QFont("Courier New"));
-    setObjectName(tr("Logger Config Widget"));
 
     d = new LoggerConfigWidgetPrivateData;
+    setObjectName(tr("Logger Config Widget"));
+}
+
+Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
+{
+    delete ui;
+    delete d;
+}
+
+QIcon Qtilities::CoreGui::LoggerConfigWidget::configPageIcon() const {
+    return QIcon(qti_icon_CONFIG_LOGGING_48x48);
+}
+
+QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
+    return this;
+}
+
+QString Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
+    return tr(qti_config_page_LOGGING);
+}
+
+QtilitiesCategory Qtilities::CoreGui::LoggerConfigWidget::configPageCategory() const {
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
+    else
+        return IConfigPage::configPageCategory();
+}
+
+void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {
+    handle_BtnApplyClicked();
+}
+
+void Qtilities::CoreGui::LoggerConfigWidget::configPageInitialize() {
+    ui->txtFormattingEnginePreview->setFont(QFont("Courier New"));
+
     connect(ui->tableViewLoggerEngines,SIGNAL(clicked(QModelIndex)),SLOT(handle_LoggerEngineTableClicked(QModelIndex)));
     connect(ui->btnAddLoggerEngine,SIGNAL(clicked(bool)),SLOT(handle_NewLoggerEngineRequest()));
     connect(ui->btnRemoveLoggerEngine,SIGNAL(clicked(bool)),SLOT(handle_RemoveLoggerEngineRequest()));
@@ -115,35 +148,6 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     connect(ui->checkBoxRememberSession,SIGNAL(clicked(bool)),SLOT(handle_CheckBoxRememberSessionConfigClicked(bool)));
 
     updateActiveEngine();
-}
-
-Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
-{
-    delete ui;
-    delete d;
-}
-
-QIcon Qtilities::CoreGui::LoggerConfigWidget::configPageIcon() const {
-    return QIcon(qti_icon_CONFIG_LOGGING_48x48);
-}
-
-QWidget* Qtilities::CoreGui::LoggerConfigWidget::configPageWidget() {
-    return this;
-}
-
-QString Qtilities::CoreGui::LoggerConfigWidget::configPageTitle() const {
-    return tr(qti_config_page_LOGGING);
-}
-
-QtilitiesCategory Qtilities::CoreGui::LoggerConfigWidget::configPageCategory() const {
-    if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
-    else
-        return IConfigPage::configPageCategory();
-}
-
-void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {
-    handle_BtnApplyClicked();
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::setApplyButtonVisible(bool visible) {

@@ -59,6 +59,7 @@ namespace Qtilities {
               */
             void configPageApply();
             bool supportsApply() const { return true; }
+            void configPageInitialize();
 
             // --------------------------------
             // IObjectBase Implementation

@@ -80,6 +80,7 @@ namespace Qtilities {
                 QString configPageTitle() const;
                 void configPageApply();
                 bool supportsApply() const { return true; }
+                void configPageInitialize();
 
             private slots:
                 void handleFilesChanged(const QStringList& files);

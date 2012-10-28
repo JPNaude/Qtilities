@@ -100,6 +100,7 @@ OBJECT_MANAGER->registerObject(LoggerGui::createLoggerConfigWidget());
             QString configPageTitle() const;
             void configPageApply();
             bool supportsApply() const { return true; }
+            void configPageInitialize();
 
             //! Function to hide/show the "Apply" button.
             /*!

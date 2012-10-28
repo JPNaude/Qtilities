@@ -119,6 +119,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->config_pages.displayHints()->setActionHints(ObserverHints::ActionFindItem);
     }
 
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+
     // Figure out what the maximum sizes are in all pages.
     int max_width = -1;
     int max_height = -1;
@@ -143,6 +145,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                         categories << current_category;
                     config_page_category_map[config_page] = current_category;
                 }
+
+                config_page->configPageInitialize();
             }
         }
 
@@ -261,6 +265,8 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         d->activity_filter->setActiveSubject(d->config_pages.subjectAt(0));
 
     d->initialized = true;
+
+    QApplication::restoreOverrideCursor();
 }
 
 void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> object_list) {

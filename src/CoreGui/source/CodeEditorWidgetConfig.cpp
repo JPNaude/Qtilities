@@ -34,24 +34,6 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* pare
 {
     ui->setupUi(this);
     setObjectName("Text Editors Config Page");
-
-    // Populate font sizes combo box
-    QFontDatabase db;
-    foreach(int size, db.standardSizes())
-        ui->fontSizeComboBox->addItem(QString::number(size));
-
-    // Populate fields with values from QSettings
-    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
-    settings.beginGroup("Qtilities");
-    settings.beginGroup("GUI");
-    settings.beginGroup("Editors");
-    settings.beginGroup("Code Editor Widget");
-    ui->fontComboBox->setEditText(settings.value("font_type","Courier").toString());
-    ui->fontSizeComboBox->setEditText(settings.value("font_size",8).toString());
-    settings.endGroup();
-    settings.endGroup();
-    settings.endGroup();
-    settings.endGroup();
 }
 
 Qtilities::CoreGui::CodeEditorWidgetConfig::~CodeEditorWidgetConfig() {
@@ -96,4 +78,24 @@ void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
 
     // Emit the settings update request signal
     QtilitiesApplication::newSettingsUpdateRequest("AllCodeEditors");
+}
+
+void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageInitialize() {  
+    // Populate font sizes combo box
+    QFontDatabase db;
+    foreach(int size, db.standardSizes())
+        ui->fontSizeComboBox->addItem(QString::number(size));
+
+    // Populate fields with values from QSettings
+    QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
+    settings.beginGroup("Qtilities");
+    settings.beginGroup("GUI");
+    settings.beginGroup("Editors");
+    settings.beginGroup("Code Editor Widget");
+    ui->fontComboBox->setEditText(settings.value("font_type","Courier").toString());
+    ui->fontSizeComboBox->setEditText(settings.value("font_size",8).toString());
+    settings.endGroup();
+    settings.endGroup();
+    settings.endGroup();
+    settings.endGroup();
 }

@@ -46,13 +46,6 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     ui(new Ui::ExtensionSystemConfig)
 {
     ui->setupUi(this);
-    if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
-    else
-        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
-    ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
-
-    connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
 
     // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
@@ -74,6 +67,16 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageWidget() {
 
 QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() const {
     return tr(qti_config_page_PLUGINS);
+}
+
+void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageInitialize() {
+    if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
+    else
+        ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 paths.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
+    ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
+
+    connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {

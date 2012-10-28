@@ -89,6 +89,7 @@ OBJECT_MANAGER->registerObject(PROJECT_MANAGER->configWidget());
             QString configPageTitle() const;
             void configPageApply();
             bool supportsApply() const { return true; }
+            void configPageInitialize();
 
         public slots:
             void handleCurrentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);

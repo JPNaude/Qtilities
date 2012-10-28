@@ -53,6 +53,38 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     ui(new Ui::ProjectManagementConfig)
 {
     ui->setupUi(this);
+}
+
+Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
+{
+    delete ui;
+}
+
+QIcon Qtilities::ProjectManagement::ProjectManagementConfig::configPageIcon() const {
+    return QIcon(qti_icon_CONFIG_PROJECTS_48x48);
+}
+
+QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget() {
+    return this;
+}
+
+QString Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle() const {
+    return tr(qti_config_page_PROJECTS);
+}
+
+Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManagementConfig::configPageCategory() const {
+    if (IConfigPage::configPageCategory().isEmpty())
+        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
+    else
+        return IConfigPage::configPageCategory();
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
+    saveCustomProjectsPaths();
+    PROJECT_MANAGER->writeSettings();
+}
+
+void Qtilities::ProjectManagement::ProjectManagementConfig::configPageInitialize() {
     ui->chkOpenLastProject->setChecked(PROJECT_MANAGER->openLastProjectOnStartup());
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());
@@ -92,35 +124,6 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
 
     connect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),SLOT(refreshCustomProjectPaths()));
     refreshCustomProjectPaths();
-}
-
-Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
-{
-    delete ui;
-}
-
-QIcon Qtilities::ProjectManagement::ProjectManagementConfig::configPageIcon() const {
-    return QIcon(qti_icon_CONFIG_PROJECTS_48x48);
-}
-
-QWidget* Qtilities::ProjectManagement::ProjectManagementConfig::configPageWidget() {
-    return this;
-}
-
-QString Qtilities::ProjectManagement::ProjectManagementConfig::configPageTitle() const {
-    return tr(qti_config_page_PROJECTS);
-}
-
-Qtilities::Core::QtilitiesCategory Qtilities::ProjectManagement::ProjectManagementConfig::configPageCategory() const {
-    if (IConfigPage::configPageCategory().isEmpty())
-        return QtilitiesCategory(tr(qti_config_page_DEFAULT_CAT));
-    else
-        return IConfigPage::configPageCategory();
-}
-
-void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
-    saveCustomProjectsPaths();
-    PROJECT_MANAGER->writeSettings();
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::handle_btnClearRecentProjectList() {

@@ -91,6 +91,7 @@ OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
             QString configPageTitle() const;
             void configPageApply() {}
             bool supportsApply() const { return false; }
+            void configPageInitialize();
 
         public slots:
             void handleBtnDetailsClicked();
