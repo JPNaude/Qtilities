@@ -19,7 +19,7 @@ CONFIG(debug, debug|release) {
 DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += PROJECT_MANAGEMENT_PLUGIN_LIBRARY
-CONFIG += plugin
+CONFIG += plugin dll
 
 # ------------------------------
 # Temp Output Paths

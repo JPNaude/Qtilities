@@ -21,7 +21,7 @@ DESTDIR += $$QTILITIES_BIN/plugins
 
 TEMPLATE = lib
 DEFINES += HELP_PLUGIN_LIBRARY
-CONFIG  += plugin
+CONFIG  += plugin dll
 CONFIG  += help
 
 QT += network

@@ -20,7 +20,7 @@ CONFIG(debug, debug|release) {
 DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
-CONFIG += plugin
+CONFIG += plugin dll
 CONFIG += qtestlib
 
 # ------------------------------
