@@ -185,6 +185,7 @@ namespace Qtilities {
             Observer* observerReference(int id) const;             
             Observer* objectPool();
             int registerObserver(Observer* observer);
+            int getNewIteratorID() const;
             bool moveSubjects(QList<QObject*> objects, int source_observer_id, int destination_observer_id, QString *error_msg, bool silent = false);
             bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, QString *error_msg, bool silent = false);
             void registerObject(QObject* obj, QtilitiesCategory category = QtilitiesCategory());

@@ -221,6 +221,7 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsB() {
     while (itr.hasNext()) {
         QObject* obj = itr.next();
         QVERIFY(obj);
+        qDebug() << obj << itr.hasNext();
         testList << obj->objectName();
         if (itr.hasNext()) {
             obj = itr.next();
@@ -338,5 +339,59 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardComplexA() {
         ++compare_value;
         QVERIFY(testList.at(i).compare(QString::number(compare_value)) == 0);
     }
+}
+
+void Testing::TestTreeIterator::testIterationForwardMultipleParentsC() {
+    qDebug() << "START START";
+
+    TreeNode other_obs0("Other_0");
+    TreeItem* item_other_1 = other_obs0.addItem("O_1");
+    TreeItem* item_other_2 = other_obs0.addItem("O_2");
+    TreeItem* item_other_3 = other_obs0.addItem("O_3");
+    TreeItem* item_other_4 = other_obs0.addItem("O_4");
+
+    TreeNode* rootNode = new TreeNode("Level0_0");
+    TreeNode* nodeL1_0 = rootNode->addNode("Level1_0");
+    nodeL1_0->attachSubject(item_other_1);
+    TreeNode* nodeL1_1 = rootNode->addNode("Level1_1");
+    TreeNode* nodeL1_2 = rootNode->addNode("Level1_2");
+    TreeNode* nodeL2_0 = nodeL1_2->addNode("Level2_0");
+    TreeNode* nodeL2_1 = nodeL1_2->addNode("Level2_1");
+    nodeL2_1->attachSubject(item_other_2);
+    nodeL2_1->attachSubject(item_other_3);
+    nodeL2_1->attachSubject(item_other_4);
+    TreeNode* nodeL1_3 = rootNode->addNode("Level1_3_Missing");
+
+    Q_UNUSED(nodeL1_1);
+    Q_UNUSED(nodeL2_0);
+
+//    TreeNode other_obs1("Other_1");
+//    other_obs1.attachSubject(nodeL1_0);
+//    other_obs1.attachSubject(nodeL1_1);
+//    other_obs1.attachSubject(nodeL1_2);
+//    other_obs1.attachSubject(nodeL2_0);
+//    other_obs1.attachSubject(nodeL2_1);
+//    other_obs1.attachSubject(nodeL1_3);
+
+    TreeIterator itr(rootNode);
+    QStringList testList;
+    QVERIFY(itr.last() == nodeL1_3);
+    testList << itr.current()->objectName();
+    while (itr.hasPrevious()) {
+        QObject* obj = itr.previous();
+        QVERIFY(obj);
+        testList << obj->objectName();
+    }
+
+    QVERIFY(itr.first() == rootNode);
+    QVERIFY(itr.hasNext() == true);
+    QVERIFY(itr.hasPrevious() == false);
+    QVERIFY(itr.last() == nodeL1_3);
+    QVERIFY(testList.count() == 11);
+//    int compare_value = 0;
+//    for (int i = testList.count()-1; i >= 0; i--) {
+//        ++compare_value;
+//        QVERIFY(testList.at(i).compare(QString::number(compare_value)) == 0);
+//    }
 }
 

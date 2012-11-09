@@ -75,8 +75,8 @@ namespace Qtilities {
                 ExportRelationalData        = 4, /*!< Indicates that an ObserverRelationalTable must be constructed for the observer and it must be exported with the observer data. During extended imports the relational structure of the tree under your observer will be reconstructed. */
                 ExportAllItems             = ExportData | ExportVisitorIDs | ExportRelationalData
             };
-            Q_DECLARE_FLAGS(ExportItemFlags, ExportItem);
-            Q_FLAGS(ExportItemFlags);
+            Q_DECLARE_FLAGS(ExportItemFlags, ExportItem)
+            Q_FLAGS(ExportItemFlags)
 
             ObserverData(Observer* obs, const QString& observer_name) : subject_limit(-1),
                 subject_id_counter(0),
@@ -92,7 +92,8 @@ namespace Qtilities {
                 observer(obs),
                 object_deletion_policy(0),
                 number_of_subjects_start_of_proc_cycle(0),
-                broadcast_modification_state_changes(true)
+                broadcast_modification_state_changes(true),
+                modification_state_start_of_proc_cycle(false)
             {
                 subject_list.setObjectName(observer_name);
             }
@@ -116,7 +117,8 @@ namespace Qtilities {
                 observer(other.observer),
                 object_deletion_policy(other.object_deletion_policy),
                 number_of_subjects_start_of_proc_cycle(0),
-                broadcast_modification_state_changes(true) {}
+                broadcast_modification_state_changes(true),
+                modification_state_start_of_proc_cycle(false) {}
 
             // --------------------------------
             // IObjectBase Implementation
@@ -207,6 +209,8 @@ namespace Qtilities {
             int                                 number_of_subjects_start_of_proc_cycle;
             //! Used internally in Observer to optimize the number of times modification state changes are broadcast.
             bool                                broadcast_modification_state_changes;
+            //! Used during processing cycles to store the modification state of the observer when a processing cycle is started. When different when the processing cycle is stopped, only then will it emit that the modification state changed.
+            bool                                modification_state_start_of_proc_cycle;
         };
 
         Q_DECLARE_OPERATORS_FOR_FLAGS(ObserverData::ExportItemFlags)

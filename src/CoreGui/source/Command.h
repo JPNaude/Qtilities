@@ -133,7 +133,7 @@ namespace Qtilities {
 
         /*!
         \class ProxyAction
-        \brief A class which represents a proxy actionn which triggers different actions for different contexts.
+        \brief A class which represents a proxy action which triggers different actions for different contexts.
         
         The ProxyAction class represents an action which has a proxy action which is triggered when the shortcut of the ProxyAction is used, and any number of backend actions which each represent a different context. When context changes happen in the application, the multi context action will make the correct backend action for the set of active contexts active. Thus, when the frontend action trigger, the active backend action will also trigger.
 

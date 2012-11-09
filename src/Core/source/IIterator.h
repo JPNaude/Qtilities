@@ -34,9 +34,12 @@
 #ifndef IITERATOR_H
 #define IITERATOR_H
 
+#include "ObjectManager.h"
+using namespace Qtilities::Core;
+
 namespace Qtilities {
     namespace Core {
-        namespace Interfaces {
+        namespace Interfaces {        
             /*!
             \class IIterator<T>
             \brief Abstract interface which defines standard operations for all non-const iterators in %Qtilities.

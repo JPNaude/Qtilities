@@ -181,7 +181,7 @@ namespace Qtilities {
             enum HierarchicalDisplay {
                 NoHierarchicalDisplayHint = 0,  /*!< No hierachical display hint. Uses FlatHierarchy by default. */
                 FlatHierarchy = 1,              /*!< The hierarchy of items under an observer is flat. Thus categories are not displayed. */
-                CategorizedHierarchy = 2        /*!< Item are grouped by their category. Items which do not have a category associated with them are grouped under an category called QString(OBSERVER_UNCATEGORIZED_CATEGORY). */
+                CategorizedHierarchy = 2        /*!< Item are grouped by their category */
             };
             //! Function which returns a string associated with a specific HierarchicalDisplay.
             static QString hierarchicalDisplayToString(HierarchicalDisplay hierarchical_display);

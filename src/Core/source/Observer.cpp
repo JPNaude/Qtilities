@@ -300,6 +300,51 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     return observerData->exportXmlExt(doc,object_node,export_flags);
 }
 
+bool Observer::setMonitorSubjectModificationState(QObject *obj, bool monitor) {
+    if (!contains(obj))
+        return false;
+
+    // Check if the object implements IModificationStateNotifier:
+    IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (obj);
+    if (!mod_iface)
+        return false;
+
+    if (monitor)
+        connect(obj,SIGNAL(modificationStateChanged(bool)),this,SLOT(setModificationState(bool)),Qt::UniqueConnection);
+    else
+        disconnect(obj,SIGNAL(modificationStateChanged(bool)),this,SLOT(setModificationState(bool)));
+
+    MultiContextProperty ignore_modification_state_prop = ObjectManager::getMultiContextProperty(obj,qti_prop_SUBJECT_IGNORE_MODIFICATION_STATE);
+    if (ignore_modification_state_prop.isValid()) {
+        // Thus, the property already exists
+        ignore_modification_state_prop.addContext(!monitor,observerID());
+        return ObjectManager::setMultiContextProperty(obj,ignore_modification_state_prop);
+    } else {
+        // We need to create the property and add it to the object.
+        MultiContextProperty new_ignore_modification_state_prop(qti_prop_SUBJECT_IGNORE_MODIFICATION_STATE);
+        new_ignore_modification_state_prop.addContext(!monitor,observerID());
+        return ObjectManager::setMultiContextProperty(obj,new_ignore_modification_state_prop);
+    }
+
+    // Should never get here:
+    return false;
+}
+
+bool Observer::monitorSubjectModificationState(QObject *obj) {
+    if (!contains(obj))
+        return false;
+
+    MultiContextProperty ignore_modification_state_prop = ObjectManager::getMultiContextProperty(obj,qti_prop_SUBJECT_IGNORE_MODIFICATION_STATE);
+    if (ignore_modification_state_prop.isValid()) {
+        if (ignore_modification_state_prop.hasContext(observerID())) {
+            if (ignore_modification_state_prop.value(observerID()).toBool())
+                return false;
+        }
+    }
+
+    return true;
+}
+
 bool Qtilities::Core::Observer::isModified() const {
     if (!observerData->observer)
         return false;
@@ -307,10 +352,19 @@ bool Qtilities::Core::Observer::isModified() const {
     if (observerData->is_modified)
         return true;
 
-    // Check if any subjects were modified.
+    // Check if any subjects are modified.
     for (int i = 0; i < observerData->subject_list.count(); i++) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
         if (mod_iface) {
+            // Check if this subject must be monitored:
+            MultiContextProperty ignore_modification_state_prop = ObjectManager::getMultiContextProperty(observerData->subject_list.at(i),qti_prop_SUBJECT_IGNORE_MODIFICATION_STATE);
+            if (ignore_modification_state_prop.isValid()) {
+                if (ignore_modification_state_prop.hasContext(observerID())) {
+                    if (ignore_modification_state_prop.value(observerID()).toBool())
+                        continue;
+                }
+            }
+
             if (mod_iface->isModified())
                 return true;
         }
@@ -396,6 +450,7 @@ void Qtilities::Core::Observer::startProcessingCycle() {
     if (previous_start_processing_cycle_count == 0 && observerData->start_processing_cycle_count == 1) {
         observerData->number_of_subjects_start_of_proc_cycle = observerData->subject_list.count();
         observerData->process_cycle_active = true;
+        observerData->modification_state_start_of_proc_cycle = isModified();
         emit processingCycleStarted();
     }
 }
@@ -412,8 +467,9 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
 //        qDebug() << "endProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
 
     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
-        if (isModified())
-            emit modificationStateChanged(true);
+        bool is_modified = isModified();
+        if (is_modified != observerData->modification_state_start_of_proc_cycle)
+            emit modificationStateChanged(is_modified);
 
         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
@@ -1579,11 +1635,11 @@ bool Qtilities::Core::Observer::treeContains(QObject* tree_item) const {
      return treeChildren().contains(tree_item);
 }
 
-QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface, int limit) const {
+QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface, int limit, int iterator_id) const {
     QList<QObject*> children;
     int count = 0;
 
-    TreeIterator itr(this);
+    TreeIterator itr(this,iterator_id);
     while (itr.hasNext()) {
         QObject* obj = itr.next();
         if (iface.isEmpty()) {

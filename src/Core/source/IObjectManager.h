@@ -129,6 +129,7 @@ namespace Qtilities {
                 virtual bool moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_i, QString* error_msg = 0, bool silent = false) = 0;
                 //! Registers an observer in the observer manager.
                 virtual int registerObserver(Observer* observer) = 0;
+                virtual int getNewIteratorID() const = 0;
                 //! Registers an object to be included in the global object pool.
                 /*!
                     \param category The category under which the object must be registered. This parameter can

@@ -143,19 +143,19 @@ observerWidget.show();
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportable)
             Q_INTERFACES(Qtilities::Core::Interfaces::IExportableObserver)
             Q_INTERFACES(Qtilities::Core::Interfaces::IModificationNotifier)
-            Q_ENUMS(SubjectChangeIndication);
-            Q_ENUMS(ObjectOwnership);            
+            Q_ENUMS(SubjectChangeIndication)
+            Q_ENUMS(ObjectOwnership)
             Q_ENUMS(EvaluationResult)
             Q_ENUMS(AccessMode)
 
-            Q_PROPERTY(QString Name READ observerName);
-            Q_PROPERTY(QString Description READ observerDescription);
-            Q_PROPERTY(int SubjectLimit READ subjectLimit WRITE setSubjectLimit);
-            Q_PROPERTY(int SubjectCount READ subjectCount);
-            Q_PROPERTY(AccessMode Access READ accessMode);
-            Q_PROPERTY(int ID READ observerID);
-            Q_PROPERTY(bool Modified READ isModified());
-            Q_PROPERTY(int ProcCycleCount READ processingCycleCount());
+            Q_PROPERTY(QString Name READ observerName)
+            Q_PROPERTY(QString Description READ observerDescription)
+            Q_PROPERTY(int SubjectLimit READ subjectLimit WRITE setSubjectLimit)
+            Q_PROPERTY(int SubjectCount READ subjectCount)
+            Q_PROPERTY(AccessMode Access READ accessMode)
+            Q_PROPERTY(int ID READ observerID)
+            Q_PROPERTY(bool Modified READ isModified())
+            Q_PROPERTY(int ProcCycleCount READ processingCycleCount())
 
         public:
             // --------------------------------
@@ -297,7 +297,7 @@ Both objects will become null after the observers are deleted since \p observerA
 \note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
                 ObserverScopeOwnership,     /*!< 
-The object must have at least on Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
+The object must have at least one Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
 
 \code
 // Create the observer
@@ -546,6 +546,25 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             // --------------------------------
             // IModificationNotifier Implementation
             // --------------------------------
+            //! Sets if a subject's modification state must be monitored.
+            /*!
+             *\return True when the needed property was set succcesfully on the subject. False otherwise, or when the subject is not attached to this context.
+             *
+             *\sa monitorSubjectModificationState()
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool setMonitorSubjectModificationState(QObject* obj, bool monitor);
+            //! Gets if a subject's modification state must be monitored.
+            /*!
+             *\return True when the modification state of the object is monitored. False otherwise, or when the subject is not attached to this context.
+             *
+             *\sa setMonitorSubjectModificationState()
+             *
+             *<i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool monitorSubjectModificationState(QObject* obj);
+
             bool isModified() const;
         public slots:
             /*!
@@ -907,6 +926,7 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \param base_class_name The name of the base class of children you are looking for. By default, all children underneath this observer is returned.
               \param limit When defined, the tree children will be search up until the limit count is reached. This allows you to stop when a tree gets too big. By default all children are returned.
+              *\param iterator_id Internal iterator ID. You should never use this directly.
 
               For example:
 
@@ -930,7 +950,9 @@ QVERIFY(items_verify.count() == 5);
 
               \note This observer itself is not part of the list.
               */
-            QList<QObject*> treeChildren(const QString& base_class_name = "QObject", int limit = -1) const;
+            QList<QObject*> treeChildren(const QString& base_class_name = "QObject",
+                                         int limit = -1,
+                                         int iterator_id = -1) const;
             //! Returns a list with the names of all the current observed subjects which inherits a specific base class. By default all subjects' names are returned.
             QStringList subjectNames(const QString& base_class_name = "QObject") const;
             //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.

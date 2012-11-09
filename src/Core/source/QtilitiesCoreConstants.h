@@ -203,7 +203,7 @@ where subjects are attached multiple times within the same tree.
 
 <b>Permission:</b> Reserved<br>
 <b>Data Type:</b> int<br>
-<b>Property Type:</b> Qtilities::Core::SharedProperty<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
 <b>Is Exportable:</b> No<br>
 <b>Change Notifications:</b> No<br>
 <b>Removable:</b> No
@@ -275,6 +275,21 @@ obs->attachSubject(obj);
 \endcode
 */
 const char * const qti_prop_CATEGORY_MAP        = "qti.core.CategoryMap";
+
+//! Ignore Subject Modification State Property
+/*!
+When an object implementing Qtilities::Core::IModificationStateNotifier is attached to an Qtilities::Core::Observer, the
+observer will automatically monitor the modification state of the object. You can disable the modification state monitoring
+on a subject using the Qtilities::Core::Observer::
+
+<b>Permission:</b> Read/Write<br>
+<b>Data Type:</b> QMap<int,bool>, where the keys are observer IDs and the values are the ignore states<br>
+<b>Property Type:</b> Qtilities::Core::MultiContextProperty<br>
+<b>Is Exportable:</b> Yes<br>
+<b>Change Notifications:</b> No<br>
+<b>Removable:</b> Yes
+*/
+const char * const qti_prop_SUBJECT_IGNORE_MODIFICATION_STATE = "qti.core.IgnoreModificationState";
 
 //! Object Name Property
 /*!
@@ -366,7 +381,7 @@ const char * const qti_prop_ALIAS_MAP         = "qti.filters.AliasMap";
 //! Object Activity Property
 /*!
 When the object is attached to one or more observers which have Qtilities::Core::ActivityPolicyFilter
-filters installed, this property holds the activity for each of those contexts
+filters installed, this property holds the activity for each of those contexts.
 
 <b>Permission:</b> Read/Write<br>
 <b>Data Type:</b> QMap<int,bool>, where the keys are observer IDs and the values are the corresponding activities<br>

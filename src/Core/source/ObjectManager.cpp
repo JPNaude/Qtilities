@@ -58,13 +58,15 @@ using namespace Qtilities::Core::Interfaces;
 
 struct Qtilities::Core::ObjectManagerPrivateData {
     ObjectManagerPrivateData() : object_pool(qti_def_GLOBAL_OBJECT_POOL,QObject::tr("Pool of exposed global objects.")),
-    id(1)  { }
+      id(1),
+      itr_id(1) { }
 
     QMap<int,QPointer<Observer> >               context_map;
     QMap<QString, IFactoryProvider*>            factory_map;
     QMap<QString, QList<QPointer<QObject> > >   meta_type_map;
     Observer                                    object_pool;
     int                                         id;
+    int                                         itr_id;
     Factory<QObject>                            qtilities_factory;
 };
 
@@ -114,6 +116,12 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
     }
 
     return -1;
+}
+
+int Qtilities::Core::ObjectManager::getNewIteratorID() const {
+    d->itr_id = d->itr_id + 1;
+    qDebug() << "getNewIteratorID()" << d->itr_id;
+    return d->itr_id-1;
 }
 
 QStringList Qtilities::Core::ObjectManager::providedFactories() const {

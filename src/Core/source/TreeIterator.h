@@ -137,10 +137,19 @@ rootTop->attachSubject(rootNodeB);
         class TreeIterator : public Interfaces::IIterator<QObject>
         {
         public:
-            TreeIterator(const Observer* top_node = 0)
-                : d_top_node(top_node)
+            /*!
+             * \brief TreeIterator Constructs a new iterator
+             * \param top_node The top node of the tree on which the iterator should operate.
+             */
+            TreeIterator(const Observer* top_node = 0,
+                         int iterator_id = -1) :
+                  d_top_node(top_node)
             {
                 d_current = top_node;
+                if (iterator_id == -1)
+                    d_iterator_id = OBJECT_MANAGER->getNewIteratorID();
+                else
+                    d_iterator_id = iterator_id;
             }
 
             QObject* first()
@@ -151,7 +160,7 @@ rootTop->attachSubject(rootNodeB);
 
             QObject* last()
             {
-                d_current = d_top_node->treeChildren().last();
+                d_current = d_top_node->treeChildren("QObject",-1,d_iterator_id).last();
                 return const_cast<QObject*> (d_current);
             }
 
@@ -167,6 +176,7 @@ rootTop->attachSubject(rootNodeB);
 
             QObject* next()
             {
+                //qDebug() << "Starting next(): from current" << d_current << ", previous parent" << findParentPrevious(d_current);
                 Observer* obs = qobject_cast<Observer*> (const_cast<QObject*> (d_current));
                 if (obs) {
                     if (obs->subjectCount() > 0) {
@@ -184,8 +194,10 @@ rootTop->attachSubject(rootNodeB);
 
                         if (add_prop) {
                             for (int i = 0; i < obs->subjectCount(); i++) {
-                                ObjectManager::setSharedProperty(obs->subjectAt(i),qti_prop_TREE_ITERATOR_SOURCE_OBS,obs->observerID());
-                                //qDebug() << "TreeIterator: Setting qti_prop_TREE_ITERATOR_SOURCE_OBS on subject" << obs->subjectAt(i) << "with ID of parent" << obs->observerName();
+                                MultiContextProperty prop(qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                                prop.setValue(obs->observerID(),d_iterator_id);
+                                ObjectManager::setMultiContextProperty(obs->subjectAt(i),prop);
+                                //qDebug() << "TreeIterator: Setting qti_prop_TREE_ITERATOR_SOURCE_OBS on subject" << obs->subjectAt(i) << "with ID of parent" << obs->observerName() << "using iterator ID" << d_iterator_id;
                             }
                         }
 
@@ -194,7 +206,9 @@ rootTop->attachSubject(rootNodeB);
                         if (d_current == d_top_node)
                             return 0;
                         else {
-                            SubjectIterator<QObject> sibling_itr(obs,SubjectIterator<QObject>::IterateSiblings);
+                            SubjectIterator<QObject> sibling_itr(obs,
+                                                                 SubjectIterator<QObject>::IterateSiblings,
+                                                                 d_iterator_id);
                             if (sibling_itr.hasNext()) {
                                 d_current = sibling_itr.next();
                                 return const_cast<QObject*> (d_current);
@@ -209,12 +223,15 @@ rootTop->attachSubject(rootNodeB);
                         }
                     }
                 } else {
-                    SubjectIterator<QObject> sibling_itr(d_current);
+                    SubjectIterator<QObject> sibling_itr(d_current,
+                                                         0,
+                                                         d_iterator_id);
                     if (sibling_itr.hasNext()) {
                         d_current = sibling_itr.next();
                         return const_cast<QObject*> (d_current);
                     } else {
                         const QObject* obj = findParentNext(d_current);
+                        //qDebug() << "LAST SIBLING, FINDING NEXT PARENT" << obj;
                         if (obj) {
                             d_current = obj;
                             return const_cast<QObject*> (d_current);
@@ -231,13 +248,14 @@ rootTop->attachSubject(rootNodeB);
 
                 Observer* obs = qobject_cast<Observer*> (const_cast<QObject*> (d_current));
                 if (obs) {
-                    SubjectIterator<Observer> sibling_itr(obs,SubjectIterator<Observer>::IterateSiblings);
+                    SubjectIterator<Observer> sibling_itr(obs,
+                                                          SubjectIterator<Observer>::IterateSiblings,
+                                                          d_iterator_id);
                     if (sibling_itr.hasPrevious()) {
                         Observer* previous_obs = sibling_itr.previous();
 
-                        // If previous observer has children, take the last child, otherwise
-                        // take previous observer.
-                        QList<QObject*> previous_obs_children = previous_obs->treeChildren();
+                        // If previous observer has children, take the last child, otherwise take previous observer.
+                        QList<QObject*> previous_obs_children = previous_obs->treeChildren("QObject",-1,d_iterator_id);
                         if (previous_obs_children.count() > 0) {
                             d_current = previous_obs_children.last();
 
@@ -252,7 +270,9 @@ rootTop->attachSubject(rootNodeB);
                             }
                             if (add_prop) {
                                 for (int i = 0; i < previous_obs->subjectCount(); i++) {
-                                    ObjectManager::setSharedProperty(previous_obs->subjectAt(i),qti_prop_TREE_ITERATOR_SOURCE_OBS,previous_obs->observerID());
+                                    MultiContextProperty prop(qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                                    prop.setValue(previous_obs->observerID(),d_iterator_id);
+                                    ObjectManager::setMultiContextProperty(previous_obs->subjectAt(i),prop);
                                     //qDebug() << "TreeIterator: Setting qti_prop_TREE_ITERATOR_SOURCE_OBS in previous() on subject" << previous_obs->subjectAt(i) << "with ID of parent" << previous_obs->observerName();
                                 }
                             }
@@ -271,7 +291,9 @@ rootTop->attachSubject(rootNodeB);
                             return 0;
                     }
                 } else {
-                    SubjectIterator<QObject> sibling_itr(d_current);
+                    SubjectIterator<QObject> sibling_itr(d_current,
+                                                         0,
+                                                         d_iterator_id);
                     if (sibling_itr.hasPrevious()) {
                         d_current = sibling_itr.previous();
                         return const_cast<QObject*> (d_current);
@@ -301,7 +323,7 @@ rootTop->attachSubject(rootNodeB);
                     if (parents.front() == d_top_node)
                         return 0;
                     else {
-                        SubjectIterator<QObject> parent_itr(parents.front(),SubjectIterator<QObject>::IterateSiblings);
+                        SubjectIterator<QObject> parent_itr(parents.front(),SubjectIterator<QObject>::IterateSiblings,d_iterator_id);
                         if (parent_itr.hasNext()) {
                             return parent_itr.next();
                         } else {
@@ -310,21 +332,22 @@ rootTop->attachSubject(rootNodeB);
                     }
                 } else if (parents.count() > 1) {
                     // In here we set the observer ID of obs on the last and the first subjects in the observer context.
-                    SharedProperty prop = ObjectManager::getSharedProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                    MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
 //                    QObject* non_const_obj = const_cast<QObject*> (obj);
 //                    non_const_obj->setProperty(qti_prop_TREE_ITERATOR_SOURCE_OBS,QVariant());
-                    if (prop.isValid()) {
-                        int obs_id = prop.value().toInt();
+                    if (prop.isValid() && prop.hasContext(d_iterator_id)) {
+                        int obs_id = prop.value(d_iterator_id).toInt();
                         Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
                         if (parent_obs) {
                             if (parent_obs == d_top_node)
                                 return 0;
 
-                            SubjectIterator<QObject> parent_itr(parent_obs,SubjectIterator<QObject>::IterateSiblings);
+                            SubjectIterator<QObject> parent_itr(parent_obs,SubjectIterator<QObject>::IterateSiblings,d_iterator_id);
                             if (parent_itr.hasNext()) {
                                 return parent_itr.next();
                             } else {
-                                return findParentNext(parents.front());
+                                //qDebug() << "Finding next parent, done with level of" << parent_obs->objectName() << ", navigating level up";
+                                return findParentNext(parent_obs);
                             }
                         } else {
                             qWarning() << "TreeIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
@@ -342,11 +365,11 @@ rootTop->attachSubject(rootNodeB);
                     return parents.front();
                 else if (parents.count() > 1) {
                     // In here we set the observer ID of obs on the last and the first subjects in the observer context.
-                    SharedProperty prop = ObjectManager::getSharedProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                    MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj,qti_prop_TREE_ITERATOR_SOURCE_OBS);
 //                    QObject* non_const_obj = const_cast<QObject*> (obj);
 //                    non_const_obj->setProperty(qti_prop_TREE_ITERATOR_SOURCE_OBS,QVariant());
-                    if (prop.isValid()) {
-                        int obs_id = prop.value().toInt();
+                    if (prop.isValid() && prop.hasContext(d_iterator_id)) {
+                        int obs_id = prop.value(d_iterator_id).toInt();
                         Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
                         if (parent_obs) {
                             return parent_obs;
@@ -363,6 +386,7 @@ rootTop->attachSubject(rootNodeB);
         private:
             const QObject* d_current;
             const Observer* const d_top_node;
+            int d_iterator_id;
         };
     }
 }

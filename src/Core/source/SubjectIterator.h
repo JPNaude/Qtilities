@@ -153,21 +153,31 @@ while (itrB.hasNext()) {
 
             //! Default constructor.
             /*!
-              \param subject The current subject where your iterator must start.
-              \param observer This is an optional parameter which is needed when your subject is observed in multiple contexts. In that case, the observer must be specified in order to know which observer parent to use.
-              */
-            SubjectIterator(const T* subject, Observer* observer = 0) :
+             *\param subject The current subject where your iterator must start.
+             *\param observer This is an optional parameter which is needed when your subject is observed in multiple contexts. In that case, the observer must be specified in order to know which observer parent to use.
+             *\param iterator_id Internal iterator ID. You should never use this directly.
+             */
+            SubjectIterator(const T* subject,
+                            Observer* observer = 0,
+                            int iterator_id = -1) :
                 d_root(subject),
                 d_parent_observer(observer)
             {
                 d_current = subject;
+                if (iterator_id == -1)
+                    d_iterator_id = OBJECT_MANAGER->getNewIteratorID();
+                else
+                    d_iterator_id = iterator_id;
             }
             //! Observer based constructor.
             /*!
-              \param observer The observer that must be used in cases where multiple subjects have multiple parents.
-              \param iteration_level Indicates on which level the observer must be interated.
-              */
-            SubjectIterator(const Observer* observer, ObserverIterationLevel iteration_level) :
+             *\param observer The observer that must be used in cases where multiple subjects have multiple parents.
+             *\param iteration_level Indicates on which level the observer must be interated.
+             *\param iterator_id Internal iterator ID. You should never use this directly.
+             */
+            SubjectIterator(const Observer* observer,
+                            ObserverIterationLevel iteration_level,
+                            int iterator_id = -1) :
                 d_root(0),
                 d_parent_observer(observer)
             {
@@ -183,6 +193,11 @@ while (itrB.hasNext()) {
                     d_parent_observer = 0;
                     d_root = observer;
                 }
+
+                if (iterator_id == -1)
+                    d_iterator_id = OBJECT_MANAGER->getNewIteratorID();
+                else
+                    d_iterator_id = iterator_id;
             }
 
             T* first() {
@@ -255,18 +270,18 @@ while (itrB.hasNext()) {
                     if (d_parent_observer)
                         return d_parent_observer;
                     else {
-                        // In here we set the observer ID of obs on the last and the first subjects in the observer context.
-                        SharedProperty prop = ObjectManager::getSharedProperty(d_root,qti_prop_TREE_ITERATOR_SOURCE_OBS);
-                        if (prop.isValid()) {
-                            int obs_id = prop.value().toInt();
-                            Observer* parent_obs = OBJECT_MANAGER->observerReference(obs_id);
-                            if (parent_obs) {
+                        Observer* parent_obs = 0;
+                        MultiContextProperty prop = ObjectManager::getMultiContextProperty(d_root,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                        if (prop.isValid() && prop.hasContext(d_iterator_id)) {
+                            int obs_id = prop.value(d_iterator_id).toInt();
+                            parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                            if (parent_obs)
                                 return parent_obs;
-                            } else {
-                                qWarning() << "SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
-                                LOG_FATAL("SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
-                                Q_ASSERT(parent_obs);
-                            }
+                        }
+                        if (!parent_obs) {
+                            qWarning() << "SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
+                            LOG_FATAL("SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
+                            Q_ASSERT(parent_obs);
                         }
                     }
                     return 0;
@@ -300,6 +315,7 @@ while (itrB.hasNext()) {
             const T* d_current;
             const T* d_root;
             const Observer* d_parent_observer;
+            int d_iterator_id;
         };
 
         // -----------------------------------------------
@@ -328,12 +344,19 @@ while (itrB.hasNext()) {
               \param subject The current subject where your iterator must start.
               \param observer This is an optional parameter which is needed when your subject is observed in multiple
               contexts. In that case, the observer must be specified in order to know which observer parent to use.
+              *\param iterator_id Internal iterator ID. You should never use this directly.
               */
-            ConstSubjectIterator(const T* subject, Observer* observer = 0) :
+            ConstSubjectIterator(const T* subject,
+                                 Observer* observer = 0,
+                                 int iterator_id = -1) :
                 d_root(subject),
                 d_parent_observer(observer)
             {
                 d_current = subject;
+                if (iterator_id == -1)
+                    d_iterator_id = OBJECT_MANAGER->getNewIteratorID();
+                else
+                    d_iterator_id = iterator_id;
             }
             //! Observer based constructor.
             /*!
@@ -466,6 +489,7 @@ while (itrB.hasNext()) {
             const T* d_current;
             const T* d_root;
             Observer* d_parent_observer;
+            int d_iterator_id;
         };
     }
 }
