@@ -22,8 +22,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
 
-CONFIG(debug, debug|release):TARGET = QtilitiesCoreGuid$${QTILITIES_FILE_VER}
-else:TARGET = QtilitiesCoreGui$${QTILITIES_FILE_VER}
+TARGET = QtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
+
 TEMPLATE = lib
 DEFINES += QTILITIES_CORE_GUI_LIBRARY
 DESTDIR = $$QTILITIES_BIN

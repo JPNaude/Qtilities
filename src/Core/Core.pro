@@ -18,11 +18,7 @@ QT += core
 QT -= gui
 QT += xml
 
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesCored$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesCore$${QTILITIES_FILE_VER}
-}
+TARGET = QtilitiesCore$${QTILITIES_LIB_POSTFIX}
 
 TEMPLATE = lib
 DEFINES += QTILITIESCORE_LIBRARY

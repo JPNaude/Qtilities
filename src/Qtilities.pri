@@ -18,11 +18,27 @@ QTILITIES_SOURCE        = $$QTILITIES_BASE/src
 QTILITIES_INCLUDE       = $$QTILITIES_BASE/include
 QTILITIES_TEMP          = $$QTILITIES_BASE/build_files/tmp
 QTILITIES_BIN           = $$QTILITIES_BASE/bin
-QTILITIES_FILE_VER      = -1.2
 
-DEFINES += "QTILITIES_VERSION_MAJOR=1"
-DEFINES += "QTILITIES_VERSION_MINOR=2"
-DEFINES += "QTILITIES_VERSION_REVISION=0"
+#****************************************************************************
+# Version Definitions
+#****************************************************************************
+QTILITIES_VERSION_MAJOR    = 1
+QTILITIES_VERSION_MINOR    = 2
+QTILITIES_VERSION_REVISION = 0
+DEFINES                += "QTILITIES_VERSION_MAJOR=$$QTILITIES_VERSION_MAJOR"
+DEFINES                += "QTILITIES_VERSION_MINOR=$$QTILITIES_VERSION_MINOR"
+DEFINES                += "QTILITIES_VERSION_REVISION=$$QTILITIES_VERSION_REVISION"
+QTILITIES_FILE_VER      = -$${QTILITIES_VERSION_MAJOR}.$${QTILITIES_VERSION_MINOR}
+
+#****************************************************************************
+# Library Postfix
+#****************************************************************************
+CONFIG(debug, debug|release) {
+    QTILITIES_LIB_POSTFIX = d$${QTILITIES_FILE_VER}
+} else {
+    QTILITIES_LIB_POSTFIX = $${QTILITIES_FILE_VER}
+}
+
 #****************************************************************************
 # Build Options:
 #   *************************************************************************
@@ -56,11 +72,6 @@ include(Dependencies.pri)
 #****************************************************************************
 INCLUDEPATH         +=$$QTILITIES_INCLUDE
 CONFIG              += ordered qt
-
-#****************************************************************************
-# Build mode
-#****************************************************************************
-CONFIG              += debug
 CONFIG              += exceptions rtti
 
 #****************************************************************************
@@ -70,16 +81,8 @@ CONFIG              += exceptions rtti
 contains( QTILITIES, testing ) {
     message( "Using Testing Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTestingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTestingd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTestingd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesTesting$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesTesting$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_FILE_VER}
-    }
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_LIB_POSTFIX}
+    
     QTILITIES += logging
     QTILITIES += core
     QTILITIES += coregui
@@ -90,16 +93,7 @@ contains( QTILITIES, testing ) {
 contains( QTILITIES, project_management ) {
     message( "Using Qtilities Project Management Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagementd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagementd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagementd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesProjectManagement$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesProjectManagement$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_FILE_VER}
-    }
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_LIB_POSTFIX}
 
     QTILITIES += logging
     QTILITIES += core
@@ -109,16 +103,7 @@ contains( QTILITIES, project_management ) {
 contains( QTILITIES, extension_system ) {
     message( "Using Qtilities Extension System Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesExtensionSystem$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesExtensionSystem$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_FILE_VER}
-    }
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_LIB_POSTFIX}
 
     QTILITIES += logging
     QTILITIES += core
@@ -128,16 +113,8 @@ contains( QTILITIES, extension_system ) {
 contains( QTILITIES, coregui ) {
     message( "Using Qtilities Core Gui Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
 
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGuid$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGuid$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGuid$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCoreGui$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCoreGui$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_FILE_VER}
-    }
     QTILITIES += logging
     QTILITIES += core
 }
@@ -145,16 +122,7 @@ contains( QTILITIES, coregui ) {
 contains( QTILITIES, core ) {
     message( "Using Qtilities Core Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
-
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCored$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCored$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCored$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesCore$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesCore$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_FILE_VER}
-    }
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_LIB_POSTFIX}
 
     QTILITIES += logging
 }
@@ -162,14 +130,6 @@ contains( QTILITIES, core ) {
 contains( QTILITIES, logging ) {
     message( "Using Qtilities Logging Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
+    LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_LIB_POSTFIX}
 
-    CONFIG(debug, debug|release) {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLoggingd$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLoggingd$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLoggingd$${QTILITIES_FILE_VER}
-    } else {
-        win32::win32-g++:LIBS += $$QTILITIES_BIN/libQtilitiesLogging$${QTILITIES_FILE_VER}.a
-        win32::win32-msvc*:LIBS += $$QTILITIES_BIN/QtilitiesLogging$${QTILITIES_FILE_VER}.lib
-        unix::LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_FILE_VER}
-    }
 }

@@ -25,11 +25,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 CONFIG += qtestlib
 
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesTestingd$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesTesting$${QTILITIES_FILE_VER}
-}
+TARGET = QtilitiesTesting$${QTILITIES_LIB_POSTFIX}
 
 TEMPLATE = lib
 
