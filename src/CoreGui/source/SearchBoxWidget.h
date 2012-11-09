@@ -104,8 +104,10 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
         class QTILITIES_CORE_GUI_SHARED_EXPORT SearchBoxWidget : public QWidget {
             Q_OBJECT
             Q_ENUMS(WidgetMode)
+            Q_ENUMS(SearchStringChangedNotificationMode)
+            Q_ENUMS(WidgetTarget)
             Q_ENUMS(ButtonFlag)
-            Q_ENUMS(SearchOptions)
+            Q_ENUMS(SearchOption)
 
         public:
             //! An enumeration which is used to indicate in which mode the widget must be used.

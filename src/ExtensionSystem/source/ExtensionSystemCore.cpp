@@ -408,7 +408,7 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
     if (!d->extension_system_config_widget) {
         ObserverWidget* observer_widget = new ObserverWidget();
         observer_widget->setObserverContext(&d->plugins);
-        d->treeModel = new PluginTreeModel();
+        d->treeModel = new PluginTreeModel;
         observer_widget->setCustomTreeModel(d->treeModel);
         observer_widget->initialize();
         observer_widget->layout()->setMargin(0);

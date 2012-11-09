@@ -1901,11 +1901,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                 QObject* obj = d->current_selection.front();
                 if (obj) {
                     if (d_observer) {
-                        d->actionDeleteItem->setText("Delete \"" + d_observer->subjectNameInContext(obj));
-                        d->actionRemoveItem->setText("Detach \"" + d_observer->subjectNameInContext(obj));
+                        d->actionDeleteItem->setText("Delete \"" + d_observer->subjectNameInContext(obj) + "\"");
+                        d->actionRemoveItem->setText("Detach \"" + d_observer->subjectNameInContext(obj) + "\"");
                     } else {
-                        d->actionDeleteItem->setText("Delete \"" + obj->objectName());
-                        d->actionRemoveItem->setText("Detach \"" + obj->objectName());
+                        d->actionDeleteItem->setText("Delete \"" + obj->objectName() + "\"");
+                        d->actionRemoveItem->setText("Detach \"" + obj->objectName() + "\"");
                     }
 
                     Observer* observer = qobject_cast<Observer*> (obj);
@@ -2040,11 +2040,11 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                 if (d->current_selection.front()) {
                     Observer* parent_obs = selectionParent();
                     if (parent_obs) {
-                        d->actionDeleteItem->setText("Delete \"" + parent_obs->subjectNameInContext(d->current_selection.front()));
-                        d->actionRemoveItem->setText("Detach \"" + parent_obs->subjectNameInContext(d->current_selection.front()));
+                        d->actionDeleteItem->setText("Delete \"" + parent_obs->subjectNameInContext(d->current_selection.front()) + "\"");
+                        d->actionRemoveItem->setText("Detach \"" + parent_obs->subjectNameInContext(d->current_selection.front()) + "\"");
                     } else {
-                        d->actionDeleteItem->setText("Delete \"" + d->current_selection.front()->objectName());
-                        d->actionRemoveItem->setText("Detach \"" + d->current_selection.front()->objectName());
+                        d->actionDeleteItem->setText("Delete \"" + d->current_selection.front()->objectName() + "\"");
+                        d->actionRemoveItem->setText("Detach \"" + d->current_selection.front()->objectName() + "\"");
                     }
                 }
 
@@ -2518,6 +2518,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
 
     if (d->confirm_deletes) {
         QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Question);
         msgBox.setWindowTitle(tr("Confirm Deletion"));
         if (selected_count == 1)
             msgBox.setText(tr("Are you sure you want to delete the selected object?<br><br>This operation cannot be undone."));

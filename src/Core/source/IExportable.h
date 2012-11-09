@@ -299,8 +299,8 @@ int main(int argc, char *argv[])
                     Binary = 1,    /*!< Binary exporting using QDataStream. \sa exportBinary(), importBinary() */
                     XML = 2        /*!< XML exporting using QDomDocument. \sa exportXml(), importXml() */
                 };
-                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode);
-                Q_FLAGS(ExportModeFlags);
+                Q_DECLARE_FLAGS(ExportModeFlags, ExportMode)
+                Q_FLAGS(ExportModeFlags)
                 Q_ENUMS(ExportMode)
 
                 //! The possible results of an export/import operation.
@@ -315,8 +315,8 @@ int main(int argc, char *argv[])
                     SuccessResult = Complete | Incomplete | VersionSupported,  /*!< Successfull operation. */
                     FailedResult = Failed | FailedContinue | VersionTooNew | VersionTooOld  /*!< Failed operation. */
                 };
-                Q_DECLARE_FLAGS(ExportResultFlags, Result);
-                Q_FLAGS(ExportResultFlags);
+                Q_DECLARE_FLAGS(ExportResultFlags, Result)
+                Q_FLAGS(ExportResultFlags)
                 Q_ENUMS(Result)
 
                 //! Provides information about the export format(s) supported by your implementation of IExportable.
