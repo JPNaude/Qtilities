@@ -21,11 +21,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
 
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesExtensionSystemd$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesExtensionSystem$${QTILITIES_FILE_VER}
-}
+TARGET = QtilitiesExtensionSystem$${QTILITIES_LIB_POSTFIX}
 
 TEMPLATE = lib
 

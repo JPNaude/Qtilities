@@ -19,11 +19,7 @@ CONFIG += qt \
 QT += core
 QT -= gui
 
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesLoggingd$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesLogging$${QTILITIES_FILE_VER}
-}
+TARGET = QtilitiesLogging$${QTILITIES_LIB_POSTFIX}
 
 TEMPLATE = lib
 DEFINES += LOGGING_LIBRARY

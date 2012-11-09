@@ -22,11 +22,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
 
-CONFIG(debug, debug|release) {
-    TARGET = QtilitiesProjectManagementd$${QTILITIES_FILE_VER}
-} else {
-    TARGET = QtilitiesProjectManagement$${QTILITIES_FILE_VER}
-}
+TARGET = QtilitiesProjectManagement$${QTILITIES_LIB_POSTFIX}
 
 TEMPLATE = lib
 DEFINES += PROJECT_MANAGEMENT_LIBRARY
