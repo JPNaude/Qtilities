@@ -11,11 +11,12 @@ Qtilities v1.2 Changes
 
     General:
     ============================
-    [+] Ported to work with Qt 5 (including plugins etc.). Note that the Qt Property Browser solution does
+    [#] Ported to work with Qt 5 (including plugins etc.). Note that the Qt Property Browser solution does
         not build against Qt 5 yet, thus building against Qt 5 only works when QTILITIES_PROPERTY_BROWSER is not defined at present.
-    [+] Now compiles and runs with the MSVC compiler.
-    [+] Improved = operator overloading everywhere. Now check that you don't assign an object to itself.
-    [+] Cleaned up Qtilities.pri. The resulting makefile's include paths does not contain duplicates anymore. Thanks to Carel Combrink for the contribution.
+    [#] Now compiles and runs with the MSVC compiler.
+    [#] Improved = operator overloading everywhere. Now check that you don't assign an object to itself.
+    [#] Cleaned up and improved Qtilities.pri. Thanks to Carel Combrink for the contribution.
+    [#] Its no longer needed to set the release/debug configuration mode through CONFIG in Qtilities.pri.
 
     ============================
     QtilitiesLogging:
@@ -26,6 +27,7 @@ Qtilities v1.2 Changes
 
     [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
     [*] Fixed bug in Logger::loggerEngineReferenceAt() where it did not ignore deleted logger engines during its position calculation.
+    [*] Fixed bug where Qtilities::Logging::Logger::newLoggerEngine() could return false instead of 0 in some cases.
 
     ============================
     QtilitiesCore:
@@ -44,6 +46,7 @@ Qtilities v1.2 Changes
     [+] Added ObjectManager::constructPropertyFromSpecification().
     [+] Added ObjectManager::constructDefaultPropertiesOnObject().
     [+] Added ObjectManager::setSharedProperty(QObject*,PropertySpecification).
+    [+] Added Observer::setMonitorSubjectModificationState() and Observer::monitorSubjectModificationState().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -63,6 +66,8 @@ Qtilities v1.2 Changes
     [#] ActivityPolicyFilter's emission of activeSubjectsChanged() signal changed a bit: Its no longer emitted during processing
         cycles of its observer context. It will check if the active subjects changed during a processing cycle and
         only emit at the end of a processing cycle if necessary.
+    [#] Observer will now only emit modificationStateChanged() at the end of a processing cycle when the modification state
+        actually changed during a processing cycle.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -71,6 +76,8 @@ Qtilities v1.2 Changes
     [*] Fixed bug in ObjectManager::compareDynamicProperties() where it could pick up invalid changes to properties.
     [*] Fixed problems where a subject implementing the IModificationStateNotifier interface could be set to modified even hwne
         attachment of the object to an observer context failed.
+    [*] Fixed potential problems with FileUtils using static variables in the wrong way.
+    [*] Fixed bug in TreeIterator where it fell over in some situations when subjects are attached to multiple trees.
 
     ============================
     QtilitiesCoreGui:
@@ -88,6 +95,8 @@ Qtilities v1.2 Changes
     [+] ObserverTableModel now allows you to check/uncheck all selected items at the same time. This behavior is powerful
         and found in applications like TortoiseSVN etc.
     [+] Added the ability to make ObjectDynamicPropertyBrowser read only.
+    [+] Added ObserverWidget::setTreeExpandCollapseVisible() and ObserverWidget::treeExpandCollapseVisible().
+    [+] Added IConfigPage::configPageInitialize().
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -105,6 +114,8 @@ Qtilities v1.2 Changes
         in the observer. Previously you had to install a SubjectTypeFilter just to change the text in the header.
     [#] ObjectDynamicPropertyBrowser will now list properties in alphabetical order.
     [#] ObjectDynamicPropertyBrowser will now resize columns to their contents when in TreeBrowser mode.
+    [#] Sorting of file names is not case sensitive anymore in Observer models.
+    [#] AbstractTreeItem::setIcon() will now remove the icon property if passed an invalid icon.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
@@ -128,6 +139,8 @@ Qtilities v1.2 Changes
     [+] Added two new signals to ExtensionSystemCore: pluginLoadingStarted() and pluginLoadingCompleted().
 
     [#] Extension system now only uses the MAJOR and MINOR parts of the application to check if plugins support the version of the application.
+
+    [*] The extension system no longer tries to finalize plugins which are not active.
 
     ============================
     QtilitiesProjectManagement:
