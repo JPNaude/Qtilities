@@ -299,7 +299,7 @@ Qtilities::Logging::AbstractLoggerEngine* Qtilities::Logging::Logger::newLoggerE
     if (new_engine)
         new_engine->setName(engine_name);
     else
-        return false;
+        return 0;
 
     // Install a formatting engine for the new logger engine
     if (formatting_engine)
