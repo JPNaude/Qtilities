@@ -458,8 +458,12 @@ bool Qtilities::CoreGui::AbstractTreeItem::hasToolTip() const {
 void Qtilities::CoreGui::AbstractTreeItem::setIcon(const QIcon& icon) {
     QObject* obj = objectBase();
     if (obj) {
-        SharedProperty property(qti_prop_DECORATION,icon);
-        ObjectManager::setSharedProperty(obj,property);
+        if (icon.isNull()) {
+            obj->setProperty(qti_prop_DECORATION,QVariant());
+        } else {
+            SharedProperty property(qti_prop_DECORATION,icon);
+            ObjectManager::setSharedProperty(obj,property);
+        }
     }
 }
 
