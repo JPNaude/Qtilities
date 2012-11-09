@@ -117,7 +117,7 @@ QString FileLocker::lastLockHostName(QString file_path, QString *errorMsg) const
     if (!isFileLocked(file_path)) {
         if (errorMsg)
             *errorMsg = QString("Cannot unlock file that is not locked: " + file_path);
-        return false;
+        return QString();
     }
 
     file_path = lockFilePathForFile(file_path);
