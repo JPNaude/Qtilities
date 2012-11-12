@@ -78,6 +78,8 @@ Qtilities v1.2 Changes
         attachment of the object to an observer context failed.
     [*] Fixed potential problems with FileUtils using static variables in the wrong way.
     [*] Fixed bug in TreeIterator where it fell over in some situations when subjects are attached to multiple trees.
+    [*] Fixed bug where Observer::endProcessingCycle() emitted modificationStateChanged() even when broadcast was false.
+    [*] Fixed wrong initialization of d_application_busy_count in QtilitiesCoreApplication.
 
     ============================
     QtilitiesCoreGui:
@@ -134,6 +136,7 @@ Qtilities v1.2 Changes
     [*] Fixed bug in ObserverTreeModel where subject drops onto categories did not work if the subject
         did not already have a Qtilities category property on it.
     [*] Fixed bug in ObjectDynamicPropertyBrowser where it did not show properties with unsupported types.
+    [*] Fixed possible rare crashes when refreshing tree views in ObserverWidget.
 
     ============================
     QtilitiesExtensionSystem:
