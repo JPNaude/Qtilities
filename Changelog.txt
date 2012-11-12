@@ -116,6 +116,8 @@ Qtilities v1.2 Changes
     [#] ObjectDynamicPropertyBrowser will now resize columns to their contents when in TreeBrowser mode.
     [#] Sorting of file names is not case sensitive anymore in Observer models.
     [#] AbstractTreeItem::setIcon() will now remove the icon property if passed an invalid icon.
+    [#] Changed AbstractTreeItem::setName(): It now returns a bool, takes Observer* instead of TreeNode* as its
+        second parameter and fixed numerous bugs in its implementation.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.

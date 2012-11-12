@@ -33,6 +33,7 @@
 
 #include "AbstractTreeItem.h"
 #include "TreeNode.h"
+#include "NamingPolicyFilter.h"
 
 #include <QDomElement>
 
@@ -58,71 +59,95 @@ QString Qtilities::CoreGui::AbstractTreeItem::getName(TreeNode* parent) const {
     }
 }
 
-void Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, TreeNode* parent) {
+bool Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Observer *parent) {
     Q_ASSERT(objectBase());
     if (!objectBase())
-        return;
+        return false;
 
-    if (!parent)
-        return;
+    if (!parent) {
+        // Try to find the parent through the qti_prop_NAME_MANAGER_ID property:
+        SharedProperty name_manager_prop = ObjectManager::getSharedProperty(objectBase(),qti_prop_NAME_MANAGER_ID);
+        if (name_manager_prop.isValid()) {
+            int id = name_manager_prop.value().toInt();
+            Observer* obs = OBJECT_MANAGER->observerReference(id);
+            if (obs)
+                parent = obs;
+        }
+    }
 
-    // First check if this item has a name manager, if not we just need to set the object name:
-    // If it has a name manager, it will have the qti_prop_NAME property.
-    QVariant name_property = parent->getMultiContextPropertyValue(objectBase(),qti_prop_NAME);
-    if (!name_property.isValid()) {
-        // Just set the object name, we also let views know that the data in the parent context needs to be updated:
-        objectBase()->setObjectName(new_name);
-        if (parent)
-            parent->refreshViewsData();
+    if (!parent) {
+        // In this case, just get the qti_prop_NAME property and set it to the new name:
+        SharedProperty name_prop = ObjectManager::getSharedProperty(objectBase(),qti_prop_NAME);
+        if (name_prop.isValid()) {
+            objectBase()->setObjectName(new_name);
+            name_prop.setValue(new_name);
+            return ObjectManager::setSharedProperty(objectBase(),name_prop);
+        } else {
+            objectBase()->setObjectName(new_name);
+            return true;
+        }
     } else {
-        // If there is an qti_prop_NAME property we need to check if parent is the name manager or not.
-        // Three things can happen in here:
-        // 1. Parent is the name manager
-        // 2. Parent uses an instance name
-        // 3. Parent does not have a naming policy filter, in that case we need to set qti_prop_NAME and the name manager
-        //    will take care of the rest.
+        // First check if this item has a name manager, if not we just need to set the object name:
+        // If it has a name manager, it will have the qti_prop_NAME property.
+        QVariant name_property = parent->getMultiContextPropertyValue(objectBase(),qti_prop_NAME);
+        if (!name_property.isValid()) {
+            // Just set the object name, we also let views know that the data in the parent context needs to be updated:
+            objectBase()->setObjectName(new_name);
+            if (parent)
+                parent->refreshViewsData();
+            return true;
+        } else {
+            // If there is an qti_prop_NAME property we need to check if parent is the name manager or not.
+            // Three things can happen in here:
+            // 1. Parent is the name manager
+            // 2. Parent uses an instance name
+            // 3. Parent does not have a naming policy filter, in that case we need to set qti_prop_NAME and the name manager
+            //    will take care of the rest.
 
-        // Get the naming policy filter:
-        NamingPolicyFilter* filter = 0;
+            // Get the naming policy filter:
+            NamingPolicyFilter* filter = 0;
+            for (int i = 0; i < parent->subjectFilters().count(); i++) {
+                NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (parent->subjectFilters().at(i));
+                if (naming_filter)
+                    filter = naming_filter;
+            }
 
-        if (parent)
-            parent->namingPolicyFilter();
+            if (filter) {
+                if (filter->isObjectNameManager(objectBase())) {
+                    // Case 1:
+                    // We use the qti_prop_NAME property:
+                    QVariant object_name_prop;
+                    object_name_prop = objectBase()->property(qti_prop_NAME);
+                    if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>()) {
+                        SharedProperty name_property(qti_prop_NAME,QVariant(new_name));
+                        return ObjectManager::setSharedProperty(objectBase(),name_property);
+                    }
+                } else {
+                    // We use the qti_prop_ALIAS_MAP property:
+                    // Case 2:
+                    QVariant instance_names_prop;
+                    instance_names_prop = objectBase()->property(qti_prop_ALIAS_MAP);
+                    if (instance_names_prop.isValid() && instance_names_prop.canConvert<MultiContextProperty>()) {
+                        MultiContextProperty new_instance_name = instance_names_prop.value<MultiContextProperty>();
+                        new_instance_name.setValue(QVariant(new_name),parent->observerID());
+                        return ObjectManager::setMultiContextProperty(objectBase(),new_instance_name);
+                    }
+                }
 
-        if (filter) {
-            if (filter->isObjectNameManager(objectBase())) {
-                // Case 1:
+            } else {
+                // Case 3:
                 // We use the qti_prop_NAME property:
                 QVariant object_name_prop;
                 object_name_prop = objectBase()->property(qti_prop_NAME);
                 if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>()) {
                     SharedProperty name_property(qti_prop_NAME,QVariant(new_name));
-                    QVariant property = qVariantFromValue(name_property);
-                    objectBase()->setProperty(qti_prop_NAME,QVariant(property));
+                    return ObjectManager::setSharedProperty(objectBase(),name_property);
                 }
-            } else {
-                // We use the qti_prop_ALIAS_MAP property:
-                // Case 2:
-                QVariant instance_names_prop;
-                instance_names_prop = objectBase()->property(qti_prop_ALIAS_MAP);
-                if (instance_names_prop.isValid() && instance_names_prop.canConvert<MultiContextProperty>()) {
-                    MultiContextProperty new_instance_name = instance_names_prop.value<MultiContextProperty>();
-                    new_instance_name.setValue(QVariant(new_name),parent->observerID());
-                    objectBase()->setProperty(qti_prop_ALIAS_MAP,qVariantFromValue(new_instance_name));
-                }
-            }
-
-        } else {
-            // Case 3:
-            // We use the qti_prop_NAME property:
-            QVariant object_name_prop;
-            object_name_prop = objectBase()->property(qti_prop_NAME);
-            if (object_name_prop.isValid() && object_name_prop.canConvert<SharedProperty>()) {
-                SharedProperty name_property(qti_prop_NAME,QVariant(new_name));
-                QVariant property = qVariantFromValue(name_property);
-                objectBase()->setProperty(qti_prop_NAME,QVariant(property));
             }
         }
     }
+
+    return false;
 }
 
 IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::saveFormattingToXML(QDomDocument* doc, QDomElement* object_node, Qtilities::ExportVersion version) const {

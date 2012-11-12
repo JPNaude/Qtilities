@@ -81,8 +81,9 @@ namespace Qtilities {
             //! Function to set the name of this tree item.
             /*!
               \param parent The name of the parent node which provides the context in which we want to set the name.
+              \returns True when changed successfully, false otherwise.
               */
-            void setName(const QString& new_name, TreeNode* parent = 0);
+            bool setName(const QString& new_name, Observer* parent = 0);
 
         protected:
             /*!
