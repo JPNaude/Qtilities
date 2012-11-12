@@ -21,7 +21,7 @@ TARGET    = QtilitiesTester
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-DESTDIR = $$QTILITIES_BIN/Examples/QtilitiesTester
+DESTDIR = $$QTILITIES_BIN/Tools/QtilitiesTester
 
 # ------------------------------
 # Temp Output Paths

@@ -7,7 +7,6 @@
 QTILITIES += coregui
 QTILITIES += testing
 include(../../Qtilities.pri)
-include(../../Qtilities.pri)
 
 QT       += core
 QT       += gui
@@ -18,7 +17,7 @@ TARGET    = QtilitiesModelTester
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-DESTDIR = $$QTILITIES_BIN/Examples/QtilitiesModelTester
+DESTDIR = $$QTILITIES_BIN/Tools/QtilitiesModelTester
 
 # ------------------------------
 # Temp Output Paths
