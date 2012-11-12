@@ -37,7 +37,10 @@
 #include <QStringList>
 #include <QtDebug>
 
-Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, ObserverTreeItem *parent, const QVector<QVariant> &data, TreeItemType item_type) : QObject(parent) {
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object,
+                                                       ObserverTreeItem *parent,
+                                                       const QVector<QVariant> &data,
+                                                       TreeItemType item_type) : QObject(0) {
     parent_item = parent;
     itemData = data;
     obj = object;
@@ -52,7 +55,7 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(QObject* object, Observer
     }
 }
 
-Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& ref) : QObject(ref.parent()) {
+Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& ref) : QObject(0) {
     parent_item = ref.parentItem();
     itemData = ref.itemData;
     obj = ref.obj;
@@ -69,15 +72,15 @@ Qtilities::CoreGui::ObserverTreeItem::ObserverTreeItem(const ObserverTreeItem& r
 Qtilities::CoreGui::ObserverTreeItem::~ObserverTreeItem() {
     int count = childItemList.count();
     for (int i = count-1; i >= 0; i--) {
-        if (childItemList.at(i)) {
+        if (childItemList.at(i))
             delete childItemList.at(i);
-        }
     }
 }
 
 void Qtilities::CoreGui::ObserverTreeItem::appendChild(ObserverTreeItem *child_item) {
     childItemHash[child_item->getObject()->objectName()] = child_item;
     childItemList << child_item;
+    child_item->setParent(this);
 }
 
 Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeItem::childWithName(const QString& name) const {
