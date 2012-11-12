@@ -290,7 +290,8 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
         } else {
             if (observer->subjectCount() > 0) {
                 // Check if the observer has an object model with this name:
-                SubjectIterator<QObject> itr(observer->subjectAt(0));
+                SubjectIterator<QObject> itr(observer->subjectAt(0),
+                                             observer);
 
                 QMap<QString,QObject*> actual_paths;
                 actual_paths[itr.current()->objectName()] = itr.current();

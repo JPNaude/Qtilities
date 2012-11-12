@@ -1086,7 +1086,7 @@ QVERIFY(items_verify.count() == 5);
             QList<QtilitiesCategory> subjectCategories() const;
             //! Returns a list with the names of all the current observed subjects which belongs to a specific category.
             QStringList subjectNamesByCategory(const QtilitiesCategory& category) const;
-            //! Returns a list with the subject references of all the observed subjects which has the specified categroy set as an qti_prop_CATEGORY_MAP shared observer property.
+            //! Returns a list with the subject references of all the observed subjects which has the specified category set as an qti_prop_CATEGORY_MAP shared observer property.
             QList<QObject*> subjectReferencesByCategory(const QtilitiesCategory& category) const;
             //! Returns a QMap with each object in this observer mapped to its category's string representation (using toString("::") function on QtilitiesCategory).
             QMap<QPointer<QObject>,QString> subjectReferenceCategoryMap() const;

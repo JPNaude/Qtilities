@@ -112,10 +112,10 @@ namespace Qtilities {
 The QtilitiesCategory class can be used to define a category for an object. The category can be any number of
 levels deep where each level is a CategoryLevel instance.
 
-We can construct a categroy object as follows:
+We can construct a category object as follows:
 \code
 // A category with a single level:
-QtiltiesCategory single_category("My Category");
+QtilitiesCategory single_category("My Category");
 
 // If we want to use a category with multiple levels:
 // One way to do it:

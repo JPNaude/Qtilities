@@ -119,8 +119,10 @@ int Qtilities::Core::ObjectManager::registerObserver(Observer* observer) {
 }
 
 int Qtilities::Core::ObjectManager::getNewIteratorID() const {
+    if (d->itr_id == 30000)
+        d->itr_id = 0;
     d->itr_id = d->itr_id + 1;
-    qDebug() << "getNewIteratorID()" << d->itr_id;
+    //qDebug() << "getNewIteratorID()" << d->itr_id;
     return d->itr_id-1;
 }
 

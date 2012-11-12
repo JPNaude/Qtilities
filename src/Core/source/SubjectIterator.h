@@ -279,8 +279,8 @@ while (itrB.hasNext()) {
                                 return parent_obs;
                         }
                         if (!parent_obs) {
-                            qWarning() << "SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS";
-                            LOG_FATAL("SubjectIterator: Invalid observer set through qti_prop_TREE_ITERATOR_SOURCE_OBS");
+                            qWarning() << Q_FUNC_INFO << QObject::tr("A subject was found with multiple parents during subject iteratrions. In such cases, you must specify the parent observer in which context you are iterating. Please see the SubjectIterator documentation for more information.");
+                            LOG_FATAL(QString(Q_FUNC_INFO) + QObject::tr("A subject was found with multiple parents during subject iteratrions. In such cases, you must specify the parent observer in which context you are iterating. Please see the SubjectIterator documentation for more information."));
                             Q_ASSERT(parent_obs);
                         }
                     }

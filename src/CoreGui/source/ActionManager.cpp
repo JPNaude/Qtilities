@@ -302,7 +302,8 @@ void Qtilities::CoreGui::ActionManager::handleContextChanged(QList<int> new_cont
         return;
 
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
+                                                             &d->observer_commands);
 
     if (command_itr.current())
         command_itr.current()->setCurrentContext(new_contexts);
@@ -317,7 +318,8 @@ void Qtilities::CoreGui::ActionManager::restoreDefaultShortcuts() {
         return;
 
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
+                                                             &d->observer_commands);
 
     if (command_itr.current())
         command_itr.current()->setKeySequence(command_itr.current()->defaultKeySequence());
@@ -342,7 +344,8 @@ bool Qtilities::CoreGui::ActionManager::saveShortcutMapping(const QString& file_
     root.appendChild(shortcuts);
 
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
+                                                             &d->observer_commands);
 
     if (command_itr.current()) {
         QDomElement tag = doc.createElement("Shortcut_0");
@@ -481,7 +484,8 @@ QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeyS
         return commands;
 
     Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
-    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command);
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
+                                                             &d->observer_commands);
 
     if (command_itr.current()) {
         foreach (QString search_string, key_sequence.toString().split(",")) {
