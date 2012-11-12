@@ -467,12 +467,12 @@ void Qtilities::Core::Observer::endProcessingCycle(bool broadcast) {
 //        qDebug() << "endProcessingCycle" << observerName() << observerData->start_processing_cycle_count;
 
     if (previous_start_processing_cycle_count == 1 && observerData->start_processing_cycle_count == 0) {
-        bool is_modified = isModified();
-        if (is_modified != observerData->modification_state_start_of_proc_cycle)
-            emit modificationStateChanged(is_modified);
-
         // observerData->number_of_subjects_start_of_proc_cycle set to -1 in destructor.
         if (broadcast && (observerData->number_of_subjects_start_of_proc_cycle != -1)) {
+            bool is_modified = isModified();
+            if (is_modified != observerData->modification_state_start_of_proc_cycle)
+                emit modificationStateChanged(is_modified);
+
             // Note that it is possible to get in here without the number of subjects changing under this observer when
             // a processing cycle is ended on a tree and this observer is not the top level observer.
             // If a subject was attached somewhere in a lower level in the tree, the subjects in this
