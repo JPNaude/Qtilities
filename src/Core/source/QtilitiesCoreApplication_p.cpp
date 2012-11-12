@@ -90,7 +90,7 @@ Qtilities::Core::QtilitiesCoreApplicationPrivate::QtilitiesCoreApplicationPrivat
     d_settings_enabled = true;
 
     // Application busy stuff:
-    d_application_busy_count = false;
+    d_application_busy_count = 0;
 }
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate::~QtilitiesCoreApplicationPrivate() {
