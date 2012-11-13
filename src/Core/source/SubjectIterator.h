@@ -158,7 +158,7 @@ while (itrB.hasNext()) {
              *\param iterator_id Internal iterator ID. You should never use this directly.
              */
             SubjectIterator(const T* subject,
-                            Observer* observer = 0,
+                            const Observer* observer = 0,
                             int iterator_id = -1) :
                 d_root(subject),
                 d_parent_observer(observer)
@@ -173,10 +173,13 @@ while (itrB.hasNext()) {
             /*!
              *\param observer The observer that must be used in cases where multiple subjects have multiple parents.
              *\param iteration_level Indicates on which level the observer must be interated.
+             *\param sibling_iteration_parent_observer When interating over siblings of an obsever (iteration_level = IterateSiblings),
+             *it is necessary to specify the parent of the siblings you are iterating when any of the siblings has multiple parents.
              *\param iterator_id Internal iterator ID. You should never use this directly.
              */
             SubjectIterator(const Observer* observer,
                             ObserverIterationLevel iteration_level,
+                            const Observer* sibling_iteration_parent_observer = 0,
                             int iterator_id = -1) :
                 d_root(0),
                 d_parent_observer(observer)
@@ -190,7 +193,7 @@ while (itrB.hasNext()) {
                         d_current = 0;
                 } else if (iteration_level == IterateSiblings) {
                     d_current = observer;
-                    d_parent_observer = 0;
+                    d_parent_observer = sibling_iteration_parent_observer;
                     d_root = observer;
                 }
 
@@ -230,15 +233,11 @@ while (itrB.hasNext()) {
                 QList<QObject*> subjects = getSubjects(getParent());
                 int current_index = getCurrentIndex(subjects);
 
-//                for (int i = 0; i < subjects.count(); i++) {
-//                    qDebug() << "Siblings(" << QString::number(i) << "): " << subjects.at(i)->objectName();
-//                }
                 // The subject was found:
                 if (current_index != -1) {
                     // Check if there is another subject after this one :
                     if (current_index < (subjects.count() - 1)) {
                         d_current = qobject_cast<T*>(subjects[current_index + 1]);
-//                        qDebug() << "Next sibling: " << d_current->objectName();
                         return const_cast<T*> (d_current);
                     }
                 }
@@ -265,13 +264,13 @@ while (itrB.hasNext()) {
 
         protected:
             const Observer* getParent() {
-                QList<Observer*> parents = Observer::parentReferences(d_root);
+                QList<Observer*> parents = Observer::parentReferences(d_current);
                 if (parents.count() > 1) {
                     if (d_parent_observer)
                         return d_parent_observer;
                     else {
                         Observer* parent_obs = 0;
-                        MultiContextProperty prop = ObjectManager::getMultiContextProperty(d_root,qti_prop_TREE_ITERATOR_SOURCE_OBS);
+                        MultiContextProperty prop = ObjectManager::getMultiContextProperty(d_current,qti_prop_TREE_ITERATOR_SOURCE_OBS);
                         if (prop.isValid() && prop.hasContext(d_iterator_id)) {
                             int obs_id = prop.value(d_iterator_id).toInt();
                             parent_obs = OBJECT_MANAGER->observerReference(obs_id);
@@ -279,8 +278,16 @@ while (itrB.hasNext()) {
                                 return parent_obs;
                         }
                         if (!parent_obs) {
-                            qWarning() << Q_FUNC_INFO << QObject::tr("A subject was found with multiple parents during subject iteratrions. In such cases, you must specify the parent observer in which context you are iterating. Please see the SubjectIterator documentation for more information.");
-                            LOG_FATAL(QString(Q_FUNC_INFO) + QObject::tr("A subject was found with multiple parents during subject iteratrions. In such cases, you must specify the parent observer in which context you are iterating. Please see the SubjectIterator documentation for more information."));
+                            QString warning_string;
+                            warning_string.append(Q_FUNC_INFO);
+                            warning_string.append("- A subject was found with multiple parents during subject iteratrion. In such cases, you must specify the parent observer in which context you are iterating. Please see the SubjectIterator documentation for more information.");
+                            QStringList parents_string;
+                            foreach (Observer* obs, parents)
+                                parents_string << QString("\"" + obs->observerName() + "\"");
+                            warning_string.append("\nDetails: object name = \"" + d_current->objectName() + "\" parents = " + parents_string.join(","));
+
+                            qWarning() << warning_string;
+                            LOG_FATAL(warning_string);
                             Q_ASSERT(parent_obs);
                         }
                     }
