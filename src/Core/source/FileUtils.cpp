@@ -332,7 +332,8 @@ bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
 
 QString FileUtils::toNativeSeparators(QString path) {
     #ifdef Q_OS_LINUX
-    return path.replace("\\","/");
+    QString new_path = path.replace("\\","/");
+    return new_path;
     #else
     return QDir::toNativeSeparators(path);
     #endif
