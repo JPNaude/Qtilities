@@ -57,7 +57,7 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sour
 
     if (tree_model) {
         // Get the ObserverTreeItem:
-        QModelIndex name_index = sourceModel()->index(sourceRow, tree_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);
+        QModelIndex name_index = sourceModel()->index(sourceRow, tree_model->columnPosition(AbstractObserverItemModel::ColumnName), sourceParent);        
         ObserverTreeItem* tree_item = tree_model->getItem(name_index);
         if (tree_item) {
             // Don't ever filter the root item:

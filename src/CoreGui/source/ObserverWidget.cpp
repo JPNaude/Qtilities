@@ -3739,6 +3739,7 @@ void Qtilities::CoreGui::ObserverWidget::hideProgressInfo(bool emit_tree_build_c
 
         if (emit_tree_build_completed)
             emit treeModelBuildEnded();
+
         QApplication::processEvents();
     }
 }
@@ -3795,6 +3796,7 @@ void Qtilities::CoreGui::ObserverWidget::handleExpanded(const QModelIndex &index
     if (!index.isValid())
         return;
 
+    resizeColumns();
     emit expandedNodesChanged(findExpandedItems());
 }
 
@@ -3802,6 +3804,7 @@ void Qtilities::CoreGui::ObserverWidget::handleCollapsed(const QModelIndex &inde
     if (!index.isValid())
         return;
 
+    resizeColumns();
     emit expandedNodesChanged(findExpandedItems());
 }
 
