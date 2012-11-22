@@ -42,6 +42,7 @@
 #include <QSettings>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
 
 using namespace Qtilities::Core;
 using namespace Qtilities::CoreGui::Constants;
@@ -400,13 +401,39 @@ bool Qtilities::CoreGui::QtilitiesMainWindow::eventFilter(QObject *object, QEven
     if (object == this && event->type() == QEvent::Close) {
         if (QtilitiesCoreApplication::applicationBusy()) {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Application Busy");
+            msgBox.setWindowTitle(tr("Application Busy"));
             msgBox.setIcon(QMessageBox::Information);
-            msgBox.setText("You cannot close the application while it is busy.<br>Wait for it to become idle and try again.");
+            msgBox.setText(tr("You cannot close the application while it is busy.<br>Wait for it to become idle and try again."));
+            QPushButton *buttonOk = msgBox.addButton(QString(tr("Ok")), QMessageBox::AcceptRole);
+            QPushButton *buttonForceClose = msgBox.addButton(QString(tr("Force Close")), QMessageBox::AcceptRole);
+            msgBox.setDefaultButton(buttonOk);
             msgBox.exec();
-            event->ignore();
-            return true;
-            // TODO: We possibly want allow setting a custom message on QtilitiesApplication (not QtilitiesCoreApplication)
+            if (msgBox.clickedButton() == buttonOk) {
+                event->ignore();
+                return true;
+            } else if (msgBox.clickedButton() == buttonForceClose) {
+                QMessageBox msgBox;
+                msgBox.setWindowTitle(tr("Force Close"));
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setText(tr("You are about to perform a force close while the application is busy."));
+                msgBox.setInformativeText(tr("Are you sure you want to do this?"));
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                msgBox.setDefaultButton(QMessageBox::No);
+                int ret = msgBox.exec();
+                switch (ret) {
+                  case QMessageBox::Yes:
+                      break;
+                  case QMessageBox::No:
+                    {
+                        event->ignore();
+                        return true;
+                    }
+                      break;
+                  default:
+                      // should never be reached
+                      break;
+                }
+            }
         }
     }
 
