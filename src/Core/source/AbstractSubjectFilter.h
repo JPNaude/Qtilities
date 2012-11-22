@@ -128,7 +128,7 @@ namespace Qtilities {
                 \return Return true if the attachment is allowed, false otherwise.
                 \returns True if the attachment was successfully initialized, false otherwise.
 
-                \note By default true is reruend by the base class.
+                \note By default true is returned by the base class.
               */
             virtual bool initializeAttachment(QObject* obj, QString* rejectMsg = 0, bool import_cycle = false) {
                 Q_UNUSED(obj)
@@ -159,7 +159,7 @@ namespace Qtilities {
                 \param rejectMsg Provides a reject message when the evaluation failed.
                 \returns AbstractSubjectFilter::EvaluationResult indicating the result of the evaluation.
 
-                \note By default AbstractSubjectFilter::Allowed is reruend by the base class.
+                \note By default AbstractSubjectFilter::Allowed is returned by the base class.
               */
             virtual AbstractSubjectFilter::EvaluationResult evaluateDetachment(QObject* obj, QString* rejectMsg = 0) const {
                 Q_UNUSED(obj)
@@ -174,7 +174,7 @@ namespace Qtilities {
                 \param subject_deleted Indicates if the detachment operation is happening because the subject was deleted. This allows for optimization inside implementations of this function.
                 \returns True if the detachment is allowed, false otherwise.
 
-                \note By default true is reruend by the base class.
+                \note By default true is returned by the base class.
               */
             virtual bool initializeDetachment(QObject* obj, QString* rejectMsg = 0, bool subject_deleted = false) {
                 Q_UNUSED(obj)

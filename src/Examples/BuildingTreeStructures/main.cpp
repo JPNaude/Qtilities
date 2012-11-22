@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
     rootNodeUncategorized->displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
     rootNodeUncategorized->displayHints()->setActionHints(ObserverHints::ActionAllHints);
     rootNodeUncategorized->displayHints()->setDragDropHint(ObserverHints::AllDragDrop);
+    rootNodeUncategorized->displayHints()->setRootIndexDisplayHint(ObserverHints::RootIndexHide);
 
     TreeNode* parentNode1 = rootNodeUncategorized->addNode("Parent 1");
     parentNode1->copyHints(rootNodeUncategorized->displayHints());

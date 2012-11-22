@@ -1203,29 +1203,43 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
     beginResetModel();
     //reset();
     d->tree_model_up_to_date = false;
-
     QApplication::processEvents();
     deleteRootItem();
-    QVector<QVariant> columns;
-    columns.push_back(QString(tr("Child Count")));
-    columns.push_back(QString(tr("Access")));
-    columns.push_back(QString(tr("Type Info")));
-    columns.push_back(QString(tr("Object Tree")));
-    d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
-    d->rootItem->setObjectName(tr("Root Item"));
-    ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
-    d->rootItem->appendChild(top_level_observer_item);
+
+    // The root index display hint determines how we create the root node:
+    ObserverTreeItem* item_to_send_to_builder = 0;
+    if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
+        QVector<QVariant> columns;
+        columns.push_back(QString(tr("Child Count")));
+        columns.push_back(QString(tr("Access")));
+        columns.push_back(QString(tr("Type Info")));
+        columns.push_back(QString(tr("Object Tree")));
+        d->rootItem = new ObserverTreeItem(d_observer,0,columns,ObserverTreeItem::TreeNode);
+        d->rootItem->setObjectName(tr("Root Item"));
+        item_to_send_to_builder = d->rootItem;
+    } else if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayDecorated || activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayUndecorated) {
+        QVector<QVariant> columns;
+        columns.push_back(QString(tr("Child Count")));
+        columns.push_back(QString(tr("Access")));
+        columns.push_back(QString(tr("Type Info")));
+        columns.push_back(QString(tr("Object Tree")));
+        d->rootItem = new ObserverTreeItem(0,0,columns,ObserverTreeItem::TreeNode);
+        d->rootItem->setObjectName(tr("Root Item"));
+        ObserverTreeItem* top_level_observer_item = new ObserverTreeItem(d_observer,d->rootItem,QVector<QVariant>(),ObserverTreeItem::TreeNode);
+        d->rootItem->appendChild(top_level_observer_item);
+        item_to_send_to_builder = top_level_observer_item;
+    }
 
     d->tree_rebuild_queued = false;
 
     if (d->tree_building_threading_enabled) {
-        d->tree_builder.setRootItem(top_level_observer_item);
+        d->tree_builder.setRootItem(item_to_send_to_builder);
         d->tree_builder.setUseObserverHints(model->use_observer_hints);
         d->tree_builder.setActiveHints(activeHints());
         d->tree_builder.setThreadingEnabled(true);
 
-        top_level_observer_item->setParent(0);
-        top_level_observer_item->moveToThread(&d->tree_builder_thread);
+        item_to_send_to_builder->setParent(0);
+        item_to_send_to_builder->moveToThread(&d->tree_builder_thread);
         d->tree_builder.moveToThread(&d->tree_builder_thread);
         d->tree_builder.setOriginThread(thread());
 
@@ -1235,7 +1249,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
         QMetaObject::invokeMethod(&d->tree_builder, "startBuild", Qt::QueuedConnection);
     } else {
         d->tree_rebuild_queued = false;
-        d->tree_builder.setRootItem(top_level_observer_item);
+        d->tree_builder.setRootItem(item_to_send_to_builder);
         d->tree_builder.setUseObserverHints(model->use_observer_hints);
         d->tree_builder.setActiveHints(activeHints());
 
@@ -1245,8 +1259,6 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {
-    item->setParent(d->rootItem);
-
     if (d->tree_building_threading_enabled) {
         d->tree_builder_thread.quit();
         disconnect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),this,SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));

@@ -83,6 +83,7 @@ namespace Qtilities {
             Q_ENUMS(DragDropHint)
             Q_ENUMS(ModificationStateDisplayHint)
             Q_ENUMS(CategoryEditingHint)
+            Q_ENUMS(RootIndexDisplayHint)
 
         public:
             // --------------------------------
@@ -201,8 +202,8 @@ namespace Qtilities {
                 ColumnCategoryHint = 32,        /*!< Shows a column with information about the category of the subject in item views viewing this observer. Only used when CategorizedHierarchy hierachical display hint is used and only affects table models for the observer. */
                 ColumnAllHints = ColumnNameHint | ColumnChildCountHint | ColumnTypeInfoHint | ColumnAccessHint | ColumnCategoryHint /*!< All columns, except ColumnIDHint. */
             };
-            Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn);
-            Q_FLAGS(ItemViewColumnFlags);
+            Q_DECLARE_FLAGS(ItemViewColumnFlags, ItemViewColumn)
+            Q_FLAGS(ItemViewColumnFlags)
             //! Function which returns a string associated with a specific ItemViewColumnFlags.
             static QString itemViewColumnFlagsToString(ItemViewColumnFlags item_view_column_flags);
             //! Function which returns the ItemViewColumnFlags associated with a string.
@@ -220,8 +221,8 @@ namespace Qtilities {
                 DynamicPropertyBrowser = 16,    /*!< Display the property browser using Qtilities::CoreGui::ObjectDynamicPropertyBrowser. When %Qtilities is build without the QTILITIES_PROPERTY_BROWSER variable defined, this value is meaningless.*/
                 AllDisplayFlagHint = ItemView | NavigationBar | PropertyBrowser | ActionToolBar | DynamicPropertyBrowser
             };
-            Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
-            Q_FLAGS(DisplayFlags);
+            Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag)
+            Q_FLAGS(DisplayFlags)
             //! Function which returns a string associated with a specific DisplayFlags.
             static QString displayFlagsToString(DisplayFlags display_flags);
             //! Function which returns the DisplayFlags associated with a string.
@@ -249,8 +250,8 @@ namespace Qtilities {
                 ActionFindItem = 32768,          /*!< Allow finding/searching in the observer context presented to the user. */
                 ActionAllHints = ActionRemoveItem | ActionRemoveAll | ActionDeleteItem | ActionDeleteAll | ActionNewItem | ActionRefreshView | ActionPushUp | ActionPushUpNew | ActionPushDown | ActionPushDownNew | ActionSwitchView | ActionCopyItem | ActionCutItem | ActionPasteItem | ActionFindItem /*!< All actions. */
             };
-            Q_DECLARE_FLAGS(ActionHints, ActionItem);
-            Q_FLAGS(ActionHints);
+            Q_DECLARE_FLAGS(ActionHints, ActionItem)
+            Q_FLAGS(ActionHints)
             //! Function which returns a string associated with a specific ActionHints.
             static QString actionHintsToString(ActionHints actions_hints);
             //! Function which returns the ActionHints associated with a string.
@@ -269,8 +270,8 @@ namespace Qtilities {
                 AllowDrags  =    2, /*!< This context allows drags. */
                 AllDragDrop = AcceptDrops | AllowDrags
             };
-            Q_DECLARE_FLAGS(DragDropFlags, DragDropHint);
-            Q_FLAGS(DragDropFlags);
+            Q_DECLARE_FLAGS(DragDropFlags, DragDropHint)
+            Q_FLAGS(DragDropFlags)
             //! Function which returns a string associated with a specific DragDropFlags.
             static QString dragDropFlagsToString(DragDropFlags drag_drop_flags);
             //! Function which returns the DragDropFlags associated with a string.
@@ -309,12 +310,38 @@ node->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
                 CategoriesEditableAllLevels = 4,    /*!< Categories are editable, double clicking on them shows all the category levels to the user to edit. */
                 CategoriesAcceptSubjectDrops = 8    /*!< Categories accept subject(s) dropped onto them and assigns the dropped category to the subject(s). */
             };
-            Q_DECLARE_FLAGS(CategoryEditingFlags, CategoryEditingHint);
-            Q_FLAGS(CategoryEditingFlags);
+            Q_DECLARE_FLAGS(CategoryEditingFlags, CategoryEditingHint)
+            Q_FLAGS(CategoryEditingFlags)
             //! Function which returns a string associated with a specific CategoryEditingFlags.
             static QString categoryEditingFlagsToString(CategoryEditingFlags category_editing_flags);
             //! Function which returns the CategoryEditingFlags associated with a string.
             static CategoryEditingFlags stringToCategoryEditingFlags(const QString& category_editing_flags);
+            //! The root index display hint of the observer.
+            /*!
+              This hint determines how the root node of the observer is shown in Qtilities::CoreGui::ObserverWidget when in Qtilities::TreeView mode.
+
+              The default is RootIndexHide.
+
+              \sa rootIndexDisplayHintToString(), stringToRootIndexDisplayHint()
+
+              <i>This hint was added in %Qtilities v1.2.</i>
+              */
+            enum RootIndexDisplayHint {
+                RootIndexHide  = 0, /*!< Don't display the root index. */
+                RootIndexDisplayDecorated = 1, /*!< Display the root index and decorate it. See QTreeView::rootIsDecorated() for more details on decoration. */
+                RootIndexDisplayUndecorated  = 2 /*!< Display the root index but don't decorate it. See QTreeView::rootIsDecorated() for more details on decoration. */
+
+            };
+            //! Function which returns a string associated with a specific RootIndexDisplayHint.
+            /*!
+              *<i>This function was added in %Qtilities v1.2.</i>
+              */
+            static QString rootIndexDisplayHintToString(RootIndexDisplayHint root_index_display_hint);
+            //! Function which returns the RootIndexDisplayHint associated with a string.
+            /*!
+              *<i>This function was added in %Qtilities v1.2.</i>
+              */
+            static RootIndexDisplayHint stringToRootIndexDisplayHint(const QString& root_index_display_hint_string);
 
             // --------------------------------
             // Implementation
@@ -408,6 +435,16 @@ category_filter_enabled(false),
             void setCategoryEditingFlags(ObserverHints::CategoryEditingFlags category_editing_flags);
             //! Function to get the category editing display hint for this observer's context.
             ObserverHints::CategoryEditingFlags categoryEditingFlags() const;
+            //! Function to set the root index display hint for this observer's context.
+            /*!
+              *<i>This function was added in %Qtilities v1.2.</i>
+              */
+            void setRootIndexDisplayHint(ObserverHints::RootIndexDisplayHint root_index_display_hint);
+            //! Function to get the category editing display hint for this observer's context.
+            /*!
+              *<i>This function was added in %Qtilities v1.2.</i>
+              */
+            ObserverHints::RootIndexDisplayHint rootIndexDisplayHint() const;
 
             // --------------------------------
             // Category Display Functionality

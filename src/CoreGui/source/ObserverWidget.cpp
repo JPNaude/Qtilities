@@ -820,6 +820,11 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
             if (d->tree_view->selectionModel())
                 connect(d->tree_view->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(handleSelectionModelChange()),Qt::UniqueConnection);
 
+            if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayDecorated)
+                d->tree_view->setRootIsDecorated(true);
+            else if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexDisplayUndecorated)
+                d->tree_view->setRootIsDecorated(false);
+
             // The item view must always be visible.
             d->tree_view->setVisible(true);
         } else if (d->display_mode == TableView) {

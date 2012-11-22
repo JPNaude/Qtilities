@@ -48,6 +48,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
         drag_drop_flags(ObserverHints::NoDragDrop),
         modification_state_display(ObserverHints::NoModificationStateDisplayHint),
         category_editing_flags(ObserverHints::CategoriesReadOnly),
+        root_index_display_hint(ObserverHints::RootIndexHide),
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false) {}
@@ -64,6 +65,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
     ObserverHints::DragDropFlags                drag_drop_flags;
     ObserverHints::ModificationStateDisplayHint modification_state_display;
     ObserverHints::CategoryEditingFlags         category_editing_flags;
+    ObserverHints::RootIndexDisplayHint         root_index_display_hint;
     QList<Qtilities::Core::QtilitiesCategory>   displayed_categories;
     bool                                        has_inversed_category_display;
     bool                                        category_filter_enabled;
@@ -98,6 +100,7 @@ Qtilities::Core::ObserverHints::ObserverHints(const ObserverHints& other) : QObj
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->modification_state_display = other.modificationStateDisplayHint();
     d->category_editing_flags = other.categoryEditingFlags();
+    d->root_index_display_hint = other.rootIndexDisplayHint();
     d->drag_drop_flags = other.dragDropHint();
 
     setIsExportable(other.isExportable());
@@ -120,6 +123,7 @@ ObserverHints& Qtilities::Core::ObserverHints::operator=(const ObserverHints& ot
     d->category_filter_enabled = other.categoryFilterEnabled();
     d->modification_state_display = other.modificationStateDisplayHint();
     d->category_editing_flags = other.categoryEditingFlags();
+    d->root_index_display_hint = other.rootIndexDisplayHint();
     d->drag_drop_flags = other.dragDropHint();
 
     setIsExportable(other.isExportable());
@@ -160,6 +164,8 @@ bool Qtilities::Core::ObserverHints::operator==(const ObserverHints& other) cons
     if (d->modification_state_display != other.modificationStateDisplayHint())
         return false;
     if (d->category_editing_flags != other.categoryEditingFlags())
+        return false;
+    if (d->root_index_display_hint != other.rootIndexDisplayHint())
         return false;
 
     return true;
@@ -329,6 +335,20 @@ void Qtilities::Core::ObserverHints::setCategoryEditingFlags(ObserverHints::Cate
 
 Qtilities::Core::ObserverHints::CategoryEditingFlags Qtilities::Core::ObserverHints::categoryEditingFlags() const {
     return d->category_editing_flags;
+}
+
+void ObserverHints::setRootIndexDisplayHint(ObserverHints::RootIndexDisplayHint root_index_display_hint) {
+    if (d->root_index_display_hint == root_index_display_hint)
+        return;
+
+    d->root_index_display_hint = root_index_display_hint;
+
+    if (observerContext())
+        observerContext()->setModificationState(true);
+}
+
+ObserverHints::RootIndexDisplayHint ObserverHints::rootIndexDisplayHint() const {
+    return d->root_index_display_hint;
 }
 
 void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<QtilitiesCategory>& displayed_categories, bool inversed) {
@@ -594,6 +614,31 @@ Qtilities::Core::ObserverHints::CategoryEditingFlags Qtilities::Core::ObserverHi
     return (CategoryEditingFlags) category_editing_flags.toInt();
 }
 
+QString ObserverHints::rootIndexDisplayHintToString(RootIndexDisplayHint root_index_display_hint) {
+    if (root_index_display_hint == RootIndexHide) {
+        return "RootIndexHide";
+    } else if (root_index_display_hint == RootIndexDisplayDecorated) {
+        return "RootIndexDisplayDecorated";
+    } else if (root_index_display_hint == RootIndexDisplayUndecorated) {
+        return "RootIndexDisplayUndecorated";
+    }
+
+    return QString();
+}
+
+ObserverHints::RootIndexDisplayHint ObserverHints::stringToRootIndexDisplayHint(const QString &root_index_display_hint_string) {
+    if (root_index_display_hint_string == "RootIndexHide") {
+        return RootIndexHide;
+    } else if (root_index_display_hint_string == "RootIndexDisplayDecorated") {
+        return RootIndexDisplayDecorated;
+    } else if (root_index_display_hint_string == "RootIndexDisplayUndecorated") {
+        return RootIndexDisplayUndecorated;
+    }
+
+    Q_ASSERT(0);
+    return RootIndexHide;
+}
+
 QString Qtilities::Core::ObserverHints::modificationStateDisplayToString(ModificationStateDisplayHint modification_display) {
     if (modification_display == NoModificationStateDisplayHint) {
         return "NoModificationStateDisplayHint";
@@ -644,13 +689,21 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     stream << (quint32) d->modification_state_display;
 
     // -----------------------------------
-    // Start of specific to Qtilities v1.1:
+    // Start of specific to Qtilities::Qtilities_1_1:
     // -----------------------------------
     if (exportVersion() == Qtilities::Qtilities_1_1) {
         stream << (quint32) d->category_editing_flags;
     }
     // -----------------------------------
-    // End of specific to Qtilities v1.1:
+    // End of specific to Qtilities::Qtilities_1_1:
+    // -----------------------------------
+    // Start of specific to Qtilities::Qtilities_1_2:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_2) {
+        stream << (quint32) d->root_index_display_hint;
+    }
+    // -----------------------------------
+    // End of specific to Qtilities::Qtilities_1_2:
     // -----------------------------------
 
     stream << (quint32) d->displayed_categories.count();
@@ -695,14 +748,23 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     d->modification_state_display = ObserverHints::ModificationStateDisplayHint (qi32);
 
     // -----------------------------------
-    // Start of specific to Qtilities v1.1:
+    // Start of specific to Qtilities::Qtilities_1_1:
     // -----------------------------------
     if (exportVersion() == Qtilities::Qtilities_1_1) {
         stream >> qi32;
         d->category_editing_flags = ObserverHints::CategoryEditingFlags (qi32);
     }
     // -----------------------------------
-    // End of specific to Qtilities v1.1:
+    // End of specific to Qtilities::Qtilities_1_1:
+    // -----------------------------------
+    // Start of specific to Qtilities::Qtilities_1_2:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_2) {
+        stream >> qi32;
+        d->root_index_display_hint = ObserverHints::RootIndexDisplayHint (qi32);
+    }
+    // -----------------------------------
+    // End of specific to Qtilities::Qtilities_1_2:
     // -----------------------------------
 
     stream >> qi32;
@@ -751,14 +813,23 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         object_node->setAttribute("ModificationStateDisplay",modificationStateDisplayToString(d->modification_state_display));
 
     // -----------------------------------
-    // Start of specific to Qtilities v1.1:
+    // Start of specific to Qtilities::Qtilities_1_1:
     // -----------------------------------
     if (exportVersion() == Qtilities::Qtilities_1_1) {
         if (d->category_editing_flags != CategoriesReadOnly)
             object_node->setAttribute("CategoryEditingFlags",categoryEditingFlagsToString(d->category_editing_flags));
     }
     // -----------------------------------
-    // End of specific to Qtilities v1.1:
+    // End of specific to Qtilities::Qtilities_1_1:
+    // -----------------------------------
+    // Start of specific to Qtilities::Qtilities_1_2:
+    // -----------------------------------
+    if (exportVersion() == Qtilities::Qtilities_1_2) {
+        if (d->root_index_display_hint != RootIndexHide)
+            object_node->setAttribute("RootIndexDisplayHint",rootIndexDisplayHintToString(d->root_index_display_hint));
+    }
+    // -----------------------------------
+    // End of specific to Qtilities::Qtilities_1_2:
     // -----------------------------------
 
     // Export category related stuff only if it is neccesarry:
@@ -823,6 +894,13 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         d->category_editing_flags = stringToCategoryEditingFlags(object_node->attribute("CategoryEditingFlags"));
     // -----------------------------------
     // End of specific to Qtilities v1.1:
+    // -----------------------------------
+    // Start of specific to Qtilities v1.2:
+    // -----------------------------------
+    if (object_node->hasAttribute("RootIndexDisplayHint"))
+        d->root_index_display_hint = stringToRootIndexDisplayHint(object_node->attribute("RootIndexDisplayHint"));
+    // -----------------------------------
+    // End of specific to Qtilities v1.2:
     // -----------------------------------
 
     // Category stuff:
