@@ -179,6 +179,6 @@ else
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IConfigPage,"com.Qtilities.CoreGui.IConfigPage/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IConfigPage,"com.Qtilities.CoreGui.IConfigPage/1.0")
 
 #endif // ICONFIGPAGE_H

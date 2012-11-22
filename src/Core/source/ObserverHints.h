@@ -322,14 +322,14 @@ node->displayHints()->setDragDropHint(ObserverHints::AllowDrags);
 
               The default is RootIndexHide.
 
-              \sa rootIndexDisplayHintToString(), stringToRootIndexDisplayHint()
+              \sa rootIndexDisplayHintToString(), stringToRootIndexDisplayHint(), setRootIndexDisplayHint(), rootIndexDisplayHint()
 
               <i>This hint was added in %Qtilities v1.2.</i>
               */
             enum RootIndexDisplayHint {
-                RootIndexHide  = 0, /*!< Don't display the root index. */
-                RootIndexDisplayDecorated = 1, /*!< Display the root index and decorate it. See QTreeView::rootIsDecorated() for more details on decoration. */
-                RootIndexDisplayUndecorated  = 2 /*!< Display the root index but don't decorate it. See QTreeView::rootIsDecorated() for more details on decoration. */
+                RootIndexHide  = 0, /*!< Don't display the root index. An example tree displayed using this hint can be seen below: \image html observer_hints_root_index_hide.jpg "Tree Displayed Using RootIndexHide" */
+                RootIndexDisplayDecorated = 1, /*!< Display the root index and decorate it. See QTreeView::rootIsDecorated() for more details on decoration. An example tree displayed using this hint can be seen below: \image html observer_hints_root_index_display_decorated.jpg "Tree Displayed Using RootIndexDisplayDecorated" */
+                RootIndexDisplayUndecorated  = 2 /*!< Display the root index but don't decorate it. See QTreeView::rootIsDecorated() for more details on decoration. An example tree displayed using this hint can be seen below: \image html observer_hints_root_index_display_undecorated.jpg "Tree Displayed Using RootIndexDisplayUndecorated" */
 
             };
             //! Function which returns a string associated with a specific RootIndexDisplayHint.

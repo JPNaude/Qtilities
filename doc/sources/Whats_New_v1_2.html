@@ -1,0 +1,103 @@
+/**
+\page page_whats_new_v1_2 What's New In %Qtilities v1.2
+
+This page and overview of new classes, and functions added to existing classes in the v1.2 release.
+
+A detailed overview of changes and bug fixes can be found in the <a href="http://raw.github.com/JPNaude/Qtilities/v1.2/Changelog.txt">detailed change log</a>. The change log uses the following legend to list items.
+- [+] New feature added
+- [*] Bug fix
+- [#] Change/improvement to old code
+
+For comment, queries or bug reports please get in touch.
+- Support: support@qtilities.org
+- Issue List: https://github.com/JPNaude/Qtilities/issues
+- Mailing List: http://groups.google.com/group/qtilities?hl=en?hl=en/
+
+\section whats_new_v1_2_classes New Classes & Structs
+
+%Qtilities v1.2 provides the following new classes and structs:
+
+- Qtilities::Core::FileLocker
+- Qtilities::Core::FileSetInfo
+- Qtilities::Core::PropertySpecification
+- Qtilities::Core::Interfaces::IAvailablePropertyProvider
+- Qtilities::CoreGui::AddDynamicPropertyWizard
+- Qtilities::CoreGui::MessagesPlainTextEditTab
+
+\section whats_new_v1_2_functions New Functions
+
+\subsection Qtilities::Core
+
+- Qtilities::Core::ActivityPolicyFilter::handleProcessingCycleStarted()
+- Qtilities::Core::ActivityPolicyFilter::handleProcessingCycleEnded()
+
+- Qtilities::Core::Factory::categoryForTag()
+
+- Qtilities::Core::FileUtils::toNativeSeparators()
+
+- Qtilities::Core::IFactoryProvider::categoryForTag()
+- Qtilities::Core::IFactoryProvider::tagCategoryMap()
+
+- Qtilities::Core::ITask::setLastRunTime()
+- Qtilities::Core::ITask::getWidgetLoggerEngineDisplaysFlag()
+- Qtilities::Core::ITask::setWidgetLoggerEngineDisplaysFlag()
+
+- Qtilities::Core::ObjectManager::setSharedProperty()
+- Qtilities::Core::ObjectManager::constructDefaultPropertiesOnObject()
+- Qtilities::Core::ObjectManager::constructPropertyFromSpecification()
+
+- Qtilities::Core::Observer::setMonitorSubjectModificationState()
+- Qtilities::Core::Observer::monitorSubjectModificationState()
+
+- Qtilities::Core::ObserverHints::rootIndexDisplayHintToString()
+- Qtilities::Core::ObserverHints::stringToRootIndexDisplayHint()
+- Qtilities::Core::ObserverHints::setRootIndexDisplayHint()
+- Qtilities::Core::ObserverHints::rootIndexDisplayHint()
+
+- Qtilities::Core::ObserverHints::rootIndexDisplayHint()
+
+- Qtilities::Core::QtilitiesFileInfo::operator==
+- Qtilities::Core::QtilitiesFileInfo::operator!=
+- Qtilities::Core::QtilitiesFileInfo::updateRelativeToPath()
+
+- Qtilities::Core::QtilitiesProcess::newStandardOutputMessage()
+- Qtilities::Core::QtilitiesProcess::newStandardErrorMessage()
+
+- Qtilities::Core::Task::setTaskName()
+
+\subsection Qtilities::CoreGui
+
+- Qtilities::CoreGui::Interfaces::IConfigPage::configPageInitialize()
+
+- Qtilities::CoreGui::NamingPolicyFilter::subjectNameChanged()
+
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser::setReadOnly()
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser::readOnly()
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser::toggleToolBar()
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser::isToolBarVisible()
+- Qtilities::CoreGui::ObjectDynamicPropertyBrowser::abstractPropertyBrowser()
+
+- Qtilities::CoreGui::ObjectPropertyBrowser::abstractPropertyBrowser()
+
+- Qtilities::CoreGui::ObserverTableModel::setSelectedObjects()
+
+- Qtilities::CoreGui::ObserverTableModelProxyFilter::toggleUseObserverHints()
+- Qtilities::CoreGui::ObserverTableModelProxyFilter::usesObserverHints()
+- Qtilities::CoreGui::ObserverTableModelProxyFilter::setCustomHints()
+- Qtilities::CoreGui::ObserverTableModelProxyFilter::customHints()
+
+- Qtilities::CoreGui::ObserverWidget::setTreeExpandCollapseVisible()
+- Qtilities::CoreGui::ObserverWidget::treeExpandCollapseVisible()
+- Qtilities::CoreGui::ObserverWidget::view()
+- Qtilities::CoreGui::ObserverWidget::setSearchBoxCheckedItemFilters()
+- Qtilities::CoreGui::ObserverWidget::searchBoxCheckedItemFilters()
+
+- Qtilities::CoreGui::TaskManagerGui::getWidgetLoggerEngineDisplaysFlag()
+- Qtilities::CoreGui::TaskManagerGui::setWidgetLoggerEngineDisplaysFlag()
+
+\subsection Qtilities::ProjectManagement
+
+- Qtilities::ProjectManagement::ProjectManager::setUseProjectFileLocks()
+- Qtilities::ProjectManagement::ProjectManager::useProjectFileLocks()
+
+*/
