@@ -1259,6 +1259,8 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::receiveBuildObserverTreeItem(ObserverTreeItem* item) {
+    Q_UNUSED(item)
+
     if (d->tree_building_threading_enabled) {
         d->tree_builder_thread.quit();
         disconnect(&d->tree_builder,SIGNAL(buildCompleted(ObserverTreeItem*)),this,SLOT(receiveBuildObserverTreeItem(ObserverTreeItem*)));
@@ -1400,6 +1402,12 @@ Qtilities::Core::Observer* Qtilities::CoreGui::ObserverTreeModel::parentOfIndex(
     ObserverTreeItem* item_parent = item->parentItem();
     if (!item_parent)
         return 0;
+
+    if (activeHints()->rootIndexDisplayHint() == ObserverHints::RootIndexHide) {
+        if (item_parent == d->rootItem)
+            return 0;
+    }
+
     if (item_parent->getObject())
         local_selection_parent = qobject_cast<Observer*> (item_parent->getObject());
     else

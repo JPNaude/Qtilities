@@ -661,6 +661,8 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
     // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
 //        int i = 5;
+//    else if (QString(msg).contains("QAbstractItemModel::endInsertRows:  Invalid index"))
+//        int i = 5;
 //    else if (QString(msg).contains("QFileSystemWatcher: failed to add paths"))
 //        int i = 5;
 //    else if (QString(msg).contains("Invalid parameter passed to C runtime function"))

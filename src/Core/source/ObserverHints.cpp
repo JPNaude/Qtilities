@@ -49,6 +49,7 @@ struct Qtilities::Core::ObserverHintsPrivateData {
         modification_state_display(ObserverHints::NoModificationStateDisplayHint),
         category_editing_flags(ObserverHints::CategoriesReadOnly),
         root_index_display_hint(ObserverHints::RootIndexHide),
+        //root_index_display_hint(ObserverHints::RootIndexDisplayDecorated),
         has_inversed_category_display(true),
         category_filter_enabled(false),
         is_modified(false) {}

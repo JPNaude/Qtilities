@@ -635,7 +635,7 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
                 Observer* obs = d->tree_model->parentOfIndex(index);
                 if (obs) {
                     if (!expanded_items.contains(obs->observerName())) {
-                        //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent parent is not expanded. Parent: " << obs->observerName();
+                        //qDebug() << "Not adding expanded item" << item->objectName() << "to list of expanded items. Its parent node is not expanded. Parent: " << obs->observerName();
                         continue;
                     } /*else {
                         qDebug() << "Failed observer parent in list test" << item->objectName();
@@ -653,6 +653,7 @@ QStringList Qtilities::CoreGui::ObserverWidget::findExpandedItems() const {
             }
         }
         d->last_expanded_items_result = expanded_items;
+        //qDebug() << "FOUND EXPANDED ITEMS" << expanded_items;
         return expanded_items;
     }
 
@@ -3651,8 +3652,6 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             #endif
         }
     }
-
-    //qDebug() << "Current selection" << selectedObjects();
 }
 
 void Qtilities::CoreGui::ObserverWidget::handleSearchOptionsChanged() {
