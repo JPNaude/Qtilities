@@ -1,29 +1,29 @@
 /**
-\page page_serializing_overview_1_1 Serializing %Qtilities Data Types (Version 1.1)
+\page page_serializing_overview_1_2 Serializing %Qtilities Data Types (Version 1.2)
 
 <br>
-This page provides an overview of the data formats used for both Binary and XML exports in %Qtilities v1.1, represented by Qtilities::Qtilities_1_1. See \ref page_serializing_overview for an overview of the different versions available.
+This page provides an overview of the data formats used for both Binary and XML exports in %Qtilities v1.2, represented by Qtilities::Qtilities_1_2. See \ref page_serializing_overview for an overview of the different versions available.
 
 \note %Qtilities v1.1 is backwards compatible with previous versions.
 
 Table of contents:
-- \ref page_serializing_overview_1_1_changes
-- \ref page_serializing_overview_1_1_binary
-- \ref page_serializing_overview_1_1_xml
-- \ref page_serializing_overview_1_1_factory_info
-- \ref page_serializing_overview_1_1_session_files
+- \ref page_serializing_overview_1_2_changes
+- \ref page_serializing_overview_1_2_binary
+- \ref page_serializing_overview_1_2_xml
+- \ref page_serializing_overview_1_2_factory_info
+- \ref page_serializing_overview_1_2_session_files
 
-\section page_serializing_overview_1_1_changes Changes from %Qtilities v1.0
+\section page_serializing_overview_1_2_changes Changes from %Qtilities v1.1
 <tr>
 <td>
 Qtilities::Core::ObserverHints
 </td>
 <td>
-- Category editing flags were added.
+- Root index display hint was added.
 </td>
 </tr>
 
-\section page_serializing_overview_1_1_binary Binary Formats
+\section page_serializing_overview_1_2_binary Binary Formats
 
 <div>
 <table width="100%">
@@ -169,6 +169,7 @@ Qtilities::Core::ObserverHints
 - Drag/drop flags (quint32)
 - Modification state display (quint32)
 - Category editing flags (quint32)
+- Root index display hint (quint32)
 - The number of displayed categories (quint32)
 - The categories (Qtilities::Core::QtilitiesCategory)
 - Has inversed category display enabled (bool) 
@@ -334,7 +335,7 @@ Qtilities::ProjectManagement::ObserverProjectItemWrapper
 </table>
 </div>
 
-\section page_serializing_overview_1_1_xml XML Formats
+\section page_serializing_overview_1_2_xml XML Formats
 
 It is important to note that XML exports of classes does not export default information. In the XML exports shown below, the "object_node" XML node represents the \p object_node parameter in Qtilities::Core::Interfaces::IExportable::exportXml(). Where neccessarry XML line breaks (\p &#xD) have been added to simplify reading.
 
@@ -728,6 +729,7 @@ Qtilities::Core::ObserverHints
   ItemViewColumnFlags="61"&#xD
   ModificationStateDisplay="CharacterModificationStateDisplay"&#xD
   CategoryEditingFlags="2"&#xD
+  RootIndexDisplayHint="2"&#xD
   DisplayFlags="4"&#xD
   ItemSelectionControl="NonSelectableItems">
   <CategoryFilter FilterInversed="True" FilterEnabled="True" CategoryCount"2">
@@ -879,7 +881,7 @@ The example below has an wrapped Observer with no data or children.
 </table>
 </div>
 
-\section page_serializing_overview_1_1_factory_info Instance Factory Info
+\section page_serializing_overview_1_2_factory_info Instance Factory Info
 
 For more information regarding the use of the Qtilities::Core::InstanceFactoryInfo, see \ref page_factories.
 
@@ -973,7 +975,7 @@ Qtilities::CoreGui::TreeNode
 </table>
 </div>
 
-\section page_serializing_overview_1_1_session_files Session Related Files
+\section page_serializing_overview_1_2_session_files Session Related Files
 
 This section provides an overview of the formats used for session related files produced by %Qtilities for this version.
 
