@@ -419,7 +419,7 @@ QWidget* Qtilities::ExtensionSystem::ExtensionSystemCore::configWidget() {
 
         if (observer_widget->treeView()) {
             observer_widget->treeView()->expandAll();
-            observer_widget->treeView()->setRootIsDecorated(false);
+            //observer_widget->treeView()->setRootIsDecorated(false);
             observer_widget->treeView()->setSelectionBehavior(QAbstractItemView::SelectRows);
         }
     }

@@ -77,11 +77,16 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::setOriginThread(QThread* thre
 void Qtilities::CoreGui::ObserverTreeModelBuilder::setRootItem(ObserverTreeItem* item) {
     d->root_item = item;
     if (d->root_item) {
-        d->task.setDisplayName(tr("Loading: ") + d->root_item->objectName());
-        d->task.setObjectName(tr("Loading Tree: ") + d->root_item->objectName());
+        QString context_name = tr("Root Item");
+        Observer* obs = qobject_cast<Observer*> (d->root_item->getObject());
+        if (obs)
+            context_name = obs->observerName();
+
+        d->task.setDisplayName(tr("Loading: ") + context_name);
+        d->task.setObjectName(tr("Loading Tree: ") + context_name);
 
         if (d->task.loggerEngine())
-            d->task.loggerEngine()->setName(tr("Task Log: Tree Builder (") + d->root_item->objectName() + ")");
+            d->task.loggerEngine()->setName(tr("Task Log: Tree Builder (") + context_name + ")");
     }
 }
 

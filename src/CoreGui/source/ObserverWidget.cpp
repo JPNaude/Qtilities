@@ -739,7 +739,6 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
                 connect(d->tree_view,SIGNAL(expanded(QModelIndex)),SLOT(handleExpanded(QModelIndex)));
                 connect(d->tree_view,SIGNAL(collapsed(QModelIndex)),SLOT(handleCollapsed(QModelIndex)));
                 d->tree_view->setFocusPolicy(Qt::StrongFocus);
-                d->tree_view->setRootIsDecorated(true);
                 d->tree_view->setContextMenuPolicy(Qt::CustomContextMenu);
                 d->tree_view->setAcceptDrops(true);
                 d->tree_view->setAutoExpandDelay(500);
