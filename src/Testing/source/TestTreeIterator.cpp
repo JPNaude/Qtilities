@@ -221,7 +221,7 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsB() {
     while (itr.hasNext()) {
         QObject* obj = itr.next();
         QVERIFY(obj);
-        qDebug() << obj << itr.hasNext();
+        //qDebug() << obj << itr.hasNext();
         testList << obj->objectName();
         if (itr.hasNext()) {
             obj = itr.next();
@@ -342,8 +342,6 @@ void Qtilities::Testing::TestTreeIterator::testIterationBackwardComplexA() {
 }
 
 void Testing::TestTreeIterator::testIterationForwardMultipleParentsC() {
-    qDebug() << "START START";
-
     TreeNode other_obs0("Other_0");
     TreeItem* item_other_1 = other_obs0.addItem("O_1");
     TreeItem* item_other_2 = other_obs0.addItem("O_2");
@@ -365,13 +363,13 @@ void Testing::TestTreeIterator::testIterationForwardMultipleParentsC() {
     Q_UNUSED(nodeL1_1);
     Q_UNUSED(nodeL2_0);
 
-//    TreeNode other_obs1("Other_1");
-//    other_obs1.attachSubject(nodeL1_0);
-//    other_obs1.attachSubject(nodeL1_1);
-//    other_obs1.attachSubject(nodeL1_2);
-//    other_obs1.attachSubject(nodeL2_0);
-//    other_obs1.attachSubject(nodeL2_1);
-//    other_obs1.attachSubject(nodeL1_3);
+    TreeNode other_obs1("Other_1");
+    other_obs1.attachSubject(nodeL1_0);
+    other_obs1.attachSubject(nodeL1_1);
+    other_obs1.attachSubject(nodeL1_2);
+    other_obs1.attachSubject(nodeL2_0);
+    other_obs1.attachSubject(nodeL2_1);
+    other_obs1.attachSubject(nodeL1_3);
 
     TreeIterator itr(rootNode);
     QStringList testList;

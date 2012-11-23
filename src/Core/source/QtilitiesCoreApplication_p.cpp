@@ -156,7 +156,7 @@ bool Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsPathEnab
     return d_settings_enabled;
 }
 
-void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationBusy(bool is_busy) {
+void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationBusy(bool is_busy) {    
     int previous_count = d_application_busy_count;
 
     if (is_busy) {

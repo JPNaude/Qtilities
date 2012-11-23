@@ -12,7 +12,7 @@
 TARGET      = Qtilities
 TEMPLATE    = subdirs
 CONFIG     += ordered
-SUBDIRS    += Logging
+#SUBDIRS    += Logging
 SUBDIRS    += Core
 SUBDIRS    += CoreGui
 SUBDIRS    += ExtensionSystem

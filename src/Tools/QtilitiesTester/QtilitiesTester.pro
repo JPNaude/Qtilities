@@ -4,13 +4,13 @@
 # See http://www.qtilities.org/licensing.html for licensing details.
 #
 # ***************************************************************************
-QTILITIES += coregui
 QTILITIES += testing
 include(../../Qtilities.pri)
 
 CONFIG += qtestlib
 
-QT += xml \
+QT += core \
+      xml \
       gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {

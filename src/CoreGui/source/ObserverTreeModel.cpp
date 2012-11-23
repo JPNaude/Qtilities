@@ -1118,7 +1118,7 @@ int Qtilities::CoreGui::ObserverTreeModel::rowCount(const QModelIndex &parent) c
 
 int Qtilities::CoreGui::ObserverTreeModel::columnCount(const QModelIndex &parent) const {
     if (!d->tree_model_up_to_date)
-        return columnPosition(AbstractObserverItemModel::ColumnLast) + 1;
+        return 0;
 
     if (parent.isValid()) {
          return columnPosition(AbstractObserverItemModel::ColumnLast) + 1;
@@ -1161,6 +1161,7 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
     #endif
 
     beginResetModel();
+    emit layoutAboutToBeChanged();
     d->tree_model_up_to_date = false;
     deleteRootItem();
     QVector<QVariant> columns;
@@ -1173,6 +1174,7 @@ void Qtilities::CoreGui::ObserverTreeModel::clearTreeStructure() {
 
     d->tree_model_up_to_date = true;
     endResetModel();
+    emit layoutChanged();
 }
 
 void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
