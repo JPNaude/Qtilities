@@ -94,11 +94,11 @@ quint32 MARKER_PROJECT_SECTION = 0xBABEFACE;
 bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name, ITask* task) {
     if (!PROJECT_MANAGER->projectSavingEnabled()) {
         if (PROJECT_MANAGER->executionStyle() == ProjectManager::ExecSilent) {
-            LOG_ERROR("Saving of projects is currently disabled, project save can't continue: " + PROJECT_MANAGER->projectSavingInfoMessage());
+            LOG_ERROR(tr("Saving of projects is currently disabled, project save can't continue: ") + PROJECT_MANAGER->projectSavingInfoMessage());
         } else {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Cannot Save Project");
-            msgBox.setText("Saving of projects is currently disabled, project save can't continue.");
+            msgBox.setWindowTitle(tr("Cannot Save Project"));
+            msgBox.setText(tr("Saving of projects is currently disabled, project save can't continue."));
             msgBox.setInformativeText(PROJECT_MANAGER->projectSavingInfoMessage());
             msgBox.setIcon(QMessageBox::Critical);
             msgBox.exec();
@@ -140,6 +140,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         if (success != IExportable::Failed) {
             // Copy the tmp file to the actual project file.
+            QString old_project_file = d->project_file;
             d->project_file = file_name;
             QFile current_file(d->project_file);
             if (current_file.exists())  {
@@ -149,6 +150,16 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
                 }
             }
             file.copy(d->project_file);
+
+            // Only if successfull, check if the new file is different to the old file and handle locks accordingly:
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                // Unlock the old file:
+                if (d->file_locker.isFileLocked(old_project_file)) {
+                    QString errorMsg;
+                    if (!d->file_locker.unlockFile(old_project_file,&errorMsg))
+                        LOG_TASK_WARNING(errorMsg,task);
+                }
+            }
 
             // We change the project name to the selected file name:
             QFileInfo fi(d->project_file);
@@ -199,6 +210,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
 
         if (success != IExportable::Failed) {
             // Copy the tmp file to the actual project file.
+            QString old_project_file = d->project_file;
             d->project_file = file_name;
             QFile current_file(d->project_file);
             if (current_file.exists())  {
@@ -208,6 +220,16 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
                 }
             }
             file.copy(d->project_file);
+
+            // Only if successfull, check if the new file is different to the old file and handle locks accordingly:
+            if (PROJECT_MANAGER->useProjectFileLocks()) {
+                // Unlock the old file:
+                if (d->file_locker.isFileLocked(old_project_file)) {
+                    QString errorMsg;
+                    if (!d->file_locker.unlockFile(old_project_file,&errorMsg))
+                        LOG_TASK_WARNING(errorMsg,task);
+                }
+            }
 
             // We change the project name to the selected file name
             QFileInfo fi(d->project_file);

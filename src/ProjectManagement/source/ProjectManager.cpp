@@ -384,7 +384,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
         QString msg = tr("You cannot save the current project while it is busy.<br>Wait for it to become idle and try again.");
         if (d->exec_style != ExecSilent) {
             QMessageBox msgBox;
-            msgBox.setWindowTitle("Project Busy");
+            msgBox.setWindowTitle(tr("Project Busy"));
             msgBox.setIcon(QMessageBox::Information);
             msgBox.setText(msg);
             msgBox.exec();
@@ -403,7 +403,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
             if (PROJECT_MANAGER->useCustomProjectsPath())
                 project_path = PROJECT_MANAGER->customProjectsPath();
             else
-                project_path = QCoreApplication::applicationDirPath() + "/Projects";
+                project_path = QCoreApplication::applicationDirPath() + QDir::separator() + "Projects";
 
             if (d->exec_style != ExecSilent)
                 file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
