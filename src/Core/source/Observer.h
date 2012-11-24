@@ -700,6 +700,7 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
+              \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns True is succesfull, false otherwise.
 
@@ -717,6 +718,7 @@ obs.endProcessingCycle(); // Internal count = 0;
               \param objects A list of objects which must be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
+              \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \returns A list of objects that was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
               \sa attachSubject(), startProcessingCycle(), endProcessingCycle()
@@ -728,6 +730,7 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \param obj The object to be attached.
               \param ownership The ownership that the observer should use to manage the object. The default is Observer::ManualOwnership.
+              \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \param import_cycle Indicates if the attachment call was made during an observer import cycle. In such cases the subject filter must not add exportable properties to the object since these properties will be added from the import source. Also, it is not neccesarry to validate the context in such cases. False by default.
               \returns A list of objects which was successfully added. Thus if the list has the same amount of items in \p objects, the operation was succesfull on all objects.
 
@@ -750,21 +753,27 @@ obs.endProcessingCycle(); // Internal count = 0;
               */
             Observer::EvaluationResult canAttach(ObserverMimeData* mime_data_object, QString* rejectMsg = 0, bool silent = false) const;
             //! A function which checks if the object can be dettached from the observer. This function also validates the detachment operation inside all installed subject filters. Note that this function does not detach it.
-            Observer::EvaluationResult canDetach(QObject* obj) const;
+            /*!
+             * \param obj The object to test detachment of.
+             * \param rejectMsg Rejection message. If the attachment cannot be done, thus it returns Observer::Rejected, you can get the reason through this error message.
+             */
+            Observer::EvaluationResult canDetach(QObject* obj, QString* rejectMsg = 0) const;
 
         public slots:
             //! Will attempt to detach the specified object from the observer.
             /*!
               \param obj The object to be detached.
+              \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \returns True if successful, false otherwise.
               */
-            virtual bool detachSubject(QObject* obj);
+            virtual bool detachSubject(QObject* obj, QString* rejectMsg = 0);
             //! Will attempt to detach the specified object objects in the list from the observer.
             /*!
               \param objects A list of objects which must be detached.
+              \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \returns A list of objects which was successfully detached.
               */
-            virtual QList<QPointer<QObject> > detachSubjects(QList<QObject*> objects);
+            virtual QList<QPointer<QObject> > detachSubjects(QList<QObject*> objects, QString* rejectMsg = 0);
             //! Function to detach all currently observed subjects.
             virtual void detachAll();
             //! Function to delete all currenlty observed subjects.

@@ -1017,16 +1017,21 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
     observerData->observer_mutex.unlock();
 }
 
-bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
+bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) {
     #ifndef QT_NO_DEBUG
         Q_ASSERT(obj != 0);
     #endif
     #ifdef QT_NO_DEBUG
-        if (!obj)
+        if (!obj) {
+            QString reject_string = QString(tr("Observer (%1): Object detachment failed, invalid object reference received.")).arg(objectName());
+            LOG_TRACE(reject_string);
+            if (rejectMsg)
+                *rejectMsg = reject_string;
             return false;
+        }
     #endif
 
-    if (canDetach(obj) == Rejected)
+    if (canDetach(obj,rejectMsg) == Rejected)
         return false;
 
     bool currrent_filter_subject_events_enabled = observerData->filter_subject_events_enabled;
@@ -1041,10 +1046,12 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     }
 
     if (!passed_filters) {
-        LOG_WARNING(QString(tr("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filters.")).arg(objectName()).arg(obj->objectName()));
-        for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        QString reject_string = QString(tr("Observer (%1): Object (%2) detachment failed, detachment was rejected by one or more subject filters.")).arg(objectName()).arg(obj->objectName());
+        LOG_WARNING(reject_string);
+        if (rejectMsg)
+            *rejectMsg = reject_string;
+        for (int i = 0; i < observerData->subject_filters.count(); i++)
             observerData->subject_filters.at(i)->finalizeDetachment(obj,false);
-        }
         observerData->filter_subject_events_enabled = currrent_filter_subject_events_enabled;
         return false;
     } else {
@@ -1118,7 +1125,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj) {
     return true;
 }
 
-QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects) {
+QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObject*> objects, QString* rejectMsg) {
     QList<QPointer<QObject> > success_list;
     startProcessingCycle();
 
@@ -1126,11 +1133,17 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
     for (int i = 0; i < objects.count(); i++) {
         if (objects.at(i)) {
             safe_list << objects.at(i);
-            if (detachSubject(safe_list.at(i))) {
+            QString tmp_rejectMsg;
+            if (detachSubject(safe_list.at(i),&tmp_rejectMsg)) {
                 // The object could have been deleted in detach subject, thus we must use some
                 // safe QPointers here:
                 if (safe_list.at(i))
                     success_list << safe_list.at(i);
+            } else {
+                if (rejectMsg) {
+                    rejectMsg->append(tmp_rejectMsg);
+                    rejectMsg->append("\n");
+                }
             }
         }
     }
@@ -1139,13 +1152,16 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
     return success_list;
 }
 
-Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach(QObject* obj) const {
+Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach(QObject* obj, QString* rejectMsg) const {
     if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
         // Check if this subject is observed by this observer. If its not observed by this observer, we can't detach it.
         MultiContextProperty observer_list_variant = ObjectManager::getMultiContextProperty(obj,qti_prop_OBSERVER_MAP);
         if (observer_list_variant.isValid()) {
             if (!observer_list_variant.hasContext(observerData->observer_id)) {
-                LOG_DEBUG(QString("Observer (%1): Object (%2) detachment is not allowed, object is not observed by this observer.").arg(observerData->observer_id).arg(obj->objectName()));
+                QString reject_string = QString("Observer (%1): Object (%2) detachment is not allowed, object is not observed by this observer.").arg(observerData->observer_id).arg(obj->objectName());
+                LOG_DEBUG(reject_string);
+                if (rejectMsg)
+                    *rejectMsg = reject_string;
                 return Observer::Rejected;
             }
         } else {
@@ -1157,7 +1173,10 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
         QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
         if (isConst(category)) {
-            LOG_DEBUG(QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName()));
+            QString reject_string = QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is const for the recieved object.").arg(obj->objectName()).arg(objectName());
+            LOG_DEBUG(reject_string);
+            if (rejectMsg)
+                *rejectMsg = reject_string;
             return Observer::Rejected;
         }
 
@@ -1172,7 +1191,10 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
                 return Observer::IsParentObserver;
             }
         } else if (ownership_variant.isValid() && (ownership_variant.toInt() == OwnedBySubjectOwnership)) {
-            LOG_DEBUG(QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is dependant on this subject. To remove the subject permanently, delete it.").arg(obj->objectName()).arg(objectName()));
+            QString reject_string = QString("Detaching object \"%1\" from observer \"%2\" is not allowed. This observer is dependant on this subject. To remove the subject permanently, delete it.").arg(obj->objectName()).arg(objectName());
+            LOG_DEBUG(reject_string);
+            if (rejectMsg)
+                *rejectMsg = reject_string;
             return Observer::Rejected;
         }
     }
