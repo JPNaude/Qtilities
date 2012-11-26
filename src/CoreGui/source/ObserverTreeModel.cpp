@@ -115,7 +115,6 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
     if (d_observer) {
         d_observer->disconnect(this);
         clearTreeStructure();
-        reset();
     }
 
     if (!observer)
@@ -1203,7 +1202,6 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 
     // Rebuild the tree structure:
     beginResetModel();
-    //reset();
     d->tree_model_up_to_date = false;
     QApplication::processEvents();
     deleteRootItem();
