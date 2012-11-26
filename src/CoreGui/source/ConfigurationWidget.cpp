@@ -208,6 +208,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
 
                 // Set the object name to the page title:
                 config_page->objectBase()->setObjectName(config_page->configPageTitle());
+                config_page->configPageInitialize();
 
                 addPageCategoryProperty(config_page);
                 addPageIconProperty(config_page);
