@@ -190,7 +190,7 @@ bool Qtilities::ProjectManagement::Project::saveProject(const QString& file_name
         QTemporaryFile file;
         file.open();
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
+        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2)
             stream.setVersion(QDataStream::Qt_4_7);
 
         #ifdef QTILITIES_BENCHMARKING
@@ -356,7 +356,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
         }
     } else if (file_name.endsWith(PROJECT_MANAGER->projectTypeSuffix(IExportable::Binary))) {
         QDataStream stream(&file);
-        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
+        if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2)
             stream.setVersion(QDataStream::Qt_4_7);
 
         QList<QPointer<QObject> > import_list;

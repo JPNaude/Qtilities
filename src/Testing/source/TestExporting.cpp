@@ -57,10 +57,10 @@ void Qtilities::Testing::TestExporting::testPropertyNameEncoding() {
 
 void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IExportable* obj_import_binary, IExportable* obj_import_xml, Qtilities::ExportVersion write_version, Qtilities::ExportVersion read_version, const QString& file_name) {
     QDataStream::Version data_stream_write_version;
-    if (write_version == Qtilities::Qtilities_1_0 || write_version == Qtilities::Qtilities_1_1)
+    if (write_version == Qtilities::Qtilities_1_0 || write_version == Qtilities::Qtilities_1_1 || write_version == Qtilities::Qtilities_1_2)
         data_stream_write_version =  QDataStream::Qt_4_7;
     QDataStream::Version data_stream_read_version;
-    if (read_version == Qtilities::Qtilities_1_0 || read_version == Qtilities::Qtilities_1_1)
+    if (read_version == Qtilities::Qtilities_1_0 || read_version == Qtilities::Qtilities_1_1 || read_version == Qtilities::Qtilities_1_2)
         data_stream_read_version =  QDataStream::Qt_4_7;
 
     QList<QPointer<QObject> > import_list;

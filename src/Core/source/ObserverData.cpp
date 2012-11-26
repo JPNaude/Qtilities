@@ -122,7 +122,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2) {
         IExportable::ExportResultFlags result = exportBinaryExt_1_0(stream,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -145,7 +145,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2) {
         IExportable::ExportResultFlags result = importBinaryExt_1_0(stream,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -168,7 +168,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2) {
         IExportable::ExportResultFlags result = exportXmlExt_1_0(doc,object_node,ExportData);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -191,7 +191,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1) {
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2) {
         IExportable::ExportResultFlags result = importXmlExt_1_0(doc,object_node,import_list);
         #ifdef QTILITIES_BENCHMARKING
         time(&end);
@@ -209,7 +209,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportBinaryExt(QD
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2)
         return exportBinaryExt_1_0(stream,export_flags);
 
     return IExportable::Incomplete;
@@ -220,7 +220,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObserverData::exportXmlExt(QDomD
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1)
+    if (exportVersion() == Qtilities::Qtilities_1_0 || exportVersion() == Qtilities::Qtilities_1_1 || exportVersion() == Qtilities::Qtilities_1_2)
         return exportXmlExt_1_0(doc,object_node,export_flags);
 
     return IExportable::Incomplete;

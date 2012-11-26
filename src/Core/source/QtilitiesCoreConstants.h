@@ -137,8 +137,11 @@ Observer* obs = new Observer("My Observer","");
 QObject* obj = new QObject();
 obs->attachSubject(obj);
 
+Observer::ObjectOwnership ownership = obs->subjectOwnershipInContext(obj);
+
+// Alternatively, you can get the property's value in the context and cast it manually:
 QVariant current_ownership = obs->getMultiContextPropertyValue(obj,qti_prop_OWNERSHIP);
-Observer::ObjectOwnership ownership = (Observer::ObjectOwnership) current_ownership.toInt();
+ownership = (Observer::ObjectOwnership) current_ownership.toInt();
 \endcode
 */
 const char * const qti_prop_OWNERSHIP              = "qti.core.Ownership";
