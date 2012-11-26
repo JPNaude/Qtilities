@@ -80,6 +80,7 @@ Qtilities v1.2 Changes
     [*] Fixed bug in TreeIterator where it fell over in some situations when subjects are attached to multiple trees.
     [*] Fixed bug where Observer::endProcessingCycle() emitted modificationStateChanged() even when broadcast was false.
     [*] Fixed wrong initialization of d_application_busy_count in QtilitiesCoreApplication.
+	[*] Fixed #72 - Observer: Inconstancy in behavior of attachSubject() and detachSubject() in regards to rejection messages.
 
     ============================
     QtilitiesCoreGui:
@@ -122,6 +123,8 @@ Qtilities v1.2 Changes
     [#] AbstractTreeItem::setIcon() will now remove the icon property if passed an invalid icon.
     [#] Changed AbstractTreeItem::setName(): It now returns a bool, takes Observer* instead of TreeNode* as its
         second parameter and fixed numerous bugs in its implementation.
+    [#] TreeFileItem no longer clean's paths and formats then in your native OS format by default. Path access functions
+        are now virtual allowing you to implement this functionality yourself if needed.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
