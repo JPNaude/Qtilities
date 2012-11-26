@@ -258,8 +258,6 @@ rootTop->attachSubject(rootNodeB);
                                                           SubjectIterator<Observer>::IterateSiblings,
                                                           findParentPreviousObserver(obs),
                                                           d_iterator_id);
-                    if (d_current->objectName() == "Altera")
-                        qDebug() << Q_FUNC_INFO << d_current << findParentPreviousObserver(obs);
                     if (sibling_itr.hasPrevious()) {
                         Observer* previous_obs = sibling_itr.previous();
 
