@@ -419,7 +419,7 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
             file_name = d->current_project->projectFile();
     }
 
-    qDebug() << "Starting project save to " << file_name;
+    //qDebug() << "Starting project save to " << file_name;
 
     int task_id = findTaskID(taskNameToString(TaskSaveProject));
     Task* task_ref = 0;
