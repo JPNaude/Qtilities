@@ -36,13 +36,13 @@
 #include <QApplication>
 #include <QtDebug>
 
-ModeListWidget::ModeListWidget(Qt::Orientation orientation, QWidget* parent) : QListWidget(parent) {
+Qtilities::CoreGui::ModeListWidget::ModeListWidget(Qt::Orientation orientation, QWidget* parent) : QListWidget(parent) {
     d_orientation = orientation;
     min_size = QSize();
     max_size = QSize();
 }
 
-QSize ModeListWidget::sizeHint() const {
+QSize Qtilities::CoreGui::ModeListWidget::sizeHint() const {
     int min_w = 0;
     int min_h = 0;
     if (min_size.width() >= 0)

@@ -36,33 +36,33 @@
 
 #include <QListWidget>
 
-/*!
-\class ModeListWidget
-\brief An internal list widget which shows items in a top to bottom view, centered in the middle of the view.
-  */
-class ModeListWidget : public QListWidget
-{
-public:
-    ModeListWidget(Qt::Orientation orientation, QWidget* parent = 0);
-    virtual QSize sizeHint() const;
+namespace Qtilities {
+    namespace CoreGui {
+        class ModeListWidget : public QListWidget
+        {
+        public:
+            ModeListWidget(Qt::Orientation orientation, QWidget* parent = 0);
+            virtual QSize sizeHint() const;
 
-    void setMinimumItemSize(QSize size) {
-        min_size = size;
-    }
-    void setMaximumItemSize(QSize size) {
-        max_size = size;
-    }
-    QSize minimumItemSize() const {
-        return min_size;
-    }
-    QSize maximumItemSize() const {
-        return max_size;
-    }
+            void setMinimumItemSize(QSize size) {
+                min_size = size;
+            }
+            void setMaximumItemSize(QSize size) {
+                max_size = size;
+            }
+            QSize minimumItemSize() const {
+                return min_size;
+            }
+            QSize maximumItemSize() const {
+                return max_size;
+            }
 
-private:
-    Qt::Orientation d_orientation;
-    QSize min_size;
-    QSize max_size;
-};
+        private:
+            Qt::Orientation d_orientation;
+            QSize min_size;
+            QSize max_size;
+        };
+    }
+}
 
 #endif // MODE_LIST_WIDGET_H

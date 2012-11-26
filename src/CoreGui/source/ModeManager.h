@@ -91,10 +91,10 @@ if (d->orientation == Qt::Horizontal)
     stylesheet += "QListView::item { padding: 5px 1px 5px 1px;}";
 else
     stylesheet += "QListView::item { padding: 5px 0px 5px 0px;}";
-modeListWidget()->setStyleSheet(stylesheet);
+ModeListWidget()->setStyleSheet(stylesheet);
 \endcode
 
-        It is possible to change and customize the style of the list through the modeListWidget() access function to the list widget.
+        It is possible to change and customize the style of the list through the ModeListWidget() access function to the list widget.
 
           */
         class QTILITIES_CORE_GUI_SHARED_EXPORT ModeManager : public QObject {
