@@ -159,7 +159,7 @@ namespace Qtilities {
             //! See QtilitiesFileInfo::setRelativeToPath().
             void setRelativeToPath(const QString& path);
             //! See QtilitiesFileInfo::relativeToPath().
-            QString relativeToPath() const;
+            virtual QString relativeToPath() const;
 
             //! See QFileInfo::path().
             virtual QString path() const;
@@ -186,9 +186,9 @@ namespace Qtilities {
             QString completeSuffix() const;
 
             //! See QtilitiesFileInfo::actualPath().
-            QString actualPath() const;
+            virtual QString actualPath() const;
             //! See QtilitiesFileInfo::actualFilePath().
-            QString actualFilePath() const;
+            virtual QString actualFilePath() const;
 
             //! Returns true if the file exists, false otherwise. Note that the file path used to check is actualFilePath().
             virtual bool exists() const;

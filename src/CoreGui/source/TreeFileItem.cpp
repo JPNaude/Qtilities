@@ -254,15 +254,15 @@ void Qtilities::CoreGui::TreeFileItem::setRelativeToPath(const QString& path) {
 }
 
 QString Qtilities::CoreGui::TreeFileItem::relativeToPath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.relativeToPath()));
+    return treeFileItemBase->file_info.relativeToPath();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::path() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.path()));
+    return treeFileItemBase->file_info.path();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::filePath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.filePath()));
+    return treeFileItemBase->file_info.filePath();
 }
 
 void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path) {
@@ -276,11 +276,11 @@ void Qtilities::CoreGui::TreeFileItem::setFilePath(const QString& new_file_path)
 }
 
 QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativePath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.absoluteToRelativePath()));
+    return treeFileItemBase->file_info.absoluteToRelativePath();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::absoluteToRelativeFilePath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.absoluteToRelativeFilePath()));
+    return treeFileItemBase->file_info.absoluteToRelativeFilePath();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::fileName() const {
@@ -311,11 +311,11 @@ QString Qtilities::CoreGui::TreeFileItem::completeSuffix() const {
 }
 
 QString Qtilities::CoreGui::TreeFileItem::actualPath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.actualPath()));
+    return treeFileItemBase->file_info.actualPath();
 }
 
 QString Qtilities::CoreGui::TreeFileItem::actualFilePath() const {
-    return FileUtils::toNativeSeparators(QDir::cleanPath(treeFileItemBase->file_info.actualFilePath()));
+    return treeFileItemBase->file_info.actualFilePath();
 }
 
 bool Qtilities::CoreGui::TreeFileItem::exists() const {
