@@ -69,6 +69,7 @@ Qtilities v1.2 Changes
         only emit at the end of a processing cycle if necessary.
     [#] Observer will now only emit modificationStateChanged() at the end of a processing cycle when the modification state
         actually changed during a processing cycle.
+    [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() to QtilitiesCoreApplication::qtilitiesSettingsEnabled().
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -127,6 +128,8 @@ Qtilities v1.2 Changes
         second parameter and fixed numerous bugs in its implementation.
     [#] TreeFileItem no longer clean's paths and formats then in your native OS format by default. Path access functions
         are now virtual allowing you to implement this functionality yourself if needed.
+    [#] Changed behavior of ObserverWidget::refreshActions(). It no longer sets all actions in the actionProvider() to be
+        enabled at first, only the actions ObserverWidget registered in the provider itself.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.

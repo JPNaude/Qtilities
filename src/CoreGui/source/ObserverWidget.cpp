@@ -107,6 +107,9 @@ struct Qtilities::CoreGui::ObserverWidgetData {
         actionExpandAll(0),
         actionCollapseAll(0),
         actionFindItem(0),
+        #ifndef QT_NO_DEBUG
+        actionDebugObject(0),
+        #endif
         navigation_bar(0),
         display_mode(Qtilities::TreeView),
         table_view(0),
@@ -604,7 +607,7 @@ void Qtilities::CoreGui::ObserverWidget::setReadOnly(bool read_only) {
     if (d->property_browser_widget)
         d->property_browser_widget->setEnabled(!read_only);
     if (d->dynamic_property_browser_widget)
-        d->dynamic_property_browser_widget->setEnabled(!read_only);
+        d->dynamic_property_browser_widget->setReadOnly(read_only);
     #endif
 
     emit readOnlyStateChanged(read_only);
@@ -1398,7 +1401,7 @@ void Qtilities::CoreGui::ObserverWidget::writeSettings() {
     if (!d->initialized)
         return;
 
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
@@ -1738,11 +1741,69 @@ void Qtilities::CoreGui::ObserverWidget::selectionDebug() const {
 
 void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     if (!d->initialized && !d->actionRemoveItem) {
-        d->action_provider->disableAllActions();
+        if (d->actionCollapseAll)
+            d->actionCollapseAll->setEnabled(false);
+        if (d->actionDebugObject)
+            d->actionDebugObject->setEnabled(false);
+        if (d->actionDeleteAll)
+            d->actionDeleteAll->setEnabled(false);
+        if (d->actionDeleteItem)
+            d->actionDeleteItem->setEnabled(false);
+        if (d->actionExpandAll)
+            d->actionExpandAll->setEnabled(false);
+        if (d->actionFindItem)
+            d->actionFindItem->setEnabled(false);
+        if (d->actionNewItem)
+            d->actionNewItem->setEnabled(false);
+        if (d->actionPushDown)
+            d->actionPushDown->setEnabled(false);
+        if (d->actionPushDownNew)
+            d->actionPushDownNew->setEnabled(false);
+        if (d->actionPushUp)
+            d->actionPushUp->setEnabled(false);
+        if (d->actionPushUpNew)
+            d->actionPushUpNew->setEnabled(false);
+        if (d->actionRefreshView)
+            d->actionRefreshView->setEnabled(false);
+        if (d->actionRemoveAll)
+            d->actionRemoveAll->setEnabled(false);
+        if (d->actionRemoveItem)
+            d->actionRemoveItem->setEnabled(false);
+        if (d->actionSwitchView)
+            d->actionSwitchView->setEnabled(false);
         deleteActionToolBars();
         return;
     } else {
-        d->action_provider->enableAllActions();
+        if (d->actionCollapseAll)
+            d->actionCollapseAll->setEnabled(true);
+        if (d->actionDebugObject)
+            d->actionDebugObject->setEnabled(true);
+        if (d->actionDeleteAll)
+            d->actionDeleteAll->setEnabled(true);
+        if (d->actionDeleteItem)
+            d->actionDeleteItem->setEnabled(true);
+        if (d->actionExpandAll)
+            d->actionExpandAll->setEnabled(true);
+        if (d->actionFindItem)
+            d->actionFindItem->setEnabled(true);
+        if (d->actionNewItem)
+            d->actionNewItem->setEnabled(true);
+        if (d->actionPushDown)
+            d->actionPushDown->setEnabled(true);
+        if (d->actionPushDownNew)
+            d->actionPushDownNew->setEnabled(true);
+        if (d->actionPushUp)
+            d->actionPushUp->setEnabled(true);
+        if (d->actionPushUpNew)
+            d->actionPushUpNew->setEnabled(true);
+        if (d->actionRefreshView)
+            d->actionRefreshView->setEnabled(true);
+        if (d->actionRemoveAll)
+            d->actionRemoveAll->setEnabled(true);
+        if (d->actionRemoveItem)
+            d->actionRemoveItem->setEnabled(true);
+        if (d->actionSwitchView)
+            d->actionSwitchView->setEnabled(true);
     }
 
     // Ok, first we set only actions specified by the observer's action hints to be visible

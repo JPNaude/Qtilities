@@ -132,7 +132,7 @@ void Qtilities::Core::QtilitiesCoreApplication::setQtilitiesSettingsEnabled(bool
     Log->setLoggerSettingsEnabled(is_enabled);
 }
 
-bool Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() {
+bool Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsEnabled() {
     return QtilitiesCoreApplicationPrivate::instance()->qtilitiesSettingsPathEnabled();
 }
 

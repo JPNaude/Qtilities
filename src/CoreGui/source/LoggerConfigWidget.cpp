@@ -302,7 +302,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::writeSettings() {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     // Store settings using QSettings only if it was initialized

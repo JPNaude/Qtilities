@@ -37,6 +37,7 @@
 #include "TaskSummaryWidget.h"
 
 #include <QtilitiesCoreApplication>
+#include <QtilitiesApplication>
 
 #include <QBoxLayout>
 #include <QSettings>
@@ -79,6 +80,12 @@ Qtilities::CoreGui::QtilitiesMainWindow::QtilitiesMainWindow(ModeLayout modeLayo
     ui->setupUi(this);
     d = new QtilitiesMainWindowPrivateData;
     d->mode_layout = modeLayout;
+
+    // Make a call to application session path which will set the default path in QtilitiesCoreApplication to
+    // use QDesktopServices. This might be different in Qt 5 with the new QStandardPaths class.
+    // Note that we cannot do this in QtilitiesApplication's constructor since the application name and
+    // organization has not been set at that stage. This call is also in QtilitiesApplication::initialize().
+    QtilitiesApplication::applicationSessionPath();
 
     if (modeLayout != ModesNone) {
         d->current_widget_holder = new QWidget;
@@ -134,7 +141,7 @@ Qtilities::CoreGui::QtilitiesMainWindow::~QtilitiesMainWindow() {
 }
 
 void Qtilities::CoreGui::QtilitiesMainWindow::writeSettings() {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);

@@ -664,6 +664,8 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 //        int i = 5;
 //    else if (QString(msg).contains("QAbstractItemModel::endInsertRows:  Invalid index"))
 //        int i = 5;
+//    else if (QString(msg).contains("QFSFileEngine::open: No file name specified"))
+//        int i = 5;
 //    else if (QString(msg).contains("QFileSystemWatcher: failed to add paths"))
 //        int i = 5;
 //    else if (QString(msg).contains("Invalid parameter passed to C runtime function"))

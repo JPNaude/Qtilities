@@ -496,7 +496,7 @@ void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QString& request_id) {
     if (request_id == d->global_meta_type || request_id == "AllCodeEditors") {
-        if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+        if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
             return;
 
         // Read the text editor settings from QSettings

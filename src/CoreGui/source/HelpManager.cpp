@@ -232,7 +232,7 @@ void Qtilities::CoreGui::HelpManager::readSettings(bool initialize_after_change)
 }
 
 void Qtilities::CoreGui::HelpManager::writeSettings() {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);

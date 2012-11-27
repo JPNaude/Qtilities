@@ -60,7 +60,7 @@ QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory
 }
 
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     // Save fields back to QSettings

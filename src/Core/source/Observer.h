@@ -434,6 +434,13 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
             Observer(const QString& observer_name = QString(), const QString& observer_description = QString(), QObject* parent = 0);
             //! Copy constructor.
             Observer(const Observer &other);
+            //! Observer destructor.
+            /*!
+             * The destructor will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
+             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * objectDeletionPolicy() of this observer.
+             */
             virtual ~Observer();
             //! Overload << operator so that we can attach subjects using the operator.
             inline Observer& operator<<(QObject* subject)
@@ -762,6 +769,11 @@ obs.endProcessingCycle(); // Internal count = 0;
         public slots:
             //! Will attempt to detach the specified object from the observer.
             /*!
+             * This function will delete obj if neccesarry, thus it will check its ownership and delete it when
+             * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
+             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * objectDeletionPolicy() of this observer.
+             *
               \param obj The object to be detached.
               \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \returns True if successful, false otherwise.
@@ -769,12 +781,23 @@ obs.endProcessingCycle(); // Internal count = 0;
             virtual bool detachSubject(QObject* obj, QString* rejectMsg = 0);
             //! Will attempt to detach the specified object objects in the list from the observer.
             /*!
+             * This function will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
+             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * objectDeletionPolicy() of this observer.
+             *
               \param objects A list of objects which must be detached.
               \param rejectMsg When this function fails and rejectMsg will be populated with an rejection message when valid.
               \returns A list of objects which was successfully detached.
               */
             virtual QList<QPointer<QObject> > detachSubjects(QList<QObject*> objects, QString* rejectMsg = 0);
             //! Function to detach all currently observed subjects.
+            /*!
+             * This function will delete neccesarry objects, thus it will check the ownership of each subject and delete it when
+             * it has SpecificObserverOwnership set to this Observer, or when it has ObserverScopeOwnership and this
+             * is the last obserer that it is attached to. Note that the deletion method used depends on the
+             * objectDeletionPolicy() of this observer.
+             */
             virtual void detachAll();
             //! Function to delete all currenlty observed subjects.
             /*!

@@ -59,10 +59,6 @@ Qtilities::CoreGui::QtilitiesApplication::QtilitiesApplication(int &argc, char *
     if (!m_Instance) {
         m_Instance = this;
 
-        // Make a call to application session path which will set the default path in QtilitiesCoreApplication to
-        // use QDesktopServices. This might be different in Qt 5 with the new QStandardPaths class.
-        QtilitiesApplication::applicationSessionPath();
-
         // Register the naming policy filter in the object manager:
         FactoryItemID naming_policy_filter(qti_def_FACTORY_TAG_NAMING_FILTER,QtilitiesCategory(tr("Subject Filters")));
         QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&NamingPolicyFilter::factory,naming_policy_filter);
@@ -139,6 +135,12 @@ QWidget* Qtilities::CoreGui::QtilitiesApplication::configWidget() {
 }
 
 void Qtilities::CoreGui::QtilitiesApplication::initialize() {
+    // Make a call to application session path which will set the default path in QtilitiesCoreApplication to
+    // use QDesktopServices. This might be different in Qt 5 with the new QStandardPaths class.
+    // Note that we cannot do this in QtilitiesApplication's constructor since the application name and
+    // organization has not been set at that stage. This call is also in QtilitiesMainWindow's constructor.
+    QtilitiesApplication::applicationSessionPath();
+
     // Register the naming policy filter in the object manager:
     FactoryItemID naming_policy_filter(qti_def_FACTORY_TAG_NAMING_FILTER,QtilitiesCategory(tr("Subject Filters")));
     QtilitiesCoreApplicationPrivate::instance()->objectManager()->registerFactoryInterface(&NamingPolicyFilter::factory,naming_policy_filter);

@@ -676,7 +676,7 @@ void Qtilities::ProjectManagement::ProjectManager::setModifiedProjectsHandlingPo
 }
 
 void Qtilities::ProjectManagement::ProjectManager::writeSettings() const {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     // Write the settings:

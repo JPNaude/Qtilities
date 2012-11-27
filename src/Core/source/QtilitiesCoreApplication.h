@@ -191,7 +191,7 @@ QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::
 
               \sa setQtilitiesSettingsEnabled()
               */
-            static bool qtilitiesSettingsPathEnabled();
+            static bool qtilitiesSettingsEnabled();
 
             //! Sets if the application is busy, thus it cannot be closed.
             /*!
