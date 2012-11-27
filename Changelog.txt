@@ -28,6 +28,7 @@ Qtilities v1.2 Changes
     [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
     [*] Fixed bug in Logger::loggerEngineReferenceAt() where it did not ignore deleted logger engines during its position calculation.
     [*] Fixed bug where Qtilities::Logging::Logger::newLoggerEngine() could return false instead of 0 in some cases.
+    [*] Fixed possibility of going into an infinite loop when the QtMessage engine and logging of Qt debug messages is enabled.
 
     ============================
     QtilitiesCore:
@@ -80,7 +81,8 @@ Qtilities v1.2 Changes
     [*] Fixed bug in TreeIterator where it fell over in some situations when subjects are attached to multiple trees.
     [*] Fixed bug where Observer::endProcessingCycle() emitted modificationStateChanged() even when broadcast was false.
     [*] Fixed wrong initialization of d_application_busy_count in QtilitiesCoreApplication.
-	[*] Fixed #72 - Observer: Inconstancy in behavior of attachSubject() and detachSubject() in regards to rejection messages.
+    [*] Fixed #72 - Observer: Inconstancy in behavior of attachSubject() and detachSubject() in regards to rejection messages.
+    [*] Fixed issues with QtilitiesCoreApplication::applicationSessionPath().
 
     ============================
     QtilitiesCoreGui:

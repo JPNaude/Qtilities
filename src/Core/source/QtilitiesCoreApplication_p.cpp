@@ -145,7 +145,6 @@ quint32 Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationExportVersi
 }
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsPath() {
-    qDebug() << "XXXX" << d_application_session_path + QDir::separator() + "qtilities.ini";
     return d_application_session_path + QDir::separator() + "qtilities.ini";
 }
 
