@@ -656,7 +656,8 @@ void Qtilities::Logging::Logger::setIsQtMessageHandler(bool toggle) {
 void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char *msg)
 {
     static QMutex msgMutex;
-    msgMutex.lock();
+    if (!msgMutex.tryLock())
+        return;
 
     // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
