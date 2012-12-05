@@ -307,12 +307,11 @@ while (itrB.hasNext()) {
             }
 
             int getCurrentIndex(QList<QObject*> subjects) {
-                int current_index = -1;
                 for (int subject = 0; subject < subjects.count(); subject++) {
                     if (subjects[subject] == d_current)
-                        current_index = subject;
+                        return subject;
                 }
-                return current_index;
+                return -1;
             }
 
         private:
@@ -499,12 +498,11 @@ while (itrB.hasNext()) {
             }
 
             int getCurrentIndex(QList<QObject*> subjects) {
-                int current_index = -1;
                 for (int subject = 0; subject < subjects.count(); subject++) {
                     if (subjects[subject] == d_current)
-                        current_index = subject;
+                        return subject;
                 }
-                return current_index;
+                return -1;
             }
 
         private:

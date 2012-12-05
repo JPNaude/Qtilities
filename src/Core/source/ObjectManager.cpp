@@ -61,7 +61,7 @@ struct Qtilities::Core::ObjectManagerPrivateData {
       id(1),
       itr_id(1) { }
 
-    QMap<int,QPointer<Observer> >               context_map;
+    QHash<int,QPointer<Observer> >              context_map;
     QMap<QString, IFactoryProvider*>            factory_map;
     QMap<QString, QList<QPointer<QObject> > >   meta_type_map;
     Observer                                    object_pool;
@@ -319,14 +319,14 @@ bool Qtilities::Core::ObjectManager::registerIFactoryProvider(IFactoryProvider* 
 
     // Check if all factory names provided through factory_iface are unique first:
     foreach(QString name, factory_iface->providedFactories()) {
-        if (d->factory_map.keys().contains(name)) {
+        if (d->factory_map.contains(name)) {
             LOG_ERROR(QString(tr("Object Manager: Ambiguous factory name \"%1\" detected in registerIFactoryProvider(). This IFactoryProvider interface will not be registered.")).arg(name));
             return false;
         }
     }
 
     foreach(QString name, factory_iface->providedFactories()) {
-        if (!d->factory_map.keys().contains(name)) {
+        if (!d->factory_map.contains(name)) {
             d->factory_map[name] = factory_iface;
         }
     }

@@ -518,7 +518,7 @@ void Qtilities::Core::MultiContextProperty::removeContext(int context_id) {
 }
 
 void Qtilities::Core::MultiContextProperty::addContext(QVariant new_value, int context_id) {
-    if (!context_map.keys().contains((quint32) context_id))
+    if (!context_map.contains((quint32) context_id))
         context_map[context_id] = new_value;
 }
 

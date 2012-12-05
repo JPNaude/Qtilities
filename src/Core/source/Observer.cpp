@@ -1866,10 +1866,7 @@ QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCate
 }
 
 QObject* Qtilities::Core::Observer::subjectAt(int i) const {
-    if ((i < 0) || i >= observerData->subject_list.count())
-        return 0;
-    else
-        return observerData->subject_list.at(i);
+    return observerData->subject_list.at(i);
 }
 
 int Qtilities::Core::Observer::subjectID(int i) const {

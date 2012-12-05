@@ -51,15 +51,17 @@ Qtilities::CoreGui::ActionProvider::~ActionProvider() {
 QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
     // Loop through all actions and inspect them:
     QMap<QString, QAction*> filtered_map;
+    QList<QAction*> actions_keys = d->actions.keys();
+    QList<QtilitiesCategory> actions_values = d->actions.values();
     for (int i = 0; i < d->actions.count(); i++) {
-        QAction* action = d->actions.keys().at(i);
+        QAction* action = actions_keys.at(i);
         if (!action)
             continue;
         bool add_action = true;
 
         // Check the category:
         if (category_filter != QtilitiesCategory("Hello World!")) {
-            if ((d->actions.values().at(i) != category_filter))
+            if ((actions_values.at(i) != category_filter))
                 add_action = false;
         }
 
@@ -95,12 +97,14 @@ QList<QAction*> Qtilities::CoreGui::ActionProvider::actions(IActionProvider::Act
 QMap<QAction*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionMap(IActionProvider::ActionFilterFlags action_filter, const QtilitiesCategory& category_filter) const {
     // Loop through all actions and inspect them:
     QMap<QAction*, QtilitiesCategory> filtered_map;
+    QList<QAction*> actions_keys = d->actions.keys();
+    QList<QtilitiesCategory> actions_values = d->actions.values();
     for (int i = 0; i < d->actions.count(); i++) {
-        QAction* action = d->actions.keys().at(i);
+        QAction* action = actions_keys.at(i);
         bool add_action = true;
 
         // Check the category:
-        if (d->actions.values().at(i) != category_filter && !category_filter.isEmpty())
+        if (actions_values.at(i) != category_filter && !category_filter.isEmpty())
             add_action = false;
 
         // Check for IActionProvider::FilterDisabled
@@ -116,7 +120,7 @@ QMap<QAction*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionMap(
         }
 
         if (add_action)
-            filtered_map[d->actions.keys().at(i)] = d->actions.values().at(i);
+            filtered_map[actions_keys.at(i)] = actions_values.at(i);
     }
 
     return filtered_map;
@@ -124,9 +128,10 @@ QMap<QAction*, QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionMap(
 
 QList<QtilitiesCategory> Qtilities::CoreGui::ActionProvider::actionCategories() const {
     QList<QtilitiesCategory> category_list;
-    for (int i = 0; i < d->actions.count(); i++) {
-        if (!category_list.contains(d->actions.values().at(i)))
-            category_list << d->actions.values().at(i);
+    QList<QtilitiesCategory> actions_values = d->actions.values();
+    for (int i = 0; i < actions_values.count(); i++) {
+        if (!category_list.contains(actions_values.at(i)))
+            category_list << actions_values.at(i);
     }
     qSort(category_list);
     return category_list;
@@ -159,7 +164,7 @@ QAction* Qtilities::CoreGui::ActionProvider::addAction(QAction* action, const Qt
     return action;
 }
 
-void Qtilities::CoreGui::ActionProvider::addActions(QList<QAction*> actions, const QtilitiesCategory& category) {   
+void Qtilities::CoreGui::ActionProvider::addActions(QList<QAction*> actions, const QtilitiesCategory& category) {
     foreach (QAction* action, actions) {
         addAction(action, category);
     }
@@ -171,14 +176,16 @@ QActionGroup* Qtilities::CoreGui::ActionProvider::addActionGroup(QActionGroup* a
 }
 
 void Qtilities::CoreGui::ActionProvider::disableAllActions() {
+    QList<QAction*> actions_keys = d->actions.keys();
     for (int i = 0; i < d->actions.count(); i++) {
-        d->actions.keys().at(i)->setEnabled(false);
+        actions_keys.at(i)->setEnabled(false);
     }
 }
 
 void Qtilities::CoreGui::ActionProvider::enableAllActions() {
+    QList<QAction*> actions_keys = d->actions.keys();
     for (int i = 0; i < d->actions.count(); i++) {
-        d->actions.keys().at(i)->setEnabled(true);
+        actions_keys.at(i)->setEnabled(true);
     }
 }
 
@@ -188,30 +195,31 @@ QList<QAction*> Qtilities::CoreGui::ActionProvider::findActionsByText(const QStr
     if (match_flags & Qt::CaseSensitive)
         case_sensitivity = Qt::CaseSensitive;
 
+    QList<QAction*> actions_keys = d->actions.keys();
     for (int i = 0; i < d->actions.count(); i++) {
         if (match_flags == Qt::MatchFixedString) {
-            if (d->actions.keys().at(i)->text().compare(match_string,case_sensitivity) == 0)
-                matches << d->actions.keys().at(i);
+            if (actions_keys.at(i)->text().compare(match_string,case_sensitivity) == 0)
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchExactly) {
-            if (d->actions.keys().at(i)->text().compare(match_string,case_sensitivity) == 0)
-                matches << d->actions.keys().at(i);
+            if (actions_keys.at(i)->text().compare(match_string,case_sensitivity) == 0)
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchStartsWith) {
-            if (d->actions.keys().at(i)->text().startsWith(match_string,case_sensitivity))
-                matches << d->actions.keys().at(i);
+            if (actions_keys.at(i)->text().startsWith(match_string,case_sensitivity))
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchEndsWith) {
-            if (d->actions.keys().at(i)->text().endsWith(match_string,case_sensitivity))
-                matches << d->actions.keys().at(i);
+            if (actions_keys.at(i)->text().endsWith(match_string,case_sensitivity))
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchContains) {
-            if (d->actions.keys().at(i)->text().contains(match_string,case_sensitivity))
-                matches << d->actions.keys().at(i);
+            if (actions_keys.at(i)->text().contains(match_string,case_sensitivity))
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchWildcard) {
             QRegExp reg_exp(match_string,case_sensitivity,QRegExp::Wildcard);
-            if (reg_exp.exactMatch(d->actions.keys().at(i)->text()))
-                matches << d->actions.keys().at(i);
+            if (reg_exp.exactMatch(actions_keys.at(i)->text()))
+                matches << actions_keys.at(i);
         } else if (match_flags == Qt::MatchRegExp) {
             QRegExp reg_exp(match_string,case_sensitivity);
-            if (reg_exp.exactMatch(d->actions.keys().at(i)->text()))
-                matches << d->actions.keys().at(i);
+            if (reg_exp.exactMatch(actions_keys.at(i)->text()))
+                matches << actions_keys.at(i);
         }
     }
 

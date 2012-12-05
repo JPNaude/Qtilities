@@ -168,7 +168,7 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
 
     if (context_ids.isEmpty()) {
         // Check if there is already an action for the standard context.
-        if (d->id_action_map.keys().contains(0)) {
+        if (d->id_action_map.contains(0)) {
             LOG_WARNING(QString(tr("Attempting to register an action for a multi context (\"Standard Context\") action twice. Last action will be ignored: %1")).arg(action->text()));
             return;
         }
@@ -178,8 +178,8 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
     } else {
         for (int i = 0; i < context_ids.count(); i++) {
             // Check if there is already an action for this context
-            if (d->id_action_map.keys().contains(context_ids.at(i))) {
-                if (d->id_action_map.keys().contains(context_ids.at(i))) {
+            if (d->id_action_map.contains(context_ids.at(i))) {
+                if (d->id_action_map.contains(context_ids.at(i))) {
                     LOG_DEBUG(tr("Attempting to register a backend action for a proxy action twice for a single context with name: ") + CONTEXT_MANAGER->contextString(context_ids.at(i)) + tr(". Last action will be ignored: ") + action->text());
                     qWarning() << "Attempting to register a backend action for a proxy action twice for a single context with name: " << CONTEXT_MANAGER->contextString(context_ids.at(i)) <<  ". Last action will be ignored: " <<  action->text();
                     continue;
@@ -319,8 +319,9 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
     // Check if the old key is part of the backend actions' tooltips:
     QString old_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(old_key.toString(QKeySequence::NativeText));
     QAction* backend_action;
-    for (int i = 0; i < d->id_action_map.count(); i++) {
-        backend_action = d->id_action_map.values().at(i);
+    QList<QPointer<QAction> > actions = d->id_action_map.values();
+    for (int i = 0; i < actions.count(); i++) {
+        backend_action = actions.at(i);
         if (backend_action) {
             // Update the tooltip:
             if (backend_action->toolTip().endsWith(old_key_tooltip)) {
@@ -353,8 +354,8 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
             d->proxy_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
 
         // Add the new tooltip to all the backend actions' tooltips:
-        for (int i = 0; i < d->id_action_map.count(); i++) {
-            backend_action = d->id_action_map.values().at(i);
+        for (int i = 0; i < actions.count(); i++) {
+            backend_action = actions.at(i);
             if (backend_action)
                 backend_action->setToolTip(backend_action->toolTip().trimmed() + " " + new_key_tooltip);
         }

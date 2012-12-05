@@ -68,11 +68,8 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
     QWidget(parent),
     ui(new Ui::LoggerConfigWidget)
 {
-    ui->setupUi(this); 
+    ui->setupUi(this);
     ui->btnApply->setVisible(applyButtonVisisble);
-
-    d = new LoggerConfigWidgetPrivateData;
-    setObjectName(tr("Logger Config Widget"));
 }
 
 Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
@@ -105,6 +102,8 @@ void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::configPageInitialize() {
+    d = new LoggerConfigWidgetPrivateData;
+
     ui->txtFormattingEnginePreview->setFont(QFont("Courier New"));
 
     connect(ui->tableViewLoggerEngines,SIGNAL(clicked(QModelIndex)),SLOT(handle_LoggerEngineTableClicked(QModelIndex)));

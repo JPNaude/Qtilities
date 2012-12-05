@@ -60,7 +60,7 @@ Qtilities::CoreGui::WidgetLoggerEngine::WidgetLoggerEngine(MessageDisplaysFlag m
 Qtilities::CoreGui::WidgetLoggerEngine::~WidgetLoggerEngine()
 {
     if (d->widget)
-        d->widget->close();
+        d->widget->deleteLater();
     delete d;
 }
 
@@ -85,9 +85,11 @@ bool Qtilities::CoreGui::WidgetLoggerEngine::initialize() {
     if (d->widget) {
         // Print startup info messages
         Q_ASSERT(abstractLoggerEngineData->formatting_engine);
+        #ifndef QT_NO_DEBUG
         d->widget->appendMessage(objectName() + tr(" initialized successfully."));
         d->widget->appendMessage(tr("Log messages will be formatted using the following formatting engine: ") + abstractLoggerEngineData->formatting_engine->name());
         d->widget->appendMessage(" ");
+        #endif
         return true;
     } else
         return false;

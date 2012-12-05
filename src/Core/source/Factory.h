@@ -146,7 +146,7 @@ namespace Qtilities {
                       // Check that multiple tags don't exist
                       // Don't check the interface itself, sometimes it is desirable to
                       // to register the same interface using different tags.
-                      if (!reg_ifaces.keys().contains(iface_data.tag)) {
+                      if (!reg_ifaces.contains(iface_data.tag)) {
                           reg_ifaces[iface_data.tag] = factory_interface;
                           data_ifaces[iface_data.tag] = iface_data;
                           return true;

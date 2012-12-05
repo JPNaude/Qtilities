@@ -280,6 +280,7 @@ bool MyClass::slowFunction() {
     Task task("Function Description");
     OBJECT_MANAGER->registerObject(&task);
     task.startTask();
+    QApplication::processEvents();
 
     // Existing code
     QApplication::processEvents();
@@ -302,7 +303,7 @@ bool MyClass::slowFunction() {
 }
 \endcode
 
-It is also possible to log messages from the task as system wide messsages in your application. In the next example this approach is followed (note that the task
+It is also possible to log messages from the task as system wide messages in your application. In the next example this approach is followed (note that the task
 itself does not have a log anymore in this example).
 
 \code

@@ -45,11 +45,7 @@ Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget
     QWidget(parent),
     ui(new Ui::ExtensionSystemConfig)
 {
-    ui->setupUi(this);
 
-    // Put the widget in the center of the screen:
-    QRect qrect = QApplication::desktop()->availableGeometry(this);
-    move(qrect.center() - rect().center());
 }
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::~ExtensionSystemConfig()
@@ -70,6 +66,12 @@ QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() con
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageInitialize() {
+    ui->setupUi(this);
+
+    // Put the widget in the center of the screen:
+    QRect qrect = QApplication::desktop()->availableGeometry(this);
+    move(qrect.center() - rect().center());
+
     if (EXTENSION_SYSTEM->pluginPaths().count() == 1)
         ui->labelPluginPaths->setText(QString(tr("Plugins loaded from %1 path.")).arg(EXTENSION_SYSTEM->pluginPaths().count()));
     else

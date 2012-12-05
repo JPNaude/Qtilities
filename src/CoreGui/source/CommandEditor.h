@@ -108,6 +108,7 @@ QString shortcut_mapping_file = QString("%1%3%2").arg(QtilitiesApplication::appl
               */
             void configPageApply();
             bool supportsApply() const { return true; }
+            void configPageInitialize();
 
         protected:
             void changeEvent(QEvent *e);

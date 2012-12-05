@@ -133,7 +133,7 @@ void Qtilities::Core::QtilitiesCoreApplication::setQtilitiesSettingsEnabled(bool
 }
 
 bool Qtilities::Core::QtilitiesCoreApplication::qtilitiesSettingsEnabled() {
-    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesSettingsPathEnabled();
+    return QtilitiesCoreApplicationPrivate::instance()->qtilitiesSettingsEnabled();
 }
 
 void Qtilities::Core::QtilitiesCoreApplication::setApplicationBusy(bool is_busy) {

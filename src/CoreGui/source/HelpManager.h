@@ -124,32 +124,32 @@ bool MyPlugins::initializeDependencies(QStringList *error_strings) {
 
             //! Register files in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             void clearRegisteredFiles(bool initialize_after_change = true);
             //! Register files in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             void registerFiles(const QStringList& files, bool initialize_after_change = true);
             //! Registers a file in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             void registerFile(const QString &file, bool initialize_after_change = true);
             //! Gets the registered files in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             QStringList registeredFiles() const;
             //! Unregister files in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             void unregisterFiles(const QStringList& files, bool initialize_after_change = true);
             //! Unregisters a file in the help engine.
             /*!
-              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() is enabled.
+              \note Registered files will only be saved between sessions when QtilitiesCoreApplication::qtilitiesSettingsEnabled() is enabled.
               */
             void unregisterFile(const QString& file, bool initialize_after_change = true);
             //! Writes the help settings.

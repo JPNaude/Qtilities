@@ -150,7 +150,7 @@ void CoreGui::ModeManager::refreshModeList() {
 }
 
 void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode, bool refresh_list) {
-    if (mode) {   
+    if (mode) {
         // Check if this manager's ID is part of the target manager list of the mode:
         if (!mode->targetManagerIDs().contains(d->manager_id))
             return;
@@ -221,7 +221,7 @@ QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeManager::m
 }
 
 QString Qtilities::CoreGui::ModeManager::modeShortcut(int mode_id) const {
-    if (d->mode_shortcuts.keys().contains(mode_id))
+    if (d->mode_shortcuts.contains(mode_id))
         return d->mode_shortcuts[mode_id]->key().toString();
     else
         return QString();
@@ -249,7 +249,7 @@ int Qtilities::CoreGui::ModeManager::activeModeID() const {
         return -1;
 }
 
-QString Qtilities::CoreGui::ModeManager::activeModeName() const {   
+QString Qtilities::CoreGui::ModeManager::activeModeName() const {
     if (d->id_iface_map.contains(d->active_mode))
         return d->id_iface_map[d->active_mode]->modeName();
     else
@@ -257,7 +257,7 @@ QString Qtilities::CoreGui::ModeManager::activeModeName() const {
 }
 
 void Qtilities::CoreGui::ModeManager::setPreferredModeOrder(const QStringList& preferred_order, bool refresh_list) {
-    d->mode_order = modeNamesToIDs(preferred_order);  
+    d->mode_order = modeNamesToIDs(preferred_order);
 
     if (refresh_list)
         refreshList();
@@ -503,9 +503,10 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
         }
 
         // Set size hint for all items:
-        for (int i = 0; i < added_items.values().count(); i++) {
-            if (added_items.values().at(i))
-                added_items.values().at(i)->setSizeHint(hint);
+        QList<QListWidgetItem*> added_item_values = added_items.values();
+        for (int i = 0; i < added_item_values.count(); i++) {
+            if (added_item_values.at(i))
+                added_item_values.at(i)->setSizeHint(hint);
         }
     }
 
@@ -576,7 +577,7 @@ QListWidgetItem* Qtilities::CoreGui::ModeManager::listWidgetItemForID(int id) co
 }
 
 bool Qtilities::CoreGui::ModeManager::isValidModeID(int mode_id) const {
-    return !(d->id_iface_map.keys().contains(mode_id));
+    return !(d->id_iface_map.contains(mode_id));
 }
 
 bool CoreGui::ModeManager::registerModeShortcuts() const {
@@ -605,7 +606,7 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
         return;
     }
 
-    if (d->id_iface_map.keys().contains(item->type())) {
+    if (d->id_iface_map.contains(item->type())) {
         d->id_iface_map[item->type()]->aboutToBeActivated();
         if (!d->id_iface_map[item->type()]->contextString().isEmpty())
             CONTEXT_MANAGER->setNewContext(d->id_iface_map[item->type()]->contextString());

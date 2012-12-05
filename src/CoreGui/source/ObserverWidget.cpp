@@ -1743,8 +1743,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     if (!d->initialized && !d->actionRemoveItem) {
         if (d->actionCollapseAll)
             d->actionCollapseAll->setEnabled(false);
+        #ifndef QT_NO_DEBUG
         if (d->actionDebugObject)
             d->actionDebugObject->setEnabled(false);
+        #endif
         if (d->actionDeleteAll)
             d->actionDeleteAll->setEnabled(false);
         if (d->actionDeleteItem)
@@ -1776,8 +1778,10 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
     } else {
         if (d->actionCollapseAll)
             d->actionCollapseAll->setEnabled(true);
+        #ifndef QT_NO_DEBUG
         if (d->actionDebugObject)
             d->actionDebugObject->setEnabled(true);
+        #endif
         if (d->actionDeleteAll)
             d->actionDeleteAll->setEnabled(true);
         if (d->actionDeleteItem)

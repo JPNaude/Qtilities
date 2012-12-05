@@ -160,7 +160,7 @@ namespace Qtilities {
               Everywhere in %Qtilities this path is used as follows to save settings.
 
 \code
-if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
     return;
 
 QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::IniFormat);
@@ -170,7 +170,7 @@ QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::
               By using this ini file, the %Qtilities settings are kept seperate from the rest of the settings used by your application. If you don't want
               %Qtilities to save any information during runtime you can disable is using setQtilitiesSettingsEnabled().
 
-              \sa setQtilitiesSettingsEnabled(), qtilitiesSettingsPathEnabled()
+              \sa setQtilitiesSettingsEnabled(), qtilitiesSettingsEnabled()
               */
             static QString qtilitiesSettingsPath();
             //! Enables/disables the saving of settings by %Qtilities classes.
@@ -182,7 +182,7 @@ QSettings settings(QtilitiesCoreApplication::qtilitiesSettingsPath(),QSettings::
 
               \note This function will automatically enables/disables the saving of settings on the Logger as well by calling Qtilities::Logging::Logger::setLoggerSettingsEnabled().
 
-              \sa qtilitiesSettingsPath(), qtilitiesSettingsPathEnabled()
+              \sa qtilitiesSettingsPath(), qtilitiesSettingsEnabled()
               */
             static void setQtilitiesSettingsEnabled(bool is_enabled);
             //! Gets if the saving of settings by %Qtilities classes is enabled.

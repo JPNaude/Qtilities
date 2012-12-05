@@ -52,7 +52,7 @@ Qtilities::ProjectManagement::ProjectManagementConfig::ProjectManagementConfig(Q
     QWidget(parent),
     ui(new Ui::ProjectManagementConfig)
 {
-    ui->setupUi(this);
+
 }
 
 Qtilities::ProjectManagement::ProjectManagementConfig::~ProjectManagementConfig()
@@ -85,6 +85,8 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::configPageApply() {
 }
 
 void Qtilities::ProjectManagement::ProjectManagementConfig::configPageInitialize() {
+    ui->setupUi(this);
+
     ui->chkOpenLastProject->setChecked(PROJECT_MANAGER->openLastProjectOnStartup());
     ui->chkCreateNewOnStartup->setChecked(PROJECT_MANAGER->createNewProjectOnStartup());
     ui->chkSaveModifiedProjects->setChecked(PROJECT_MANAGER->checkModifiedOpenProjects());

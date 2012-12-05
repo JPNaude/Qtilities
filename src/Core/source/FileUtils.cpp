@@ -106,15 +106,9 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         dir.setNameFilters(file_filters_list);
     }
 
-    QDir::Filters final_filters;
-    if (filters == QDir::NoFilter) {
-        final_filters |= QDir::AllDirs;
-        final_filters |= QDir::Files;
-        final_filters |= QDir::NoDotAndDotDot;
-    } else {
-        final_filters = filters;
-    }
-
+    QDir::Filters final_filters = filters;
+    // Always add QDir::NoDotAndDotDot otherwise we can go into an endless loop here.
+    final_filters |= QDir::NoDotAndDotDot;
     //qDebug() << "XXX" << dir.path() << file_filters << ignore_list;
 
     QStringList ignore_patterns = ignore_list.split(" ",QString::SkipEmptyParts);
@@ -164,7 +158,7 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         d->find_files_under_dir_list.clear();
     }
 
-    foreach (QFileInfo info, dir.entryInfoList(final_filters,sort)) {
+    foreach (QFileInfo info, dir.entryInfoList(final_filters | QDir::AllDirs,sort)) {
         QCoreApplication::processEvents();
         // Check if this entry must be ignored:
         bool not_ignored = true;
@@ -194,13 +188,11 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                     task_ref->logMessage("Searching for files in directory: " + info.absoluteFilePath());
                     task_ref->setDisplayName("Finding Files: " + info.dir().dirName());
                 }
-                findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters,sort,false);
+                findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters | QDir::AllDirs,sort,false);
 
-                // If its a directory and QDir::AllDirs was set and not QDir::Files, we assume that
-                // the function is being used to return directory names and not files. In that
-                // case we add this directory name to the results.
-                if ((final_filters & QDir::AllDirs) && !(final_filters & QDir::Files)) {
-                    LOG_TASK_INFO("Found directory: " + info.absoluteFilePath(),task_ref);
+                if (final_filters & QDir::AllDirs) {
+                    if (task_ref)
+                        task_ref->logMessage(tr("Found directory: ") + info.absoluteFilePath());
                     d->find_files_under_dir_list.append(info);
                 }
 
@@ -209,10 +201,14 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                         task_ref->addCompletedSubTasks(10);
                 }
             } else {
-                d->find_files_under_dir_list.append(info);
+                if (final_filters & QDir::Files) {
+                    LOG_TASK_INFO("Found file: " + info.absoluteFilePath(),task_ref);
+                    d->find_files_under_dir_list.append(info);
+                }
+
                 if (task_ref) {
                     if (first_run) {
-                        task_ref->logMessage("Found file: " + info.absoluteFilePath());
+                        task_ref->logMessage(tr("Found file: ") + info.absoluteFilePath());
                         task_ref->addCompletedSubTasks(1);
                     }
                 }

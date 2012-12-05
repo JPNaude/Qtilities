@@ -77,6 +77,7 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     ui(new Ui::ConfigurationWidget)
 {
     ui->setupUi(this);
+    setWindowTitle(QApplication::applicationName() + tr(" Settings"));
     d = new ConfigurationWidgetPrivateData;
     d->initialized = false;
     d->display_mode = display_mode;

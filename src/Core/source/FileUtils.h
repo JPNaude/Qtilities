@@ -104,14 +104,19 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
                 It is possible to find just directories by specifying the filters to be QDir::AllDirs without including QDir::Files.
 
                \param dirName Path of directory to search under.
-               \param file_filters The list of files which must be returned, when empty all files are returned. For example: *.bit *.log *.ngc , when empty all files added by default (*.*).
+               \param file_filters The list of files which must be returned, when empty all files are returned. For example: *.bit *.log *.ngc, when empty all files added by default (*.*).
                \param ignore_list Files which should be ignored. Must be in the format: *.svn *.bak *.tmp
-               \param filters The QDir::Filters to apply when searching for files. All folder related filter options are ignored.
-               \param sort The QDir::SortFlags to apply when searching for files.
+               \param filters The QDir::Filters to apply when searching for files and folders.
+               \param sort The QDir::SortFlags to apply when searching for files and folders.
                \param first_run Ignore this parameter, used in recursive operations.
-               \return A list of QUrls containing the files. The QUrls are constructed using QUrl::fromLocalFile().
+               \return A list of QFileInfos containing the information about found files.
               */
-            QFileInfoList findFilesUnderDir(const QString &dirName, const QString& file_filters = QString(), const QString& ignore_list = QString(), QDir::Filters filters = QDir::NoFilter, QDir::SortFlags sort = QDir::NoSort, bool first_run = true);
+            QFileInfoList findFilesUnderDir(const QString &dirName,
+                                            const QString& file_filters = QString(),
+                                            const QString& ignore_list = QString(),
+                                            QDir::Filters filters = QDir::Files | QDir::NoDotAndDotDot,
+                                            QDir::SortFlags sort = QDir::NoSort,
+                                            bool first_run = true);
             //! Returns the last QFileInfoList produced by fileFilesUnderDir().
             QFileInfoList lastFilesUnderDir();
             //! Sets up the paramaters for future findFilesUnderDir() runs.
@@ -119,11 +124,15 @@ QFileInfoList files = fu.findFilesUnderDir("c:/my_path");
                \param dirName Path of directory to search under.
                \param file_filters The list of files which must be returned, when empty all files are returned. For example: *.bit *.log *.ngc , when empty all files added by default (*.*).
                \param ignore_list Files which should be ignored. Must be in the format: *.svn *.bak *.tmp
-               \param filters The QDir::Filters to apply when searching for files. All folder related filter options are ignored.
-               \param sort The QDir::SortFlags to apply when searching for files.
+               \param filters The QDir::Filters to apply when searching for files and folders.
+               \param sort The QDir::SortFlags to apply when searching for files and folders.
                \param first_run Ignore this parameter, used in recursive operations.
               */
-            void setFindFilesUnderDirParams(const QString &dirName, const QString& file_filters = QString(), const QString& ignore_list = QString(), QDir::Filters filters = QDir::Files, QDir::SortFlags sort = QDir::NoSort);
+            void setFindFilesUnderDirParams(const QString &dirName,
+                                            const QString& file_filters = QString(),
+                                            const QString& ignore_list = QString(),
+                                            QDir::Filters filters = QDir::Files | QDir::NoDotAndDotDot,
+                                            QDir::SortFlags sort = QDir::NoSort);
         private slots:
             //! Finds all files in the directory hierarhcy under a directory.
             /*!

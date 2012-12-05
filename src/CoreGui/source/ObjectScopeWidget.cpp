@@ -280,7 +280,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
         MultiContextProperty category_prop = ObjectManager::getMultiContextProperty(d->obj,qti_prop_CATEGORY_MAP);
         QString category_string;
         if (category_prop.isValid()) {
-            if (category_prop.contextMap().keys().contains(observer->observerID()))
+            if (category_prop.contextMap().contains(observer->observerID()))
                 category_string = category_prop.value(observer->observerID()).toString();
             else
                 category_string = tr("None");

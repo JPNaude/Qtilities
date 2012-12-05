@@ -106,7 +106,7 @@ QString("%1%2").arg(QCoreApplication::applicationDirPath()).arg(Qtilities::Loggi
             //! Enables/disables the saving of settings by %Qtilities classes.
             void setQtilitiesSettingsEnabled(bool is_enabled);
             //! Gets if the saving of settings by %Qtilities classes is enabled.
-            bool qtilitiesSettingsPathEnabled() const;
+            bool qtilitiesSettingsEnabled() const;
 
             //! Sets if the application is busy, thus it cannot be closed.
             /*!

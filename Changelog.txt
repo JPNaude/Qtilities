@@ -24,6 +24,7 @@ Qtilities v1.2 Changes
     [#] AbstractLoggerEngine's logMessage() function got a new message type parameter.
     [#] AbstractFormattingEngine is not exported, thus you can subclass it to create your own formatting engines in your own libraries.
     [#] WidgetLoggerEngine::isFormattingEngineConstant() no longer returns true, thus you can formatting messages using your own formatting engines.
+    [#] Made messages at the start of logs appear in debug mode only debug. For example: "ENGINE_NAME initialized successfully. Log messages will be formatted using the following formatting engine: XXX".
 
     [*] Fixed handling of < and > characters in some engines where these characters has some meaning (XML for example).
     [*] Fixed bug in Logger::loggerEngineReferenceAt() where it did not ignore deleted logger engines during its position calculation.
@@ -69,7 +70,7 @@ Qtilities v1.2 Changes
         only emit at the end of a processing cycle if necessary.
     [#] Observer will now only emit modificationStateChanged() at the end of a processing cycle when the modification state
         actually changed during a processing cycle.
-    [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsPathEnabled() to QtilitiesCoreApplication::qtilitiesSettingsEnabled().
+    [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsEnabled() to QtilitiesCoreApplication::qtilitiesSettingsEnabled().
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -84,6 +85,7 @@ Qtilities v1.2 Changes
     [*] Fixed wrong initialization of d_application_busy_count in QtilitiesCoreApplication.
     [*] Fixed #72 - Observer: Inconstancy in behavior of attachSubject() and detachSubject() in regards to rejection messages.
     [*] Fixed issues with QtilitiesCoreApplication::applicationSessionPath().
+    [*] Fixed issues with FileUtil::findFilesUnderDir().
 
     ============================
     QtilitiesCoreGui:
@@ -147,6 +149,7 @@ Qtilities v1.2 Changes
         did not already have a Qtilities category property on it.
     [*] Fixed bug in ObjectDynamicPropertyBrowser where it did not show properties with unsupported types.
     [*] Fixed possible rare crashes when refreshing tree views in ObserverWidget.
+    [*] Fixed memory leak in WidgetLoggerEngine where it did not delete the actual logger widget in its destructor.
 
     ============================
     QtilitiesExtensionSystem:

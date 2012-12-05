@@ -83,10 +83,10 @@ namespace Qtilities {
                     return reg_ifaces.keys();
               }             
               inline bool isTagValid(const QString& tag) const {
-                  return reg_ifaces.keys().contains(tag);
+                  return reg_ifaces.contains(tag);
               }
               BaseClass* createInstance(const QString& tag) {
-                  if (reg_ifaces.keys().contains(tag))
+                  if (reg_ifaces.contains(tag))
                           return reg_ifaces[tag]->createInstance();
                   Q_ASSERT(!isTagValid(tag));
                   return 0;

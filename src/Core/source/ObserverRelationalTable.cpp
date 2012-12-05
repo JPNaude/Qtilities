@@ -562,7 +562,7 @@ bool Qtilities::Core::ObserverRelationalTable::compareObjects(QList<QPointer<QOb
     for (int i = 0; i < objects.count(); i++) {
         int other_id = getVisitorID(objects.at(i));
         // Now compare it against the key at entry i
-        if (!d->entries.keys().contains(other_id)) {
+        if (!d->entries.contains(other_id)) {
             LOG_TRACE(QString("Visitor ID \"%1\" on object \"%2\" does not exist in the readback table.").arg(other_id).arg(objects.at(i)->objectName()));
             success = false;
         } else {

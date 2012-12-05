@@ -94,9 +94,11 @@ void Qtilities::Logging::AbstractLoggerEngine::installFormattingEngine(AbstractF
 
     if (!isFormattingEngineConstant() && abstractLoggerEngineData->formatting_engine && engine) {
         abstractLoggerEngineData->formatting_engine = engine;
-        logMessage(QString(tr("Formatting engine change detected.")),Logger::Info);
-        logMessage(QString(tr("This engine now logs messages using the following formatting engine: %1")).arg(abstractLoggerEngineData->formatting_engine->name()),Logger::Info);
-        logMessage(" ",Logger::Info);
+        #ifndef QT_NO_DEBUG
+        logMessage(QString(tr("Formatting engine change detected.")));
+        logMessage(QString(tr("This engine now logs messages using the following formatting engine: %1")).arg(abstractLoggerEngineData->formatting_engine->name()));
+        logMessage(" ");
+        #endif
     } else if (!abstractLoggerEngineData->formatting_engine && engine)
         abstractLoggerEngineData->formatting_engine = engine;
 }

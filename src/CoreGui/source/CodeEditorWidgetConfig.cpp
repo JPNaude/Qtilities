@@ -32,8 +32,7 @@ Qtilities::CoreGui::CodeEditorWidgetConfig::CodeEditorWidgetConfig(QWidget* pare
     QWidget(parent,f),
     ui(new Ui::CodeEditorWidgetConfig)
 {
-    ui->setupUi(this);
-    setObjectName("Text Editors Config Page");
+
 }
 
 Qtilities::CoreGui::CodeEditorWidgetConfig::~CodeEditorWidgetConfig() {
@@ -60,6 +59,8 @@ QtilitiesCategory Qtilities::CoreGui::CodeEditorWidgetConfig::configPageCategory
 }
 
 void Qtilities::CoreGui::CodeEditorWidgetConfig::configPageApply() {
+    ui->setupUi(this);
+
     if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 

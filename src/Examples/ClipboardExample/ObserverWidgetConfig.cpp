@@ -106,7 +106,7 @@ Qtilities::Core::QtilitiesCategory Qtilities::Examples::Clipboard::ObserverWidge
 }
 
 void Qtilities::Examples::Clipboard::ObserverWidgetConfig::configPageApply() {
-    if (!QtilitiesCoreApplication::qtilitiesSettingsPathEnabled())
+    if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
         return;
 
     // Write the settings:

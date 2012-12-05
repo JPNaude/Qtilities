@@ -379,7 +379,7 @@ QHash<QByteArray,QString> Qtilities::Core::ObserverDotWriter::edgeAttributes(Obs
 }
 
 bool Qtilities::Core::ObserverDotWriter::addGraphAttribute(const QString& attribute, const QString& value) {
-    if (d->graph_attributes.keys().contains("qti.dot.graph." + attribute))
+    if (d->graph_attributes.contains("qti.dot.graph." + attribute))
         d->graph_attributes.remove(attribute);
 
     d->graph_attributes[attribute] = value;
@@ -387,7 +387,7 @@ bool Qtilities::Core::ObserverDotWriter::addGraphAttribute(const QString& attrib
 }
 
 bool Qtilities::Core::ObserverDotWriter::removeGraphAttribute(const QString& attribute) {
-    if (d->graph_attributes.keys().contains("qti.dot.graph." + attribute))
+    if (d->graph_attributes.contains("qti.dot.graph." + attribute))
         d->graph_attributes.remove(attribute);
     return true;
 }

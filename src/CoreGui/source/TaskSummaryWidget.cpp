@@ -156,7 +156,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::addTask(QObject* obj) {
 
     ITask* task = qobject_cast<ITask*> (obj);
     if (task) {
-        if (d->id_widget_map.keys().contains(task->taskID()))
+        if (d->id_widget_map.contains(task->taskID()))
             return;
 
         connect(task->objectBase(),SIGNAL(taskStarted(int,QString,Logger::MessageType)),SLOT(handleTaskStateChanged()));
@@ -188,13 +188,15 @@ void Qtilities::CoreGui::TaskSummaryWidget::addSingleTaskWidget(SingleTaskWidget
 
 void Qtilities::CoreGui::TaskSummaryWidget::handleSingleTaskWidgetDestroyed() {
     QObject* sender_task = sender();
-    for (int i = 0; i < d->id_widget_map.count(); i++) {
-        if (d->id_widget_map.values().at(i) == sender_task) {
+    QList<QPointer<SingleTaskWidget> > map_values = d->id_widget_map.values();
+    for (int i = 0; i < map_values.count(); i++) {
+        if (map_values.at(i) == sender_task) {
             // Disconnect from task:
             ITask* task = TASK_MANAGER->hasTask(d->id_widget_map.keys().at(i));
             if (task)
                 task->objectBase()->disconnect(this);
             d->id_widget_map.remove(task->taskID());
+            break;
             //qDebug() << "TaskSummaryWidget detected destruction of single task widget, disconnecting from and removing task from this widget";
         }
     }

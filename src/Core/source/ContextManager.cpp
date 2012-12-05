@@ -111,7 +111,7 @@ bool Qtilities::Core::ContextManager::hasContext(int context) const {
 }
 
 bool Qtilities::Core::ContextManager::hasContext(const QString& context_string) const {
-    return d->string_id_map.keys().contains(context_string);
+    return d->string_id_map.contains(context_string);
 }
 
 void Qtilities::Core::ContextManager::setNewContext(int context, bool notify) {
@@ -231,7 +231,7 @@ int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
     if (context_string.isEmpty())
         return -1;
 
-    if (d->string_id_map.keys().contains(context_string))
+    if (d->string_id_map.contains(context_string))
         return d->string_id_map.value(context_string);
     else {
         ++d->id_counter;
@@ -241,10 +241,10 @@ int Qtilities::Core::ContextManager::contextID(const QString& context_string) {
 }
 
 QString Qtilities::Core::ContextManager::contextString(int context_id) const {
+    QList<int> string_id_map_values = d->string_id_map.values();
     for (int i = 0; i < d->string_id_map.count(); i++) {
-        if (d->string_id_map.values().at(i) == context_id) {
+        if (string_id_map_values.at(i) == context_id)
             return d->string_id_map.keys().at(i);
-        }
     }
 
     return QString();
@@ -259,8 +259,9 @@ QString Qtilities::Core::ContextManager::contextHelpID(const QString& context_st
     if (context_string.isEmpty())
         return QString();
 
+    QList<QString> string_id_map_keys = d->string_id_map.keys();
     for (int i = 0; i < d->string_help_id_map.count(); i++) {
-        if (d->string_help_id_map.keys().at(i) == context_string) {
+        if (string_id_map_keys.at(i) == context_string) {
             return d->string_help_id_map.values().at(i);
         }
     }

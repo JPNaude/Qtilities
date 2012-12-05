@@ -64,45 +64,7 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandEditor)
 {
-    ui->setupUi(this);
-    d = new CommandEditorPrivateData;
 
-    if (ui->widgetCommandsHolder->layout())
-        delete ui->widgetCommandsHolder->layout();
-
-    QHBoxLayout* layout = new QHBoxLayout(ui->widgetCommandsHolder);
-    layout->setMargin(0);
-    layout->addWidget(&d->observer_widget);
-
-    d->model = new qti_private_CommandTreeModel(this);
-    d->observer_widget.setCustomTreeModel(d->model);
-    d->observer_widget.setObserverContext(ACTION_MANAGER->commandObserver());
-
-    d->action_restore_defaults = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),"Restore Defaults",this);
-    connect(d->action_restore_defaults,SIGNAL(triggered()),SLOT(restoreDefaults()));
-    d->action_load = new QAction(QIcon(qti_icon_FILE_OPEN_16x16),"Load Previous Configuration",this);
-    connect(d->action_load,SIGNAL(triggered()),SLOT(importConfiguration()));
-    d->action_save = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),"Save Current Configuration",this);
-    connect(d->action_save,SIGNAL(triggered()),SLOT(exportConfiguration()));
-    d->observer_widget.actionProvider()->addAction(d->action_restore_defaults,QtilitiesCategory("Current Configuration"));
-    d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
-    d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
-
-    ACTION_MANAGER->commandObserver()->startProcessingCycle();
-    d->observer_widget.initialize();
-    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
-
-    d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
-    if (d->observer_widget.treeView()) {
-        d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
-        d->observer_widget.treeView()->setAlternatingRowColors(true);
-        d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
-        QHeaderView* table_header = d->observer_widget.treeView()->header();
-        if (table_header)
-            table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
-    }
-
-    d->observer_widget.show();
 }
 
 Qtilities::CoreGui::CommandEditor::~CommandEditor()
@@ -142,6 +104,48 @@ void Qtilities::CoreGui::CommandEditor::configPageApply() {
         msgBox.setText(tr("Shortcut mapping export failed. Please see the session log for details."));
         msgBox.exec();
     }
+}
+
+void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
+    ui->setupUi(this);
+    d = new CommandEditorPrivateData;
+
+    if (ui->widgetCommandsHolder->layout())
+        delete ui->widgetCommandsHolder->layout();
+
+    QHBoxLayout* layout = new QHBoxLayout(ui->widgetCommandsHolder);
+    layout->setMargin(0);
+    layout->addWidget(&d->observer_widget);
+
+    d->model = new qti_private_CommandTreeModel(this);
+    d->observer_widget.setCustomTreeModel(d->model);
+    d->observer_widget.setObserverContext(ACTION_MANAGER->commandObserver());
+
+    d->action_restore_defaults = new QAction(QIcon(qti_icon_EDIT_PASTE_16x16),"Restore Defaults",this);
+    connect(d->action_restore_defaults,SIGNAL(triggered()),SLOT(restoreDefaults()));
+    d->action_load = new QAction(QIcon(qti_icon_FILE_OPEN_16x16),"Load Previous Configuration",this);
+    connect(d->action_load,SIGNAL(triggered()),SLOT(importConfiguration()));
+    d->action_save = new QAction(QIcon(qti_icon_FILE_SAVE_16x16),"Save Current Configuration",this);
+    connect(d->action_save,SIGNAL(triggered()),SLOT(exportConfiguration()));
+    d->observer_widget.actionProvider()->addAction(d->action_restore_defaults,QtilitiesCategory("Current Configuration"));
+    d->observer_widget.actionProvider()->addAction(d->action_load,QtilitiesCategory("Current Configuration"));
+    d->observer_widget.actionProvider()->addAction(d->action_save,QtilitiesCategory("Current Configuration"));
+
+    ACTION_MANAGER->commandObserver()->startProcessingCycle();
+    d->observer_widget.initialize();
+    ACTION_MANAGER->commandObserver()->endProcessingCycle(false);
+
+    d->shortcut_delegate = new qti_private_ShortcutEditorDelegate(this);
+    if (d->observer_widget.treeView()) {
+        d->observer_widget.treeView()->setItemDelegate(d->shortcut_delegate);
+        d->observer_widget.treeView()->setAlternatingRowColors(true);
+        d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
+        QHeaderView* table_header = d->observer_widget.treeView()->header();
+        if (table_header)
+            table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
+    }
+
+    d->observer_widget.show();
 }
 
 void Qtilities::CoreGui::CommandEditor::changeEvent(QEvent *e)

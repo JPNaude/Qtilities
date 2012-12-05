@@ -152,7 +152,7 @@ void Qtilities::Core::QtilitiesCoreApplicationPrivate::setQtilitiesSettingsEnabl
     d_settings_enabled = is_enabled; 
 }
 
-bool Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsPathEnabled() const {
+bool Qtilities::Core::QtilitiesCoreApplicationPrivate::qtilitiesSettingsEnabled() const {
     return d_settings_enabled;
 }
 
