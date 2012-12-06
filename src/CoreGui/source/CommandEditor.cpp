@@ -64,7 +64,8 @@ Qtilities::CoreGui::CommandEditor::CommandEditor(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CommandEditor)
 {
-
+    d = new CommandEditorPrivateData;
+    ui->setupUi(this);
 }
 
 Qtilities::CoreGui::CommandEditor::~CommandEditor()
@@ -107,9 +108,6 @@ void Qtilities::CoreGui::CommandEditor::configPageApply() {
 }
 
 void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
-    ui->setupUi(this);
-    d = new CommandEditorPrivateData;
-
     if (ui->widgetCommandsHolder->layout())
         delete ui->widgetCommandsHolder->layout();
 

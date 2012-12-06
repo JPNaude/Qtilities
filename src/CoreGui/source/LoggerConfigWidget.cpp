@@ -70,6 +70,7 @@ Qtilities::CoreGui::LoggerConfigWidget::LoggerConfigWidget(bool applyButtonVisis
 {
     ui->setupUi(this);
     ui->btnApply->setVisible(applyButtonVisisble);
+    d = new LoggerConfigWidgetPrivateData;
 }
 
 Qtilities::CoreGui::LoggerConfigWidget::~LoggerConfigWidget()
@@ -102,8 +103,6 @@ void Qtilities::CoreGui::LoggerConfigWidget::configPageApply() {
 }
 
 void Qtilities::CoreGui::LoggerConfigWidget::configPageInitialize() {
-    d = new LoggerConfigWidgetPrivateData;
-
     ui->txtFormattingEnginePreview->setFont(QFont("Courier New"));
 
     connect(ui->tableViewLoggerEngines,SIGNAL(clicked(QModelIndex)),SLOT(handle_LoggerEngineTableClicked(QModelIndex)));

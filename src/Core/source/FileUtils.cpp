@@ -151,9 +151,9 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                 }
             }
 
-            task_ref->setDisplayName("Finding Files: " + dir.dirName());
+            task_ref->setDisplayName(tr("Finding Files: ") + dir.dirName());
             task_ref->startTask(folder_count*10 + file_count);
-            task_ref->logMessage("Searching for files in directory: " + dirName);
+            task_ref->logMessage(tr("Searching for files in directory: ") + dirName);
         }
         d->find_files_under_dir_list.clear();
     }
@@ -185,8 +185,8 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         if (not_ignored) {
             if (info.isDir()) {
                 if (task_ref) {
-                    task_ref->logMessage("Searching for files in directory: " + info.absoluteFilePath());
-                    task_ref->setDisplayName("Finding Files: " + info.dir().dirName());
+                    task_ref->logMessage(tr("Searching for files in directory: ") + info.absoluteFilePath());
+                    task_ref->setDisplayName(tr("Finding Files: ") + info.dir().dirName());
                 }
                 findFilesUnderDir(info.absoluteFilePath(),file_filters,ignore_list,filters | QDir::AllDirs,sort,false);
 
@@ -196,41 +196,32 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
                     d->find_files_under_dir_list.append(info);
                 }
 
-                if (task_ref) {
-                    if (first_run)
-                        task_ref->addCompletedSubTasks(10);
-                }
+                if (task_ref && first_run)
+                    task_ref->addCompletedSubTasks(10);
             } else {
                 if (final_filters & QDir::Files) {
-                    LOG_TASK_INFO("Found file: " + info.absoluteFilePath(),task_ref);
+                    if (task_ref)
+                        task_ref->logMessage(tr("Found file: ") + info.absoluteFilePath());
                     d->find_files_under_dir_list.append(info);
                 }
 
-                if (task_ref) {
-                    if (first_run) {
-                        task_ref->logMessage(tr("Found file: ") + info.absoluteFilePath());
-                        task_ref->addCompletedSubTasks(1);
-                    }
-                }
+                if (task_ref && first_run)
+                    task_ref->addCompletedSubTasks(1);
             }
         } else if (first_run) {
             if (task_ref) {
-                if (first_run) {
-                    if (info.isDir())
-                        task_ref->logMessage("Ignoring directory: " + info.absoluteFilePath());
-                    else
-                        task_ref->logMessage("Ignoring file: " + info.absoluteFilePath());
-                }
+                if (info.isDir())
+                    task_ref->logMessage(tr("Ignoring directory: ") + info.absoluteFilePath());
+                else
+                    task_ref->logMessage(tr("Ignoring file: ") + info.absoluteFilePath());
             }
         }
     }
 
-    if (first_run) {
-        if (task_ref) {
-            task_ref->setDisplayName("Found Files In: " + dir.dirName());
-            task_ref->logMessage("Successfully searched for and found " + QString::number(d->find_files_under_dir_list.count()) + " files under directory: " + dirName);
-            task_ref->completeTask(ITask::TaskSuccessful);
-        }
+    if (first_run && task_ref) {
+        task_ref->setDisplayName(tr("Found Files In: ") + dir.dirName());
+        task_ref->logMessage(tr("Successfully searched for and found ") + QString::number(d->find_files_under_dir_list.count()) + tr(" files under directory: ") + dirName);
+        task_ref->completeTask(ITask::TaskSuccessful);
     }
 
     return d->find_files_under_dir_list;

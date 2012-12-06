@@ -130,8 +130,6 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
     // Start a processing cycle on the actions observer. Otherwise it will refresh the actions view everytime
     // an action is added in a plugin.
-    ACTION_MANAGER->commandObserver()->startProcessingCycle();
-    ACTION_MANAGER->actionContainerObserver()->startProcessingCycle();
     OBJECT_MANAGER->objectPool()->startProcessingCycle();
 
     // Check if isPluginActivityControlEnabled() is true and that a default plugin file exists.
@@ -368,8 +366,6 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     connect(d->plugin_activity_filter,SIGNAL(activeSubjectsChanged(QList<QObject*>,QList<QObject*>)),SLOT(handlePluginConfigurationChange(QList<QObject*>,QList<QObject*>)));
 
     // TODO: If there was errors or warnings, msgbox the user and ask if they want to review the errors.
-    ACTION_MANAGER->commandObserver()->endProcessingCycle(true);
-    ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(true);
     OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
     emit newProgressMessage(QString(tr("Finished loading plugins in %1 directories.")).arg(d->customPluginPaths.count()));
