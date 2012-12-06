@@ -492,8 +492,11 @@ void ActivityPolicyFilter::handleProcessingCycleStarted() {
 
 void ActivityPolicyFilter::handleProcessingCycleEnded() {
     QList<QObject*> previous_active_subjects = ObjectManager::convSafeObjectsToNormal(d->processing_cycle_start_active_subjects);
-    if (previous_active_subjects != activeSubjects())
+    if (previous_active_subjects != activeSubjects()) {
         emit activeSubjectsChanged(activeSubjects(),inactiveSubjects());
+        setModificationState(true,IModificationNotifier::NotifyListeners,true);
+        observer->setModificationState(true,IModificationNotifier::NotifyListeners,true);
+    }
 }
 
 bool Qtilities::Core::ActivityPolicyFilter::initializeAttachment(QObject* obj, QString* rejectMsg, bool import_cycle) {
