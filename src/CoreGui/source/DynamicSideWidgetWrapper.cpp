@@ -85,10 +85,11 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     ui->toolBar->setMovable(false);
     d->widgetCombo->setEditable(false);
     QStringList items;
-    int index = 0;   
+    int index = 0;
+    QList<QString> keys = d->text_iface_map.keys();
     for (int i = 0; i < d->text_iface_map.count(); ++i) {
-        items << d->text_iface_map.keys().at(i);
-        if (d->text_iface_map.keys().at(i) == current_text)
+        items << keys.at(i);
+        if (keys.at(i) == current_text)
             index = i;
     }
 

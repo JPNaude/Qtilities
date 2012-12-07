@@ -170,16 +170,16 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                     }
                 }
             }
-
         }
 
         // Now add all categorized pages to the grouped pages:
-        for (int i = 0; i < config_page_category_map.count(); ++i) {
-            GroupedConfigPage* group_page_for_category = grouped_config_pages[config_page_category_map.values().at(i)];
+        QMapIterator<IConfigPage*,QtilitiesCategory> itr(config_page_category_map);
+        while (itr.hasNext()) {
+            GroupedConfigPage* group_page_for_category = grouped_config_pages[itr.value()];
             if (group_page_for_category) {
-                group_page_for_category->addConfigPage(config_page_category_map.keys().at(i));
+                group_page_for_category->addConfigPage(itr.key());
 
-                QWidget* page_widget = config_page_category_map.keys().at(i)->configPageWidget();
+                QWidget* page_widget = itr.key()->configPageWidget();
                 if (page_widget) {
                     if (page_widget->size().width() > max_width)
                         max_width = page_widget->sizeHint().width();
@@ -187,7 +187,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
                         max_height = page_widget->sizeHint().height();
                 }
             } else {
-                qWarning() << Q_FUNC_INFO << "Could not find grouped category page for category " << config_page_category_map.values().at(i).toString();
+                qWarning() << Q_FUNC_INFO << "Could not find grouped category page for category " << itr.value().toString();
             }
         }
     } else {

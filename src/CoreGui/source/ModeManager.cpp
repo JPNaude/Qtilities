@@ -620,8 +620,10 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
 void Qtilities::CoreGui::ModeManager::handleModeShortcutActivated() {
     QShortcut* shortcut = qobject_cast<QShortcut*> (sender());
     if (shortcut) {
-        for (int i = 0; i < d->mode_shortcuts.count(); ++i) {
-            if (d->mode_shortcuts.values().at(i) == shortcut) {
+        QList<QShortcut*> values = d->mode_shortcuts.values();
+        int count = values.count();
+        for (int i = 0; i < count; ++i) {
+            if (values.at(i) == shortcut) {
                 setActiveMode(d->mode_shortcuts.keys().at(i));
                 break;
             }
@@ -645,12 +647,13 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id, bool refresh_li
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name, bool refresh_list) {
     // Go through all the registered mode and try to match each mode with new_mode.
+    QList<IMode*> values = d->id_iface_map.values();
     for (int i = 0; i < d->id_iface_map.count(); ++i) {
-        if (d->id_iface_map.values().at(i)->modeName() == mode_name) {
-            if (d->disabled_modes.contains(d->id_iface_map.values().at(i)->modeID()))
+        if (values.at(i)->modeName() == mode_name) {
+            if (d->disabled_modes.contains(values.at(i)->modeID()))
                 return;
 
-            d->active_mode = d->id_iface_map.values().at(i)->modeID();
+            d->active_mode = values.at(i)->modeID();
             break;
         }
     }
@@ -665,12 +668,13 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name, bo
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(IMode* mode_iface, bool refresh_list) {
     // Go through all the registered mode and try to match each mode with new_mode.
+    QList<IMode*> values = d->id_iface_map.values();
     for (int i = 0; i < d->id_iface_map.count(); ++i) {
-        if (d->id_iface_map.values().at(i) == mode_iface) {
-            if (d->disabled_modes.contains(d->id_iface_map.values().at(i)->modeID()))
+        if (values.at(i) == mode_iface) {
+            if (d->disabled_modes.contains(values.at(i)->modeID()))
                 return;
 
-            d->active_mode = d->id_iface_map.values().at(i)->modeID();
+            d->active_mode = values.at(i)->modeID();
             break;
         }
     }

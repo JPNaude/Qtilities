@@ -139,11 +139,13 @@ void Qtilities::CoreGui::TaskSummaryWidget::findCurrentTasks() {
 }
 
 void Qtilities::CoreGui::TaskSummaryWidget::clear() {
+    QList<int> keys = d->id_widget_map.keys();
+    QList<QPointer<SingleTaskWidget> > values = d->id_widget_map.values();
     for (int i = 0; i < d->id_widget_map.count(); ++i) {
-        ITask* task = TASK_MANAGER->hasTask(d->id_widget_map.keys().at(i));
+        ITask* task = TASK_MANAGER->hasTask(keys.at(i));
         if (task)
             task->objectBase()->disconnect(this);
-        ui->widgetSingleWidgetItemsHolder->layout()->removeWidget(d->id_widget_map.values().at(i));
+        ui->widgetSingleWidgetItemsHolder->layout()->removeWidget(values.at(i));
     }
 
     d->id_widget_map.clear();

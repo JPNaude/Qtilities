@@ -1032,9 +1032,11 @@ void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) 
         Observer* next_observer = 0;
         bool found = false;
         if (observer_list.isValid()) {
-            for (int i = 0; i < observer_list.contextMap().count(); ++i) {
-                if ((int) observer_list.contextMap().keys().at(i) != observer->observerID()) {
-                    next_observer = OBJECT_MANAGER->observerReference(observer_list.contextMap().keys().at(i));
+            QList<quint32> keys = observer_list.contextMap().keys();
+            int count = keys.count();
+            for (int i = 0; i < count; ++i) {
+                if ((int) keys.at(i) != observer->observerID()) {
+                    next_observer = OBJECT_MANAGER->observerReference(keys.at(i));
                     if (next_observer) {
                         for (int i = 0; i < next_observer->subjectFilters().count(); ++i) {
                             // Check if it is a naming policy subject filter

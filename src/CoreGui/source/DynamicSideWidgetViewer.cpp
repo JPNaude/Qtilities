@@ -89,30 +89,35 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
 
     // Create a filtered list depending on the mode destination:
     QMap<QString, ISideViewerWidget*> filtered_list;
-    for (int i = 0; i < text_iface_map.count(); ++i) {
-        if (text_iface_map.values().at(i)->destinationModes().contains(d->mode_destination))
-            filtered_list[text_iface_map.keys().at(i)] = text_iface_map.values().at(i);
+    QMapIterator<QString, ISideViewerWidget*> itr_unfiltered(text_iface_map);
+    while (itr_unfiltered.hasNext()) {
+        itr_unfiltered.next();
+        if (itr_unfiltered.value()->destinationModes().contains(d->mode_destination))
+            filtered_list[itr_unfiltered.key()] = itr_unfiltered.value();
     }
     d->text_iface_map = filtered_list;
 
     // First handle the order using widget_order:
     for (int i = 0; i < widget_order.count(); ++i) {
-        if (filtered_list.contains(widget_order.at(i))) {
-            DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,widget_order.at(i),d->is_exclusive);
+        QString current_item = widget_order.at(i);
+        if (filtered_list.contains(current_item)) {
+            DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,current_item,d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
             connect(wrapper,SIGNAL(newSideWidgetRequest()),SLOT(handleNewSideWidgetRequest()));
             connect(wrapper,SIGNAL(currentTextChanged(QString)),SLOT(updateWrapperComboBoxes()));
             d->splitter->addWidget(wrapper);
             d->active_wrappers << wrapper;
             wrapper->show();
-            filtered_list.remove(widget_order.at(i));
+            filtered_list.remove(current_item);
         }
     }
 
     // Now handle widgets which were not present in widget_order:
-    for (int i = 0; i < filtered_list.count(); ++i) {
-        if (filtered_list.values().at(i)->startupModes().contains(d->mode_destination)) {
-            DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,filtered_list.keys().at(i),d->is_exclusive);
+    QMapIterator<QString, ISideViewerWidget*> itr_filtered(filtered_list);
+    while (itr_filtered.hasNext()) {
+        itr_filtered.next();
+        if (itr_filtered.value()->startupModes().contains(d->mode_destination)) {
+            DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,itr_filtered.key(),d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
             connect(wrapper,SIGNAL(newSideWidgetRequest()),SLOT(handleNewSideWidgetRequest()));
             connect(wrapper,SIGNAL(currentTextChanged(QString)),SLOT(updateWrapperComboBoxes()));

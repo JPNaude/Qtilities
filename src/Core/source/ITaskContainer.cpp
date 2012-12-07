@@ -70,9 +70,10 @@ ITask* Qtilities::Core::Interfaces::ITaskContainer::task(int task_id) const {
     if (task_id == -1)
         return 0;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
-            return container_data->task_id_activity_map.keys().at(i);
+        if (keys.at(i)->taskID() == task_id)
+            return keys.at(i);
     }
 
     return 0;
@@ -82,9 +83,10 @@ void Qtilities::Core::Interfaces::ITaskContainer::disableTask(int task_id) {
     if (task_id == -1)
         return;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
-            container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)] = false;
+        if (keys.at(i)->taskID() == task_id)
+            container_data->task_id_activity_map[keys.at(i)] = false;
     }
 
     return;
@@ -94,9 +96,10 @@ void Qtilities::Core::Interfaces::ITaskContainer::enableTask(int task_id) {
     if (task_id == -1)
         return;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
-            container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)] = true;
+        if (keys.at(i)->taskID() == task_id)
+            container_data->task_id_activity_map[keys.at(i)] = true;
     }
 
     return;
@@ -106,9 +109,10 @@ bool Qtilities::Core::Interfaces::ITaskContainer::isTaskActive(int task_id) cons
     if (task_id == -1)
         return false;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
-            return container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)];
+        if (keys.at(i)->taskID() == task_id)
+            return container_data->task_id_activity_map[keys.at(i)];
     }
 
     return false;
@@ -118,8 +122,9 @@ void Qtilities::Core::Interfaces::ITaskContainer::setTaskGlobal(int task_id) {
     if (task_id == -1)
         return;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        Task* task = container_data->task_id_activity_map.keys().at(i);
+        Task* task = keys.at(i);
         if (task->taskID() == task_id)
             task->setTaskType(ITask::TaskGlobal);
     }
@@ -131,8 +136,9 @@ void Qtilities::Core::Interfaces::ITaskContainer::setTaskLocal(int task_id) {
     if (task_id == -1)
         return;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        Task* task = container_data->task_id_activity_map.keys().at(i);
+        Task* task = keys.at(i);
         if (task->taskID() == task_id)
             task->setTaskType(ITask::TaskLocal);
     }
@@ -144,8 +150,9 @@ bool Qtilities::Core::Interfaces::ITaskContainer::isTaskGlobal(int task_id) cons
     if (task_id == -1)
         return false;
 
+    QList<QPointer<Task> > keys = container_data->task_id_activity_map.keys();
     for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
-        Task* task = container_data->task_id_activity_map.keys().at(i);
+        Task* task = keys.at(i);
         if (task->taskID() == task_id)
             return (task->taskType() == ITask::TaskGlobal);
     }

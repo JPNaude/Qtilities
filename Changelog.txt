@@ -107,6 +107,7 @@ Qtilities v1.2 Changes
     [+] Added IConfigPage::configPageInitialize().
     [+] It is now possible to define how a tree's root index must be shown using ObserverHints::setRootIndexDisplayHint(). Note that
         the default display type changed, the root node is no longer displayed by default.
+    [+] Added CodeEditorWidget::fileModifiedOutsideHandlingPolicy() and CodeEditorWidget::setFileModifiedOutsideHandlingPolicy().
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.

@@ -1190,9 +1190,11 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 
     // d->expanded_items would have been set in the above code.
     // Now we do the needed replacements:
-    for (int i = 0; i < d->expanded_items_replace_map.count(); ++i) {
-        if (d->expanded_items.contains(d->expanded_items_replace_map.keys().at(i))) {
-            d->expanded_items.removeOne(d->expanded_items_replace_map.keys().at(i));
+    QList<QString> keys = d->expanded_items_replace_map.keys();
+    int count = keys.count();
+    for (int i = 0; i < count; ++i) {
+        if (d->expanded_items.contains(keys.at(i))) {
+            d->expanded_items.removeOne(keys.at(i));
             d->expanded_items << d->expanded_items_replace_map.values().at(i);
             //qDebug() << "Doing expanded items replace:" << d->expanded_items_replace_map.keys().at(i) << "with" << d->expanded_items_replace_map.values().at(i);
         }

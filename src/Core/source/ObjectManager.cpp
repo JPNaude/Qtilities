@@ -1107,8 +1107,9 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
         if (property_types & MultiContextProperties) {
             bool is_changed = true;
             // Check for added properties:
+            QList<QString> to_be_compared_multi1_keys = to_be_compared_multi1.keys();
             for (int i = 0; i < to_be_compared_multi1.count(); ++i) {
-                QString name1 = to_be_compared_multi1.keys().at(i);
+                QString name1 = to_be_compared_multi1_keys.at(i);
 
                 if (!to_be_compared_multi2.contains(name1)) {
                     property_diff_info->d_added_properties[name1] = "(" + to_be_compared_multi1[name1].valueString() + ")";
@@ -1116,8 +1117,9 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                 }
             }
             // Check for removed properties:
+            QList<QString> to_be_compared_multi2_keys = to_be_compared_multi2.keys();
             for (int i = 0; i < to_be_compared_multi2.count(); ++i) {
-                QString name2 = to_be_compared_multi2.keys().at(i);
+                QString name2 = to_be_compared_multi2_keys.at(i);
 
                 if (!to_be_compared_multi1.contains(name2)) {
                     property_diff_info->d_removed_properties[name2] = "(" + to_be_compared_multi2[name2].valueString() + ")";
@@ -1127,7 +1129,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             // Check for changed properties:
             if (is_changed) {
                 for (int i = 0; i < to_be_compared_multi1.count(); ++i) {
-                    QString name = to_be_compared_multi1.keys().at(i);
+                    QString name = to_be_compared_multi1_keys.at(i);
                     if (to_be_compared_multi2.contains(name)) {
                         QString value1_string = to_be_compared_multi1[name].valueString();
                         QString value2_string = to_be_compared_multi2[name].valueString();

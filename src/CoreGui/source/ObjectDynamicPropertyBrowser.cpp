@@ -462,10 +462,12 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
             dynamic_property = d->property_manager->addProperty(QtVariantPropertyManager::groupTypeId(), property_name);
             if (dynamic_property) {
                 QMap<quint32,QVariant> context_map = multi_context_property.contextMap();
-                for (int s = 0; s < context_map.count(); s++) {
+                QList<quint32> keys = context_map.keys();
+                int count = keys.count();
+                for (int s = 0; s < count; s++) {
                     QVariant sub_property_value = context_map.values().at(s);
-                    Observer* obs = OBJECT_MANAGER->observerReference((int) context_map.keys().at(s));
-                    QString context_name = QString::number(context_map.keys().at(s));
+                    Observer* obs = OBJECT_MANAGER->observerReference((int) keys.at(s));
+                    QString context_name = QString::number(keys.at(s));
                     if (obs)
                         context_name = obs->observerName() + " (" + QString::number(obs->observerID()) + ")";
 
@@ -498,7 +500,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
                         qti_private_MultiContextPropertyData prop_data;
                         prop_data.name = property_names.at(i).data();
                         prop_data.type = qti_private_MultiContextPropertyData::Mixed;
-                        prop_data.observer_id = (int) context_map.keys().at(s);
+                        prop_data.observer_id = (int) keys.at(s);
                         d->multi_context_properties[sub_property] = prop_data;
                     }
                 }

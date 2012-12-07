@@ -59,9 +59,10 @@ QIcon Qtilities::CoreGui::GroupedConfigPage::configPageIcon() const {
         return d->grouping_icon;
 
     // For now use the first IConfigPage icon.
+    QList<IConfigPage*> values = d->pages.values();
     for (int i = 0; i < d->pages.count(); ++i) {
-        if (!d->pages.values().at(i)->configPageIcon().isNull())
-            return d->pages.values().at(i)->configPageIcon();
+        if (!values.at(i)->configPageIcon().isNull())
+            return values.at(i)->configPageIcon();
     }
 
     QWidget* main_window = QtilitiesApplication::mainWindow();
@@ -92,9 +93,10 @@ QtilitiesCategory Qtilities::CoreGui::GroupedConfigPage::configPageCategory() co
 
 void Qtilities::CoreGui::GroupedConfigPage::configPageApply() {
     if (d->apply_all) {
+        QList<IConfigPage*> values = d->pages.values();
         for (int i = 0; i < d->pages.count(); ++i) {
-            d->pages.values().at(i)->configPageApply();
-            emit appliedPage(d->pages.values().at(i));
+            values.at(i)->configPageApply();
+            emit appliedPage(values.at(i));
         }
     } else {
         if (activePage()) {
@@ -139,17 +141,19 @@ bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(IConfigPage *page) con
 }
 
 bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(const QString &page_title) const {
+    QList<IConfigPage*> values = d->pages.values();
     for (int i = 0; i < d->pages.count(); ++i) {
-        if (d->pages.values().at(i)->configPageTitle() == page_title)
+        if (values.at(i)->configPageTitle() == page_title)
             return true;
     }
     return false;
 }
 
 IConfigPage* Qtilities::CoreGui::GroupedConfigPage::getConfigPage(const QString &page_title) const {
+    QList<IConfigPage*> values = d->pages.values();
     for (int i = 0; i < d->pages.count(); ++i) {
-        if (d->pages.values().at(i)->configPageTitle() == page_title)
-            return d->pages.values().at(i);
+        if (values.at(i)->configPageTitle() == page_title)
+            return values.at(i);
     }
     return 0;
 }
@@ -186,8 +190,9 @@ QList<IConfigPage *> Qtilities::CoreGui::GroupedConfigPage::configPages() const 
 
 QStringList Qtilities::CoreGui::GroupedConfigPage::configPageNames() const {
     QStringList names;
+    QList<IConfigPage*> values = d->pages.values();
     for (int i = 0; i < d->pages.count(); ++i) {
-        names << d->pages.values().at(i)->configPageTitle();
+        names << values.at(i)->configPageTitle();
     }
     return names;
 }

@@ -1389,14 +1389,15 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
 bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check, const Observer* observer) {
     // Get all the parents of observer
     MultiContextProperty context_map_prop = ObjectManager::getMultiContextProperty(observer, qti_prop_OBSERVER_MAP);
-    int observer_count;
+    int map_count;
     bool is_parent = false;
 
     if (context_map_prop.isValid()) {
-        observer_count = context_map_prop.contextMap().count();
+        QList<quint32> keys = context_map_prop.contextMap().keys();
+        map_count = keys.count();
         // Check all direct parents:
-        for (int i = 0; i < observer_count; ++i) {
-            Observer* parent = OBJECT_MANAGER->observerReference(context_map_prop.contextMap().keys().at(i));
+        for (int i = 0; i < map_count; ++i) {
+            Observer* parent = OBJECT_MANAGER->observerReference(keys.at(i));
             if (parent != obj_to_check) {
                 is_parent = isParentInHierarchy(obj_to_check,parent);
                 if (is_parent)
@@ -1408,15 +1409,16 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
         // Check above all contained observer parents:
         if (observer->parent()) {
             MultiContextProperty parent_context_map_prop = ObjectManager::getMultiContextProperty(observer->parent(), qti_prop_OBSERVER_MAP);
-            int observer_count;
-            if (parent_context_map_prop.isValid())
-                observer_count = parent_context_map_prop.contextMap().count();
-            else
+            QList<quint32> keys;
+            if (parent_context_map_prop.isValid()) {
+                keys = context_map_prop.contextMap().keys();
+                map_count = keys.count();
+            } else
                 return false;
 
             // Check all direct parents:
-            for (int i = 0; i < observer_count; ++i) {
-                Observer* parent = OBJECT_MANAGER->observerReference(parent_context_map_prop.contextMap().keys().at(i));
+            for (int i = 0; i < map_count; ++i) {
+                Observer* parent = OBJECT_MANAGER->observerReference(keys.at(i));
                 if (parent != obj_to_check) {
                     is_parent = isParentInHierarchy(obj_to_check,parent);
                     if (is_parent)
