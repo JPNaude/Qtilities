@@ -139,8 +139,8 @@ code_editor.codeEditor()->setReadOnly(true);
                 ActionFind          = 1 << 15, /*!< Action to bring up the search and replace box. */
                 ActionAllHints = ActionNoHints | ActionOpenFile | ActionSaveFile | ActionSaveFileAs | ActionPrint | ActionPrintPreview | ActionPrintPDF | ActionUndo | ActionRedo | ActionCut | ActionCopy | ActionPaste |ActionClear | ActionSelectAll | ActionFind
             };
-            Q_DECLARE_FLAGS(ActionFlags, ActionFlag);
-            Q_FLAGS(ActionFlags);
+            Q_DECLARE_FLAGS(ActionFlags, ActionFlag)
+            Q_FLAGS(ActionFlags)
             //! The possible display flags of the code editor widget.
             /*!
               \sa displayFlagsHint()
@@ -152,13 +152,20 @@ code_editor.codeEditor()->setReadOnly(true);
                 ActionToolBar       = 1 << 3, /*!< Display an action toolbar called "Editing" in the widget. */
                 AllDisplayFlagHint = Editor | SearchBox | ActionToolBar
             };
-            Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag);
-            Q_FLAGS(DisplayFlags);
+            Q_DECLARE_FLAGS(DisplayFlags, DisplayFlag)
+            Q_FLAGS(DisplayFlags)
 
             //! Defines how the editor should handle a situation where the open file is removed outside of the editor.
             enum FileRemovedOutsideHandlingPolicy {
                 CloseFile      = 0,      /*!< Just close the file in the editor but keep the editor open. */
                 DeleteEditor   = 1       /*!< Call deleteLater() on the editor. */
+            };
+            //! Defines how the editor should handle a situation where the open file is modified outside of the editor.
+            enum FileModifiedOutsideHandlingPolicy {
+                PromptForUpdate = 0,      /*!< Prompt the user for the action to take. */
+                AutoUpdate      = 1,      /*!< Automatically update the editor. */
+                AutoIgnore      = 2,      /*!< Ignore the external modifications. */
+                AutoIgnoreSetModified = 3 /*!< Ignore the external modifications, but set the editor as modified since the contents is different from that on disk. */
             };
 
             // --------------------------------
@@ -167,7 +174,9 @@ code_editor.codeEditor()->setReadOnly(true);
             /*!
               \param display_flags The display flags which must be used for this code editor.
               */
-            CodeEditorWidget(ActionFlags action_flags = ActionAllHints, DisplayFlags display_flags = AllDisplayFlagHint, QWidget* parent = 0);
+            CodeEditorWidget(ActionFlags action_flags = ActionAllHints,
+                             DisplayFlags display_flags = AllDisplayFlagHint,
+                             QWidget* parent = 0);
             virtual ~CodeEditorWidget();
             bool eventFilter(QObject *object, QEvent *event);
 
@@ -188,6 +197,20 @@ code_editor.codeEditor()->setReadOnly(true);
               <i>This function was added in %Qtilities v1.1.</i>
               */
             void setFileRemovedOutsideHandlingPolicy(FileRemovedOutsideHandlingPolicy policy);
+            //! Gets the FileModifiedOutsideHandlingPolicy of the editor widget.
+            /*!
+              Default is PromptForUpdate.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            FileModifiedOutsideHandlingPolicy fileModifiedOutsideHandlingPolicy() const;
+            //! Sets the FileModifiedOutsideHandlingPolicy of the editor widget.
+            /*!
+              Default is PromptForUpdate.
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            void setFileModifiedOutsideHandlingPolicy(FileModifiedOutsideHandlingPolicy policy);
 
             //! Gets the  current display flags hint.
             /*!

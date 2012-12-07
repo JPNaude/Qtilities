@@ -129,6 +129,8 @@ struct Qtilities::CoreGui::CodeEditorWidgetPrivateData {
     QMutex watcher_mutex;
     //! FileRemovedOutsideHandlingPolicy
     CodeEditorWidget::FileRemovedOutsideHandlingPolicy removed_outside_policy;
+    //! FileModifiedOutsideHandlingPolicy
+    CodeEditorWidget::FileModifiedOutsideHandlingPolicy modified_outside_policy;
 
 };
 
@@ -248,6 +250,14 @@ Qtilities::CoreGui::CodeEditorWidget::FileRemovedOutsideHandlingPolicy Qtilities
 
 void Qtilities::CoreGui::CodeEditorWidget::setFileRemovedOutsideHandlingPolicy(Qtilities::CoreGui::CodeEditorWidget::FileRemovedOutsideHandlingPolicy policy) {
     d->removed_outside_policy = policy;
+}
+
+Qtilities::CoreGui::CodeEditorWidget::FileModifiedOutsideHandlingPolicy Qtilities::CoreGui::CodeEditorWidget::fileModifiedOutsideHandlingPolicy() const {
+    return d->modified_outside_policy;
+}
+
+void Qtilities::CoreGui::CodeEditorWidget::setFileModifiedOutsideHandlingPolicy(Qtilities::CoreGui::CodeEditorWidget::FileModifiedOutsideHandlingPolicy policy) {
+    d->modified_outside_policy = policy;
 }
 
 QString Qtilities::CoreGui::CodeEditorWidget::contextString() const {
@@ -571,30 +581,38 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
         QFile file(path);
         if (file.exists()) {
             // The contents was modified:
-            QMessageBox msgBox;
-            msgBox.setIcon(QMessageBox::Question);
-            msgBox.setText("Your file has changed outside of the editor:<br><br>" + d->current_file);
-            msgBox.setInformativeText("Do you want to reload the file?");
-            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-            msgBox.setDefaultButton(QMessageBox::Yes);
-            int ret = msgBox.exec();
-            switch (ret) {
-                case QMessageBox::Yes:
-                    loadFile(d->current_file);
-                    break;
-                case QMessageBox::No:
-                    // Since the file is not the same as the saved file anymore, we set it as modified.
-                    setModificationState(true);
-                    break;
-                default:
-                    // should never be reached
-                    break;
+            if (d->modified_outside_policy == PromptForUpdate) {
+                QMessageBox msgBox;
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setText(tr("Your file has changed outside of the editor:<br><br>") + d->current_file);
+                msgBox.setInformativeText(tr("Do you want to reload the file?"));
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                msgBox.setDefaultButton(QMessageBox::Yes);
+                int ret = msgBox.exec();
+                switch (ret) {
+                    case QMessageBox::Yes:
+                        loadFile(d->current_file);
+                        break;
+                    case QMessageBox::No:
+                        // Since the file is not the same as the saved file anymore, we set it as modified.
+                        setModificationState(true);
+                        break;
+                    default:
+                        // should never be reached
+                        break;
+                }
+            } else if (d->modified_outside_policy == AutoUpdate) {
+                loadFile(d->current_file);
+            } else if (d->modified_outside_policy == AutoIgnore) {
+                // Do nothing.
+            } else if (d->modified_outside_policy == AutoIgnoreSetModified) {
+                setModificationState(true);
             }
         } else {
             // The file was removed:
             QMessageBox msgBox;
-            msgBox.setText("Your file has been removed outside of the editor:<br><br>" + d->current_file);
-            msgBox.setInformativeText("Do you want to keep this file open in the editor?");
+            msgBox.setText(tr("Your file has been removed outside of the editor:<br><br>") + d->current_file);
+            msgBox.setInformativeText(tr("Do you want to keep this file open in the editor?"));
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::Yes);
             int ret = msgBox.exec();
