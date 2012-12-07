@@ -156,7 +156,7 @@ Qtilities::CoreGui::MessagesPlainTextEditTab::MessagesPlainTextEditTab(QWidget *
     // Construct actions only after global meta type was set.
     constructActions();
     QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
-    for (int i = 0; i < categories.count(); i++) {
+    for (int i = 0; i < categories.count(); ++i) {
         QList<QAction*> action_list = d->action_provider->actions(IActionProvider::FilterHidden,categories.at(i));
         if (action_list.count() > 0) {
             QToolBar* new_toolbar = addToolBar(categories.at(i).toString());
@@ -571,7 +571,7 @@ Qtilities::CoreGui::WidgetLoggerEngineFrontend::WidgetLoggerEngineFrontend(Widge
                 error_index = 0;
         }
 
-        for (int i = 1; i < d->message_display_docks.count(); i++)
+        for (int i = 1; i < d->message_display_docks.count(); ++i)
             tabifyDockWidget(d->message_display_docks.values().at(i-1),d->message_display_docks.values().at(i));
 
         QList<QTabBar *> tabList = findChildren<QTabBar *>();

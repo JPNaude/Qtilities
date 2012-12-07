@@ -170,7 +170,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
 
     if (d->code_editor) {
         QDomNodeList childNodes = object_node->childNodes();
-        for(int i = 0; i < childNodes.count(); i++)
+        for(int i = 0; i < childNodes.count(); ++i)
         {
             QDomNode childNode = childNodes.item(i);
             QDomElement child = childNode.toElement();
@@ -178,9 +178,9 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
             if (child.isNull())
                 continue;
 
-            if (child.tagName() == "CodeEditorProjectItemWrapper") {
+            if (child.tagName() == QLatin1String("CodeEditorProjectItemWrapper")) {
                 QDomNodeList itemNodes = child.childNodes();
-                for(int i = 0; i < itemNodes.count(); i++)
+                for(int i = 0; i < itemNodes.count(); ++i)
                 {
                     QDomNode itemNode = itemNodes.item(i);
 

@@ -97,14 +97,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     IExportable::ExportResultFlags result = IExportable::Incomplete;
 
     QDomNodeList dataNodes = object_node->childNodes();
-    for(int i = 0; i < dataNodes.count(); i++) {
+    for(int i = 0; i < dataNodes.count(); ++i) {
         QDomNode dataNode = dataNodes.item(i);
         QDomElement data = dataNode.toElement();
 
         if (data.isNull())
             continue;
 
-        if (data.tagName() == "FileInfo") {
+        if (data.tagName() == QLatin1String("FileInfo")) {
             // Restore the file path/name:
             if (data.hasAttribute("Path")) {
                 setFileForce(data.attribute("Path"));
@@ -154,7 +154,7 @@ bool Qtilities::CoreGui::TreeFileItem::eventFilter(QObject *object, QEvent *even
                     // The displayed name is the same in all displayed contexts.
                     QList<Observer*> parents = Observer::parentReferences(this);
                     MultiContextProperty new_instance_names_property(qti_prop_DISPLAYED_ALIAS_MAP);
-                    for (int i = 0; i < parents.count(); i++)
+                    for (int i = 0; i < parents.count(); ++i)
                         new_instance_names_property.addContext(QVariant(displayName()),parents.at(i)->observerID());
                     ObjectManager::setMultiContextProperty(this,new_instance_names_property);
                 }

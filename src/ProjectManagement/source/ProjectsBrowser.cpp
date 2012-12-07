@@ -77,7 +77,7 @@ Qtilities::ProjectManagement::ProjectsBrowser::~ProjectsBrowser() {
 void Qtilities::ProjectManagement::ProjectsBrowser::refreshContents() {
     // Add list of recent files:
     ui->listWidgetRecent->clear();
-    for (int i = 0; i < PROJECT_MANAGER->recentProjectNames().count(); i++) {
+    for (int i = 0; i < PROJECT_MANAGER->recentProjectNames().count(); ++i) {
         QString name = PROJECT_MANAGER->recentProjectNames().at(i);
         QListWidgetItem *newItem = new QListWidgetItem;
         newItem->setText(name);
@@ -93,7 +93,7 @@ void Qtilities::ProjectManagement::ProjectsBrowser::refreshContents() {
     // Refresh project categories list:
     ui->listCustomCategories->clear();
     QListWidgetItem* current_item = 0;
-    for (int i = 0; i < PROJECT_MANAGER->customProjectCategories().count(); i++) {
+    for (int i = 0; i < PROJECT_MANAGER->customProjectCategories().count(); ++i) {
         QString category = PROJECT_MANAGER->customProjectCategories().at(i);
         QListWidgetItem *newItem = new QListWidgetItem;
         QString current_path = PROJECT_MANAGER->customProjectsPath(category);

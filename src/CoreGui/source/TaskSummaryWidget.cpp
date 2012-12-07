@@ -139,7 +139,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::findCurrentTasks() {
 }
 
 void Qtilities::CoreGui::TaskSummaryWidget::clear() {
-    for (int i = 0; i < d->id_widget_map.count(); i++) {
+    for (int i = 0; i < d->id_widget_map.count(); ++i) {
         ITask* task = TASK_MANAGER->hasTask(d->id_widget_map.keys().at(i));
         if (task)
             task->objectBase()->disconnect(this);
@@ -189,7 +189,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::addSingleTaskWidget(SingleTaskWidget
 void Qtilities::CoreGui::TaskSummaryWidget::handleSingleTaskWidgetDestroyed() {
     QObject* sender_task = sender();
     QList<QPointer<SingleTaskWidget> > map_values = d->id_widget_map.values();
-    for (int i = 0; i < map_values.count(); i++) {
+    for (int i = 0; i < map_values.count(); ++i) {
         if (map_values.at(i) == sender_task) {
             // Disconnect from task:
             ITask* task = TASK_MANAGER->hasTask(d->id_widget_map.keys().at(i));
@@ -209,7 +209,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::handleTaskTypeChanged() {
     if (!sender_task)
         return;
 
-    for (int i = 0; i < d->id_widget_map.count(); i++) {
+    for (int i = 0; i < d->id_widget_map.count(); ++i) {
         if (d->id_widget_map.keys().at(i) == sender_task->taskID()) {
             // Disconnect from task:
             ITask* task = TASK_MANAGER->hasTask(d->id_widget_map.keys().at(i));
@@ -279,7 +279,7 @@ void Qtilities::CoreGui::TaskSummaryWidget::updateTaskWidget(ITask* task) {
 
 void Qtilities::CoreGui::TaskSummaryWidget::hideIfNeeded() {
     if (d->no_active_task_handling == HideSummaryWidget) {
-        for (int i = 0; i < d->id_widget_map.count(); i++) {
+        for (int i = 0; i < d->id_widget_map.count(); ++i) {
             if (d->id_widget_map.values().at(i)) {
                 if (d->id_widget_map.values().at(i)->isVisible()) {
                     show();

@@ -62,7 +62,7 @@ bool Qtilities::CoreGui::ObserverTreeModelProxyFilter::filterAcceptsRow(int sour
         if (tree_item) {
             // Don't ever filter the root item:
             if (tree_item->itemType() == ObserverTreeItem::TreeNode && tree_item->parentItem()) {
-                if (tree_item->parentItem()->objectName() == "Root Item")
+                if (tree_item->parentItem()->objectName() == QLatin1String("Root Item"))
                     return true;
             }
 

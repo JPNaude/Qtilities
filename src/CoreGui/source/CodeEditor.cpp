@@ -151,7 +151,7 @@ void Qtilities::CoreGui::CodeEditor::highlightWords(const QStringList& words, co
     cursor.movePosition(QTextCursor::Start);
     setTextCursor(cursor);
 
-    foreach (QString current_string, words) {
+    foreach (const QString& current_string, words) {
         while (find(current_string)) {
             QTextCursor find_cursor = document()->find(current_string,cursor);
             QTextCharFormat format(find_cursor.charFormat());

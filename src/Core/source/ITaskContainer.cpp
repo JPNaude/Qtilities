@@ -58,7 +58,7 @@ Qtilities::Core::Interfaces::ITaskContainer::~ITaskContainer() {
 
 QList<ITask*> Qtilities::Core::Interfaces::ITaskContainer::tasks() const {
     QList<ITask*> tasks_ifaces;
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         ITask* iface_cast = qobject_cast<ITask*> (container_data->task_id_activity_map.keys().at(i));
         if (iface_cast)
             tasks_ifaces << iface_cast;
@@ -70,7 +70,7 @@ ITask* Qtilities::Core::Interfaces::ITaskContainer::task(int task_id) const {
     if (task_id == -1)
         return 0;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
             return container_data->task_id_activity_map.keys().at(i);
     }
@@ -82,7 +82,7 @@ void Qtilities::Core::Interfaces::ITaskContainer::disableTask(int task_id) {
     if (task_id == -1)
         return;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
             container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)] = false;
     }
@@ -94,7 +94,7 @@ void Qtilities::Core::Interfaces::ITaskContainer::enableTask(int task_id) {
     if (task_id == -1)
         return;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
             container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)] = true;
     }
@@ -106,7 +106,7 @@ bool Qtilities::Core::Interfaces::ITaskContainer::isTaskActive(int task_id) cons
     if (task_id == -1)
         return false;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         if (container_data->task_id_activity_map.keys().at(i)->taskID() == task_id)
             return container_data->task_id_activity_map[container_data->task_id_activity_map.keys().at(i)];
     }
@@ -118,7 +118,7 @@ void Qtilities::Core::Interfaces::ITaskContainer::setTaskGlobal(int task_id) {
     if (task_id == -1)
         return;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         Task* task = container_data->task_id_activity_map.keys().at(i);
         if (task->taskID() == task_id)
             task->setTaskType(ITask::TaskGlobal);
@@ -131,7 +131,7 @@ void Qtilities::Core::Interfaces::ITaskContainer::setTaskLocal(int task_id) {
     if (task_id == -1)
         return;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         Task* task = container_data->task_id_activity_map.keys().at(i);
         if (task->taskID() == task_id)
             task->setTaskType(ITask::TaskLocal);
@@ -144,7 +144,7 @@ bool Qtilities::Core::Interfaces::ITaskContainer::isTaskGlobal(int task_id) cons
     if (task_id == -1)
         return false;
 
-    for (int i = 0; i < container_data->task_id_activity_map.count(); i++) {
+    for (int i = 0; i < container_data->task_id_activity_map.count(); ++i) {
         Task* task = container_data->task_id_activity_map.keys().at(i);
         if (task->taskID() == task_id)
             return (task->taskType() == ITask::TaskGlobal);

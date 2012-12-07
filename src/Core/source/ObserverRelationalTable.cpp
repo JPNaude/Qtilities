@@ -205,7 +205,7 @@ void Qtilities::Core::RelationalTableEntry::setObject(QObject* object) {
 
 QString Qtilities::Core::RelationalTableEntry::intListToString(QList<int> list) const {
     QStringList string_list;
-    for (int i = 0; i < list.count(); i++)
+    for (int i = 0; i < list.count(); ++i)
         string_list << QString::number(list.at(i));
     return string_list.join(",");
 }
@@ -213,7 +213,7 @@ QString Qtilities::Core::RelationalTableEntry::intListToString(QList<int> list) 
 QList<int> Qtilities::Core::RelationalTableEntry::stringToIntList(const QString& string) const {
     QStringList string_list = string.split(",");
     QList<int> int_list;
-    foreach (QString one_string, string_list)
+    foreach (const QString& one_string, string_list)
         int_list << (int) one_string.toInt();
     return int_list;
 }
@@ -336,7 +336,7 @@ struct Qtilities::Core::ObserverRelationalTablePrivateData {
     visitor_id_count(0),
     exportable_subjects_only(false) {}
     ~ObserverRelationalTablePrivateData() {
-        for (int i = 0; i < entries.count(); i++)
+        for (int i = 0; i < entries.count(); ++i)
             delete entries.values().at(i);
     }
 
@@ -362,7 +362,7 @@ Qtilities::Core::ObserverRelationalTable::ObserverRelationalTable(const Observer
     d = new ObserverRelationalTablePrivateData;
     d->observer = other.d->observer;
     d->exportable_subjects_only = other.d->exportable_subjects_only;
-    for (int i = 0; i < other.count(); i++) {
+    for (int i = 0; i < other.count(); ++i) {
         RelationalTableEntry* other_entry_ptr = other.entryAt(i);
         RelationalTableEntry* entry_ptr = new RelationalTableEntry(*other_entry_ptr);
         entry_ptr->setSessionID(-1);
@@ -378,7 +378,7 @@ Qtilities::Core::ObserverRelationalTable::~ObserverRelationalTable() {
     removeRelationalProperties(d->observer);
 
     // Delete all entries
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         delete d->entries.values().at(i);
         d->entries[d->entries.keys().at(i)] = 0;
     }
@@ -389,7 +389,7 @@ void Qtilities::Core::ObserverRelationalTable::refresh() {
     // Clear up everything:
     removeRelationalProperties(d->observer);
     // Delete all entries
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         delete d->entries.values().at(i);
         d->entries[d->entries.keys().at(i)] = 0;
     }
@@ -407,12 +407,12 @@ bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable o
     if (d->entries.count() != other.count()) {
         LOG_TRACE(QString(QObject::tr("ObserverRelationalTable::compare() failed. Number of entries in table (%1) does not match the number of entries in the table to check (%2).")).arg(d->entries.count()).arg(other.count()));
         LOG_TRACE("Items in table:");
-        for (int i = 0; i < d->entries.count(); i++) {
+        for (int i = 0; i < d->entries.count(); ++i) {
             if (d->entries.values().at(i))
                 LOG_TRACE(d->entries.values().at(i)->name());
         }
         LOG_TRACE("Items in comparison table:");
-        for (int i = 0; i < other.count(); i++) {
+        for (int i = 0; i < other.count(); ++i) {
             if (other.entryAt(i))
                 LOG_TRACE(other.entryAt(i)->name());
         }
@@ -420,7 +420,7 @@ bool Qtilities::Core::ObserverRelationalTable::compare(ObserverRelationalTable o
     }
 
     // We compare by looking up each item in table in this table and compare each item individially.
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         if (!d->entries.values().at(i)) {
             LOG_FATAL(QObject::tr("Null entry found in current observer in method ObserverRelationalTable::compare()."));
             return false;
@@ -442,7 +442,7 @@ int Qtilities::Core::ObserverRelationalTable::count() const {
 }
 
 Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable::entryWithVisitorID(int visitor_id) const {
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         if (d->entries.values().at(i)->visitorID() == visitor_id)
             return d->entries.values().at(i);
     }
@@ -451,7 +451,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
 }
 
 Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable::entryWithSessionID(int session_id) const {
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         if (d->entries.values().at(i)->sessionID() == session_id)
             return d->entries.values().at(i);
     }
@@ -460,7 +460,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
 }
 
 Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable::entryWithPreviousSessionID(int session_id) const {
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         if (d->entries.values().at(i)->previousSessionID() == session_id)
             return d->entries.values().at(i);
     }
@@ -496,7 +496,7 @@ void Qtilities::Core::ObserverRelationalTable::removeRelationalProperties(Observ
     observer->setProperty(qti_prop_VISITOR_ID,QVariant());
     observer->setProperty(qti_prop_LIMITED_EXPORTS,QVariant());
 
-    for (int i = 0; i < observer->subjectCount(); i++) {
+    for (int i = 0; i < observer->subjectCount(); ++i) {
         QObject* obj = observer->subjectAt(i);
         bool is_iface = false;
         bool is_observer = false;
@@ -528,7 +528,7 @@ QMap<int,int> Qtilities::Core::ObserverRelationalTable::parentsToObserverIDs(Rel
         return QMap<int,int>();
 
     QMap<int,int> observerIDs;
-    for (int i = 0; i < entry->parents().count(); i++) {
+    for (int i = 0; i < entry->parents().count(); ++i) {
         // Get the entry for this visitor ID;
         RelationalTableEntry* parent_entry = entryWithVisitorID(entry->parents().at(i));
         if (parent_entry) {
@@ -547,11 +547,11 @@ bool Qtilities::Core::ObserverRelationalTable::compareObjects(QList<QPointer<QOb
     if (d->entries.count() != objects.count()) {
         LOG_ERROR(QString(QObject::tr("ObserverRelationalTable::compareObjects() failed. Number of entries in table (%1) does not match the number of objects in list to check (%2).")).arg(d->entries.count()).arg(objects.count()));
         LOG_TRACE("Items in relational table:");
-        for (int i = 0; i < d->entries.count(); i++) {
+        for (int i = 0; i < d->entries.count(); ++i) {
             LOG_TRACE(d->entries.values().at(i)->name());
         }
         LOG_TRACE("Items in object list:");
-        for (int i = 0; i < objects.count(); i++) {
+        for (int i = 0; i < objects.count(); ++i) {
             LOG_TRACE(objects.at(i)->objectName());
         }
         return false;
@@ -559,7 +559,7 @@ bool Qtilities::Core::ObserverRelationalTable::compareObjects(QList<QPointer<QOb
 
     bool success = true;
     // Compare the visitor IDs of all objects:
-    for (int i = 0; i < objects.count(); i++) {
+    for (int i = 0; i < objects.count(); ++i) {
         int other_id = getVisitorID(objects.at(i));
         // Now compare it against the key at entry i
         if (!d->entries.contains(other_id)) {
@@ -591,7 +591,7 @@ void Qtilities::Core::ObserverRelationalTable::dumpTableInfo() const {
     else
         LOG_INFO(QObject::tr("Observer Relational Table Dump For Readback Table:"));
     LOG_INFO("-------------------------------------");
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         RelationalTableEntry* entry = d->entries.values().at(i);
         if (!entry) {
             LOG_INFO(QObject::tr("Null entry found..."));
@@ -661,7 +661,7 @@ Qtilities::Core::RelationalTableEntry* Qtilities::Core::ObserverRelationalTable:
     int subject_id;
     int subject_ownership;
     RelationalTableEntry* subject_entry;
-    for (int i = 0; i < observer->subjectCount(); i++) {
+    for (int i = 0; i < observer->subjectCount(); ++i) {
         QObject* obj = observer->subjectAt(i);
         subject_ownership = getOwnership(obj);
 
@@ -825,7 +825,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     // Stream the entries one after another:
     stream << (quint32) count();
     bool all_successful = true;
-    for (int i = 0; i < count(); i++) {
+    for (int i = 0; i < count(); ++i) {
         if (entryAt(i)) {
             entryAt(i)->setExportVersion(exportVersion());
             if (entryAt(i)->exportBinary(stream) != IExportable::Complete)
@@ -851,7 +851,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     stream >> qi32;
 
     int entry_count = qi32;
-    for (int i = 0; i < entry_count; i++) {
+    for (int i = 0; i < entry_count; ++i) {
         RelationalTableEntry entry;
         entry.setExportVersion(exportVersion());
         if (entry.importBinary(stream,import_list) == IExportable::Complete) {
@@ -879,7 +879,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
     object_node->setAttribute("EntryCount",d->entries.count());
     bool all_successful = true;
-    for (int i = 0; i < d->entries.count(); i++) {
+    for (int i = 0; i < d->entries.count(); ++i) {
         QDomElement entry = doc->createElement("Entry_" + QString::number(i));
         object_node->appendChild(entry);
         if (d->entries.values().at(i)) {
@@ -907,7 +907,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         depth_readback = object_node->attribute("EntryCount").toInt();
 
     QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();

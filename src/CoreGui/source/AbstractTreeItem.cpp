@@ -106,7 +106,7 @@ bool Qtilities::CoreGui::AbstractTreeItem::setName(const QString& new_name, Obse
 
             // Get the naming policy filter:
             NamingPolicyFilter* filter = 0;
-            for (int i = 0; i < parent->subjectFilters().count(); i++) {
+            for (int i = 0; i < parent->subjectFilters().count(); ++i) {
                 NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (parent->subjectFilters().at(i));
                 if (naming_filter)
                     filter = naming_filter;
@@ -202,14 +202,14 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
     Q_UNUSED(version)
 
     QDomNodeList dataNodes = object_node->childNodes();
-    for(int i = 0; i < dataNodes.count(); i++) {
+    for(int i = 0; i < dataNodes.count(); ++i) {
         QDomNode dataNode = dataNodes.item(i);
         QDomElement data = dataNode.toElement();
 
         if (data.isNull())
             continue;
 
-        if (data.tagName() == "Formatting") {
+        if (data.tagName() == QLatin1String("Formatting")) {
             // First get all attributes:
             //if (data.hasAttribute("Alignment")) {
             //    setAlignment((Qt::Alignment) (data.attribute("Alignment").toInt()));
@@ -234,7 +234,7 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
 
             // Next get all child nodes:
             QDomNodeList childNodes = data.childNodes();
-            for(int i = 0; i < childNodes.count(); i++)
+            for(int i = 0; i < childNodes.count(); ++i)
             {
                 QDomNode childNode = childNodes.item(i);
                 QDomElement childElement = childNode.toElement();
@@ -242,7 +242,7 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
                 if (childElement.isNull())
                     continue;
 
-                if (childElement.tagName() == "Size") {
+                if (childElement.tagName() == QLatin1String("Size")) {
                     int width = childElement.attribute("Width").toInt();
                     int height = childElement.attribute("Height").toInt();
                     QSize size(width,height);
@@ -250,7 +250,7 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
                     continue;
                 }
 
-                if (childElement.tagName() == "Font") {
+                if (childElement.tagName() == QLatin1String("Font")) {
                     if (childElement.hasAttribute("Family")) {
                         QString family = childElement.attribute("Family");
                         int point_size = -1;
@@ -262,7 +262,7 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
                         if (childElement.hasAttribute("Weigth"))
                             weight = childElement.attribute("Weigth").toInt();
                         if (childElement.hasAttribute("Italic")) {
-                            if (childElement.attribute("Italic") == "True")
+                            if (childElement.attribute("Italic") == QLatin1String("True"))
                                 italic = true;
                             else
                                 italic = false;
@@ -270,7 +270,7 @@ IExportable::ExportResultFlags Qtilities::CoreGui::AbstractTreeItem::loadFormatt
 
                         QFont font(family,point_size,weight,italic);
                         if (childElement.hasAttribute("Bold")) {
-                            if (childElement.attribute("Bold") == "True")
+                            if (childElement.attribute("Bold") == QLatin1String("True"))
                                 font.setBold(true);
                         }
                         setFont(font);

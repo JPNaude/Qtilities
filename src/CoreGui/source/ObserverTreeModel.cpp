@@ -124,7 +124,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setObserverContext(Observer* observe
         return false;
 
     // Check if this observer has a subject type filter installed
-    for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+    for (int i = 0; i < d_observer->subjectFilters().count(); ++i) {
         SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (d_observer->subjectFilters().at(i));
         if (subject_type_filter) {
             if (!subject_type_filter->groupName().isEmpty()) {
@@ -383,7 +383,7 @@ QVariant Qtilities::CoreGui::ObserverTreeModel::data(const QModelIndex &index, i
                 if (hints_to_use_for_selection) {
                     if (hints_to_use_for_selection->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
                         ActivityPolicyFilter* activity_filter = 0;
-                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); ++i) {
                             activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
                             if (activity_filter) {
                                 subject_activity = local_selection_parent->getMultiContextPropertyValue(obj,qti_prop_ACTIVITY_MAP);
@@ -908,7 +908,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::dropMimeData(const QMimeData * data,
 
                     // Get all subjects in mime data and change their categories:
                     QList<QPointer<QObject> > subjects = observer_mime_data->subjectList();
-                    for (int i = 0; i < subjects.count(); i++) {
+                    for (int i = 0; i < subjects.count(); ++i) {
                         if (subjects.at(i)) {
                             QVariant category_variant = obs->getMultiContextPropertyValue(subjects.at(i),qti_prop_CATEGORY_MAP);
                             // Check if a category property exists:
@@ -1074,7 +1074,7 @@ bool Qtilities::CoreGui::ObserverTreeModel::setData(const QModelIndex &set_data_
                     if (local_selection_parent->displayHints()->activityControlHint() == ObserverHints::CheckboxTriggered && local_selection_parent->displayHints()->activityDisplayHint() == ObserverHints::CheckboxActivityDisplay) {
                         // Now we need to check if the observer has an activity policy filter installed
                         ActivityPolicyFilter* activity_filter = 0;
-                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); i++) {
+                        for (int i = 0; i < local_selection_parent->subjectFilters().count(); ++i) {
                             activity_filter = qobject_cast<ActivityPolicyFilter*> (local_selection_parent->subjectFilters().at(i));
                             if (activity_filter) {
                                 // The value comming in here is always Qt::Checked.
@@ -1190,7 +1190,7 @@ void Qtilities::CoreGui::ObserverTreeModel::rebuildTreeStructure() {
 
     // d->expanded_items would have been set in the above code.
     // Now we do the needed replacements:
-    for (int i = 0; i < d->expanded_items_replace_map.count(); i++) {
+    for (int i = 0; i < d->expanded_items_replace_map.count(); ++i) {
         if (d->expanded_items.contains(d->expanded_items_replace_map.keys().at(i))) {
             d->expanded_items.removeOne(d->expanded_items_replace_map.keys().at(i));
             d->expanded_items << d->expanded_items_replace_map.values().at(i);
@@ -1498,7 +1498,7 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findObject(const QModelIndex&
                 column = columnPosition(ObserverTreeModel::ColumnName);
 
             // Ok it was not this index, loop through all children under this index:
-            for (int i = 0; i < item->childCount(); i++) {
+            for (int i = 0; i < item->childCount(); ++i) {
                 QModelIndex child_index = index(i,column,current_index);
                 correct_index = findObject(child_index,obj);
                 if (correct_index.isValid()) {
@@ -1516,7 +1516,7 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::fin
         return item;
 
     // Check all the children of item and traverse into them.
-    for (int i = 0; i < item->childCount(); i++) {
+    for (int i = 0; i < item->childCount(); ++i) {
         ObserverTreeItem* tree_item = findObject(item->childItemReferences().at(i),obj);
         if (tree_item)
             return tree_item;
@@ -1536,7 +1536,7 @@ QModelIndex Qtilities::CoreGui::ObserverTreeModel::findCategory(const QModelInde
             }
 
             // Ok it was not this index, loop through all children under this index:
-            for (int i = 0; i < item->childCount(); i++) {
+            for (int i = 0; i < item->childCount(); ++i) {
                 QModelIndex child_index = index(i,0,current_index);
                 correct_index = findCategory(child_index,category);
                 if (correct_index.isValid()) {
@@ -1554,7 +1554,7 @@ Qtilities::CoreGui::ObserverTreeItem* Qtilities::CoreGui::ObserverTreeModel::fin
         return item;
 
     // Check all the children of item and traverse into them.
-    for (int i = 0; i < item->childCount(); i++) {
+    for (int i = 0; i < item->childCount(); ++i) {
         ObserverTreeItem* tree_item = findCategory(item->childItemReferences().at(i),category);
         if (tree_item)
             return tree_item;
@@ -1573,7 +1573,7 @@ void Qtilities::CoreGui::ObserverTreeModel::deleteRootItem() {
 
 QModelIndexList Qtilities::CoreGui::ObserverTreeModel::findExpandedNodeIndexes(const QStringList& node_names) const {
     QModelIndexList complete_match_list;
-    foreach (QString item, node_names) {
+    foreach (const QString& item, node_names) {
         complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item),1,Qt::MatchRecursive));
         complete_match_list.append(match(index(0,columnPosition(AbstractObserverItemModel::ColumnName)),Qt::DisplayRole,QVariant::fromValue(item + "*"),1,Qt::MatchRecursive));
     }
@@ -1594,7 +1594,7 @@ QModelIndexList Qtilities::CoreGui::ObserverTreeModel::getAllIndexes(ObserverTre
     // Add root and call getAllIndexes on all its children.
     QModelIndex index = findObject(item->getObject());
     indexes << index;
-    for (int i = 0; i < item->childCount(); i++)
+    for (int i = 0; i < item->childCount(); ++i)
         getAllIndexes(item->child(i));
 
     return indexes;

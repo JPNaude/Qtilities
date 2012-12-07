@@ -220,11 +220,11 @@ QString Qtilities::Core::Interfaces::IExportable::exportModeToString(ExportMode 
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::Core::Interfaces::IExportable::stringToExportMode(const QString& export_mode_string) {
-    if (export_mode_string == "None") {
+    if (export_mode_string == QLatin1String("None")) {
         return None;
-    } else if (export_mode_string == "Binary") {
+    } else if (export_mode_string == QLatin1String("Binary")) {
         return Binary;
-    } else if (export_mode_string == "XML") {
+    } else if (export_mode_string == QLatin1String("XML")) {
         return XML;
     }
 

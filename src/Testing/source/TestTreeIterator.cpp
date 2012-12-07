@@ -66,7 +66,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardSimple() {
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 7);
-    for (int i = 0; i < testList.count(); i++) {
+    for (int i = 0; i < testList.count(); ++i) {
         QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
     }
 }
@@ -97,7 +97,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexA() {
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 9);
-    for (int i = 0; i < testList.count(); i++) {
+    for (int i = 0; i < testList.count(); ++i) {
         QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
     }
 }
@@ -130,7 +130,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardComplexB() {
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 7);
-    for (int i = 0; i < testList.count(); i++) {
+    for (int i = 0; i < testList.count(); ++i) {
         QVERIFY(testList.at(i).compare(QString::number(i+1)) == 0);
     }
 }
@@ -184,7 +184,7 @@ void Qtilities::Testing::TestTreeIterator::testIterationForwardMultipleParentsA(
     QVERIFY(itr.hasNext() == false);
     QVERIFY(itr.hasPrevious() == true);
     QVERIFY(testList.count() == 4);
-    for (int i = 0; i < testList.count(); i++) {
+    for (int i = 0; i < testList.count(); ++i) {
         QVERIFY(testList.at(i).compare("A" + QString::number(i+1)) == 0);
     }
 }

@@ -144,7 +144,7 @@ Qtilities::CoreGui::NamingPolicyFilter* Qtilities::CoreGui::TreeNode::namingPoli
     // If the pointer we have is 0, the activity filter might have been set using the observer base class.
     // Therefore we must check the subject filters in the base class here first:
     if (!nodeData->naming_policy_filter) {
-        for (int i = 0; i < subjectFilters().count(); i++) {
+        for (int i = 0; i < subjectFilters().count(); ++i) {
             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (subjectFilters().at(i));
             if (naming_filter) {
                 nodeData->naming_policy_filter = naming_filter;
@@ -195,7 +195,7 @@ Qtilities::Core::ActivityPolicyFilter* Qtilities::CoreGui::TreeNode::activityPol
     // If the pointer we have is 0, the activity filter might have been set using the observer base class.
     // Therefore we must check the subject filters in the base class here first:
     if (!nodeData->activity_policy_filter) {
-        for (int i = 0; i < subjectFilters().count(); i++) {
+        for (int i = 0; i < subjectFilters().count(); ++i) {
             ActivityPolicyFilter* activity_filter = qobject_cast<ActivityPolicyFilter*> (subjectFilters().at(i));
             if (activity_filter) {
                 nodeData->activity_policy_filter = activity_filter;
@@ -229,7 +229,7 @@ Qtilities::Core::SubjectTypeFilter* Qtilities::CoreGui::TreeNode::subjectTypeFil
     // If the pointer we have is 0, the subject type filter might have been set using the observer base class.
     // Therefore we must check the subject filters in the base class here first:
     if (!nodeData->subject_type_filter) {
-        for (int i = 0; i < subjectFilters().count(); i++) {
+        for (int i = 0; i < subjectFilters().count(); ++i) {
             SubjectTypeFilter* type_filter = qobject_cast<SubjectTypeFilter*> (subjectFilters().at(i));
             if (type_filter) {
                 nodeData->subject_type_filter = type_filter;
@@ -288,7 +288,7 @@ Qtilities::CoreGui::TreeItem* Qtilities::CoreGui::TreeNode::addItem(const QStrin
 
 void Qtilities::CoreGui::TreeNode::addItems(const QStringList& items, const QtilitiesCategory& category) {
     startProcessingCycle();
-    foreach (QString item, items) {
+    foreach (const QString& item, items) {
         addItem(item,category);
     }
     endProcessingCycle();
@@ -486,14 +486,14 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     IExportable::ExportResultFlags result = IExportable::Complete;
     QList<QPointer<QObject> > internal_import_list;
     QDomNodeList childNodes = root.childNodes();
-    for(int i = 0; i < childNodes.count(); i++) {
+    for(int i = 0; i < childNodes.count(); ++i) {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();
 
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "Root") {
+        if (child.tagName() == QLatin1String("Root")) {
             // Restore the instance name:
             if (child.hasAttribute("Name"))
                 setObjectName(child.attribute("Name"));

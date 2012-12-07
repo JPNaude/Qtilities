@@ -86,7 +86,7 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     d->widgetCombo->setEditable(false);
     QStringList items;
     int index = 0;   
-    for (int i = 0; i < d->text_iface_map.count(); i++) {
+    for (int i = 0; i < d->text_iface_map.count(); ++i) {
         items << d->text_iface_map.keys().at(i);
         if (d->text_iface_map.keys().at(i) == current_text)
             index = i;
@@ -124,7 +124,7 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::handleCurrentIndexChanged(con
 
     if (d->text_iface_map.contains(text)) {
         if (d->current_widget) {
-            for (int i = 0; i < d->viewer_actions.count(); i++)
+            for (int i = 0; i < d->viewer_actions.count(); ++i)
                 ui->toolBar->removeAction(d->viewer_actions.at(i));
 
             d->viewer_actions.clear();
@@ -169,7 +169,7 @@ void Qtilities::CoreGui::DynamicSideWidgetWrapper::updateAvailableWidgets(QMap<Q
 
     d->widgetCombo->clear();
     QStringList items;
-    for (int i = 0; i < d->text_iface_map.count(); i++)
+    for (int i = 0; i < d->text_iface_map.count(); ++i)
         items << d->text_iface_map.keys().at(i);
     d->widgetCombo->addItems(items);
     d->widgetCombo->setCurrentIndex(d->widgetCombo->findText(current_text));

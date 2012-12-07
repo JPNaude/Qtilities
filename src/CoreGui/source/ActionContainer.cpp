@@ -70,7 +70,7 @@ void Qtilities::CoreGui::MenuContainer::addAction(Command *command, const QStrin
     d->id_action_map[command->defaultText()] = command->action();
 
     // Find the action with the given default string.
-    for (int i = 0; i < d->id_action_map.count(); i++) {
+    for (int i = 0; i < d->id_action_map.count(); ++i) {
         if (d->id_action_map.keys().at(i) == before) {
             d->this_menu->insertAction(d->id_action_map[d->id_action_map.keys().at(i)],command->action());
             return;
@@ -89,7 +89,7 @@ void Qtilities::CoreGui::MenuContainer::addSeperator(const QString &before) {
     sep->setSeparator(true);
 
     // Find the action with the given string.
-    for (int i = 0; i < d->id_action_map.count(); i++) {
+    for (int i = 0; i < d->id_action_map.count(); ++i) {
         if (d->id_action_map.keys().at(i) == before) {
             d->this_menu->insertAction(d->id_action_map[d->id_action_map.keys().at(i)],sep);
             return;
@@ -108,7 +108,7 @@ void Qtilities::CoreGui::MenuContainer::addMenu(ActionContainer *menu, const QSt
         return;
 
     // Find the action with the given string.
-    for (int i = 0; i < d->id_action_map.count(); i++) {
+    for (int i = 0; i < d->id_action_map.count(); ++i) {
         if (d->id_action_map.keys().at(i) == before) {
             d->this_menu->insertMenu(d->id_action_map[d->id_action_map.keys().at(i)],menu->menu());
             QPointer<MenuContainer> sub_menu_ptr;

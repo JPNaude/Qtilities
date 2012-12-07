@@ -190,7 +190,7 @@ void FileSetInfo::clear() {
 
 void FileSetInfo::updateRelativeToPaths(const QString &search_string, const QString &replace_string, ITask *task) {
     QList<QtilitiesFileInfo> local_list = files();
-    for (int i = 0; i < local_list.count(); i++) {
+    for (int i = 0; i < local_list.count(); ++i) {
         QString actual_file_path = local_list.at(i).actualFilePath();
 
         bool do_replacement = false;
@@ -227,10 +227,10 @@ int FileSetInfo::fileSetHash(bool update_previous_hash_storage) const {
     QMap<QString,int> sorted_hash_codes;
 
     QString hash_string = "";
-    foreach (QString file, filePaths())
+    foreach (const QString& file, filePaths())
         sorted_hash_codes[file] = FileUtils::fileHashCode(file);
 
-    for (int i = 0 ; i < sorted_hash_codes.count(); i++) {
+    for (int i = 0 ; i < sorted_hash_codes.count(); ++i) {
         //qDebug() << "TEST" << i << sorted_hash_codes.values().at(i) << sorted_hash_codes.keys().at(i);
         hash_string.append(QString::number(sorted_hash_codes.values().at(i)));
     }
@@ -251,7 +251,7 @@ int FileSetInfo::fileSetHashPrevious() const {
 }
 
 bool FileSetInfo::allFilesExists() const {
-    for (int i = 0; i < d->files.count(); i++) {
+    for (int i = 0; i < d->files.count(); ++i) {
         QFile file(d->files.at(i).actualFilePath());
         if (!file.exists())
             return false;
@@ -332,7 +332,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Fil
 
     QStringList files;
     stream >> files;
-    foreach (QString file, files)
+    foreach (const QString& file, files)
         addFile(file);
 
     quint32 ui32;
@@ -348,7 +348,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Fil
         return version_check_result;
 
     object_node->setAttribute("FileCount",d->files.count());
-    for (int i = 0; i < d->files.count(); i++) {
+    for (int i = 0; i < d->files.count(); ++i) {
         QDomElement file = doc->createElement("File_" + QString::number(i));
         file.setAttribute("FilePath",d->files.at(i).filePath());
         if (!d->files.at(i).relativeToPath().isEmpty())
@@ -379,7 +379,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Fil
         depth_readback = object_node->attribute("FileCount").toInt();
 
     QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();

@@ -271,11 +271,13 @@ while (itrB.hasNext()) {
                     else {
                         Observer* parent_obs = 0;
                         MultiContextProperty prop = ObjectManager::getMultiContextProperty(d_current,qti_prop_TREE_ITERATOR_SOURCE_OBS);
-                        if (prop.isValid() && prop.hasContext(d_iterator_id)) {
-                            int obs_id = prop.value(d_iterator_id).toInt();
-                            parent_obs = OBJECT_MANAGER->observerReference(obs_id);
-                            if (parent_obs)
-                                return parent_obs;
+                        if (prop.isValid()) {
+                            if (prop.hasContext(d_iterator_id)) {
+                                int obs_id = prop.value(d_iterator_id).toInt();
+                                parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                                if (parent_obs)
+                                    return parent_obs;
+                            }
                         }
                         if (!parent_obs) {
                             QString warning_string;
@@ -306,12 +308,9 @@ while (itrB.hasNext()) {
                 return subjects;
             }
 
-            int getCurrentIndex(QList<QObject*> subjects) {
-                for (int subject = 0; subject < subjects.count(); subject++) {
-                    if (subjects[subject] == d_current)
-                        return subject;
-                }
-                return -1;
+            int getCurrentIndex(const QList<QObject*>& subjects) {
+                const QObject* obj = d_current;
+                return subjects.indexOf(const_cast<QObject*>(obj));
             }
 
         private:
@@ -427,7 +426,7 @@ while (itrB.hasNext()) {
                 // The subject was found:
                 if (current_index != -1) {
                     // Check if there is another subject after this one:
-                    if(current_index < (subjects.count() - 1)) {
+                    if (current_index < (subjects.count() - 1)) {
                         d_current = qobject_cast<T*>(subjects[current_index + 1]);
                         return d_current;
                     }
@@ -462,11 +461,13 @@ while (itrB.hasNext()) {
                     else {
                         Observer* parent_obs = 0;
                         MultiContextProperty prop = ObjectManager::getMultiContextProperty(d_current,qti_prop_TREE_ITERATOR_SOURCE_OBS);
-                        if (prop.isValid() && prop.hasContext(d_iterator_id)) {
-                            int obs_id = prop.value(d_iterator_id).toInt();
-                            parent_obs = OBJECT_MANAGER->observerReference(obs_id);
-                            if (parent_obs)
-                                return parent_obs;
+                        if (prop.isValid()) {
+                            if (prop.hasContext(d_iterator_id)) {
+                                int obs_id = prop.value(d_iterator_id).toInt();
+                                parent_obs = OBJECT_MANAGER->observerReference(obs_id);
+                                if (parent_obs)
+                                    return parent_obs;
+                            }
                         }
                         if (!parent_obs) {
                             QString warning_string;
@@ -498,11 +499,8 @@ while (itrB.hasNext()) {
             }
 
             int getCurrentIndex(QList<QObject*> subjects) {
-                for (int subject = 0; subject < subjects.count(); subject++) {
-                    if (subjects[subject] == d_current)
-                        return subject;
-                }
-                return -1;
+                const QObject* obj = d_current;
+                return subjects.indexOf(const_cast<QObject*>(obj));
             }
 
         private:

@@ -143,10 +143,10 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     d->pluginsDir = QDir(QCoreApplication::applicationDirPath());
 
     #if defined(Q_OS_WIN)
-        if (d->pluginsDir.dirName().toLower() == "debug" || d->pluginsDir.dirName().toLower() == "release")
+        if (d->pluginsDir.dirName().toLower() == QLatin1String("debug") || d->pluginsDir.dirName().toLower() == QLatin1String("release"))
             d->pluginsDir.cdUp();
     #elif defined(Q_OS_MAC)
-        if (d->pluginsDir.dirName() == "MacOS") {
+        if (d->pluginsDir.dirName() == QLatin1String("MacOS")) {
             d->pluginsDir.cdUp();
             d->pluginsDir.cdUp();
             d->pluginsDir.cdUp();
@@ -163,7 +163,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
 
     emit pluginLoadingStarted();
 
-    foreach (QString path, d->customPluginPaths) {
+    foreach (const QString& path, d->customPluginPaths) {
         emit newProgressMessage(QString(tr("Searching for plugins in directory: %1")).arg(path));
         LOG_INFO(QString(tr("Searching for plugins in directory: %1")).arg(path));
         QCoreApplication::processEvents();
@@ -176,7 +176,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             entry_list.move(index_of_log,0);
             //qDebug() << "Moving log plugin to the start of the plugin load-list.";
         }
-        foreach (QString fileName, entry_list) {
+        foreach (const QString& fileName, entry_list) {
             QFileInfo file_info(fileName);
             QString stripped_file_name = file_info.fileName();
 
@@ -187,7 +187,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
             #endif
 
             bool is_filtered_plugin = false;
-            foreach (QString expression, d->set_filtered_plugins) {
+            foreach (const QString& expression, d->set_filtered_plugins) {
                 QRegExp rx(expression);
                 rx.setPatternSyntax(QRegExp::Wildcard);
                 if (rx.exactMatch(stripped_file_name)) {
@@ -238,7 +238,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
                             d->plugins.attachSubject(obj);
 
                             bool is_inactive_plugin = false;
-                            foreach (QString inactivePluginName, d->set_inactive_plugins) {
+                            foreach (const QString& inactivePluginName, d->set_inactive_plugins) {
                                 if (pluginIFace->pluginName() == inactivePluginName) {
                                     is_inactive_plugin = true;
                                     break;
@@ -285,11 +285,11 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
     }
 
     // Now that all plugins were loaded, we call initializeDependencies() on all active ones:
-    for (int i = 0; i < d->plugins.subjectCount(); i++) {
+    for (int i = 0; i < d->plugins.subjectCount(); ++i) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(i));
         if (pluginIFace) {
             bool is_inactive_plugin = false;
-            foreach (QString inactivePluginName, d->set_inactive_plugins) {
+            foreach (const QString& inactivePluginName, d->set_inactive_plugins) {
                 if (pluginIFace->pluginName() == inactivePluginName) {
                     is_inactive_plugin = true;
                     break;
@@ -382,7 +382,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::finalize() {
     // Loop through all plugins and call finalize on them:
     d->plugins.startProcessingCycle();
     int plugin_count = d->plugins.subjectCount();
-    for (int i = 0; i < plugin_count; i++) {
+    for (int i = 0; i < plugin_count; ++i) {
         IPlugin* pluginIFace = qobject_cast<IPlugin*> (d->plugins.subjectAt(0));
 
         if (pluginIFace) {
@@ -513,7 +513,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
     // Inactive Plugins:
     QDomElement inactive_node = doc.createElement("InactivePlugins");
     root.appendChild(inactive_node);
-    foreach (QString name, final_inactive) {
+    foreach (const QString& name, final_inactive) {
         QDomElement inactive_item = doc.createElement("PluginName");
         inactive_item.setAttribute("Value",name);
         inactive_node.appendChild(inactive_item);
@@ -522,7 +522,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
     // Filtered Plugins:
     QDomElement filtered_node = doc.createElement("FilteredPlugins");
     root.appendChild(filtered_node);
-    foreach (QString name, final_filtered) {
+    foreach (const QString& name, final_filtered) {
         QDomElement filtered_item = doc.createElement("Expression");
         filtered_item.setAttribute("Value",regExpToXml(name));
         filtered_node.appendChild(filtered_item);
@@ -608,16 +608,16 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
 
     // Now check out all the children below the root node:
     QDomNodeList childNodes = root.childNodes();
-    for(int i = 0; i < childNodes.count(); i++) {
+    for(int i = 0; i < childNodes.count(); ++i) {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();
 
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "InactivePlugins") {
+        if (child.tagName() == QLatin1String("InactivePlugins")) {
             QDomNodeList inactiveItems = child.childNodes();
-            for(int i = 0; i < inactiveItems.count(); i++) {
+            for(int i = 0; i < inactiveItems.count(); ++i) {
                 QDomNode inactiveNode = inactiveItems.item(i);
                 QDomElement inactiveItem = inactiveNode.toElement();
 
@@ -638,9 +638,9 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
             }
         }
 
-        if (child.tagName() == "FilteredPlugins") {
+        if (child.tagName() == QLatin1String("FilteredPlugins")) {
             QDomNodeList filteredItems = child.childNodes();
-            for(int i = 0; i < filteredItems.count(); i++) {
+            for(int i = 0; i < filteredItems.count(); ++i) {
                 QDomNode filteredNode = filteredItems.item(i);
                 QDomElement filteredItem = filteredNode.toElement();
 
@@ -701,7 +701,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::setCorePlugins(QStringList
         d->core_plugins = core_plugins;
 
         // Make sure no core plugins are found in the inactive or filter plugin lists:
-        foreach (QString core_plugin, d->core_plugins) {
+        foreach (const QString& core_plugin, d->core_plugins) {
             if (d->set_inactive_plugins.contains(core_plugin)) {
                 d->set_inactive_plugins.removeOne(core_plugin);
                 LOG_DEBUG("ExtensionSystemCore::setCorePlugins() removed plugin " + core_plugin + " from the list of inactive plugins.");
@@ -714,7 +714,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::handlePluginConfigurationC
     Q_UNUSED(active_plugins)
     QStringList new_inactive_plugins;
 
-    for (int i = 0; i < inactive_plugins.count(); i++) {
+    for (int i = 0; i < inactive_plugins.count(); ++i) {
          IPlugin* iface = qobject_cast<IPlugin*> (inactive_plugins.at(i));
          if (iface) {
              // Check if any core plugins were made inactive, if so we notify the user and make them active again:

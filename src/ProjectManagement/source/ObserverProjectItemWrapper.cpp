@@ -180,7 +180,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
 
     if (d->observer) {
         QDomNodeList childNodes = object_node->childNodes();
-        for(int i = 0; i < childNodes.count(); i++)
+        for(int i = 0; i < childNodes.count(); ++i)
         {
             QDomNode childNode = childNodes.item(i);
             QDomElement child = childNode.toElement();
@@ -188,7 +188,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
             if (child.isNull())
                 continue;
 
-            if (child.tagName() == "ObserverProjectItemWrapper") {
+            if (child.tagName() == QLatin1String("ObserverProjectItemWrapper")) {
                 d->observer->setExportVersion(exportVersion());
                 doc->clear();
                 return d->observer->importXml(doc,&child,import_list);

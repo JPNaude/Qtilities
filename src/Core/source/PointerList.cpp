@@ -52,7 +52,7 @@ void Qtilities::Core::PointerList::append(QObject* object) {
 
 void Qtilities::Core::PointerList::deleteAll() {
     int total =list.count();
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < total; ++i) {
         delete list.at(0);
     }
     list.clear();

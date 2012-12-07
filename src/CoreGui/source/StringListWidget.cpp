@@ -185,7 +185,7 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
     } else if (d->list_type == FilePaths) {            
         QStringList fileNames = QFileDialog::getOpenFileNames(this, tr("Open File"),QDir::cleanPath(d->open_dialog_path),d->open_dialog_filter);
         int process_count = 0;
-        foreach (QString file_name, fileNames) {
+        foreach (const QString& file_name, fileNames) {
             if (process_count == 0) {
                 QFileInfo fi(file_name);
                 d->open_dialog_path = fi.path();
@@ -218,11 +218,11 @@ void Qtilities::CoreGui::StringListWidget::handleAddString() {
 void Qtilities::CoreGui::StringListWidget::handleRemoveString() {
     if (ui->listView->selectionModel()->selectedIndexes().count() > 0) {
         QStringList selected_list;
-        for (int i = 0; i < ui->listView->selectionModel()->selectedIndexes().count(); i++)
+        for (int i = 0; i < ui->listView->selectionModel()->selectedIndexes().count(); ++i)
             selected_list << d->model.data(ui->listView->selectionModel()->selectedIndexes().at(i),Qt::DisplayRole).toString();
 
         QStringList new_list = d->model.stringList();
-        foreach (QString string, selected_list) {
+        foreach (const QString& string, selected_list) {
             if (!d->non_removable_strings.contains(string)) {
                 new_list.removeOne(string);
             } else {

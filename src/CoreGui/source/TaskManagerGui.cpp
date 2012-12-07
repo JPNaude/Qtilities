@@ -73,7 +73,7 @@ void TaskManagerGui::handleObjectPoolAddition(QObject *obj) {
 }
 
 TaskManagerGui::~TaskManagerGui() {
-    for (int i = 0; i < d->task_widgets.count(); i++) {
+    for (int i = 0; i < d->task_widgets.count(); ++i) {
         if (d->task_widgets.at(i))
             delete d->task_widgets.at(i);
     }

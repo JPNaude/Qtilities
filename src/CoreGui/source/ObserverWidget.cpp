@@ -991,7 +991,7 @@ void Qtilities::CoreGui::ObserverWidget::initialize(bool hints_only) {
         if (activeHints()->activityControlHint() == ObserverHints::FollowSelection) {
             // Check if the observer has an activity filter, which it should have with this hint:
             ActivityPolicyFilter* filter = 0;
-            for (int i = 0; i < d_observer->subjectFilters().count(); i++) {
+            for (int i = 0; i < d_observer->subjectFilters().count(); ++i) {
                 filter = qobject_cast<ActivityPolicyFilter*> (d_observer->subjectFilters().at(i));
                 if (filter) {
                     d->activity_filter = filter;
@@ -1130,7 +1130,7 @@ void Qtilities::CoreGui::ObserverWidget::setNavigationStack(QStack<int> navigati
     // We need to check the subjectChange signal on all the navigation stack items.
     // For now, we just check if any of them detaches an observer, in that case we close this widget since
     // we cannot garuantee that the detached item doesn't appear in the stack.
-    for (int i = 0; i < d->navigation_stack.count(); i++) {
+    for (int i = 0; i < d->navigation_stack.count(); ++i) {
         Observer* stack_observer = OBJECT_MANAGER->observerReference(d->navigation_stack.at(i));
         if (stack_observer)
             connect(stack_observer,SIGNAL(numberOfSubjectsChanged(Observer::SubjectChangeIndication,QList<QPointer<QObject> >)),
@@ -1204,7 +1204,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
 
         if (d->table_view->selectionModel()) {          
             QModelIndexList selected_indexes = d->table_view->selectionModel()->selectedIndexes();
-            for (int i = 0; i < selected_indexes.count(); i++) {
+            for (int i = 0; i < selected_indexes.count(); ++i) {
                 QModelIndex index = selected_indexes.at(i);
                 if (index.column() == 1) {
                     QModelIndex mapped_idx = index;
@@ -1226,7 +1226,7 @@ QList<QObject*> Qtilities::CoreGui::ObserverWidget::selectedObjects() const {
 
         if (d->tree_view->selectionModel()) {
             QModelIndexList selected_indexes = d->tree_view->selectionModel()->selectedIndexes();
-            for (int i = 0; i < selected_indexes.count(); i++) {
+            for (int i = 0; i < selected_indexes.count(); ++i) {
                 QModelIndex index = selected_indexes.at(i);
                 if (index.column() == 0) {
                     QModelIndex mapped_idx = index;
@@ -1335,7 +1335,7 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
 
         if (d->table_view->selectionModel()) {
             QModelIndexList selected_indexes_tmp = d->table_view->selectionModel()->selectedIndexes();
-            for (int i = 0; i < selected_indexes_tmp.count(); i++) {
+            for (int i = 0; i < selected_indexes_tmp.count(); ++i) {
                 QModelIndex index = selected_indexes_tmp.at(i);
                 if (index.column() == 1)
                     selected_indexes << d->table_proxy_model->mapToSource(index);
@@ -1347,7 +1347,7 @@ QModelIndexList Qtilities::CoreGui::ObserverWidget::selectedIndexes() const {
 
         if (d->tree_view->selectionModel()) {
             QModelIndexList selected_indexes_tmp = d->tree_view->selectionModel()->selectedIndexes();
-            for (int i = 0; i < selected_indexes_tmp.count(); i++) {
+            for (int i = 0; i < selected_indexes_tmp.count(); ++i) {
                 QModelIndex index = selected_indexes_tmp.at(i);
                 if (index.column() == 0)
                     selected_indexes << d->tree_proxy_model->mapToSource(index);
@@ -1572,7 +1572,7 @@ void Qtilities::CoreGui::ObserverWidget::resizeTableViewRows(int height) {
         height = d->default_row_height;
 
     if (d->display_mode == TableView && d->table_view && d->table_model) {       
-        for (int i = 0; i < d->table_model->rowCount(); i++)
+        for (int i = 0; i < d->table_model->rowCount(); ++i)
             d->table_view->setRowHeight(i,height);
     }
 }
@@ -2189,7 +2189,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActions() {
                 }
 
                 // Check if any categories are selected:
-                for (int i = 0; i < d->current_tree_item_selection.count(); i++) {
+                for (int i = 0; i < d->current_tree_item_selection.count(); ++i) {
                     if (d->current_tree_item_selection.at(i)) {
                         if (d->current_tree_item_selection.at(i)) {
                             if (d->current_tree_item_selection.at(i)->itemType() == ObserverTreeItem::CategoryItem) {
@@ -2287,7 +2287,7 @@ void Qtilities::CoreGui::ObserverWidget::setTreeSelectionParent(Observer* observ
                 QList<QPointer<QObject> > active_subjects = d->current_selection;
                 active_subjects.removeOne(observer);
 
-                for (int i = 0; i < observer->subjectFilters().count(); i++) {
+                for (int i = 0; i < observer->subjectFilters().count(); ++i) {
                     filter = qobject_cast<ActivityPolicyFilter*> (observer->subjectFilters().at(i));
                     if (filter) {  
                         // We set d->update_selection_activity to false in here since we don't want selectObjects()
@@ -2327,7 +2327,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionRemoveItems(bool delete_items)
     int first_delete_position = -1;
     if (d->display_mode == TableView && d->table_model) {
         d_observer->startProcessingCycle();
-        for (int i = 0; i < d->current_selection.count(); i++) {
+        for (int i = 0; i < d->current_selection.count(); ++i) {
             if (i == 0)
                 first_delete_position = d_observer->subjectReferences().indexOf(d->current_selection.at(i));
             if (delete_items)
@@ -2574,7 +2574,7 @@ void Qtilities::CoreGui::ObserverWidget::selectionDelete() {
 
     // Check if any categories were selected:
     /*if (d->display_mode == TreeView && d->tree_model && d->tree_view) {
-        for (int i = 0; i < d->current_selection.count(); i++) {
+        for (int i = 0; i < d->current_selection.count(); ++i) {
             if (d->current_selection.at(i)) {
                 ObserverTreeItem* tree_item = qobject_cast<ObserverTreeItem*> (d->current_selection.at(i));
                 if (tree_item) {
@@ -2966,7 +2966,7 @@ void Qtilities::CoreGui::ObserverWidget::toggleDisplayMode() {
         if (selected_indexes.count() > 0) {
             // Check if the navigation stack is the same for all items. If not, we switch to the root observer:
             QStack<int> stack;
-            for (int i = 0; i < selected_indexes.count(); i++) {
+            for (int i = 0; i < selected_indexes.count(); ++i) {
                 if (stack.isEmpty()) {
                     stack = d->tree_model->getParentHierarchy(selected_indexes.at(i));
                 } else {
@@ -3087,7 +3087,7 @@ void Qtilities::CoreGui::ObserverWidget::handle_actionPaste_triggered() {
                 } else if (CLIPBOARD_MANAGER->clipboardOrigin() == IClipboard::CopyAction) {
                     // Attempt to copy the objects:
                     // For now we discard objects that cause problems during attachment and detachment:
-                    for (int i = 0; i < observer_mime_data->subjectList().count(); i++) {
+                    for (int i = 0; i < observer_mime_data->subjectList().count(); ++i) {
                         // Attach to destination
                         d_observer->attachSubject(observer_mime_data->subjectList().at(i));
                     }
@@ -3283,7 +3283,7 @@ void Qtilities::CoreGui::ObserverWidget::handleSelectionModelChange() {
 
         QStringList contexts_in_current_selection;
         // Check if any of the objects implements IContext, if so we append the given context.
-        for (int i = 0; i < object_list.count(); i++) {
+        for (int i = 0; i < object_list.count(); ++i) {
             IContext* context = qobject_cast<IContext*> (object_list.at(i));
             if (context) {
                 if (!d->appended_contexts.contains(context->contextString())) {
@@ -3495,11 +3495,11 @@ void Qtilities::CoreGui::ObserverWidget::contextDeleted() {
 
 void Qtilities::CoreGui::ObserverWidget::contextDetachHandler(Observer::SubjectChangeIndication indication,QList<QPointer<QObject> > objects) {
     if (indication == Observer::SubjectRemoved) {
-        for (int i = 0; i < objects.count(); i++) {
+        for (int i = 0; i < objects.count(); ++i) {
             Observer* observer = qobject_cast<Observer*> (objects.at(i));
             if (observer) {
                 // Check the observer ID against all the stack items.
-                for (int i = 0; i < d->navigation_stack.count(); i++) {
+                for (int i = 0; i < d->navigation_stack.count(); ++i) {
                     if ((observer->observerID() == d->navigation_stack.at(i)) || (observer->observerID() == d_observer->observerID()))
                         contextDeleted();
                 }
@@ -3530,7 +3530,7 @@ void Qtilities::CoreGui::ObserverWidget::selectCategories(QList<QtilitiesCategor
 
             QModelIndexList mapped_indexes;
             QModelIndex index;
-            for (int i = 0; i < categories.count(); i++) {
+            for (int i = 0; i < categories.count(); ++i) {
                 index = d->tree_model->findCategory(categories.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
@@ -3550,7 +3550,7 @@ void Qtilities::CoreGui::ObserverWidget::selectCategories(QList<QtilitiesCategor
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < mapped_indexes.count(); i++)
+                for (int i = 0; i < mapped_indexes.count(); ++i)
                     item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
@@ -3603,7 +3603,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QPointer<QObject> >
         }
     } else {
         QList<QObject*> simple_list;
-        for (int i = 0; i < objects.count(); i++) {
+        for (int i = 0; i < objects.count(); ++i) {
             if (objects.at(i))
                 simple_list << objects.at(i);
         }
@@ -3624,7 +3624,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
 
             QModelIndexList mapped_indexes;
             QModelIndex index;
-            for (int i = 0; i < objects.count(); i++) {
+            for (int i = 0; i < objects.count(); ++i) {
                 index = d->table_model->getIndex(objects.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
@@ -3644,7 +3644,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             QItemSelectionModel *selection_model = d->table_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < mapped_indexes.count(); i++)
+                for (int i = 0; i < mapped_indexes.count(); ++i)
                     item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
@@ -3671,7 +3671,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
 
             QModelIndexList mapped_indexes;
             QModelIndex index;
-            for (int i = 0; i < objects.count(); i++) {
+            for (int i = 0; i < objects.count(); ++i) {
                 index = d->tree_model->findObject(objects.at(i));
                 if (index.isValid()) {
                     QModelIndex mapped_index;
@@ -3691,7 +3691,7 @@ void Qtilities::CoreGui::ObserverWidget::selectObjects(QList<QObject*> objects) 
             QItemSelectionModel *selection_model = d->tree_view->selectionModel();
             if (selection_model) {
                 QItemSelection item_selection;
-                for (int i = 0; i < mapped_indexes.count(); i++)
+                for (int i = 0; i < mapped_indexes.count(); ++i)
                     item_selection.select(mapped_indexes.at(i),mapped_indexes.at(i));
 
                 selection_model->clearSelection();
@@ -3829,7 +3829,7 @@ void Qtilities::CoreGui::ObserverWidget::resizeColumns() {
         } else if (d->tree_view && d->tree_model && d->display_mode == Qtilities::TreeView) {
             QHeaderView* tree_header = d->tree_view->header();
             if (tree_header) {
-                for (int i = 0; i < tree_header->count(); i++) {
+                for (int i = 0; i < tree_header->count(); ++i) {
                     if (!tree_header->isSectionHidden(i)) {
                         int logical_index = tree_header->logicalIndex(i);
                         d->tree_view->resizeColumnToContents(logical_index);
@@ -4004,7 +4004,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
                 d->last_display_flags = activeHints()->displayFlagsHint();
             else {
                 // Here we need to hide all toolbars that does not contain any actions:
-                for (int i = 0; i < d->action_toolbars.count(); i++) {
+                for (int i = 0; i < d->action_toolbars.count(); ++i) {
                     QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
                     bool has_visible_action = false;
                     foreach (QAction* action, toolbar->actions()) {
@@ -4027,7 +4027,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
 
         // Now create all toolbars:
         QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
-        for (int i = 0; i < categories.count(); i++) {
+        for (int i = 0; i < categories.count(); ++i) {
             QList<QAction*> action_list = d->action_provider->actions(IActionProvider::NoFilter,categories.at(i));
             if (action_list.count() > 0) {
                 QToolBar* new_toolbar = 0;
@@ -4053,7 +4053,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
         // This implementation will only hide empty toolbars, they will still be there when right clicking on the toolbar.
         // However, this is the best solution I believe since the user can still see which toolbars are available, and
         // then realize that no actions are available for the current selection in hidden toolbars.
-        for (int i = 0; i < d->action_toolbars.count(); i++) {
+        for (int i = 0; i < d->action_toolbars.count(); ++i) {
             QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
             bool has_visible_action = false;
             foreach (QAction* action, toolbar->actions()) {
@@ -4076,7 +4076,7 @@ void Qtilities::CoreGui::ObserverWidget::refreshActionToolBar(bool force_full_re
 void Qtilities::CoreGui::ObserverWidget::deleteActionToolBars() {
     int toolbar_count = d->action_toolbars.count();
     if (toolbar_count > 0) {
-        for (int i = 0; i < toolbar_count; i++) {
+        for (int i = 0; i < toolbar_count; ++i) {
             QPointer<QToolBar> toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
             removeToolBar(toolbar);
             if (toolbar) {
@@ -4399,7 +4399,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                     // otherwise we do not start the drag:
                     if (d->tree_view->selectionModel()) {
                         QModelIndexList index_list = selectedIndexes();
-                        for (int i = 0; i < index_list.count(); i++) {
+                        for (int i = 0; i < index_list.count(); ++i) {
                             if (!(d->tree_model->flags(index_list.at(i)) & Qt::ItemIsDragEnabled)) {
                                 return false;
                             }
@@ -4410,7 +4410,7 @@ bool Qtilities::CoreGui::ObserverWidget::eventFilter(QObject *object, QEvent *ev
                     // with our own mime data object.
                     QList<QObject*> simple_objects = selectedObjects();
                     QList<QPointer<QObject> > smart_objects;
-                    for (int i = 0; i < simple_objects.count(); i++)
+                    for (int i = 0; i < simple_objects.count(); ++i)
                         smart_objects << simple_objects.at(i);
                     ObserverMimeData* mimeData = 0;
                     if (mouseEvent->buttons() == d->button_copy)

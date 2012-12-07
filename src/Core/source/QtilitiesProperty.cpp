@@ -333,27 +333,27 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
     name = object_node->attribute("Name","");
 
     if (object_node->hasAttribute("Reserved")) {
-        if (object_node->attribute("Reserved") == "1")
+        if (object_node->attribute("Reserved") == QLatin1String("1"))
             is_reserved = true;
-        if (object_node->attribute("Reserved") == "0")
+        if (object_node->attribute("Reserved") == QLatin1String("0"))
             is_reserved = false;
     }
     if (object_node->hasAttribute("ReadOnly")) {
-        if (object_node->attribute("ReadOnly") == "1")
+        if (object_node->attribute("ReadOnly") == QLatin1String("1"))
             read_only = true;
-        if (object_node->attribute("ReadOnly") == "0")
+        if (object_node->attribute("ReadOnly") == QLatin1String("0"))
             read_only = false;
     }
     if (object_node->hasAttribute("Removable")) {
-        if (object_node->attribute("Removable") == "1")
+        if (object_node->attribute("Removable") == QLatin1String("1"))
             is_removable = true;
-        if (object_node->attribute("Removable") == "0")
+        if (object_node->attribute("Removable") == QLatin1String("0"))
             is_removable = false;
     }
     if (object_node->hasAttribute("Notifications")) {
-        if (object_node->attribute("Notifications") == "1")
+        if (object_node->attribute("Notifications") == QLatin1String("1"))
             supports_change_notifications = true;
-        if (object_node->attribute("Notifications") == "0")
+        if (object_node->attribute("Notifications") == QLatin1String("0"))
             supports_change_notifications = false;
     }
 
@@ -448,9 +448,9 @@ bool Qtilities::Core::MultiContextProperty::operator==(const MultiContextPropert
     if (name != other.propertyNameString())
         return false;
     if (context_map != other.contextMap()) {
-//        for (int i = 0; i < context_map.count(); i++)
+//        for (int i = 0; i < context_map.count(); ++i)
 //            qDebug() << context_map.values().at(i).toString();
-//        for (int i = 0; i < other.contextMap().count(); i++)
+//        for (int i = 0; i < other.contextMap().count(); ++i)
 //            qDebug() << other.contextMap().values().at(i).toString();
 
         return false;
@@ -495,7 +495,7 @@ bool Qtilities::Core::MultiContextProperty::setValue(QVariant new_value, int con
 
 QString Qtilities::Core::MultiContextProperty::valueString() const {
     QStringList value_strings;
-    for (int i = 0; i < context_map.count(); i++) {
+    for (int i = 0; i < context_map.count(); ++i) {
         if (QtilitiesProperty::isExportableVariant(context_map.values().at(i)))
             value_strings << context_map.values().at(i).toString();
         else
@@ -570,7 +570,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Mul
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
 
-    for (int i = 0; i < context_map.count(); i++) {
+    for (int i = 0; i < context_map.count(); ++i) {
         if (!isExportableVariant(context_map.values().at(i))) {
             LOG_DEBUG("Failed to export MultiContextProperty. It contains a QVariant which cannot be converted to a QString(). Type name: " + QString(context_map.values().at(i).typeName()));
             return IExportable::Incomplete;
@@ -582,7 +582,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Mul
         return result;
 
     object_node->setAttribute("Count",context_map.count());
-    for (int i = 0; i < context_map.count(); i++) {
+    for (int i = 0; i < context_map.count(); ++i) {
         QDomElement context_element = doc->createElement("Context_" + QString::number(i));
         object_node->appendChild(context_element);
         context_element.setAttribute("ID",QString::number(context_map.keys().at(i)));
@@ -608,7 +608,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Mul
         return result;
 
     QDomNodeList propNodes = object_node->childNodes();
-    for(int i = 0; i < propNodes.count(); i++) {
+    for(int i = 0; i < propNodes.count(); ++i) {
         QDomNode propNode = propNodes.item(i);
         QDomElement prop = propNode.toElement();
 
@@ -818,7 +818,7 @@ QDebug operator<<(QDebug dbg, const Qtilities::Core::SharedProperty &prop) {
 
 QDebug operator<<(QDebug dbg, const Qtilities::Core::MultiContextProperty &prop) {
     dbg.nospace() << "(Multi Context Property: " << prop.propertyNameString() << ")";
-    for (int i = 0; i < prop.contextMap().count(); i++) {
+    for (int i = 0; i < prop.contextMap().count(); ++i) {
         QString context_name = QString::number(prop.contextMap().keys().at(i));
         Qtilities::Core::Observer* obs = OBJECT_MANAGER->observerReference(prop.contextMap().keys().at(i));
         if (obs)

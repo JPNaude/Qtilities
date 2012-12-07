@@ -134,7 +134,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         QMap<IConfigPage*,QtilitiesCategory>        config_page_category_map;
         QMap<QtilitiesCategory,GroupedConfigPage*>  grouped_config_pages;
         // Add all the pages to the config pages observer:
-        for (int i = 0; i < config_pages.count(); i++) {
+        for (int i = 0; i < config_pages.count(); ++i) {
             IConfigPage* config_page = config_pages.at(i);
             if (config_page) {
                 QString current_category = config_page->configPageCategory().toString();
@@ -152,7 +152,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         }
 
         // Construct grouped pages for all categories:
-        for (int i = 0; i < categories.count(); i++) {
+        for (int i = 0; i < categories.count(); ++i) {
             // Check if there is already a grouped page for this category (in case initialize() is called twice):
             if (!grouped_config_pages.contains(categories.at(i))) {
                 GroupedConfigPage* grouped_page = new GroupedConfigPage(categories.at(i));
@@ -174,7 +174,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         }
 
         // Now add all categorized pages to the grouped pages:
-        for (int i = 0; i < config_page_category_map.count(); i++) {
+        for (int i = 0; i < config_page_category_map.count(); ++i) {
             GroupedConfigPage* group_page_for_category = grouped_config_pages[config_page_category_map.values().at(i)];
             if (group_page_for_category) {
                 group_page_for_category->addConfigPage(config_page_category_map.keys().at(i));
@@ -195,7 +195,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
     }
 
     // Add all the pages to the config pages observer:
-    for (int i = 0; i < uncategorized_pages.count(); i++) {
+    for (int i = 0; i < uncategorized_pages.count(); ++i) {
         IConfigPage* config_page = uncategorized_pages.at(i);
         if (config_page) {
             if (config_page->configPageWidget()) {
@@ -280,7 +280,7 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<QObject*> object_
 
     QList<IConfigPage*> config_ifaces;
     QList<IGroupedConfigPageInfoProvider*> grouped_config_page_info_providers;
-    for (int i = 0; i < object_list.count(); i++) {
+    for (int i = 0; i < object_list.count(); ++i) {
         IConfigPage* config_iface = qobject_cast<IConfigPage*> (object_list.at(i));
         if (config_iface)
             config_ifaces.append(config_iface);
@@ -303,7 +303,7 @@ bool Qtilities::CoreGui::ConfigurationWidget::applyAllPages() const {
 }
 
 bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) const {
-    for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+    for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
         // Check if its just a normal config page:
         IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
         if (config_page){
@@ -322,7 +322,7 @@ bool Qtilities::CoreGui::ConfigurationWidget::hasPage(const QString& page_name) 
 }
 
 IConfigPage* Qtilities::CoreGui::ConfigurationWidget::getPage(const QString& page_name) const {
-    for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+    for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
         // Check if its just a normal config page:
         IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
         if (config_page){
@@ -428,7 +428,7 @@ void Qtilities::CoreGui::ConfigurationWidget::setActivePage(const QString& activ
         return;
     } else {
         // Check if its in a grouped config page:
-        for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+        for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
             GroupedConfigPage* grouped_config_page = qobject_cast<GroupedConfigPage*> (d->config_pages.subjectAt(i));
             if (grouped_config_page){
                 if (grouped_config_page->hasConfigPage(active_page_name)) {
@@ -479,7 +479,7 @@ Qtilities::CoreGui::Interfaces::IConfigPage* Qtilities::CoreGui::ConfigurationWi
 void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButton *button) {
     if (ui->buttonBox->button(QDialogButtonBox::Apply) == button) {
         if (d->apply_all_pages) {
-            for (int i = 0; i < d->config_pages.subjectCount(); i++) {
+            for (int i = 0; i < d->config_pages.subjectCount(); ++i) {
                 IConfigPage* config_page = qobject_cast<IConfigPage*> (d->config_pages.subjectAt(i));
                 if (config_page){
                     config_page->configPageApply();

@@ -131,7 +131,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::configPageInitialize() {
     ui->tableViewLoggerEngines->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableViewLoggerEngines->setSortingEnabled(true);
     ui->tableViewLoggerEngines->verticalHeader()->setVisible(false);
-    for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
+    for (int i = 0; i < Log->attachedLoggerEngineCount(); ++i)
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     ui->tableViewLoggerEngines->horizontalHeader()->setStretchLastSection(true);
 
@@ -164,7 +164,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_NewLoggerEngineRequest() {
         if (new_item_selection == QString(qti_def_FACTORY_TAG_FILE_LOGGER_ENGINE)) {
             // Prompt the correct file extensions and select the formatting engine according to the user's selection.
             QString file_ext = "";
-            for (int i = 0; i < Log->availableFormattingEnginesInFactory().count(); i++) {
+            for (int i = 0; i < Log->availableFormattingEnginesInFactory().count(); ++i) {
                 AbstractFormattingEngine* engine = Log->formattingEngineReference(Log->availableFormattingEnginesInFactory().at(i));
                 if (engine) {
                     if ((!engine->fileExtension().isEmpty()) && (!engine->name().isEmpty()))
@@ -291,7 +291,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::handle_BtnApplyClicked() {
 void Qtilities::CoreGui::LoggerConfigWidget::resizeCommandTableRows() {
     d->logger_engine_model.requestRefresh();
 
-    for (int i = 0; i < d->logger_engine_model.rowCount(); i++) {
+    for (int i = 0; i < d->logger_engine_model.rowCount(); ++i) {
         ui->tableViewLoggerEngines->setRowHeight(i,17);
     }
 
@@ -372,7 +372,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::refreshLoggerEngineInformation() {
             ui->btnRemoveLoggerEngine->setEnabled(false);
 
         // Make all rows the same height:
-        for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
+        for (int i = 0; i < Log->attachedLoggerEngineCount(); ++i)
             ui->tableViewLoggerEngines->setRowHeight(i,17);
 
         ui->groupBoxEngineDetails->setEnabled(true);
@@ -394,7 +394,7 @@ void Qtilities::CoreGui::LoggerConfigWidget::updateActiveEngine() {
     }
 
     //    qDebug() << "XXXXXXXXXXXXXXXX";
-    //    for (int i = 0; i < Log->attachedLoggerEngineCount(); i++)
+    //    for (int i = 0; i < Log->attachedLoggerEngineCount(); ++i)
     //        qDebug() << i << Log->attachedLoggerEngineNames().at(i);
     //    qDebug() << "XXXXXXXXXXXXXXXX";
     //    qDebug() << "Selected index (mapped to source)" << mapped_index.row() << "proxy index" << ui->tableViewLoggerEngines->currentIndex().row();

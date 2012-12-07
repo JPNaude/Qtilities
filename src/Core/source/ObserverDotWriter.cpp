@@ -102,7 +102,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
     dotString.append(QString("digraph \"%1\" {\n").arg(d->observer->observerName()));
 
     // Add graph attributes:
-    for (int i = 0; i < d->graph_attributes.count(); i++) {
+    for (int i = 0; i < d->graph_attributes.count(); ++i) {
         dotString.append("    ");
         dotString.append(d->graph_attributes.keys().at(i));
         dotString.append(" = \"");
@@ -112,7 +112,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
 
     // Then do the relationships between items:
     ObserverRelationalTable table(d->observer);
-    for (int i = 0; i < table.count(); i++) {
+    for (int i = 0; i < table.count(); ++i) {
         RelationalTableEntry* entry = table.entryAt(i);
 
         // Label this entry:
@@ -250,7 +250,7 @@ QHash<QByteArray,QString> Qtilities::Core::ObserverDotWriter::nodeAttributes(QOb
 
     QList<QByteArray> property_names = node->dynamicPropertyNames();
     QHash<QByteArray,QString> dot_properties;
-    for (int i = 0; i < property_names.count(); i++) {
+    for (int i = 0; i < property_names.count(); ++i) {
         QString prop_qstring_name = property_names.at(i);
         if (prop_qstring_name.startsWith("qti.dot.node")) {
             // Get the property value:
@@ -363,7 +363,7 @@ QHash<QByteArray,QString> Qtilities::Core::ObserverDotWriter::edgeAttributes(Obs
 
     QList<QByteArray> property_names = child->dynamicPropertyNames();
     QHash<QByteArray,QString> dot_properties;
-    for (int i = 0; i < property_names.count(); i++) {
+    for (int i = 0; i < property_names.count(); ++i) {
         QString prop_qstring_name = property_names.at(i);
         if (prop_qstring_name.startsWith("qti.dot.edge")) {
             // Get the property value:

@@ -94,7 +94,7 @@ bool Qtilities::CoreGui::ObserverTableModel::setObserverContext(Observer* observ
     connect(d_observer,SIGNAL(dataChanged()),SLOT(handleDataChanged()));
 
     // Check if this observer has a subject type filter installed
-    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+    for (int i = 0; i < observer->subjectFilters().count(); ++i) {
         SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
         if (subject_type_filter) {
             if (!subject_type_filter->groupName().isEmpty()) {
@@ -718,7 +718,7 @@ QModelIndex Qtilities::CoreGui::ObserverTableModel::getIndex(QObject* obj, int c
         return QModelIndex();
 
     // Now look for the id in the ID_COLUMN of the table model
-    for (int i = 0; i < rowCount(); i++) {
+    for (int i = 0; i < rowCount(); ++i) {
         if (data(index(i,columnPosition(ColumnSubjectID)),Qt::DisplayRole).toInt() == id) {
             return index(i,column);
         }

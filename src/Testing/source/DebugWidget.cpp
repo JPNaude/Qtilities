@@ -572,7 +572,7 @@ void Qtilities::Testing::DebugWidget::on_btnContextSetActive_clicked()
 {
     QList<QTableWidgetItem*> selected_items = ui->tableContextsAll->selectedItems();
     CONTEXT_MANAGER->setNewContext(Qtilities::Core::Constants::qti_def_CONTEXT_STANDARD);
-    for (int i = 0; i < selected_items.count(); i++) {
+    for (int i = 0; i < selected_items.count(); ++i) {
         CONTEXT_MANAGER->appendContext(selected_items.at(i)->text());
     }
     refreshContexts();
@@ -603,7 +603,7 @@ void Qtilities::Testing::DebugWidget::refreshModes() {
     if (mainWindow) {
         if (mainWindow->modeManager()) {
             ui->tableModes->setRowCount(mainWindow->modeManager()->modes().count());
-            for (int i = 0; i < mainWindow->modeManager()->modes().count(); i++) {
+            for (int i = 0; i < mainWindow->modeManager()->modes().count(); ++i) {
                 IMode* mode = mainWindow->modeManager()->modes().at(i);
                 if (!mode)
                     continue;
@@ -651,7 +651,7 @@ void Qtilities::Testing::DebugWidget::refreshContexts() {
     QList<int> all_contexts = CONTEXT_MANAGER->allContexts();
     ui->tableContextsAll->setRowCount(all_contexts.count());
     ui->tableContextsAll->setColumnCount(3);
-    for (int i = 0; i < all_contexts.count(); i++) {
+    for (int i = 0; i < all_contexts.count(); ++i) {
         int current_id = all_contexts.at(i);
         // Context ID:
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(current_id));
@@ -669,7 +669,7 @@ void Qtilities::Testing::DebugWidget::refreshContexts() {
     QList<int> active_contexts = CONTEXT_MANAGER->activeContexts();
     ui->tableContextsActive->setRowCount(active_contexts.count());
     ui->tableContextsActive->setColumnCount(3);
-    for (int i = 0; i < active_contexts.count(); i++) {
+    for (int i = 0; i < active_contexts.count(); ++i) {
         int current_id = active_contexts.at(i);
         // Context ID:
         QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(current_id));
@@ -737,7 +737,7 @@ void Qtilities::Testing::DebugWidget::refreshCommandInformation() {
 
         QHash<int, QPointer<QAction> > id_action_map = multi_action->contextIDActionMap();
         ui->tableSelectedActionOverview->setRowCount(id_action_map.count());
-        for (int i = 0; i < id_action_map.count(); i++) {
+        for (int i = 0; i < id_action_map.count(); ++i) {
             int current_id = id_action_map.keys().at(i);
             QPointer<QAction> current_command = id_action_map[id_action_map.keys().at(i)];
             if (!current_command)

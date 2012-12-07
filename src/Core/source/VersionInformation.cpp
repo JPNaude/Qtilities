@@ -333,7 +333,7 @@ bool Qtilities::Core::VersionInformation::isSupportedVersion(const QString& vers
 
 QStringList Qtilities::Core::VersionInformation::supportedVersionString() const {
     QStringList version_strings;
-    foreach (VersionNumber number, d->supported_versions)
+    foreach (const VersionNumber& number, d->supported_versions)
         version_strings << number.toString();
     return version_strings;
 }

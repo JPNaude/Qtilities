@@ -81,7 +81,7 @@ Qtilities::ProjectManagement::Project::~Project() {
 bool Qtilities::ProjectManagement::Project::newProject() {
     d->project_file = QString();
     d->project_name = QString(QObject::tr("New Project"));
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         d->project_items.at(i)->newProjectItem();
     }
 
@@ -432,7 +432,7 @@ bool Qtilities::ProjectManagement::Project::loadProject(const QString& file_name
 
 bool Qtilities::ProjectManagement::Project::closeProject(ITask *task) {
     LOG_TASK_INFO_P(tr("Closing project: ") + d->project_file,task);
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         d->project_items.at(i)->closeProjectItem(task);
     }
 
@@ -457,12 +457,12 @@ QString Qtilities::ProjectManagement::Project::projectName() const {
 
 void Qtilities::ProjectManagement::Project::setProjectItems(QList<IProjectItem*> project_items, bool inherit_modification_state) {
     // Disconnect all previous project items:
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         d->project_items.at(i)->objectBase()->disconnect(this);
     }
 
     d->project_items = project_items;
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         connect(d->project_items.at(i)->objectBase(),SIGNAL(modificationStateChanged(bool)),SLOT(setModificationState(bool)));
     }
 
@@ -492,7 +492,7 @@ void Qtilities::ProjectManagement::Project::removeProjectItem(IProjectItem* proj
 
 QStringList Qtilities::ProjectManagement::Project::projectItemNames() const {
     QStringList item_names;
-    for (int i = 0; i < d->project_items.count(); i++)
+    for (int i = 0; i < d->project_items.count(); ++i)
         item_names << d->project_items.at(i)->projectItemName();
     return item_names;
 }
@@ -509,7 +509,7 @@ Qtilities::ProjectManagement::IProjectItem* Qtilities::ProjectManagement::Projec
 }
 
 bool Qtilities::ProjectManagement::Project::isModified() const {
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         if (d->project_items.at(i)->isModified())
             return true;
     }
@@ -523,7 +523,7 @@ void Qtilities::ProjectManagement::Project::setModificationState(bool new_state,
         return;
 
     if (notification_targets & IModificationNotifier::NotifySubjects) {
-        for (int i = 0; i < d->project_items.count(); i++)
+        for (int i = 0; i < d->project_items.count(); ++i)
             d->project_items.at(i)->setModificationState(new_state,notification_targets);
     }
     if (notification_targets & IModificationNotifier::NotifyListeners) {
@@ -553,7 +553,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
 
     stream << (quint32) d->project_items.count();
     QStringList item_names;
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         item_names << d->project_items.at(i)->projectItemName();
     }
     stream << item_names;
@@ -563,7 +563,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     // ---------------------------------------------------
     LOG_DEBUG(QString(tr("This project contains %1 project item(s).")).arg(d->project_items.count()));
     IExportable::ExportResultFlags success = IExportable::Complete;
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
             LOG_DEBUG(QString(tr("Saving item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
             d->project_items.at(i)->setExportTask(exportTask());
@@ -639,7 +639,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     QStringList item_names;
     QStringList item_names_readback;
 
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         item_names << d->project_items.at(i)->projectItemName();
     }
     stream >> item_names_readback;
@@ -652,7 +652,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     // Now stream each project part.
     int int_count = project_item_count;
     IExportable::ExportResultFlags success = IExportable::Complete;
-    for (int i = 0; i < int_count; i++) {
+    for (int i = 0; i < int_count; ++i) {
         if (d->project_items.at(i)->supportedFormats() & IExportable::Binary) {
             LOG_DEBUG(QString(tr("Loading item %1: %2.")).arg(i).arg(d->project_items.at(i)->projectItemName()));
             d->project_items.at(i)->setExportVersion(read_version);
@@ -697,7 +697,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     // Do the actual export:
     // ---------------------------------------------------
     IExportable::ExportResultFlags success = IExportable::Complete;
-    for (int i = 0; i < d->project_items.count(); i++) {
+    for (int i = 0; i < d->project_items.count(); ++i) {
         QString name = d->project_items.at(i)->projectItemName();
         QDomElement itemRoot = doc->createElement("ProjectItem_" + QString::number(i));
         itemRoot.setAttribute("Name",name);
@@ -764,7 +764,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
     // ---------------------------------------------------
     IExportable::ExportResultFlags success = IExportable::Complete;
     QDomNodeList itemNodes = object_node->childNodes();
-    for(int i = 0; i < itemNodes.count(); i++) {
+    for(int i = 0; i < itemNodes.count(); ++i) {
         QDomNode itemNode = itemNodes.item(i);
         QDomElement item = itemNode.toElement();
 
@@ -784,7 +784,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::ProjectMa
 
             // Now get the project item with name item_name:
             IProjectItem* item_iface = 0;
-            for (int i = 0; i < d->project_items.count(); i++) {
+            for (int i = 0; i < d->project_items.count(); ++i) {
                 if (d->project_items.at(i)->projectItemName() == item_name) {
                     item_iface = d->project_items.at(i);
                     break;

@@ -89,14 +89,14 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
 
     // Create a filtered list depending on the mode destination:
     QMap<QString, ISideViewerWidget*> filtered_list;
-    for (int i = 0; i < text_iface_map.count(); i++) {
+    for (int i = 0; i < text_iface_map.count(); ++i) {
         if (text_iface_map.values().at(i)->destinationModes().contains(d->mode_destination))
             filtered_list[text_iface_map.keys().at(i)] = text_iface_map.values().at(i);
     }
     d->text_iface_map = filtered_list;
 
     // First handle the order using widget_order:
-    for (int i = 0; i < widget_order.count(); i++) {
+    for (int i = 0; i < widget_order.count(); ++i) {
         if (filtered_list.contains(widget_order.at(i))) {
             DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,widget_order.at(i),d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
@@ -110,7 +110,7 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::setIFaceMap(QMap<QString, ISid
     }
 
     // Now handle widgets which were not present in widget_order:
-    for (int i = 0; i < filtered_list.count(); i++) {
+    for (int i = 0; i < filtered_list.count(); ++i) {
         if (filtered_list.values().at(i)->startupModes().contains(d->mode_destination)) {
             DynamicSideWidgetWrapper* wrapper = new DynamicSideWidgetWrapper(filtered_list,filtered_list.keys().at(i),d->is_exclusive);
             connect(wrapper,SIGNAL(aboutToBeDestroyed(QWidget*)),SLOT(handleSideWidgetDestroyed(QWidget*)));
@@ -157,7 +157,7 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::handleSideWidgetDestroyed(QWid
 
 QStringList Qtilities::CoreGui::DynamicSideWidgetViewer::activeWrapperNames() const {
     QStringList names;
-    for (int i = 0; i < d->active_wrappers.count(); i++)
+    for (int i = 0; i < d->active_wrappers.count(); ++i)
         names << d->active_wrappers.at(i)->currentText();
     return names;
 }
@@ -169,7 +169,7 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::handleNewSideWidgetRequest() {
     // If exclusive, we must construct any widget which is not yet visible.
     QString new_widget_label;
     if (d->is_exclusive) {
-        for (int i = 0; i < d->text_iface_map.count(); i++) {
+        for (int i = 0; i < d->text_iface_map.count(); ++i) {
             if (!activeWrapperNames().contains(d->text_iface_map.keys().at(i))) {
                 new_widget_label = d->text_iface_map.keys().at(i);
                 break;
@@ -193,18 +193,18 @@ void Qtilities::CoreGui::DynamicSideWidgetViewer::updateWrapperComboBoxes(const 
         // Now we send all side viewer wrappers a list of widgets which can still be produced:
         // Inspect all current wrappers:
         QStringList wrapper_labels;
-        for (int i = 0; i < d->active_wrappers.count(); i++)
+        for (int i = 0; i < d->active_wrappers.count(); ++i)
             wrapper_labels << d->active_wrappers.at(i)->currentText();
 
         // Now build up a new map with unconstructed widgets:
         QMap<QString, ISideViewerWidget*> available_widgets;
-        for (int i = 0; i < d->text_iface_map.count(); i++) {
+        for (int i = 0; i < d->text_iface_map.count(); ++i) {
             if (!wrapper_labels.contains(d->text_iface_map.keys().at(i)))
                 available_widgets[d->text_iface_map.keys().at(i)] = d->text_iface_map.values().at(i);
         }
 
         // Lastly set the new available list in all active wrappers:
-        for (int i = 0; i < d->active_wrappers.count(); i++) {
+        for (int i = 0; i < d->active_wrappers.count(); ++i) {
             if (exclude_text.isEmpty())
                 d->active_wrappers.at(i)->updateAvailableWidgets(available_widgets);
             else {

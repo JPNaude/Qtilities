@@ -208,7 +208,7 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
     bool none_failed = true;
 
     // For now we discard objects that cause problems during attachment and detachment
-    for (int i = 0; i < objects.count(); i++) {
+    for (int i = 0; i < objects.count(); ++i) {
         // Check if the destination observer will accept it
         Observer::EvaluationResult result = destination_observer->canAttach(objects.at(i),Observer::ManualOwnership,error_msg,silent);
         if (result == Observer::Rejected) {           
@@ -281,7 +281,7 @@ bool Qtilities::Core::ObjectManager::moveSubjects(QList<QObject*> objects, int s
 
 bool Qtilities::Core::ObjectManager::moveSubjects(QList<QPointer<QObject> > objects, int source_observer_id, int destination_observer_id, QString* error_msg, bool silent) {
     QList<QObject*> simple_objects;
-    for (int i = 0; i < objects.count(); i++)
+    for (int i = 0; i < objects.count(); ++i)
         simple_objects << objects.at(i);
     return moveSubjects(simple_objects,source_observer_id,destination_observer_id,error_msg,silent);
 }
@@ -345,7 +345,7 @@ QStringList Qtilities::Core::ObjectManager::allFactoryNames() const {
     QStringList names;
     QStringList ifactory_keys = d->factory_map.keys();
 
-    foreach (QString ifactory_key, ifactory_keys) {
+    foreach (const QString& ifactory_key, ifactory_keys) {
         IFactoryProvider* ifactory = referenceIFactoryProvider(ifactory_key);
         if (ifactory)
             names << ifactory->providedFactories();
@@ -358,10 +358,10 @@ QStringList Qtilities::Core::ObjectManager::tagsForFactory(const QString& factor
     QStringList tags;
     QStringList ifactory_keys = d->factory_map.keys();
 
-    foreach (QString ifactory_key, ifactory_keys) {
+    foreach (const QString& ifactory_key, ifactory_keys) {
         IFactoryProvider* ifactory = referenceIFactoryProvider(ifactory_key);
         if (ifactory) {
-            foreach (QString factory_name_int, ifactory->providedFactories()) {
+            foreach (const QString& factory_name_int, ifactory->providedFactories()) {
                 if (factory_name_int == factory_name) {
                     tags << ifactory->providedFactoryTags(factory_name);
                     break;
@@ -379,7 +379,7 @@ QList<QObject*> Qtilities::Core::ObjectManager::registeredInterfaces(const QStri
 
 void Qtilities::Core::ObjectManager::setMetaTypeActiveObjects(QList<QObject*> objects, const QString& meta_type) {
     QList<QPointer<QObject> > smart_objects;
-    for (int i = 0; i < objects.count(); i++)
+    for (int i = 0; i < objects.count(); ++i)
         smart_objects << objects.at(i);
 
     d->meta_type_map[meta_type] = smart_objects;
@@ -400,14 +400,14 @@ QList<QPointer<QObject> > Qtilities::Core::ObjectManager::metaTypeActiveObjects(
 // --------------------------------
 QList<QObject*> Qtilities::Core::ObjectManager::convSafeObjectsToNormal(QList<QPointer<QObject> > safe_list) {
     QList<QObject*> normal_objects;
-    for (int i = 0; i < safe_list.count(); i++)
+    for (int i = 0; i < safe_list.count(); ++i)
         normal_objects << safe_list.at(i);
     return normal_objects;
 }
 
 QList<QPointer<QObject> > Qtilities::Core::ObjectManager::convNormalObjectsToSafe(QList<QObject*> normal_list) {
     QList<QPointer<QObject> > smart_objects;
-    for (int i = 0; i < normal_list.count(); i++)
+    for (int i = 0; i < normal_list.count(); ++i)
         smart_objects << normal_list.at(i);
     return smart_objects;
 }
@@ -435,7 +435,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPrope
     QList<SharedProperty> properties_shared;
     QList<MultiContextProperty> properties_multi_context;
     QMap<QString,QVariant> properties_normal;
-    for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < obj->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(obj->dynamicPropertyNames().at(i).constData());
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
@@ -527,15 +527,15 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPrope
         return IExportable::Failed;
     }
 
-    for (int i = 0; i < properties_shared.count(); i++) {
+    for (int i = 0; i < properties_shared.count(); ++i) {
         if (!(ObjectManager::setSharedProperty(obj,properties_shared.at(i))))
             return IExportable::Failed;
     }
-    for (int i = 0; i < properties_multi_context.count(); i++) {
+    for (int i = 0; i < properties_multi_context.count(); ++i) {
         if (!(ObjectManager::setMultiContextProperty(obj,properties_multi_context.at(i))))
             return IExportable::Failed;
     }
-    for (int i = 0; i < properties_normal.count(); i++) {
+    for (int i = 0; i < properties_normal.count(); ++i) {
         obj->setProperty(properties_normal.keys().at(i).toUtf8().constData(),properties_normal.values().at(i));
     }
 
@@ -559,7 +559,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPrope
     QList<SharedProperty> properties_shared;
     QList<MultiContextProperty> properties_multi_context;
     QMap<QString,QVariant> properties_normal;
-    for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < obj->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(obj->dynamicPropertyNames().at(i).constData());
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
@@ -599,7 +599,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPrope
     // Save all the properties:
     // Shared Properties:
     property_node.setAttribute("PropertyS_Count",properties_shared.count());
-    for (int i = 0; i < properties_shared.count(); i++) {
+    for (int i = 0; i < properties_shared.count(); ++i) {
         QDomElement current_node = doc->createElement("PropertyS_" + QString::number(i));
         property_node.appendChild(current_node);
 
@@ -613,7 +613,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPrope
 
     // Multi Context Properties:
     property_node.setAttribute("PropertyM_Count",properties_multi_context.count());
-    for (int i = 0; i < properties_multi_context.count(); i++) {
+    for (int i = 0; i < properties_multi_context.count(); ++i) {
         QDomElement current_node = doc->createElement("PropertyM_" + QString::number(i));
         property_node.appendChild(current_node);
 
@@ -627,7 +627,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::exportObjectPrope
 
     // Normal QVariant Properties:
     property_node.setAttribute("PropertyN_Count",properties_normal.count());
-    for (int i = 0; i < properties_normal.count(); i++) {
+    for (int i = 0; i < properties_normal.count(); ++i) {
         QDomElement current_node = doc->createElement("PropertyN");
         property_node.appendChild(current_node);
 
@@ -653,14 +653,14 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPrope
     IExportable::ExportResultFlags result = IExportable::Complete;
 
     QDomNodeList itemNodes = object_node->childNodes();
-    for(int i = 0; i < itemNodes.count(); i++) {
+    for(int i = 0; i < itemNodes.count(); ++i) {
         QDomNode itemNode = itemNodes.item(i);
         QDomElement item = itemNode.toElement();
 
         if (item.isNull())
             continue;
 
-        if (item.tagName() == "Properties") {
+        if (item.tagName() == QLatin1String("Properties")) {
             // ---------------------------------------------------
             // Inspect xml document format:
             // ---------------------------------------------------
@@ -688,7 +688,7 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPrope
             QList<QPointer<QObject> > import_list;
 
             QDomNodeList propertyNodes = item.childNodes();
-            for(int i = 0; i < propertyNodes.count(); i++) {
+            for(int i = 0; i < propertyNodes.count(); ++i) {
                 QDomNode propertyNode = propertyNodes.item(i);
                 QDomElement property = propertyNode.toElement();
 
@@ -731,15 +731,15 @@ IExportable::ExportResultFlags Qtilities::Core::ObjectManager::importObjectPrope
                 }
             }
 
-            for (int i = 0; i < properties_shared.count(); i++) {
+            for (int i = 0; i < properties_shared.count(); ++i) {
                 if (!(ObjectManager::setSharedProperty(obj,properties_shared.at(i))))
                     result = IExportable::Incomplete;
             }
-            for (int i = 0; i < properties_multi_context.count(); i++) {
+            for (int i = 0; i < properties_multi_context.count(); ++i) {
                 if (!(ObjectManager::setMultiContextProperty(obj,properties_multi_context.at(i))))
                     result = IExportable::Incomplete;
             }
-            for (int i = 0; i < properties_normal.count(); i++) {
+            for (int i = 0; i < properties_normal.count(); ++i) {
                 obj->setProperty(properties_normal.keys().at(i).toUtf8().constData(),properties_normal.values().at(i));
             }
             continue;
@@ -758,7 +758,7 @@ bool Qtilities::Core::ObjectManager::cloneObjectProperties(const QObject* source
     QList<MultiContextProperty> multi_context_properties;
     QMap<QString,QVariant> non_qtilities_properties;
 
-    for (int i = 0; i < source_obj->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < source_obj->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(source_obj->dynamicPropertyNames().at(i).constData());
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
@@ -775,17 +775,17 @@ bool Qtilities::Core::ObjectManager::cloneObjectProperties(const QObject* source
     }
 
     // Now that we have all the properties, we add them to the target obj:
-    for (int i = 0; i < shared_properties.count(); i++) {
+    for (int i = 0; i < shared_properties.count(); ++i) {
         ObjectManager::setSharedProperty(target_obj,shared_properties.at(i));
     }
     LOG_TRACE(QString("Cloning %1 shared properties from object %2 to object %3.").arg(shared_properties.count()).arg(source_obj->objectName()).arg(target_obj->objectName()));
 
-    for (int i = 0; i < multi_context_properties.count(); i++) {
+    for (int i = 0; i < multi_context_properties.count(); ++i) {
         ObjectManager::setMultiContextProperty(target_obj,multi_context_properties.at(i));
     }
     LOG_TRACE(QString("Cloning %1 multi context properties from object %2 to object %3.").arg(multi_context_properties.count()).arg(source_obj->objectName()).arg(target_obj->objectName()));
 
-    for (int i = 0; i < non_qtilities_properties.count(); i++) {
+    for (int i = 0; i < non_qtilities_properties.count(); ++i) {
         target_obj->setProperty(non_qtilities_properties.keys().at(i).toLocal8Bit().data(),non_qtilities_properties.values().at(i));
     }
     LOG_TRACE(QString("Cloning %1 non-qtilities properties from object %2 to object %3").arg(non_qtilities_properties.count()).arg(source_obj->objectName()).arg(target_obj->objectName()));
@@ -899,7 +899,7 @@ bool Qtilities::Core::ObjectManager::removeDynamicProperties(QObject* obj, Prope
     // Get all properties from obj:
     QList<QString> to_be_removed;
 
-    for (int i = 0; i < obj->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < obj->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(obj->dynamicPropertyNames().at(i).constData());
         if (!(property_types & ObjectManager::QtilitiesInternalProperties) && property_name.startsWith("qti."))
             continue;
@@ -917,7 +917,7 @@ bool Qtilities::Core::ObjectManager::removeDynamicProperties(QObject* obj, Prope
 
     LOG_TRACE(QString("Removing %1 dynamic properties from object %2.").arg(to_be_removed.count()).arg(obj->objectName()));
 
-    foreach (QString prop_name, to_be_removed)
+    foreach (const QString& prop_name, to_be_removed)
         obj->setProperty(prop_name.toUtf8().constData(),QVariant());
 
     return true;
@@ -931,7 +931,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
     QMap<QString, QVariant> to_be_compared_normal1;
     QMap<QString, SharedProperty> to_be_compared_shared1;
     QMap<QString, MultiContextProperty> to_be_compared_multi1;
-    for (int i = 0; i < obj1->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < obj1->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(obj1->dynamicPropertyNames().at(i).constData());
 
         // Check if the property is in the ignore list:
@@ -957,7 +957,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
     QMap<QString, QVariant> to_be_compared_normal2;
     QMap<QString, SharedProperty> to_be_compared_shared2;
     QMap<QString, MultiContextProperty> to_be_compared_multi2;
-    for (int i = 0; i < obj2->dynamicPropertyNames().count(); i++) {
+    for (int i = 0; i < obj2->dynamicPropertyNames().count(); ++i) {
         QString property_name = QString(obj2->dynamicPropertyNames().at(i).constData());
 
         // Check if the property is in the ignore list:
@@ -1001,7 +1001,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
         if (property_types & NonQtilitiesProperties) {
             bool is_changed = true;
             // Check for added properties:
-            for (int i = 0; i < to_be_compared_normal1.count(); i++) {
+            for (int i = 0; i < to_be_compared_normal1.count(); ++i) {
                 QString name1 = to_be_compared_normal1.keys().at(i);
 
                 if (!to_be_compared_normal2.contains(name1)) {
@@ -1013,7 +1013,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                 }
             }
             // Check for removed properties:
-            for (int i = 0; i < to_be_compared_normal2.count(); i++) {
+            for (int i = 0; i < to_be_compared_normal2.count(); ++i) {
                 QString name2 = to_be_compared_normal2.keys().at(i);
 
                 if (!to_be_compared_normal1.contains(name2)) {
@@ -1026,7 +1026,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             }
             // Check for changed properties:
             if (is_changed) {
-                for (int i = 0; i < to_be_compared_normal1.count(); i++) {
+                for (int i = 0; i < to_be_compared_normal1.count(); ++i) {
                     QString name = to_be_compared_normal1.keys().at(i);
                     if (to_be_compared_normal2.contains(name)) {
                         QVariant value1 = to_be_compared_normal1[name];
@@ -1054,7 +1054,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
         if (property_types & SharedProperties) {
             bool is_changed = true;
             // Check for added properties:
-            for (int i = 0; i < to_be_compared_shared1.count(); i++) {
+            for (int i = 0; i < to_be_compared_shared1.count(); ++i) {
                 QString name1 = to_be_compared_shared1.keys().at(i);
 
                 if (!to_be_compared_shared2.contains(name1)) {
@@ -1066,7 +1066,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                 }
             }
             // Check for removed properties:
-            for (int i = 0; i < to_be_compared_shared2.count(); i++) {
+            for (int i = 0; i < to_be_compared_shared2.count(); ++i) {
                 QString name2 = to_be_compared_shared2.keys().at(i);
 
                 if (!to_be_compared_shared1.contains(name2)) {
@@ -1079,7 +1079,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             }
             // Check for changed properties:
             if (is_changed) {
-                for (int i = 0; i < to_be_compared_shared1.count(); i++) {
+                for (int i = 0; i < to_be_compared_shared1.count(); ++i) {
                     QString name = to_be_compared_shared1.keys().at(i);
                     if (to_be_compared_shared2.contains(name)) {
                         QVariant value1 = to_be_compared_shared1[name].value();
@@ -1107,7 +1107,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
         if (property_types & MultiContextProperties) {
             bool is_changed = true;
             // Check for added properties:
-            for (int i = 0; i < to_be_compared_multi1.count(); i++) {
+            for (int i = 0; i < to_be_compared_multi1.count(); ++i) {
                 QString name1 = to_be_compared_multi1.keys().at(i);
 
                 if (!to_be_compared_multi2.contains(name1)) {
@@ -1116,7 +1116,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
                 }
             }
             // Check for removed properties:
-            for (int i = 0; i < to_be_compared_multi2.count(); i++) {
+            for (int i = 0; i < to_be_compared_multi2.count(); ++i) {
                 QString name2 = to_be_compared_multi2.keys().at(i);
 
                 if (!to_be_compared_multi1.contains(name2)) {
@@ -1126,7 +1126,7 @@ bool Qtilities::Core::ObjectManager::compareDynamicProperties(const QObject* obj
             }
             // Check for changed properties:
             if (is_changed) {
-                for (int i = 0; i < to_be_compared_multi1.count(); i++) {
+                for (int i = 0; i < to_be_compared_multi1.count(); ++i) {
                     QString name = to_be_compared_multi1.keys().at(i);
                     if (to_be_compared_multi2.contains(name)) {
                         QString value1_string = to_be_compared_multi1[name].valueString();
@@ -1156,7 +1156,7 @@ bool ObjectManager::constructDefaultPropertiesOnObject(QObject *obj, QString* er
     // Get a list of all the property providers in the system:
     QList<QObject*> propertyProviderObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.IAvailablePropertyProvider/1.0");
     // Check all items
-    for (int i = 0; i < propertyProviderObjects.count(); i++) {
+    for (int i = 0; i < propertyProviderObjects.count(); ++i) {
         IAvailablePropertyProvider* provider = qobject_cast<IAvailablePropertyProvider*> (propertyProviderObjects.at(i));
         if (provider)
             property_providers << provider;

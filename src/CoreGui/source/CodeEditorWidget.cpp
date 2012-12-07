@@ -495,7 +495,7 @@ void Qtilities::CoreGui::CodeEditorWidget::actionPrintPdf() {
 }
 
 void Qtilities::CoreGui::CodeEditorWidget::handleSettingsUpdateRequest(const QString& request_id) {
-    if (request_id == d->global_meta_type || request_id == "AllCodeEditors") {
+    if (request_id == d->global_meta_type || request_id == QLatin1String("AllCodeEditors")) {
         if (!QtilitiesCoreApplication::qtilitiesSettingsEnabled())
             return;
 
@@ -594,7 +594,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
             // The file was removed:
             QMessageBox msgBox;
             msgBox.setText("Your file has been removed outside of the editor:<br><br>" + d->current_file);
-            msgBox.setInformativeText("What do you want to keep this file open in the editor?");
+            msgBox.setInformativeText("Do you want to keep this file open in the editor?");
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msgBox.setDefaultButton(QMessageBox::Yes);
             int ret = msgBox.exec();
@@ -618,7 +618,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
         }
 
     } else {
-        qDebug() << "Found notification on file not used in editor. Current:" << d->current_file << ", Notification for file" << path;
+        qDebug() << Q_FUNC_INFO << "Found notification on file not used in editor. Current:" << d->current_file << ", Notification for file" << path;
     }
 
     d->watcher_mutex.unlock();
@@ -876,7 +876,7 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_
         if (!force_full_refresh) {
             // Here we need to hide all toolbars that does not contain any actions:
             // Now create all toolbars:
-            for (int i = 0; i < d->action_toolbars.count(); i++) {
+            for (int i = 0; i < d->action_toolbars.count(); ++i) {
                 QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
                 bool has_visible_action = false;
                 foreach (QAction* action, toolbar->actions()) {
@@ -896,7 +896,7 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_
         // First delete all toolbars:
         int toolbar_count = d->action_toolbars.count();
         if (toolbar_count > 0) {
-            for (int i = 0; i < toolbar_count; i++) {
+            for (int i = 0; i < toolbar_count; ++i) {
                 QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
                 removeToolBar(toolbar);
                 if (toolbar) {
@@ -908,7 +908,7 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_
 
         // Now create all toolbars:
         QList<QtilitiesCategory> categories = d->action_provider->actionCategories();
-        for (int i = 0; i < categories.count(); i++) {
+        for (int i = 0; i < categories.count(); ++i) {
             QList<QAction*> action_list = d->action_provider->actions(IActionProvider::NoFilter,categories.at(i));
             if (action_list.count() > 0) {
                 QToolBar* new_toolbar = 0;
@@ -934,7 +934,7 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_
         // This implementation will only hide empty toolbars, they will still be there when right clicking on the toolbar.
         // However, this is the best solution I believe since the user can still see which toolbars are available, and
         // then realize that no actions are available for the current selection in hidden toolbars.
-        for (int i = 0; i < d->action_toolbars.count(); i++) {
+        for (int i = 0; i < d->action_toolbars.count(); ++i) {
             QToolBar* toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(i));
             bool has_visible_action = false;
             foreach (QAction* action, toolbar->actions()) {
@@ -957,7 +957,7 @@ void Qtilities::CoreGui::CodeEditorWidget::refreshActionToolBar(bool force_full_
 void Qtilities::CoreGui::CodeEditorWidget::deleteActionToolBars() {
     int toolbar_count = d->action_toolbars.count();
     if (toolbar_count > 0) {
-        for (int i = 0; i < toolbar_count; i++) {
+        for (int i = 0; i < toolbar_count; ++i) {
             QPointer<QToolBar> toolbar = qobject_cast<QToolBar*> (d->action_toolbars.at(0));
             removeToolBar(toolbar);
             if (toolbar) {

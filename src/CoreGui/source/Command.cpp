@@ -176,7 +176,7 @@ void Qtilities::CoreGui::ProxyAction::addAction(QAction* action, QList<int> cont
         // Add the action to the standard context (which will always be 0)
         d->id_action_map[0] = action;
     } else {
-        for (int i = 0; i < context_ids.count(); i++) {
+        for (int i = 0; i < context_ids.count(); ++i) {
             // Check if there is already an action for this context
             if (d->id_action_map.contains(context_ids.at(i))) {
                 if (d->id_action_map.contains(context_ids.at(i))) {
@@ -320,7 +320,7 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
     QString old_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%2</span>").arg(old_key.toString(QKeySequence::NativeText));
     QAction* backend_action;
     QList<QPointer<QAction> > actions = d->id_action_map.values();
-    for (int i = 0; i < actions.count(); i++) {
+    for (int i = 0; i < actions.count(); ++i) {
         backend_action = actions.at(i);
         if (backend_action) {
             // Update the tooltip:
@@ -354,7 +354,7 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
             d->proxy_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
 
         // Add the new tooltip to all the backend actions' tooltips:
-        for (int i = 0; i < actions.count(); i++) {
+        for (int i = 0; i < actions.count(); ++i) {
             backend_action = actions.at(i);
             if (backend_action)
                 backend_action->setToolTip(backend_action->toolTip().trimmed() + " " + new_key_tooltip);

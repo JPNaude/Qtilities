@@ -62,7 +62,7 @@ QSize Qtilities::CoreGui::ModeListWidget::sizeHint() const {
         max_h = 1000;
 
     QSize maxSize = QSize(min_w,min_h);
-    for (int i = 0; i < count(); i++) {
+    for (int i = 0; i < count(); ++i) {
         const QModelIndex index = model()->index(i,0);
         const QSize tmpSize = sizeHintForIndex(index);
 

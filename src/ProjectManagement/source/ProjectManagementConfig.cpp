@@ -185,7 +185,7 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::on_btnAdd_clicked() 
 void Qtilities::ProjectManagement::ProjectManagementConfig::refreshCustomProjectPaths() {
     if (custom_paths.keys() != PROJECT_MANAGER->customProjectCategories()) {
         custom_paths.clear();
-        foreach (QString cat, PROJECT_MANAGER->customProjectCategories())
+        foreach (const QString& cat, PROJECT_MANAGER->customProjectCategories())
             custom_paths[cat] = PROJECT_MANAGER->customProjectsPath(cat);
     }
 
@@ -202,7 +202,7 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::refreshCustomProject
 
     ui->tableCustomPaths->blockSignals(true);
 
-    for (int i = 0; i < categories.count(); i++) {
+    for (int i = 0; i < categories.count(); ++i) {
         bool is_editable = (categories.at(i) != QString("Default"));
 
         // Category column:
@@ -253,7 +253,7 @@ void Qtilities::ProjectManagement::ProjectManagementConfig::saveCustomProjectsPa
     disconnect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),this,SLOT(refreshCustomProjectPaths()));
     PROJECT_MANAGER->setDefaultCustomProjectsCategory(active_category);
     PROJECT_MANAGER->clearCustomProjectsPaths();
-    foreach (QString key, custom_paths.keys()) {
+    foreach (const QString& key, custom_paths.keys()) {
         PROJECT_MANAGER->setCustomProjectsPath(custom_paths[key],key);
     }
     connect(PROJECT_MANAGER,SIGNAL(customProjectPathsChanged()),this,SLOT(refreshCustomProjectPaths()));

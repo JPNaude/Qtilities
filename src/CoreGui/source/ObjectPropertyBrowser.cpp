@@ -324,7 +324,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
     }
 
     // Handle QObject in a special way.
-    if (className == "QObject") {
+    if (className == QLatin1String("QObject")) {
         // If d->obj has a name manager, we don't allow the user to change the object name by not showing QObject's properties
         QVariant name_manager = d->obj->property(qti_prop_NAME_MANAGER_ID);
         if (name_manager.isValid()) {
@@ -357,7 +357,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
                     QMetaEnum metaEnum = metaProperty.enumerator();
                     QMap<int, bool> valueMap;
                     QStringList flagNames;
-                    for (int i = 0; i < metaEnum.keyCount(); i++) {
+                    for (int i = 0; i < metaEnum.keyCount(); ++i) {
                         int value = metaEnum.value(i);
                         if (!valueMap.contains(value) && isPowerOf2(value)) {
                             valueMap[value] = true;
@@ -371,7 +371,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::inspectClass(const QMetaObject *
                     QMetaEnum metaEnum = metaProperty.enumerator();
                     QMap<int, bool> valueMap; // dont show multiple enum values which have the same values
                     QStringList enumNames;
-                    for (int i = 0; i < metaEnum.keyCount(); i++) {
+                    for (int i = 0; i < metaEnum.keyCount(); ++i) {
                         int value = metaEnum.value(i);
                         if (!valueMap.contains(value)) {
                             valueMap[value] = true;
@@ -443,7 +443,7 @@ void Qtilities::CoreGui::ObjectPropertyBrowser::refreshClass(const QMetaObject *
 int Qtilities::CoreGui::ObjectPropertyBrowser::enumToInt(const QMetaEnum &metaEnum, int enumValue) const {
     QMap<int, int> valueMap; // dont show multiple enum values which have the same values
     int pos = 0;
-    for (int i = 0; i < metaEnum.keyCount(); i++) {
+    for (int i = 0; i < metaEnum.keyCount(); ++i) {
         int value = metaEnum.value(i);
         if (!valueMap.contains(value)) {
             if (value == enumValue)
@@ -457,7 +457,7 @@ int Qtilities::CoreGui::ObjectPropertyBrowser::enumToInt(const QMetaEnum &metaEn
 int Qtilities::CoreGui::ObjectPropertyBrowser::intToEnum(const QMetaEnum &metaEnum, int intValue) const {
     QMap<int, bool> valueMap; // dont show multiple enum values which have the same values
     QList<int> values;
-    for (int i = 0; i < metaEnum.keyCount(); i++) {
+    for (int i = 0; i < metaEnum.keyCount(); ++i) {
         int value = metaEnum.value(i);
         if (!valueMap.contains(value)) {
             valueMap[value] = true;
@@ -500,7 +500,7 @@ int Qtilities::CoreGui::ObjectPropertyBrowser::flagToInt(const QMetaEnum &metaEn
     int intValue = 0;
     QMap<int, int> valueMap; // dont show multiple enum values which have the same values
     int pos = 0;
-    for (int i = 0; i < metaEnum.keyCount(); i++) {
+    for (int i = 0; i < metaEnum.keyCount(); ++i) {
         int value = metaEnum.value(i);
         if (!valueMap.contains(value) && isPowerOf2(value)) {
             if (isSubValue(flagValue, value))
@@ -514,7 +514,7 @@ int Qtilities::CoreGui::ObjectPropertyBrowser::flagToInt(const QMetaEnum &metaEn
 int Qtilities::CoreGui::ObjectPropertyBrowser::intToFlag(const QMetaEnum &metaEnum, int intValue) const {
     QMap<int, bool> valueMap; // dont show multiple enum values which have the same values
     QList<int> values;
-    for (int i = 0; i < metaEnum.keyCount(); i++) {
+    for (int i = 0; i < metaEnum.keyCount(); ++i) {
         int value = metaEnum.value(i);
         if (!valueMap.contains(value) && isPowerOf2(value)) {
             valueMap[value] = true;

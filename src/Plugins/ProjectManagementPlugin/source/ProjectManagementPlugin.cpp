@@ -387,7 +387,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleRecen
 
     //qDebug() << "Updating recent projects menu:" << names << paths;
 
-    for (int i = 0; i < names.count(); i++) {
+    for (int i = 0; i < names.count(); ++i) {
         // Skip the first project if it is the current open project:
         if (names.at(i) == PROJECT_MANAGER->currentProjectName())
             continue;

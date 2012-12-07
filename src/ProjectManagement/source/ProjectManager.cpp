@@ -484,7 +484,7 @@ void Qtilities::ProjectManagement::ProjectManager::refreshPartList() {
     QList<IProjectItem*> projectItems;
     QStringList itemNames;
     // Check all items
-    for (int i = 0; i < projectItemObjects.count(); i++) {
+    for (int i = 0; i < projectItemObjects.count(); ++i) {
         IProjectItem* part = qobject_cast<IProjectItem*> (projectItemObjects.at(i));
         if (part) {
             if (!itemNames.contains(part->projectItemName())) {
@@ -529,7 +529,7 @@ bool Qtilities::ProjectManagement::ProjectManager::activeProjectBusy() const {
 
 QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectNames() const {
     QStringList recent_project_names;
-    foreach (QString stack_name, d->recent_project_stack) {
+    foreach (const QString& stack_name, d->recent_project_stack) {
         recent_project_names << d->recent_project_names[FileUtils::toNativeSeparators(stack_name)].toString();
     }
     return recent_project_names;
@@ -540,7 +540,7 @@ QStringList Qtilities::ProjectManagement::ProjectManager::recentProjectPaths() c
 }
 
 QString Qtilities::ProjectManagement::ProjectManager::recentProjectPath(const QString& recent_project_name) const {
-    for (int i = 0; i < d->recent_project_names.size(); i++) {
+    for (int i = 0; i < d->recent_project_names.size(); ++i) {
         if (d->recent_project_names.values().at(i).toString() == recent_project_name)
             return d->recent_project_names.keys().at(i);
     }
@@ -560,7 +560,7 @@ void Qtilities::ProjectManagement::ProjectManager::setProjectItemList(QList<IPro
 
 QStringList Qtilities::ProjectManagement::ProjectManager::registeredProjectItemNames() const {
     QStringList list;
-    for (int i = 0; i < d->item_list.count(); i++) {
+    for (int i = 0; i < d->item_list.count(); ++i) {
         if (d->item_list.at(i))
             list << d->item_list.at(i)->projectItemName();
     }
@@ -630,7 +630,7 @@ QString Qtilities::ProjectManagement::ProjectManager::customProjectsPath(QString
 }
 
 void ProjectManagement::ProjectManager::removeCustomProjectsPath(QString projects_category) {
-    if (projects_category == "Default")
+    if (projects_category == QLatin1String("Default"))
         return;
 
     d->custom_projects_paths.remove(projects_category);
@@ -827,14 +827,14 @@ void ProjectManagement::ProjectManager::removeRecentProject(const QString &path)
 QStringList ProjectManagement::ProjectManager::removeNonExistingRecentProjects() {
     QStringList removed_paths;
     // Remove it from the stack if its in there:
-    foreach (QString path, d->recent_project_stack) {
+    foreach (const QString& path, d->recent_project_stack) {
         QFileInfo fi(path);
         if (!fi.exists()) {
             removed_paths << path;
         }
     }
 
-    foreach (QString path, removed_paths)
+    foreach (const QString& path, removed_paths)
         removeRecentProject(path);
 
     emit recentProjectsChanged(recentProjectNames(),recentProjectPaths());
@@ -902,7 +902,7 @@ void Qtilities::ProjectManagement::ProjectManager::setModificationState(bool new
 }
 
 void ProjectManagement::ProjectManager::clearCustomProjectsPaths() {
-    foreach (QString key, d->custom_projects_paths.keys()) {
+    foreach (const QString& key, d->custom_projects_paths.keys()) {
         if (key != "Default")
             removeCustomProjectsPath(key);
     }

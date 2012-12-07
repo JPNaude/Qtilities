@@ -62,7 +62,7 @@ namespace Qtilities {
 
           \sa Observer
           */
-        class QTILIITES_CORE_SHARED_EXPORT ObserverData : public QSharedData, public IExportable
+        class QTILIITES_CORE_SHARED_EXPORT ObserverData : public IExportable
         {
         public:
             //! The possible export flags used during extended observer exports.
@@ -98,8 +98,7 @@ namespace Qtilities {
                 subject_list.setObjectName(observer_name);
             }
 
-            ObserverData(const ObserverData &other) : QSharedData(other),
-                subject_list(other.subject_list),
+            ObserverData(const ObserverData &other) : subject_list(other.subject_list),
                 subject_filters(other.subject_filters),
                 subject_limit(other.subject_limit),
                 subject_id_counter(0),

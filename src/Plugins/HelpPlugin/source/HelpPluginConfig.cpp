@@ -112,7 +112,7 @@ void Qtilities::Plugins::Help::HelpPluginConfig::changeEvent(QEvent *e) {
 void Qtilities::Plugins::Help::HelpPluginConfig::handleFilesChanged(const QStringList& files) {
     // All paths in resources, thus starting with :/ are relative.
     QStringList read_only_paths;
-    foreach (QString file, files) {
+    foreach (const QString& file, files) {
         if (file.startsWith(":/"))
             read_only_paths << HelpManager::formatFileName(file);
     }

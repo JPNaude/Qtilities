@@ -52,7 +52,6 @@
 #include <QPointer>
 #include <QList>
 #include <QStringList>
-#include <QSharedDataPointer>
 
 namespace Qtilities {
     namespace Core {
@@ -67,7 +66,7 @@ namespace Qtilities {
         \brief The observer class is an extended implementation of an observer in the subject-observer pattern.
 
         The observer class provides a powerful implementation of the subject - observer programming pattern. The observer class is the observer in this implementation (as the name suggests) and any QObject based class can be a subject. One way to think about an observer is to think of it as a context in your application to which certain subjects can be attached or detached. An example of such a context is the observer which manages plugins in the %Qtilities extension system. When plugins are loaded they are attached to this context and become visible in the list of loaded plugins. Another example would be different instances of a scripting engine. When new objects are created inside the scripting engine they exist in that context. It can then for example be possible to have multiple scripting engines within the same application, where different objects belongs to different script engines or are shared between the engines using Observers.
-        
+
         The example below shows how to create your first observer class and attach objects to it.
 
 \code
@@ -186,7 +185,7 @@ observerWidget.show();
               See the \ref object_lifetimes section of the \ref page_observers article for a detailed discussion.
               */
             enum ObjectOwnership {
-                ManualOwnership,            /*!<                
+                ManualOwnership,            /*!<
 Manual ownership means that the object won't be managed by the observer, thus the ownership will be managed the normal Qt way. If \p parent() = 0, it will not be managed, if \p parent() is an QObject, the subject will be deleted when its parent is deleted.
 
 \code
@@ -208,20 +207,20 @@ delete observerA;
 
 // Check the validity of the objects
 if (object1) {
-	// We get here in this example.
+    // We get here in this example.
 } else {
-	
+
 }
 if (object2) {
-	// We get here in this example.
+    // We get here in this example.
 } else {
-	
+
 }
 \endcode
 
-After deleting the two observers in the example above, \p object1 and \p object2 will still be valid, thus they will not be deleted. Note that subjects are attached to observers using manual ownership by default. 
+After deleting the two observers in the example above, \p object1 and \p object2 will still be valid, thus they will not be deleted. Note that subjects are attached to observers using manual ownership by default.
                 */
-                AutoOwnership,              /*!< 
+                AutoOwnership,              /*!<
 Auto ownership means that the observer will automatically decide how to manage the subject. The observer checks if the object already has a parent(), if so \p ManualOwnership is used. If no \p parent() is specified yet, the observer will attach the subject using \p ObserverScopeOwnership.
 
 \code
@@ -247,19 +246,19 @@ delete observerA;
 if (object1) {
 
 } else {
-	// We get here in this example.
+    // We get here in this example.
 }
 if (object2) {
-	// We get here in this example.
+    // We get here in this example.
 } else {
-	
+
 }
 \endcode
 
 Since \p object2 has a parent, it will be attached using \p ManualOwnership and \p ObserverScopeOwnership will be used for \p object1. Therefore after deleting the observers, \p object1 will be null (see \ref observer_scope_ownership) and \p object2 will still be valid.
 
                 */
-                SpecificObserverOwnership,  /*!< 
+                SpecificObserverOwnership,  /*!<
 The observer becomes the parent of the subject (by calling setParent() on the object). That is, when the observer is deleted, the subject is also deleted.
 
 \code
@@ -283,12 +282,12 @@ delete observerA;
 if (object1) {
 
 } else {
-	// We get here in this example.	
+    // We get here in this example.
 }
 if (object2) {
 
 } else {
-	// We get here in this example.	
+    // We get here in this example.
 }
 \endcode
 
@@ -296,7 +295,7 @@ Both objects will become null after the observers are deleted since \p observerA
 
 \note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
-                ObserverScopeOwnership,     /*!< 
+                ObserverScopeOwnership,     /*!<
 The object must have at least one Observer parent at any time. That is, when the object is attached to multiple observers, it will stay valid until it goes out of scope. This can happen because all its observer parents gets deleted, or it is detached from all contexts.
 
 \code
@@ -321,14 +320,14 @@ delete observerA;
 
 // Check the validity of the objects
 if (object1) {
-	// We get here in this example.
+    // We get here in this example.
 } else {
-	
+
 }
 if (object2) {
-	// We get here in this example.
+    // We get here in this example.
 } else {
-	
+
 }
 
 // Now delete observer B
@@ -336,14 +335,14 @@ delete observerB;
 
 // Check the validity of the objects
 if (object1) {
-	
+
 } else {
-	// We get here in this example.
+    // We get here in this example.
 }
 if (object2) {
-	
+
 } else {
-	// We get here in this example.
+    // We get here in this example.
 }
 \endcode
 
@@ -351,7 +350,7 @@ Both objects will still be valid after deleting \p observerA since it they are s
 
 \note QWidget's parent must be another QWidget, thus these rules don't apply to QWidgets.
                 */
-                OwnedBySubjectOwnership     /*!< 
+                OwnedBySubjectOwnership     /*!<
 The observer is dependent on the subject, thus the subject effectively owns the observer. When the subject is deleted, the observer is also deleted. When the observer is deleted it checks if the subject is attached to any other observers and if not it deletes the subject as well. If the subject is attached to any other observers, the subject is not deleted. When the current ownership of a subject is \p OwnedBySubjectOwnership and it is attached to more contexts, the new ownership is ignored during attachment to the new contexts. Thus when a subject was attached to a context using \p OwnedBySubjectOwnership it is attached to all other contexts after that using \p OwnedBySubjectOwnership as well. On the other hand, when a subject is already attached to one or more observer contexts and it is attached to a new observer using \p OwnedBySubjectOwnership, the old ownership is kept and the observer only connects the destroyed() signal on the object to its own deleteLater() signal.
 
 \code
@@ -372,7 +371,7 @@ delete object1;
 if (observerA) {
 
 } else {
-	// We get here in this example.
+    // We get here in this example.
 }
 \endcode
 
@@ -618,7 +617,7 @@ In this example \p observerA will be deleted as soon as \p object1 is deleted.
               Note that this function only affects signals emitted by the observer. The observer still monitors
               dynamic property changes on all attached subjects during a processing cycle. To control the
               event filtering, see subjectEventFilteringEnabled() and toggleSubjectEventFiltering().
-              
+
               If a processing cycle was already started, this function does nothing.
 
               Internally observers keep track of how many times you start and end processing cycles. To stop a processing cycle you need to call endProcessingCycle() the same number of times you
@@ -696,7 +695,7 @@ obs.endProcessingCycle(); // Internal count = 0;
 
               \sa startTreeProcessingCycle(), endProcessingCycle(), subjectEventFilteringEnabled(), toggleSubjectEventFiltering(), isProcessingCycleActive(), processingCycleStarted()
               */
-            virtual void endTreeProcessingCycle(bool broadcast = true);           
+            virtual void endTreeProcessingCycle(bool broadcast = true);
 
             // --------------------------------
             // Functions to attach / detach subjects
@@ -836,7 +835,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             // Static functions
             // --------------------------------
             //! Function which returns all the observers in a QList<QObject*> input list.
-            static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);           
+            static QList<Observer*> observerList(QList<QPointer<QObject> >& object_list);
             //! Convenience function to get the number of observers observing the specified object. Thus the number of parents of this object.
             /*!
               \sa parentReferences()
@@ -851,7 +850,7 @@ obs.endProcessingCycle(); // Internal count = 0;
             /*!
               \sa Qtilities::Core::SubjectTypeInfo
               */
-            static bool isSupportedType(const QString& meta_type, Observer* observer);           
+            static bool isSupportedType(const QString& meta_type, Observer* observer);
 
         private:
             //! This function will remove all the properties which this observer might have added to an obj.
@@ -990,7 +989,7 @@ QVERIFY(items_verify.count() == 5);
             //! Returns a list with the displayed names of all the current observed subjects which inherits a specific base class. By default all subjects' displayed names are returned.
             QStringList subjectDisplayedNames(const QString& base_class_name = "QObject") const;
             //! Returns the subject reference at a given position.
-            QObject* subjectAt(int i) const;       
+            QObject* subjectAt(int i) const;
             //! Returns the ID of the object at the specified position of the Observer's pointer list, returns -1 if the object was not found.
             int subjectID(int i) const;
             //! Returns the ID associated with a specific subject.
@@ -1248,7 +1247,7 @@ QVERIFY(items_verify.count() == 5);
             void deleteObject(QObject* object);
 
         protected:
-            QSharedDataPointer<ObserverData> observerData;
+            ObserverData* observerData;
         };
 
         /*!

@@ -86,7 +86,7 @@ bool Qtilities::CoreGui::AbstractObserverItemModel::setObserverContext(Observer*
     model->activity_filter = 0;
 
     // Look which known subject filters are installed in this observer
-    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+    for (int i = 0; i < observer->subjectFilters().count(); ++i) {
         // Check if it is a naming policy subject filter
         NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
         if (naming_filter)

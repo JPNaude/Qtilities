@@ -70,7 +70,7 @@ void Qtilities::CoreGui::ObjectHierarchyNavigator::setCurrentObject(QObject* obj
 void Qtilities::CoreGui::ObjectHierarchyNavigator::setNavigationStack(QStack<int> navigation_stack) {
     // First disconnect all connections to the current stack
     Observer* observer = 0;
-    for (int i = 0; i < d_navigation_stack.count(); i++) {
+    for (int i = 0; i < d_navigation_stack.count(); ++i) {
         observer = OBJECT_MANAGER->observerReference(d_navigation_stack.at(i));
         observer->disconnect(this);
     }

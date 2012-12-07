@@ -143,7 +143,8 @@ bool Qtilities::Core::QtilitiesCategory::operator!=(const QtilitiesCategory& ref
 
 QString Qtilities::Core::QtilitiesCategory::toString(const QString& join_string) const {
     QString category_string;
-    for (int i = 0; i < d_category_levels.count(); i++) {
+    int count = d_category_levels.count();
+    for (int i = 0; i < count; ++i) {
         if (i > 0)
             category_string.append(join_string);
         category_string.append(d_category_levels.at(i).d_name);
@@ -157,7 +158,7 @@ QStringList Qtilities::Core::QtilitiesCategory::toStringList(int level) const {
 
     QStringList category_string_list;
     int level_counter = 0;
-    for (int i = 0; i < d_category_levels.count(); i++) {
+    for (int i = 0; i < d_category_levels.count(); ++i) {
         if (level_counter < level) {
             ++level_counter;
             category_string_list.push_back(d_category_levels.at(i).d_name);
@@ -182,7 +183,7 @@ void Qtilities::Core::QtilitiesCategory::setExportVersion(Qtilities::ExportVersi
 
     // This is a bad way to do it... Fix sometime.
     QList<CategoryLevel> new_levels;
-    for (int i = 0; i < d_category_levels.count(); i++) {
+    for (int i = 0; i < d_category_levels.count(); ++i) {
         CategoryLevel level(d_category_levels.at(i));
         level.setExportVersion(exportVersion());
         new_levels << level;
@@ -207,7 +208,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
     stream << (quint32) accessMode();
     stream << (quint32) categoryDepth();
     bool all_successful = true;
-    for (int i = 0; i < categoryDepth(); i++) {
+    for (int i = 0; i < categoryDepth(); ++i) {
         if (categoryLevels().at(i).exportBinary(stream) != IExportable::Complete)
             all_successful = false;
     }
@@ -223,13 +224,13 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
     IExportable::ExportResultFlags version_check_result = IExportable::validateQtilitiesImportVersion(exportVersion(),exportTask());
     if (version_check_result != IExportable::VersionSupported)
         return version_check_result;
-     
+
     quint32 ui32;
     stream >> ui32;
     setAccessMode(ui32);
     stream >> ui32;
     int count_int = ui32;
-    for (int i = 0; i < count_int; i++) {
+    for (int i = 0; i < count_int; ++i) {
         Qtilities::Core::CategoryLevel category_level(stream,exportVersion());
         addLevel(category_level);
     }
@@ -248,7 +249,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
     object_node->setAttribute("AccessMode",d_access_mode);
     object_node->setAttribute("Depth",d_category_levels.count());
     bool all_successful = true;
-    for (int i = 0; i < d_category_levels.count(); i++) {
+    for (int i = 0; i < d_category_levels.count(); ++i) {
         QDomElement category_level = doc->createElement("CategoryLevel_" + QString::number(i));
         object_node->appendChild(category_level);
         if (d_category_levels.at(i).exportXml(doc,&category_level) != IExportable::Complete)
@@ -277,7 +278,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
         depth_readback = object_node->attribute("Depth").toInt();
 
     QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();

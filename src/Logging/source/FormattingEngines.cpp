@@ -57,7 +57,7 @@ QString Qtilities::Logging::FormattingEngine_Default::formatMessage(Logger::Mess
 
     message.append(messages.front().toString());
 
-    for (int i = 1; i < messages.count(); i++) {
+    for (int i = 1; i < messages.count(); ++i) {
         message.append("\n            %1").arg(messages.at(i).toString());
     }
     return message;
@@ -85,7 +85,7 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
     formatted_string.replace("<","&#60;");
     formatted_string.replace(">","&#62;");
     message.append(formatted_string);
-    for (int i = 1; i < messages.count(); i++) {
+    for (int i = 1; i < messages.count(); ++i) {
         QString formatted_string = messages.at(i).toString();
         formatted_string.replace("<","&#60;");
         formatted_string.replace(">","&#62;");
@@ -169,7 +169,7 @@ QString Qtilities::Logging::FormattingEngine_XML::formatMessage(Logger::MessageT
     QString type_string = Log->logLevelToString(message_type);
     QString message;
     message = QString("<Log>\n<Type>%1</Type>").arg(type_string);
-    for (int i = 0; i < messages.count(); i++) {    
+    for (int i = 0; i < messages.count(); ++i) {    
         QString formatted_string = messages.at(i).toString();
         formatted_string.replace("<","(");
         formatted_string.replace(">",")");
@@ -231,7 +231,7 @@ QString Qtilities::Logging::FormattingEngine_HTML::formatMessage(Logger::Message
             return QString();
         }
 
-    /*for (int i = 1; i < messages.count(); i++) {
+    /*for (int i = 1; i < messages.count(); ++i) {
         message.append(QString("%1").arg(messages.at(i).toString()));
     }*/
 

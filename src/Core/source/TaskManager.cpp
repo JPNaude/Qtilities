@@ -71,7 +71,7 @@ QList<int> Qtilities::Core::TaskManager::allTaskIDs() const {
 
 QList<ITask*> Qtilities::Core::TaskManager::allTasks() const {
     QList<ITask*> all_tasks;
-    for (int i = 0; i < d->task_observer.subjectCount(); i++) {
+    for (int i = 0; i < d->task_observer.subjectCount(); ++i) {
         ITask* task = qobject_cast<ITask*> (d->task_observer.subjectAt(i));
         if (task)
             all_tasks << task;
@@ -86,7 +86,7 @@ QStringList Qtilities::Core::TaskManager::taskNames() const {
 ITask* Qtilities::Core::TaskManager::hasTask(const int task_id) const {
     if (d->task_id_name_map.contains(task_id)) {
         // Loop through all tasks and return one that contains task_id:
-        for (int i = 0; i < d->task_observer.subjectCount(); i++) {
+        for (int i = 0; i < d->task_observer.subjectCount(); ++i) {
             ITask* task = qobject_cast<ITask*> (d->task_observer.subjectAt(i));
             if (task) {
                 if (task->taskID() == task_id)

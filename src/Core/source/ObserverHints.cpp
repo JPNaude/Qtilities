@@ -368,7 +368,7 @@ void Qtilities::Core::ObserverHints::setDisplayedCategories(const QList<Qtilitie
 }
 
 void Qtilities::Core::ObserverHints::addDisplayedCategory(const QtilitiesCategory& category) {
-    for (int i = 0; i < d->displayed_categories.count(); i++) {
+    for (int i = 0; i < d->displayed_categories.count(); ++i) {
         if (d->displayed_categories.at(i) == category)
             return;
     }
@@ -377,7 +377,7 @@ void Qtilities::Core::ObserverHints::addDisplayedCategory(const QtilitiesCategor
 }
 
 void Qtilities::Core::ObserverHints::removeDisplayedCategory(const QtilitiesCategory& category) {
-    for (int i = 0; i < d->displayed_categories.count(); i++) {
+    for (int i = 0; i < d->displayed_categories.count(); ++i) {
         if (d->displayed_categories.at(i) == category) {
             d->displayed_categories.removeAt(i);
             return;
@@ -434,11 +434,11 @@ QString Qtilities::Core::ObserverHints::observerSelectionContextToString(Observe
 }
 
 Qtilities::Core::ObserverHints::ObserverSelectionContext Qtilities::Core::ObserverHints::stringToObserverSelectionContext(const QString& observer_selection_context_string) {
-    if (observer_selection_context_string == "NoObserverSelectionContextHint") {
+    if (observer_selection_context_string == QLatin1String("NoObserverSelectionContextHint")) {
         return NoObserverSelectionContextHint;
-    } else if (observer_selection_context_string == "SelectionUseParentContext") {
+    } else if (observer_selection_context_string == QLatin1String("SelectionUseParentContext")) {
         return SelectionUseParentContext;
-    } else if (observer_selection_context_string == "SelectionUseSelectedContext") {
+    } else if (observer_selection_context_string == QLatin1String("SelectionUseSelectedContext")) {
         return SelectionUseSelectedContext;
     }
 
@@ -459,11 +459,11 @@ QString Qtilities::Core::ObserverHints::namingControlToString(NamingControl nami
 }
 
 Qtilities::Core::ObserverHints::NamingControl Qtilities::Core::ObserverHints::stringToNamingControl(const QString& naming_control_string) {
-    if (naming_control_string == "NoNamingControlHint") {
+    if (naming_control_string == QLatin1String("NoNamingControlHint")) {
         return NoNamingControlHint;
-    } else if (naming_control_string == "ReadOnlyNames") {
+    } else if (naming_control_string == QLatin1String("ReadOnlyNames")) {
         return ReadOnlyNames;
-    } else if (naming_control_string == "EditableNames") {
+    } else if (naming_control_string == QLatin1String("EditableNames")) {
         return EditableNames;
     }
 
@@ -484,11 +484,11 @@ QString Qtilities::Core::ObserverHints::activityDisplayToString(ActivityDisplay 
 }
 
 Qtilities::Core::ObserverHints::ActivityDisplay Qtilities::Core::ObserverHints::stringToActivityDisplay(const QString& activity_display_string) {
-    if (activity_display_string == "NoActivityDisplayHint") {
+    if (activity_display_string == QLatin1String("NoActivityDisplayHint")) {
         return NoActivityDisplayHint;
-    } else if (activity_display_string == "NoActivityDisplay") {
+    } else if (activity_display_string == QLatin1String("NoActivityDisplay")) {
         return NoActivityDisplay;
-    } else if (activity_display_string == "CheckboxActivityDisplay") {
+    } else if (activity_display_string == QLatin1String("CheckboxActivityDisplay")) {
         return CheckboxActivityDisplay;
     }
 
@@ -511,13 +511,13 @@ QString Qtilities::Core::ObserverHints::activityControlToString(ActivityControl 
 }
 
 Qtilities::Core::ObserverHints::ActivityControl Qtilities::Core::ObserverHints::stringToActivityControl(const QString& activity_control_string) {
-    if (activity_control_string == "NoActivityControlHint") {
+    if (activity_control_string == QLatin1String("NoActivityControlHint")) {
         return NoActivityControlHint;
-    } else if (activity_control_string == "NoActivityControl") {
+    } else if (activity_control_string == QLatin1String("NoActivityControl")) {
         return NoActivityControl;
-    } else if (activity_control_string == "FollowSelection") {
+    } else if (activity_control_string == QLatin1String("FollowSelection")) {
         return FollowSelection;
-    } else if (activity_control_string == "CheckboxTriggered") {
+    } else if (activity_control_string == QLatin1String("CheckboxTriggered")) {
         return CheckboxTriggered;
     }
 
@@ -538,11 +538,11 @@ QString Qtilities::Core::ObserverHints::itemSelectionControlToString(ItemSelecti
 }
 
 Qtilities::Core::ObserverHints::ItemSelectionControl Qtilities::Core::ObserverHints::stringToItemSelectionControl(const QString& item_selection_control_string) {
-    if (item_selection_control_string == "NoItemSelectionControlHint") {
+    if (item_selection_control_string == QLatin1String("NoItemSelectionControlHint")) {
         return NoItemSelectionControlHint;
-    } else if (item_selection_control_string == "SelectableItems") {
+    } else if (item_selection_control_string == QLatin1String("SelectableItems")) {
         return SelectableItems;
-    } else if (item_selection_control_string == "NonSelectableItems") {
+    } else if (item_selection_control_string == QLatin1String("NonSelectableItems")) {
         return NonSelectableItems;
     }
 
@@ -563,11 +563,11 @@ QString Qtilities::Core::ObserverHints::hierarchicalDisplayToString(Hierarchical
 }
 
 Qtilities::Core::ObserverHints::HierarchicalDisplay Qtilities::Core::ObserverHints::stringToHierarchicalDisplay(const QString& hierarchical_display_string) {
-    if (hierarchical_display_string == "NoHierarchicalDisplayHint") {
+    if (hierarchical_display_string == QLatin1String("NoHierarchicalDisplayHint")) {
         return NoHierarchicalDisplayHint;
-    } else if (hierarchical_display_string == "FlatHierarchy") {
+    } else if (hierarchical_display_string == QLatin1String("FlatHierarchy")) {
         return FlatHierarchy;
-    } else if (hierarchical_display_string == "CategorizedHierarchy") {
+    } else if (hierarchical_display_string == QLatin1String("CategorizedHierarchy")) {
         return CategorizedHierarchy;
     }
 
@@ -628,11 +628,11 @@ QString ObserverHints::rootIndexDisplayHintToString(RootIndexDisplayHint root_in
 }
 
 ObserverHints::RootIndexDisplayHint ObserverHints::stringToRootIndexDisplayHint(const QString &root_index_display_hint_string) {
-    if (root_index_display_hint_string == "RootIndexHide") {
+    if (root_index_display_hint_string == QLatin1String("RootIndexHide")) {
         return RootIndexHide;
-    } else if (root_index_display_hint_string == "RootIndexDisplayDecorated") {
+    } else if (root_index_display_hint_string == QLatin1String("RootIndexDisplayDecorated")) {
         return RootIndexDisplayDecorated;
-    } else if (root_index_display_hint_string == "RootIndexDisplayUndecorated") {
+    } else if (root_index_display_hint_string == QLatin1String("RootIndexDisplayUndecorated")) {
         return RootIndexDisplayUndecorated;
     }
 
@@ -651,9 +651,9 @@ QString Qtilities::Core::ObserverHints::modificationStateDisplayToString(Modific
 }
 
 Qtilities::Core::ObserverHints::ModificationStateDisplayHint Qtilities::Core::ObserverHints::stringToModificationStateDisplay(const QString& modification_display_string) {
-    if (modification_display_string == "NoModificationStateDisplayHint") {
+    if (modification_display_string == QLatin1String("NoModificationStateDisplayHint")) {
         return NoModificationStateDisplayHint;
-    } else if (modification_display_string == "CharacterModificationStateDisplay") {
+    } else if (modification_display_string == QLatin1String("CharacterModificationStateDisplay")) {
         return CharacterModificationStateDisplay;
     }
 
@@ -708,7 +708,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
     // -----------------------------------
 
     stream << (quint32) d->displayed_categories.count();
-    for (int i = 0; i < d->displayed_categories.count(); i++)
+    for (int i = 0; i < d->displayed_categories.count(); ++i)
         d->displayed_categories.at(i).exportBinary(stream);
 
     stream << d->has_inversed_category_display;
@@ -770,7 +770,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
     stream >> qi32;
     int category_count = qi32;
-    for (int i = 0; i < category_count; i++) {
+    for (int i = 0; i < category_count; ++i) {
         QtilitiesCategory category(stream,exportVersion());
         d->displayed_categories << category;
     }
@@ -848,7 +848,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
             category_data.setAttribute("FilterInversed","False");
         category_data.setAttribute("CategoryCount",d->displayed_categories.count());
 
-        for (int i = 0; i < d->displayed_categories.count(); i++) {
+        for (int i = 0; i < d->displayed_categories.count(); ++i) {
             QDomElement category_item = doc->createElement("Category_" + QString::number(i));
             d->displayed_categories.at(i).exportXml(doc,&category_item);
             category_data.appendChild(category_item);
@@ -906,7 +906,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
 
     // Category stuff:
     QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();
@@ -914,17 +914,17 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "CategoryFilter") {
-            if (child.attribute("FilterEnabled") == "True")
+        if (child.tagName() == QLatin1String("CategoryFilter")) {
+            if (child.attribute("FilterEnabled") == QLatin1String("True"))
                 d->category_filter_enabled = true;
             else
                 d->category_filter_enabled = false;
-            if (child.attribute("FilterInversed") == "True")
+            if (child.attribute("FilterInversed") == QLatin1String("True"))
                 d->has_inversed_category_display = true;
             else
                 d->has_inversed_category_display = false;
             QDomNodeList categoryNodes = child.childNodes();
-            for(int i = 0; i < categoryNodes.count(); i++)
+            for(int i = 0; i < categoryNodes.count(); ++i)
             {
                 QDomNode categoryNode = categoryNodes.item(i);
                 QDomElement category = categoryNode.toElement();

@@ -121,7 +121,7 @@ AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::eval
         is_known_type = true;
 
     // Check the obj meta info against the known filter types
-    for (int i = 0; i < d->known_subject_types.count(); i++) {
+    for (int i = 0; i < d->known_subject_types.count(); ++i) {
         QString meta_type = d->known_subject_types.at(i).d_meta_type;
         if (obj->inherits(meta_type.toAscii().data())) {
             if (!d->inversed_filtering) {
@@ -199,7 +199,7 @@ void Qtilities::Core::SubjectTypeFilter::addSubjectType(SubjectTypeInfo subject_
 }
 
 bool Qtilities::Core::SubjectTypeFilter::isKnownType(const QString& meta_type) const {
-    for (int i = 0; i < d->known_subject_types.count(); i++) {
+    for (int i = 0; i < d->known_subject_types.count(); ++i) {
         if (d->known_subject_types.at(i).d_meta_type == meta_type) {
             if (!d->inversed_filtering)
                 return true;
@@ -252,7 +252,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Sub
     stream << d->inversed_filtering;
     stream << d->known_objects_group_name;
     stream << (quint32) d->known_subject_types.count();
-    for (int i = 0; i < d->known_subject_types.count(); i++) {
+    for (int i = 0; i < d->known_subject_types.count(); ++i) {
         stream << d->known_subject_types.at(i).d_meta_type;
         stream << d->known_subject_types.at(i).d_name;
     }
@@ -273,7 +273,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Sub
     stream >> known_type_count;
     int known_type_count_int = known_type_count;
     d->known_subject_types.clear();
-    for (int i = 0; i < known_type_count_int; i++) {
+    for (int i = 0; i < known_type_count_int; ++i) {
         QString meta_type;
         QString name;
         stream >> meta_type;
@@ -306,7 +306,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Sub
     if (d->known_subject_types.count() > 0) {
         QDomElement known_type_node = doc->createElement("KnownTypes");
         object_node->appendChild(known_type_node);
-        for (int i = 0; i < d->known_subject_types.count(); i++) {
+        for (int i = 0; i < d->known_subject_types.count(); ++i) {
             QDomElement known_type = doc->createElement("Type_" + QString::number(i));
             known_type_node.appendChild(known_type);
             known_type.setAttribute("MetaType",d->known_subject_types.at(i).d_meta_type);
@@ -340,7 +340,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Sub
 
     // Known types stuff:
     QDomNodeList childNodes = object_node->childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();
@@ -348,9 +348,9 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Sub
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "KnownTypes") {
+        if (child.tagName() == QLatin1String("KnownTypes")) {
             QDomNodeList knownTypesNodes = child.childNodes();
-            for(int i = 0; i < knownTypesNodes.count(); i++)
+            for(int i = 0; i < knownTypesNodes.count(); ++i)
             {
                 QDomNode knownTypesNode = knownTypesNodes.item(i);
                 QDomElement knownType = knownTypesNode.toElement();

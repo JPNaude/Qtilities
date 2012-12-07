@@ -87,7 +87,7 @@ Qtilities::Core::Observer::Observer(const QString& observer_name, const QString&
 
 Qtilities::Core::Observer::Observer(const Observer &other) : QObject(other.parent()) {
     // Initialize observer data
-    observerData = new ObserverData(*other.observerData.data());
+    observerData = new ObserverData(*other.observerData);
     setObjectName(other.objectName());
 
     connect(&observerData->subject_list,SIGNAL(objectDestroyed(QObject*)),SLOT(handle_deletedSubject(QObject*)));
@@ -167,15 +167,15 @@ Qtilities::Core::Observer::~Observer() {
     // Delete subject filters
     LOG_TRACE("Deleting subject filters.");
     int filter_count = observerData->subject_filters.count();
-    for (int i = 0; i < filter_count; i++) {
+    for (int i = 0; i < filter_count; ++i) {
         delete observerData->subject_filters.at(0);
         observerData->subject_filters.pop_front();
     }
 
-    if (objectName() != QString(qti_def_GLOBAL_OBJECT_POOL)) {
+    if (objectName() != QLatin1String(qti_def_GLOBAL_OBJECT_POOL)) {
         LOG_TRACE("Removing any trace of this observer from remaining children.");
         int count = observerData->subject_list.count();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; ++i) {
             // In this case we need to remove any trace of this observer from the obj
             if (observerData->subject_list.at(i))
                 removeQtilitiesProperties(observerData->subject_list.at(i));
@@ -202,7 +202,7 @@ QStringList Qtilities::Core::Observer::monitoredProperties() const {
     properties.append(QString(qti_prop_STATUSTIP));
     properties.append(QString(qti_prop_WHATS_THIS));
 
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         properties << observerData->subject_filters.at(i)->monitoredProperties();
     }
     return properties;
@@ -212,7 +212,7 @@ QStringList Qtilities::Core::Observer::reservedProperties() const {
     QStringList properties;
     properties << QString(qti_prop_OBSERVER_MAP) << QString(qti_prop_OWNERSHIP) << QString(qti_prop_PARENT_ID) << QString(qti_prop_VISITOR_ID) << QString(qti_prop_LIMITED_EXPORTS);
 
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         properties << observerData->subject_filters.at(i)->reservedProperties();
     }
     return properties;
@@ -353,7 +353,8 @@ bool Qtilities::Core::Observer::isModified() const {
         return true;
 
     // Check if any subjects are modified.
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
         if (mod_iface) {
             // Check if this subject must be monitored:
@@ -371,7 +372,7 @@ bool Qtilities::Core::Observer::isModified() const {
     }
 
     // Check if any subject filters were modified.
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         if (observerData->subject_filters.at(i)->isModificationStateMonitored()) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
             if (mod_iface) {
@@ -395,14 +396,15 @@ void Qtilities::Core::Observer::setModificationState(bool new_state, IModificati
 
     if (notification_targets & IModificationNotifier::NotifySubjects) {
         // First notify all objects in this context.
-        for (int i = 0; i < observerData->subject_list.count(); i++) {
+        int count = observerData->subject_list.count();
+        for (int i = 0; i < count; ++i) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_list.at(i));
             if (mod_iface) {
                 mod_iface->setModificationState(new_state,notification_targets);
             }
         }
         // Also notify all subject filters.
-        for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        for (int i = 0; i < observerData->subject_filters.count(); ++i) {
             IModificationNotifier* mod_iface = qobject_cast<IModificationNotifier*> (observerData->subject_filters.at(i));
             if (mod_iface) {
                 mod_iface->setModificationState(new_state,IModificationNotifier::NotifyListeners);
@@ -505,9 +507,9 @@ bool Qtilities::Core::Observer::isProcessingCycleActive() const {
     return observerData->process_cycle_active;
 }
 
-void Qtilities::Core::Observer::startTreeProcessingCycle() {        
+void Qtilities::Core::Observer::startTreeProcessingCycle() {
     QList<QObject*> obj_list = treeChildren();
-    for (int i = 0; i < obj_list.count(); i++) {
+    for (int i = 0; i < obj_list.count(); ++i) {
         Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
         if (obs)
             obs->startProcessingCycle();
@@ -518,7 +520,7 @@ void Qtilities::Core::Observer::startTreeProcessingCycle() {
 
 void Qtilities::Core::Observer::endTreeProcessingCycle(bool broadcast) {
     QList<QObject*> obj_list = treeChildren();
-    for (int i = 0; i < obj_list.count(); i++) {
+    for (int i = 0; i < obj_list.count(); ++i) {
         Observer* obs = qobject_cast<Observer*> (obj_list.at(i));
         if (obs)
             obs->endProcessingCycle(false);
@@ -543,7 +545,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
         return false;
     }
     #endif
-    
+
     QPointer<QObject> safe_obj = obj;
 
     // If objectName() is empty, set the object name using the objects meta type info:
@@ -556,7 +558,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
     // Pass new object through all installed subject filters:
     bool passed_filters = true;
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         bool result = observerData->subject_filters.at(i)->initializeAttachment(obj,rejectMsg,import_cycle);
         if (passed_filters)
             passed_filters = result;
@@ -568,7 +570,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
         // Don't set change rejectMsg here, it will be set in initializeAttachment() above:
         LOG_DEBUG(QString("Observer (%1): Object (%2) attachment failed, attachment was rejected by one or more subject filter.").arg(objectName()).arg(obj->objectName()));
-        for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        for (int i = 0; i < observerData->subject_filters.count(); ++i) {
             observerData->subject_filters.at(i)->finalizeAttachment(obj,false,import_cycle);
         }
 
@@ -799,7 +801,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 
     observerData->observer_mutex.tryLock();
     // Finalize the attachment in all subject filters, indicating that the attachment was succesfull.
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         observerData->subject_filters.at(i)->finalizeAttachment(obj,true,import_cycle);
     }
     observerData->observer_mutex.unlock();
@@ -822,7 +824,7 @@ bool Qtilities::Core::Observer::attachSubject(QObject* obj, Observer::ObjectOwne
 QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(QList<QObject*> objects, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QPointer<QObject> > success_list;
     startProcessingCycle();
-    for (int i = 0; i < objects.count(); i++) {
+    for (int i = 0; i < objects.count(); ++i) {
         if (attachSubject(objects.at(i), ownership, rejectMsg, import_cycle))
             success_list << objects.at(i);
     }
@@ -833,7 +835,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(QList<QObjec
 QList<QPointer<QObject> > Qtilities::Core::Observer::attachSubjects(ObserverMimeData* mime_data_object, Observer::ObjectOwnership ownership, QString* rejectMsg, bool import_cycle) {
     QList<QPointer<QObject> > success_list;
     startProcessingCycle();
-    for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
+    for (int i = 0; i < mime_data_object->subjectList().count(); ++i) {
         if (attachSubject(mime_data_object->subjectList().at(i), ownership, rejectMsg, import_cycle)) {
             success_list << mime_data_object->subjectList().at(i);
         }
@@ -931,7 +933,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
     bool was_rejected = false;
     bool was_conditional = false;
     AbstractSubjectFilter::EvaluationResult current_filter_evaluation;
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         current_filter_evaluation = observerData->subject_filters.at(i)->evaluateAttachment(obj,rejectMsg,silent);
         if (current_filter_evaluation == AbstractSubjectFilter::Rejected) {
             was_rejected = true;
@@ -958,7 +960,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canAttach
 
     bool success = true;
     int not_allowed_count = 0;
-    for (int i = 0; i < mime_data_object->subjectList().count(); i++) {
+    for (int i = 0; i < mime_data_object->subjectList().count(); ++i) {
         if (canAttach(mime_data_object->subjectList().at(i),Observer::ManualOwnership,rejectMsg,silent) == Observer::Rejected) {
             success = false;
             ++not_allowed_count;
@@ -989,7 +991,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
 
     // Pass object through all installed subject filters
     bool passed_filters = true;
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         passed_filters = observerData->subject_filters.at(i)->initializeDetachment(obj,0,true);
     }
 
@@ -997,7 +999,7 @@ void Qtilities::Core::Observer::handle_deletedSubject(QObject* obj) {
         LOG_ERROR(QString(tr("Observer (%1): Error: Subject filter rejected detachment of deleted object (%2).")).arg(objectName()).arg(obj->objectName()));
     }
 
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         observerData->subject_filters.at(i)->finalizeDetachment(obj,passed_filters,true);
     }
 
@@ -1039,7 +1041,7 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
 
     // Pass object through all installed subject filters
     bool passed_filters = true;
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         passed_filters = observerData->subject_filters.at(i)->initializeDetachment(obj);
         if (!passed_filters)
             break;
@@ -1050,12 +1052,12 @@ bool Qtilities::Core::Observer::detachSubject(QObject* obj, QString* rejectMsg) 
         LOG_WARNING(reject_string);
         if (rejectMsg)
             *rejectMsg = reject_string;
-        for (int i = 0; i < observerData->subject_filters.count(); i++)
+        for (int i = 0; i < observerData->subject_filters.count(); ++i)
             observerData->subject_filters.at(i)->finalizeDetachment(obj,false);
         observerData->filter_subject_events_enabled = currrent_filter_subject_events_enabled;
         return false;
     } else {
-        for (int i = 0; i < observerData->subject_filters.count(); i++) {
+        for (int i = 0; i < observerData->subject_filters.count(); ++i) {
             observerData->subject_filters.at(i)->finalizeDetachment(obj,true);
         }
     }
@@ -1130,7 +1132,7 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::detachSubjects(QList<QObjec
     startProcessingCycle();
 
     QList<QPointer<QObject> > safe_list;
-    for (int i = 0; i < objects.count(); i++) {
+    for (int i = 0; i < objects.count(); ++i) {
         if (objects.at(i)) {
             safe_list << objects.at(i);
             QString tmp_rejectMsg;
@@ -1203,7 +1205,7 @@ Qtilities::Core::Observer::EvaluationResult Qtilities::Core::Observer::canDetach
     bool was_rejected = false;
     bool was_conditional = false;
     AbstractSubjectFilter::EvaluationResult current_filter_evaluation;
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         current_filter_evaluation = observerData->subject_filters.at(i)->evaluateDetachment(obj);
         if (current_filter_evaluation == AbstractSubjectFilter::Rejected)
             was_rejected = true;
@@ -1250,7 +1252,7 @@ void Qtilities::Core::Observer::deleteAll(const QString& base_class_name, bool r
     toggleBroadcastModificationStateChanges(false);
 
     startProcessingCycle();
-    for (int i = 0; i < total; i++) {
+    for (int i = 0; i < total; ++i) {
         if (observerData->subject_list.at(0)->inherits(base_class_name.toAscii().data())) {
             // Validate operation against access mode if access mode scope is category:
             QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
@@ -1363,7 +1365,7 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
     added_properties.append(reservedProperties());
 
     // Remove all the contexts first.
-    foreach (QString property_name, added_properties) {
+    foreach (const QString& property_name, added_properties) {
         MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj, property_name.toStdString().data());
         if (prop.isValid()) {
             // If it exists, we remove this observer context:
@@ -1374,7 +1376,7 @@ void Qtilities::Core::Observer::removeQtilitiesProperties(QObject* obj) {
 
     // If the count is zero after removing the contexts, remove all properties:
     if (parentCount(obj) == 0) {
-        foreach (QString property_name, added_properties) {
+        foreach (const QString& property_name, added_properties) {
             if (property_name != QString(qti_prop_NAME))
                 obj->setProperty(property_name.toStdString().data(),QVariant());
         }
@@ -1393,7 +1395,7 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
     if (context_map_prop.isValid()) {
         observer_count = context_map_prop.contextMap().count();
         // Check all direct parents:
-        for (int i = 0; i < observer_count; i++) {
+        for (int i = 0; i < observer_count; ++i) {
             Observer* parent = OBJECT_MANAGER->observerReference(context_map_prop.contextMap().keys().at(i));
             if (parent != obj_to_check) {
                 is_parent = isParentInHierarchy(obj_to_check,parent);
@@ -1413,7 +1415,7 @@ bool Qtilities::Core::Observer::isParentInHierarchy(const Observer* obj_to_check
                 return false;
 
             // Check all direct parents:
-            for (int i = 0; i < observer_count; i++) {
+            for (int i = 0; i < observer_count; ++i) {
                 Observer* parent = OBJECT_MANAGER->observerReference(parent_context_map_prop.contextMap().keys().at(i));
                 if (parent != obj_to_check) {
                     is_parent = isParentInHierarchy(obj_to_check,parent);
@@ -1480,7 +1482,7 @@ void Qtilities::Core::Observer::setAccessMode(AccessMode mode, QtilitiesCategory
         }
 
         // Set the scope for the category
-        for (int i = 0; i < observerData->categories.count(); i++) {
+        for (int i = 0; i < observerData->categories.count(); ++i) {
             if (observerData->categories.at(i) == category) {
                 observerData->categories.removeAt(i);
                 break;
@@ -1500,7 +1502,7 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::accessMode(Qtil
         return (AccessMode) observerData->access_mode;
     else {
         // Loop through the categories list until we find the category:
-        for (int i = 0; i < observerData->categories.count(); i++) {
+        for (int i = 0; i < observerData->categories.count(); ++i) {
             if (observerData->categories.at(i) == category) {
                 return (AccessMode) observerData->categories.at(i).accessMode();
             }
@@ -1621,7 +1623,7 @@ int Qtilities::Core::Observer::treeCount(const QString& base_class_name) {
 
     int count = subjectCount(base_class_name);
     QList<QPointer<Observer> > observers = subjectObserverReferences();
-    for (int i = 0; i < observers.count(); i++) {
+    for (int i = 0; i < observers.count(); ++i) {
         if (observers.at(i))
             count += observers.at(i)->treeCount(base_class_name);
     }
@@ -1689,9 +1691,11 @@ QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface, in
 QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const {
     QStringList subject_names;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
-        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty())
-            subject_names << subjectNameInContext(observerData->subject_list.at(i));
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
+        QObject* obj = observerData->subject_list.at(i);
+        if (obj->inherits(iface.toAscii().data()) || iface.isEmpty())
+            subject_names << subjectNameInContext(obj);
     }
     return subject_names;
 }
@@ -1699,22 +1703,23 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
 QStringList Qtilities::Core::Observer::subjectDisplayedNames(const QString& iface) const {
     QStringList subject_names;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QObject* object = observerData->subject_list.at(i);
         subject_names << object->objectName();
         continue;
-        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()) || iface.isEmpty()) {
+        if (object->inherits(iface.toAscii().data()) || iface.isEmpty()) {
             // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-            QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_DISPLAYED_ALIAS_MAP);
+            QVariant instance_name = getMultiContextPropertyValue(object,qti_prop_DISPLAYED_ALIAS_MAP);
             if (instance_name.isValid())
                 subject_names << instance_name.toString();
             else {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(object,qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
-                    subject_names << observerData->subject_list.at(i)->objectName();
+                    subject_names << object->objectName();
             }
         }
     }
@@ -1724,29 +1729,31 @@ QStringList Qtilities::Core::Observer::subjectDisplayedNames(const QString& ifac
 QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCategory& category) const {
     QStringList subject_names;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
+        QObject* obj = observerData->subject_list.at(i);
         QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Handles cases where category is valid, thus it contains levels.
         if (category_variant.isValid()) {
             QtilitiesCategory current_category = category_variant.value<QtilitiesCategory>();
             if (current_category == category) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
-                    subject_names << observerData->subject_list.at(i)->objectName();
+                    subject_names << obj->objectName();
             }
         } else {
             // Handle cases where the category is not valid on a subject.
             // Thus subjects without a category specified for them.
             if (!category.isValid()) {
                 // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
-                QVariant instance_name = getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_ALIAS_MAP);
+                QVariant instance_name = getMultiContextPropertyValue(obj,qti_prop_ALIAS_MAP);
                 if (instance_name.isValid())
                     subject_names << instance_name.toString();
                 else
-                    subject_names << observerData->subject_list.at(i)->objectName();
+                    subject_names << obj->objectName();
             }
         }
     }
@@ -1755,7 +1762,8 @@ QStringList Qtilities::Core::Observer::subjectNamesByCategory(const QtilitiesCat
 }
 
 bool Qtilities::Core::Observer::hasCategory(const QtilitiesCategory& category) const {
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
@@ -1773,7 +1781,8 @@ QList<QPointer<QObject> > Qtilities::Core::Observer::renameCategory(const Qtilit
 
     startProcessingCycle();
     // Check the category on all subjects:
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
@@ -1836,7 +1845,7 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessM
     }
 
     // Loop through the categories list until we find the category:
-    for (int i = 0; i < observerData->categories.count(); i++) {
+    for (int i = 0; i < observerData->categories.count(); ++i) {
         if (observerData->categories.at(i) == category) {
             return (AccessMode) observerData->categories.at(i).accessMode();
         }
@@ -1848,7 +1857,8 @@ Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::categoryAccessM
 QList<Qtilities::Core::QtilitiesCategory> Qtilities::Core::Observer::subjectCategories() const {
     QList<QtilitiesCategory> subject_categories;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {    
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QVariant category_variant = getMultiContextPropertyValue(subjectAt(i),qti_prop_CATEGORY_MAP);
         // Check if a category property exists:
         if (category_variant.isValid()) {
@@ -1887,7 +1897,8 @@ int Qtilities::Core::Observer::subjectID(const QString& subject_name, Qt::CaseSe
 
 QList<int> Qtilities::Core::Observer::subjectIDs() const {
     QList<int> subject_ids;
-    for (int i = 0; i < observerData->subject_list.count(); i++)
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i)
         subject_ids << getMultiContextPropertyValue(observerData->subject_list.at(i),qti_prop_OBSERVER_MAP).toInt();
     return subject_ids;
 }
@@ -1897,7 +1908,8 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& ifac
         return observerData->subject_list.toQList();
 
     QList<QObject*> subjects;
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()))
             subjects << observerData->subject_list.at(i);
     }
@@ -1908,7 +1920,8 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
     // Get all subjects which has the qti_prop_CATEGORY_MAP property set to category.
     QList<QObject*> list;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QObject* obj = subjectAt(i);
         QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         if (category_variant.isValid()) {
@@ -1927,7 +1940,8 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferencesByCategory(const Qti
 QMap<QPointer<QObject>, QString> Observer::subjectReferenceCategoryMap() const {
     QMap<QPointer<QObject>, QString> map;
 
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QPointer<QObject> obj = subjectAt(i);
         QVariant category_variant = getMultiContextPropertyValue(obj,qti_prop_CATEGORY_MAP);
         if (category_variant.isValid())
@@ -1941,7 +1955,8 @@ QMap<QPointer<QObject>, QString> Observer::subjectReferenceCategoryMap() const {
 
 QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
     QMap<QPointer<QObject>, QString> subject_map;
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QPointer<QObject> object_ptr = observerData->subject_list.at(i);
         subject_map[object_ptr] = subjectNameInContext(observerData->subject_list.at(i));
     }
@@ -1950,13 +1965,14 @@ QMap<QPointer<QObject>, QString> Qtilities::Core::Observer::subjectMap() {
 
 QList<QPointer<Observer> > Observer::subjectObserverReferences() const {
     QList<QPointer<Observer> > obs_list;
-    for (int i = 0; i < observerData->subject_observer_list.count(); i++)
+    for (int i = 0; i < observerData->subject_observer_list.count(); ++i)
         obs_list << qobject_cast<Observer*> (observerData->subject_observer_list.at(i));
     return obs_list;
 }
 
 QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QObject* obj = observerData->subject_list.at(i);
         QVariant prop = getMultiContextPropertyValue(obj,qti_prop_OBSERVER_MAP);
         if (!prop.isValid()) {
@@ -1970,12 +1986,13 @@ QObject* Qtilities::Core::Observer::subjectReference(int ID) const {
 }
 
 QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name, Qt::CaseSensitivity cs) const {
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         QObject* obj = observerData->subject_list.at(i);
         QVariant prop = getMultiContextPropertyValue(obj,qti_prop_NAME);
         if (!prop.isValid()) {
-            if (observerData->subject_list.at(i)->objectName().compare(subject_name,cs) == 0)
-                return observerData->subject_list.at(i);
+            if (obj->objectName().compare(subject_name,cs) == 0)
+                return obj;
         } else {
             if (prop.toString().compare(subject_name,cs) == 0)
                 return obj;
@@ -1985,7 +2002,8 @@ QObject* Qtilities::Core::Observer::subjectReference(const QString& subject_name
 }
 
 bool Qtilities::Core::Observer::contains(const QObject* object) const {
-    for (int i = 0; i < observerData->subject_list.count(); i++) {
+    int count = observerData->subject_list.count();
+    for (int i = 0; i < count; ++i) {
         if (observerData->subject_list.at(i) == object)
             return true;
     }
@@ -2059,7 +2077,7 @@ QList<Qtilities::Core::AbstractSubjectFilter*> Qtilities::Core::Observer::subjec
 }
 
 bool Qtilities::Core::Observer::hasSubjectFilter(const QString& filter_name) const {
-    for (int i = 0; i < observerData->subject_filters.count(); i++) {
+    for (int i = 0; i < observerData->subject_filters.count(); ++i) {
         if (observerData->subject_filters.at(i)->filterName() == filter_name)
             return true;
     }
@@ -2125,7 +2143,7 @@ bool Qtilities::Core::Observer::eventFilter(QObject *object, QEvent *event) {
             // If no subject filter is responsible, the observer needs to handle it itself.
             QPointer<QObject> safe_object = object;
             bool filter_event = false;
-            for (int i = 0; i < observerData->subject_filters.count(); i++) {
+            for (int i = 0; i < observerData->subject_filters.count(); ++i) {
                 if (observerData->subject_filters.at(i)) {
                     if (observerData->subject_filters.at(i)->monitoredProperties().contains(QString(propertyChangeEvent->propertyName().data()))) {
                         bool int_filter_event = observerData->subject_filters.at(i)->handleMonitoredPropertyChange(object, propertyChangeEvent->propertyName().data(),propertyChangeEvent);
@@ -2212,15 +2230,15 @@ QString Qtilities::Core::Observer::objectOwnershipToString(ObjectOwnership owner
 }
 
 Qtilities::Core::Observer::ObjectOwnership Qtilities::Core::Observer::stringToObjectOwnership(const QString& ownership_string) {
-    if (ownership_string == "ManualOwnership") {
+    if (ownership_string == QLatin1String("ManualOwnership")) {
         return ManualOwnership;
-    } else if (ownership_string == "AutoOwnership") {
+    } else if (ownership_string == QLatin1String("AutoOwnership")) {
         return AutoOwnership;
-    } else if (ownership_string == "SpecificObserverOwnership") {
+    } else if (ownership_string == QLatin1String("SpecificObserverOwnership")) {
         return SpecificObserverOwnership;
-    } else if (ownership_string == "ObserverScopeOwnership") {
+    } else if (ownership_string == QLatin1String("ObserverScopeOwnership")) {
         return ObserverScopeOwnership;
-    } else if (ownership_string == "OwnedBySubjectOwnership") {
+    } else if (ownership_string == QLatin1String("OwnedBySubjectOwnership")) {
         return OwnedBySubjectOwnership;
     }
 
@@ -2243,13 +2261,13 @@ QString Qtilities::Core::Observer::accessModeToString(AccessMode access_mode) {
 }
 
 Qtilities::Core::Observer::AccessMode Qtilities::Core::Observer::stringToAccessMode(const QString& access_mode_string) {
-    if (access_mode_string == "FullAccess") {
+    if (access_mode_string == QLatin1String("FullAccess")) {
         return FullAccess;
-    } else if (access_mode_string == "ReadOnlyAccess") {
+    } else if (access_mode_string == QLatin1String("ReadOnlyAccess")) {
         return ReadOnlyAccess;
-    } else if (access_mode_string == "LockedAccess") {
+    } else if (access_mode_string == QLatin1String("LockedAccess")) {
         return LockedAccess;
-    } else if (access_mode_string == "InvalidAccess") {
+    } else if (access_mode_string == QLatin1String("InvalidAccess")) {
         return InvalidAccess;
     }
 
@@ -2268,9 +2286,9 @@ QString Qtilities::Core::Observer::objectDeletionPolicyToString(ObjectDeletionPo
 }
 
 Qtilities::Core::Observer::ObjectDeletionPolicy Qtilities::Core::Observer::stringToObjectDeletionPolicy(const QString& object_deletion_policy_string) {
-    if (object_deletion_policy_string == "DeleteImmediately") {
+    if (object_deletion_policy_string == QLatin1String("DeleteImmediately")) {
         return DeleteImmediately;
-    } else if (object_deletion_policy_string == "DeleteLater") {
+    } else if (object_deletion_policy_string == QLatin1String("DeleteLater")) {
         return DeleteLater;
     }
     Q_ASSERT(0);
@@ -2288,9 +2306,9 @@ QString Qtilities::Core::Observer::accessModeScopeToString(AccessModeScope acces
 }
 
 Qtilities::Core::Observer::AccessModeScope Qtilities::Core::Observer::stringToAccessModeScope(const QString& access_mode_scope_string) {
-    if (access_mode_scope_string == "GlobalScope") {
+    if (access_mode_scope_string == QLatin1String("GlobalScope")) {
         return GlobalScope;
-    } else if (access_mode_scope_string == "CategorizedScope") {
+    } else if (access_mode_scope_string == QLatin1String("CategorizedScope")) {
         return CategorizedScope;
     }
 
@@ -2303,7 +2321,7 @@ Qtilities::Core::Observer::AccessModeScope Qtilities::Core::Observer::stringToAc
 // ---------------------------------------
 QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::observerList(QList<QPointer<QObject> >& object_list) {
     QList<Observer*> observer_list;
-    for (int i = 0; i < object_list.count(); i++) {
+    for (int i = 0; i < object_list.count(); ++i) {
         Observer* obs = qobject_cast<Observer*> (object_list.at(i));
         if (obs)
             observer_list << obs;
@@ -2330,8 +2348,10 @@ QList<Qtilities::Core::Observer*> Qtilities::Core::Observer::parentReferences(co
 
     MultiContextProperty prop = ObjectManager::getMultiContextProperty(obj, Qtilities::Core::Properties::qti_prop_OBSERVER_MAP);
     if (prop.isValid()) {
-        for (int i = 0; i < prop.contextMap().count(); i++) {
-            Observer* obs = OBJECT_MANAGER->observerReference(prop.contextMap().keys().at(i));
+        int count = prop.contextMap().count();
+        QList<quint32> parent_ids = prop.contextMap().keys();
+        for (int i = 0; i < count; ++i) {
+            Observer* obs = OBJECT_MANAGER->observerReference(parent_ids.at(i));
             if (obs)
                 parents << obs;
         }
@@ -2345,7 +2365,7 @@ bool Qtilities::Core::Observer::isSupportedType(const QString& meta_type, Observ
         return false;
 
     // Check if this observer has a subject type filter installed
-    for (int i = 0; i < observer->subjectFilters().count(); i++) {
+    for (int i = 0; i < observer->subjectFilters().count(); ++i) {
         SubjectTypeFilter* subject_type_filter = qobject_cast<SubjectTypeFilter*> (observer->subjectFilters().at(i));
         if (subject_type_filter) {
             if (subject_type_filter->isKnownType(meta_type)) {

@@ -89,7 +89,7 @@ Qtilities::CoreGui::NamingPolicyFilter::~NamingPolicyFilter() {
 
     // Check if this policy filter was the object name manager
     if (observer) {
-        for (int i = 0; i < observer->subjectCount(); i++) {
+        for (int i = 0; i < observer->subjectCount(); ++i) {
             assignNewNameManager(observer->subjectAt(i));
         }
     }
@@ -149,11 +149,11 @@ QString Qtilities::CoreGui::NamingPolicyFilter::uniquenessPolicyToString(Uniquen
 }
 
 Qtilities::CoreGui::NamingPolicyFilter::UniquenessPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToUniquenessPolicy(const QString& uniqueness_policy_string) {
-    if (uniqueness_policy_string == "AllowDuplicateNames") {
+    if (uniqueness_policy_string == QLatin1String("AllowDuplicateNames")) {
         return AllowDuplicateNames;
-    } else if (uniqueness_policy_string == "ProhibitDuplicateNames") {
+    } else if (uniqueness_policy_string == QLatin1String("ProhibitDuplicateNames")) {
         return ProhibitDuplicateNames;
-    } else if (uniqueness_policy_string == "ProhibitDuplicateNamesCaseSensitive") {
+    } else if (uniqueness_policy_string == QLatin1String("ProhibitDuplicateNamesCaseSensitive")) {
         return ProhibitDuplicateNamesCaseSensitive;
     }
     return AllowDuplicateNames;
@@ -174,13 +174,13 @@ QString Qtilities::CoreGui::NamingPolicyFilter::resolutionPolicyToString(Resolut
 }
 
 Qtilities::CoreGui::NamingPolicyFilter::ResolutionPolicy Qtilities::CoreGui::NamingPolicyFilter::stringToResolutionPolicy(const QString& resolution_policy_string) {
-    if (resolution_policy_string == "AutoRename") {
+    if (resolution_policy_string == QLatin1String("AutoRename")) {
         return AutoRename;
-    } else if (resolution_policy_string == "PromptUser") {
+    } else if (resolution_policy_string == QLatin1String("PromptUser")) {
         return PromptUser;
-    } else if (resolution_policy_string == "Replace") {
+    } else if (resolution_policy_string == QLatin1String("Replace")) {
         return Replace;
-    } else if (resolution_policy_string == "Reject") {
+    } else if (resolution_policy_string == QLatin1String("Reject")) {
         return Reject;
     }
 
@@ -202,13 +202,13 @@ QString Qtilities::CoreGui::NamingPolicyFilter::validationCheckFlagsToString(Val
 }
 
 Qtilities::CoreGui::NamingPolicyFilter::ValidationCheckFlags Qtilities::CoreGui::NamingPolicyFilter::stringToValidationCheckFlags(const QString& validation_checks) {
-    if (validation_checks == "NoChecks") {
+    if (validation_checks == QLatin1String("NoChecks")) {
         return NoChecks;
-    } else if (validation_checks == "Validity") {
+    } else if (validation_checks == QLatin1String("Validity")) {
         return Validity;
-    } else if (validation_checks == "Uniqueness") {
+    } else if (validation_checks == QLatin1String("Uniqueness")) {
         return Uniqueness;
-    } else if (validation_checks == "AllChecks") {
+    } else if (validation_checks == QLatin1String("AllChecks")) {
         return AllChecks;
     }
 
@@ -328,7 +328,7 @@ Qtilities::CoreGui::NamingPolicyFilter::NameValidity Qtilities::CoreGui::NamingP
 
 QObject* Qtilities::CoreGui::NamingPolicyFilter::getConflictingObject(const QString& name) const {
     if (observer->subjectNames().contains(name) && d->uniqueness_policy == ProhibitDuplicateNames) {
-        for (int i = 0; i < observer->subjectCount(); i++) {
+        for (int i = 0; i < observer->subjectCount(); ++i) {
             if (observer->subjectNames().at(i) == name)
                 return observer->subjectAt(i);
         }
@@ -949,7 +949,7 @@ void Qtilities::CoreGui::NamingPolicyFilter::makeNameManager(QObject* obj) {
             Observer* current_manager = OBJECT_MANAGER->observerReference(current_manager_id.value().toInt());
             Q_ASSERT(current_manager);
             NamingPolicyFilter* naming_filter = 0;
-            for (int i = 0; i < current_manager->subjectFilters().count(); i++) {
+            for (int i = 0; i < current_manager->subjectFilters().count(); ++i) {
                 // Check if it is a naming policy subject filter
                 naming_filter = qobject_cast<NamingPolicyFilter*> (current_manager->subjectFilters().at(i));
             }
@@ -1032,11 +1032,11 @@ void Qtilities::CoreGui::NamingPolicyFilter::assignNewNameManager(QObject* obj) 
         Observer* next_observer = 0;
         bool found = false;
         if (observer_list.isValid()) {
-            for (int i = 0; i < observer_list.contextMap().count(); i++) {
+            for (int i = 0; i < observer_list.contextMap().count(); ++i) {
                 if ((int) observer_list.contextMap().keys().at(i) != observer->observerID()) {
                     next_observer = OBJECT_MANAGER->observerReference(observer_list.contextMap().keys().at(i));
                     if (next_observer) {
-                        for (int i = 0; i < next_observer->subjectFilters().count(); i++) {
+                        for (int i = 0; i < next_observer->subjectFilters().count(); ++i) {
                             // Check if it is a naming policy subject filter
                             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (next_observer->subjectFilters().at(i));
                             if (naming_filter) {
@@ -1225,7 +1225,7 @@ void Qtilities::CoreGui::NamingPolicyDelegate::setObserverContext(Observer* obse
 
     if (d->observer) {
         // Look which known subject filters are installed in this observer
-        for (int i = 0; i < observer->subjectFilters().count(); i++) {
+        for (int i = 0; i < observer->subjectFilters().count(); ++i) {
             // Check if it is a naming policy subject filter
             NamingPolicyFilter* naming_filter = qobject_cast<NamingPolicyFilter*> (observer->subjectFilters().at(i));
             if (naming_filter)

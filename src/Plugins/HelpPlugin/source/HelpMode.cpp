@@ -247,7 +247,7 @@ void HelpMode::initializeMode() {
     // Check all objects in the global object pool.
     QMap<QString, ISideViewerWidget*> text_iface_map;
     QList<QObject*> widgets = OBJECT_MANAGER->registeredInterfaces("ISideViewerWidget");
-    for (int i = 0; i < widgets.count(); i++) {
+    for (int i = 0; i < widgets.count(); ++i) {
         ISideViewerWidget* side_viewer_widget = qobject_cast<ISideViewerWidget*> (widgets.at(i));
         if (side_viewer_widget) {
             text_iface_map[side_viewer_widget->widgetLabel()] = side_viewer_widget;

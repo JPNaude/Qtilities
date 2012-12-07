@@ -120,11 +120,11 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
             // Sub folders count as 10, files count as 1:
             int folder_count = 0;
             int file_count = 0;
-            foreach (QFileInfo info, dir.entryInfoList(final_filters,sort)) {
+            foreach (const QFileInfo& info, dir.entryInfoList(final_filters,sort)) {
                 // Check if this entry must be ignored:
                 bool not_ignored = true;
                 if (!ignore_list.isEmpty()) {
-                    foreach (QString ignore_pattern, ignore_patterns) {
+                    foreach (const QString& ignore_pattern, ignore_patterns) {
                         // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
                         #ifdef Q_OS_WIN
                         QString path_to_match = QDir::fromNativeSeparators(info.filePath());
@@ -158,12 +158,12 @@ QFileInfoList Qtilities::Core::FileUtils::findFilesUnderDir(const QString &dirNa
         d->find_files_under_dir_list.clear();
     }
 
-    foreach (QFileInfo info, dir.entryInfoList(final_filters | QDir::AllDirs,sort)) {
+    foreach (const QFileInfo& info, dir.entryInfoList(final_filters | QDir::AllDirs,sort)) {
         QCoreApplication::processEvents();
         // Check if this entry must be ignored:
         bool not_ignored = true;
         if (!ignore_list.isEmpty()) {
-            foreach (QString ignore_pattern, ignore_patterns) {
+            foreach (const QString& ignore_pattern, ignore_patterns) {
                 // IMPORTANT: For paths, \\ separators does not do the trick. We need to use /
                 #ifdef Q_OS_WIN
                 QString path_to_match = QDir::fromNativeSeparators(info.filePath());
@@ -258,7 +258,7 @@ bool Qtilities::Core::FileUtils::removeDir(const QString& dirName) {
     QDir dir(dirName);
 
     if (dir.exists(dirName)) {
-        foreach (QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+        foreach (const QFileInfo& info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
             if (info.isDir())
                 result = removeDir(info.absoluteFilePath());
             else
@@ -314,7 +314,9 @@ bool Qtilities::Core::FileUtils::compareFiles(const QString& file1, const QStrin
 }
 
 bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
-    return (FileUtils::toNativeSeparators(QDir::cleanPath(path1)).compare(FileUtils::toNativeSeparators(QDir::cleanPath(path2)),Qt::CaseInsensitive) == 0);
+    QFileInfo fi1(path1);
+    QFileInfo fi2(path2);
+    return fi1 == fi2;
 }
 
 QString FileUtils::toNativeSeparators(QString path) {

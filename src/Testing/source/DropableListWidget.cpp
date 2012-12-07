@@ -72,12 +72,12 @@ void Qtilities::Testing::qti_private_DropableListWidget::dropEvent(QDropEvent *e
             QString filter_name = mime_data->text();
 
             if (plugin_iface) {
-                if (d_plugin_list_type == "Inactive") {
+                if (d_plugin_list_type == QLatin1String("Inactive")) {
                     if (EXTENSION_SYSTEM->corePlugins().contains(plugin_iface->pluginName())) {
                         QString msg = "Plugin \"" + plugin_iface->pluginName() + "\" is a core plugin, it does not belong in the list of inactive plugins.";
                         emit newMessage(Logger::Warning, msg);
                     }
-                } else if (d_plugin_list_type == "Filtered") {
+                } else if (d_plugin_list_type == QLatin1String("Filtered")) {
                     if (EXTENSION_SYSTEM->corePlugins().contains(plugin_iface->pluginName())) {
                         QString msg = "Plugin \"" + plugin_iface->pluginName() + "\" is a core plugin, it does not belong in the list of filtered plugins.";
                         emit newMessage(Logger::Warning, msg);

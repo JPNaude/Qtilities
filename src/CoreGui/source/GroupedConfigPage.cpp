@@ -59,7 +59,7 @@ QIcon Qtilities::CoreGui::GroupedConfigPage::configPageIcon() const {
         return d->grouping_icon;
 
     // For now use the first IConfigPage icon.
-    for (int i = 0; i < d->pages.count(); i++) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         if (!d->pages.values().at(i)->configPageIcon().isNull())
             return d->pages.values().at(i)->configPageIcon();
     }
@@ -92,7 +92,7 @@ QtilitiesCategory Qtilities::CoreGui::GroupedConfigPage::configPageCategory() co
 
 void Qtilities::CoreGui::GroupedConfigPage::configPageApply() {
     if (d->apply_all) {
-        for (int i = 0; i < d->pages.count(); i++) {
+        for (int i = 0; i < d->pages.count(); ++i) {
             d->pages.values().at(i)->configPageApply();
             emit appliedPage(d->pages.values().at(i));
         }
@@ -139,7 +139,7 @@ bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(IConfigPage *page) con
 }
 
 bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(const QString &page_title) const {
-    for (int i = 0; i < d->pages.count(); i++) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         if (d->pages.values().at(i)->configPageTitle() == page_title)
             return true;
     }
@@ -147,7 +147,7 @@ bool Qtilities::CoreGui::GroupedConfigPage::hasConfigPage(const QString &page_ti
 }
 
 IConfigPage* Qtilities::CoreGui::GroupedConfigPage::getConfigPage(const QString &page_title) const {
-    for (int i = 0; i < d->pages.count(); i++) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         if (d->pages.values().at(i)->configPageTitle() == page_title)
             return d->pages.values().at(i);
     }
@@ -186,7 +186,7 @@ QList<IConfigPage *> Qtilities::CoreGui::GroupedConfigPage::configPages() const 
 
 QStringList Qtilities::CoreGui::GroupedConfigPage::configPageNames() const {
     QStringList names;
-    for (int i = 0; i < d->pages.count(); i++) {
+    for (int i = 0; i < d->pages.count(); ++i) {
         names << d->pages.values().at(i)->configPageTitle();
     }
     return names;
@@ -226,7 +226,7 @@ int Qtilities::CoreGui::GroupedConfigPage::findTabIndex(IConfigPage *page) {
     if (page->configPageWidget())
         return -1;
 
-    for (int i = 0; i < ui->groupedTab->count(); i++) {
+    for (int i = 0; i < ui->groupedTab->count(); ++i) {
         if (ui->groupedTab->widget(i) == page->configPageWidget())
             return i;
     }

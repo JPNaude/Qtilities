@@ -131,7 +131,7 @@ void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
 
     if (d->multiple_tests) {
         QList<QObject*> active_tests = d->tests_activity_filter->activeSubjects();
-        for (int i = 0; i < active_tests.count(); i++) {
+        for (int i = 0; i < active_tests.count(); ++i) {
             ITestable* test = qobject_cast<ITestable*> (active_tests.at(i));
             if (test) {
                 SharedProperty property(qti_prop_DECORATION,QVariant(QIcon()));
@@ -142,7 +142,7 @@ void Qtilities::Testing::TestFrontend::on_btnExecute_clicked()
 
     // Execute the tests:
     QList<QObject*> active_tests = d->tests_activity_filter->activeSubjects();
-    for (int i = 0; i < active_tests.count(); i++) {
+    for (int i = 0; i < active_tests.count(); ++i) {
         ITestable* test = qobject_cast<ITestable*> (active_tests.at(i));
         if (test) {
             if (test->execTest(d->argc,d->argv) == 0) {

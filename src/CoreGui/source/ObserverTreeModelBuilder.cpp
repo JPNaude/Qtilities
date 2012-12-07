@@ -142,7 +142,8 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 Observer* parent_observer = item->containedObserver();
                 if (parent_observer) {
                     // Now add all items belonging to this category
-                    for (int i = 0; i < category_objects.count(); i++) {
+                    int cat_count = category_objects.count();
+                    for (int i = 0; i < cat_count; ++i) {
                         // Storing all information in the data vector here can improve performance
                         QPointer<QObject> object = category_objects.at(i);
                         if (object) {
@@ -188,7 +189,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 QMap<QPointer<QObject>, QString> category_map = observer->subjectReferenceCategoryMap();
                 QSet<QString> categories = category_map.values().toSet();
 
-                foreach (QString category_string, categories) {
+                foreach (const QString& category_string, categories) {
                     QtilitiesCategory category = QtilitiesCategory(category_string,"::");
                     // Check the category against the displayed category list:
                     bool valid_category = true;
@@ -271,24 +272,26 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::buildRecursive(ObserverTreeIt
                 // Get the list of uncategorized items from the observer
                 QList<QObject*> uncat_list = observer->subjectReferencesByCategory(QtilitiesCategory());
                 QStringList uncat_names = observer->subjectNamesByCategory(QtilitiesCategory());
-                for (int i = 0; i < uncat_list.count(); i++) {
-                    Observer* obs = qobject_cast<Observer*> (uncat_list.at(i));
+                int uncat_list_count = uncat_list.count();
+                for (int i = 0; i < uncat_list_count; ++i) {
+                    QObject* obj_at = uncat_list.at(i);
+                    Observer* obs = qobject_cast<Observer*> (obj_at);
                     QVector<QVariant> column_data;
                     column_data << QVariant(uncat_names.at(i));
                     if (obs) {
-                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeNode);;
+                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeNode);;
                         item->appendChild(new_item);
                         // If this item has locked access, we don't dig into any items underneath it:
                         if (obs->accessMode(QtilitiesCategory()) != Observer::LockedAccess && obs)
                             buildRecursive(new_item);
                     } else {
-                        new_item = new ObserverTreeItem(uncat_list.at(i),item,column_data,ObserverTreeItem::TreeItem);
+                        new_item = new ObserverTreeItem(obj_at,item,column_data,ObserverTreeItem::TreeItem);
                         item->appendChild(new_item);
                     }
                 }
             } else {
                 int count = observer->subjectCount();
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; ++i) {
                     QObject* obj_at = observer->subjectAt(i);
                     Observer* obs = qobject_cast<Observer*> (obj_at);
                     QVector<QVariant> column_data;
@@ -314,7 +317,7 @@ void Qtilities::CoreGui::ObserverTreeModelBuilder::printStructure(ObserverTreeIt
     } else
         qDebug() << "Tree Debug (" << level << "): Object = " << item->objectName() << ", Parent = " << item->parentItem()->objectName() << ", Child Count = " << item->childCount();
 
-    for (int i = 0; i < item->childCount(); i++) {
+    for (int i = 0; i < item->childCount(); ++i) {
         printStructure(item->child(i),level+1);
     }
 }

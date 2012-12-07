@@ -63,6 +63,6 @@ void Qtilities::Testing::qti_private_FunctionCallAnalyzer::logCallCount(const QS
         }
     }
 
-    for (int i = 0; i < call_counts.count(); i++)
+    for (int i = 0; i < call_counts.count(); ++i)
         LOG_INFO("Call count on function " + call_counts.keys().at(i) + ": " + QString::number(call_counts.values().at(i)));
 }

@@ -57,7 +57,7 @@ void Qtilities::Testing::BenchmarkTests::benchmarkObserverExport_1_0_1_0() {
     TreeNode* obj_source = new TreeNode("Root Node");
 
     // Build a tree:
-    for (int i = 0; i < TreeDepth; i++) {
+    for (int i = 0; i < TreeDepth; ++i) {
         TreeNode* child_node = obj_source->addNode("TestNode" + QString::number(i));
         for (int r = 0; r < TreeDepth; r++) {
             child_node->addItem("TestChild_" + QString::number(i) + "_" + QString::number(r));

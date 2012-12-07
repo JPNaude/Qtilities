@@ -383,7 +383,7 @@ bool AddDynamicPropertyWizard::validateNewPropertyName(const QString &property_n
         // Check if a property with the same name already exists:
         bool exists = false;
         QList<QByteArray> existing_properties = d->obj->dynamicPropertyNames();
-        foreach (QByteArray property, existing_properties) {
+        foreach (const QByteArray& property, existing_properties) {
             QString name(property.data());
             if (name == property_name) {
                 exists = true;
@@ -443,7 +443,7 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::initializePropertyProviders()
     // Get a list of all the property providers in the system:
     QList<QObject*> propertyProviderObjects = OBJECT_MANAGER->registeredInterfaces("com.Qtilities.Core.IAvailablePropertyProvider/1.0");
     // Check all items
-    for (int i = 0; i < propertyProviderObjects.count(); i++) {
+    for (int i = 0; i < propertyProviderObjects.count(); ++i) {
         IAvailablePropertyProvider* provider = qobject_cast<IAvailablePropertyProvider*> (propertyProviderObjects.at(i));
         if (provider)
             d->property_providers << provider;
@@ -479,7 +479,7 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
     connect(&d->property_list,SIGNAL(currentTextChanged(QString)),SLOT(handleSelectedPropertyChanged(QString)));
 
     QStringList available_property_name = availablePropertyDisplayedNames();
-    foreach (QString name, available_property_name) {
+    foreach (const QString& name, available_property_name) {
         QListWidgetItem* item = new QListWidgetItem(name);
 
         QString actual_property_name = propertyName(name);
@@ -496,7 +496,7 @@ bool AddDynamicPropertyWizard::prohibitCustomProperties() const {
     foreach (IAvailablePropertyProvider* provider, d->property_providers)
         base_classes << provider->prohibitedCustomPropertiesClasses();
 
-    foreach (QString base_class, base_classes) {
+    foreach (const QString& base_class, base_classes) {
         if (d->obj->inherits(base_class.toAscii().data()))
             return true;
     }
@@ -506,7 +506,7 @@ bool AddDynamicPropertyWizard::prohibitCustomProperties() const {
 
 QStringList AddDynamicPropertyWizard::availablePropertyDisplayedNames() const {
     QStringList property_names;
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.isValid())
             property_names << prop.d_displayed_name;
@@ -524,7 +524,7 @@ QString AddDynamicPropertyWizard::propertyDescription(const QString &displayed_n
     if (isCurrentCustomProperty())
         return QString(tr("A custom property which you define."));
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
@@ -539,7 +539,7 @@ QString AddDynamicPropertyWizard::propertyName(const QString &displayed_name) co
     if (isCurrentCustomProperty())
         return QString(tr("Not defined yet"));
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid()) {
@@ -558,7 +558,7 @@ bool AddDynamicPropertyWizard::propertyRemovable(const QString &displayed_name) 
     if (isCurrentCustomProperty())
         return true;
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
@@ -573,7 +573,7 @@ bool AddDynamicPropertyWizard::propertyIsExportable(const QString &displayed_nam
     if (isCurrentCustomProperty())
         return true;
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
@@ -588,7 +588,7 @@ bool AddDynamicPropertyWizard::propertyReadOnly(const QString &displayed_name) c
     if (isCurrentCustomProperty())
         return false;
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())
@@ -603,7 +603,7 @@ QVariant AddDynamicPropertyWizard::propertyDefaultValue(const QString &displayed
     if (isCurrentCustomProperty())
         return "";
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid()) {
@@ -629,7 +629,7 @@ QVariant::Type AddDynamicPropertyWizard::propertyType(QString displayed_name) co
     if (displayed_name.isEmpty())
         displayed_name = selectedAvailableProperty();
 
-    for (int i = 0; i < d->available_properties.count(); i++) {
+    for (int i = 0; i < d->available_properties.count(); ++i) {
         PropertySpecification prop = d->available_properties.at(i);
         if (prop.d_displayed_name == displayed_name) {
             if (prop.isValid())

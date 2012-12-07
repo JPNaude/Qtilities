@@ -191,7 +191,7 @@ void Qtilities::CoreGui::ModeManager::addMode(IMode* mode, bool initialize_mode,
 }
 
 void Qtilities::CoreGui::ModeManager::addModes(QList<IMode*> modes, bool initialize_modes, bool refresh_list) {
-    for (int i = 0; i < modes.count(); i++)
+    for (int i = 0; i < modes.count(); ++i)
         addMode(modes.at(i), initialize_modes,false);
 
     if (refresh_list)
@@ -206,7 +206,7 @@ void Qtilities::CoreGui::ModeManager::initialize() {
 }
 
 void Qtilities::CoreGui::ModeManager::addModes(QList<QObject*> modes, bool initialize_modes, bool refresh_list) {
-    for (int i = 0; i < modes.count(); i++) {
+    for (int i = 0; i < modes.count(); ++i) {
         IMode* mode = qobject_cast<IMode*> (modes.at(i));
         if (mode)
             addMode(mode, initialize_modes,false);
@@ -424,7 +424,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     // Now assign correct shortcuts for all modes:
     if (d->register_shortcuts) {
         int id_num = 0;
-        for (int i = 0; i < added_ids.count(); i++) {
+        for (int i = 0; i < added_ids.count(); ++i) {
             QString shortcut_id = QString("%1.Mode.%2").arg(objectName()).arg(added_ids.at(i));
             Command* command = ACTION_MANAGER->command(shortcut_id);
             if (!command) {
@@ -504,7 +504,7 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
 
         // Set size hint for all items:
         QList<QListWidgetItem*> added_item_values = added_items.values();
-        for (int i = 0; i < added_item_values.count(); i++) {
+        for (int i = 0; i < added_item_values.count(); ++i) {
             if (added_item_values.at(i))
                 added_item_values.at(i)->setSizeHint(hint);
         }
@@ -518,7 +518,7 @@ QList<int> Qtilities::CoreGui::ModeManager::modeNamesToIDs(QStringList name_list
     QList<int> int_list;
 
     name_list.removeDuplicates();
-    foreach (QString name, name_list) {
+    foreach (const QString& name, name_list) {
         foreach (IMode* mode, d->id_iface_map.values()) {
             // Get the IMode interface corresponding to the name:
             if (mode->modeName() == name) {
@@ -567,7 +567,7 @@ QList<Qtilities::CoreGui::Interfaces::IMode*> Qtilities::CoreGui::ModeManager::m
 }
 
 QListWidgetItem* Qtilities::CoreGui::ModeManager::listWidgetItemForID(int id) const {
-    for (int i = 0; d->mode_list_widget->count(); i++) {
+    for (int i = 0; d->mode_list_widget->count(); ++i) {
         QListWidgetItem* current = d->mode_list_widget->item(i);
         if (current->type() == id)
             return current;
@@ -620,7 +620,7 @@ void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidg
 void Qtilities::CoreGui::ModeManager::handleModeShortcutActivated() {
     QShortcut* shortcut = qobject_cast<QShortcut*> (sender());
     if (shortcut) {
-        for (int i = 0; i < d->mode_shortcuts.count(); i++) {
+        for (int i = 0; i < d->mode_shortcuts.count(); ++i) {
             if (d->mode_shortcuts.values().at(i) == shortcut) {
                 setActiveMode(d->mode_shortcuts.keys().at(i));
                 break;
@@ -645,7 +645,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id, bool refresh_li
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name, bool refresh_list) {
     // Go through all the registered mode and try to match each mode with new_mode.
-    for (int i = 0; i < d->id_iface_map.count(); i++) {
+    for (int i = 0; i < d->id_iface_map.count(); ++i) {
         if (d->id_iface_map.values().at(i)->modeName() == mode_name) {
             if (d->disabled_modes.contains(d->id_iface_map.values().at(i)->modeID()))
                 return;
@@ -665,7 +665,7 @@ void Qtilities::CoreGui::ModeManager::setActiveMode(const QString& mode_name, bo
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(IMode* mode_iface, bool refresh_list) {
     // Go through all the registered mode and try to match each mode with new_mode.
-    for (int i = 0; i < d->id_iface_map.count(); i++) {
+    for (int i = 0; i < d->id_iface_map.count(); ++i) {
         if (d->id_iface_map.values().at(i) == mode_iface) {
             if (d->disabled_modes.contains(d->id_iface_map.values().at(i)->modeID()))
                 return;

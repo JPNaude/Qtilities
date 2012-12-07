@@ -102,7 +102,7 @@ void HelpManager::initialize() {
     // Unregister everything here. All files in d->registered_files will be registered again.
     unregisterAllNamespaces();
 
-    foreach (QString registered_file, d->registered_files) {
+    foreach (const QString& registered_file, d->registered_files) {
         QString filename = registered_file;
 
         QFile file(filename);
@@ -151,7 +151,7 @@ void HelpManager::clearRegisteredFiles(bool initialize_after_change) {
 }
 
 void HelpManager::unregisterAllNamespaces() {
-    foreach (QString namespace_name, d->file_namespace_map.values()) {
+    foreach (const QString& namespace_name, d->file_namespace_map.values()) {
         if (!d->helpEngine->unregisterDocumentation(namespace_name))
             LOG_ERROR(tr("Failed to unregister namespace from help engine: ") + namespace_name + tr(". Error: ") + d->helpEngine->error());
         else {
@@ -163,7 +163,7 @@ void HelpManager::unregisterAllNamespaces() {
 }
 
 void HelpManager::registerFiles(const QStringList &files, bool initialize_after_change) {
-    foreach (QString file, files) {
+    foreach (const QString& file, files) {
         QString formatted_file = formatFileName(file);
         if (d->registered_files.contains(formatted_file,Qt::CaseInsensitive))
             continue;
@@ -194,7 +194,7 @@ QStringList HelpManager::registeredFiles() const {
 
 void HelpManager::unregisterFiles(const QStringList &files, bool initialize_after_change) {
     QStringList old_files = d->registered_files;
-    foreach (QString file, files)
+    foreach (const QString& file, files)
         d->registered_files.removeAll(formatFileName(file));
 
     if (old_files == d->registered_files)

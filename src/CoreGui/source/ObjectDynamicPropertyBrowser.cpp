@@ -379,7 +379,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::inspectObject(const QObje
 
     QList<QByteArray> property_names = obj->dynamicPropertyNames();
     qSort(property_names);
-    for (int i = 0; i < property_names.count(); i++) {
+    for (int i = 0; i < property_names.count(); ++i) {
         QString property_name = QString(property_names.at(i).data());
         if (property_name.startsWith("qti.") && !d->show_qtilities_properties)
             continue;

@@ -137,7 +137,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::setObject(QObject* obj) {
     // For this widget we are interested in dynamic observer property changes in ALL the observers
     // which are observing this object
     MultiContextProperty context_map_prop = ObjectManager::getMultiContextProperty(d->obj,qti_prop_OBSERVER_MAP);
-    for (int i = 0; i < context_map_prop.contextMap().count(); i++) {
+    for (int i = 0; i < context_map_prop.contextMap().count(); ++i) {
         Observer* observer = OBJECT_MANAGER->observerReference(context_map_prop.contextMap().keys().at(i));
         if (observer) {
             connect(observer,SIGNAL(destroyed()),SLOT(updateContents()),Qt::UniqueConnection);
@@ -251,7 +251,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
     QString tooltip_string;
     bool has_instance_names = false;
 
-    for (int i = 0; i < observer_count; i++) {
+    for (int i = 0; i < observer_count; ++i) {
         int id = context_map_prop.contextMap().keys().at(i);
         Observer* observer = OBJECT_MANAGER->observerReference(id);
         if (!observer)  {
@@ -454,13 +454,13 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
     // Get the ids of all unselected items
     QList<int> other_ids;
     int selected_id = ui->observerTable->currentItem()->type();
-    for (int i = 0; i < ui->observerTable->rowCount(); i++) {
+    for (int i = 0; i < ui->observerTable->rowCount(); ++i) {
         if (selected_id != ui->observerTable->item(i,0)->type())
             other_ids << ui->observerTable->item(i,0)->type();
     }
 
     QStringList unsupported_items;
-    for (int i = 0; i < other_ids.count(); i++) {
+    for (int i = 0; i < other_ids.count(); ++i) {
         Observer* observer = OBJECT_MANAGER->observerReference(other_ids.at(i));
         if (!observer)
             break;
@@ -490,7 +490,7 @@ void Qtilities::CoreGui::ObjectScopeWidget::handle_actionDetachToSelection_trigg
         }
     }
 
-    for (int i = 0; i < other_ids.count(); i++) {
+    for (int i = 0; i < other_ids.count(); ++i) {
         Observer* observer = OBJECT_MANAGER->observerReference(other_ids.at(i));
         if (!observer)
             break;

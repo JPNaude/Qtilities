@@ -117,7 +117,8 @@ log_engine->setMessageContexts(Logger::EngineSpecificMessages);
 
                 QString new_logger_name = *engine_name;
                 int logger_count = -1;
-                while (Log->attachedLoggerEngineNames().contains(new_logger_name)) {
+                QStringList attached_logger_engine_names = Log->attachedLoggerEngineNames();
+                while (attached_logger_engine_names.contains(new_logger_name)) {
                     if (logger_count > -1)
                         new_logger_name.chop(3 + QString::number(logger_count).length());
                     ++logger_count;

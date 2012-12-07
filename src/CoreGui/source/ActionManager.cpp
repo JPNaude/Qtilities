@@ -425,7 +425,7 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
     // Do the actual import:
     // ---------------------------------------------------
     QDomNodeList childNodes = root.childNodes();
-    for(int i = 0; i < childNodes.count(); i++)
+    for(int i = 0; i < childNodes.count(); ++i)
     {
         QDomNode childNode = childNodes.item(i);
         QDomElement child = childNode.toElement();
@@ -433,9 +433,9 @@ bool Qtilities::CoreGui::ActionManager::loadShortcutMapping(const QString& file_
         if (child.isNull())
             continue;
 
-        if (child.tagName() == "Shortcuts") {
+        if (child.tagName() == QLatin1String("Shortcuts")) {
             QDomNodeList shortcutNodes = child.childNodes();
-            for(int i = 0; i < shortcutNodes.count(); i++)
+            for(int i = 0; i < shortcutNodes.count(); ++i)
             {
                 QDomNode shortcutNode = shortcutNodes.item(i);
                 QDomElement shortcut = shortcutNode.toElement();
@@ -488,7 +488,7 @@ QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeyS
                                                              &d->observer_commands);
 
     if (command_itr.current()) {
-        foreach (QString search_string, key_sequence.toString().split(",")) {
+        foreach (const QString& search_string, key_sequence.toString().split(",")) {
             if (command_itr.current()->keySequence().toString().split(",").contains(search_string)) {
                 commands << command_itr.current();
                 break;
@@ -497,7 +497,7 @@ QList<Command*> Qtilities::CoreGui::ActionManager::commandsWithKeySequence(QKeyS
     }
 
     while (command_itr.next()) {
-        foreach (QString search_string, key_sequence.toString().split(",")) {
+        foreach (const QString& search_string, key_sequence.toString().split(",")) {
             if (command_itr.current()->keySequence().toString().split(",").contains(search_string)) {
                 commands << command_itr.current();
                 break;
