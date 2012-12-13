@@ -166,7 +166,6 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         ProxyAction* multi = qobject_cast<ProxyAction*> (command);
         if (multi) {           
             multi->setObjectName(id);
-            multi->addAction(action,context);
 
             // Set the action's object name equal to the id:
             action->setObjectName(id);
@@ -192,6 +191,9 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
 
             // We set the backend action's shortcut to nothing, otherwise we get ambigious action shortcuts.
             action->setShortcut(QKeySequence());
+
+            // Add it down here in order to avoid unneccesary updates when changing action in the above code:
+            multi->addAction(action,context);
 
             //emit numberOfCommandsChanged();
             return multi;
