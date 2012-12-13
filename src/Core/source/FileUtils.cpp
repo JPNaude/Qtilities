@@ -314,9 +314,26 @@ bool Qtilities::Core::FileUtils::compareFiles(const QString& file1, const QStrin
 }
 
 bool FileUtils::comparePaths(const QString &path1, const QString &path2) {
+    #ifdef Q_OS_LINUX
+    // On Linux this works for non-existing items as well:
     QFileInfo fi1(path1);
     QFileInfo fi2(path2);
     return fi1 == fi2;
+    #else
+    // On Windows QFileInfo returns true when different non-existing items are compared:
+    QFileInfo fi1(path1);
+    QFileInfo fi2(path2);
+    if (fi1.exists() && fi2.exists())
+        return fi1 == fi2;
+    else {
+        QString cleaned_1 = QDir::cleanPath(path1);
+        QString cleaned_2 = QDir::cleanPath(path2);
+        if (cleaned_1.size() == cleaned_2.size()) {
+            return (FileUtils::toNativeSeparators(cleaned_1).compare(FileUtils::toNativeSeparators(cleaned_2),Qt::CaseInsensitive) == 0);
+        } else
+            return false;
+    }
+    #endif
 }
 
 QString FileUtils::toNativeSeparators(QString path) {
