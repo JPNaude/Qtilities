@@ -175,8 +175,9 @@ void Qtilities::CoreGui::ConfigurationWidget::initialize(QList<IConfigPage*> con
         // Now add all categorized pages to the grouped pages:
         QMapIterator<IConfigPage*,QtilitiesCategory> itr(config_page_category_map);
         while (itr.hasNext()) {
-            GroupedConfigPage* group_page_for_category = grouped_config_pages[itr.value()];
-            if (group_page_for_category) {
+            itr.next();
+            if (grouped_config_pages.contains(itr.value())) {
+                GroupedConfigPage* group_page_for_category = grouped_config_pages[itr.value()];
                 group_page_for_category->addConfigPage(itr.key());
 
                 QWidget* page_widget = itr.key()->configPageWidget();
