@@ -332,7 +332,7 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
         }
     }
 
-    // Check if there is no current action but a default. In that case we set the current to the default:
+    // Check if there is no current key sequence but a default. In that case we set the current to the default:
     if (c->current_key_sequence.isEmpty() && !c->default_key_sequence.isEmpty()) {
         c->current_key_sequence = c->default_key_sequence;
     }
@@ -341,7 +341,10 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
     d->proxy_action->setShortcut(c->current_key_sequence);
 
     // Add new key sequence to frontend action and all backend actions (backend actions only if there is a shortcut):
-    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(keySequence().toString(QKeySequence::NativeText));
+    QString key_sequence_string = keySequence().toString(QKeySequence::NativeText);
+    key_sequence_string.replace("<","&#60;");
+    key_sequence_string.replace(">","&#62;");
+    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(key_sequence_string);
     if (d->proxy_action->shortcut().isEmpty()) {
         if (d->active_backend_action)
             d->proxy_action->setToolTip(d->active_backend_action->toolTip());

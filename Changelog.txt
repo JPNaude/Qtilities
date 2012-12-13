@@ -158,6 +158,7 @@ Qtilities v1.2 Changes
     [+] Added two new signals to ExtensionSystemCore: pluginLoadingStarted() and pluginLoadingCompleted().
 
     [#] Extension system now only uses the MAJOR and MINOR parts of the application to check if plugins support the version of the application.
+    [#] When plugins can't be loaded, a proper error message will now be logged as given by QPluginLoader.
 
     [*] The extension system no longer tries to finalize plugins which are not active.
 
