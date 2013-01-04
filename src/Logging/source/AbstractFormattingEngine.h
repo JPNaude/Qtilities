@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -228,6 +228,25 @@ if (rich_text_engine) {
                 }
 
                 return "";
+            }
+            //! Function that does the same as QTextDocument::escape(). Since the Logging module does not depend on QtGui, we cannot use that function directly.
+            static QString escape(const QString& plain) {
+                // This code is exactly the same as the code found in QTextDocument::escape()
+                QString rich;
+                rich.reserve(int(plain.length() * 1.1));
+                for (int i = 0; i < plain.length(); ++i) {
+                    if (plain.at(i) == QLatin1Char('<'))
+                        rich += QLatin1String("&lt;");
+                    else if (plain.at(i) == QLatin1Char('>'))
+                        rich += QLatin1String("&gt;");
+                    else if (plain.at(i) == QLatin1Char('&'))
+                        rich += QLatin1String("&amp;");
+                    else if (plain.at(i) == QLatin1Char('"'))
+                        rich += QLatin1String("&quot;");
+                    else
+                        rich += plain.at(i);
+                }
+                return rich;
             }
 
         protected:

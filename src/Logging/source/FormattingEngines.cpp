@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -81,14 +81,10 @@ QString Qtilities::Logging::FormattingEngine_Rich_Text::formatMessage(Logger::Me
     message.append(QString(" [%1] ").arg(Log->logLevelToString(message_type),-8,QChar(QChar::Nbsp)));
 
     // Since we convert it to rich text, < and > characters must be converted.
-    QString formatted_string = messages.front().toString();
-    formatted_string.replace("<","&#60;");
-    formatted_string.replace(">","&#62;");
+    QString formatted_string = AbstractFormattingEngine::escape(messages.front().toString());
     message.append(formatted_string);
     for (int i = 1; i < messages.count(); ++i) {
-        QString formatted_string = messages.at(i).toString();
-        formatted_string.replace("<","&#60;");
-        formatted_string.replace(">","&#62;");
+        QString formatted_string = AbstractFormattingEngine::escape(messages.at(i).toString());
         message.append("<br>            %1").arg(formatted_string);
     }
     message.append("</font>");
@@ -170,9 +166,7 @@ QString Qtilities::Logging::FormattingEngine_XML::formatMessage(Logger::MessageT
     QString message;
     message = QString("<Log>\n<Type>%1</Type>").arg(type_string);
     for (int i = 0; i < messages.count(); ++i) {    
-        QString formatted_string = messages.at(i).toString();
-        formatted_string.replace("<","(");
-        formatted_string.replace(">",")");
+        QString formatted_string = AbstractFormattingEngine::escape(messages.at(i).toString());
         message.append(QString("\n<Message_%1>%2</Message_%1>").arg(i).arg(formatted_string));
     }
     message.append("\n</Log>");
@@ -201,10 +195,7 @@ QString Qtilities::Logging::FormattingEngine_HTML::formatMessage(Logger::Message
     if (messages.count() == 0)
         return "";
 
-    QString formatted_string = messages.front().toString();
-    formatted_string.replace("<","&#60;");
-    formatted_string.replace(">","&#62;");
-
+    QString formatted_string = AbstractFormattingEngine::escape(messages.front().toString());
     QString message;
     switch (message_type) {
         case Logger::Trace:

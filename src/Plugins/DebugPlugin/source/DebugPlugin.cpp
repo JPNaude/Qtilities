@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of the Qtilities Debug Plugin.
 ** See Dependencies.pri for the licensing requirements of the Debug plugin.
@@ -91,7 +91,7 @@ QString Qtilities::Plugins::Debug::DebugPlugin::pluginDescription() const {
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2012, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2013, Jaco Naude");
 }
 
 QString Qtilities::Plugins::Debug::DebugPlugin::pluginLicense() const  {

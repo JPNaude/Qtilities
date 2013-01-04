@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -107,7 +107,7 @@ QString Qtilities::Plugins::Template::PluginTemplate::pluginDescription() const 
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginCopyright() const {
-    return QString(tr("Copyright") + " 2009-2012, Jaco Naude");
+    return QString(tr("Copyright") + " 2009-2013, Jaco Naude");
 }
 
 QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense() const {

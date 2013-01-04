@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -39,6 +39,7 @@
 #include <QtilitiesProperty>
 
 #include <QPointer>
+#include <QTextDocument>
 
 using namespace Qtilities::CoreGui::Constants;
 using namespace Qtilities::Core;
@@ -342,9 +343,7 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
 
     // Add new key sequence to frontend action and all backend actions (backend actions only if there is a shortcut):
     QString key_sequence_string = keySequence().toString(QKeySequence::NativeText);
-    key_sequence_string.replace("<","&#60;");
-    key_sequence_string.replace(">","&#62;");
-    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(key_sequence_string);
+    QString new_key_tooltip = QString("<span style=\"color: gray; font-size: small\">%1</span>").arg(Qt::escape(key_sequence_string));
     if (d->proxy_action->shortcut().isEmpty()) {
         if (d->active_backend_action)
             d->proxy_action->setToolTip(d->active_backend_action->toolTip());

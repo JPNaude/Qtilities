@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2009-2012, Jaco Naude
+** Copyright (c) 2009-2013, Jaco Naude
 **
 ** This file is part of Qtilities which is released under the following
 ** licensing options.
@@ -50,7 +50,7 @@ Qtilities::CoreGui::qti_private_AboutWindow::qti_private_AboutWindow(QWidget *pa
     setWindowTitle(tr("About ") + "Qtilities");
     ui->labelVersion->setText("v" + QtilitiesCoreApplicationPrivate::instance()->qtilitiesVersionString() + " (Built on " + QLatin1String(__DATE__) + " at " + QLatin1String(__TIME__) + ")");
     ui->labelWebsite->setText("<a href=\"http://www.qtilities.org\">http://www.qtilities.org</a>");
-    ui->labelCopyright->setText(tr("Copyright ©") + " 2009-2012, Jaco Naude");
+    ui->labelCopyright->setText(tr("Copyright ©") + " 2009-2013, Jaco Naude");
 
     // Put the widget in the center of the screen
     QRect qrect = QApplication::desktop()->availableGeometry(this);

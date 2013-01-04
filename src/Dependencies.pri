@@ -1,5 +1,5 @@
 # ***************************************************************************
-# Copyright (c) 2009-2012, Jaco Naude
+# Copyright (c) 2009-2013, Jaco Naude
 #
 # See http://www.qtilities.org/licensing.html for licensing details.
 # See the Conan section below for exceptions when enabling Conan Integration
