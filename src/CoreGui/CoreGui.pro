@@ -15,11 +15,11 @@ CONFIG += qt \
     ordered
 
 QT += xml \
-      printsupport \
       gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      printsupport
 }
 
 TARGET = QtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
