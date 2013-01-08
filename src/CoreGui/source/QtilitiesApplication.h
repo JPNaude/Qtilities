@@ -154,6 +154,8 @@ QtilitiesApplication a(argc, argv);
 
 \code
 QApplication a(argc, argv);
+QApplication::setOrganizationName("My Organization");
+QApplication::setApplicationName("My Application");
 QtilitiesApplication::initialize();
 \endcode
 
@@ -162,6 +164,8 @@ QtilitiesApplication::initialize();
 
             It is important to note that the initialize() function does not create an QtilitiesApplication instance, thus instance() will return 0.
             The goal of the function used in this way is to register all needed %Qtilities classes in the %Qtilities factory.
+
+            \note Make sure to set your application name and organization name before calling this function as shown in the second example above.
               */
             static void initialize();
             //! Returns a reference to the QtilitiesApplication instance.

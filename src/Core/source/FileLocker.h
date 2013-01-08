@@ -53,6 +53,10 @@ namespace Qtilities {
         class QTILIITES_CORE_SHARED_EXPORT FileLocker {
 
         public:
+            //! Default constructor.
+            /*!
+             * \param lock_extension The file extension to use for lock files.
+             */
             FileLocker(const QString& lock_extension = "lck");
             virtual ~FileLocker() {}
 
