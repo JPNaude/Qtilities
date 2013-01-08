@@ -34,13 +34,13 @@
 #include <QApplication>
 #include <QtGui>
 
-#include <QtilitiesTesting>
+#include <Qtilities>
 
 #include "ObserverWidgetConfig.h"
 #include "ExtendedObserverTableModel.h"
 #include "ExtendedObserverTreeModel.h"
 
-using namespace QtilitiesTesting;
+using namespace Qtilities;
 using namespace Qtilities::Examples::Clipboard;
 
 int main(int argc, char *argv[])
