@@ -427,11 +427,6 @@ tree_widget->show();
 //            IExportable::ExportResultFlags loadFromString(QString* target_string, QString* errorMsg = 0, bool clear_first = true);
 
             // --------------------------------
-            // IObjectBase Implementation
-            // --------------------------------
-            QObject* objectBase() { return this; }
-
-            // --------------------------------
             // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, TreeNode> factory;
