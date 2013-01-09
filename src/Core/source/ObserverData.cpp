@@ -782,7 +782,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
             if (subject_filters.at(i)->isExportable()) {
                 QDomElement subject_filter = doc->createElement("SubjectFilter");
                 subject_data.appendChild(subject_filter);
-                if (subject_filters.at(i)->instanceFactoryInfo().exportXml(doc,&subject_filter,exportVersion()) == IExportable::Failed) {
+                if (!subject_filters.at(i)->instanceFactoryInfo().exportXml(doc,&subject_filter,exportVersion())) {
                     if (relational_table)
                         delete relational_table;
                     return IExportable::Failed;
@@ -872,7 +872,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Obs
                         subject_item.setAttribute("Ownership",Observer::objectOwnershipToString(ownership));
 
                     // 4. Factory Data:
-                    if (export_iface->instanceFactoryInfo().exportXml(doc,&subject_item,exportVersion()) == IExportable::Failed) {
+                    if (!export_iface->instanceFactoryInfo().exportXml(doc,&subject_item,exportVersion())) {
                         if (relational_table)
                             delete relational_table;
                         return IExportable::Failed;
