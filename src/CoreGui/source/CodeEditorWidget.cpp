@@ -46,10 +46,6 @@
 #include <QPrintDialog>
 #include <QPrintPreviewDialog>
 
-#if QT_MAJOR_VERSION > 4
-    #include <QtWidgets>
-#endif
-
 using namespace Qtilities::CoreGui::Icons;
 using namespace Qtilities::CoreGui::Actions;
 
@@ -362,7 +358,7 @@ bool Qtilities::CoreGui::CodeEditorWidget::saveFile(QString file_name) {
     QFile file(file_name);
     if (!file.open(QFile::WriteOnly))
         return false;
-    file.write(d->codeEditor->toPlainText().toLocal8Bit());
+    file.write(d->codeEditor->toPlainText().toUtf8());
     file.close();
 
     d->codeEditor->document()->setModified(false);

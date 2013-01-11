@@ -11,7 +11,15 @@ include(../../Qtilities.pri)
 QT       += core
 QT       += gui
 QT       += xml
-CONFIG += qtestlib
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+QT += widgets \
+      printsupport \
+      testlib
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
+}
 
 TARGET    = QtilitiesModelTester
 CONFIG   -= app_bundle

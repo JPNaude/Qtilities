@@ -139,8 +139,13 @@ void Qtilities::CoreGui::CommandEditor::configPageInitialize() {
         d->observer_widget.treeView()->setAlternatingRowColors(true);
         d->observer_widget.treeView()->sortByColumn(d->model->columnPosition(AbstractObserverItemModel::ColumnName));
         QHeaderView* table_header = d->observer_widget.treeView()->header();
-        if (table_header)
+        if (table_header) {
+            #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             table_header->setResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
+            #else
+            table_header->setSectionResizeMode(d->model->columnPosition(AbstractObserverItemModel::ColumnLast)+1,QHeaderView::Stretch);
+            #endif
+        }
     }
 
     d->observer_widget.show();

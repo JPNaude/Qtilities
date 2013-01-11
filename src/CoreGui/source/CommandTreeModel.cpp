@@ -38,8 +38,8 @@
 
 #include <QtGui>
 
-#if QT_MAJOR_VERSION > 4
-    #include <QtWidgets>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QtWidgets>
 #endif
 
 Qtilities::CoreGui::qti_private_CommandTreeModel::qti_private_CommandTreeModel(QObject* parent) : ObserverTreeModel(parent) {

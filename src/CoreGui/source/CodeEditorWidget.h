@@ -49,8 +49,8 @@
 #include <QtGui>
 #include <QPrinter>
 
-#if QT_MAJOR_VERSION > 4
-    #include <QtWidgets>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QtWidgets>
 #endif
 
 namespace Ui {

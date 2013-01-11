@@ -427,6 +427,12 @@ tree_widget->show();
 //            IExportable::ExportResultFlags loadFromString(QString* target_string, QString* errorMsg = 0, bool clear_first = true);
 
             // --------------------------------
+            // AbstractTreeItem Implementation
+            // --------------------------------
+            QObject* getTreeItemObjectBase() { return this; }
+            const QObject* getTreeItemObjectBase() const { return this; }
+
+            // --------------------------------
             // Factory Interface Implementation
             // --------------------------------
             static FactoryItem<QObject, TreeNode> factory;

@@ -72,8 +72,11 @@ QSize Qtilities::CoreGui::ModeListWidget::sizeHint() const {
             maxSize.setHeight(tmpSize.height());
     }
 
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return QSize(maxSize.width() + rect().width() - contentsRect().width(), maxSize.height() + rect().height() - contentsRect().height());
-    //    return QSize(QListWidget::sizeHint().width(), maxSize.height() + rect().height() - contentsRect().height());
+    #else
+    return QSize(maxSize.width() + rect().width() - contentsRect().width() - 27, maxSize.height() + rect().height() - contentsRect().height() + 4);
+    #endif
 }
 
 

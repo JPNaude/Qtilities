@@ -72,6 +72,18 @@ namespace Qtilities {
             virtual ~TreeItemBase();
 
             // --------------------------------
+            // IObjectBase Implementation
+            // --------------------------------
+            QObject* objectBase() { return this; }
+            const QObject* objectBase() const { return this; }
+
+            // --------------------------------
+            // AbstractTreeItem Implementation
+            // --------------------------------
+            QObject* getTreeItemObjectBase() { return this; }
+            const QObject* getTreeItemObjectBase() const { return this; }
+
+            // --------------------------------
             // AbstractTreeItem virtual overwrites for category functions:
             // --------------------------------
             /*!

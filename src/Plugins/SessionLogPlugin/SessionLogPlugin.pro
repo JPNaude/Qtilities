@@ -21,7 +21,8 @@ DEFINES += SESSION_LOG_PLUGIN_LIBRARY
 CONFIG += plugin dll
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      printsupport
 }
 
 # ------------------------------

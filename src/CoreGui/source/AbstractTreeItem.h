@@ -65,7 +65,7 @@ namespace Qtilities {
 
           <i>This class was added in %Qtilities v0.2.</i>
         */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT AbstractTreeItem : virtual public IObjectBase
+        class QTILITIES_CORE_GUI_SHARED_EXPORT AbstractTreeItem
         {
 
         public:
@@ -84,6 +84,10 @@ namespace Qtilities {
               \returns True when changed successfully, false otherwise.
               */
             bool setName(const QString& new_name, Observer* parent = 0);
+
+        protected:
+            virtual QObject* getTreeItemObjectBase() = 0;
+            virtual const QObject* getTreeItemObjectBase() const = 0;
 
         protected:
             /*!

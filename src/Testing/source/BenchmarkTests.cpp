@@ -81,7 +81,7 @@ void Qtilities::Testing::BenchmarkTests::benchmarkObserverExport_1_0_1_0() {
     QString docStr = doc.toString(2);
     docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
     docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    file.write(docStr.toAscii());
+    file.write(docStr.toUtf8());
     file.close();
 
     // Don't delete it here since deletion will make the test slower. Thus we don't care about the memory leaks.

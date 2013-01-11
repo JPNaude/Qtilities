@@ -305,7 +305,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::propertyChangedFromBrowse
     if (!d->obj)
         return;
 
-    QByteArray ba = property->propertyName().toAscii();
+    QByteArray ba = property->propertyName().toUtf8();
     const char* property_name = ba.data();
 
     d->ignore_property_changes_from_object_side = true;
@@ -562,7 +562,7 @@ void Qtilities::CoreGui::ObjectDynamicPropertyBrowser::handleRemoveProperty() {
     if (!property)
         return;
 
-    QByteArray ba = property->propertyName().toAscii();
+    QByteArray ba = property->propertyName().toUtf8();
     const char* property_name = ba.data();
 
     if (d->multi_context_properties.contains(property)) {

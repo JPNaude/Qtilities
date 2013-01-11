@@ -38,6 +38,7 @@
 
 using namespace Qtilities::Core;
 
+
 FileLocker::FileLocker(const QString &lock_extension) {
     d_lock_extension = lock_extension;
 }
@@ -76,7 +77,15 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
     char* host_name_char = getenv("HOST");
     #endif
     #ifdef Q_OS_WIN
+    #ifndef Q_CC_MSVC
     char* host_name_char = getenv("COMPUTERNAME");
+    #else
+    char *host_name_char;
+    size_t len;
+    errno_t err = _dupenv_s( &host_name_char, &len, "COMPUTERNAME" );
+    if ( err )
+        qDebug() << "Can't find environment variable COMPUTERNAME";
+    #endif
     #endif
     if (host_name_char)
         host_name = host_name_char;
@@ -84,7 +93,7 @@ bool FileLocker::lockFile(const QString &file_path, QString *errorMsg) {
     lock_file_string.append(host_name + "\n");
     lock_file_string.append(QDateTime::currentDateTime().toString() + "\n");
 
-    if (!lock_file.write(lock_file_string.toAscii())) {
+    if (!lock_file.write(lock_file_string.toUtf8())) {
         if (errorMsg)
             *errorMsg = QString(QObject::tr("Cannot write lock contents to lock file: ") + file_path);
         return false;

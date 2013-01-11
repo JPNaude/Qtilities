@@ -390,8 +390,7 @@ void Qtilities::Testing::DebugWidget::on_btnRefreshViews_clicked() {
     d->object_pool_widget->viewExpandAll();
 }
 
-void Qtilities::Testing::DebugWidget::on_btnExplorePluginConfigSetPath_clicked()
-{
+void Qtilities::Testing::DebugWidget::on_btnExplorePluginConfigSetPath_clicked() {
     if (ui->txtPluginsActiveSet->text().isEmpty())
         return;
 
@@ -829,7 +828,11 @@ void Qtilities::Testing::DebugWidget::refreshCommandInformation() {
 
     ui->tableSelectedActionOverview->resizeColumnsToContents();
     QHeaderView* table_header = ui->tableSelectedActionOverview->horizontalHeader();
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     table_header->setResizeMode(0,QHeaderView::Stretch);
+    #else
+    table_header->setSectionResizeMode(0,QHeaderView::Stretch);
+    #endif
     ui->tableSelectedActionOverview->sortByColumn(0,Qt::AscendingOrder);
     ui->tableSelectedActionOverview->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableSelectedActionOverview->setShowGrid(false);

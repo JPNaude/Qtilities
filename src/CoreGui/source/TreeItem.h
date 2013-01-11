@@ -79,12 +79,6 @@ namespace Qtilities {
             static FactoryItem<QObject, TreeItem> factory;
 
             // --------------------------------
-            // IObjectBase Implementation
-            // --------------------------------
-            QObject* objectBase() { return this; }
-            const QObject* objectBase() const { return this; }
-
-            // --------------------------------
             // IExportable Implementation
             // --------------------------------
             ExportModeFlags supportedFormats() const;

@@ -414,6 +414,7 @@ void ModelTest::data()
     // shouldn't be able to set data on an invalid index
     QVERIFY( !model->setData ( QModelIndex(), QLatin1String ( "foo" ), Qt::DisplayRole ) );
 
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     // General Purpose roles that should return a QString
     QVariant variant = model->data ( model->index ( 0, 0 ), Qt::ToolTipRole );
     if ( variant.isValid() ) {
@@ -439,6 +440,7 @@ void ModelTest::data()
     if ( fontVariant.isValid() ) {
         QVERIFY( qVariantCanConvert<QFont> ( fontVariant ) );
     }
+    #endif
 
     // Check that the alignment is one we know about
     QVariant textAlignmentVariant = model->data ( model->index ( 0, 0 ), Qt::TextAlignmentRole );
@@ -447,6 +449,7 @@ void ModelTest::data()
         QCOMPARE( alignment, ( alignment & ( Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask ) ) );
     }
 
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     // General Purpose roles that should return a QColor
     QVariant colorVariant = model->data ( model->index ( 0, 0 ), Qt::BackgroundColorRole );
     if ( colorVariant.isValid() ) {
@@ -457,6 +460,7 @@ void ModelTest::data()
     if ( colorVariant.isValid() ) {
         QVERIFY( qVariantCanConvert<QColor> ( colorVariant ) );
     }
+#endif
 
     // Check that the "check state" is one we know about.
     QVariant checkStateVariant = model->data ( model->index ( 0, 0 ), Qt::CheckStateRole );

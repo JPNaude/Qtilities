@@ -121,6 +121,9 @@ int main(int argc, char *argv[])
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_ABOUT_QTILITIES,QObject::tr("About Qtilities"),QKeySequence(),std_context);
     QObject::connect(command->action(),SIGNAL(triggered()),QtilitiesApplication::instance(),SLOT(aboutQtilities()));
     about_menu->addAction(command);
+    command = ACTION_MANAGER->registerActionPlaceHolder("General.AboutQt","About Qt",QKeySequence(),std_context);
+    about_menu->addAction(command);
+    QObject::connect(command->action(),SIGNAL(triggered()),QApplication::instance(),SLOT(aboutQt()));
 
     // Edit Menu
     command = ACTION_MANAGER->registerActionPlaceHolder(qti_action_EDIT_UNDO,QObject::tr("Undo"),QKeySequence(QKeySequence::Undo));
@@ -218,7 +221,9 @@ int main(int argc, char *argv[])
     ACTION_MANAGER->actionContainerObserver()->endProcessingCycle(false);
     OBJECT_MANAGER->objectPool()->endProcessingCycle(false);
 
+    #ifndef QTILITIES_NO_HELP
     HELP_MANAGER->initialize();
+    #endif
 
     int result = a.exec();
     exampleMainWindow.writeSettings();

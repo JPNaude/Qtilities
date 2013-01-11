@@ -27,7 +27,6 @@ QTILITIES_DEPENDENCIES  = $$PWD/../../../
 # Qt Property Browser Solution
 # --------------------------
 # http://qt.gitorious.org/qt-solutions
-# Tested with git pull on 17/11/2010.
 # --------------------------
 # Builds Qtilities with the ObjectPropertyBrowser and
 # ObjectDynamicPropertyBrowser classes, thus you
@@ -43,14 +42,12 @@ contains(DEFINES, QTILITIES_PROPERTY_BROWSER) {
     CONFIG(debug, debug|release) {
         win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-headd.a
         win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-headd.lib
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-head
+        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib -lQtSolutions_PropertyBrowser-head
     }
     else {
         win32::win32-g++:LIBS += $$PROPERTY_EDITOR_BASE/lib/libQtSolutions_PropertyBrowser-head.a
         win32::win32-msvc*:LIBS += $$PROPERTY_EDITOR_BASE/lib/QtSolutions_PropertyBrowser-head.lib
-        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib \
-            -lQtSolutions_PropertyBrowser-head
+        unix::LIBS += -L$$PROPERTY_EDITOR_BASE/lib lQtSolutions_PropertyBrowser-head
     }
 }
 

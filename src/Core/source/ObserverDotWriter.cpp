@@ -87,7 +87,7 @@ bool Qtilities::Core::ObserverDotWriter::saveToFile(const QString& fileName) con
     if (!file.open(QFile::WriteOnly))
         return false;
 
-    file.write(generateDotScript().toLocal8Bit());
+    file.write(generateDotScript().toUtf8());
     file.close();
 
     return true;
@@ -124,7 +124,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
                 QString property_name(property_names.at(p).data());
                 if (property_name.startsWith("qti.dot.node")) {
                     // This is a dot node attribute property:
-                    QByteArray ba = property_name.remove(0,13).toAscii();
+                    QByteArray ba = property_name.remove(0,13).toUtf8();
                     const char* char_name = ba.data();
                     // Get the shared property:
                     SharedProperty shared_property = ObjectManager::getSharedProperty(entry->object(),property_names.at(p).data());
@@ -152,7 +152,7 @@ QString Qtilities::Core::ObserverDotWriter::generateDotScript() const {
                 QString property_name(property_names.at(p).data());
                 if (property_name.startsWith("qti.dot.edge")) {
                     // This is a dot note attribute property:
-                    QByteArray ba = property_name.remove(0,13).toAscii();
+                    QByteArray ba = property_name.remove(0,13).toUtf8();
                     const char* char_name = ba.data();
                     // Get the shared property:
                     MultiContextProperty multi_context_property = ObjectManager::getMultiContextProperty(child_entry->object(),property_names.at(p).data());
@@ -200,7 +200,7 @@ bool Qtilities::Core::ObserverDotWriter::addNodeAttribute(QObject* node, const Q
         return false;
 
     QString string_name = "qti.dot.node." + attribute;
-    QByteArray byte_array_name = string_name.toAscii();
+    QByteArray byte_array_name = string_name.toUtf8();
     const char* char_name = byte_array_name.data();
     SharedProperty shared_property(char_name,value);
 
@@ -226,7 +226,7 @@ bool Qtilities::Core::ObserverDotWriter::removeNodeAttribute(QObject* node, cons
         return false;
 
     QString prop_name("qti.dot.node." + attribute);
-    QByteArray byteArray = prop_name.toAscii();
+    QByteArray byteArray = prop_name.toUtf8();
     const char * char_name = byteArray.data();
     if (!ObjectManager::propertyExists(node,char_name))
         return false;
@@ -280,7 +280,7 @@ bool Qtilities::Core::ObserverDotWriter::addEdgeAttribute(Observer* parent, QObj
     }
 
     QString string_name = "qti.dot.edge." + attribute;
-    QByteArray byte_array_name = string_name.toAscii();
+    QByteArray byte_array_name = string_name.toUtf8();
     const char* char_name = byte_array_name.data();
 
     bool success = false;
@@ -326,7 +326,7 @@ bool Qtilities::Core::ObserverDotWriter::removeEdgeAttribute(Observer* parent, Q
 
     // Get the specified MultiContext property:
     QString prop_name("qti.dot.edge." + attribute);
-    QByteArray byteArray = prop_name.toAscii();
+    QByteArray byteArray = prop_name.toUtf8();
     const char * char_name = byteArray.data();
     MultiContextProperty property = ObjectManager::getMultiContextProperty(child,char_name);
     if (property.isValid()) {

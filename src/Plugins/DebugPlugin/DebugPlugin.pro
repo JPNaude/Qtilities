@@ -21,7 +21,15 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += DEBUG_PLUGIN_LIBRARY
 CONFIG += plugin dll
-CONFIG += qtestlib
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+QT += widgets \
+      printsupport \
+      testlib
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
+}
 
 # ------------------------------
 # Temp Output Paths

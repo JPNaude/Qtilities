@@ -772,7 +772,7 @@ int Qtilities::Core::ObserverRelationalTable::addVisitorID(QObject* obj) {
         // We need to create the property and add it to the object
         SharedProperty new_prop(qti_prop_VISITOR_ID,d->visitor_id_count);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
-        obj->setProperty(new_prop.propertyNameString().toAscii().data(),new_prop_variant);
+        obj->setProperty(new_prop.propertyNameString().toUtf8().data(),new_prop_variant);
         if (ObjectManager::propertyExists(obj,qti_prop_VISITOR_ID))
             LOG_TRACE("Added visitor ID property to object: " + obj->objectName());
         else
@@ -789,7 +789,7 @@ int Qtilities::Core::ObserverRelationalTable::addLimitedExportProperty(QObject* 
         // We need to create the property and add it to the object
         SharedProperty new_prop(qti_prop_LIMITED_EXPORTS,0);
         QVariant new_prop_variant = qVariantFromValue(new_prop);
-        obj->setProperty(new_prop.propertyNameString().toAscii().data(),new_prop_variant);
+        obj->setProperty(new_prop.propertyNameString().toUtf8().data(),new_prop_variant);
         return d->visitor_id_count;
     }
     return -1;

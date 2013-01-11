@@ -185,7 +185,12 @@ FORMS += source/ObserverWidget.ui \
 contains(DEFINES, QTILITIES_NO_HELP) {
     # Do nothing here for now.
 } else {
-    CONFIG  += help
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        QT += help
+    }
+    lessThan(QT_MAJOR_VERSION, 5) {
+        CONFIG  += help
+    }
     HEADERS += source/HelpManager.h
     SOURCES += source/HelpManager.cpp
 }

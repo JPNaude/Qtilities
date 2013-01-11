@@ -20,10 +20,12 @@ QT += xml \
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT += widgets \
-      printsupport
+      printsupport \
+      testlib
 }
-
-CONFIG += qtestlib
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
+}
 
 TARGET = QtilitiesTesting$${QTILITIES_LIB_POSTFIX}
 

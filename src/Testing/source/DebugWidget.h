@@ -124,7 +124,6 @@ namespace Qtilities {
             //! Gets an object's address.
             QString objectAddress(QObject* obj) const;
 
-
             Ui::DebugWidget *ui;
             DebugWidgetPrivateData* d;
         };

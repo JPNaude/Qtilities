@@ -55,7 +55,7 @@ include(Dependencies.pri)
 #
 #   When defined, the Testing library contains the Qtilities
 #   unit tests in it.
-DEFINES += QTILITIES_TESTING
+#   DEFINES += QTILITIES_TESTING
 #
 #   When defined, basic benchmarking of potentially long operations in
 #   Qtilities is done by logging execution times as debug messages.
@@ -79,7 +79,7 @@ CONFIG              += exceptions rtti
 #****************************************************************************
 
 contains( QTILITIES, testing ) {
-    message( "Using Testing Module..." )
+    #message( "Using Testing Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesTesting
     LIBS += -L$$QTILITIES_BIN -lQtilitiesTesting$${QTILITIES_LIB_POSTFIX}
     
@@ -91,7 +91,7 @@ contains( QTILITIES, testing ) {
 }
 
 contains( QTILITIES, project_management ) {
-    message( "Using Qtilities Project Management Module..." )
+    #message( "Using Qtilities Project Management Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesProjectManagement
     LIBS += -L$$QTILITIES_BIN -lQtilitiesProjectManagement$${QTILITIES_LIB_POSTFIX}
 
@@ -101,7 +101,7 @@ contains( QTILITIES, project_management ) {
 }
 
 contains( QTILITIES, extension_system ) {
-    message( "Using Qtilities Extension System Module..." )
+    #message( "Using Qtilities Extension System Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesExtensionSystem
     LIBS += -L$$QTILITIES_BIN -lQtilitiesExtensionSystem$${QTILITIES_LIB_POSTFIX}
 
@@ -111,7 +111,7 @@ contains( QTILITIES, extension_system ) {
 }
 
 contains( QTILITIES, coregui ) {
-    message( "Using Qtilities Core Gui Module..." )
+    #message( "Using Qtilities Core Gui Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCoreGui
     LIBS += -L$$QTILITIES_BIN -lQtilitiesCoreGui$${QTILITIES_LIB_POSTFIX}
 
@@ -120,7 +120,7 @@ contains( QTILITIES, coregui ) {
 }
 
 contains( QTILITIES, core ) {
-    message( "Using Qtilities Core Module..." )
+    #message( "Using Qtilities Core Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesCore
     LIBS += -L$$QTILITIES_BIN -lQtilitiesCore$${QTILITIES_LIB_POSTFIX}
 
@@ -128,7 +128,7 @@ contains( QTILITIES, core ) {
 }
 
 contains( QTILITIES, logging ) {
-    message( "Using Qtilities Logging Module..." )
+    #message( "Using Qtilities Logging Module..." )
     INCLUDEPATH += $$QTILITIES_INCLUDE/QtilitiesLogging
     LIBS += -L$$QTILITIES_BIN -lQtilitiesLogging$${QTILITIES_LIB_POSTFIX}
 

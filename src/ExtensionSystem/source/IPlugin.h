@@ -69,8 +69,8 @@ namespace Qtilities {
                 //! The possible states in which a plugin can be.
                 enum PluginState {
                     Functional = 0,             /*!< The plugin is fully functional and no errors were reported during initialization and dependency initialization. */
-                    IncompatibleState = 1,      /*!< The plugin is loaded, but indicated that it is incompatible with the current version of the application it was loaded in. See errorString() for a list of error messages. */
-                    ErrorState = 2,             /*!< The plugin is loaded, but errors occured. See errorString() for a list of error messages. */
+                    IncompatibleState = 1,      /*!< The plugin is loaded, but indicated that it is incompatible with the current version of the application it was loaded in. See errorMsg() for a list of error messages. */
+                    ErrorState = 2,             /*!< The plugin is loaded, but errors occured. See errorMsg() for a list of error messages. */
                     InActive = 4                /*!< The plugin was loaded but not initialized. \sa ExtensionSystemCore::setInactivePlugins().  */
                 };
                 Q_DECLARE_FLAGS(PluginStateFlags, PluginState);

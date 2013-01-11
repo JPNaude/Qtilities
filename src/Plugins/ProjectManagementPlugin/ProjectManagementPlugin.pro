@@ -16,6 +16,10 @@ CONFIG(debug, debug|release) {
     TARGET = ProjectManagementPlugin
 }
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+QT += widgets
+}
+
 DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += PROJECT_MANAGEMENT_PLUGIN_LIBRARY

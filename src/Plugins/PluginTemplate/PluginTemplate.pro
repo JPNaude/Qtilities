@@ -15,6 +15,12 @@ CONFIG(debug, debug|release) {
     TARGET = PluginTemplate
 }
 
+QT += gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += PLUGIN_TEMPLATE_LIBRARY

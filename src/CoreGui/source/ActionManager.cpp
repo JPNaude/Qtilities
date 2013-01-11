@@ -370,7 +370,7 @@ bool Qtilities::CoreGui::ActionManager::saveShortcutMapping(const QString& file_
         QString docStr = doc.toString(2);
         docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
         docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        file.write(docStr.toAscii());
+        file.write(docStr.toUtf8());
         file.close();
         LOG_INFO("Successfully exported shortcut mapping for this session to: " + file_name);
         return true;

@@ -68,7 +68,9 @@ Qtilities::CoreGui::SideWidgetFileSystem::SideWidgetFileSystem(const QString& st
     d->model = new QFileSystemModel;
 
     // Set up drag ability:
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     d->model->setSupportedDragActions(Qt::CopyAction);
+    #endif
     ui->treeView->setDragEnabled(true);
 
     // Set up model etc.:
@@ -106,7 +108,9 @@ void Qtilities::CoreGui::SideWidgetFileSystem::releasePath() {
     d->model = new QFileSystemModel;
 
     // Set up drag ability:
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     d->model->setSupportedDragActions(Qt::CopyAction);
+    #endif
     d->model->setRootPath(QtilitiesApplication::applicationSessionPath());
     ui->treeView->setModel(d->model);
     ui->txtCurrentPath->setText(d->model->rootPath());

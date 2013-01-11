@@ -123,7 +123,7 @@ AbstractSubjectFilter::EvaluationResult Qtilities::Core::SubjectTypeFilter::eval
     // Check the obj meta info against the known filter types
     for (int i = 0; i < d->known_subject_types.count(); ++i) {
         QString meta_type = d->known_subject_types.at(i).d_meta_type;
-        if (obj->inherits(meta_type.toAscii().data())) {
+        if (obj->inherits(meta_type.toUtf8().data())) {
             if (!d->inversed_filtering) {
                 is_known_type = true;
                 break;

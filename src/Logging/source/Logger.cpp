@@ -620,7 +620,12 @@ bool Qtilities::Logging::Logger::rememberSessionConfig() const {
 }
 
 void Qtilities::Logging::Logger::installAsQtMessageHandler(bool update_stored_settings) {
-    qInstallMsgHandler(installLoggerMessageHandler);
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        qInstallMsgHandler(installLoggerMessageHandler);
+    #else
+        qInstallMessageHandler(installLoggerMessageHandler);
+    #endif
+
     d->is_qt_message_handler = true;
     if (update_stored_settings)
         writeSettings();
@@ -628,8 +633,13 @@ void Qtilities::Logging::Logger::installAsQtMessageHandler(bool update_stored_se
     LOG_INFO("Capturing of Qt debug system messages is now enabled.");
 }
 
-void Qtilities::Logging::Logger::uninstallAsQtMessageHandler() {
-    qInstallMsgHandler(0);
+void Qtilities::Logging::Logger::uninstallAsQtMessageHandler() {   
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        qInstallMsgHandler(0);
+    #else
+        qInstallMessageHandler(0);
+    #endif
+
     d->is_qt_message_handler = false;
     writeSettings();
 
@@ -645,58 +655,31 @@ void Qtilities::Logging::Logger::setIsQtMessageHandler(bool toggle) {
     writeSettings();
 
     if (toggle) {
-        qInstallMsgHandler(installLoggerMessageHandler);
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            qInstallMsgHandler(installLoggerMessageHandler);
+        #else
+            qInstallMessageHandler(installLoggerMessageHandler);
+        #endif
         LOG_INFO("Capturing of Qt debug system messages is now enabled.");
     } else {
-        qInstallMsgHandler(0);
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            qInstallMsgHandler(0);
+        #else
+            qInstallMessageHandler(0);
+        #endif
         LOG_INFO("Capturing of Qt debug system messages is now disabled.");
     }
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char *msg)
 {
     static QMutex msgMutex;
     if (!msgMutex.tryLock())
         return;
 
-    // Remember, to break on these call Log->setIsQtMessageHandler(true) first.
+//    Remember, to break on these call Log->setIsQtMessageHandler(true) first.
 //    if (QString(msg) == "QFile::seek: IODevice is not open")
-//        int i = 5;
-//    else if (QString(msg).contains("QAbstractItemModel::endInsertRows:  Invalid index"))
-//        int i = 5;
-//    else if (QString(msg).contains("QFSFileEngine::open: No file name specified"))
-//        int i = 5;
-//    else if (QString(msg).contains("QFileSystemWatcher: failed to add paths"))
-//        int i = 5;
-//    else if (QString(msg).contains("Invalid parameter passed to C runtime function"))
-//        int i = 5;
-//    else if (QString(msg).contains("QPainter::begin: Paint device returned engine == 0, type: 2"))
-//        int i = 5;
-//    else if (QString(msg).contains("ASSERT: \"false\""))
-//        int i = 5;
-//    else if (QString(msg) == "QCoreApplication::sendEvent: \"Cannot send events to objects owned by a different thread")
-//        int i = 5;
-//    else if (QString(msg) == "Calling appendChild() on a null node does nothing.")
-//        int i = 5;
-//    else if (QString(msg) == "setReadOnly(false) called too many times on design:  \"calibration_engine_tb\"")
-//        int i = 5;
-//    else if (QString(msg) == "QSortFilterProxyModel: index from wrong model passed to mapFromSource")
-//        int i = 5;
-//    else if (QString(msg) == "ASSERT failure in QMutex::unlock(): \"A mutex must be unlocked in the same thread that locked it.\", file c:\\ndk_buildrepos\\qt-desktop\\src\\corelib\\thread\\qmutex.cpp, line 370")
-//        int i = 5;
-//    else if (QString(msg).contains("!isEmpty()"))
-//        int i = 5;
-//    else if (QString(msg).contains("QFileSystemWatcher:"))
-//        int i = 5;
-//    else if (QString(msg).contains("QMutex::lock: Deadlock detected"))
-//        int i = 5;
-//    else if (QString(msg).contains("\"index out of range\""))
-//        int i = 5;
-//    else if (QString(msg).contains("QFSFileEngine::open: No file name specified"))
-//        int i = 5;
-//    else if (QString(msg).contains("QProcess: Destroyed while process is still running",Qt::CaseInsensitive))
-//        int i = 5;
-//    else if (QString(msg).contains("qtreeview.cpp, line 3271",Qt::CaseInsensitive))
 //        int i = 5;
 
     switch (type)
@@ -718,6 +701,34 @@ void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const char 
 
     msgMutex.unlock();
 }
+#else
+void Qtilities::Logging::installLoggerMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    static QMutex msgMutex;
+    if (!msgMutex.tryLock())
+        return;
+
+    QString detailed_msg = QString("%1 (%2:%3. %4)").arg(msg).arg(context.file).arg(context.line).arg(context.function);
+    switch (type)
+    {
+    case QtDebugMsg:
+        Log->logMessage(QString(),Logger::Debug, detailed_msg);
+        break;
+    case QtWarningMsg:
+        Log->logMessage(QString(),Logger::Warning, detailed_msg);
+        break;
+    case QtCriticalMsg:
+        Log->logMessage(QString(),Logger::Error, detailed_msg);
+        break;
+    case QtFatalMsg:
+        Log->logMessage(QString(),Logger::Fatal, detailed_msg);
+        msgMutex.unlock();
+        abort();
+    }
+
+    msgMutex.unlock();
+}
+#endif
 
 // ------------------------------------
 // Convenience functions provided to create new engines

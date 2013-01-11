@@ -95,6 +95,11 @@ Qtilities::CoreGui::ConfigurationWidget::ConfigurationWidget(DisplayMode display
     move(qrect.center() - rect().center());
 
     setAttribute(Qt::WA_QuitOnClose,false);
+
+    // Hide the help button if needed:
+    #ifndef QTILITIES_NO_HELP
+    ui->buttonBox->button(QDialogButtonBox::Help)->setVisible(false);
+    #endif
 }
 
 Qtilities::CoreGui::ConfigurationWidget::~ConfigurationWidget() {
@@ -502,10 +507,12 @@ void Qtilities::CoreGui::ConfigurationWidget::on_buttonBox_clicked(QAbstractButt
     } else if (ui->buttonBox->button(QDialogButtonBox::Cancel) == button) {
         close();
     } else if (ui->buttonBox->button(QDialogButtonBox::Help) == button) {
+        #ifndef QTILITIES_NO_HELP
         if (activePageIFace()) {
             if (!activePageIFace()->configPageHelpID().isEmpty())
                 HELP_MANAGER->requestUrlDisplay(QUrl(activePageIFace()->configPageHelpID()));
         }
+        #endif
     }
 }
 

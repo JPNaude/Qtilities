@@ -22,13 +22,18 @@ DESTDIR += $$QTILITIES_BIN/plugins
 TEMPLATE = lib
 DEFINES += HELP_PLUGIN_LIBRARY
 CONFIG  += plugin dll
-CONFIG  += help
 
 QT += network
-QT += webkit
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      help \
+      webkitwidgets \
+      printsupport
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+CONFIG  += help
+QT += webkit
 }
 
 # ------------------------------

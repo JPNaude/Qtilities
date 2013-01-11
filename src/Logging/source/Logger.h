@@ -389,13 +389,17 @@ namespace Qtilities {
             LoggerPrivateData* d;
         };
 
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         void installLoggerMessageHandler(QtMsgType type, const char *msg);
+        #else
+        void installLoggerMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+        #endif
         Q_DECLARE_OPERATORS_FOR_FLAGS(Logger::MessageTypeFlags)
         Q_DECLARE_OPERATORS_FOR_FLAGS(Logger::MessageContextFlags)
      }
 }
 
-Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType);
+Q_DECLARE_METATYPE(Qtilities::Logging::Logger::MessageType)
 
 // -----------------------------------
 // Macro Definitions

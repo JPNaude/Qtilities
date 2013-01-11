@@ -48,9 +48,9 @@ int Qtilities::Testing::TestExporting::execTest(int argc, char ** argv) {
 
 void Qtilities::Testing::TestExporting::testPropertyNameEncoding() {
     QString string_name = QString("Test Name");
-    const char* char_name = string_name.toAscii().constData();
+    const char* char_name = string_name.toUtf8().constData();
     QString string_name_2 = QString(char_name);
-    const char* char_name_2 = string_name_2.toAscii().constData();
+    const char* char_name_2 = string_name_2.toUtf8().constData();
     QVERIFY(string_name == string_name_2);
     QVERIFY(strcmp(char_name,char_name_2) == 0);
 }
@@ -104,7 +104,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
 
         QVERIFY(obj_source->exportXml(&doc,&rootItem) == IExportable::Complete);
         QString docStr = doc.toString(2);
-        file.write(docStr.toAscii());
+        file.write(docStr.toUtf8());
         file.close();
 
         obj_import_xml->setExportVersion(read_version);
@@ -119,7 +119,7 @@ void Qtilities::Testing::TestExporting::genericTest(IExportable* obj_source, IEx
         root2.appendChild(rootItem2);
         QVERIFY(obj_import_xml->exportXml(&doc2,&rootItem2) == IExportable::Complete);
         QString docStr2 = doc2.toString(2);
-        file2.write(docStr2.toAscii());
+        file2.write(docStr2.toUtf8());
         file2.close();
     }  
 }
@@ -181,7 +181,7 @@ void Qtilities::Testing::TestExporting::testExportDynamicProperties_w1_0_r1_0() 
 
     QVERIFY(ObjectManager::exportObjectPropertiesXml(obj_source,&doc,&rootItem) == IExportable::Complete);
     QString docStr = doc.toString(2);
-    xml_file.write(docStr.toAscii());
+    xml_file.write(docStr.toUtf8());
     xml_file.close();
 
     QVERIFY(!ObjectManager::compareDynamicProperties(obj_source,obj_import_xml));
@@ -199,7 +199,7 @@ void Qtilities::Testing::TestExporting::testExportDynamicProperties_w1_0_r1_0() 
 
     QVERIFY(ObjectManager::exportObjectPropertiesXml(obj_import_xml,&doc2,&rootItem2) == IExportable::Complete);
     QString docStr2 = doc2.toString(2);
-    xml_file2.write(docStr2.toAscii());
+    xml_file2.write(docStr2.toUtf8());
     xml_file2.close();
 
     delete obj_source;
@@ -987,7 +987,7 @@ void Qtilities::Testing::TestExporting::testObserver_w1_0_r1_0() {
         root.appendChild(rootItem);
         QVERIFY(obj_source->exportXmlExt(&doc,&rootItem,ObserverData::ExportAllItems) == IExportable::Complete);
         QString docStr = doc.toString(2);
-        file.write(docStr.toAscii());
+        file.write(docStr.toUtf8());
         file.close();
 
         obj_import_xml->setExportVersion(read_version);
@@ -1003,7 +1003,7 @@ void Qtilities::Testing::TestExporting::testObserver_w1_0_r1_0() {
         root2.appendChild(rootItem2);
         QVERIFY(obj_import_xml->exportXmlExt(&doc2,&rootItem2,ObserverData::ExportAllItems) == IExportable::Complete);
         QString docStr2 = doc2.toString(2);
-        file2.write(docStr2.toAscii());
+        file2.write(docStr2.toUtf8());
         file2.close();
 
         QString file_original_xml = QString("%1/%2.xml").arg(QtilitiesApplication::applicationSessionPath()).arg("testObserverExtendedAll_w1_0_r1_0");

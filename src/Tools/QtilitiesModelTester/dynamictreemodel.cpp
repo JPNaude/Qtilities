@@ -307,7 +307,9 @@ bool ModelResetCommand::emitPreSignal(const QModelIndex &srcParent, int srcStart
 
 void ModelResetCommand::emitPostSignal()
 {
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     m_model->reset();
+    #endif
 }
 
 ModelResetCommandFixed::ModelResetCommandFixed(DynamicTreeModel* model, QObject* parent)

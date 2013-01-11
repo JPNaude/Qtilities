@@ -191,7 +191,7 @@ void AddDynamicPropertyWizard::accept() {
     // Determine the property name to use:
     QString property_name = newPropertyName();
     QString selected_available_property = selectedAvailableProperty();
-    QByteArray property_name_ba = property_name.toAscii();
+    QByteArray property_name_ba = property_name.toUtf8();
     const char* char_property_name = property_name_ba.data();
 
     // Validate the name:
@@ -203,7 +203,7 @@ void AddDynamicPropertyWizard::accept() {
         // Determine the property type to use:
         QVariant::Type selected_type;
         if (isCurrentCustomProperty()) {
-            QByteArray property_type_ba = d->property_types_list.currentItem()->text().toAscii();
+            QByteArray property_type_ba = d->property_types_list.currentItem()->text().toUtf8();
             const char* type_name = property_type_ba.data();
             selected_type = QVariant::nameToType(type_name);
         } else
@@ -393,7 +393,7 @@ bool AddDynamicPropertyWizard::validateNewPropertyName(const QString &property_n
 
         if (exists) {
             // Check if its a SharedProperty, and if so we check if its read only:
-            SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,property_name.toAscii().data());
+            SharedProperty shared_property = ObjectManager::getSharedProperty(d->obj,property_name.toUtf8().data());
             if (shared_property.isValid()) {
                 // Check if its read only:
                 if (shared_property.isReadOnly() || !shared_property.isRemovable()) {
@@ -466,7 +466,7 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
                 d->available_properties << property;
                 continue;
             } else {
-                if (d->obj->inherits(property.d_class_name.toAscii().data())) {
+                if (d->obj->inherits(property.d_class_name.toUtf8().data())) {
                     d->available_properties << property;
                     continue;
                 }
@@ -483,7 +483,7 @@ void Qtilities::CoreGui::AddDynamicPropertyWizard::getAvailableProperties() cons
         QListWidgetItem* item = new QListWidgetItem(name);
 
         QString actual_property_name = propertyName(name);
-        if (ObjectManager::propertyExists(d->obj,actual_property_name.toAscii().data()))
+        if (ObjectManager::propertyExists(d->obj,actual_property_name.toUtf8().data()))
             item->setForeground(QBrush(Qt::gray));
         d->property_list.addItem(item);
     }
@@ -497,7 +497,7 @@ bool AddDynamicPropertyWizard::prohibitCustomProperties() const {
         base_classes << provider->prohibitedCustomPropertiesClasses();
 
     foreach (const QString& base_class, base_classes) {
-        if (d->obj->inherits(base_class.toAscii().data()))
+        if (d->obj->inherits(base_class.toUtf8().data()))
             return true;
     }
 
@@ -621,7 +621,7 @@ QVariant AddDynamicPropertyWizard::propertyDefaultValue(const QString &displayed
 QVariant::Type AddDynamicPropertyWizard::propertyType(QString displayed_name) const {
     if (isCurrentCustomProperty()) {
         if (d->property_types_list.currentItem())
-            return QVariant::nameToType(d->property_types_list.currentItem()->text().toAscii().data());
+            return QVariant::nameToType(d->property_types_list.currentItem()->text().toUtf8().data());
         else
             return QVariant::String;
     }

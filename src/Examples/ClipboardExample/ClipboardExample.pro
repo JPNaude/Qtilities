@@ -9,10 +9,14 @@ QT += core \
       gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      printsupport
+      testlib
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
 }
 
-CONFIG += qtestlib
 TARGET = ClipboardExample
 CONFIG -= app_bundle
 

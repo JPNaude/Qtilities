@@ -387,7 +387,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::CoreGui::
     QString docStr = doc.toString(2);
     docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
     docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    if (file.write(docStr.toAscii()) == -1) {
+    if (file.write(docStr.toUtf8()) == -1) {
         file.close();
         if (errorMsg)
             *errorMsg = QString(tr("Failed to write to output file during tree node export:")).arg(file_name);

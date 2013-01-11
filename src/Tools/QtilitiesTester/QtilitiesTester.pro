@@ -7,14 +7,17 @@
 QTILITIES += testing
 include(../../Qtilities.pri)
 
-CONFIG += qtestlib
-
 QT += core \
       xml \
       gui
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      printsupport \
+      testlib
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+    CONFIG += qtestlib
 }
 
 TARGET    = QtilitiesTester

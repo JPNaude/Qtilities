@@ -786,7 +786,7 @@ bool Qtilities::Core::ObjectManager::cloneObjectProperties(const QObject* source
     LOG_TRACE(QString("Cloning %1 multi context properties from object %2 to object %3.").arg(multi_context_properties.count()).arg(source_obj->objectName()).arg(target_obj->objectName()));
 
     for (int i = 0; i < non_qtilities_properties.count(); ++i) {
-        target_obj->setProperty(non_qtilities_properties.keys().at(i).toLocal8Bit().data(),non_qtilities_properties.values().at(i));
+        target_obj->setProperty(non_qtilities_properties.keys().at(i).toUtf8().data(),non_qtilities_properties.values().at(i));
     }
     LOG_TRACE(QString("Cloning %1 non-qtilities properties from object %2 to object %3").arg(non_qtilities_properties.count()).arg(source_obj->objectName()).arg(target_obj->objectName()));
 
@@ -829,7 +829,7 @@ bool Qtilities::Core::ObjectManager::setMultiContextProperty(QObject* obj, Multi
     }
 
     QVariant property = qVariantFromValue(multi_context_property);
-    return !obj->setProperty(multi_context_property.propertyNameString().toAscii().data(),property);
+    return !obj->setProperty(multi_context_property.propertyNameString().toUtf8().data(),property);
 }
 
 Qtilities::Core::SharedProperty Qtilities::Core::ObjectManager::getSharedProperty(const QObject* obj, const char* property_name) {
@@ -868,7 +868,7 @@ bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, SharedPrope
     }
 
     QVariant property = qVariantFromValue(shared_property);
-    return !obj->setProperty(shared_property.propertyNameString().toAscii().data(),property);
+    return !obj->setProperty(shared_property.propertyNameString().toUtf8().data(),property);
 }
 
 bool Qtilities::Core::ObjectManager::setSharedProperty(QObject* obj, const char* property_name, QVariant property_value) {
@@ -1181,7 +1181,7 @@ bool ObjectManager::constructDefaultPropertiesOnObject(QObject *obj, QString* er
             if (property_specification.d_class_name.isEmpty()) {
                 construct_it = true;
             } else {
-                if (obj->inherits(property_specification.d_class_name.toAscii().data())) {
+                if (obj->inherits(property_specification.d_class_name.toUtf8().data())) {
                     construct_it = true;
                 }
             }
@@ -1206,7 +1206,7 @@ bool ObjectManager::constructDefaultPropertiesOnObject(QObject *obj, QString* er
 SharedProperty* ObjectManager::constructPropertyFromSpecification(PropertySpecification specification) {
     QVariant value_variant = QtilitiesProperty::constructVariant(specification.d_data_type,specification.d_default_value.toString());
 
-    SharedProperty* new_shared_property = new SharedProperty(specification.propertyName().toAscii().data(),value_variant);
+    SharedProperty* new_shared_property = new SharedProperty(specification.propertyName().toUtf8().data(),value_variant);
     if (specification.d_read_only)
         new_shared_property->makeReadOnly();
     if (!specification.d_removable)

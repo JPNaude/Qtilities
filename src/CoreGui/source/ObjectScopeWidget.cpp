@@ -341,15 +341,27 @@ void Qtilities::CoreGui::ObjectScopeWidget::updateContents() {
     headers << tr("Context List") << tr("Alias") << tr("Owner");
     ui->observerTable->setHorizontalHeaderLabels(headers);
     if (ownership == Observer::SpecificObserverOwnership && has_instance_names) {
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #else
+        ui->observerTable->horizontalHeader()->setSectionResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #endif
         //ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
     } else if (ownership == Observer::SpecificObserverOwnership && !has_instance_names) {
         ui->observerTable->hideColumn(UsesInstanceNameColumn);
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #else
+        ui->observerTable->horizontalHeader()->setSectionResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #endif
         //ui->observerTable->horizontalHeader()->setResizeMode(OwnerColumn,QHeaderView::Stretch);
     } else if (ownership != Observer::SpecificObserverOwnership && has_instance_names) {
         ui->observerTable->hideColumn(OwnerColumn);
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         ui->observerTable->horizontalHeader()->setResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #else
+        ui->observerTable->horizontalHeader()->setSectionResizeMode(NameColumn,QHeaderView::ResizeToContents);
+        #endif
         //ui->observerTable->horizontalHeader()->setResizeMode(UsesInstanceNameColumn,QHeaderView::Stretch);
     } else {
         ui->observerTable->hideColumn(UsesInstanceNameColumn);

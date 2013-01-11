@@ -120,7 +120,6 @@ testFrontend.show();
             void on_btnExecute_clicked();
             void on_btnShowLog_clicked();
 
-
         private:
             Ui::TestFrontend *ui;
             TestFrontendPrivateData* d;

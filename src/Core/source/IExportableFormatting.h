@@ -36,7 +36,6 @@
 
 #include "QtilitiesCore_global.h"
 #include "IExportable.h"
-#include "IObjectBase.h"
 
 class QDomDocument;
 class QDomElement;
@@ -50,7 +49,7 @@ namespace Qtilities {
 
             <i>This class was added in %Qtilities v0.2.</i>
               */
-            class QTILIITES_CORE_SHARED_EXPORT IExportableFormatting : virtual public IObjectBase {
+            class QTILIITES_CORE_SHARED_EXPORT IExportableFormatting {
             public:
                 IExportableFormatting() {}
                 virtual ~IExportableFormatting() {}

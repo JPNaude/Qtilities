@@ -38,11 +38,6 @@
 
 #include <QDateTime>
 
-#ifdef MSVC
-// This is done to avoid C4996 warning caused by MSVC due to the usage of getenv.
-#pragma warning(disable:4996)
-#endif
-
 namespace Qtilities {
     namespace Core {
         /*!
@@ -130,10 +125,5 @@ namespace Qtilities {
         };
     }
 }
-
-#ifdef MSVC
-#pragma warning(enable:4996)
-#endif
-
 
 #endif // FILE_LOCKER_H

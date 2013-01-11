@@ -61,6 +61,6 @@ namespace Qtilities {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContext,"com.Qtilities.Core.IContext/1.0");
+Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContext,"com.Qtilities.Core.IContext/1.0")
 
 #endif // ICONTEXT_H

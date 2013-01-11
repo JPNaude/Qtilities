@@ -153,8 +153,7 @@ void Qtilities::ExtensionSystem::ExtensionSystemCore::initialize() {
         }
     #endif
     d->pluginsDir.cd("plugins");
-    if (!d->customPluginPaths.contains(d->pluginsDir.path()))
-        d->customPluginPaths << d->pluginsDir.path();
+    addPluginPath(d->pluginsDir.path());
 
     #ifndef QT_NO_DEBUG
     time_t start,end;
@@ -430,6 +429,11 @@ Qtilities::ExtensionSystem::Interfaces::IPlugin* Qtilities::ExtensionSystem::Ext
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemCore::addPluginPath(const QString& path) {
+    foreach (const QString& existing_path, d->customPluginPaths) {
+        if (FileUtils::comparePaths(path,existing_path))
+            return;
+    }
+
     if (d->customPluginPaths.contains(path))
         return;
 
@@ -530,7 +534,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::savePluginConfiguration(QS
     QString docStr = doc.toString(2);
     docStr.prepend("<!--Created by " + QApplication::applicationName() + " v" + QApplication::applicationVersion() + " on " + QDateTime::currentDateTime().toString() + "-->\n");
     docStr.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    file.write(docStr.toAscii());
+    file.write(docStr.toUtf8());
     file.close();
 
     return true;
@@ -588,7 +592,7 @@ bool Qtilities::ExtensionSystem::ExtensionSystemCore::loadPluginConfiguration(QS
 
     if (!is_supported_format) {
         LOG_ERROR(QString(tr("Unsupported plugin configuration file found with export version: %1. The file will not be parsed.")).arg(read_version));
-        return IExportable::Failed;
+        return false;
     }
 
     // ---------------------------------------------------

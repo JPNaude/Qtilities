@@ -445,7 +445,7 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handleAppli
     }
 }
 
-#if QT_MAJOR_VERSION < 5
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     using namespace Qtilities::Plugins::ProjectManagement;
     Q_EXPORT_PLUGIN2(ProjectManagementPlugin, ProjectManagementPlugin)
 #endif

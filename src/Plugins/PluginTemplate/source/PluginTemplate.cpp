@@ -34,16 +34,13 @@
 #include "PluginTemplate.h"
 #include "PluginTemplateConstants.h"
 
-#include <ExtensionSystemConstants.h>
-#include <Qtilities.h>
-#include <QtilitiesCoreApplication.h>
-
+#include <ExtensionSystemConstants>
 #include <QApplication>
+
 #include <QtPlugin>
 #include <QIcon>
 
-using namespace Qtilities::ExtensionSystem::Interfaces;
-using namespace Qtilities::Core;
+using namespace Qtilities::ExtensionSystem;
 
 struct Qtilities::Plugins::Template::PluginTemplatePrivateData {
     PluginTemplatePrivateData() {}
@@ -114,7 +111,7 @@ QString Qtilities::Plugins::Template::PluginTemplate::pluginLicense() const {
     return tr("See the Qtilities Libraries license");
 }
 
-#if QT_MAJOR_VERSION < 5
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     using namespace Qtilities::Plugins::Template;
     Q_EXPORT_PLUGIN2(PluginTemplate, PluginTemplate)
 #endif

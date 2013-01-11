@@ -35,7 +35,11 @@
 #define BROWSER_H
 
 #include <IMode>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QtWebKit>
+#else
+#include <QtWebKitWidgets>
+#endif
 
 namespace Qtilities {
     namespace Plugins {

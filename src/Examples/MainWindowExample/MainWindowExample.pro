@@ -11,12 +11,16 @@ include(../../Dependencies.pri)
 
 QT       += core
 QT       += gui
-CONFIG   += help
 QT += network
 QT += webkit
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+QT += widgets \
+      printsupport \
+      help
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+CONFIG  += help
 }
 
 TARGET = MainWindowExample

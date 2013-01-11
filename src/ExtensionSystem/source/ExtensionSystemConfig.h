@@ -105,7 +105,7 @@ OBJECT_MANAGER->registerObject(EXTENSION_SYSTEM->configWidget());
         private:
             void setPluginListWidget(QWidget* plugin_list_widget);
             ObserverWidget* observer_widget;
-
+            bool initialized;
             Ui::ExtensionSystemConfig *ui;
         };
     }

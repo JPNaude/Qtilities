@@ -40,6 +40,9 @@
 #include <Qtilities.h>
 
 #include <QObject>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QStandardPaths>
+#endif
 
 Qtilities::Core::QtilitiesCoreApplicationPrivate* Qtilities::Core::QtilitiesCoreApplicationPrivate::m_Instance = 0;
 
@@ -129,7 +132,11 @@ QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPath
 }
 
 QString Qtilities::Core::QtilitiesCoreApplicationPrivate::applicationSessionPathDefault() const {
+    #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     return QString("%1%2%3").arg(QCoreApplication::applicationDirPath()).arg(QDir::separator()).arg(Qtilities::Logging::Constants::qti_def_PATH_SESSION);
+    #else
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    #endif
 }
 
 void Qtilities::Core::QtilitiesCoreApplicationPrivate::setApplicationSessionPath(const QString& path) {

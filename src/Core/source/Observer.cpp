@@ -1253,7 +1253,7 @@ void Qtilities::Core::Observer::deleteAll(const QString& base_class_name, bool r
 
     startProcessingCycle();
     for (int i = 0; i < total; ++i) {
-        if (observerData->subject_list.at(0)->inherits(base_class_name.toAscii().data())) {
+        if (observerData->subject_list.at(0)->inherits(base_class_name.toUtf8().data())) {
             // Validate operation against access mode if access mode scope is category:
             QVariant category_variant = getMultiContextPropertyValue(observerData->subject_list.at(0),qti_prop_CATEGORY_MAP);
             QtilitiesCategory category = category_variant.value<QtilitiesCategory>();
@@ -1676,7 +1676,7 @@ QList<QObject*> Qtilities::Core::Observer::treeChildren(const QString& iface, in
                     break;
             }
         } else {
-            if (obj->inherits(iface.toAscii().data())) {
+            if (obj->inherits(iface.toUtf8().data())) {
                 children << obj;
                 if (limit != -1) {
                     ++count;
@@ -1696,7 +1696,7 @@ QStringList Qtilities::Core::Observer::subjectNames(const QString& iface) const 
     int count = observerData->subject_list.count();
     for (int i = 0; i < count; ++i) {
         QObject* obj = observerData->subject_list.at(i);
-        if (obj->inherits(iface.toAscii().data()) || iface.isEmpty())
+        if (obj->inherits(iface.toUtf8().data()) || iface.isEmpty())
             subject_names << subjectNameInContext(obj);
     }
     return subject_names;
@@ -1710,7 +1710,7 @@ QStringList Qtilities::Core::Observer::subjectDisplayedNames(const QString& ifac
         QObject* object = observerData->subject_list.at(i);
         subject_names << object->objectName();
         continue;
-        if (object->inherits(iface.toAscii().data()) || iface.isEmpty()) {
+        if (object->inherits(iface.toUtf8().data()) || iface.isEmpty()) {
             // We need to check if a subject has an instance name in this context. If so, we use the instance name, not the objectName().
             QVariant instance_name = getMultiContextPropertyValue(object,qti_prop_DISPLAYED_ALIAS_MAP);
             if (instance_name.isValid())
@@ -1912,7 +1912,7 @@ QList<QObject*> Qtilities::Core::Observer::subjectReferences(const QString& ifac
     QList<QObject*> subjects;
     int count = observerData->subject_list.count();
     for (int i = 0; i < count; ++i) {
-        if (observerData->subject_list.at(i)->inherits(iface.toAscii().data()))
+        if (observerData->subject_list.at(i)->inherits(iface.toUtf8().data()))
             subjects << observerData->subject_list.at(i);
     }
     return subjects;

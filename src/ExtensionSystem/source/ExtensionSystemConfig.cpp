@@ -43,7 +43,8 @@ using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ExtensionSystemConfig)
+    ui(new Ui::ExtensionSystemConfig),
+    initialized(false)
 {
     ui->setupUi(this);
 }
@@ -66,6 +67,9 @@ QString Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageTitle() con
 }
 
 void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageInitialize() {
+    if (initialized)
+        return;
+
     // Put the widget in the center of the screen:
     QRect qrect = QApplication::desktop()->availableGeometry(this);
     move(qrect.center() - rect().center());
@@ -77,6 +81,8 @@ void Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageInitialize() {
     ui->listPluginPaths->addItems(EXTENSION_SYSTEM->pluginPaths());
 
     connect(ui->btnPluginDetails,SIGNAL(clicked()),SLOT(handleBtnDetailsClicked()));
+
+    initialized = true;
 }
 
 Qtilities::Core::QtilitiesCategory Qtilities::ExtensionSystem::ExtensionSystemConfig::configPageCategory() const {

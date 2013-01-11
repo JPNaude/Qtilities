@@ -185,9 +185,11 @@ QString Qtilities::CoreGui::QtilitiesApplication::applicationSessionPath() {
     if (QApplication::organizationName().isEmpty() || QApplication::applicationName().isEmpty()) {
         qDebug() << Q_FUNC_INFO << "Organization name and application name must be set in order to properly use QtilitiesApplication::applicationSessionPath().";
     } else {
+        #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         // If it is still the default from QtilitieCoreApplicationPrivate, we set it to use AppData:
         if (FileUtils::comparePaths(QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath(),QtilitiesCoreApplicationPrivate::instance()->applicationSessionPathDefault()))
             QtilitiesCoreApplicationPrivate::instance()->setApplicationSessionPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        #endif
     }
 
     return QtilitiesCoreApplicationPrivate::instance()->applicationSessionPath();

@@ -52,15 +52,15 @@ Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const QString& property_na
     else
         name = property_name;
 
-    is_reserved = QtilitiesProperty::propertyIsReserved(property_name.toAscii().data());
-    supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name.toAscii().data());
-    is_removable = QtilitiesProperty::propertyIsRemovable(property_name.toAscii().data());
+    is_reserved = QtilitiesProperty::propertyIsReserved(property_name.toUtf8().data());
+    supports_change_notifications = QtilitiesProperty::propertySupportsChangeNotifications(property_name.toUtf8().data());
+    is_removable = QtilitiesProperty::propertyIsRemovable(property_name.toUtf8().data());
     read_only = false;
 }
 
 Qtilities::Core::QtilitiesProperty::QtilitiesProperty(const char* property_name) {
     if (property_name)
-        name = QString::fromAscii(property_name);
+        name = QString::fromUtf8(property_name);
     else
         name = QString("");
 
@@ -103,7 +103,7 @@ QString Qtilities::Core::QtilitiesProperty::propertyNameString() const {
 void Qtilities::Core::QtilitiesProperty::setPropertyName(const char* new_name) {
     Q_ASSERT(new_name);
     if (new_name)
-        name = QString::fromAscii(new_name);
+        name = QString::fromUtf8(new_name);
 }
 
 void Qtilities::Core::QtilitiesProperty::setPropertyName(const QString& new_name) {
@@ -361,7 +361,7 @@ Qtilities::Core::Interfaces::IExportable::ExportResultFlags Qtilities::Core::Qti
 }
 
 QVariant Qtilities::Core::QtilitiesProperty::constructVariant(const QString& type_string, const QString& value_string) {
-    QVariant::Type type = QVariant::nameToType(type_string.toAscii().constData());
+    QVariant::Type type = QVariant::nameToType(type_string.toUtf8().constData());
     return QtilitiesProperty::constructVariant(type,value_string);
 }
 
