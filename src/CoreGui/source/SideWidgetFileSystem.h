@@ -107,6 +107,11 @@ side_viewer_widget->show();
 
             //! Function to set the path of this side viewer widget.
             void setPath(const QString& path);
+            //! Attempts to select the specified path in the view.
+            /*!
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            void selectPath(const QString& path);
             //! Function to get the path of this side viewer widget.
             QString path() const;
             //! Function to get the path of this side viewer widget.

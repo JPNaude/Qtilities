@@ -215,6 +215,21 @@ void Qtilities::CoreGui::SideWidgetFileSystem::setPath(const QString& path) {
     ui->btnCdUp->setEnabled(true);
 }
 
+void Qtilities::CoreGui::SideWidgetFileSystem::selectPath(const QString &path) {
+    QModelIndex idx = d->model->index(path);
+    if (idx.isValid()) {
+        QItemSelectionModel *selection_model = ui->treeView->selectionModel();
+        if (selection_model) {
+            selection_model->clearSelection();
+
+            QItemSelection item_selection;
+            item_selection.select(idx,idx);
+
+            selection_model->select(item_selection,QItemSelectionModel::Rows | QItemSelectionModel::Select);
+        }
+    }
+}
+
 QString Qtilities::CoreGui::SideWidgetFileSystem::path() const {
     return ui->txtCurrentPath->text();
 }
