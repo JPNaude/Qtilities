@@ -333,7 +333,16 @@ p, li { white-space: pre-wrap; }
             <string>Factories</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
              <number>3</number>
             </property>
             <item row="0" column="0" colspan="2">
@@ -370,15 +379,24 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1013</width>
-             <height>581</height>
+             <width>306</width>
+             <height>38</height>
             </rect>
            </property>
            <attribute name="label">
             <string>Task Activity History</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -420,7 +438,16 @@ p, li { white-space: pre-wrap; }
             <string>Application Modes</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_5">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
              <number>3</number>
             </property>
             <item row="0" column="0" colspan="2">
@@ -484,7 +511,16 @@ p, li { white-space: pre-wrap; }
             <string>Contexts</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_29">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
              <number>3</number>
             </property>
             <item row="0" column="0">
@@ -610,8 +646,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>356</width>
-             <height>230</height>
+             <width>1013</width>
+             <height>581</height>
             </rect>
            </property>
            <attribute name="label">
@@ -844,7 +880,16 @@ p, li { white-space: pre-wrap; }
             <string>Current State:</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -1052,7 +1097,16 @@ p, li { white-space: pre-wrap; }
             <string>Create Custom Configuration Sets:</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>

@@ -222,6 +222,7 @@ Qtilities::Testing::DebugWidget::DebugWidget(QWidget *parent) :
     command_editor_layout->setMargin(0);
     if (d->command_editor.layout())
         d->command_editor.layout()->setMargin(0);
+    d->command_editor.configPageInitialize();
 
     // Action Container Editor:
     if (ui->actionContainersHolder->layout())
