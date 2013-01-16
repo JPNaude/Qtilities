@@ -394,9 +394,8 @@ void Qtilities::Testing::DebugWidget::on_btnExplorePluginConfigSetPath_clicked()
     if (ui->txtPluginsActiveSet->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtPluginsActiveSet->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
         LOG_ERROR_P(QString("Failed to open folder: %1").arg(fi.path()));
     }
     else
@@ -428,9 +427,8 @@ void Qtilities::Testing::DebugWidget::on_btnEditPluginConfigSet_clicked()
     if (ui->txtPluginsActiveSet->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtPluginsActiveSet->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
         LOG_ERROR_P(QString("Failed to open folder: %1").arg(fi.filePath()));
     }
     else
@@ -442,9 +440,8 @@ void Qtilities::Testing::DebugWidget::on_btnExplorePluginCurrentConfigSetPath_cl
     if (ui->txtPluginsActiveSet->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtPluginsEditSet->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
         LOG_ERROR_P(QString("Failed to open folder: %1").arg(fi.path()));
     }
     else
@@ -456,9 +453,8 @@ void Qtilities::Testing::DebugWidget::on_btnEditPluginCurrentConfigSet_clicked()
     if (ui->txtPluginsActiveSet->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtPluginsEditSet->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
         LOG_ERROR_P(QString("Failed to open file: %1").arg(fi.filePath()));
     }
     else
@@ -971,9 +967,8 @@ void Qtilities::Testing::DebugWidget::on_btnProjectsCurrentOpenPath_clicked()
     if (ui->txtProjectsCurrentFileName->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtProjectsCurrentFileName->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.path())))){
         LOG_ERROR_P(QString("Failed to open folder: %1").arg(fi.path()));
     }
     else
@@ -984,9 +979,8 @@ void Qtilities::Testing::DebugWidget::on_btnProjectsCurrentOpenFile_clicked() {
     if (ui->txtProjectsCurrentFileName->text().isEmpty())
         return;
 
-    QDesktopServices explorer_service;
     QFileInfo fi(ui->txtProjectsCurrentFileName->text());
-    if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
+    if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(fi.filePath())))){
         LOG_ERROR_P(QString("Failed to open file: %1").arg(fi.filePath()));
     }
     else
