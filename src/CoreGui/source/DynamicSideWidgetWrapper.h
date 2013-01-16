@@ -59,7 +59,7 @@ namespace Qtilities {
         \class DynamicSideWidgetWrapper
         \brief A wrapper for side viewer widgets.
           */
-        class QTILITIES_CORE_GUI_SHARED_EXPORT DynamicSideWidgetWrapper : public QMainWindow {
+        class QTILITIES_CORE_GUI_SHARED_EXPORT DynamicSideWidgetWrapper : public QWidget {
             Q_OBJECT
         public:
             //! Constructs a dynamic side widget wrapper widget.
@@ -74,6 +74,13 @@ namespace Qtilities {
 
             //! Function which returns the current text in the combo box.
             QString currentText() const;
+            //! Returns the current widget displayed in this wrapper.
+            /*!
+             * \return The current widget displayed in this wrapper.
+             *
+             * <i>This function  was added in %Qtilities v1.2.</i>
+             */
+            QWidget* currentWidget() const;
 
         public slots:
             void handleCurrentIndexChanged(const QString& text);
@@ -82,15 +89,12 @@ namespace Qtilities {
               \note The current widget should not be in map list.
               */
             void updateAvailableWidgets(QMap<QString, ISideViewerWidget*> text_iface_map);
-            void handleActionClose_triggered();
+            void close();
 
         signals:
             void currentTextChanged(const QString& text);
             void newSideWidgetRequest();
             void aboutToBeDestroyed(QWidget* widget);
-
-        protected:
-            void changeEvent(QEvent *e);
 
         private:
             //! Refreshes the new widget action's state.

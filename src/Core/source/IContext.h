@@ -47,7 +47,7 @@ namespace Qtilities {
             \class IContext
             \brief Objects implementing this interface will have a context associated with them.
               */
-            class QTILIITES_CORE_SHARED_EXPORT IContext  : virtual public IObjectBase {
+            class QTILIITES_CORE_SHARED_EXPORT IContext : virtual public IObjectBase {
             public:
                 IContext() {}
                 virtual ~IContext() {}

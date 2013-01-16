@@ -38,6 +38,7 @@
 #include <QtilitiesCore>
 
 #include <QtilitiesApplication>
+#include <QtilitiesCoreGuiConstants>
 
 #include <QMutex>
 #include <QCoreApplication>
@@ -50,6 +51,7 @@
 
 using namespace QtilitiesCore;
 using namespace Qtilities::CoreGui;
+using namespace Qtilities::CoreGui::Actions;
 using namespace Qtilities::ProjectManagement::Constants;
 
 struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
@@ -64,7 +66,9 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
         default_project_type(IExportable::XML),
         project_changed_during_load(false),
         exec_style(ProjectManager::ExecNormal),
-        saving_enabled(true) {}
+        saving_enabled(true),
+        project_actions_menu_id(qti_action_FILE),
+        project_actions_command_id(qti_action_FILE_SETTINGS) {}
 
     QPointer<Project>                       current_project;
     int                                     current_project_busy_count;
@@ -93,6 +97,9 @@ struct Qtilities::ProjectManagement::ProjectManagerPrivateData  {
     QString                                 saving_info_message;
 
     FileLocker                              file_locker;
+
+    QString                                 project_actions_menu_id;
+    QString                                 project_actions_command_id;
 };
 
 Qtilities::ProjectManagement::ProjectManager* Qtilities::ProjectManagement::ProjectManager::m_Instance = 0;
@@ -657,6 +664,22 @@ bool Qtilities::ProjectManagement::ProjectManager::useCustomProjectsPath() const
 
 void Qtilities::ProjectManagement::ProjectManager::setUseCustomProjectsPath(bool toggle) {
     d->use_custom_projects_paths = toggle;
+}
+
+void ProjectManagement::ProjectManager::setProjectMenuItemsTargetMenu(const QString &menu_id) {
+    d->project_actions_menu_id = menu_id;
+}
+
+QString ProjectManagement::ProjectManager::projectMenuItemsTargetMenu() const {
+    return d->project_actions_menu_id;
+}
+
+void ProjectManagement::ProjectManager::setProjectMenuItemsBeforeCommand(const QString &command_id) {
+    d->project_actions_command_id = command_id;
+}
+
+QString ProjectManagement::ProjectManager::projectMenuItemsBeforeCommand() const {
+    return d->project_actions_command_id;
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::checkModifiedOpenProjects() const {

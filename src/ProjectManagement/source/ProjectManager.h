@@ -280,6 +280,39 @@ namespace Qtilities {
             //! Toggles if a custom projects path is used.
             void setUseCustomProjectsPath(bool toggle);
 
+            //! Sets the target menu where project menu items should be placed.
+            /*!
+             * These menu items are not added automatically by the project manager. Its done through the ProjectManagementPlugin.
+             *
+             * The default menu is Qtilities::CoreGui::Actions::qti_action_FILE.
+             *
+             * \sa setProjectMenuItemsBeforeCommand()
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void setProjectMenuItemsTargetMenu(const QString& menu_id);
+            //! Gets the target menu where project menu items should be placed.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QString projectMenuItemsTargetMenu() const;
+            //! Sets the command before which the project menus must be placed in the menu specified by projectMenuItemsTargetMenu().
+            /*!
+             * These menu items are not added automatically by the project manager. Its done through the ProjectManagementPlugin.
+             *
+             * The default menu is Qtilities::CoreGui::Actions::qti_action_FILE_SETTINGS.
+             *
+             * \sa setProjectMenuItemsTargetMenu()
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void setProjectMenuItemsBeforeCommand(const QString& command_id);
+            //! Gets the command before which the project menus must be placed in the menu specified by projectMenuItemsTargetMenu().
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QString projectMenuItemsBeforeCommand() const;
+
             // ----------------------------------------------
             // Functions related to the project manager configuration
             // ----------------------------------------------

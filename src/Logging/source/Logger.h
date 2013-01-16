@@ -96,9 +96,9 @@ namespace Qtilities {
                 PriorityMessages        = 4,    /*!< Messages logged to as priority messages through the priority marcos, for example LOG_INFO_P. */
                 AllMessageContexts      = SystemWideMessages | EngineSpecificMessages | PriorityMessages /*!< Represents all message contexts. */
             };
-            Q_DECLARE_FLAGS(MessageContextFlags, MessageContext);
-            Q_FLAGS(MessageContextFlags);
-            Q_ENUMS(MessageContext);
+            Q_DECLARE_FLAGS(MessageContextFlags, MessageContext)
+            Q_FLAGS(MessageContextFlags)
+            Q_ENUMS(MessageContext)
 
             //! Indication used to indicate if an engine was added or removed to/from the logger.
             enum EngineChangeIndication {
@@ -121,9 +121,9 @@ namespace Qtilities {
                 Trace           = 1 << 6, /*!< A trace message. \note Trace messages are not part of release mode builds. */
                 AllLogLevels    = Info | Warning | Error | Fatal | Debug | Trace /*!< Represents all message types. */
             };
-            Q_DECLARE_FLAGS(MessageTypeFlags, MessageType);
-            Q_FLAGS(MessageTypeFlags);
-            Q_ENUMS(MessageType);
+            Q_DECLARE_FLAGS(MessageTypeFlags, MessageType)
+            Q_FLAGS(MessageTypeFlags)
+            Q_ENUMS(MessageType)
 
         private:
             Logger(QObject* parent = 0);

@@ -43,8 +43,8 @@ using namespace Qtilities::CoreGui::Icons;
 
 Qtilities::ExtensionSystem::ExtensionSystemConfig::ExtensionSystemConfig(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ExtensionSystemConfig),
-    initialized(false)
+    initialized(false),
+    ui(new Ui::ExtensionSystemConfig)
 {
     ui->setupUi(this);
 }

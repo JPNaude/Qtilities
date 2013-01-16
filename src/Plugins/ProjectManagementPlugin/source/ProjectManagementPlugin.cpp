@@ -96,7 +96,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     // Create and add project management actions:
     // Add project menu items
     bool existed;
-    ActionContainer* file_menu = ACTION_MANAGER->createMenu(qti_action_FILE,existed);
+    ActionContainer* file_menu = ACTION_MANAGER->createMenu(PROJECT_MANAGER->projectMenuItemsTargetMenu(),existed);
     // We construct each action and then register it
     QList<int> context;
     context.push_front(CONTEXT_MANAGER->contextID(qti_def_CONTEXT_STANDARD));
@@ -112,7 +112,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     connect(d->actionProjectNew,SIGNAL(triggered()),SLOT(handle_actionProjectNew()));
     Command* command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_NEW,d->actionProjectNew,context);
     command->setCategory(QtilitiesCategory("Projects"));
-    file_menu->addAction(command,qti_action_FILE_SETTINGS);
+    file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Open Project
     // ---------------------------
@@ -121,7 +121,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     connect(d->actionProjectOpen,SIGNAL(triggered()),SLOT(handle_actionProjectOpen()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_OPEN,d->actionProjectOpen,context);
     command->setCategory(QtilitiesCategory("Projects"));
-    file_menu->addAction(command,qti_action_FILE_SETTINGS);
+    file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Close Project
     // ---------------------------
@@ -130,7 +130,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     connect(d->actionProjectClose,SIGNAL(triggered()),SLOT(handle_actionProjectClose()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_CLOSE,d->actionProjectClose,context);
     command->setCategory(QtilitiesCategory("Projects"));
-    file_menu->addAction(command,qti_action_FILE_SETTINGS);
+    file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Save Project
     // ---------------------------
@@ -140,7 +140,7 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     connect(d->actionProjectSave,SIGNAL(triggered()),SLOT(handle_actionProjectSave()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE,d->actionProjectSave,context);
     command->setCategory(QtilitiesCategory("Projects"));
-    file_menu->addAction(command,qti_action_FILE_SETTINGS);
+    file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Save Project As
     // ---------------------------
@@ -150,14 +150,14 @@ bool Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::initialize(
     connect(d->actionProjectSaveAs,SIGNAL(triggered()),SLOT(handle_actionProjectSaveAs()));
     command = ACTION_MANAGER->registerAction(qti_action_PROJECTS_SAVE_AS,d->actionProjectSaveAs,context);
     command->setCategory(QtilitiesCategory("Projects"));
-    file_menu->addAction(command,qti_action_FILE_SETTINGS);
-    file_menu->addSeperator(qti_action_FILE_SETTINGS);
+    file_menu->addAction(command,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
+    file_menu->addSeperator(PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     // ---------------------------
     // Recent Projects Menu
     // ---------------------------
     ActionContainer* recent_projects_menu = ACTION_MANAGER->createMenu("Recent Projects",existed);
-    file_menu->addMenu(recent_projects_menu,qti_action_FILE_SETTINGS);
-    //file_menu->addSeperator(qti_action_FILE_SETTINGS);
+    file_menu->addMenu(recent_projects_menu,PROJECT_MANAGER->projectMenuItemsBeforeCommand());
+    //file_menu->addSeperator(PROJECT_MANAGER->projectMenuItemsBeforeCommand());
     d->menuRecentProjects = recent_projects_menu->menu();
 
     // Register project management config page.

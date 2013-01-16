@@ -65,7 +65,7 @@ Qtilities::CoreGui::DynamicSideWidgetViewer::DynamicSideWidgetViewer(int mode_de
 
     // Create new layout & splitter
     d->splitter = new QSplitter(Qt::Vertical);
-    d->splitter->setHandleWidth(0);
+    d->splitter->setHandleWidth(1);
     d->splitter->setMinimumWidth(220);
     QBoxLayout* layout = new QBoxLayout(QBoxLayout::LeftToRight,this);
     layout->addWidget(d->splitter);
@@ -137,6 +137,17 @@ bool Qtilities::CoreGui::DynamicSideWidgetViewer::isExclusive() const {
 
 QStringList Qtilities::CoreGui::DynamicSideWidgetViewer::widgetNames() const {
     return d->text_iface_map.keys();
+}
+
+QList<ISideViewerWidget *> Qtilities::CoreGui::DynamicSideWidgetViewer::sideViewerWidgetInterfaces() const {
+    return d->text_iface_map.values();
+}
+
+QList<QWidget *> Qtilities::CoreGui::DynamicSideWidgetViewer::sideViewerWidgets() const {
+    QList<QWidget*> widgets;
+    for (int i = 0; i < d->active_wrappers.count(); ++i)
+        widgets << d->active_wrappers.at(i)->currentWidget();
+    return widgets;
 }
 
 void Qtilities::CoreGui::DynamicSideWidgetViewer::handleSideWidgetDestroyed(QWidget* widget) {

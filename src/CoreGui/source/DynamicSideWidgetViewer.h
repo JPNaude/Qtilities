@@ -84,6 +84,20 @@ namespace Qtilities {
             bool isExclusive() const;
             //! Returns a list of all widget names available in this widget.
             QStringList widgetNames() const;
+            //! Returns a list of all side viewer widget interfaces displayed in this viewer.
+            /*!
+             * \return A list of all side viewer widget interfaces displayed in this viewer.
+             *
+             * <i>This function  was added in %Qtilities v1.2.</i>
+             */
+            QList<ISideViewerWidget*> sideViewerWidgetInterfaces() const;
+            //! Returns a list of all side viewer widgets displayed in this viewer.
+            /*!
+             * \return A list of all side viewer widgets displayed in this viewer.
+             *
+             * <i>This function  was added in %Qtilities v1.2.</i>
+             */
+            QList<QWidget*> sideViewerWidgets() const;
 
         public slots:
             //! Handles the deletion of side widgets.
