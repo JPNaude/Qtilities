@@ -70,6 +70,8 @@ namespace Qtilities {
             // IContextManager Implementation
             // --------------------------------
             int registerContext(const QString& context, const QString& context_help_id = QString());
+            bool unregisterContext(int context_id, bool notify = true);
+            bool unregisterContext(const QString& context_string, bool notify = true);
             QList<int> allContexts() const;
             QStringList contextNames() const;
             QStringList activeContextNames() const;

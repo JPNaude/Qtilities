@@ -82,6 +82,23 @@ int Qtilities::Core::ContextManager::registerContext(const QString& context, con
         return id;
 }
 
+bool Qtilities::Core::ContextManager::unregisterContext(int context_id, bool notify) {
+    if (!hasContext(context_id))
+        return false;
+
+    // Check if its an active context:
+    if (activeContexts().contains(context_id))
+        removeContext(context_id,notify);
+
+    // Now remove it:
+    d->contexts.removeOne(context_id);
+    return true;
+}
+
+bool Qtilities::Core::ContextManager::unregisterContext(const QString &context_string, bool notify) {
+    return unregisterContext(contextID(context_string),notify);
+}
+
 QList<int> Qtilities::Core::ContextManager::allContexts() const {
     return d->contexts;
 }
