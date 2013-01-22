@@ -260,9 +260,9 @@ QtilitiesApplication::initialize();
 #if defined(QtilitiesApp)
 #undef QtilitiesApp
 #endif
-#define QtilitiesApp ((QtilitiesApplication *) QApplication::instance())
-#define ACTION_MANAGER ((QtilitiesApplication *) QApplication::instance())->actionManager()
-#define CLIPBOARD_MANAGER ((QtilitiesApplication *) QApplication::instance())->clipboardManager()
-#define HELP_MANAGER ((QtilitiesApplication *) QApplication::instance())->helpManager()
+#define QtilitiesApp ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())
+#define ACTION_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->actionManager()
+#define CLIPBOARD_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->clipboardManager()
+#define HELP_MANAGER ((Qtilities::CoreGui::QtilitiesApplication *) QApplication::instance())->helpManager()
 
 #endif // QTILITIES_APPLICATION_H
