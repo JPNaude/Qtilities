@@ -240,8 +240,10 @@ void Qtilities::CoreGui::SearchBoxWidget::setWholeWordsOnly(bool toggle) {
         return d->searchOptionWholeWordsOnly->setChecked(toggle);
 }
 
-void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus() {
+void Qtilities::CoreGui::SearchBoxWidget::setEditorFocus(bool select_text) {
     ui->txtSearchString->setFocus();
+    if (select_text)
+        ui->txtSearchString->selectAll();
 }
 
 void Qtilities::CoreGui::SearchBoxWidget::setButtonFlags(ButtonFlags button_flags) {

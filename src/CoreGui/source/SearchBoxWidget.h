@@ -150,7 +150,10 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             Q_FLAGS(SearchOptions)
 
             //! Constructs a search box widget using the paramaters to customize the look of the widget.
-            SearchBoxWidget(SearchOptions search_options = AllSearchOptions, WidgetMode mode = SearchOnly, ButtonFlags buttons = AllButtons, QWidget *parent = 0);
+            SearchBoxWidget(SearchOptions search_options = AllSearchOptions,
+                            WidgetMode mode = SearchOnly,
+                            ButtonFlags buttons = AllButtons,
+                            QWidget *parent = 0);
             ~SearchBoxWidget();
 
             //! Gets the current search string in the search text box.
@@ -170,7 +173,7 @@ searchBoxWidget->setPlainTextEditor(myTextEdit);
             //! Sets the whole words only search option.
             void setWholeWordsOnly(bool toggle);
             //! Sets focus to the search string text editor.
-            void setEditorFocus();
+            void setEditorFocus(bool select_text = true);
             //! Sets the text editor on which this widget must operate.
             /*!
               The widget can also be used directly on a QTextEdit window by calling the setTextEdit() function. When using the
