@@ -93,6 +93,8 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::DynamicSideWidgetWrapper(QMap<QStr
     connect(ui->widgetCombo,SIGNAL(currentIndexChanged(QString)),SLOT(handleCurrentIndexChanged(QString)));
     handleCurrentIndexChanged(current_text);
     setObjectName(current_text);
+
+    ui->widgetCombo->setStyleSheet(DynamicSideWidgetWrapper::comboBoxStyle());
 }
 
 Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper() {
@@ -103,6 +105,46 @@ Qtilities::CoreGui::DynamicSideWidgetWrapper::~DynamicSideWidgetWrapper() {
 
     delete ui;
     delete d;
+}
+
+QLatin1String Qtilities::CoreGui::DynamicSideWidgetWrapper::comboBoxStyle() {
+    QLatin1String style(
+        "QComboBox {"
+            "border: 0.5px solid gray;"
+            "border-radius: 0px;"
+            "padding: 1px 0px 1px 5px;"
+            "min-width: 6em;"
+        "}"
+        "QComboBox:editable {"
+             "background: white;"
+        "}"
+        "QComboBox::drop-down {"
+            "subcontrol-origin: padding;"
+            "subcontrol-position: top right;"
+            " width: 15px;"
+
+            "border-left-width: 1px;"
+            "border-left-color: darkgray;"
+            "border-left-style: solid; "
+            "border-top-right-radius: 0px; "
+            "border-bottom-right-radius: 0px;"
+        "}"
+        "QComboBox:!editable, QComboBox::drop-down:editable {"
+            "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+            "stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,"
+            "stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);"
+        "}"
+        /* QComboBox gets the "on" state when the popup is open */
+        "QComboBox:!editable:on, QComboBox::drop-down:editable:on {"
+            "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+            "stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,"
+            "stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);"
+        "}"
+        "QComboBox::down-arrow {"
+            "image: url(\":/qtilities/coregui/icons/combobox_down_arrow.png\");"
+        "}"
+    );
+    return style;
 }
 
 QString Qtilities::CoreGui::DynamicSideWidgetWrapper::currentText() const {

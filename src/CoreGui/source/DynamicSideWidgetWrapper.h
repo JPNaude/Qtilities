@@ -72,6 +72,12 @@ namespace Qtilities {
             DynamicSideWidgetWrapper(QMap<QString, ISideViewerWidget*> text_iface_map, const QString& current_text, const bool is_exclusive, QWidget* parent = 0);
             ~DynamicSideWidgetWrapper();
 
+            //! Static function to access the style this widget uses for its combo boxes.
+            /*!
+             * <i>This function  was added in %Qtilities v1.2.</i>
+             */
+            static QLatin1String comboBoxStyle();
+
             //! Function which returns the current text in the combo box.
             QString currentText() const;
             //! Returns the current widget displayed in this wrapper.
