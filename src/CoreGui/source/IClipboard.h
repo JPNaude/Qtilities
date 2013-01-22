@@ -151,7 +151,7 @@ if (observer_mime_data) {
                 virtual void setClipboardOrigin(ClipboardOrigin) = 0;
                 //! Initializes the actions associated with the clipboard manager.
                 virtual void initialize() = 0;
-                //! Call this function if you accepted the mime data. It will disable the paste action.
+                //! Call this function if you accepted the mime data and want to remove the data from the clipboard. It will disable the paste action.
                 virtual void acceptMimeData() = 0;
 
                 virtual void setMimeData(QMimeData* mimeData) = 0;
@@ -169,7 +169,7 @@ if (observer_mime_data) {
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IClipboard,"com.Qtilities.ObjManagement.IClipboard/1.0");
+Q_DECLARE_INTERFACE(Qtilities::CoreGui::Interfaces::IClipboard,"com.Qtilities.ObjManagement.IClipboard/1.0")
 
 #endif // ICLIPBOARD
 
