@@ -110,9 +110,16 @@ namespace Qtilities {
                 virtual Command *registerAction(const QString &id, QAction *action, const QList<int> &context = QList<int>()) = 0;
                 //! Registers an action placeholder with the action manager.
                 /*!
-                  This function is used to create a placeholder for future action types in the system. This is usefull in cases where the actual backend action is not registered at application startup. An example of this would be actions contained in an object produced by a factory. For these scenarios you must register an place holder for the action at startup (to allow the action to be visible in the command editor, and to allow the action to be set according to a previous shortcut mapping scheme at application startup. If you want to use the registerActionPlaceHolder function in this way, leave the context as default. This will create the action place holder and you can register backend actions at a later time using the registerAction() call.
+                    This function is used to create a placeholder for future action types in the system. This is usefull in cases where the actual backend action
+                    is not registered at application startup. An example of this would be actions contained in an object produced by a factory. For
+                    these scenarios you must register an place holder for the action at startup (to allow the action to be visible in the command editor,
+                    and to allow the action to be set according to a previous shortcut mapping scheme at application startup). If you want to use the registerActionPlaceHolder
+                    function in this way, leave the context as default. This will create the action place holder and you can register backend actions
+                    at a later time using the registerAction() call.
 
-                  You can also use this function if you want to create a command which is not a multi-backed a command. In that case you connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder function in this way you must provide an context for the action.
+                    You can also use this function if you want to create a command which is not a multi-backed a command. In that case you
+                    connect directly to the command->action() triggered() signal to access the action. If you want to use the registerActionPlaceHolder
+                    function in this way you must provide an context for the action.
 
                   \param id The internal id used to represent the action. This is the name used to display the action in the command editor.
                   \param user_text The user visible text that will be used for this command.
