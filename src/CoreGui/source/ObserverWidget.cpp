@@ -386,6 +386,7 @@ Qtilities::CoreGui::ObserverWidget::ObserverWidget(Observer* observer_context, D
 }
 
 Qtilities::CoreGui::ObserverWidget::~ObserverWidget() {
+    CONTEXT_MANAGER->unregisterContext(d->global_meta_type);
     delete ui;
     delete d;           
 }

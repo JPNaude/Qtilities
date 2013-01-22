@@ -40,6 +40,8 @@
 #include "QtilitiesCoreGuiConstants.h"
 #include "ConfigurationWidget.h"
 
+#include <FileUtils>
+
 #include <QFileInfo>
 #include <QtGui>
 
@@ -189,15 +191,16 @@ Qtilities::CoreGui::CodeEditorWidget::CodeEditorWidget(ActionFlags action_flags,
 }
 
 Qtilities::CoreGui::CodeEditorWidget::~CodeEditorWidget() {
+    CONTEXT_MANAGER->unregisterContext(d->global_meta_type);
     maybeSave();
     delete d;
+    delete ui;
 }
 
 bool Qtilities::CoreGui::CodeEditorWidget::eventFilter(QObject *object, QEvent *event) {
     if (object == d->codeEditor && event->type() == QEvent::FocusIn) {
         refreshActions();
         CONTEXT_MANAGER->setNewContext(contextString(),true);
-
         if (d->action_flags & ActionPaste) {
             // Connect to the paste action
             Command* command = ACTION_MANAGER->command(qti_action_EDIT_PASTE);
@@ -436,7 +439,9 @@ bool Qtilities::CoreGui::CodeEditorWidget::actionSaveAs() {
     // If there already a file we open in its path:
     if (!d->current_file.isEmpty()) {
         QFileInfo fi(d->current_file);
-        start_path = fi.filePath();
+        QDir dir(fi.path());
+        if (dir.exists())
+            start_path = fi.filePath();
     }
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save As..."), start_path, tr("All Files (*)"));
@@ -571,7 +576,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
     if (!d->watcher_mutex.tryLock())
         return;
 
-    if (d->current_file == path) {
+    if (FileUtils::comparePaths(d->current_file,path)) {
         // Detect the change that happened:
         // Check if it still exists:
         QFile file(path);
@@ -607,6 +612,7 @@ void Qtilities::CoreGui::CodeEditorWidget::handleFileChangedNotification(const Q
         } else {
             // The file was removed:
             QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Question);
             msgBox.setText(tr("Your file has been removed outside of the editor:<br><br>") + d->current_file);
             msgBox.setInformativeText(tr("Do you want to keep this file open in the editor?"));
             msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -644,6 +650,7 @@ void Qtilities::CoreGui::CodeEditorWidget::constructActions() {
 
     d->action_provider = new ActionProvider(this);
 
+    // Get the context ID for this widget:
     int context_id = CONTEXT_MANAGER->registerContext(d->global_meta_type);
     QList<int> context;
     context.push_front(context_id);
