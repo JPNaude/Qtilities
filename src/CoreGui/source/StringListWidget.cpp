@@ -241,14 +241,12 @@ void Qtilities::CoreGui::StringListWidget::handleDoubleClick(QModelIndex index) 
     if (d->open_on_double_click) {
         QString current_selection = d->model.data(index,Qt::DisplayRole).toString();
         if (d->list_type == FilePaths) {
-            QDesktopServices explorer_service;
-            if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
+            if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
                 LOG_ERROR(QString("Failed to open file: %1").arg(current_selection));
             else
                 LOG_INFO(QString("Successfully opened file: %1").arg(current_selection));
         } else if (d->list_type == Directories) {
-            QDesktopServices explorer_service;
-            if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
+            if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(current_selection))))
                 LOG_ERROR(QString("Failed to path at: %1").arg(current_selection));
             else
                 LOG_INFO(QString("Successfully opened path at: %1").arg(current_selection));

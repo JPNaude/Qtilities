@@ -325,8 +325,7 @@ void Qtilities::CoreGui::SideWidgetFileSystem::on_treeView_doubleClicked(QModelI
 
     if (!d->model->isDir(index)) {
         QString file_path = d->model->filePath(index);
-        QDesktopServices explorer_service;
-        if (!explorer_service.openUrl(QUrl(QUrl::fromLocalFile(file_path)))) {
+        if (!QDesktopServices::openUrl(QUrl(QUrl::fromLocalFile(file_path)))) {
             LOG_ERROR(QString("Failed to open file: %1").arg(file_path));
         }
         else
