@@ -72,6 +72,20 @@ namespace Qtilities {
                     \returns The unique ID assigned by the context manager for the new context. If the context already existed its existing ID is returned.
                     */
                 virtual int registerContext(const QString& context, const QString& context_help_id = QString()) = 0;
+                //! Unregisters an existing context.
+                /*!
+                 * \param context_id The ID of the context to be unregistered.
+                 * \param notify Indicates if the context manager must notify when the active context(s) changed due to this unregisteration.
+                 * \return True if successfull, false otherwise (for example when the context was not present in the context manager).
+                 */
+                virtual bool unregisterContext(int context_id, bool notify = true) = 0;
+                //! Unregisters an existing context.
+                /*!
+                 * \param context_string The string representation of the context to be unregistered.
+                 * \param notify Indicates if the context manager must notify when the active context(s) changed due to this unregisteration.
+                 * \return True if successfull, false otherwise (for example when the context was not present in the context manager).
+                 */
+                virtual bool unregisterContext(const QString& context_string, bool notify = true) = 0;
                 //! Returns a list of all the contexts currently registered.
                 virtual QList<int> allContexts() const = 0;
                 //! Returns the names of all registered contexts.
