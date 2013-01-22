@@ -45,7 +45,9 @@ namespace Qtilities {
     namespace Core {
         /*!
           \class ObserverMimeData
-          \brief The ObserverMimeData stores information about subjects. Example usage scenarios are during drag-drop and clipboard operations.
+          \brief The ObserverMimeData stores information about subjects when Qtilities does drag and drops between ObserverWidget views.
+
+          ObserverMimeData will return Qtilities::Core::Constants::qti_def_OBSERVER_MIME_DATA_MIME_TYPE as its format in formats().
          */
         class QTILIITES_CORE_SHARED_EXPORT ObserverMimeData : public QMimeData {
             Q_OBJECT

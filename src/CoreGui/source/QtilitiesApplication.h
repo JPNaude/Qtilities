@@ -37,7 +37,10 @@
 #include "QtilitiesCoreGui_global.h"
 #include "ActionManager.h"
 #include "ClipboardManager.h"
+
+#ifndef QTILITIES_NO_HELP
 #include "HelpManager.h"
+#endif
 
 #include <LoggingConstants>
 

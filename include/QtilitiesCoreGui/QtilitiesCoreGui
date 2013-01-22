@@ -61,11 +61,14 @@
 #include "TaskManagerGui.h"
 #include "SingleTaskWidget.h"
 #include "TaskSummaryWidget.h"
-#include "HelpManager.h"
 #include "ObserverTableModelProxyFilter.h"
 #include "IGroupedConfigPageInfoProvider.h"
 #include "GroupedConfigPage.h"
 #include "AddDynamicPropertyWizard.h"
+
+#ifndef QTILITIES_NO_HELP
+#include "HelpManager.h"
+#endif
 
 //! Namespace which encapsulates all namespaces and sub namespaces for the CoreGui module.
 namespace QtilitiesCoreGui { 
