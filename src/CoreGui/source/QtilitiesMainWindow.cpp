@@ -236,9 +236,12 @@ void Qtilities::CoreGui::QtilitiesMainWindow::doLayout() {
         if (!d->task_summary_widget) {
             d->task_summary_widget = new TaskSummaryWidget;
             d->task_summary_widget->setNoActiveTaskHandling(TaskSummaryWidget::ShowSummaryWidget);
-            QPalette palette = d->task_summary_widget->palette();
-            palette.setColor(QPalette::Window,QColor("#FFFFFF"));
-            d->task_summary_widget->setPalette(palette);
+//            QPalette palette = d->task_summary_widget->palette();
+//            palette.setColor(QPalette::Window,QColor("#FFFFFF"));
+//            d->task_summary_widget->setPalette(palette);
+            // The above code gives issues when applying a style on QApplication.
+            // Set the background using a style sheet in the line below fixes that...
+            d->task_summary_widget->setStyleSheet("background-color:#FFFFFF");
             d->task_summary_widget->setMaximumHeight(0);
             d->task_summary_widget->setMaximumWidth(350);
             d->task_summary_widget->setMinimumWidth(350);
