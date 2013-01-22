@@ -13,7 +13,7 @@ Qtilities v1.2 Changes
     ============================
     [#] Ported to work with Qt 5 (including plugins etc.). Note that the Qt Property Browser solution does
         not build against Qt 5 yet, thus building against Qt 5 only works when QTILITIES_PROPERTY_BROWSER is not defined at present.
-    [#] Now compiles and runs with the MSVC compiler.
+    [#] Now compiles and runs with the MSVC compiler without any warnings etc.
     [#] Improved = operator overloading everywhere. Now check that you don't assign an object to itself.
     [#] Cleaned up and improved Qtilities.pri. Thanks to Carel Combrink for the contribution.
     [#] Its no longer needed to set the release/debug configuration mode through CONFIG in Qtilities.pri.
@@ -49,6 +49,7 @@ Qtilities v1.2 Changes
     [+] Added ObjectManager::constructDefaultPropertiesOnObject().
     [+] Added ObjectManager::setSharedProperty(QObject*,PropertySpecification).
     [+] Added Observer::setMonitorSubjectModificationState() and Observer::monitorSubjectModificationState().
+    [+] Added ContextManager::unregisterContext().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -70,7 +71,7 @@ Qtilities v1.2 Changes
         only emit at the end of a processing cycle if necessary.
     [#] Observer will now only emit modificationStateChanged() at the end of a processing cycle when the modification state
         actually changed during a processing cycle.
-    [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsEnabled() to QtilitiesCoreApplication::qtilitiesSettingsEnabled().
+    [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsEnabled().
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -108,6 +109,9 @@ Qtilities v1.2 Changes
     [+] It is now possible to define how a tree's root index must be shown using ObserverHints::setRootIndexDisplayHint(). Note that
         the default display type changed, the root node is no longer displayed by default.
     [+] Added CodeEditorWidget::fileModifiedOutsideHandlingPolicy() and CodeEditorWidget::setFileModifiedOutsideHandlingPolicy().
+    [+] Added DynamicSideWidgetViewer::sideViewerWidgetInterfaces() and DynamicSideWidgetViewer::sideViewerWidgets().
+    [+] Added SideWidgetFileSystem::selectPath().
+    [+] Added DynamicSideWidgetWrapper::currentWidget() and DynamicSideWidgetWrapper::comboBoxStyle().
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -133,6 +137,7 @@ Qtilities v1.2 Changes
         are now virtual allowing you to implement this functionality yourself if needed.
     [#] Changed behavior of ObserverWidget::refreshActions(). It no longer sets all actions in the actionProvider() to be
         enabled at first, only the actions ObserverWidget registered in the provider itself.
+    [#] SearchBoxWidget::setEditorFocus() got new parameter that determines if the text in the search line edit is selected or not.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
@@ -167,6 +172,7 @@ Qtilities v1.2 Changes
     ============================
     [+] Added new projectSaveRequestedWithoutOpenProject() signal on project manager.
     [+] ProjectManager now allows automatic locking of project files and all related operations. This is done using the new FileLocker class.
+    [+] Added setProjectMenuItemsTargetMenu(), projectMenuItemsTargetMenu(), setProjectMenuItemsBeforeCommand(), projectMenuItemsBeforeCommand() to ProjectManager.
 
     [#] ProjectManagementConfig is now exported.
     [#] Projects will now save complete file backups ending in "_complete", rather than ".complete" as in previous versions.
@@ -186,7 +192,8 @@ Qtilities v1.2 Changes
     ============================
     [#] Help Plugin: The browser in the help plugin now enables webkit plugin loading, thus flash etc. should show correctly in docs.
     [*] Project Management Plugin: Fixed problems with actions and main window title bar when project did not load successfully.
-
+    [*] Project Management Plugin: Now uses the new projectMenuItemsTargetMenu() and projectMenuItemsBeforeCommand() functions in ProjectManager to determine where
+        project menu items should be placed. Previously this was hard coded.
 
     ============================
     Examples:
