@@ -71,6 +71,8 @@ namespace Qtilities {
             const char * const qti_def_FACTORY_TAG_FILE_SET_INFO            = "qti.def.FactoryTag.FileSetInfo";
             //! The standard context used in the Qtilities::Core::ContextManager class. This context is always active.
             const char * const qti_def_CONTEXT_STANDARD                     = "qti.def.Context.Standard";
+            //! Mime type used by Qtilities::Core::ObserverMimeData.
+            const char * const qti_def_OBSERVER_MIME_DATA_MIME_TYPE         = "application/vnd.qtilities.observer_mime_data";
         }
 
         //! Namespace containing reserved observer properties used inside the Core Module.

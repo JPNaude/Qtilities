@@ -35,6 +35,7 @@
 #define OBSERVERMIMEDATA_H
 
 #include "QtilitiesCore_global.h"
+#include "QtilitiesCoreConstants"
 
 #include <QMimeData>
 #include <QList>
@@ -54,11 +55,17 @@ namespace Qtilities {
                 d_source_id = source_id;
                 d_subject_list = subject_list;
                 d_drop_action = drop_action;
+                QByteArray ba;
+                setData(Qtilities::Core::Constants::qti_def_OBSERVER_MIME_DATA_MIME_TYPE,ba);
             }
             ObserverMimeData(const ObserverMimeData& other) : QMimeData(),
                 d_source_id(other.sourceID()),
                 d_subject_list(other.subjectList()),
-                d_drop_action(other.dropAction()) {}
+                d_drop_action(other.dropAction()) {
+
+                QByteArray ba;
+                setData(Qtilities::Core::Constants::qti_def_OBSERVER_MIME_DATA_MIME_TYPE,ba);
+            }
 
             //! Gets the ID of the observer which populated the mime data object.
             int sourceID() const { return d_source_id; }
