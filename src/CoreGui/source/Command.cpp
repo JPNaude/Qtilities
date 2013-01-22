@@ -119,10 +119,12 @@ Qtilities::Core::QtilitiesCategory Qtilities::CoreGui::Command::category() const
 // --------------------------------
 struct Qtilities::CoreGui::ProxyActionPrivateData {
     ProxyActionPrivateData() : proxy_action(0),
-    initialized(false),
-    is_active(false) { }
+        proxy_action_backup(0),
+        initialized(false),
+        is_active(false) { }
 
     QAction* proxy_action;
+    QAction* proxy_action_backup;
     QString original_tooltip;
     bool initialized;
     bool is_active;
@@ -132,7 +134,9 @@ struct Qtilities::CoreGui::ProxyActionPrivateData {
     QHash<int, QPointer<QAction> > id_action_map;
 };
 
-Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action, int category_context, QObject* parent) : Command(category_context, parent) {
+Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action,
+                                             int category_context,
+                                             QObject* parent) : Command(category_context, parent) {
     d = new ProxyActionPrivateData;
 
     d->proxy_action = user_visible_action;
@@ -140,10 +144,18 @@ Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action, int c
         d->proxy_action->setEnabled(false);
         d->proxy_action->setParent(this);
         d->original_tooltip = d->proxy_action->toolTip();
+
+        // Copy it to the backup proxy action which will store the original parameters of the proxy action.
+        d->proxy_action_backup = new QAction(0);
+        copyActionParameters(d->proxy_action,d->proxy_action_backup);
     }
 }
 
 Qtilities::CoreGui::ProxyAction::~ProxyAction() {
+    if (d->proxy_action)
+        delete d->proxy_action;
+    if (d->proxy_action_backup)
+        delete d->proxy_action_backup;
     delete d;
 }
 
@@ -299,13 +311,30 @@ void Qtilities::CoreGui::ProxyAction::updateFrontendAction() {
     // Update the icon
     // Only use the backend action icon if it has one:
     if (!d->active_backend_action->icon().isNull())
+        d->proxy_action->setIcon(d->proxy_action_backup->icon());
+    else
         d->proxy_action->setIcon(d->active_backend_action->icon());
-    d->proxy_action->setIconText(d->active_backend_action->iconText());
+
+    if (d->active_backend_action->iconText().isEmpty())
+        d->proxy_action->setIconText(d->proxy_action_backup->iconText());
+    else
+        d->proxy_action->setIconText(d->active_backend_action->iconText());
 
     // Update the text
-    d->proxy_action->setText(d->active_backend_action->text());
-    d->proxy_action->setStatusTip(d->active_backend_action->statusTip());
-    d->proxy_action->setWhatsThis(d->active_backend_action->whatsThis());
+    if (d->active_backend_action->text().isEmpty())
+        d->proxy_action->setText(d->proxy_action_backup->text());
+    else
+        d->proxy_action->setText(d->active_backend_action->text());
+
+    if (d->active_backend_action->statusTip().isEmpty())
+        d->proxy_action->setStatusTip(d->proxy_action_backup->statusTip());
+    else
+        d->proxy_action->setStatusTip(d->active_backend_action->statusTip());
+
+    if (d->active_backend_action->whatsThis().isEmpty())
+        d->proxy_action->setWhatsThis(d->proxy_action_backup->whatsThis());
+    else
+        d->proxy_action->setWhatsThis(d->active_backend_action->whatsThis());
 
     d->proxy_action->setCheckable(d->active_backend_action->isCheckable());
     d->proxy_action->setEnabled(d->active_backend_action->isEnabled());
@@ -314,6 +343,27 @@ void Qtilities::CoreGui::ProxyAction::updateFrontendAction() {
     bool previous_block_value = d->proxy_action->blockSignals(true);
     d->proxy_action->setChecked(d->active_backend_action->isChecked());
     d->proxy_action->blockSignals(previous_block_value);
+}
+
+void Qtilities::CoreGui::ProxyAction::copyActionParameters(QAction *source_action, QAction *target_action) {
+    if (!source_action || !target_action)
+        return;
+
+    target_action->setIcon(source_action->icon());
+    target_action->setIconText(source_action->iconText());
+
+    // Update the text
+    target_action->setText(source_action->text());
+    target_action->setStatusTip(source_action->statusTip());
+    target_action->setWhatsThis(source_action->whatsThis());
+
+    target_action->setCheckable(source_action->isCheckable());
+    target_action->setEnabled(source_action->isEnabled());
+    target_action->setVisible(source_action->isVisible());
+
+    bool previous_block_value = target_action->blockSignals(true);
+    target_action->setChecked(source_action->isChecked());
+    target_action->blockSignals(previous_block_value);
 }
 
 void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence& old_key) {

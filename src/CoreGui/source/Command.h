@@ -146,7 +146,9 @@ namespace Qtilities {
             Q_OBJECT
 
         public:
-            ProxyAction(QAction* proxy_action, int category_context, QObject* parent = 0);
+            ProxyAction(QAction* proxy_action,
+                        int category_context,
+                        QObject* parent = 0);
             virtual ~ProxyAction();
 
             // --------------------------------
@@ -172,6 +174,8 @@ namespace Qtilities {
             void updateFrontendAction();
 
         private:
+            void copyActionParameters(QAction* source_action, QAction* target_action);
+
             ProxyActionPrivateData* d;
         };
 

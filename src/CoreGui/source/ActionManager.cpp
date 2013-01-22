@@ -159,10 +159,9 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
         command = registerActionPlaceHolder(id,action->text());
 
     if (command) {
-        // Check if we need to assign the text from the original action place holder creation call:
-        if (action->text().isEmpty())
-            action->setText(command->text());
-
+//        // Check if we need to assign the text from the original action place holder creation call:
+//        if (action->text().isEmpty())
+//            action->setText(command->text());
         ProxyAction* multi = qobject_cast<ProxyAction*> (command);
         if (multi) {           
             multi->setObjectName(id);
