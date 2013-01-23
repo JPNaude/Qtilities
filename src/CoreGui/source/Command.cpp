@@ -310,7 +310,7 @@ void Qtilities::CoreGui::ProxyAction::updateFrontendAction() {
 
     // Update the icon
     // Only use the backend action icon if it has one:
-    if (!d->active_backend_action->icon().isNull())
+    if (d->active_backend_action->icon().isNull())
         d->proxy_action->setIcon(d->proxy_action_backup->icon());
     else
         d->proxy_action->setIcon(d->active_backend_action->icon());
