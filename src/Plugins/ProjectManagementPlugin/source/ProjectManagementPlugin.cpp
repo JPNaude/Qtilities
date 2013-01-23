@@ -276,12 +276,16 @@ void Qtilities::Plugins::ProjectManagement::ProjectManagementPlugin::handle_acti
         project_path = PROJECT_MANAGER->customProjectsPath(PROJECT_MANAGER->defaultCustomProjectsCategory());
     else
         project_path = QCoreApplication::applicationDirPath() + "/Projects";
-    QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
+
+    IExportable::ExportMode target_project_type = PROJECT_MANAGER->defaultProjectType();
+    QString selected_filter;
+    QString file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter, &selected_filter);
+    target_project_type = PROJECT_MANAGER->projectTypeFromTypeFilter(selected_filter);
     if (file_name.isEmpty())
         return;
 
     if (!PROJECT_MANAGER->isAllowedFileName(file_name))
-        file_name.append(PROJECT_MANAGER->projectTypeSuffix(PROJECT_MANAGER->defaultProjectType()));
+        file_name.append("." + PROJECT_MANAGER->projectTypeSuffix(target_project_type));
 
     PROJECT_MANAGER->saveProject(file_name);
 }
