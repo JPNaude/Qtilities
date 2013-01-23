@@ -169,7 +169,10 @@ void Qtilities::ProjectManagement::ProjectManager::setProjectTypeSuffix(IExporta
 }
 
 QString Qtilities::ProjectManagement::ProjectManager::projectTypeSuffix(IExportable::ExportMode project_type) {
-    return d->suffices[project_type];
+    if (d->suffices.contains(project_type))
+        return d->suffices[project_type];
+    else
+        return QString();
 }
 
 Qtilities::Core::Interfaces::IExportable::ExportMode Qtilities::ProjectManagement::ProjectManager::defaultProjectType() const {
@@ -189,6 +192,18 @@ QString Qtilities::ProjectManagement::ProjectManager::allowedProjectTypesFilter(
         filter_list.append(QString(tr("XML Project File (*.%1)")).arg(d->suffices[IExportable::XML]));
 
     return filter_list.join(";;");
+}
+
+IExportable::ExportMode ProjectManagement::ProjectManager::projectTypeFromTypeFilter(const QString &project_type_filter_string) const {
+    if (d->project_types & IExportable::Binary) {
+        if (project_type_filter_string.contains(d->suffices[IExportable::Binary]))
+            return IExportable::Binary;
+    }
+    if (d->project_types & IExportable::XML) {
+        if (project_type_filter_string.contains(d->suffices[IExportable::XML]))
+            return IExportable::XML;
+    }
+    return IExportable::None;
 }
 
 bool Qtilities::ProjectManagement::ProjectManager::isAllowedFileName(const QString& file_name) const {
@@ -412,15 +427,19 @@ bool Qtilities::ProjectManagement::ProjectManager::saveProject(QString file_name
             else
                 project_path = QCoreApplication::applicationDirPath() + QDir::separator() + "Projects";
 
-            if (d->exec_style != ExecSilent)
-                file_name = QFileDialog::getSaveFileName(0, tr("Save Project"),project_path, filter);
+            IExportable::ExportMode target_project_type = PROJECT_MANAGER->defaultProjectType();
+            if (d->exec_style != ExecSilent) {
+                QString selected_filter;
+                file_name = QFileDialog::getSaveFileName(0, tr("Save Project"), project_path, filter, &selected_filter);
+                target_project_type = PROJECT_MANAGER->projectTypeFromTypeFilter(selected_filter);
+            }
 
             if (file_name.isEmpty()) {
                 QApplication::restoreOverrideCursor();
                 return false;
             } else {
                 if (!isAllowedFileName(file_name))
-                    file_name.append(projectTypeSuffix(defaultProjectType()));
+                    file_name.append("." + projectTypeSuffix(target_project_type));
             }
         } else
             file_name = d->current_project->projectFile();

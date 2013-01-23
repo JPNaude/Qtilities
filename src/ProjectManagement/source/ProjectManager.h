@@ -162,9 +162,16 @@ namespace Qtilities {
             void setDefaultProjectType(IExportable::ExportMode default_project_type);
             //! Function which returns a string which can be used in file dialog as a filter with the current allowed project types.
             /*!
-              \sa allowedProjectTypes()
+              \sa allowedProjectTypes(), projectTypeFromTypeFilter()
               */
             QString allowedProjectTypesFilter() const;
+            //! Gets the project type from a project types filter string provided by allowedProjectTypesFilter().
+            /*!
+              \sa allowedProjectTypesFilter(), allowedProjectTypes()
+
+              <i>This function was added in %Qtilities v1.2.</i>
+              */
+            IExportable::ExportMode projectTypeFromTypeFilter(const QString& project_type_filter_string) const;
             //! Function which checks if a file name's suffix is one of the allowed project types' suffices.
             bool isAllowedFileName(const QString& file_name) const;
 
