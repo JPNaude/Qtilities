@@ -136,7 +136,7 @@ PROJECT_MANAGER_INITIALIZE();
 
 The project manager can manage one open project at a time, accessible through Qtilities::ProjectManagement::ProjectManager::currentProject(). If no project is open, a new project can be created using Qtilities::ProjectManagement::ProjectManager::newProject(). This function can also be used to create a new project, thus closing and prompting to save the current project (if neccessary) and creating a new project. If the current project must be closed without creating a new project call the Qtilities::ProjectManagement::ProjectManager::closeProject() function.
 
-To open projects is straigh forward. Below is an example of how the user can be prompted to open a project file:
+To open projects is straight forward. Below is an example of how the user can be prompted to open a project file:
 \code
 QString filter = PROJECT_MANAGER->allowedProjectTypesFilter();
 QString project_path;

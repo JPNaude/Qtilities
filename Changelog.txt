@@ -49,7 +49,7 @@ Qtilities v1.2 Changes
     [+] Added ObjectManager::constructDefaultPropertiesOnObject().
     [+] Added ObjectManager::setSharedProperty(QObject*,PropertySpecification).
     [+] Added Observer::setMonitorSubjectModificationState() and Observer::monitorSubjectModificationState().
-    [+] Added ContextManager::unregisterContext().
+    [+] Added ContextManager::unregisterContext(), IContextManager::aboutToUnregisterContext() and IContextManager::finishedUnregisterContext().
 
     [#] IFactoryProvider::providedFactoryTags() got a new OK parameter.
     [#] Renamed FileUtils::textFileHashCode() to FileUtils::fileHashCode() since it can now calculate has codes for both text and binary files.
@@ -72,6 +72,7 @@ Qtilities v1.2 Changes
     [#] Observer will now only emit modificationStateChanged() at the end of a processing cycle when the modification state
         actually changed during a processing cycle.
     [#] Renamed QtilitiesCoreApplication::qtilitiesSettingsEnabled().
+    [#] ObserverMimeData now sets its formats() correctly.
 
     [*] Fixed some places in FileUtils where files were not closed properly.
     [*] Fixed bug in QtilitiesProperty constructor where it did not set the property name correctly when specified, resulting
@@ -112,6 +113,8 @@ Qtilities v1.2 Changes
     [+] Added DynamicSideWidgetViewer::sideViewerWidgetInterfaces() and DynamicSideWidgetViewer::sideViewerWidgets().
     [+] Added SideWidgetFileSystem::selectPath().
     [+] Added DynamicSideWidgetWrapper::currentWidget() and DynamicSideWidgetWrapper::comboBoxStyle().
+    [+] Added ProxyAction::unregisterContext() and IActionManager::unregisterCommandsForContext().
+    [+] Added ModeManager::activeModeChanged(), ModeManager::switchToPreviousMode(), ModeManager::previousModeIDs() and ModeManager::switchToPreviousModeAction().
 
     [#] LoggerGui's widget logger engine creation functions got new parameter allowing you to specify which message displays
         must be shown in the widget logger engine.
@@ -138,6 +141,7 @@ Qtilities v1.2 Changes
     [#] Changed behavior of ObserverWidget::refreshActions(). It no longer sets all actions in the actionProvider() to be
         enabled at first, only the actions ObserverWidget registered in the provider itself.
     [#] SearchBoxWidget::setEditorFocus() got new parameter that determines if the text in the search line edit is selected or not.
+    [#] Proxy actions will now use the parameters (tooltip, text, icon etc.) of the proxy action when the parameter is empty in the active backend action.
 
     [*] Fixed CodeEditorWidget not initializing its display flags in its constructor.
     [*] Fixed setting of active subjects when FollowSelection hint is used and parent node is selected in ObserverWidget.
@@ -173,6 +177,7 @@ Qtilities v1.2 Changes
     [+] Added new projectSaveRequestedWithoutOpenProject() signal on project manager.
     [+] ProjectManager now allows automatic locking of project files and all related operations. This is done using the new FileLocker class.
     [+] Added setProjectMenuItemsTargetMenu(), projectMenuItemsTargetMenu(), setProjectMenuItemsBeforeCommand(), projectMenuItemsBeforeCommand() to ProjectManager.
+    [+] Added ProjectManager::projectTypeFromTypeFilter().
 
     [#] ProjectManagementConfig is now exported.
     [#] Projects will now save complete file backups ending in "_complete", rather than ".complete" as in previous versions.
@@ -198,6 +203,7 @@ Qtilities v1.2 Changes
     ============================
     Examples:
     ============================
+    [*] MainWindowExample: Fixed double click on file opening it internally and externally.
 
 
 ================================
