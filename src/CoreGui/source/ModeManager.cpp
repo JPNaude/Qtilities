@@ -46,12 +46,16 @@ using namespace Qtilities::CoreGui::Interfaces;
 struct Qtilities::CoreGui::ModeManagerPrivateData {
     ModeManagerPrivateData() : mode_list_widget(0),
         active_mode(-1),
+        previous_active_modes_populate(true),
         mode_id_counter(1000),
-        register_shortcuts(true) {}
+        register_shortcuts(true),
+        actionSwitchToPreviousMode(0) {}
 
     // All int values in here reffers to the modeID()s of the modes.
     ModeListWidget*             mode_list_widget;
     int                         active_mode;
+    QStack<int>                 previous_active_modes;
+    bool                        previous_active_modes_populate; // Indicates if mode change must be added to previous_active_modes
     QMap<int, IMode*>           id_iface_map;
     QList<int>                  mode_order;
     Qt::Orientation             orientation;
@@ -62,6 +66,7 @@ struct Qtilities::CoreGui::ModeManagerPrivateData {
     QMap<int, QShortcut*>       mode_shortcuts;
     QMap<QShortcut*,Command*>   command_shortcut_map;
     bool                        register_shortcuts;
+    QAction*                    actionSwitchToPreviousMode;
 };
 
 Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation orientation, QObject *parent) :
@@ -119,6 +124,8 @@ Qtilities::CoreGui::ModeManager::ModeManager(int manager_id, Qt::Orientation ori
 }
 
 Qtilities::CoreGui::ModeManager::~ModeManager() {
+    if (d->actionSwitchToPreviousMode)
+        delete d->actionSwitchToPreviousMode;
     delete d;
 }
 
@@ -327,9 +334,9 @@ void Qtilities::CoreGui::ModeManager::refreshList() {
     // to the preferred order etc.
 
     // Clear all lists:
-    disconnect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),this,SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)));
+    disconnect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),this,SLOT(handleModeListCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)));
     d->mode_list_widget->clear();
-    connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*)),Qt::UniqueConnection);
+    connect(d->mode_list_widget,SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),SLOT(handleModeListCurrentItemChanged(QListWidgetItem*,QListWidgetItem*)),Qt::UniqueConnection);
 
     // Will indicate if an item has been set as active in the loops below:
     bool set_active_done = false;
@@ -576,6 +583,25 @@ QListWidgetItem* Qtilities::CoreGui::ModeManager::listWidgetItemForID(int id) co
     return 0;
 }
 
+void CoreGui::ModeManager::updateSwitchToPreviousModeAction() {
+    if (d->actionSwitchToPreviousMode) {
+        d->actionSwitchToPreviousMode->setEnabled(d->previous_active_modes.count() > 0);
+        bool restore_default_name = true;
+        if (d->previous_active_modes.count() > 0) {
+            int last_id = d->previous_active_modes.front();
+            if (d->id_iface_map.contains(last_id)) {
+                IMode* mode = d->id_iface_map[last_id];
+                if (mode) {
+                     d->actionSwitchToPreviousMode->setText(QString(tr("Switch To Previous Mode (%1)")).arg(mode->modeName()));
+                     restore_default_name = false;
+                }
+            }
+        }
+        if (restore_default_name)
+            d->actionSwitchToPreviousMode->setText(tr("Switch To Previous Mode"));
+    }
+}
+
 bool Qtilities::CoreGui::ModeManager::isValidModeID(int mode_id) const {
     return !(d->id_iface_map.contains(mode_id));
 }
@@ -588,33 +614,66 @@ void CoreGui::ModeManager::setRegisterModeShortcuts(bool register_shortcuts) {
     d->register_shortcuts = register_shortcuts;
 }
 
-void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidgetItem * item) {
-    if (!item) {
+QStack<int> CoreGui::ModeManager::previousModeIDs() const {
+    return d->previous_active_modes;
+}
+
+QAction *CoreGui::ModeManager::switchToPreviousModeAction() {
+    if (!d->actionSwitchToPreviousMode) {
+        d->actionSwitchToPreviousMode = new QAction(tr("Switch To Previous Mode"),0);
+        connect(d->actionSwitchToPreviousMode,SIGNAL(triggered()),SLOT(switchToPreviousMode()));
+        updateSwitchToPreviousModeAction();
+    }
+    return d->actionSwitchToPreviousMode;
+}
+
+void Qtilities::CoreGui::ModeManager::handleModeListCurrentItemChanged(QListWidgetItem * new_item, QListWidgetItem *old_item) {
+    int old_id = -1;
+    if (old_item)
+        old_id = old_item->type();
+
+    // Update previous modes storage:
+    if (d->previous_active_modes_populate) {
+        if (old_id != -1) {
+            d->previous_active_modes.push_front(old_id);
+            updateSwitchToPreviousModeAction();
+        }
+    }
+
+    int new_id = -1;
+    if (new_item)
+        new_id = new_item->type();
+
+    if (!new_item) {
         if (d->mode_list_widget->count()) {
             d->mode_list_widget->setCurrentRow(0);
+            emit activeModeChanged(new_id,old_id);
             return;
         } else {
             emit changeCentralWidget(0);
             d->active_mode = -1;
+            emit activeModeChanged(new_id,old_id);
             return;
         }
     }
 
-    if (!d->id_iface_map.contains(item->type())) {
+    if (!d->id_iface_map.contains(new_item->type())) {
         emit changeCentralWidget(0);
         d->active_mode = -1;
+        emit activeModeChanged(new_id,old_id);
         return;
     }
 
-    if (d->id_iface_map.contains(item->type())) {
-        d->id_iface_map[item->type()]->aboutToBeActivated();
-        if (!d->id_iface_map[item->type()]->contextString().isEmpty())
-            CONTEXT_MANAGER->setNewContext(d->id_iface_map[item->type()]->contextString());
-        emit changeCentralWidget(d->id_iface_map[item->type()]->modeWidget());
-        d->id_iface_map[item->type()]->justActivated();
+    if (d->id_iface_map.contains(new_item->type())) {
+        d->id_iface_map[new_item->type()]->aboutToBeActivated();
+        if (!d->id_iface_map[new_item->type()]->contextString().isEmpty())
+            CONTEXT_MANAGER->setNewContext(d->id_iface_map[new_item->type()]->contextString());
+        emit changeCentralWidget(d->id_iface_map[new_item->type()]->modeWidget());
+        d->id_iface_map[new_item->type()]->justActivated();
     }
 
-    d->active_mode = item->type();
+    d->active_mode = new_item->type();
+    emit activeModeChanged(new_id,old_id);
 }
 
 void Qtilities::CoreGui::ModeManager::handleModeShortcutActivated() {
@@ -629,6 +688,22 @@ void Qtilities::CoreGui::ModeManager::handleModeShortcutActivated() {
             }
         }
     }
+}
+
+bool CoreGui::ModeManager::switchToPreviousMode() {
+    if (d->previous_active_modes.count() > 0) {
+        // Check if the previous mode is still available:
+        if (d->id_iface_map.contains(d->previous_active_modes.front())) {
+            d->previous_active_modes_populate = false;
+            setActiveMode(d->previous_active_modes.front());
+            d->previous_active_modes_populate = true;
+            d->previous_active_modes.pop_front();
+            updateSwitchToPreviousModeAction();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Qtilities::CoreGui::ModeManager::setActiveMode(int mode_id, bool refresh_list) {

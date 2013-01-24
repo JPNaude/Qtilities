@@ -357,6 +357,7 @@ namespace Qtilities {
             const char * const qti_action_VIEW_CLOSE_ACTIVE                = "View.CloseActive";
             const char * const qti_action_VIEW_CASCADE                     = "View.Cascade";
             const char * const qti_action_VIEW_TILE                        = "View.Tile";
+            const char * const qti_action_VIEW_SWITCH_TO_PREVIOUS_MODE     = "View.SwitchToPreviousMode";
 
             // About menu and actions
             const char * const qti_action_ABOUT                            = "&About";

@@ -39,6 +39,7 @@
 #include "IMode.h"
 
 #include <QListWidget>
+#include <QStack>
 
 namespace Ui {
     class ModeManager;
@@ -373,17 +374,43 @@ ModeListWidget()->setStyleSheet(stylesheet);
               */
             void setRegisterModeShortcuts(bool register_shortcuts);
 
+            //! Returns a QStack storing the ids of previously active modes.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QStack<int> previousModeIDs() const;
+            //! Convenience function which returns an action which can be placed in a menu to allow switching back to the previous mode.
+            /*!
+             * This action will be disabled when there is no valid previous mode.
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            QAction* switchToPreviousModeAction();
+
         private slots:
             //! Handles selection changes in the top to bottom mode widget.
-            void handleModeListCurrentItemChanged(QListWidgetItem * item);
+            void handleModeListCurrentItemChanged(QListWidgetItem * new_item, QListWidgetItem * old_item);
             //! Handle mode shortcut activation.
             void handleModeShortcutActivated();
+            //! Switches back to the mode that was previously active before the current mode was activated.
+            /*!
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            bool switchToPreviousMode();
 
         signals:
             //! This signal is emitted with the new active mode widget as the \p new_central_widget parameter as soon as the active mode changes.
             void changeCentralWidget(QWidget* new_central_widget);
             //! This signal is emitted when the number sizes of items in the mode list changes.
             void modeListItemSizesChanged();
+            //! Signal which is emitted when the active mode of the application changed.
+            /*!
+             * \param new_mode_id The id of the new active mode. -1 if no mode is active.
+             * \param old_mode_id The id of the old mode that was active. -1 if no mode was active before the change.
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            void activeModeChanged(int new_mode_id, int old_mode_id);
 
         private:
             //! This function that should be used to add mode items to the list. This will take mode ordering into account.
@@ -404,6 +431,8 @@ ModeListWidget()->setStyleSheet(stylesheet);
             QList<IMode*> modeIDsToIFaces(QList<int> mode_ids) const;
             //! Gets the QListWidgetItem corresponding to a specific mode_id.
             QListWidgetItem* listWidgetItemForID(int id) const;
+            //! Update the previous mode switch to action.
+            void updateSwitchToPreviousModeAction();
 
             ModeManagerPrivateData* d;
         };
