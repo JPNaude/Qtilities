@@ -130,23 +130,37 @@ namespace Qtilities {
             signals:
                 //! Notification that the context changes.
                 void contextChanged(QList<int> new_contexts);
-                //! Signal which is emitted when the setNewContext is about to set the new context.
+                //! Signal which is emitted when the setNewContext() is about to set the new context.
                 void aboutToSetNewContext(int context_id);
-                //! Signal which is emitted when the setNewContext finished to set the new context.
+                //! Signal which is emitted when the setNewContext() finished to set the new context.
                 void finishedSetNewContext(int context_id);
-                //! Signal which is emitted when the appendContext is about to append the context.
+                //! Signal which is emitted when the appendContext() is about to append the context.
                 void aboutToAppendContext(int context_id);
-                //! Signal which is emitted when the appendContext function finished appending the context.
+                //! Signal which is emitted when the appendContext() function finished appending the context.
                 void finishedAppendContext(int context_id);
-                //! Signal which is emitted when the removeContext is about to remove the context.
+                //! Signal which is emitted when the removeContext() is about to remove the context.
                 void aboutToRemoveContext(int context_id);
-                //! Signal which is emitted when the removeContext is done removing the context.
+                //! Signal which is emitted when the removeContext() is done removing the context.
                 void finishedRemoveContext(int context_id);
+                //! Signal which is emitted when the unregisterContext() is about to unregister the context.
+                /*!
+                 * \param context_id The applicable context.
+                 *
+                 * <i>This function was added in %Qtilities v1.2.</i>
+                 */
+                void aboutToUnregisterContext(int context_id);
+                //! Signal which is emitted when the unregisterContext() is done unregistering the context.
+                /*!
+                 * \param context_id The applicable context.
+                 *
+                 * <i>This function was added in %Qtilities v1.2.</i>
+                 */
+                void finishedUnregisterContext(int context_id);
             };            
         }
     }
 }
 
-Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContextManager,"com.Qtilities.Core.IContextManager/1.0");
+Q_DECLARE_INTERFACE(Qtilities::Core::Interfaces::IContextManager,"com.Qtilities.Core.IContextManager/1.0")
 
 #endif // ICONTEXTMANAGER_H

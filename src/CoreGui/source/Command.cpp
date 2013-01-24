@@ -125,7 +125,6 @@ struct Qtilities::CoreGui::ProxyActionPrivateData {
 
     QAction* proxy_action;
     QAction* proxy_action_backup;
-    QString original_tooltip;
     bool initialized;
     bool is_active;
     QList<int> active_contexts;
@@ -143,8 +142,6 @@ Qtilities::CoreGui::ProxyAction::ProxyAction(QAction* user_visible_action,
     if (d->proxy_action) {
         d->proxy_action->setEnabled(false);
         d->proxy_action->setParent(this);
-        d->original_tooltip = d->proxy_action->toolTip();
-
         // Copy it to the backup proxy action which will store the original parameters of the proxy action.
         d->proxy_action_backup = new QAction(0);
         copyActionParameters(d->proxy_action,d->proxy_action_backup);
@@ -167,8 +164,7 @@ QShortcut* Qtilities::CoreGui::ProxyAction::shortcut() const {
     return 0;
 }
 
-QString Qtilities::CoreGui::ProxyAction::text() const
-{
+QString Qtilities::CoreGui::ProxyAction::text() const {
     if (!d->proxy_action)
         return QString();
 
@@ -402,18 +398,32 @@ void Qtilities::CoreGui::ProxyAction::handleKeySequenceChange(const QKeySequence
         if (d->active_backend_action)
             d->proxy_action->setToolTip(d->active_backend_action->toolTip());
         else
-            d->proxy_action->setToolTip(d->original_tooltip);
+            d->proxy_action->setToolTip(d->proxy_action_backup->toolTip());
     } else {
         if (d->active_backend_action)
             d->proxy_action->setToolTip(d->active_backend_action->toolTip().trimmed() + " " + new_key_tooltip);
         else
-            d->proxy_action->setToolTip(d->original_tooltip.trimmed() + " " + new_key_tooltip);
+            d->proxy_action->setToolTip(d->proxy_action_backup->toolTip().trimmed() + " " + new_key_tooltip);
 
         // Add the new tooltip to all the backend actions' tooltips:
         for (int i = 0; i < actions.count(); ++i) {
             backend_action = actions.at(i);
             if (backend_action)
                 backend_action->setToolTip(backend_action->toolTip().trimmed() + " " + new_key_tooltip);
+        }
+    }
+}
+
+void Qtilities::CoreGui::ProxyAction::unregisterContext(int context_id) {
+    if (d->id_action_map.contains(context_id)) {
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        LOG_TRACE("Context backend removed on command (action): " + defaultText());
+        #endif
+        d->id_action_map.remove(context_id);
+
+        if (d->active_contexts.contains(context_id)) {
+            d->active_contexts.removeOne(context_id);
+            setCurrentContext(d->active_contexts); // Needed to update d->active_backend_action
         }
     }
 }
@@ -440,7 +450,11 @@ struct Qtilities::CoreGui::ShortcutCommandPrivateData {
     QList<int>      active_contexts;
 };
 
-Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts, int category_context, QObject* parent) : Command(category_context, parent) {
+Qtilities::CoreGui::ShortcutCommand::ShortcutCommand(const QString& user_text,
+                                                     QShortcut *shortcut,
+                                                     const QList<int> &active_contexts,
+                                                     int category_context,
+                                                     QObject* parent) : Command(category_context, parent) {
     d = new ShortcutCommandPrivateData;
     Q_ASSERT(shortcut);
 
@@ -500,6 +514,17 @@ bool Qtilities::CoreGui::ShortcutCommand::setCurrentContext(QList<int> context_i
 void Qtilities::CoreGui::ShortcutCommand::handleKeySequenceChange(const QKeySequence& old_key) {
     Q_UNUSED(old_key)
     d->shortcut->setKey(keySequence());
+}
+
+void Qtilities::CoreGui::ShortcutCommand::unregisterContext(int context_id) {
+    if (d->active_contexts.contains(context_id)) {
+        #if defined(QTILITIES_VERBOSE_ACTION_DEBUGGING)
+        LOG_TRACE("Context backend removed on command (shortcut): " + defaultText());
+        #endif
+
+        d->active_contexts.removeOne(context_id);
+        setCurrentContext(d->active_contexts); // Needed to update d->is_active
+    }
 }
 
 QList<int> Qtilities::CoreGui::ShortcutCommand::activeContexts() const {

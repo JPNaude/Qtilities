@@ -106,6 +106,8 @@ namespace Qtilities {
             void on_btnAnalyzeAction_clicked();
             void on_chkRefreshProperties_toggled(bool checked);
 
+            void on_btnContextUnregisterSelected_clicked();
+
         private:
             //! Refreshes the mode information.
             void refreshModes();

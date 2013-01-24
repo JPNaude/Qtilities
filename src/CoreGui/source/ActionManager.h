@@ -89,6 +89,7 @@ namespace Qtilities {
             Core::Observer* actionContainerObserver();
 
         public slots:
+            void unregisterCommandsForContext(int context);
             void handleContextChanged(QList<int> new_contexts);
 
         private:

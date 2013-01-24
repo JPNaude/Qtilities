@@ -82,6 +82,8 @@ Qtilities::CoreGui::ActionManager::ActionManager(QObject* parent) : IActionManag
     d->observer_commands.enableCategorizedDisplay();
     d->observer_commands.displayHints()->setActionHints(ObserverHints::ActionFindItem | ObserverHints::ActionRefreshView);
     d->observer_commands.displayHints()->setDisplayFlagsHint(ObserverHints::ItemView | ObserverHints::ActionToolBar);
+
+    connect(CONTEXT_MANAGER,SIGNAL(finishedUnregisterContext(int)),SLOT(unregisterCommandsForContext(int)));
 }
 
 Qtilities::CoreGui::ActionManager::~ActionManager()
@@ -146,7 +148,9 @@ Qtilities::CoreGui::ActionContainer *Qtilities::CoreGui::ActionManager::actionCo
     return qobject_cast<ActionContainer*> (obj);
 }
 
-Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(const QString &id, QAction *action, const QList<int> &context) {
+Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(const QString &id,
+                                                                               QAction *action,
+                                                                               const QList<int> &context) {
     if (!action)
         return 0;
 
@@ -202,7 +206,10 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerAction(c
     return 0;
 }
 
-Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id, const QString& user_text, const QKeySequence& key_sequence, const QList<int> &context) {
+Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPlaceHolder(const QString &id,
+                                                                                          const QString& user_text,
+                                                                                          const QKeySequence& key_sequence,
+                                                                                          const QList<int> &context) {
     // First check if an action with the specified id already exist:
     if (d->observer_commands.containsSubjectWithName(id)) {
         LOG_ERROR(tr("Attempting to register action place holder for a command which already exist with ID: ") + id);
@@ -257,7 +264,10 @@ Qtilities::CoreGui::Command* Qtilities::CoreGui::ActionManager::registerActionPl
     }
 }
 
-Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts) {
+Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut(const QString &id,
+                                                                                 const QString& user_text,
+                                                                                 QShortcut *shortcut,
+                                                                                 const QList<int> &active_contexts) {
     if (!shortcut)
         return 0;
 
@@ -288,6 +298,19 @@ Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::registerShortcut
     }
 
     return 0;
+}
+
+void ActionManager::unregisterCommandsForContext(int context) {
+    // Loop through all commands and remove this context on them:
+    Command* command = qobject_cast<Command*> (d->observer_commands.subjectAt(0));
+    SubjectIterator<Qtilities::CoreGui::Command> command_itr(command,
+                                                             &d->observer_commands);
+
+    if (command_itr.current())
+        command_itr.current()->unregisterContext(context);
+
+    while (command_itr.hasNext())
+        command_itr.next()->unregisterContext(context);
 }
 
 Qtilities::CoreGui::Command *Qtilities::CoreGui::ActionManager::command(const QString &id) const {

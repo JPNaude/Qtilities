@@ -137,6 +137,13 @@ namespace Qtilities {
                   \return The command created for the given id. If a command with the given id already exists, the existing command is returned.
                   */
                 virtual Command *registerShortcut(const QString &id, const QString& user_text, QShortcut *shortcut, const QList<int> &active_contexts = QList<int>()) = 0;
+                //! Unregisters all commands for the specified context id.
+                /*!
+                 * \param context The applicable context.
+                 *
+                 * <i>This function was added in %Qtilities v1.2.</i>
+                 */
+                virtual void unregisterCommandsForContext(int context) = 0;
                 //! Access function for actions and shortcuts.
                 virtual Command *command(const QString &id) const = 0;
                 //! Access function for menus and menu bars.

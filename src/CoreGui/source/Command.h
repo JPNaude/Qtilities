@@ -111,6 +111,13 @@ namespace Qtilities {
             virtual void handleKeySequenceChange(const QKeySequence& old_key) = 0;
             //! Call to set change the curent context of a command.
             virtual bool setCurrentContext(QList<int> context_ids) = 0;
+            //! Removes all backend actions from the command which were registered for the specified context.
+            /*!
+             * \param context_id The applicable context.
+             *
+             * <i>This function was added in %Qtilities v1.2.</i>
+             */
+            virtual void unregisterContext(int context_id) = 0;
 
             //! Sets the command's category.
             void setCategory(Qtilities::Core::QtilitiesCategory category);
@@ -158,6 +165,7 @@ namespace Qtilities {
             QShortcut *shortcut() const;
             QString text() const;
             void handleKeySequenceChange(const QKeySequence& old_key);
+            void unregisterContext(int context_id);
 
             //! Add the action under the specified contexts.
             void addAction(QAction* action, QList<int> context_ids);
@@ -206,6 +214,7 @@ namespace Qtilities {
             QShortcut *shortcut() const;
             QString text() const;
             void handleKeySequenceChange(const QKeySequence& old_key);
+            void unregisterContext(int context_id);
 
             //! Returns true if the shortcut command is active in any of the current active contexts.
             bool isActive();

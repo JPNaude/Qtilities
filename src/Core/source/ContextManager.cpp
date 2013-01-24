@@ -86,12 +86,19 @@ bool Qtilities::Core::ContextManager::unregisterContext(int context_id, bool not
     if (!hasContext(context_id))
         return false;
 
+    if (notify)
+        emit aboutToUnregisterContext(context_id);
+
     // Check if its an active context:
     if (activeContexts().contains(context_id))
         removeContext(context_id,notify);
 
     // Now remove it:
     d->contexts.removeOne(context_id);
+
+    // Notice that we always emit the following, this is needed because action manager needs it:
+    emit finishedUnregisterContext(context_id);
+
     return true;
 }
 

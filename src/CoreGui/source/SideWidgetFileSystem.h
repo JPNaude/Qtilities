@@ -120,7 +120,7 @@ side_viewer_widget->show();
               */
             QString filePath() const;
 
-            //! Function which enables/disables opening of files when double clicking on them
+            //! Function which enables/disables opening of files when double clicking on them.
             /*!
               This is enabled by default.
 

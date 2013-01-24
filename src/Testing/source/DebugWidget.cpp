@@ -1013,3 +1013,12 @@ void Qtilities::Testing::DebugWidget::refreshProjectsState() {
     ui->listProjectsRegisteredItems->addItems(PROJECT_MANAGER->registeredProjectItemNames());
 
 }
+
+void Qtilities::Testing::DebugWidget::on_btnContextUnregisterSelected_clicked() {
+    QList<QTableWidgetItem*> selected_items = ui->tableContextsActive->selectedItems();
+    for (int i = 0; i < selected_items.count(); ++i) {
+        CONTEXT_MANAGER->unregisterContext(selected_items.at(i)->text());
+    }
+    refreshContexts();
+    refreshCommandInformation();
+}
