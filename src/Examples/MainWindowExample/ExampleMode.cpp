@@ -180,6 +180,7 @@ void Qtilities::Examples::MainWindow::ExampleMode::handleNewFileSystemWidget(QWi
     // Connect it to the load file slot.
     SideWidgetFileSystem* file_system_widget = qobject_cast<SideWidgetFileSystem*> (widget);
     if (file_system_widget) {
+        file_system_widget->toggleDoubleClickFileOpen(false);
         connect(file_system_widget,SIGNAL(requestEditor(QString)),SLOT(loadFile(QString)));
     }
 }
